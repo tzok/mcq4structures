@@ -1,4 +1,3 @@
-
 package pl.poznan.put.cs.bioserver.comparison;
 
 import org.biojava.bio.structure.Structure;
@@ -15,24 +14,22 @@ public abstract class GlobalComparison extends Comparison {
     /**
      * Compare each structures with each other.
      * 
-     * @param structures An array of structures to be compared.
+     * @param structures
+     *            An array of structures to be compared.
      * @return A distance matrix.
-     * @throws IncomparableStructuresException If any two structures were not
-     *             comparable.
+     * @throws IncomparableStructuresException
+     *             If any two structures were not comparable.
      */
     public double[][] compare(Structure[] structures)
             throws IncomparableStructuresException {
         checkValidity(structures);
         double[][] result = new double[structures.length][];
-        for (int i = 0; i < structures.length; ++i) {
+        for (int i = 0; i < structures.length; ++i)
             result[i] = new double[structures.length];
-        }
-        for (int i = 0; i < structures.length; ++i) {
-            for (int j = i + 1; j < structures.length; ++j) {
+        for (int i = 0; i < structures.length; ++i)
+            for (int j = i + 1; j < structures.length; ++j)
                 result[i][j] = result[j][i] = compare(structures[i],
                         structures[j]);
-            }
-        }
         return result;
     }
 }

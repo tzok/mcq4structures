@@ -1,4 +1,3 @@
-
 package pl.poznan.put.cs.bioserver.comparison;
 
 import org.biojava.bio.structure.Structure;
@@ -13,10 +12,12 @@ public abstract class Comparison {
      * An example validity check which globally verifies that chains and groups
      * counts are the same along whole structures.
      * 
-     * @param structures An array of structures to be checked
-     * @throws IncomparableStructuresException If two structures cannot be
-     *             compared.
+     * @param structures
+     *            An array of structures to be checked
+     * @throws IncomparableStructuresException
+     *             If two structures cannot be compared.
      */
+    @SuppressWarnings({ "static-method", "unused" })
     protected void checkValidity(Structure[] structures)
             throws IncomparableStructuresException {
         // FIXME

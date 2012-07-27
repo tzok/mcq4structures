@@ -1,15 +1,4 @@
-
 package pl.poznan.put.cs.bioserver.gui;
-
-import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Structure;
-import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.compound.NucleotideCompound;
-import org.jmol.util.Logger;
-
-import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
-import pl.poznan.put.cs.bioserver.helper.Helper;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -35,49 +24,59 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Structure;
+import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
+import org.biojava3.core.sequence.compound.AminoAcidCompound;
+import org.biojava3.core.sequence.compound.NucleotideCompound;
+import org.jmol.util.Logger;
+
+import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
+import pl.poznan.put.cs.bioserver.helper.Helper;
+
 public class SequenceAlignmentPanel extends JPanel {
     public class ButtonPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        JButton mAddFileButton;
-        JButton mAlignButton;
-        JRadioButton mGlobalButton;
-        JRadioButton mLocalButton;
+        JButton buttonAddFile;
+        JButton buttonAlign;
+        JRadioButton radioGlobal;
+        JRadioButton radioLocal;
 
         public ButtonPanel() {
             super();
-            mAddFileButton = new JButton("Add file");
-            mAlignButton = new JButton("Align");
-            mGlobalButton = new JRadioButton("Global", true);
-            mLocalButton = new JRadioButton("Local");
+            buttonAddFile = new JButton("Add file");
+            buttonAlign = new JButton("Align");
+            radioGlobal = new JRadioButton("Global", true);
+            radioLocal = new JRadioButton("Local");
 
             ButtonGroup group = new ButtonGroup();
-            group.add(mGlobalButton);
-            group.add(mLocalButton);
+            group.add(radioGlobal);
+            group.add(radioLocal);
 
-            add(mAddFileButton);
-            add(mAlignButton);
+            add(buttonAddFile);
+            add(buttonAlign);
             add(new JLabel("Alignment type:"));
-            add(mGlobalButton);
-            add(mLocalButton);
+            add(radioGlobal);
+            add(radioLocal);
         }
     }
 
-    public class PDBPanel extends JPanel {
+    public class PdbPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        DefaultListModel mListModel;
-        JList mList;
-        DefaultComboBoxModel mComboBoxModels[] = new DefaultComboBoxModel[2];
-        JComboBox mComboBoxes[] = new JComboBox[2];
+        DefaultListModel<String> listModel;
+        JList<String> list;
+        DefaultComboBoxModel<String> comboBoxModelFirst, comboBoxModelSecond;
+        JComboBox<String> comboBoxFirst, comboBoxSecond;
 
-        public PDBPanel() {
+        public PdbPanel() {
             super();
 
-            mListModel = new DefaultListModel();
-            mList = new JList(mListModel);
-            for (int i = 0; i < 2; ++i) {
-                mComboBoxModels[i] = new DefaultComboBoxModel();
-                mComboBoxes[i] = new JComboBox(mComboBoxModels[i]);
-            }
+            listModel = new DefaultListModel<>();
+            list = new JList<>(listModel);
+            comboBoxModelFirst = new DefaultComboBoxModel<>();
+            comboBoxModelSecond = new DefaultComboBoxModel<>();
+            comboBoxFirst = new JComboBox<>(comboBoxModelFirst);
+            comboBoxSecond = new JComboBox<>(comboBoxModelSecond);
 
             setLayout(new GridBagLayout());
             GridBagConstraints c = new GridBagConstraints();
@@ -85,30 +84,35 @@ public class SequenceAlignmentPanel extends JPanel {
             c.gridy = 0;
             c.gridwidth = 1;
             c.gridheight = 2;
-            add(mList, c);
+            add(list, c);
             c.gridx++;
             c.gridheight--;
-            add(mComboBoxes[0], c);
+            add(comboBoxFirst, c);
             c.gridy++;
-            add(mComboBoxes[1], c);
+            add(comboBoxSecond, c);
 
-            mList.addKeyListener(new KeyListener() {
+            list.addKeyListener(new KeyListener() {
                 @Override
                 public void keyPressed(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                        int index = mList.getSelectedIndex();
-                        mComboBoxModels[index].removeAllElements();
-                        mListModel.remove(index);
+                        int index = list.getSelectedIndex();
+                        if (index == 0)
+                            comboBoxModelFirst.removeAllElements();
+                        else
+                            comboBoxModelSecond.removeAllElements();
+                        listModel.remove(index);
                         refreshComboBoxes();
                     }
                 }
 
                 @Override
                 public void keyReleased(KeyEvent e) {
+                    // do nothing
                 }
 
                 @Override
                 public void keyTyped(KeyEvent e) {
+                    // do nothing
                 }
             });
         }
@@ -116,80 +120,79 @@ public class SequenceAlignmentPanel extends JPanel {
 
     public class SettingsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        ButtonPanel mButtonPanel;
-        PDBPanel mPdbPanel;
+        ButtonPanel buttonPanel;
+        PdbPanel pdbPanel;
 
         public SettingsPanel() {
             super(new BorderLayout());
-            mButtonPanel = new ButtonPanel();
-            mPdbPanel = new PDBPanel();
+            buttonPanel = new ButtonPanel();
+            pdbPanel = new PdbPanel();
 
-            add(mButtonPanel, BorderLayout.NORTH);
-            add(mPdbPanel, BorderLayout.SOUTH);
+            add(buttonPanel, BorderLayout.NORTH);
+            add(pdbPanel, BorderLayout.SOUTH);
         }
     }
 
     private static final long serialVersionUID = 1L;
-    final JFileChooser mChooser = new JFileChooser();
-    PDBManager mManager;
-    JTextArea mTextArea;
-    SettingsPanel mSettingsPanel;
+    final JFileChooser chooser = new JFileChooser();
+    PdbManager pdbManager;
+    JTextArea textArea;
+    SettingsPanel settingsPanel;
 
-    public SequenceAlignmentPanel(PDBManager m) {
+    public SequenceAlignmentPanel(PdbManager m) {
         super(new BorderLayout());
-        mManager = m;
+        pdbManager = m;
 
-        mSettingsPanel = new SettingsPanel();
-        mTextArea = new JTextArea();
+        settingsPanel = new SettingsPanel();
+        textArea = new JTextArea();
 
-        mTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
-        mTextArea.setEditable(false);
+        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+        textArea.setEditable(false);
 
-        add(mSettingsPanel, BorderLayout.NORTH);
-        add(mTextArea, BorderLayout.CENTER);
+        add(settingsPanel, BorderLayout.NORTH);
+        add(textArea, BorderLayout.CENTER);
 
-        mChooser.addChoosableFileFilter(new FileNameExtensionFilter(
+        chooser.addChoosableFileFilter(new FileNameExtensionFilter(
                 "PDB file format", "pdb", "pdb1", "ent", "brk", "gz"));
-        mChooser.setMultiSelectionEnabled(true);
+        chooser.setMultiSelectionEnabled(true);
 
-        mSettingsPanel.mButtonPanel.mAddFileButton
+        settingsPanel.buttonPanel.buttonAddFile
                 .addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent event) {
-                        if (mChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
+                        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
                             return;
-                        for (File f : mChooser.getSelectedFiles())
-                            if (!addFile(f)) {
+                        for (File f : chooser.getSelectedFiles())
+                            if (!addFile(f))
                                 break;
-                            }
                     }
                 });
 
-        mSettingsPanel.mButtonPanel.mAlignButton
+        settingsPanel.buttonPanel.buttonAlign
                 .addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        if (mSettingsPanel.mPdbPanel.mListModel.size() != 2) {
+                        if (settingsPanel.pdbPanel.listModel.size() != 2) {
                             warning();
                             return;
                         }
 
-                        Structure[] structures = mManager
-                                .getStructures(mSettingsPanel.mPdbPanel.mListModel
+                        Structure[] structures = pdbManager
+                                .getStructures(settingsPanel.pdbPanel.listModel
                                         .elements());
                         Chain chains[] = new Chain[2];
-                        for (int i = 0; i < 2; ++i) {
-                            chains[i] = structures[i]
-                                    .getChain(mSettingsPanel.mPdbPanel.mComboBoxes[i]
-                                            .getSelectedIndex());
-                        }
+                        chains[0] = structures[0]
+                                .getChain(settingsPanel.pdbPanel.comboBoxFirst
+                                        .getSelectedIndex());
+                        chains[1] = structures[1]
+                                .getChain(settingsPanel.pdbPanel.comboBoxSecond
+                                        .getSelectedIndex());
 
                         PairwiseSequenceAlignerType type;
-                        if (mSettingsPanel.mButtonPanel.mGlobalButton.isSelected()) {
+                        if (settingsPanel.buttonPanel.radioGlobal.isSelected())
                             type = PairwiseSequenceAlignerType.GLOBAL;
-                        } else {
+                        else
                             type = PairwiseSequenceAlignerType.LOCAL;
-                        }
 
                         boolean isRNA = Helper.isNucleicAcid(chains[0]);
                         if (isRNA != Helper.isNucleicAcid(chains[1])) {
@@ -201,14 +204,14 @@ public class SequenceAlignmentPanel extends JPanel {
                         }
 
                         if (isRNA) {
-                            SequenceAligner<NucleotideCompound> aligner = new SequenceAligner<NucleotideCompound>(
+                            SequenceAligner<NucleotideCompound> aligner = new SequenceAligner<>(
                                     NucleotideCompound.class);
-                            mTextArea.setText(aligner.alignSequences(chains[0],
+                            textArea.setText(aligner.alignSequences(chains[0],
                                     chains[1], type).toString());
                         } else {
-                            SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<AminoAcidCompound>(
+                            SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
                                     AminoAcidCompound.class);
-                            mTextArea.setText(aligner.alignSequences(chains[0],
+                            textArea.setText(aligner.alignSequences(chains[0],
                                     chains[1], type).toString());
                         }
                     }
@@ -216,30 +219,33 @@ public class SequenceAlignmentPanel extends JPanel {
     }
 
     boolean addFile(File path) {
-        if (mSettingsPanel.mPdbPanel.mListModel.size() >= 2) {
+        if (settingsPanel.pdbPanel.listModel.size() >= 2) {
             warning();
             return false;
         }
         String absolutePath = path.getAbsolutePath();
-        mManager.addStructure(absolutePath);
-        mSettingsPanel.mPdbPanel.mListModel.addElement(absolutePath);
+        pdbManager.addStructure(absolutePath);
+        settingsPanel.pdbPanel.listModel.addElement(absolutePath);
 
         refreshComboBoxes();
         return true;
     }
 
     void refreshComboBoxes() {
-        mSettingsPanel.mPdbPanel.mComboBoxModels[0].removeAllElements();
-        mSettingsPanel.mPdbPanel.mComboBoxModels[1].removeAllElements();
+        settingsPanel.pdbPanel.comboBoxModelFirst.removeAllElements();
+        settingsPanel.pdbPanel.comboBoxModelSecond.removeAllElements();
 
-        Structure[] structures = mManager
-                .getStructures(mSettingsPanel.mPdbPanel.mListModel.elements());
-        for (int i = 0; i < mSettingsPanel.mPdbPanel.mListModel.getSize(); ++i) {
-            for (Chain c : structures[i].getChains()) {
-                mSettingsPanel.mPdbPanel.mComboBoxModels[i].addElement(c
-                        .getChainID());
-            }
-        }
+        Structure[] structures = pdbManager
+                .getStructures(settingsPanel.pdbPanel.listModel.elements());
+        for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i)
+            for (Chain c : structures[i].getChains())
+                if (i == 0)
+                    settingsPanel.pdbPanel.comboBoxModelFirst.addElement(c
+                            .getChainID());
+                else
+                    settingsPanel.pdbPanel.comboBoxModelSecond.addElement(c
+                            .getChainID());
+
     }
 
     void warning() {

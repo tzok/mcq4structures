@@ -1,5 +1,6 @@
-
 package pl.poznan.put.cs.bioserver.comparison;
+
+import java.io.IOException;
 
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
@@ -8,8 +9,6 @@ import org.biojava3.core.sequence.compound.NucleotideCompound;
 import pl.poznan.put.cs.bioserver.alignment.StructurePreparer;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles.Dihedral;
-
-import java.io.IOException;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -26,10 +25,8 @@ public class MCQ extends GlobalComparison {
         }
         PDBFileReader reader = new PDBFileReader();
         try {
-            Structure[] s = new Structure[] {
-                    reader.getStructure(args[0]),
-                    reader.getStructure(args[1])
-            };
+            Structure[] s = new Structure[] { reader.getStructure(args[0]),
+                    reader.getStructure(args[1]) };
             MCQ mcq = new MCQ();
             mcq.checkValidity(s);
             double result = mcq.compare(s[0], s[1]);
@@ -62,8 +59,8 @@ public class MCQ extends GlobalComparison {
          */
         double[] sum = new double[2];
         int count = 0;
-        for (int i = 0; i < dihedrals[0].length; ++i) {
-            for (int j = 0; j < 2; ++j) {
+        for (int i = 0; i < dihedrals[0].length; ++i)
+            for (int j = 0; j < 2; ++j)
                 for (int k = 0; k < dihedrals[0][i][j].length; ++k) {
                     Dihedral d1 = dihedrals[0][i][j][k];
                     Dihedral d2 = dihedrals[1][i][j][k];
@@ -80,8 +77,6 @@ public class MCQ extends GlobalComparison {
                         count++;
                     }
                 }
-            }
-        }
         return Math.atan2(sum[0] / count, sum[1] / count);
     }
 }

@@ -1,4 +1,3 @@
-
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.Dimension;
@@ -8,7 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-public class GUI extends JFrame {
+public class Gui extends JFrame {
     private static final long serialVersionUID = 1L;
 
     public static void main(String[] args) {
@@ -16,12 +15,12 @@ public class GUI extends JFrame {
             @SuppressWarnings("unused")
             @Override
             public void run() {
-                new GUI(new PDBManager());
+                new Gui(new PdbManager());
             }
         });
     }
 
-    public GUI(PDBManager manager) {
+    public Gui(PdbManager manager) {
         super();
         /*
          * Tabbed pane
@@ -39,7 +38,7 @@ public class GUI extends JFrame {
          * Show window
          */
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Molecular Comparison Toolkit");
+        setTitle("mcq4structures");
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension size = toolkit.getScreenSize();
         setSize(size.width * 3 / 4, size.height * 3 / 4);

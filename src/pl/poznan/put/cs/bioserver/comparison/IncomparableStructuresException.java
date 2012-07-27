@@ -1,4 +1,3 @@
-
 package pl.poznan.put.cs.bioserver.comparison;
 
 /**

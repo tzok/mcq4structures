@@ -1,16 +1,4 @@
-
 package pl.poznan.put.cs.bioserver.gui;
-
-import org.biojava.bio.structure.Structure;
-
-import pl.poznan.put.cs.bioserver.clustering.HierarchicalPlot;
-import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
-import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
-import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
-import pl.poznan.put.cs.bioserver.comparison.MCQ;
-import pl.poznan.put.cs.bioserver.comparison.RMSD;
-import pl.poznan.put.cs.bioserver.visualisation.MDS;
-import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -48,6 +36,17 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 
+import org.biojava.bio.structure.Structure;
+
+import pl.poznan.put.cs.bioserver.clustering.HierarchicalPlot;
+import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
+import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
+import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
+import pl.poznan.put.cs.bioserver.comparison.MCQ;
+import pl.poznan.put.cs.bioserver.comparison.RMSD;
+import pl.poznan.put.cs.bioserver.visualisation.MDS;
+import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
+
 /**
  * Panel which allows to use all global comparison measures.
  * 
@@ -72,10 +71,8 @@ public class GlobalComparisonPanel extends JPanel {
             group.add(hierarchical);
             group.add(kmedoids);
 
-            final JComboBox linkage = new JComboBox(new String[] {
-                    "Single",
-                    "Complete", "Average"
-            });
+            final JComboBox<String> linkage = new JComboBox<>(new String[] { "Single",
+                    "Complete", "Average" });
             final JSpinner kspinner = new JSpinner();
             kspinner.setModel(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
             kspinner.setEnabled(false);
@@ -147,10 +144,10 @@ public class GlobalComparisonPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JFrame plot;
-                    if (hierarchical.isSelected()) {
+                    if (hierarchical.isSelected())
                         plot = new HierarchicalPlot(comparisonResults,
                                 structureNames, linkage.getSelectedIndex());
-                    } else {
+                    else {
                         int k = (Integer) kspinner.getValue();
                         plot = new KMedoidsPlot(comparisonResults,
                                 structureNames, k);
@@ -204,8 +201,8 @@ public class GlobalComparisonPanel extends JPanel {
                 buttonPanel.addPDB.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent event) {
-                        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                            for (File f : chooser.getSelectedFiles()) {
+                        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+                            for (File f : chooser.getSelectedFiles())
                                 try {
                                     addFile(f.getCanonicalPath());
                                     instructionsPanel
@@ -218,8 +215,6 @@ public class GlobalComparisonPanel extends JPanel {
                                             "Problem with file access",
                                             JOptionPane.ERROR_MESSAGE);
                                 }
-                            }
-                        }
                     }
                 });
 
@@ -292,8 +287,7 @@ public class GlobalComparisonPanel extends JPanel {
                     "Select comparison method and click \"Compare\" when you "
                             + "are ready",
                     "Having the distance matrix calculated, you can now click "
-                            + "on \"Visualize\" or \"Cluster\""
-            };
+                            + "on \"Visualize\" or \"Cluster\"" };
             private final JLabel instructionsLabel;
 
             // /////////////////////////////////////////////////////////////////
@@ -312,7 +306,8 @@ public class GlobalComparisonPanel extends JPanel {
             /**
              * Sets text containing instructions for user to take.
              * 
-             * @param index Index of instruction in the set.
+             * @param index
+             *            Index of instruction in the set.
              */
             public void setInstruction(int index) {
                 instructionsLabel.setText(instructions[index]);
@@ -428,20 +423,20 @@ public class GlobalComparisonPanel extends JPanel {
     // fields
     private static final long serialVersionUID = 1L;
     private final MainPanel mainPanel;
-    private final PDBManager manager;
+    private final PdbManager manager;
     double[][] comparisonResults;
-    JList list;
-    DefaultListModel listModel;
+    JList<String> list;
+    DefaultListModel<String> listModel;
     String[] structureNames;
 
     // ////////////////////////////////////////////////////////////////////////
     // constructors
-    public GlobalComparisonPanel(PDBManager manager) {
+    public GlobalComparisonPanel(PdbManager manager) {
         super(new BorderLayout());
         this.manager = manager;
 
-        listModel = new DefaultListModel();
-        list = new JList(listModel);
+        listModel = new DefaultListModel<>();
+        list = new JList<>(listModel);
         mainPanel = new MainPanel();
 
         add(mainPanel, BorderLayout.CENTER);
@@ -450,17 +445,18 @@ public class GlobalComparisonPanel extends JPanel {
         list.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE)
                     listModel.remove(list.getSelectedIndex());
-                }
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {
+            public void keyReleased(KeyEvent arg0) {
+                // do nothing
             }
 
             @Override
             public void keyTyped(KeyEvent e) {
+                // do nothing
             }
         });
     }
@@ -471,13 +467,12 @@ public class GlobalComparisonPanel extends JPanel {
      * Check if selected file is correct PDB and if so, add it to local cache.
      */
     public void addFile(String text) {
-        if (manager.addStructure(text)) {
+        if (manager.addStructure(text))
             listModel.addElement(text);
-        } else {
+        else
             JOptionPane.showMessageDialog(null,
                     "Specified file is not a valid PDB file",
                     "Invalid PDB file", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     /**
@@ -495,17 +490,14 @@ public class GlobalComparisonPanel extends JPanel {
      * results.
      */
     public void compare() {
-        GlobalComparison[] methods = new GlobalComparison[] {
-                new RMSD(),
-                new MCQ()
-        };
+        GlobalComparison[] methods = new GlobalComparison[] { new RMSD(),
+                new MCQ() };
         int chosen = 0; // RMSD by default
-        if (mainPanel.actionPanel.methodPanel.mcqRadio.isSelected()) {
+        if (mainPanel.actionPanel.methodPanel.mcqRadio.isSelected())
             chosen = 1;
-        }
 
         Enumeration<?> elements = listModel.elements();
-        Vector<String> vector = new Vector<String>();
+        Vector<String> vector = new Vector<>();
         while (elements.hasMoreElements()) {
             String element = (String) elements.nextElement();
             vector.add(element);
@@ -529,12 +521,11 @@ public class GlobalComparisonPanel extends JPanel {
     public void visualise() {
         if (comparisonResults != null) {
             double[][] mds = MDS.multidimensionalScaling(comparisonResults, 2);
-            if (mds == null) {
+            if (mds == null)
                 JOptionPane.showMessageDialog(null,
                         "Cannot visualise specified structures in 2D",
                         "Problem during comparison visualisation",
                         JOptionPane.INFORMATION_MESSAGE);
-            }
             MDSPlot plot = new MDSPlot(mds, structureNames);
             plot.setVisible(true);
         }

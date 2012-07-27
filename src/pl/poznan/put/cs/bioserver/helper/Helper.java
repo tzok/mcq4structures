@@ -1,4 +1,3 @@
-
 package pl.poznan.put.cs.bioserver.helper;
 
 import org.biojava.bio.structure.Chain;
@@ -10,11 +9,10 @@ public class Helper {
         int nucleotide = 0;
         for (Group g : c.getAtomGroups()) {
             String type = g.getType();
-            if (type.equals("amino") || g.hasAminoAtoms()) {
+            if (type.equals("amino") || g.hasAminoAtoms())
                 amino++;
-            } else if (type.equals("nucleotide") || g.hasAtom("P")) {
+            else if (type.equals("nucleotide") || g.hasAtom("P"))
                 nucleotide++;
-            }
         }
         return nucleotide > amino;
     }

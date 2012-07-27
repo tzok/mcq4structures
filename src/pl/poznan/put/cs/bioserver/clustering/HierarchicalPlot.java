@@ -1,12 +1,4 @@
-
 package pl.poznan.put.cs.bioserver.clustering;
-
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.DefaultXYDataset;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -15,6 +7,13 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
+
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
 
 /**
  * Plot of dendrogram representing hierarchical clustering.
@@ -46,15 +45,13 @@ public class HierarchicalPlot extends JFrame {
     public HierarchicalPlot(double[][] distance, String[] labels, int linkage) {
         int[][] clustering = Clusterer
                 .hierarchicalClustering(distance, linkage);
-        Vector<Integer> allocation = Clusterer.sClusters.get(0);
+        Vector<Integer> allocation = Clusterer.clusters.get(0);
 
-        Vector<double[]> clusters = new Vector<double[]>();
-        Vector<Vector<Integer>> ids = new Vector<Vector<Integer>>();
+        Vector<double[]> clusters = new Vector<>();
+        Vector<Vector<Integer>> ids = new Vector<>();
         for (int i = 0; i < distance.length; ++i) {
-            clusters.add(new double[] {
-                    allocation.indexOf(i), 0
-            });
-            Vector<Integer> vector = new Vector<Integer>();
+            clusters.add(new double[] { allocation.indexOf(i), 0 });
+            Vector<Integer> vector = new Vector<>();
             vector.add(i);
             ids.add(vector);
         }
@@ -68,14 +65,8 @@ public class HierarchicalPlot extends JFrame {
 
             String label = HierarchicalPlot.generateLabel(ids, mergedPair,
                     labels);
-            double[][] points = new double[][] {
-                    {
-                            a[0], a[0], b[0], b[0]
-                    },
-                    {
-                            a[1], y, y, b[1]
-                    }
-            };
+            double[][] points = new double[][] { { a[0], a[0], b[0], b[0] },
+                    { a[1], y, y, b[1] } };
             dataset.addSeries(label, points);
 
             a[0] = (a[0] + b[0]) / 2.0;

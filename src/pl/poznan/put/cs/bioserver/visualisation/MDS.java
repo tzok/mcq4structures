@@ -1,4 +1,3 @@
-
 package pl.poznan.put.cs.bioserver.visualisation;
 
 import org.biojava.bio.structure.jama.EigenvalueDecomposition;
@@ -25,9 +24,8 @@ public class MDS {
         double[][] d = new double[distance.length][];
         for (int i = 0; i < distance.length; ++i) {
             d[i] = new double[distance.length];
-            for (int j = 0; j < distance.length; ++j) {
+            for (int j = 0; j < distance.length; ++j)
                 d[i][j] = distance[i][j] * distance[i][j];
-            }
         }
 
         /*
@@ -36,13 +34,12 @@ public class MDS {
         double[] meanRow = new double[distance.length];
         double[] meanColumn = new double[distance.length];
         double meanMatrix = 0;
-        for (int i = 0; i < distance.length; ++i) {
+        for (int i = 0; i < distance.length; ++i)
             for (int j = 0; j < distance.length; ++j) {
                 meanRow[i] += d[i][j];
                 meanColumn[j] += d[i][j];
                 meanMatrix += d[i][j];
             }
-        }
         for (int i = 0; i < distance.length; ++i) {
             meanRow[i] /= distance.length;
             meanColumn[i] /= distance.length;
@@ -56,10 +53,9 @@ public class MDS {
         double[][] B = new double[distance.length][];
         for (int i = 0; i < distance.length; ++i) {
             B[i] = new double[distance.length];
-            for (int j = 0; j < distance.length; ++j) {
+            for (int j = 0; j < distance.length; ++j)
                 B[i][j] = -0.5
                         * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
-            }
         }
 
         /*
@@ -75,9 +71,8 @@ public class MDS {
         for (int i = 0; i < dimensions; ++i) {
             int max = 0;
             for (int j = 1; j < L.length; ++j)
-                if (L[j][j] > L[max][max]) {
+                if (L[j][j] > L[max][max])
                     max = j;
-                }
             // if L[max][max] < 0, then it's impossible to visualise
             if (L[max][max] < 0)
                 return null;
@@ -89,9 +84,8 @@ public class MDS {
          * get sqrt() from those maxima in L
          */
         L = evd.getD().getArrayCopy();
-        for (int i = 0; i < dimensions; ++i) {
+        for (int i = 0; i < dimensions; ++i)
             L[maxima[i]][maxima[i]] = Math.sqrt(L[maxima[i]][maxima[i]]);
-        }
 
         /*
          * calculate X coordinates for visualisation
@@ -100,9 +94,8 @@ public class MDS {
         double[][] K = evd.getV().getArray();
         for (int i = 0; i < distance.length; ++i) {
             X[i] = new double[dimensions];
-            for (int j = 0; j < dimensions; ++j) {
+            for (int j = 0; j < dimensions; ++j)
                 X[i][j] = K[i][maxima[j]] * L[maxima[j]][maxima[j]];
-            }
         }
         return X;
     }

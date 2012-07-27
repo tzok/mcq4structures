@@ -1,5 +1,9 @@
-
 package pl.poznan.put.cs.bioserver.alignment;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
@@ -21,24 +25,18 @@ import org.biojava3.core.sequence.compound.RNACompoundSet;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
-
 public class SequenceAligner<C extends Compound> {
     private static Logger logger = Logger.getLogger(SequenceAligner.class);
 
     public static void main(String[] args) throws IOException {
         PDBFileReader reader = new PDBFileReader();
         Structure[] structures = new Structure[args.length];
-        for (int i = 0; i < args.length; ++i) {
+        for (int i = 0; i < args.length; ++i)
             structures[i] = reader.getStructure(args[i]);
-        }
 
-        SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<AminoAcidCompound>(
+        SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
                 AminoAcidCompound.class);
-        SequenceAligner<NucleotideCompound> aligner2 = new SequenceAligner<NucleotideCompound>(
+        SequenceAligner<NucleotideCompound> aligner2 = new SequenceAligner<>(
                 NucleotideCompound.class);
 
         aligner.alignSequences(structures[0].getChain(0),
@@ -52,14 +50,16 @@ public class SequenceAligner<C extends Compound> {
 
     public SequenceAligner(Class<?> clazz) {
         compound = clazz;
-        sequenceMap = new HashMap<Chain, List<Group>>();
+        sequenceMap = new HashMap<>();
     }
 
     /**
      * Align the sequences found in the given chain globally.
      * 
-     * @param c1 First chain.
-     * @param c2 Second chain.
+     * @param c1
+     *            First chain.
+     * @param c2
+     *            Second chain.
      * @return A global alignment of the sequences.
      */
     public SequencePair<Sequence<C>, C> alignSequences(Chain c1, Chain c2) {
@@ -69,12 +69,14 @@ public class SequenceAligner<C extends Compound> {
     /**
      * Align the sequences found in the given chain.
      * 
-     * @param c1 First chain.
-     * @param c2 Second chain.
-     * @param type Type of alignment (global or local).
+     * @param c1
+     *            First chain.
+     * @param c2
+     *            Second chain.
+     * @param type
+     *            Type of alignment (global or local).
      * @return A global alignment of the sequences.
      */
-    @SuppressWarnings("unchecked")
     public SequencePair<Sequence<C>, C> alignSequences(Chain c1, Chain c2,
             PairwiseSequenceAlignerType type) {
         /*
@@ -88,13 +90,13 @@ public class SequenceAligner<C extends Compound> {
          * Prepare substitution matrices for the alignment
          */
         SubstitutionMatrix<C> matrix = null;
-        if (compound.equals(NucleotideCompound.class)) {
+        if (compound.equals(NucleotideCompound.class))
             matrix = (SubstitutionMatrix<C>) SubstitutionMatrixHelper
                     .getNuc4_4();
-        } else if (compound.equals(AminoAcidCompound.class)) {
+        else if (compound.equals(AminoAcidCompound.class))
             matrix = (SubstitutionMatrix<C>) SubstitutionMatrixHelper
                     .getBlosum62();
-        } else
+        else
             throw new IllegalArgumentException("Unknown sequence type");
         /*
          * Align the sequences
@@ -125,7 +127,7 @@ public class SequenceAligner<C extends Compound> {
         SequenceAligner.logger.debug("Failed to parse SEQRES from PDB file. "
                 + "Will attempt to get sequence manually");
         StringBuilder builder = new StringBuilder();
-        List<Group> list = new Vector<Group>();
+        List<Group> list = new Vector<>();
         for (Group g : chain.getAtomGroups()) {
             String type = g.getType();
             if (type.equals("nucleotide") || type.equals("amino")
@@ -145,13 +147,13 @@ public class SequenceAligner<C extends Compound> {
         /*
          * Create a Sequence object in correct type
          */
-        if (compound.equals(NucleotideCompound.class)) {
+        if (compound.equals(NucleotideCompound.class))
             sequence = new RNASequence(seqString,
                     RNACompoundSet.getRNACompoundSet());
-        } else if (compound.equals(AminoAcidCompound.class)) {
+        else if (compound.equals(AminoAcidCompound.class))
             sequence = new ProteinSequence(seqString,
                     AminoAcidCompoundSet.getAminoAcidCompoundSet());
-        } else
+        else
             throw new IllegalArgumentException("Unknown sequence type");
         return (Sequence<C>) sequence;
     }

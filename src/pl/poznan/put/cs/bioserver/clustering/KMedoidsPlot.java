@@ -1,5 +1,12 @@
-
 package pl.poznan.put.cs.bioserver.clustering;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.io.StringWriter;
+import java.util.HashSet;
+
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -10,14 +17,6 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.io.StringWriter;
-import java.util.HashSet;
-
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-
 /**
  * Plot of dendrogram representing hierarchical clustering.
  */
@@ -27,20 +26,18 @@ public class KMedoidsPlot extends JFrame {
 
     public KMedoidsPlot(double[][] distance, String[] labels, int k) {
         int[] medoids = Clusterer.kMedoids(distance, k);
-        HashSet<Integer> medoidSet = new HashSet<Integer>();
-        for (int m : medoids) {
+        HashSet<Integer> medoidSet = new HashSet<>();
+        for (int m : medoids)
             medoidSet.add(m);
-        }
 
         double[][] mds = MDS.multidimensionalScaling(distance, 2);
 
         DefaultXYDataset dataset = new DefaultXYDataset();
         for (int currentMedoid : medoidSet) {
             int count = 0;
-            for (int i = 0; i < medoids.length; ++i)
-                if (medoids[i] == currentMedoid) {
+            for (int medoid : medoids)
+                if (medoid == currentMedoid)
                     count++;
-                }
             double[] x = new double[count];
             double[] y = new double[count];
             StringWriter writer = new StringWriter();
@@ -55,9 +52,7 @@ public class KMedoidsPlot extends JFrame {
                     j++;
                 }
             writer.append(" ]");
-            dataset.addSeries(writer.toString(), new double[][] {
-                    x, y
-            });
+            dataset.addSeries(writer.toString(), new double[][] { x, y });
         }
 
         NumberAxis xAxis = new NumberAxis();

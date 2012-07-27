@@ -1,19 +1,4 @@
-
 package pl.poznan.put.cs.bioserver.gui;
-
-import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Structure;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.axis.TickUnitSource;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
-import org.jfree.data.xy.DefaultXYDataset;
-
-import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
-import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -43,6 +28,20 @@ import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Structure;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.axis.TickUnitSource;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
+
+import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
+import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
+
 /**
  * A panel which is a graphical interface to a local comparison measure based on
  * torsion angle representation.
@@ -58,39 +57,40 @@ public class TorsionLocalComparisonPanel extends JPanel {
 
         // /////////////////////////////////////////////////////////////////////
         // fields
-        InstructionsPanel mInstructionsPanel;
-        JList mList;
-        DefaultListModel mListModel;
-        OptionsPanel mOptionsPanel;
+        InstructionsPanel instructionsPanel;
+        JList<String> list;
+        DefaultListModel<String> listModel;
+        OptionsPanel optionsPanel;
 
         // /////////////////////////////////////////////////////////////////////
         // constructors
         public ControlPanel() {
             super(new BorderLayout());
 
-            mListModel = new DefaultListModel();
-            mList = new JList(mListModel);
-            mOptionsPanel = new OptionsPanel();
-            mInstructionsPanel = new InstructionsPanel();
+            listModel = new DefaultListModel<>();
+            list = new JList<>(listModel);
+            optionsPanel = new OptionsPanel();
+            instructionsPanel = new InstructionsPanel();
 
-            add(mList, BorderLayout.EAST);
-            add(mOptionsPanel, BorderLayout.CENTER);
-            add(mInstructionsPanel, BorderLayout.SOUTH);
+            add(list, BorderLayout.EAST);
+            add(optionsPanel, BorderLayout.CENTER);
+            add(instructionsPanel, BorderLayout.SOUTH);
 
-            mList.addKeyListener(new KeyListener() {
+            list.addKeyListener(new KeyListener() {
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                        mListModel.remove(mList.getSelectedIndex());
-                    }
+                    if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                        listModel.remove(list.getSelectedIndex());
                 }
 
                 @Override
                 public void keyReleased(KeyEvent e) {
+                    // do nothing
                 }
 
                 @Override
                 public void keyTyped(KeyEvent e) {
+                    // do nothing
                 }
             });
 
@@ -98,14 +98,14 @@ public class TorsionLocalComparisonPanel extends JPanel {
             chooser.addChoosableFileFilter(new FileNameExtensionFilter(
                     "PDB file format", "pdb", "pdb1", "ent", "brk", "gz"));
 
-            mOptionsPanel.addFile.addActionListener(new ActionListener() {
+            optionsPanel.addFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     /*
                      * when user clicks on "Add file", then check if new file
                      * can be added first
                      */
-                    if (mListModel.size() == 2) {
+                    if (listModel.size() == 2) {
                         JOptionPane.showMessageDialog(null,
                                 "Only two structures are allowed for"
                                         + " local comparison measures",
@@ -120,15 +120,14 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         File file = chooser.getSelectedFile();
                         try {
                             String path = file.getCanonicalPath();
-                            if (mManager.addStructure(path)) {
-                                mListModel.addElement(path);
-                            } else {
+                            if (pdbManager.addStructure(path))
+                                listModel.addElement(path);
+                            else
                                 JOptionPane.showMessageDialog(null,
                                         "Specified file is not a "
                                                 + "valid PDB file",
                                         "Invalid PDB file",
                                         JOptionPane.ERROR_MESSAGE);
-                            }
                         } catch (IOException e) {
                             JOptionPane.showMessageDialog(null,
                                     "Failed to add file " + file.toString(),
@@ -140,24 +139,31 @@ public class TorsionLocalComparisonPanel extends JPanel {
                          * if that was the first file added, then update the
                          * list of chains
                          */
-                        loadChainsNames(mListModel.size() - 1);
-                        if (mListModel.size() == 2) {
-                            mInstructionsPanel
+                        loadChainsNames(listModel.size() - 1);
+                        if (listModel.size() == 2)
+                            instructionsPanel
                                     .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
-                        }
                     }
                 }
 
                 private void loadChainsNames(int index) {
-                    Vector<String> vector = new Vector<String>();
-                    vector.add((String) mListModel.getElementAt(index));
-                    Structure[] structures = mManager.getStructures(vector);
-                    mOptionsPanel.comboBoxModels[index].removeAllElements();
-                    for (Chain c : structures[0].getChains()) {
-                        mOptionsPanel.comboBoxModels[index].addElement(c
-                                .getChainID());
+                    DefaultComboBoxModel<String> model = null;
+                    JComboBox<String> comboBox = null;
+                    if (index == 0) {
+                        model = optionsPanel.comboBoxModelFirst;
+                        comboBox = optionsPanel.comboBoxFirst;
+                    } else {
+                        model = optionsPanel.comboBoxModelSecond;
+                        comboBox = optionsPanel.comboBoxSecond;
                     }
-                    mOptionsPanel.chainComboBoxes[index].setSelectedIndex(0);
+
+                    Vector<String> vector = new Vector<>();
+                    vector.add(listModel.getElementAt(index));
+                    Structure[] structures = pdbManager.getStructures(vector);
+                    model.removeAllElements();
+                    for (Chain c : structures[0].getChains())
+                        model.addElement(c.getChainID());
+                    comboBox.setSelectedIndex(0);
                 }
             });
         }
@@ -172,26 +178,25 @@ public class TorsionLocalComparisonPanel extends JPanel {
         // /////////////////////////////////////////////////////////////////////
         // fields
         private static final long serialVersionUID = 1L;
-        private final String[] mInstructions = {
+        private final String[] instructions = {
                 "Click \"Add file\" to select exactly two structures to compare",
                 "<html><ol><li>From the dropdown combo box select chain to compare</li>"
                         + "<li>Select comparison mode: \"Amino acids\" or "
                         + "\"Nucleotides\"</li>"
                         + "<li>Select group names to compare and plot.<br>"
                         + "MCQ stands for Mean of Circular Quantities - an average "
-                        + "value for each group</li></html>"
-        };
-        private final JLabel mInstructionsLabel;
+                        + "value for each group</li></html>" };
+        private final JLabel instructionsLabel;
 
         // /////////////////////////////////////////////////////////////////////
         // constructors
         public InstructionsPanel() {
             super();
-            mInstructionsLabel = new JLabel(
-                    mInstructions[InstructionsPanel.INSTRUCTION_ADD_FILE]);
-            mInstructionsLabel.setFont(new Font(Font.DIALOG, Font.BOLD
+            instructionsLabel = new JLabel(
+                    instructions[InstructionsPanel.INSTRUCTION_ADD_FILE]);
+            instructionsLabel.setFont(new Font(Font.DIALOG, Font.BOLD
                     | Font.ITALIC, 12));
-            add(mInstructionsLabel);
+            add(instructionsLabel);
         }
 
         // /////////////////////////////////////////////////////////////////
@@ -199,10 +204,11 @@ public class TorsionLocalComparisonPanel extends JPanel {
         /**
          * Sets text containing instructions for user to take.
          * 
-         * @param index Index of instruction in the set.
+         * @param index
+         *            Index of instruction in the set.
          */
         public void setInstruction(int index) {
-            mInstructionsLabel.setText(mInstructions[index]);
+            instructionsLabel.setText(instructions[index]);
         }
     }
 
@@ -216,8 +222,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
         JCheckBox[][] angleChoiceChecks;
         // /////////////////////////////////////////////////////////////////////
         // fields
-        JComboBox[] chainComboBoxes;
-        DefaultComboBoxModel[] comboBoxModels;
+        JComboBox<String> comboBoxFirst, comboBoxSecond;
+        DefaultComboBoxModel<String> comboBoxModelFirst, comboBoxModelSecond;
         JButton compare;
         JRadioButton[] groupChoiceRadios;
 
@@ -228,38 +234,29 @@ public class TorsionLocalComparisonPanel extends JPanel {
             addFile = new JButton("Add file");
             compare = new JButton("Compare");
 
-            comboBoxModels = new DefaultComboBoxModel[] {
-                    new DefaultComboBoxModel(), new DefaultComboBoxModel()
-            };
-            chainComboBoxes = new JComboBox[] {
-                    new JComboBox(comboBoxModels[0]),
-                    new JComboBox(comboBoxModels[1])
-            };
+            comboBoxModelFirst = new DefaultComboBoxModel<>();
+            comboBoxModelSecond = new DefaultComboBoxModel<>();
+            comboBoxFirst = new JComboBox<>(comboBoxModelFirst);
+            comboBoxSecond = new JComboBox<>(comboBoxModelSecond);
 
             groupChoiceRadios = new JRadioButton[] {
                     new JRadioButton("Amino acids", true),
-                    new JRadioButton("Nucleotides", false)
-            };
+                    new JRadioButton("Nucleotides", false) };
             ButtonGroup group = new ButtonGroup();
             group.add(groupChoiceRadios[0]);
             group.add(groupChoiceRadios[1]);
 
             angleChoiceChecks = new JCheckBox[2][];
-            angleChoiceChecks[0] = new JCheckBox[] {
-                    new JCheckBox("phi"),
+            angleChoiceChecks[0] = new JCheckBox[] { new JCheckBox("phi"),
                     new JCheckBox("psi"), new JCheckBox("omega"),
-                    new JCheckBox("MCQ")
-            };
-            angleChoiceChecks[1] = new JCheckBox[] {
-                    new JCheckBox("alpha"),
+                    new JCheckBox("MCQ") };
+            angleChoiceChecks[1] = new JCheckBox[] { new JCheckBox("alpha"),
                     new JCheckBox("beta"), new JCheckBox("gamma"),
                     new JCheckBox("delta"), new JCheckBox("zeta"),
                     new JCheckBox("epsilon"), new JCheckBox("chi"),
-                    new JCheckBox("P"), new JCheckBox("MCQ")
-            };
-            for (JCheckBox b : angleChoiceChecks[1]) {
+                    new JCheckBox("P"), new JCheckBox("MCQ") };
+            for (JCheckBox b : angleChoiceChecks[1])
                 b.setEnabled(false);
-            }
 
             GridBagConstraints c = new GridBagConstraints();
             c.gridx = 3;
@@ -275,10 +272,10 @@ public class TorsionLocalComparisonPanel extends JPanel {
             c.gridx = 2;
             c.gridy = 1;
             c.gridwidth = 4;
-            add(chainComboBoxes[0], c);
+            add(comboBoxFirst, c);
 
             c.gridy = 2;
-            add(chainComboBoxes[1], c);
+            add(comboBoxSecond, c);
 
             c.gridx = 0;
             c.gridy = 3;
@@ -307,12 +304,10 @@ public class TorsionLocalComparisonPanel extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     for (int i = 0; i < 2; ++i)
                         if (groupChoiceRadios[i].isSelected()) {
-                            for (JCheckBox b : angleChoiceChecks[i]) {
+                            for (JCheckBox b : angleChoiceChecks[i])
                                 b.setEnabled(true);
-                            }
-                            for (JCheckBox b : angleChoiceChecks[i ^ 1]) {
+                            for (JCheckBox b : angleChoiceChecks[i ^ 1])
                                 b.setEnabled(false);
-                            }
                             break;
                         }
                 }
@@ -325,29 +320,29 @@ public class TorsionLocalComparisonPanel extends JPanel {
     // /////////////////////////////////////////////////////////////////////////
     // fields
     private static final long serialVersionUID = 1L;
-    private JPanel mChartPanel;
-    ControlPanel mControlPanel;
-    PDBManager mManager;
+    private JPanel chartPanel;
+    ControlPanel controlPanel;
+    PdbManager pdbManager;
 
     // /////////////////////////////////////////////////////////////////////////
     // constructors
-    public TorsionLocalComparisonPanel(final PDBManager manager) {
+    public TorsionLocalComparisonPanel(final PdbManager manager) {
         super(new BorderLayout());
-        mManager = manager;
-        mChartPanel = new JPanel();
+        pdbManager = manager;
+        chartPanel = new JPanel();
 
-        mControlPanel = new ControlPanel();
-        add(mControlPanel, BorderLayout.NORTH);
-        add(mChartPanel, BorderLayout.CENTER);
+        controlPanel = new ControlPanel();
+        add(controlPanel, BorderLayout.NORTH);
+        add(chartPanel, BorderLayout.CENTER);
 
-        mControlPanel.mOptionsPanel.compare
+        controlPanel.optionsPanel.compare
                 .addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent event) {
                         /*
                          * check structure count
                          */
-                        if (mControlPanel.mListModel.size() != 2) {
+                        if (controlPanel.listModel.size() != 2) {
                             JOptionPane.showMessageDialog(null,
                                     "You need exactly two structures"
                                             + " to compare them locally",
@@ -361,17 +356,18 @@ public class TorsionLocalComparisonPanel extends JPanel {
                          */
                         String[] names = new String[2];
                         int[] indices = new int[2];
-                        for (int i = 0; i < 2; ++i) {
-                            names[i] = (String) mControlPanel.mListModel.get(i);
-                            indices[i] = mControlPanel.mOptionsPanel.chainComboBoxes[i]
-                                    .getSelectedIndex();
-                        }
+                        names[0] = controlPanel.listModel.get(0);
+                        indices[0] = controlPanel.optionsPanel.comboBoxFirst
+                                .getSelectedIndex();
+                        names[1] = controlPanel.listModel.get(1);
+                        indices[1] = controlPanel.optionsPanel.comboBoxSecond
+                                .getSelectedIndex();
+
                         Structure[] structures = manager.getStructures(Arrays
                                 .asList(names));
                         Chain[] chains = new Chain[2];
-                        for (int i = 0; i < 2; ++i) {
+                        for (int i = 0; i < 2; ++i)
                             chains[i] = structures[i].getChain(indices[i]);
-                        }
                         /*
                          * compare them
                          */
@@ -388,17 +384,16 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         /*
                          * read options from GUI
                          */
-                        int type = mControlPanel.mOptionsPanel.groupChoiceRadios[0]
+                        int type = controlPanel.optionsPanel.groupChoiceRadios[0]
                                 .isSelected() ? 0 : 1;
                         /*
                          * read angles that have to be plotted
                          */
-                        Vector<Integer> anglesToShow = new Vector<Integer>();
+                        Vector<Integer> anglesToShow = new Vector<>();
                         int i = 0;
-                        for (JCheckBox b : mControlPanel.mOptionsPanel.angleChoiceChecks[type]) {
-                            if (b.isSelected()) {
+                        for (JCheckBox b : controlPanel.optionsPanel.angleChoiceChecks[type]) {
+                            if (b.isSelected())
                                 anglesToShow.add(i);
-                            }
                             i++;
                         }
                         /*
@@ -413,10 +408,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
                                 y[i] = compare[type][i][angle];
                             }
                             dataset.addSeries(
-                                    mControlPanel.mOptionsPanel.angleChoiceChecks[type][angle]
-                                            .getText(), new double[][] {
-                                            x, y
-                                    });
+                                    controlPanel.optionsPanel.angleChoiceChecks[type][angle]
+                                            .getText(), new double[][] { x, y });
                         }
                         /*
                          * draw a plot and replace the previous one

@@ -1,5 +1,13 @@
-
 package pl.poznan.put.cs.bioserver.comparison;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Vector;
+
+import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
@@ -17,15 +25,6 @@ import org.jfree.data.xy.DefaultXYDataset;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles.Dihedral;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Vector;
-
-import javax.imageio.ImageIO;
-
 /**
  * Implementation of local dissimilarity measure based on torsion angles.
  * 
@@ -41,17 +40,17 @@ public class TorsionLocalComparison extends LocalComparison {
             System.out.println("Incorrect number of arguments provided");
             return;
         }
-        PDBFileReader reader = new PDBFileReader();
+
         try {
+            PDBFileReader reader = new PDBFileReader();
             Structure s1 = reader.getStructure(args[0]);
             Structure s2 = reader.getStructure(args[1]);
             int c1 = Integer.parseInt(args[2]);
             int c2 = Integer.parseInt(args[3]);
             int type = Integer.parseInt(args[4]);
-            Vector<Integer> anglesToShow = new Vector<Integer>();
-            for (String angle : args[5].split(",")) {
+            Vector<Integer> anglesToShow = new Vector<>();
+            for (String angle : args[5].split(","))
                 anglesToShow.add(Integer.parseInt(angle));
-            }
 
             if (type != 0 && type != 1) {
                 System.out.println("ERROR");
@@ -61,9 +60,7 @@ public class TorsionLocalComparison extends LocalComparison {
             }
 
             TorsionLocalComparison comparison = new TorsionLocalComparison();
-            comparison.checkValidity(new Structure[] {
-                    s1, s2
-            });
+            comparison.checkValidity(new Structure[] { s1, s2 });
             double[][][] compare = comparison.compare(s1.getChain(c1),
                     s2.getChain(c2));
 
@@ -88,30 +85,22 @@ public class TorsionLocalComparison extends LocalComparison {
             }
 
             String[][] angleNames = new String[][] {
-                    {
-                            "phi", "psi", "omega", "MCQ"
-                    },
-                    {
-                            "alpha", "beta", "gamma", "delta", "epsilon", "zeta",
-                            "chi", "P", "MCQ"
-                    }
-            };
+                    { "phi", "psi", "omega", "MCQ" },
+                    { "alpha", "beta", "gamma", "delta", "epsilon", "zeta",
+                            "chi", "P", "MCQ" } };
 
             DefaultXYDataset dataset = new DefaultXYDataset();
             for (int angle : anglesToShow) {
-                if (angle >= compare[type][0].length) {
+                if (angle >= compare[type][0].length)
                     continue;
-                }
                 double[] x = new double[compare[type].length];
                 double[] y = new double[compare[type].length];
                 for (int i = 0; i < compare[type].length; ++i) {
                     x[i] = i + 1;
                     y[i] = compare[type][i][angle];
                 }
-                dataset.addSeries(angleNames[type][angle], new double[][] {
-                        x,
-                        y
-                });
+                dataset.addSeries(angleNames[type][angle], new double[][] { x,
+                        y });
             }
             /*
              * draw a plot and replace the previous one
@@ -138,7 +127,9 @@ public class TorsionLocalComparison extends LocalComparison {
             JFreeChart chart = new JFreeChart(plot);
             BufferedImage image = chart.createBufferedImage(width, height);
             File tempFile = File.createTempFile("molcmp", ".png");
-            ImageIO.write(image, "png", new FileOutputStream(tempFile));
+            try (FileOutputStream stream = new FileOutputStream(tempFile)) {
+                ImageIO.write(image, "png", stream);
+            }
 
             System.out.println("OK");
             System.out.println(tempFile);
@@ -158,10 +149,8 @@ public class TorsionLocalComparison extends LocalComparison {
      */
     public double[][][] compare(Chain c1, Chain c2)
             throws IncomparableStructuresException {
-        checkValidity(new Structure[] {
-                new StructureImpl(c1),
-                new StructureImpl(c2)
-        });
+        checkValidity(new Structure[] { new StructureImpl(c1),
+                new StructureImpl(c2) });
         DihedralAngles dihedralAngles = new DihedralAngles();
         Dihedral[][][] dihedrals = new Dihedral[2][][];
         dihedrals[0] = dihedralAngles.getDihedrals(c1);
@@ -208,8 +197,10 @@ public class TorsionLocalComparison extends LocalComparison {
      * Compare two structures using local measure based on torsion angle
      * representation.
      * 
-     * @param s1 First structure.
-     * @param s2 Second structure.
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
      * @return An array "double[][][][] result" which must be interpreted this
      *         way: result[i] is for i-th chain, result[i][0] is for amino acids
      *         and result[i][1] is for nucleotides, result[i][j][k] is k-th
@@ -220,15 +211,12 @@ public class TorsionLocalComparison extends LocalComparison {
     @Override
     public double[][][][] compare(Structure s1, Structure s2)
             throws IncomparableStructuresException {
-        Structure[] structures = new Structure[] {
-                s1, s2
-        };
+        Structure[] structures = new Structure[] { s1, s2 };
         checkValidity(structures);
 
         double[][][][] result = new double[s1.size()][][][];
-        for (int i = 0; i < s1.size(); ++i) {
+        for (int i = 0; i < s1.size(); ++i)
             result[i] = compare(s1.getChain(i), s2.getChain(i));
-        }
         return result;
     }
 }

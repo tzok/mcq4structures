@@ -1,8 +1,4 @@
-
 package pl.poznan.put.cs.bioserver.gui;
-
-import org.biojava.bio.structure.Structure;
-import org.biojava.bio.structure.io.PDBFileReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,13 +7,16 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Vector;
 
-public class PDBManager {
+import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.io.PDBFileReader;
+
+public class PdbManager {
     private final HashMap<String, Structure> mapStructure;
     private final HashMap<String, String> nameMap;
 
-    public PDBManager() {
-        mapStructure = new HashMap<String, Structure>();
-        nameMap = new HashMap<String, String>();
+    public PdbManager() {
+        mapStructure = new HashMap<>();
+        nameMap = new HashMap<>();
     }
 
     public boolean addStructure(String path) {
@@ -44,7 +43,7 @@ public class PDBManager {
     }
 
     public String[] getNames(Vector<String> elements) {
-        Vector<String> vector = new Vector<String>();
+        Vector<String> vector = new Vector<>();
         for (String element : elements) {
             String name = nameMap.get(element);
             vector.add(name);
@@ -53,15 +52,14 @@ public class PDBManager {
     }
 
     public Structure[] getStructures(Enumeration<?> elements) {
-        Vector<String> vector = new Vector<String>();
-        while (elements.hasMoreElements()) {
+        Vector<String> vector = new Vector<>();
+        while (elements.hasMoreElements())
             vector.add((String) elements.nextElement());
-        }
         return getStructures(vector);
     }
 
     public Structure[] getStructures(Iterable<String> elements) {
-        Vector<Structure> vector = new Vector<Structure>();
+        Vector<Structure> vector = new Vector<>();
         for (String element : elements) {
             Structure structure = mapStructure.get(element);
             vector.add(structure);
