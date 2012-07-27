@@ -71,8 +71,8 @@ public class GlobalComparisonPanel extends JPanel {
             group.add(hierarchical);
             group.add(kmedoids);
 
-            final JComboBox<String> linkage = new JComboBox<>(new String[] { "Single",
-                    "Complete", "Average" });
+            final JComboBox<String> linkage = new JComboBox<>(new String[] {
+                    "Single", "Complete", "Average" });
             final JSpinner kspinner = new JSpinner();
             kspinner.setModel(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
             kspinner.setEnabled(false);
@@ -496,10 +496,10 @@ public class GlobalComparisonPanel extends JPanel {
         if (mainPanel.actionPanel.methodPanel.mcqRadio.isSelected())
             chosen = 1;
 
-        Enumeration<?> elements = listModel.elements();
+        Enumeration<String> elements = listModel.elements();
         Vector<String> vector = new Vector<>();
         while (elements.hasMoreElements()) {
-            String element = (String) elements.nextElement();
+            String element = elements.nextElement();
             vector.add(element);
         }
         Structure[] structures = manager.getStructures(vector);

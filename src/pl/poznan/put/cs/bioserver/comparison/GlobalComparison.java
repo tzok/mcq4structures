@@ -7,7 +7,7 @@ import org.biojava.bio.structure.Structure;
  * 
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
-public abstract class GlobalComparison extends Comparison {
+public abstract class GlobalComparison {
     public abstract double compare(Structure s1, Structure s2)
             throws IncomparableStructuresException;
 
@@ -22,7 +22,6 @@ public abstract class GlobalComparison extends Comparison {
      */
     public double[][] compare(Structure[] structures)
             throws IncomparableStructuresException {
-        checkValidity(structures);
         double[][] result = new double[structures.length][];
         for (int i = 0; i < structures.length; ++i)
             result[i] = new double[structures.length];

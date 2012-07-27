@@ -39,7 +39,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 
 /**
@@ -372,15 +371,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
                          * compare them
                          */
                         double[][][] compare = null;
-                        try {
-                            compare = new TorsionLocalComparison().compare(
-                                    chains[0], chains[1]);
-                        } catch (IncomparableStructuresException e) {
-                            JOptionPane.showMessageDialog(null, e.getMessage(),
-                                    "Error during structure comparison",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
+                        compare = TorsionLocalComparison.compare(chains[0],
+                                chains[1]);
                         /*
                          * read options from GUI
                          */

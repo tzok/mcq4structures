@@ -1,6 +1,5 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -8,8 +7,6 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
-import org.biojava.bio.structure.Structure;
-import org.biojava.bio.structure.io.PDBFileReader;
 import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
 import org.biojava3.alignment.SimpleGapPenalty;
@@ -27,24 +24,6 @@ import org.biojava3.core.sequence.template.Sequence;
 
 public class SequenceAligner<C extends Compound> {
     private static Logger logger = Logger.getLogger(SequenceAligner.class);
-
-    public static void main(String[] args) throws IOException {
-        PDBFileReader reader = new PDBFileReader();
-        Structure[] structures = new Structure[args.length];
-        for (int i = 0; i < args.length; ++i)
-            structures[i] = reader.getStructure(args[i]);
-
-        SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
-                AminoAcidCompound.class);
-        SequenceAligner<NucleotideCompound> aligner2 = new SequenceAligner<>(
-                NucleotideCompound.class);
-
-        aligner.alignSequences(structures[0].getChain(0),
-                structures[1].getChain(0));
-        aligner2.alignSequences(structures[2].getChain(0),
-                structures[3].getChain(0));
-    }
-
     private final Class<?> compound;
     private final HashMap<Chain, List<Group>> sequenceMap;
 

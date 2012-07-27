@@ -12,7 +12,6 @@ import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
-import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.io.PDBFileReader;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -59,10 +58,8 @@ public class TorsionLocalComparison extends LocalComparison {
                 return;
             }
 
-            TorsionLocalComparison comparison = new TorsionLocalComparison();
-            comparison.checkValidity(new Structure[] { s1, s2 });
-            double[][][] compare = comparison.compare(s1.getChain(c1),
-                    s2.getChain(c2));
+            double[][][] compare = TorsionLocalComparison.compare(
+                    s1.getChain(c1), s2.getChain(c2));
 
             if (compare[type].length == 0) {
                 System.out.println("ERROR");
@@ -136,9 +133,6 @@ public class TorsionLocalComparison extends LocalComparison {
         } catch (IOException e) {
             System.out.println("ERROR");
             System.out.println(e.getMessage());
-        } catch (IncomparableStructuresException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
         }
     }
 
@@ -147,10 +141,7 @@ public class TorsionLocalComparison extends LocalComparison {
      * 
      * @throws IncomparableStructuresException
      */
-    public double[][][] compare(Chain c1, Chain c2)
-            throws IncomparableStructuresException {
-        checkValidity(new Structure[] { new StructureImpl(c1),
-                new StructureImpl(c2) });
+    public static double[][][] compare(Chain c1, Chain c2) {
         DihedralAngles dihedralAngles = new DihedralAngles();
         Dihedral[][][] dihedrals = new Dihedral[2][][];
         dihedrals[0] = dihedralAngles.getDihedrals(c1);
@@ -211,9 +202,6 @@ public class TorsionLocalComparison extends LocalComparison {
     @Override
     public double[][][][] compare(Structure s1, Structure s2)
             throws IncomparableStructuresException {
-        Structure[] structures = new Structure[] { s1, s2 };
-        checkValidity(structures);
-
         double[][][][] result = new double[s1.size()][][][];
         for (int i = 0; i < s1.size(); ++i)
             result[i] = compare(s1.getChain(i), s2.getChain(i));

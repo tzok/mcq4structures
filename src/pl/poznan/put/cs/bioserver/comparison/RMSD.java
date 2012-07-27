@@ -13,9 +13,6 @@ import org.biojava.bio.structure.SVDSuperimposer;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.io.PDBFileReader;
-import org.biojava3.core.sequence.compound.NucleotideCompound;
-
-import pl.poznan.put.cs.bioserver.alignment.StructurePreparer;
 
 /**
  * Implementation of RMSD global similarity measure.
@@ -49,7 +46,6 @@ public class RMSD extends GlobalComparison {
             Structure[] s = new Structure[] { reader.getStructure(args[0]),
                     reader.getStructure(args[1]) };
             RMSD rmsd = new RMSD();
-            rmsd.checkValidity(s);
             double result = rmsd.compare(s[0], s[1]);
             System.out.println("OK");
             System.out.println(result);
@@ -69,9 +65,6 @@ public class RMSD extends GlobalComparison {
                 + s2.getPDBCode());
 
         Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
-        new StructurePreparer<NucleotideCompound>(NucleotideCompound.class)
-                .prepareAtoms(structures[0], structures[1]); // FIXME
-
         List<Atom> l1 = RMSD.getAllAtoms(structures[0]);
         List<Atom> l2 = RMSD.getAllAtoms(structures[1]);
         Atom[][] atoms = new Atom[][] { l1.toArray(new Atom[l1.size()]),

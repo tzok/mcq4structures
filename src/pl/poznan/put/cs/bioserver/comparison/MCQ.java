@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
-import org.biojava3.core.sequence.compound.NucleotideCompound;
 
-import pl.poznan.put.cs.bioserver.alignment.StructurePreparer;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles.Dihedral;
 
@@ -28,7 +26,6 @@ public class MCQ extends GlobalComparison {
             Structure[] s = new Structure[] { reader.getStructure(args[0]),
                     reader.getStructure(args[1]) };
             MCQ mcq = new MCQ();
-            mcq.checkValidity(s);
             double result = mcq.compare(s[0], s[1]);
             System.out.println("OK");
             System.out.println(result);
@@ -44,8 +41,6 @@ public class MCQ extends GlobalComparison {
     @Override
     public double compare(Structure s1, Structure s2)
             throws IncomparableStructuresException {
-        new StructurePreparer<NucleotideCompound>(NucleotideCompound.class)
-                .prepareStructures(s1, s2); // FIXME
         /*
          * calculate dihedral angles for both structures
          */

@@ -196,7 +196,8 @@ public class SequenceAlignmentPanel extends JPanel {
 
                         boolean isRNA = Helper.isNucleicAcid(chains[0]);
                         if (isRNA != Helper.isNucleicAcid(chains[1])) {
-                            String message = "Structures meant to be aligned represent different molecule types!";
+                            String message = "Structures meant to be aligned "
+                                    + "represent different molecule types!";
                             Logger.error(message);
                             JOptionPane.showMessageDialog(null, message,
                                     "Error", JOptionPane.ERROR_MESSAGE);
