@@ -28,6 +28,8 @@ public class Gui extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Sequence alignment",
                 new SequenceAlignmentPanel(manager));
+        tabbedPane.add("Structure alignment", new StructureAlignmentPanel(
+                manager));
         tabbedPane.add("Global comparison", new GlobalComparisonPanel(manager));
         tabbedPane.add("Torsion local comparison",
                 new TorsionLocalComparisonPanel(manager));

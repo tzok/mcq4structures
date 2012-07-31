@@ -47,8 +47,10 @@ public class StructureAligner {
         StructurePairAligner aligner = new StructurePairAligner();
         if (Helper.isNucleicAcid(c1)) {
             StrucAligParameters parameters = new StrucAligParameters();
-            parameters.setUsedAtomNames(new String[] { "P", "C1'", "C2'",
-                    "C3'", "C4'", "C5'", "O2'", "O3'", "O4'", "O5'", });
+            parameters.setUsedAtomNames(new String[] { " C1'", " C2 ", " C2'",
+                    " C3'", " C4 ", " C4'", " C5 ", " C5'", " C6 ", " N1 ",
+                    " N3 ", " O2'", " O3'", " O4'", " O5'", " OP1", " OP2",
+                    " P  " });
             aligner.setParams(parameters);
         }
 
@@ -62,16 +64,16 @@ public class StructureAligner {
         c2 = structure.getModel(1).get(0);
 
         // FIXME
-        // c1.setAtomGroups(filterGroups(c1, alignment.getIdx1()));
-        // c2.setAtomGroups(filterGroups(c2, alignment.getIdx2()));
+        c1.setAtomGroups(filterGroups(c1, alignment.getPDBresnum1()));
+        c2.setAtomGroups(filterGroups(c2, alignment.getPDBresnum2()));
 
         return new Chain[] { c1, c2 };
     }
 
-    private static List<Group> filterGroups(Chain c1, int[] indices) {
+    private static List<Group> filterGroups(Chain c1, String[] indices) {
         Set<Integer> set = new HashSet<>();
-        for (int i : indices)
-            set.add(i);
+        for (String s : indices)
+            set.add(Integer.valueOf(s.split(":")[0]));
 
         List<Group> list = new Vector<>();
         for (Group g : c1.getAtomGroups()) {
