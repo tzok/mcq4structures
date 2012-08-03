@@ -62,12 +62,14 @@ public class StructureAligner {
 
         c1 = structure.getModel(0).get(0);
         c2 = structure.getModel(1).get(0);
+        Chain c3 = (Chain) c1.clone();
+        Chain c4 = (Chain) c2.clone();
 
         // FIXME
-        c1.setAtomGroups(filterGroups(c1, alignment.getPDBresnum1()));
-        c2.setAtomGroups(filterGroups(c2, alignment.getPDBresnum2()));
+        c3.setAtomGroups(filterGroups(c1, alignment.getPDBresnum1()));
+        c4.setAtomGroups(filterGroups(c2, alignment.getPDBresnum2()));
 
-        return new Chain[] { c1, c2 };
+        return new Chain[] { c1, c2, c3, c4 };
     }
 
     private static List<Group> filterGroups(Chain c1, String[] indices) {
