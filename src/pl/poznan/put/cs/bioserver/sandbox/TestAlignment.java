@@ -25,14 +25,24 @@ public class TestAlignment {
             Structure[] aligned = StructureAligner.align(s1, s2);
             System.out.println(aligned[0]);
             System.out.println(aligned[1]);
+            System.out.println(aligned[2]);
+            System.out.println(aligned[3]);
             System.out.println(aligned[0].getChain(0).getAtomLength());
             System.out.println(aligned[1].getChain(0).getAtomLength());
+            System.out.println(aligned[2].getChain(0).getAtomLength());
+            System.out.println(aligned[3].getChain(0).getAtomLength());
 
             try (FileOutputStream stream = new FileOutputStream("/tmp/out0.pdb")) {
                 stream.write(aligned[0].toPDB().getBytes());
             }
             try (FileOutputStream stream = new FileOutputStream("/tmp/out1.pdb")) {
                 stream.write(aligned[1].toPDB().getBytes());
+            }
+            try (FileOutputStream stream = new FileOutputStream("/tmp/out2.pdb")) {
+                stream.write(aligned[2].toPDB().getBytes());
+            }
+            try (FileOutputStream stream = new FileOutputStream("/tmp/out3.pdb")) {
+                stream.write(aligned[3].toPDB().getBytes());
             }
         } catch (IOException | StructureException e) {
             e.printStackTrace();

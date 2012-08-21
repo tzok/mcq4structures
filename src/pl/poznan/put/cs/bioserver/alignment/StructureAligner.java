@@ -28,19 +28,20 @@ public class StructureAligner {
             c2.add(c.getChainID());
         c1.retainAll(c2);
 
-        Vector<Chain> chains1 = new Vector<>();
-        Vector<Chain> chains2 = new Vector<>();
-        for (String id : c1) {
-            Chain[] aligned = align(s1.getChainByPDB(id), s2.getChainByPDB(id));
-            chains1.add(aligned[0]);
-            chains2.add(aligned[1]);
-        }
+        Chain[][] chains = new Chain[c1.size()][];
+        int i = 0;
+        for (String id : c1)
+            chains[i++] = align(s1.getChainByPDB(id), s2.getChainByPDB(id));
 
-        Structure s1c = s1.clone();
-        s1c.setChains(chains1);
-        Structure s2c = s2.clone();
-        s2c.setChains(chains2);
-        return new Structure[] { s1c, s2c };
+        Structure[] structures = new Structure[] { s1.clone(), s2.clone(),
+                s1.clone(), s2.clone() };
+        for (i = 0; i < 4; i++) {
+            Vector<Chain> vector = new Vector<>();
+            for (int j = 0; j < chains.length; j++)
+                vector.add(chains[j][i]);
+            structures[i].setChains(vector);
+        }
+        return structures;
     }
 
     public static Chain[] align(Chain c1, Chain c2) throws StructureException {
@@ -59,13 +60,10 @@ public class StructureAligner {
         aligner.align(s1, s2);
         AlternativeAlignment alignment = aligner.getAlignments()[0];
         Structure structure = alignment.getAlignedStructure(s1, s2);
-
         c1 = structure.getModel(0).get(0);
         c2 = structure.getModel(1).get(0);
         Chain c3 = (Chain) c1.clone();
         Chain c4 = (Chain) c2.clone();
-
-        // FIXME
         c3.setAtomGroups(filterGroups(c1, alignment.getPDBresnum1()));
         c4.setAtomGroups(filterGroups(c2, alignment.getPDBresnum2()));
 
