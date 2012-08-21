@@ -16,6 +16,7 @@ import org.biojava.bio.structure.align.StrucAligParameters;
 import org.biojava.bio.structure.align.StructurePairAligner;
 import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
 
+import pl.poznan.put.cs.bioserver.gui.PdbManager;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 
 public class StructureAligner {
@@ -85,6 +86,7 @@ public class StructureAligner {
                 alignment.getPDBresnum2() };
         c3.setAtomGroups(filterGroups(c1, residues[0]));
         c4.setAtomGroups(filterGroups(c2, residues[1]));
+        PdbManager.putAlignmentInfo(new Chain[] { c1, c2 }, residues);
 
         if (LOGGER.isDebugEnabled()) {
             String[] numerals = new String[] { "1st", "2nd" };

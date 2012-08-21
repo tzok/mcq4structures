@@ -7,12 +7,15 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
 
 public class PdbManager {
     private final HashMap<String, Structure> mapStructure;
     private final HashMap<String, String> nameMap;
+    private final static HashMap<Integer, HashMap<Group, Group>> mapAlignment = new HashMap<>();
 
     public PdbManager() {
         mapStructure = new HashMap<>();
@@ -69,5 +72,38 @@ public class PdbManager {
 
     public Structure[] getStructures(String[] elements) {
         return getStructures(Arrays.asList(elements));
+    }
+
+    public static void putAlignmentInfo(Chain[] original,
+            String[][] residuesMapping) {
+        HashMap<Group, Group> map = new HashMap<>();
+        for (int i = 0; i < residuesMapping[0].length; i++) {
+            int[] indices = new int[2];
+            for (int j = 0; j < 2; j++) {
+                String residue = residuesMapping[j][i].split(":")[0];
+                indices[j] = Integer.valueOf(residue);
+            }
+
+            Group[] groups = new Group[2];
+            for (int j = 0; j < 2; j++)
+                groups[j] = original[j].getAtomGroup(indices[j]);
+            map.put(groups[0], groups[1]);
+        }
+        mapAlignment.put(original.hashCode(), map);
+    }
+
+    public static boolean isAlignmentInfo(Chain[] chains) {
+        Chain[] inverted = new Chain[] { chains[1], chains[0] };
+        return mapAlignment.containsKey(chains.hashCode())
+                || mapAlignment.containsKey(inverted.hashCode());
+    }
+
+    public static HashMap<Group, Group> getAlignmentInfo(Chain[] chains) {
+        HashMap<Group, Group> map = mapAlignment.get(chains.hashCode());
+        if (map == null) {
+            Chain[] inverted = new Chain[] { chains[1], chains[0] };
+            map = mapAlignment.get(inverted.hashCode());
+        }
+        return map;
     }
 }
