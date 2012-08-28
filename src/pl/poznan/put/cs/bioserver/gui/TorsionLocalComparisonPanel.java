@@ -370,9 +370,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         Chain[] chains = new Chain[2];
                         for (int i = 0; i < 2; ++i)
                             chains[i] = structures[i].getChain(indices[i]);
-                        TorsionLocalComparisonPanel.LOGGER
-                                .debug("Is alignment information present? "
-                                        + PdbManager.isAlignmentInfo(chains));
+
                         /*
                          * compare them
                          */

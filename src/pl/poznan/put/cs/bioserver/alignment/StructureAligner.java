@@ -41,6 +41,8 @@ public class StructureAligner {
 
         StructureImpl s1 = new StructureImpl(c1);
         StructureImpl s2 = new StructureImpl(c2);
+        Helper.normalizeAtomNames(s1);
+        Helper.normalizeAtomNames(s2);
         aligner.align(s1, s2);
         AlternativeAlignment alignment = aligner.getAlignments()[0];
         Structure structure = alignment.getAlignedStructure(s1, s2);
