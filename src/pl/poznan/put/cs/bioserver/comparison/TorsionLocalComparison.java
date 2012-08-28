@@ -33,6 +33,54 @@ public class TorsionLocalComparison extends LocalComparison {
     private static final Logger logger = Logger
             .getLogger(TorsionLocalComparison.class);
 
+    /**
+     * Compare specified pair of chains.
+     * 
+     * @throws IncomparableStructuresException
+     */
+    public static double[][][] compare(Chain c1, Chain c2) {
+        DihedralAngles dihedralAngles = new DihedralAngles();
+        Dihedral[][][] dihedrals = new Dihedral[2][][];
+        dihedrals[0] = dihedralAngles.getDihedrals(c1);
+        dihedrals[1] = dihedralAngles.getDihedrals(c2);
+
+        double[][][] result = new double[2][][];
+        // iterate independently over amino acids and nucleotides
+        StringWriter writer = new StringWriter();
+        for (int j = 0; j < 2; ++j) {
+            result[j] = new double[dihedrals[0][j].length][];
+            // iterate over each group of this type
+            for (int k = 0; k < dihedrals[0][j].length; ++k) {
+                Dihedral d1 = dihedrals[0][j][k];
+                Dihedral d2 = dihedrals[1][j][k];
+                int angleCount = d1.angles.length;
+                double[] difference = new double[angleCount + 1];
+                double[] sum = new double[2];
+                // iterate over each angle in this group
+                for (int l = 0; l < angleCount; ++l) {
+                    double a1 = d1.angles[l];
+                    double a2 = d2.angles[l];
+                    difference[l] = DihedralAngles.subtract(a1, a2);
+                    writer.append(Double.toString(difference[l]));
+                    writer.append('\t');
+                    // sine and cosine are for MCQ for this group
+                    sum[0] += Math.sin(difference[l]);
+                    sum[1] += Math.cos(difference[l]);
+                }
+                difference[angleCount] = Math.atan2(sum[0] / angleCount, sum[1]
+                        / angleCount);
+                result[j][k] = difference;
+                writer.append(Double.toString(difference[angleCount]));
+                writer.append('\n');
+            }
+            writer.append('\n');
+        }
+        TorsionLocalComparison.logger
+                .trace("The result of local comparison in torsional angle space:\n"
+                        + writer.toString());
+        return result;
+    }
+
     public static void main(String[] args) {
         if (args.length < 6) {
             System.out.println("ERROR");
@@ -137,54 +185,6 @@ public class TorsionLocalComparison extends LocalComparison {
     }
 
     /**
-     * Compare specified pair of chains.
-     * 
-     * @throws IncomparableStructuresException
-     */
-    public static double[][][] compare(Chain c1, Chain c2) {
-        DihedralAngles dihedralAngles = new DihedralAngles();
-        Dihedral[][][] dihedrals = new Dihedral[2][][];
-        dihedrals[0] = dihedralAngles.getDihedrals(c1);
-        dihedrals[1] = dihedralAngles.getDihedrals(c2);
-
-        double[][][] result = new double[2][][];
-        // iterate independently over amino acids and nucleotides
-        StringWriter writer = new StringWriter();
-        for (int j = 0; j < 2; ++j) {
-            result[j] = new double[dihedrals[0][j].length][];
-            // iterate over each group of this type
-            for (int k = 0; k < dihedrals[0][j].length; ++k) {
-                Dihedral d1 = dihedrals[0][j][k];
-                Dihedral d2 = dihedrals[1][j][k];
-                int angleCount = d1.angles.length;
-                double[] difference = new double[angleCount + 1];
-                double[] sum = new double[2];
-                // iterate over each angle in this group
-                for (int l = 0; l < angleCount; ++l) {
-                    double a1 = d1.angles[l];
-                    double a2 = d2.angles[l];
-                    difference[l] = DihedralAngles.subtract(a1, a2);
-                    writer.append(Double.toString(difference[l]));
-                    writer.append('\t');
-                    // sine and cosine are for MCQ for this group
-                    sum[0] += Math.sin(difference[l]);
-                    sum[1] += Math.cos(difference[l]);
-                }
-                difference[angleCount] = Math.atan2(sum[0] / angleCount, sum[1]
-                        / angleCount);
-                result[j][k] = difference;
-                writer.append(Double.toString(difference[angleCount]));
-                writer.append('\n');
-            }
-            writer.append('\n');
-        }
-        TorsionLocalComparison.logger
-                .trace("The result of local comparison in torsional angle space:\n"
-                        + writer.toString());
-        return result;
-    }
-
-    /**
      * Compare two structures using local measure based on torsion angle
      * representation.
      * 
@@ -204,7 +204,8 @@ public class TorsionLocalComparison extends LocalComparison {
             throws IncomparableStructuresException {
         double[][][][] result = new double[s1.size()][][][];
         for (int i = 0; i < s1.size(); ++i)
-            result[i] = compare(s1.getChain(i), s2.getChain(i));
+            result[i] = TorsionLocalComparison.compare(s1.getChain(i),
+                    s2.getChain(i));
         return result;
     }
 }

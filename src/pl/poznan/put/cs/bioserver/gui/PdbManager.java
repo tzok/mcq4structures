@@ -14,107 +14,108 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
 
 public class PdbManager {
-	private final HashMap<String, Structure> mapStructure;
-	private final HashMap<String, String> nameMap;
-	private final static HashMap<Integer, HashMap<Group, Group>> mapAlignment = new HashMap<>();
-	private final static Logger LOGGER = Logger.getLogger(PdbManager.class);
+    private final HashMap<String, Structure> mapStructure;
+    private final HashMap<String, String> nameMap;
+    private final static HashMap<Integer, HashMap<Group, Group>> mapAlignment = new HashMap<>();
+    private final static Logger LOGGER = Logger.getLogger(PdbManager.class);
 
-	public PdbManager() {
-		mapStructure = new HashMap<>();
-		nameMap = new HashMap<>();
-	}
+    public static HashMap<Group, Group> getAlignmentInfo(Chain[] chains) {
+        Chain[] inverted = new Chain[] { chains[1], chains[0] };
+        int[] hashCodes = new int[] { chains.hashCode(), inverted.hashCode() };
+        PdbManager.LOGGER.debug("Trying to get hash codes: " + hashCodes[0]
+                + " and " + hashCodes[1]);
 
-	public boolean addStructure(String path) {
-		try {
-			if (mapStructure.containsKey(path))
-				return true;
+        HashMap<Group, Group> map = PdbManager.mapAlignment.get(hashCodes[0]);
+        if (map == null)
+            map = PdbManager.mapAlignment.get(hashCodes[1]);
+        return map;
+    }
 
-			Structure structure = new PDBFileReader().getStructure(path);
-			if (structure == null || structure.size() == 0)
-				throw new IOException();
+    public static boolean isAlignmentInfo(Chain[] chains) {
+        Chain[] inverted = new Chain[] { chains[1], chains[0] };
+        int[] hashCodes = new int[] { chains.hashCode(), inverted.hashCode() };
+        PdbManager.LOGGER.debug("Checking for hash codes: " + hashCodes[0]
+                + " and " + hashCodes[1]);
 
-			String name = structure.getPDBCode();
-			if (name == null || name.trim().equals("")) {
-				name = new File(path).getName();
-				structure.setPDBCode(name);
-			}
+        return PdbManager.mapAlignment.containsKey(hashCodes[0])
+                || PdbManager.mapAlignment.containsKey(hashCodes[1]);
+    }
 
-			mapStructure.put(path, structure);
-			nameMap.put(path, name);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
-	}
+    public static void putAlignmentInfo(Chain[] original,
+            String[][] residuesMapping) {
+        HashMap<Group, Group> map = new HashMap<>();
+        for (int i = 0; i < residuesMapping[0].length; i++) {
+            int[] indices = new int[2];
+            for (int j = 0; j < 2; j++) {
+                String residue = residuesMapping[j][i].split(":")[0];
+                indices[j] = Integer.valueOf(residue);
+            }
 
-	public String[] getNames(Vector<String> elements) {
-		Vector<String> vector = new Vector<>();
-		for (String element : elements) {
-			String name = nameMap.get(element);
-			vector.add(name);
-		}
-		return vector.toArray(new String[vector.size()]);
-	}
+            Group[] groups = new Group[2];
+            for (int j = 0; j < 2; j++)
+                groups[j] = original[j].getAtomGroup(indices[j]);
+            map.put(groups[0], groups[1]);
+        }
+        int hashCode = original.hashCode(); // FIXME: hashCode nie działa!
+        PdbManager.LOGGER.debug("Hash code of the new alignment info: "
+                + hashCode);
+        PdbManager.mapAlignment.put(hashCode, map);
+    }
 
-	public Structure[] getStructures(Enumeration<?> elements) {
-		Vector<String> vector = new Vector<>();
-		while (elements.hasMoreElements())
-			vector.add((String) elements.nextElement());
-		return getStructures(vector);
-	}
+    public PdbManager() {
+        mapStructure = new HashMap<>();
+        nameMap = new HashMap<>();
+    }
 
-	public Structure[] getStructures(Iterable<String> elements) {
-		Vector<Structure> vector = new Vector<>();
-		for (String element : elements) {
-			Structure structure = mapStructure.get(element);
-			vector.add(structure);
-		}
-		return vector.toArray(new Structure[vector.size()]);
-	}
+    public boolean addStructure(String path) {
+        try {
+            if (mapStructure.containsKey(path))
+                return true;
 
-	public Structure[] getStructures(String[] elements) {
-		return getStructures(Arrays.asList(elements));
-	}
+            Structure structure = new PDBFileReader().getStructure(path);
+            if (structure == null || structure.size() == 0)
+                throw new IOException();
 
-	public static void putAlignmentInfo(Chain[] original,
-			String[][] residuesMapping) {
-		HashMap<Group, Group> map = new HashMap<>();
-		for (int i = 0; i < residuesMapping[0].length; i++) {
-			int[] indices = new int[2];
-			for (int j = 0; j < 2; j++) {
-				String residue = residuesMapping[j][i].split(":")[0];
-				indices[j] = Integer.valueOf(residue);
-			}
+            String name = structure.getPDBCode();
+            if (name == null || name.trim().equals("")) {
+                name = new File(path).getName();
+                structure.setPDBCode(name);
+            }
 
-			Group[] groups = new Group[2];
-			for (int j = 0; j < 2; j++)
-				groups[j] = original[j].getAtomGroup(indices[j]);
-			map.put(groups[0], groups[1]);
-		}
-		int hashCode = original.hashCode(); // FIXME: hashCode nie działa!
-		LOGGER.debug("Hash code of the new alignment info: " + hashCode);
-		mapAlignment.put(hashCode, map);
-	}
+            mapStructure.put(path, structure);
+            nameMap.put(path, name);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
-	public static boolean isAlignmentInfo(Chain[] chains) {
-		Chain[] inverted = new Chain[] { chains[1], chains[0] };
-		int[] hashCodes = new int[] { chains.hashCode(), inverted.hashCode() };
-		LOGGER.debug("Checking for hash codes: " + hashCodes[0] + " and "
-				+ hashCodes[1]);
+    public String[] getNames(Vector<String> elements) {
+        Vector<String> vector = new Vector<>();
+        for (String element : elements) {
+            String name = nameMap.get(element);
+            vector.add(name);
+        }
+        return vector.toArray(new String[vector.size()]);
+    }
 
-		return mapAlignment.containsKey(hashCodes[0])
-				|| mapAlignment.containsKey(hashCodes[1]);
-	}
+    public Structure[] getStructures(Enumeration<?> elements) {
+        Vector<String> vector = new Vector<>();
+        while (elements.hasMoreElements())
+            vector.add((String) elements.nextElement());
+        return getStructures(vector);
+    }
 
-	public static HashMap<Group, Group> getAlignmentInfo(Chain[] chains) {
-		Chain[] inverted = new Chain[] { chains[1], chains[0] };
-		int[] hashCodes = new int[] { chains.hashCode(), inverted.hashCode() };
-		LOGGER.debug("Trying to get hash codes: " + hashCodes[0] + " and "
-				+ hashCodes[1]);
+    public Structure[] getStructures(Iterable<String> elements) {
+        Vector<Structure> vector = new Vector<>();
+        for (String element : elements) {
+            Structure structure = mapStructure.get(element);
+            vector.add(structure);
+        }
+        return vector.toArray(new Structure[vector.size()]);
+    }
 
-		HashMap<Group, Group> map = mapAlignment.get(hashCodes[0]);
-		if (map == null)
-			map = mapAlignment.get(hashCodes[1]);
-		return map;
-	}
+    public Structure[] getStructures(String[] elements) {
+        return getStructures(Arrays.asList(elements));
+    }
 }
