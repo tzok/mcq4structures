@@ -23,6 +23,12 @@ public class StructureAligner {
     private static Logger LOGGER = Logger.getLogger(StructureAligner.class);
 
     public static Chain[] align(Chain c1, Chain c2) throws StructureException {
+        Chain[] chains = new Chain[] { c1, c2 };
+        if (PdbManager.isAlignmentInfo(chains)) {
+            StructureAligner.LOGGER.info("Reusing alignment data from cache");
+            return PdbManager.getAlignmentData(chains);
+        }
+
         StructurePairAligner aligner = new StructurePairAligner();
         if (Helper.isNucleicAcid(c1)) {
             StrucAligParameters parameters = new StrucAligParameters();
@@ -39,7 +45,7 @@ public class StructureAligner {
         AlternativeAlignment alignment = aligner.getAlignments()[0];
         Structure structure = alignment.getAlignedStructure(s1, s2);
 
-        Chain[] chains = new Chain[4];
+        chains = new Chain[4];
         chains[0] = structure.getModel(0).get(0);
         chains[1] = structure.getModel(1).get(0);
         chains[2] = (Chain) chains[0].clone();
@@ -65,7 +71,7 @@ public class StructureAligner {
             }
         }
 
-        PdbManager.putAlignmentInfo(new Chain[] { c1, c2 }, residues);
+        PdbManager.putAlignmentInfo(new Chain[] { c1, c2 }, chains, residues);
         return chains;
     }
 

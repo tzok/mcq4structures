@@ -21,6 +21,8 @@ public class PdbManager {
     private final HashMap<String, Structure> mapStructure;
     private final HashMap<String, String> nameMap;
     private final static HashMap<Set<Chain>, HashMap<Group, Group>> mapAlignment = new HashMap<>();
+    private final static HashMap<Chain, Set<Chain>> mapAlignmentHistory = new HashMap<>();
+    private final static HashMap<Set<Chain>, Chain[]> mapAlignmentData = new HashMap<>();
     private final static Logger LOGGER = Logger.getLogger(PdbManager.class);
 
     public static HashMap<Group, Group> getAlignmentInfo(Chain[] chains) {
@@ -37,7 +39,7 @@ public class PdbManager {
         return PdbManager.mapAlignment.containsKey(set);
     }
 
-    public static void putAlignmentInfo(Chain[] chains,
+    public static void putAlignmentInfo(Chain[] chains, Chain[] aligned,
             String[][] residuesMapping) {
         HashMap<Group, Group> map = new HashMap<>();
         for (int i = 0; i < residuesMapping[0].length; i++) {
@@ -63,6 +65,15 @@ public class PdbManager {
         PdbManager.LOGGER.debug("Putting alignment info with hashcode: "
                 + set.hashCode());
         PdbManager.mapAlignment.put(set, map);
+
+        for (int i = 0; i < 2; i++) {
+            if (!mapAlignmentHistory.containsKey(chains[i]))
+                mapAlignmentHistory.put(chains[i], new HashSet<Chain>());
+            Set<Chain> setHistory = mapAlignmentHistory.get(chains[i]);
+            setHistory.add(chains[i ^ 1]);
+        }
+
+        PdbManager.mapAlignmentData.put(set, aligned);
     }
 
     public PdbManager() {
@@ -120,5 +131,10 @@ public class PdbManager {
 
     public Structure[] getStructures(String[] elements) {
         return getStructures(Arrays.asList(elements));
+    }
+
+    public static Chain[] getAlignmentData(Chain[] chains) {
+        return PdbManager.mapAlignmentData.get(new HashSet<>(Arrays
+                .asList(chains)));
     }
 }
