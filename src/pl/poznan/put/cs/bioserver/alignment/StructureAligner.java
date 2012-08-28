@@ -38,16 +38,19 @@ public class StructureAligner {
         aligner.align(s1, s2);
         AlternativeAlignment alignment = aligner.getAlignments()[0];
         Structure structure = alignment.getAlignedStructure(s1, s2);
-        c1 = structure.getModel(0).get(0);
-        c2 = structure.getModel(1).get(0);
 
-        Chain c3 = (Chain) c1.clone();
-        Chain c4 = (Chain) c2.clone();
+        Chain[] chains = new Chain[4];
+        chains[0] = structure.getModel(0).get(0);
+        chains[1] = structure.getModel(1).get(0);
+        chains[2] = (Chain) chains[0].clone();
+        chains[3] = (Chain) chains[1].clone();
+
         String[][] residues = new String[][] { alignment.getPDBresnum1(),
                 alignment.getPDBresnum2() };
-        c3.setAtomGroups(StructureAligner.filterGroups(c1, residues[0]));
-        c4.setAtomGroups(StructureAligner.filterGroups(c2, residues[1]));
-        PdbManager.putAlignmentInfo(new Chain[] { c1, c2 }, residues);
+        chains[2].setAtomGroups(StructureAligner.filterGroups(chains[0],
+                residues[0]));
+        chains[3].setAtomGroups(StructureAligner.filterGroups(chains[1],
+                residues[1]));
 
         if (StructureAligner.LOGGER.isTraceEnabled()) {
             String[] numerals = new String[] { "1st", "2nd" };
@@ -62,7 +65,8 @@ public class StructureAligner {
             }
         }
 
-        return new Chain[] { c1, c2, c3, c4 };
+        PdbManager.putAlignmentInfo(new Chain[] { c1, c2 }, residues);
+        return chains;
     }
 
     public static Structure[] align(Structure s1, Structure s2)
