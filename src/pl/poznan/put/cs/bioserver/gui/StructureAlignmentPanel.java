@@ -33,6 +33,7 @@ import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.jmol.util.Logger;
 
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 
@@ -105,10 +106,16 @@ public class StructureAlignmentPanel extends JPanel {
                     try {
                         Structure[] aligned = new StructureImpl[4];
                         if (!isAllChainsMode) {
-                            Chain[] alignedChains = StructureAligner.align(
-                                    chains[0], chains[1]);
-                            for (int i = 0; i < 4; i++)
-                                aligned[i] = new StructureImpl(alignedChains[i]);
+                            AlignmentOutput alignedChains = StructureAligner
+                                    .align(chains[0], chains[1]);
+                            for (int i = 0; i < 2; i++) {
+                                Chain chain = alignedChains.getAllAtomsChains()[i];
+                                aligned[i] = new StructureImpl(chain);
+                            }
+                            for (int i = 0; i < 2; i++) {
+                                Chain chain = alignedChains.getFilteredChains()[i];
+                                aligned[i + 2] = new StructureImpl(chain);
+                            }
                         } else
                             aligned = StructureAligner.align(structures[0],
                                     structures[1]);

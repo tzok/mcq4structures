@@ -1,11 +1,15 @@
 package pl.poznan.put.cs.bioserver.torsion;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
+import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
@@ -25,11 +29,7 @@ public class DihedralAngles {
         C1P, C2, C2P, C3P, C4P, C5P, N1, N9, O3P, O4P, O5P, P, C4;
     }
 
-    // TODO USUŃ!
-    // /** Constant usable in retrieving amino acid dihedral angles. */
-    // public static final int AMINO_GROUPS = 0;
-    // /** Constant usable in retrieving nucleotide dihedral angles. */
-    // public static final int NUCLEOTIDE_GROUPS = 1;
+    private static final Logger LOGGER = Logger.getLogger(DihedralAngles.class);
 
     /**
      * Implementation of torsion angle calculation for amino acids.
@@ -278,44 +278,37 @@ public class DihedralAngles {
         return atoms;
     }
 
-    /**
-     * Calculate dihedral angles values for specified chain.
-     * 
-     * @param chain
-     *            Input chain.
-     * @return A 2D array[][] where array[0][] are for proteins, array[1][] for
-     *         RNAs, array[][i] is for i-th angle.
-     */
     public static DihedralContainer getDihedrals(Chain chain) {
-        return DihedralAngles.getDihedrals(chain.getAtomGroups());
+        List<Group> atomGroups = chain.getAtomGroups();
+        Deque<Integer> compact = new LinkedList<>();
+        for (int i = 0; i < atomGroups.size(); i++) {
+            Group group = atomGroups.get(i);
+            Integer last = compact.peekLast();
+            if (last == null || group.getResidueNumber().getSeqNum() - last == 1)
+                compact.add();
+        }
+        return null;
     }
 
-    private static DihedralContainer getDihedrals(List<Group> groups) {
-        int size = groups.size();
-        if (size == 0)
-            return new DihedralContainer();
-
-        int[] groupResidue = new int[size];
-        for (int i = 0; i < size; i++)
-            groupResidue[i] = groups.get(i).getResidueNumber().getSeqNum();
-
-        /*
-         * Divide the list of groups into sublists of continuous residue indexes
-         */
-        DihedralContainer allDihedrals = new DihedralContainer();
-        List<Group> continuous = new Vector<>();
-        for (int i = 0; i < size; i++)
-            if (continuous.isEmpty()
-                    || groupResidue[i] - groupResidue[i - 1] == 1)
-                continuous.add(groups.get(i));
-            else {
-                allDihedrals
-                        .addAll(DihedralAngles.computeDihedrals(continuous));
-                continuous = new Vector<>();
+    public static DihedralContainer getDihedrals(Chain chain,
+            int[][] compactGroups) {
+        DihedralContainer container = new DihedralContainer();
+        for (int i = 0; i < compactGroups.length; i++) {
+            List<Group> compact = new Vector<>();
+            for (int j = 0; j < compactGroups[i].length; j++) {
+                try {
+                    ResidueNumber resi = new ResidueNumber(null,
+                            compactGroups[i][j], null);
+                    compact.add(chain.getGroupByPDB(resi));
+                } catch (StructureException e) {
+                    DihedralAngles.LOGGER.error("Failed to read residue for "
+                            + "dihedral angles calculation: "
+                            + compactGroups[i][j], e);
+                }
             }
-        if (!continuous.isEmpty())
-            allDihedrals.addAll(DihedralAngles.computeDihedrals(continuous));
-        return allDihedrals;
+            container.addAll(DihedralAngles.computeDihedrals(compact));
+        }
+        return container;
     }
 
     /**

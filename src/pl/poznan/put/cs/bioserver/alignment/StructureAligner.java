@@ -22,11 +22,12 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 public class StructureAligner {
     private static Logger LOGGER = Logger.getLogger(StructureAligner.class);
 
-    public static Chain[] align(Chain c1, Chain c2) throws StructureException {
-        Chain[] chains = new Chain[] { c1, c2 };
-        if (PdbManager.isAlignmentInfo(chains)) {
+    public static AlignmentOutput align(Chain c1, Chain c2)
+            throws StructureException {
+        AlignmentInput input = new AlignmentInput(c1, c2);
+        if (PdbManager.isAlignmentInfo(input)) {
             StructureAligner.LOGGER.info("Reusing alignment data from cache");
-            return PdbManager.getAlignmentData(chains);
+            return PdbManager.getAlignmentData(input);
         }
 
         StructurePairAligner aligner = new StructurePairAligner();
@@ -47,7 +48,7 @@ public class StructureAligner {
         AlternativeAlignment alignment = aligner.getAlignments()[0];
         Structure structure = alignment.getAlignedStructure(s1, s2);
 
-        chains = new Chain[4];
+        Chain[] chains = new Chain[4];
         chains[0] = structure.getModel(0).get(0);
         chains[1] = structure.getModel(1).get(0);
         chains[2] = (Chain) chains[0].clone();
@@ -59,6 +60,7 @@ public class StructureAligner {
                 residues[0]));
         chains[3].setAtomGroups(StructureAligner.filterGroups(chains[1],
                 residues[1]));
+        AlignmentOutput output = new AlignmentOutput(chains);
 
         for (int i = 0; i < 2; i++) {
             Set<String> set = new HashSet<>();
@@ -72,8 +74,8 @@ public class StructureAligner {
             residues[i] = list.toArray(new String[list.size()]);
         }
 
-        PdbManager.putAlignmentInfo(new Chain[] { c1, c2 }, chains, residues);
-        return chains;
+        PdbManager.putAlignmentInfo(input, output, residues);
+        return output;
     }
 
     public static Structure[] align(Structure s1, Structure s2)
@@ -87,7 +89,7 @@ public class StructureAligner {
         for (Chain c : s2.getChains())
             c2.add(c.getChainID());
         c1.retainAll(c2);
-        
+
         if (StructureAligner.LOGGER.isDebugEnabled()) {
             StringBuilder builder = new StringBuilder();
             for (String chainName : c1) {
@@ -99,21 +101,27 @@ public class StructureAligner {
                             + "structures: " + builder.toString());
         }
 
-        Chain[][] chains = new Chain[c1.size()][];
+        AlignmentOutput[] output = new AlignmentOutput[c1.size()];
         int i = 0;
         for (String id : c1) {
-            chains[i++] = StructureAligner.align(s1.getChainByPDB(id),
+            output[i++] = StructureAligner.align(s1.getChainByPDB(id),
                     s2.getChainByPDB(id));
             StructureAligner.LOGGER.trace("Aligned chain: " + id);
         }
 
         Structure[] structures = new Structure[] { s1.clone(), s2.clone(),
                 s1.clone(), s2.clone() };
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < 2; i++) {
             Vector<Chain> vector = new Vector<>();
-            for (Chain[] chain : chains)
-                vector.add(chain[i]);
+            for (AlignmentOutput chains : output)
+                vector.add(chains.getAllAtomsChains()[i]);
             structures[i].setChains(vector);
+        }
+        for (i = 0; i < 2; i++) {
+            Vector<Chain> vector = new Vector<>();
+            for (AlignmentOutput chains : output)
+                vector.add(chains.getFilteredChains()[i]);
+            structures[i + 2].setChains(vector);
         }
         return structures;
     }

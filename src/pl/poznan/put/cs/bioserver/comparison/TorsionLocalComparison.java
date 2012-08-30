@@ -22,6 +22,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.torsion.Dihedral;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
@@ -42,18 +43,18 @@ public class TorsionLocalComparison extends LocalComparison {
      * @throws IncomparableStructuresException
      */
     public static double[][][] compare(Chain c1, Chain c2) {
-        Chain[] chains;
+        AlignmentOutput chains;
         try {
             chains = StructureAligner.align(c1, c2);
         } catch (StructureException e) {
             TorsionLocalComparison.logger.warn("Failed to align chains prior "
                     + "to comparison. Will try to compare without it", e);
-            chains = new Chain[] { c1, c2, c1, c2 };
+            chains = new AlignmentOutput();
         }
 
         DihedralContainer[] containers = new DihedralContainer[2];
-        containers[0] = DihedralAngles.getDihedrals(chains[2]);
-        containers[1] = DihedralAngles.getDihedrals(chains[3]);
+        containers[0] = DihedralAngles.getDihedrals(chains.getFiltered1st());
+        containers[1] = DihedralAngles.getDihedrals(chains.getFiltered2nd());
 
         Dihedral[][][] all = new Dihedral[2][][];
         List<? extends Dihedral> dihedrals;

@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -17,31 +19,42 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.io.PDBFileReader;
 
-public class PdbManager {
-    private final HashMap<String, Structure> mapStructure;
-    private final HashMap<String, String> nameMap;
-    private final static HashMap<Set<Chain>, HashMap<Group, Group>> mapAlignment = new HashMap<>();
-    private final static HashMap<Chain, Set<Chain>> mapAlignmentHistory = new HashMap<>();
-    private final static HashMap<Set<Chain>, Chain[]> mapAlignmentData = new HashMap<>();
-    private final static Logger LOGGER = Logger.getLogger(PdbManager.class);
+import pl.poznan.put.cs.bioserver.alignment.AlignmentInput;
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 
-    public static HashMap<Group, Group> getAlignmentInfo(Chain[] chains) {
-        HashSet<Chain> set = new HashSet<>(Arrays.asList(chains));
+public class PdbManager {
+    private final static Logger LOGGER = Logger.getLogger(PdbManager.class);
+    private final Map<String, Structure> mapStructure;
+    private final Map<String, String> nameMap;
+
+    /** Give a pair of chains, get a mapping between aligned pairs of residues. */
+    private final static Map<AlignmentInput, Map<Group, Group>> mapAlignment = new HashMap<>();
+    /**
+     * Give a chain, get information about every other chain this one was
+     * already aligned with.
+     */
+    private final static Map<Chain, Set<Chain>> mapAlignmentHistory = new HashMap<>();
+    /** Give a pair of chains, get a 4-tuple of aligned chains. */
+    private final static Map<AlignmentInput, AlignmentOutput> mapAlignmentData = new HashMap<>();
+
+    public static Map<Group, Group> getAlignmentInfo(Chain[] chains) {
+        Set<Chain> set = new HashSet<>(Arrays.asList(chains));
         PdbManager.LOGGER.debug("Getting alignment info with hashcode: "
                 + set.hashCode());
         return PdbManager.mapAlignment.get(set);
     }
 
-    public static boolean isAlignmentInfo(Chain[] chains) {
-        HashSet<Chain> set = new HashSet<>(Arrays.asList(chains));
+    public static boolean isAlignmentInfo(AlignmentInput input) {
         PdbManager.LOGGER.debug("Checking alignment info with hashcode: "
-                + set.hashCode());
-        return PdbManager.mapAlignment.containsKey(set);
+                + input);
+        return PdbManager.mapAlignment.containsKey(input);
     }
 
-    public static void putAlignmentInfo(Chain[] chains, Chain[] aligned,
-            String[][] residuesMapping) {
-        HashMap<Group, Group> map = new HashMap<>();
+    public static void putAlignmentInfo(AlignmentInput input,
+            AlignmentOutput output, String[][] residuesMapping) {
+        Chain[] chains = input.getChains();
+
+        Map<Group, Group> map = new HashMap<>();
         for (int i = 0; i < residuesMapping[0].length; i++) {
             PdbManager.LOGGER.trace("Mapping between chains: "
                     + residuesMapping[0][i] + " " + residuesMapping[1][i]);
@@ -49,8 +62,9 @@ public class PdbManager {
             for (int j = 0; j < 2; j++) {
                 String residue = residuesMapping[j][i].split(":")[0];
                 try {
-                    groups[j] = chains[j].getGroupByPDB(ResidueNumber
-                            .fromString(residue));
+                    Chain chain = chains[j];
+                    ResidueNumber resi = ResidueNumber.fromString(residue);
+                    groups[j] = chain.getGroupByPDB(resi);
                 } catch (StructureException e) {
                     PdbManager.LOGGER.error(
                             "Failed to store alignment info between "
@@ -61,10 +75,9 @@ public class PdbManager {
             map.put(groups[0], groups[1]);
         }
 
-        HashSet<Chain> set = new HashSet<>(Arrays.asList(chains));
         PdbManager.LOGGER.debug("Putting alignment info with hashcode: "
-                + set.hashCode());
-        PdbManager.mapAlignment.put(set, map);
+                + input);
+        PdbManager.mapAlignment.put(input, map);
 
         for (int i = 0; i < 2; i++) {
             if (!PdbManager.mapAlignmentHistory.containsKey(chains[i]))
@@ -75,7 +88,7 @@ public class PdbManager {
             setHistory.add(chains[i ^ 1]);
         }
 
-        PdbManager.mapAlignmentData.put(set, aligned);
+        PdbManager.mapAlignmentData.put(input, output);
     }
 
     public PdbManager() {
@@ -106,8 +119,8 @@ public class PdbManager {
         }
     }
 
-    public String[] getNames(Vector<String> elements) {
-        Vector<String> vector = new Vector<>();
+    public String[] getNames(List<String> elements) {
+        List<String> vector = new Vector<>();
         for (String element : elements) {
             String name = nameMap.get(element);
             vector.add(name);
@@ -116,14 +129,14 @@ public class PdbManager {
     }
 
     public Structure[] getStructures(Enumeration<?> elements) {
-        Vector<String> vector = new Vector<>();
+        List<String> vector = new Vector<>();
         while (elements.hasMoreElements())
             vector.add((String) elements.nextElement());
         return getStructures(vector);
     }
 
     public Structure[] getStructures(Iterable<String> elements) {
-        Vector<Structure> vector = new Vector<>();
+        List<Structure> vector = new Vector<>();
         for (String element : elements) {
             Structure structure = mapStructure.get(element);
             vector.add(structure);
@@ -135,8 +148,7 @@ public class PdbManager {
         return getStructures(Arrays.asList(elements));
     }
 
-    public static Chain[] getAlignmentData(Chain[] chains) {
-        return PdbManager.mapAlignmentData.get(new HashSet<>(Arrays
-                .asList(chains)));
+    public static AlignmentOutput getAlignmentData(AlignmentInput input) {
+        return PdbManager.mapAlignmentData.get(input);
     }
 }
