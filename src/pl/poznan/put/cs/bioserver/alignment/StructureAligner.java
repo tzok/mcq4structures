@@ -60,17 +60,16 @@ public class StructureAligner {
         chains[3].setAtomGroups(StructureAligner.filterGroups(chains[1],
                 residues[1]));
 
-        if (StructureAligner.LOGGER.isTraceEnabled()) {
-            String[] numerals = new String[] { "1st", "2nd" };
-            for (int i = 0; i < 2; i++) {
-                StringBuilder builder = new StringBuilder();
-                for (String residueNumber : residues[i]) {
-                    builder.append(residueNumber);
-                    builder.append('\t');
-                }
-                StructureAligner.LOGGER.trace("Residues aligned from "
-                        + numerals[i] + " structure: " + builder.toString());
+        for (int i = 0; i < 2; i++) {
+            Set<String> set = new HashSet<>();
+            List<String> list = new Vector<>();
+            for (String residueNumber : residues[i]) {
+                if (set.contains(residueNumber))
+                    continue;
+                set.add(residueNumber);
+                list.add(residueNumber);
             }
+            residues[i] = list.toArray(new String[list.size()]);
         }
 
         PdbManager.putAlignmentInfo(new Chain[] { c1, c2 }, chains, residues);
@@ -88,6 +87,7 @@ public class StructureAligner {
         for (Chain c : s2.getChains())
             c2.add(c.getChainID());
         c1.retainAll(c2);
+        
         if (StructureAligner.LOGGER.isDebugEnabled()) {
             StringBuilder builder = new StringBuilder();
             for (String chainName : c1) {
