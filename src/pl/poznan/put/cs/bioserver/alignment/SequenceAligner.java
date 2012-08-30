@@ -56,6 +56,7 @@ public class SequenceAligner<C extends Compound> {
      *            Type of alignment (global or local).
      * @return A global alignment of the sequences.
      */
+    @SuppressWarnings("unchecked")
     public SequencePair<Sequence<C>, C> alignSequences(Chain c1, Chain c2,
             PairwiseSequenceAlignerType type) {
         /*

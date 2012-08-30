@@ -34,9 +34,9 @@ public abstract class Dihedral {
             diff = Math.PI;
         else {
             double full = 2 * Math.PI;
-            a1 = (a1 + full) % full;
-            a2 = (a2 + full) % full;
-            diff = Math.abs(a1 - a2);
+            double a1_mod = (a1 + full) % full;
+            double a2_mod = (a2 + full) % full;
+            diff = Math.abs(a1_mod - a2_mod);
             diff = Math.min(diff, full - diff);
         }
         return diff;

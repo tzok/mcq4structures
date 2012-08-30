@@ -67,9 +67,11 @@ public class PdbManager {
         PdbManager.mapAlignment.put(set, map);
 
         for (int i = 0; i < 2; i++) {
-            if (!mapAlignmentHistory.containsKey(chains[i]))
-                mapAlignmentHistory.put(chains[i], new HashSet<Chain>());
-            Set<Chain> setHistory = mapAlignmentHistory.get(chains[i]);
+            if (!PdbManager.mapAlignmentHistory.containsKey(chains[i]))
+                PdbManager.mapAlignmentHistory.put(chains[i],
+                        new HashSet<Chain>());
+            Set<Chain> setHistory = PdbManager.mapAlignmentHistory
+                    .get(chains[i]);
             setHistory.add(chains[i ^ 1]);
         }
 
