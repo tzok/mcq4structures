@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Group;
 
 public class AlignmentOutput {
     private Chain allAtoms1st;
@@ -11,8 +12,13 @@ public class AlignmentOutput {
     private Chain[] allAtomsChains;
     private Chain[] filteredChains;
 
-    public AlignmentOutput(Chain[] aligned) {
-        super();
+    private Group[][][] compactGroups;
+
+    public AlignmentOutput(Chain[] aligned, Group[][][] compactGroups) {
+        allAtomsChains = new Chain[2];
+        filteredChains = new Chain[2];
+        this.compactGroups = new Group[2][][];
+        
         setAllAtoms1st(aligned[0]);
         setAllAtoms2nd(aligned[1]);
         setFiltered1st(aligned[2]);
@@ -22,6 +28,12 @@ public class AlignmentOutput {
     public AlignmentOutput() {
         allAtomsChains = new Chain[2];
         filteredChains = new Chain[2];
+        compactGroups = new Group[2][][];
+    }
+
+    public Group[][] getCompactGroups(int index) {
+        assert index == 0 || index == 1;
+        return compactGroups[index];
     }
 
     public Chain getAllAtoms1st() {

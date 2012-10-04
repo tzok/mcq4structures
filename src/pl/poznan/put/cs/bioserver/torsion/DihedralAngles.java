@@ -1,7 +1,6 @@
 package pl.poznan.put.cs.bioserver.torsion;
 
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -9,9 +8,11 @@ import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
-import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
+
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 
 /**
  * A class to calculate and manage dihedral angles for given BioJava structure.
@@ -29,6 +30,7 @@ public class DihedralAngles {
         C1P, C2, C2P, C3P, C4P, C5P, N1, N9, O3P, O4P, O5P, P, C4;
     }
 
+    @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(DihedralAngles.class);
 
     /**
@@ -279,36 +281,7 @@ public class DihedralAngles {
     }
 
     public static DihedralContainer getDihedrals(Chain chain) {
-        List<Group> atomGroups = chain.getAtomGroups();
-        Deque<Integer> compact = new LinkedList<>();
-        for (int i = 0; i < atomGroups.size(); i++) {
-            Group group = atomGroups.get(i);
-            Integer last = compact.peekLast();
-            if (last == null || group.getResidueNumber().getSeqNum() - last == 1)
-                compact.add();
-        }
-        return null;
-    }
-
-    public static DihedralContainer getDihedrals(Chain chain,
-            int[][] compactGroups) {
-        DihedralContainer container = new DihedralContainer();
-        for (int i = 0; i < compactGroups.length; i++) {
-            List<Group> compact = new Vector<>();
-            for (int j = 0; j < compactGroups[i].length; j++) {
-                try {
-                    ResidueNumber resi = new ResidueNumber(null,
-                            compactGroups[i][j], null);
-                    compact.add(chain.getGroupByPDB(resi));
-                } catch (StructureException e) {
-                    DihedralAngles.LOGGER.error("Failed to read residue for "
-                            + "dihedral angles calculation: "
-                            + compactGroups[i][j], e);
-                }
-            }
-            container.addAll(DihedralAngles.computeDihedrals(compact));
-        }
-        return container;
+        return computeDihedrals(chain.getAtomGroups());
     }
 
     /**
@@ -346,5 +319,19 @@ public class DihedralAngles {
         } catch (StructureException e) {
             return null;
         }
+    }
+
+    public static DihedralContainer getDihedrals(AlignmentOutput alignment,
+            int whichChain) {
+        DihedralContainer container = new DihedralContainer();
+        Group[][] compactGroups = alignment.getCompactGroups(whichChain);
+        for (Group[] groups : compactGroups)
+            container.addAll(computeDihedrals(Arrays.asList(groups)));
+        return container;
+    }
+    
+    public static DihedralContainer getDihedrals(AlternativeAlignment alignment, int which) {
+        alignment.g
+        return null;
     }
 }

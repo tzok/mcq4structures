@@ -41,6 +41,7 @@ import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 /**
  * A panel which is a graphical interface to a local comparison measure based on

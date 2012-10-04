@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
 import org.biojava.bio.structure.io.PDBFileReader;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -43,18 +44,18 @@ public class TorsionLocalComparison extends LocalComparison {
      * @throws IncomparableStructuresException
      */
     public static double[][][] compare(Chain c1, Chain c2) {
-        AlignmentOutput chains;
+        AlternativeAlignment alignment = null;
         try {
-            chains = StructureAligner.align(c1, c2);
+            alignment = StructureAligner.align(c1, c2);
         } catch (StructureException e) {
             TorsionLocalComparison.logger.warn("Failed to align chains prior "
                     + "to comparison. Will try to compare without it", e);
-            chains = new AlignmentOutput();
+            // FIXME ???
         }
 
         DihedralContainer[] containers = new DihedralContainer[2];
-        containers[0] = DihedralAngles.getDihedrals(chains.getFiltered1st());
-        containers[1] = DihedralAngles.getDihedrals(chains.getFiltered2nd());
+        for (int i = 0; i < 2; i++)
+            containers[i] = DihedralAngles.getDihedrals(alignment, i);
 
         Dihedral[][][] all = new Dihedral[2][][];
         List<? extends Dihedral> dihedrals;

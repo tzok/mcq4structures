@@ -7,6 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
+
 public class Gui extends JFrame {
     private static final long serialVersionUID = 1L;
 

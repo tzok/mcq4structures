@@ -33,6 +33,7 @@ import org.jmol.util.Logger;
 
 import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class SequenceAlignmentPanel extends JPanel {
     public class ButtonPanel extends JPanel {
