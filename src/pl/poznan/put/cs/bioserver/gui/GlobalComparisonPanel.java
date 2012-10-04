@@ -145,10 +145,10 @@ public class GlobalComparisonPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JFrame plot;
-                    if (hierarchical.isSelected())
+                    if (hierarchical.isSelected()) {
                         plot = new HierarchicalPlot(comparisonResults,
                                 structureNames, linkage.getSelectedIndex());
-                    else {
+                    } else {
                         int k = (Integer) kspinner.getValue();
                         plot = new KMedoidsPlot(comparisonResults,
                                 structureNames, k);
@@ -202,8 +202,8 @@ public class GlobalComparisonPanel extends JPanel {
                 buttonPanel.addPDB.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent event) {
-                        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
-                            for (File f : chooser.getSelectedFiles())
+                        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                            for (File f : chooser.getSelectedFiles()) {
                                 try {
                                     addFile(f.getCanonicalPath());
                                     instructionsPanel
@@ -216,6 +216,8 @@ public class GlobalComparisonPanel extends JPanel {
                                             "Problem with file access",
                                             JOptionPane.ERROR_MESSAGE);
                                 }
+                            }
+                        }
                     }
                 });
 
@@ -333,8 +335,9 @@ public class GlobalComparisonPanel extends JPanel {
 
             @Override
             public int getColumnCount() {
-                if (tableNames.length == 0)
+                if (tableNames.length == 0) {
                     return 0;
+                }
                 return tableNames.length + 1;
             }
 
@@ -342,8 +345,9 @@ public class GlobalComparisonPanel extends JPanel {
             // methods
             @Override
             public String getColumnName(int column) {
-                if (column == 0)
+                if (column == 0) {
                     return "";
+                }
                 return tableNames[column - 1];
             }
 
@@ -354,8 +358,9 @@ public class GlobalComparisonPanel extends JPanel {
 
             @Override
             public Object getValueAt(int row, int column) {
-                if (column == 0)
+                if (column == 0) {
                     return tableNames[row];
+                }
                 return tableValues[row][column - 1];
             }
         }
@@ -446,8 +451,9 @@ public class GlobalComparisonPanel extends JPanel {
         list.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                     listModel.remove(list.getSelectedIndex());
+                }
             }
 
             @Override
@@ -468,12 +474,13 @@ public class GlobalComparisonPanel extends JPanel {
      * Check if selected file is correct PDB and if so, add it to local cache.
      */
     public void addFile(String text) {
-        if (manager.addStructure(text))
+        if (manager.addStructure(text)) {
             listModel.addElement(text);
-        else
+        } else {
             JOptionPane.showMessageDialog(null,
                     "Specified file is not a valid PDB file",
                     "Invalid PDB file", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -494,8 +501,9 @@ public class GlobalComparisonPanel extends JPanel {
         GlobalComparison[] methods = new GlobalComparison[] { new RMSD(),
                 new MCQ() };
         int chosen = 0; // RMSD by default
-        if (mainPanel.actionPanel.methodPanel.mcqRadio.isSelected())
+        if (mainPanel.actionPanel.methodPanel.mcqRadio.isSelected()) {
             chosen = 1;
+        }
 
         Enumeration<String> elements = listModel.elements();
         Vector<String> vector = new Vector<>();
@@ -522,11 +530,12 @@ public class GlobalComparisonPanel extends JPanel {
     public void visualise() {
         if (comparisonResults != null) {
             double[][] mds = MDS.multidimensionalScaling(comparisonResults, 2);
-            if (mds == null)
+            if (mds == null) {
                 JOptionPane.showMessageDialog(null,
                         "Cannot visualise specified structures in 2D",
                         "Problem during comparison visualisation",
                         JOptionPane.INFORMATION_MESSAGE);
+            }
             MDSPlot plot = new MDSPlot(mds, structureNames);
             plot.setVisible(true);
         }

@@ -97,10 +97,11 @@ public class SequenceAlignmentPanel extends JPanel {
                 public void keyPressed(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                         int index = list.getSelectedIndex();
-                        if (index == 0)
+                        if (index == 0) {
                             comboBoxModelFirst.removeAllElements();
-                        else
+                        } else {
                             comboBoxModelSecond.removeAllElements();
+                        }
                         listModel.remove(index);
                         refreshComboBoxes();
                     }
@@ -161,11 +162,14 @@ public class SequenceAlignmentPanel extends JPanel {
                 .addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent event) {
-                        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
+                        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
                             return;
-                        for (File f : chooser.getSelectedFiles())
-                            if (!addFile(f))
+                        }
+                        for (File f : chooser.getSelectedFiles()) {
+                            if (!addFile(f)) {
                                 break;
+                            }
+                        }
                     }
                 });
 
@@ -190,10 +194,11 @@ public class SequenceAlignmentPanel extends JPanel {
                                         .getSelectedIndex());
 
                         PairwiseSequenceAlignerType type;
-                        if (settingsPanel.buttonPanel.radioGlobal.isSelected())
+                        if (settingsPanel.buttonPanel.radioGlobal.isSelected()) {
                             type = PairwiseSequenceAlignerType.GLOBAL;
-                        else
+                        } else {
                             type = PairwiseSequenceAlignerType.LOCAL;
+                        }
 
                         boolean isRNA = Helper.isNucleicAcid(chains[0]);
                         if (isRNA != Helper.isNucleicAcid(chains[1])) {
@@ -239,14 +244,17 @@ public class SequenceAlignmentPanel extends JPanel {
 
         Structure[] structures = pdbManager
                 .getStructures(settingsPanel.pdbPanel.listModel.elements());
-        for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i)
-            for (Chain c : structures[i].getChains())
-                if (i == 0)
+        for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i) {
+            for (Chain c : structures[i].getChains()) {
+                if (i == 0) {
                     settingsPanel.pdbPanel.comboBoxModelFirst.addElement(c
                             .getChainID());
-                else
+                } else {
                     settingsPanel.pdbPanel.comboBoxModelSecond.addElement(c
                             .getChainID());
+                }
+            }
+        }
 
     }
 

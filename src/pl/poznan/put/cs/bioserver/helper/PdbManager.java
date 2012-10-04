@@ -52,12 +52,14 @@ public class PdbManager {
 
     public boolean addStructure(String path) {
         try {
-            if (mapStructure.containsKey(path))
+            if (mapStructure.containsKey(path)) {
                 return true;
+            }
 
             Structure structure = new PDBFileReader().getStructure(path);
-            if (structure == null || structure.size() == 0)
+            if (structure == null || structure.size() == 0) {
                 throw new IOException();
+            }
 
             String name = structure.getPDBCode();
             if (name == null || name.trim().equals("")) {
@@ -84,8 +86,9 @@ public class PdbManager {
 
     public Structure[] getStructures(Enumeration<?> elements) {
         List<String> vector = new Vector<>();
-        while (elements.hasMoreElements())
+        while (elements.hasMoreElements()) {
             vector.add((String) elements.nextElement());
+        }
         return getStructures(vector);
     }
 

@@ -27,23 +27,26 @@ public class KMedoidsPlot extends JFrame {
     public KMedoidsPlot(double[][] distance, String[] labels, int k) {
         int[] medoids = Clusterer.kMedoids(distance, k);
         HashSet<Integer> medoidSet = new HashSet<>();
-        for (int m : medoids)
+        for (int m : medoids) {
             medoidSet.add(m);
+        }
 
         double[][] mds = MDS.multidimensionalScaling(distance, 2);
 
         DefaultXYDataset dataset = new DefaultXYDataset();
         for (int currentMedoid : medoidSet) {
             int count = 0;
-            for (int medoid : medoids)
-                if (medoid == currentMedoid)
+            for (int medoid : medoids) {
+                if (medoid == currentMedoid) {
                     count++;
+                }
+            }
             double[] x = new double[count];
             double[] y = new double[count];
             StringWriter writer = new StringWriter();
             writer.append("[ ");
             int j = 0;
-            for (int i = 0; i < medoids.length; ++i)
+            for (int i = 0; i < medoids.length; ++i) {
                 if (medoids[i] == currentMedoid) {
                     writer.append(labels[i]);
                     writer.append(", ");
@@ -51,6 +54,7 @@ public class KMedoidsPlot extends JFrame {
                     y[j] = mds[i][1];
                     j++;
                 }
+            }
             writer.append(" ]");
             dataset.addSeries(writer.toString(), new double[][] { x, y });
         }

@@ -25,15 +25,19 @@ public class Clusterer {
          * sanity check -- each matrix symmetric, all matrices of the same
          * dimensions
          */
-        for (int i = 0; i < matrix.length; ++i)
-            for (int j = 0; j < matrix[i].length; ++j)
-                if (matrix[i][j] != matrix[j][i])
+        for (int i = 0; i < matrix.length; ++i) {
+            for (int j = 0; j < matrix[i].length; ++j) {
+                if (matrix[i][j] != matrix[j][i]) {
                     throw new IllegalArgumentException(
                             "Distance matrix must be symmetric!");
+                }
+            }
+        }
         if (linkage != Clusterer.SINGLE && linkage != Clusterer.COMPLETE
-                && linkage != Clusterer.AVERAGE)
+                && linkage != Clusterer.AVERAGE) {
             throw new IllegalArgumentException(
                     "Linkage must be one of: SINGLE, COMPLETE or AVERAGE");
+        }
         /*
          * initialise clusters as single elements
          */
@@ -51,7 +55,7 @@ public class Clusterer {
              */
             int[] toMerge = new int[2];
             double leastDiff = Double.POSITIVE_INFINITY;
-            for (int i = 0; i < Clusterer.clusters.size(); ++i)
+            for (int i = 0; i < Clusterer.clusters.size(); ++i) {
                 for (int j = i + 1; j < Clusterer.clusters.size(); ++j) {
                     Vector<Integer> c1 = Clusterer.clusters.get(i);
                     Vector<Integer> c2 = Clusterer.clusters.get(j);
@@ -60,25 +64,32 @@ public class Clusterer {
                     switch (linkage) {
                     case SINGLE:
                         delta = Double.POSITIVE_INFINITY;
-                        for (int m : c1)
-                            for (int n : c2)
-                                if (matrix[m][n] < delta)
+                        for (int m : c1) {
+                            for (int n : c2) {
+                                if (matrix[m][n] < delta) {
                                     delta = matrix[m][n];
+                                }
+                            }
+                        }
                         break;
                     case COMPLETE:
                         delta = Double.NEGATIVE_INFINITY;
-                        for (int m : c1)
-                            for (int n : c2)
-                                if (matrix[m][n] > delta)
+                        for (int m : c1) {
+                            for (int n : c2) {
+                                if (matrix[m][n] > delta) {
                                     delta = matrix[m][n];
+                                }
+                            }
+                        }
                         break;
                     case AVERAGE:
                         int count = 0;
-                        for (int m : c1)
+                        for (int m : c1) {
                             for (int n : c2) {
                                 delta += matrix[m][n];
                                 count++;
                             }
+                        }
                         delta /= count;
                         break;
                     default:
@@ -92,6 +103,7 @@ public class Clusterer {
                         leastDiff = delta;
                     }
                 }
+            }
 
             /*
              * merge clusters
@@ -124,24 +136,29 @@ public class Clusterer {
         /*
          * sanity check -- symmetric matrix
          */
-        for (int i = 0; i < distance.length; ++i)
-            for (int j = 0; j < distance[i].length; ++j)
-                if (distance[i][j] != distance[j][i])
+        for (int i = 0; i < distance.length; ++i) {
+            for (int j = 0; j < distance[i].length; ++j) {
+                if (distance[i][j] != distance[j][i]) {
                     throw new IllegalArgumentException(
                             "Distance matrix must be symmetric!");
+                }
+            }
+        }
         /*
          * sanity check -- k correctly bound
          */
-        if (k < 2 || k > distance.length)
+        if (k < 2 || k > distance.length) {
             throw new IllegalArgumentException("k in k-medoids algorithm "
                     + "must be at least 2 and at most n, where n is the "
                     + "number of datapoints");
+        }
         /*
          * primary choice of medoids
          */
         HashSet<Integer> medoidSet = new HashSet<>();
-        for (int i = 0; i < k; ++i)
+        for (int i = 0; i < k; ++i) {
             medoidSet.add(i);
+        }
         /*
          * implementation of Partition Around Medoids (PAM)
          */
@@ -149,53 +166,60 @@ public class Clusterer {
             int[] bestChangePair = new int[2];
             double bestChangeCost = Double.POSITIVE_INFINITY;
             // iterate over each medoid
-            for (int i : medoidSet)
+            for (int i : medoidSet) {
                 // check every non-selected if it's worth to change it with
                 // medoid
-                for (int h = 0; h < distance.length; ++h)
+                for (int h = 0; h < distance.length; ++h) {
                     if (!medoidSet.contains(h)) {
                         double cost = 0;
                         // check the cost of such transition
-                        for (int j = 0; j < distance.length; ++j)
+                        for (int j = 0; j < distance.length; ++j) {
                             if (j != h && !medoidSet.contains(j)) {
                                 int j2 = Clusterer.medoid(distance[j],
                                         medoidSet, -1);
                                 if (j2 == i) {
                                     j2 = Clusterer.medoid(distance[j],
                                             medoidSet, i);
-                                    if (distance[j][h] >= distance[j][j2])
+                                    if (distance[j][h] >= distance[j][j2]) {
                                         cost += distance[j][j2]; // first case
-                                    else
+                                    } else {
                                         cost += distance[j][h]; // second case
+                                    }
                                     cost -= distance[j][i];
                                 } else {
                                     double changeCost = distance[j][h]
                                             - distance[j][j2];
-                                    if (changeCost > 0)
+                                    if (changeCost > 0) {
                                         cost += 0; // third case
-                                    else
+                                    } else {
                                         cost += changeCost; // fourth case
+                                    }
                                 }
                             }
+                        }
                         if (cost < bestChangeCost) {
                             bestChangePair[0] = i;
                             bestChangePair[1] = h;
                             bestChangeCost = cost;
                         }
                     }
+                }
+            }
             // make transition only if it enhances clustering
             if (bestChangeCost < 0) {
                 medoidSet.remove(bestChangePair[0]);
                 medoidSet.add(bestChangePair[1]);
-            } else
+            } else {
                 break;
+            }
         }
         /*
          * final assignment to clusters
          */
         int[] clusterAssignment = new int[distance.length];
-        for (int i = 0; i < distance.length; ++i)
+        for (int i = 0; i < distance.length; ++i) {
             clusterAssignment[i] = Clusterer.medoid(distance[i], medoidSet, -1);
+        }
         return clusterAssignment;
     }
 
@@ -215,12 +239,14 @@ public class Clusterer {
             int exclude) {
         int index = -1;
         double min = Double.POSITIVE_INFINITY;
-        for (int i : candidates)
-            if (exclude == -1 || i != exclude)
+        for (int i : candidates) {
+            if (exclude == -1 || i != exclude) {
                 if (row[i] < min) {
                     min = row[i];
                     index = i;
                 }
+            }
+        }
         return index;
     }
 }

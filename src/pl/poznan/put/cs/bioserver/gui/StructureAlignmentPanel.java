@@ -31,7 +31,6 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
-import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
 import org.jmol.util.Logger;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
@@ -49,10 +48,11 @@ public class StructureAlignmentPanel extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (thread != null && thread.isAlive())
+            if (thread != null && thread.isAlive()) {
                 JOptionPane.showMessageDialog(null,
                         "The alignment is still being calculated", "Warning",
                         JOptionPane.WARNING_MESSAGE);
+            }
 
             if (settingsPanel.pdbPanel.listModel.size() != 2) {
                 warning();
@@ -107,8 +107,8 @@ public class StructureAlignmentPanel extends JPanel {
                     try {
                         Structure[] aligned = new StructureImpl[4];
                         if (!isAllChainsMode) {
-                            AlternativeAlignment alignment = StructureAligner
-                                    .align(chains[0], chains[1]);
+                            // AlternativeAlignment alignment = StructureAligner
+                            // .align(chains[0], chains[1]);
                             // FIXME
                             // for (int i = 0; i < 2; i++) {
                             // Chain chain =
@@ -120,9 +120,10 @@ public class StructureAlignmentPanel extends JPanel {
                             // alignedChains.getFilteredChains()[i];
                             // aligned[i + 2] = new StructureImpl(chain);
                             // }
-                        } else
+                        } else {
                             aligned = StructureAligner.align(structures[0],
                                     structures[1]);
+                        }
 
                         File[] pdbFiles = new File[4];
                         for (int i = 0; i < 4; i++) {
@@ -168,13 +169,15 @@ public class StructureAlignmentPanel extends JPanel {
                         public void run() {
                             StringBuilder builder = new StringBuilder();
                             builder.append("Processing");
-                            for (int i = 0; i < step; i++)
+                            for (int i = 0; i < step; i++) {
                                 builder.append('.');
+                            }
                             settingsPanel.label.setText(builder.toString());
 
                             step++;
-                            if (step >= ButtonPanel.PROCESSING_MAX_STEP)
+                            if (step >= ButtonPanel.PROCESSING_MAX_STEP) {
                                 step = 0;
+                            }
                         }
                     }, 0, StructureAlignmentPanel.PROCESSING_UPDATE_INTERVAL);
         }
@@ -250,10 +253,11 @@ public class StructureAlignmentPanel extends JPanel {
                 public void keyPressed(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                         int index = list.getSelectedIndex();
-                        if (index == 0)
+                        if (index == 0) {
                             comboBoxModelFirst.removeAllElements();
-                        else
+                        } else {
                             comboBoxModelSecond.removeAllElements();
+                        }
                         listModel.remove(index);
                         refreshComboBoxes();
                     }
@@ -317,11 +321,14 @@ public class StructureAlignmentPanel extends JPanel {
                 .addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent event) {
-                        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
+                        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
                             return;
-                        for (File f : chooser.getSelectedFiles())
-                            if (!addFile(f))
+                        }
+                        for (File f : chooser.getSelectedFiles()) {
+                            if (!addFile(f)) {
                                 break;
+                            }
+                        }
                     }
                 });
 
@@ -350,14 +357,17 @@ public class StructureAlignmentPanel extends JPanel {
 
         Structure[] structures = pdbManager
                 .getStructures(settingsPanel.pdbPanel.listModel.elements());
-        for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i)
-            for (Chain c : structures[i].getChains())
-                if (i == 0)
+        for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i) {
+            for (Chain c : structures[i].getChains()) {
+                if (i == 0) {
                     settingsPanel.pdbPanel.comboBoxModelFirst.addElement(c
                             .getChainID());
-                else
+                } else {
                     settingsPanel.pdbPanel.comboBoxModelSecond.addElement(c
                             .getChainID());
+                }
+            }
+        }
 
     }
 

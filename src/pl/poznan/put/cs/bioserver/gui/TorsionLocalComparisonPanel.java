@@ -80,8 +80,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
             list.addKeyListener(new KeyListener() {
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                    if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                         listModel.remove(list.getSelectedIndex());
+                    }
                 }
 
                 @Override
@@ -121,14 +122,15 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         File file = chooser.getSelectedFile();
                         try {
                             String path = file.getCanonicalPath();
-                            if (pdbManager.addStructure(path))
+                            if (pdbManager.addStructure(path)) {
                                 listModel.addElement(path);
-                            else
+                            } else {
                                 JOptionPane.showMessageDialog(null,
                                         "Specified file is not a "
                                                 + "valid PDB file",
                                         "Invalid PDB file",
                                         JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (IOException e) {
                             JOptionPane.showMessageDialog(null,
                                     "Failed to add file " + file.toString(),
@@ -141,9 +143,10 @@ public class TorsionLocalComparisonPanel extends JPanel {
                          * list of chains
                          */
                         loadChainsNames(listModel.size() - 1);
-                        if (listModel.size() == 2)
+                        if (listModel.size() == 2) {
                             instructionsPanel
                                     .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
+                        }
                     }
                 }
 
@@ -162,8 +165,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
                     vector.add(listModel.getElementAt(index));
                     Structure[] structures = pdbManager.getStructures(vector);
                     model.removeAllElements();
-                    for (Chain c : structures[0].getChains())
+                    for (Chain c : structures[0].getChains()) {
                         model.addElement(c.getChainID());
+                    }
                     comboBox.setSelectedIndex(0);
                 }
             });
@@ -256,8 +260,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
                     new JCheckBox("delta"), new JCheckBox("zeta"),
                     new JCheckBox("epsilon"), new JCheckBox("chi"),
                     new JCheckBox("P"), new JCheckBox("MCQ") };
-            for (JCheckBox b : angleChoiceChecks[1])
+            for (JCheckBox b : angleChoiceChecks[1]) {
                 b.setEnabled(false);
+            }
 
             GridBagConstraints c = new GridBagConstraints();
             c.gridx = 3;
@@ -303,14 +308,17 @@ public class TorsionLocalComparisonPanel extends JPanel {
             ActionListener radioActionListener = new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    for (int i = 0; i < 2; ++i)
+                    for (int i = 0; i < 2; ++i) {
                         if (groupChoiceRadios[i].isSelected()) {
-                            for (JCheckBox b : angleChoiceChecks[i])
+                            for (JCheckBox b : angleChoiceChecks[i]) {
                                 b.setEnabled(true);
-                            for (JCheckBox b : angleChoiceChecks[i ^ 1])
+                            }
+                            for (JCheckBox b : angleChoiceChecks[i ^ 1]) {
                                 b.setEnabled(false);
+                            }
                             break;
                         }
+                    }
                 }
             };
             groupChoiceRadios[0].addActionListener(radioActionListener);
@@ -369,8 +377,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         Structure[] structures = manager.getStructures(Arrays
                                 .asList(names));
                         Chain[] chains = new Chain[2];
-                        for (int i = 0; i < 2; ++i)
+                        for (int i = 0; i < 2; ++i) {
                             chains[i] = structures[i].getChain(indices[i]);
+                        }
 
                         /*
                          * compare them
@@ -389,8 +398,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         Vector<Integer> anglesToShow = new Vector<>();
                         int i = 0;
                         for (JCheckBox b : controlPanel.optionsPanel.angleChoiceChecks[type]) {
-                            if (b.isSelected())
+                            if (b.isSelected()) {
                                 anglesToShow.add(i);
+                            }
                             i++;
                         }
                         /*

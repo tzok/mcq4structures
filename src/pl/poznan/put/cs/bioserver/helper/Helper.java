@@ -11,24 +11,27 @@ public class Helper {
         int nucleotide = 0;
         for (Group g : c.getAtomGroups()) {
             String type = g.getType();
-            if (type.equals("amino") || g.hasAminoAtoms())
+            if (type.equals("amino") || g.hasAminoAtoms()) {
                 amino++;
-            else if (type.equals("nucleotide") || g.hasAtom("P"))
+            } else if (type.equals("nucleotide") || g.hasAtom("P")) {
                 nucleotide++;
+            }
         }
         return nucleotide > amino;
     }
 
     public static void normalizeAtomNames(Chain c) {
-        for (Group g : c.getAtomGroups())
+        for (Group g : c.getAtomGroups()) {
             for (Atom a : g.getAtoms()) {
                 a.setName(a.getName().replace('*', '\''));
                 a.setFullName(a.getFullName().replace('*', '\''));
             }
+        }
     }
 
     public static void normalizeAtomNames(Structure s) {
-        for (Chain c : s.getChains())
+        for (Chain c : s.getChains()) {
             Helper.normalizeAtomNames(c);
+        }
     }
 }

@@ -24,14 +24,18 @@ public class RMSD extends GlobalComparison {
 
     private static List<Atom> getAllAtoms(Structure structure) {
         List<Atom> list = new ArrayList<>();
-        for (Chain c : structure.getChains())
+        for (Chain c : structure.getChains()) {
             for (Group g : c.getAtomGroups()) {
-                for (Group altLoc : g.getAltLocs())
-                    for (Atom a : altLoc.getAtoms())
+                for (Group altLoc : g.getAltLocs()) {
+                    for (Atom a : altLoc.getAtoms()) {
                         g.addAtom(a);
-                for (Atom a : g.getAtoms())
+                    }
+                }
+                for (Atom a : g.getAtoms()) {
                     list.add(a);
+                }
             }
+        }
         return list;
     }
 

@@ -23,12 +23,15 @@ public abstract class GlobalComparison {
     public double[][] compare(Structure[] structures)
             throws IncomparableStructuresException {
         double[][] result = new double[structures.length][];
-        for (int i = 0; i < structures.length; ++i)
+        for (int i = 0; i < structures.length; ++i) {
             result[i] = new double[structures.length];
-        for (int i = 0; i < structures.length; ++i)
-            for (int j = i + 1; j < structures.length; ++j)
+        }
+        for (int i = 0; i < structures.length; ++i) {
+            for (int j = i + 1; j < structures.length; ++j) {
                 result[i][j] = result[j][i] = compare(structures[i],
                         structures[j]);
+            }
+        }
         return result;
     }
 }

@@ -28,13 +28,16 @@ public class MDSPlot extends JFrame {
         /*
          * sanity check
          */
-        if (data.length != labels.length)
+        if (data.length != labels.length) {
             throw new IllegalArgumentException(
                     "Data row count and number of labels don't match!");
-        for (double[] element : data)
-            if (element.length != 2)
+        }
+        for (double[] element : data) {
+            if (element.length != 2) {
                 throw new IllegalArgumentException(
                         "Data must have dimensions 'n x 2'!");
+            }
+        }
 
         /*
          * prepare dataset

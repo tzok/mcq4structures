@@ -17,7 +17,7 @@ public class AlignmentInput {
     public Chain[] getChains() {
         return list.toArray(new Chain[list.size()]);
     }
-    
+
     @Override
     public String toString() {
         // TODO

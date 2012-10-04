@@ -14,26 +14,22 @@ public class AlignmentOutput {
 
     private Group[][][] compactGroups;
 
-    public AlignmentOutput(Chain[] aligned, Group[][][] compactGroups) {
-        allAtomsChains = new Chain[2];
-        filteredChains = new Chain[2];
-        this.compactGroups = new Group[2][][];
-        
-        setAllAtoms1st(aligned[0]);
-        setAllAtoms2nd(aligned[1]);
-        setFiltered1st(aligned[2]);
-        setFiltered2nd(aligned[3]);
-    }
-
     public AlignmentOutput() {
         allAtomsChains = new Chain[2];
         filteredChains = new Chain[2];
         compactGroups = new Group[2][][];
     }
 
-    public Group[][] getCompactGroups(int index) {
-        assert index == 0 || index == 1;
-        return compactGroups[index];
+    @SuppressWarnings("unused")
+    public AlignmentOutput(Chain[] aligned, Group[][][] compactGroups) {
+        allAtomsChains = new Chain[2];
+        filteredChains = new Chain[2];
+        this.compactGroups = new Group[2][][];
+
+        setAllAtoms1st(aligned[0]);
+        setAllAtoms2nd(aligned[1]);
+        setFiltered1st(aligned[2]);
+        setFiltered2nd(aligned[3]);
     }
 
     public Chain getAllAtoms1st() {
@@ -46,6 +42,11 @@ public class AlignmentOutput {
 
     public Chain[] getAllAtomsChains() {
         return allAtomsChains;
+    }
+
+    public Group[][] getCompactGroups(int index) {
+        assert index == 0 || index == 1;
+        return compactGroups[index];
     }
 
     public Chain getFiltered1st() {
@@ -62,22 +63,22 @@ public class AlignmentOutput {
 
     public void setAllAtoms1st(Chain allAtoms1st) {
         this.allAtoms1st = allAtoms1st;
-        this.allAtomsChains[0] = allAtoms1st;
+        allAtomsChains[0] = allAtoms1st;
     }
 
     public void setAllAtoms2nd(Chain allAtoms2nd) {
         this.allAtoms2nd = allAtoms2nd;
-        this.allAtomsChains[1] = allAtoms2nd;
+        allAtomsChains[1] = allAtoms2nd;
     }
 
     public void setFiltered1st(Chain filtered1st) {
         this.filtered1st = filtered1st;
-        this.filteredChains[0] = filtered1st;
+        filteredChains[0] = filtered1st;
     }
 
     public void setFiltered2nd(Chain filtered2nd) {
         this.filtered2nd = filtered2nd;
-        this.filteredChains[1] = filtered2nd;
+        filteredChains[1] = filtered2nd;
     }
 
     @Override

@@ -70,14 +70,15 @@ public class SequenceAligner<C extends Compound> {
          * Prepare substitution matrices for the alignment
          */
         SubstitutionMatrix<C> matrix = null;
-        if (compound.equals(NucleotideCompound.class))
+        if (compound.equals(NucleotideCompound.class)) {
             matrix = (SubstitutionMatrix<C>) SubstitutionMatrixHelper
                     .getNuc4_4();
-        else if (compound.equals(AminoAcidCompound.class))
+        } else if (compound.equals(AminoAcidCompound.class)) {
             matrix = (SubstitutionMatrix<C>) SubstitutionMatrixHelper
                     .getBlosum62();
-        else
+        } else {
             throw new IllegalArgumentException("Unknown sequence type");
+        }
         /*
          * Align the sequences
          */
@@ -98,8 +99,9 @@ public class SequenceAligner<C extends Compound> {
          * Try to get sequence from parsed SEQRES entries
          */
         Sequence<?> sequence = chain.getBJSequence();
-        if (sequence.getLength() != 0)
+        if (sequence.getLength() != 0) {
             return (Sequence<C>) sequence;
+        }
         /*
          * Iterate over the structure and prepare a sequence string in FASTA
          * format
@@ -127,14 +129,15 @@ public class SequenceAligner<C extends Compound> {
         /*
          * Create a Sequence object in correct type
          */
-        if (compound.equals(NucleotideCompound.class))
+        if (compound.equals(NucleotideCompound.class)) {
             sequence = new RNASequence(seqString,
                     RNACompoundSet.getRNACompoundSet());
-        else if (compound.equals(AminoAcidCompound.class))
+        } else if (compound.equals(AminoAcidCompound.class)) {
             sequence = new ProteinSequence(seqString,
                     AminoAcidCompoundSet.getAminoAcidCompoundSet());
-        else
+        } else {
             throw new IllegalArgumentException("Unknown sequence type");
+        }
         return (Sequence<C>) sequence;
     }
 }

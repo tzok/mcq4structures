@@ -4,15 +4,8 @@ import java.util.List;
 import java.util.Vector;
 
 public class DihedralContainer {
-    public List<AminoAcidDihedral> getAminoAcidDihedrals() {
-        return aminoAcidDihedrals;
-    }
-
-    public List<NucleotideDihedral> getNucleotideDihedrals() {
-        return nucleotideDihedrals;
-    }
-
     private List<AminoAcidDihedral> aminoAcidDihedrals;
+
     private List<NucleotideDihedral> nucleotideDihedrals;
 
     public DihedralContainer() {
@@ -29,5 +22,13 @@ public class DihedralContainer {
     public void addAll(DihedralContainer container) {
         aminoAcidDihedrals.addAll(container.aminoAcidDihedrals);
         nucleotideDihedrals.addAll(container.nucleotideDihedrals);
+    }
+
+    public List<AminoAcidDihedral> getAminoAcidDihedrals() {
+        return aminoAcidDihedrals;
+    }
+
+    public List<NucleotideDihedral> getNucleotideDihedrals() {
+        return nucleotideDihedrals;
     }
 }

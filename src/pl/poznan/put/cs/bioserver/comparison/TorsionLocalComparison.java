@@ -23,7 +23,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.torsion.Dihedral;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
@@ -54,8 +53,9 @@ public class TorsionLocalComparison extends LocalComparison {
         }
 
         DihedralContainer[] containers = new DihedralContainer[2];
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             containers[i] = DihedralAngles.getDihedrals(alignment, i);
+        }
 
         Dihedral[][][] all = new Dihedral[2][][];
         List<? extends Dihedral> dihedrals;
@@ -140,8 +140,9 @@ public class TorsionLocalComparison extends LocalComparison {
             int c2 = Integer.parseInt(args[3]);
             int type = Integer.parseInt(args[4]);
             Vector<Integer> anglesToShow = new Vector<>();
-            for (String angle : args[5].split(","))
+            for (String angle : args[5].split(",")) {
                 anglesToShow.add(Integer.parseInt(angle));
+            }
 
             if (type != 0 && type != 1) {
                 System.out.println("ERROR");
@@ -180,8 +181,9 @@ public class TorsionLocalComparison extends LocalComparison {
 
             DefaultXYDataset dataset = new DefaultXYDataset();
             for (int angle : anglesToShow) {
-                if (angle >= compare[type][0].length)
+                if (angle >= compare[type][0].length) {
                     continue;
+                }
                 double[] x = new double[compare[type].length];
                 double[] y = new double[compare[type].length];
                 for (int i = 0; i < compare[type].length; ++i) {
@@ -247,9 +249,10 @@ public class TorsionLocalComparison extends LocalComparison {
     public double[][][][] compare(Structure s1, Structure s2)
             throws IncomparableStructuresException {
         double[][][][] result = new double[s1.size()][][][];
-        for (int i = 0; i < s1.size(); ++i)
+        for (int i = 0; i < s1.size(); ++i) {
             result[i] = TorsionLocalComparison.compare(s1.getChain(i),
                     s2.getChain(i));
+        }
         return result;
     }
 }

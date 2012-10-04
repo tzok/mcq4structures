@@ -43,18 +43,20 @@ public class DihedralAngles {
     private static List<AminoAcidDihedral> calculateAminoAcidDihedrals(
             List<Group> groups) {
         Vector<AminoAcidDihedral> aminoDihedrals = new Vector<>();
-        if (groups.size() == 0)
+        if (groups.size() == 0) {
             return aminoDihedrals;
+        }
 
         Atom[][] atoms = new Atom[3][];
         atoms[0] = new Atom[AminoAtoms.values().length];
         atoms[1] = DihedralAngles.getAtoms(groups.get(0), AminoAtoms.values());
         for (int i = 0; i < groups.size(); ++i) {
-            if (i == groups.size() - 1)
+            if (i == groups.size() - 1) {
                 atoms[2] = new Atom[AminoAtoms.values().length];
-            else
+            } else {
                 atoms[2] = DihedralAngles.getAtoms(groups.get(i + 1),
                         AminoAtoms.values());
+            }
 
             double phi = DihedralAngles.dihedral(
                     atoms[0][AminoAtoms.C.ordinal()],
@@ -93,8 +95,9 @@ public class DihedralAngles {
     private static List<NucleotideDihedral> calculateNucleotideDihedrals(
             List<Group> groups) {
         Vector<NucleotideDihedral> nucleotideDihedrals = new Vector<>();
-        if (groups.size() == 0)
+        if (groups.size() == 0) {
             return nucleotideDihedrals;
+        }
 
         Atom[][] atoms = new Atom[3][];
         atoms[0] = new Atom[NucleotideAtoms.values().length];
@@ -102,11 +105,12 @@ public class DihedralAngles {
                 NucleotideAtoms.values());
 
         for (int i = 0; i < groups.size(); ++i) {
-            if (i == groups.size() - 1)
+            if (i == groups.size() - 1) {
                 atoms[2] = new Atom[NucleotideAtoms.values().length];
-            else
+            } else {
                 atoms[2] = DihedralAngles.getAtoms(groups.get(i + 1),
                         NucleotideAtoms.values());
+            }
 
             double alpha = DihedralAngles.dihedral(
                     atoms[0][NucleotideAtoms.O3P.ordinal()],
@@ -142,20 +146,21 @@ public class DihedralAngles {
             String pdbName = groups.get(i).getPDBName();
             pdbName = pdbName.trim();
             double chi;
-            if (pdbName.equals("G") || pdbName.equals("A"))
+            if (pdbName.equals("G") || pdbName.equals("A")) {
                 // Guanine or Adenine
                 chi = DihedralAngles.dihedral(
                         atoms[1][NucleotideAtoms.O4P.ordinal()],
                         atoms[1][NucleotideAtoms.C1P.ordinal()],
                         atoms[1][NucleotideAtoms.N9.ordinal()],
                         atoms[1][NucleotideAtoms.C4.ordinal()]);
-            else
+            } else {
                 // Uracil or Cytosine
                 chi = DihedralAngles.dihedral(
                         atoms[1][NucleotideAtoms.O4P.ordinal()],
                         atoms[1][NucleotideAtoms.C1P.ordinal()],
                         atoms[1][NucleotideAtoms.N1.ordinal()],
                         atoms[1][NucleotideAtoms.C2.ordinal()]);
+            }
 
             double[] tau = new double[5];
             tau[0] = DihedralAngles.dihedral(
@@ -206,14 +211,17 @@ public class DihedralAngles {
 
         for (Group g : continuous) {
             Group group = (Group) g.clone();
-            for (Group altLoc : g.getAltLocs())
-                for (Atom a : altLoc.getAtoms())
+            for (Group altLoc : g.getAltLocs()) {
+                for (Atom a : altLoc.getAtoms()) {
                     group.addAtom(a);
+                }
+            }
             String type = group.getType();
-            if (type.equals("amino") || group.hasAminoAtoms())
+            if (type.equals("amino") || group.hasAminoAtoms()) {
                 aminoVector.add(group);
-            else if (type.equals("nucleotide") || group.hasAtom("P"))
+            } else if (type.equals("nucleotide") || group.hasAtom("P")) {
                 nucleotideVector.add(group);
+            }
 
         }
 
@@ -238,8 +246,9 @@ public class DihedralAngles {
      * @return Dihedral angle between atoms 1-4.
      */
     private static double dihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
-        if (a1 == null || a2 == null || a3 == null || a4 == null)
+        if (a1 == null || a2 == null || a3 == null || a4 == null) {
             return Double.NaN;
+        }
 
         Vector3D v1 = new Vector3D(a1, a2);
         Vector3D v2 = new Vector3D(a2, a3);
@@ -248,7 +257,35 @@ public class DihedralAngles {
         Vector3D tmp1 = v1.cross(v2);
         Vector3D tmp2 = v2.cross(v3);
         Vector3D tmp3 = v1.scale(v2.length());
-        return Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
+        // return Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
+        double d1 = Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
+        double d2 = dihedral2(a1, a2, a3, a4);
+        if (Math.abs(d1 - d2) > 0.00001) {
+            System.out.println("dihedral:  " + d1);
+            System.out.println("dihedral2: " + d2);
+            System.out.println("diff:      " + Double.toString(d1 - d2));
+        }
+        return d1;
+    }
+
+    private static double dihedral2(Atom a1, Atom a2, Atom a3, Atom a4) {
+        if (a1 == null || a2 == null || a3 == null || a4 == null) {
+            return Double.NaN;
+        }
+
+        Vector3D d1 = new Vector3D(a1, a2);
+        Vector3D d2 = new Vector3D(a2, a3);
+        Vector3D d3 = new Vector3D(a3, a4);
+
+        Vector3D u1 = d1.cross(d2);
+        Vector3D u2 = d2.cross(d3);
+
+        double ctor = u1.dot(u2) / Math.sqrt(u1.dot(u1) * u2.dot(u2));
+        ctor = ctor < -1 ? -1 : ctor > 1 ? 1 : ctor;
+        double torp = Math.acos(ctor);
+        if (u1.dot(u2.cross(d2)) < 0)
+            torp = -torp;
+        return torp;
     }
 
     /**
@@ -269,19 +306,39 @@ public class DihedralAngles {
             if (name.length() > 1) {
                 atom = DihedralAngles
                         .tryGetAtom(group, name.replace('P', '\''));
-                if (atom == null)
+                if (atom == null) {
                     atom = DihedralAngles.tryGetAtom(group,
                             name.replace('P', '*'));
-            } else
+                }
+            } else {
                 atom = DihedralAngles.tryGetAtom(group, name);
+            }
             atoms[i++] = atom;
 
         }
         return atoms;
     }
 
+    public static DihedralContainer getDihedrals(AlignmentOutput alignment,
+            int whichChain) {
+        DihedralContainer container = new DihedralContainer();
+        Group[][] compactGroups = alignment.getCompactGroups(whichChain);
+        for (Group[] groups : compactGroups) {
+            container.addAll(DihedralAngles.computeDihedrals(Arrays
+                    .asList(groups)));
+        }
+        return container;
+    }
+
+    @SuppressWarnings("unused")
+    public static DihedralContainer getDihedrals(
+            AlternativeAlignment alignment, int which) {
+        // TODO
+        return null;
+    }
+
     public static DihedralContainer getDihedrals(Chain chain) {
-        return computeDihedrals(chain.getAtomGroups());
+        return DihedralAngles.computeDihedrals(chain.getAtomGroups());
     }
 
     /**
@@ -298,8 +355,9 @@ public class DihedralAngles {
      */
     public static DihedralContainer getDihedrals(Structure structure) {
         DihedralContainer allDihedrals = new DihedralContainer();
-        for (Chain c : structure.getChains())
+        for (Chain c : structure.getChains()) {
             allDihedrals.addAll(DihedralAngles.getDihedrals(c));
+        }
         return allDihedrals;
     }
 
@@ -319,19 +377,5 @@ public class DihedralAngles {
         } catch (StructureException e) {
             return null;
         }
-    }
-
-    public static DihedralContainer getDihedrals(AlignmentOutput alignment,
-            int whichChain) {
-        DihedralContainer container = new DihedralContainer();
-        Group[][] compactGroups = alignment.getCompactGroups(whichChain);
-        for (Group[] groups : compactGroups)
-            container.addAll(computeDihedrals(Arrays.asList(groups)));
-        return container;
-    }
-    
-    public static DihedralContainer getDihedrals(AlternativeAlignment alignment, int which) {
-        alignment.g
-        return null;
     }
 }
