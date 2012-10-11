@@ -1,23 +1,17 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.io.PDBFileReader;
 
-import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
@@ -57,53 +51,53 @@ public class MCQ extends GlobalComparison {
     @Override
     public double compare(Structure s1, Structure s2)
             throws IncomparableStructuresException {
-        return Double.POSITIVE_INFINITY;
-        // FIXME
-
-        // /*
-        // * calculate dihedral angles for both structures
-        // */
-        // DihedralAngles dihedralAngles = new DihedralAngles();
-        // Dihedral[][][][] dihedrals = new Dihedral[2][][][];
-        // dihedrals[0] = dihedralAngles.getDihedrals(s1);
-        // dihedrals[1] = dihedralAngles.getDihedrals(s2);
-        // /*
-        // * iterate over chains and groups and gather information about
-        // * differences on angle values
-        // */
-        // double[] sum = new double[2];
-        // int count = 0;
-        // for (int i = 0; i < dihedrals[0].length; ++i)
-        // for (int j = 0; j < 2; ++j)
-        // for (int k = 0; k < dihedrals[0][i][j].length; ++k) {
-        // Dihedral d1 = dihedrals[0][i][j][k];
-        // Dihedral d2 = dihedrals[1][i][j][k];
-        //
-        // for (int l = 0; l < d1.angles.length; ++l) {
-        // double a1 = d1.angles[l];
-        // double a2 = d2.angles[l];
-        // double diff = DihedralAngles.subtract(a1, a2);
-        //
-        // // formula for MCQ:
-        // // MCQ = atan2(sum(sin(diff_i))/N, sum(cos(diff_i)/N))
-        // sum[0] += Math.sin(diff);
-        // sum[1] += Math.cos(diff);
-        // count++;
-        // }
-        // }
-        // return Math.atan2(sum[0] / count, sum[1] / count);
-    }
-
-    public double compare(Chain c1, Chain c2)
-            throws IncomparableStructuresException {
-        AlignmentOutput alignmentOutput;
         try {
-            alignmentOutput = StructureAligner.align(c1, c2);
+            return MCQ.compare(s1, s2, false);
         } catch (StructureException e) {
             LOGGER.error(e);
             throw new IncomparableStructuresException(e);
         }
+    }
 
-        return 0;
+    public static double compare(Structure s1, Structure s2, boolean alignFirst)
+            throws StructureException {
+        Atom[][] atoms;
+        if (alignFirst) {
+            atoms = StructureAligner.align(s1, s2).getAtoms();
+        } else {
+            atoms = Helper.getCommonAtomArray(s1, s2,
+                    NucleotideDihedral.USED_ATOMS);
+        }
+        return compare(atoms);
+    }
+
+    public static double compare(Chain c1, Chain c2, boolean alignFirst)
+            throws StructureException {
+        Atom[][] atoms;
+        if (alignFirst) {
+            atoms = StructureAligner.align(c1, c2).getAtoms();
+        } else {
+            atoms = Helper.getCommonAtomArray(c1, c2,
+                    NucleotideDihedral.USED_ATOMS);
+        }
+        return compare(atoms);
+    }
+
+    private static double compare(Atom[][] atoms) {
+        int counter = 0;
+        double sines = 0.0;
+        double cosines = 0.0;
+        for (NucleotideDihedral.AngleName an : NucleotideDihedral.AngleName
+                .values()) {
+            List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(
+                    atoms, new NucleotideDihedral(an));
+            for (AngleDifference ad : diffs) {
+                sines += Math.sin(ad.difference);
+                cosines += Math.cos(ad.difference);
+                counter++;
+            }
+        }
+
+        return Math.atan2(sines / counter, cosines / counter);
     }
 }

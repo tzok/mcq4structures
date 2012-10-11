@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Structure;
 
 public class AlignmentInput {
-    private List<Chain> list;
+    private List<Structure> list;
 
-    public AlignmentInput(Chain c1, Chain c2) {
+    public AlignmentInput(Structure s1, Structure s2) {
         list = new ArrayList<>();
-        list.add(c1);
-        list.add(c2);
+        list.add(s1);
+        list.add(s2);
     }
 
     public Chain[] getChains() {
@@ -21,7 +22,7 @@ public class AlignmentInput {
     @Override
     public String toString() {
         if (list == null || list.size() == 0)
-            return "AlignmentInput: chains not provided";
+            return "AlignmentInput: structures not provided";
         StringBuilder builder = new StringBuilder();
         builder.append("AlignmentInput:\n");
         builder.append(list.get(0));

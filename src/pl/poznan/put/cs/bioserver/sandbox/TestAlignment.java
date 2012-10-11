@@ -13,15 +13,14 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
+import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral.AngleName;
 
 public class TestAlignment {
     public static void main(String[] args) {
         try {
             PDBFileReader reader = new PDBFileReader();
-            Structure s1 = reader
-                    .getStructure("/home/tzok/pdb/1EHZ.pdb");//challenge-2/2_bujnicki_2.pdb");
-            Structure s2 = reader
-                    .getStructure("/home/tzok/pdb/1EVV.pdb");//challenge-2/2_bujnicki_3.pdb");
+            Structure s1 = reader.getStructure("/home/tzok/pdb/1EHZ.pdb");// challenge-2/2_bujnicki_2.pdb");
+            Structure s2 = reader.getStructure("/home/tzok/pdb/1EVV.pdb");// challenge-2/2_bujnicki_3.pdb");
 
             Helper.normalizeAtomNames(s1);
             Helper.normalizeAtomNames(s2);
@@ -29,16 +28,19 @@ public class TestAlignment {
             AlignmentOutput output = StructureAligner.align(s1.getChain(0),
                     s2.getChain(0));
 
-            for (NucleotideDihedral.AngleName an : NucleotideDihedral.AngleName
-                    .values()) {
-                System.out.println(an);
-                List<AngleDifference> differences = DihedralAngles
-                        .calculateAnglesDifferences(output.getAtoms(),
-                                new NucleotideDihedral(an));
-                for (AngleDifference d : differences) {
-                    System.out.println(d);
-                }
+            // for (NucleotideDihedral.AngleName an :
+            // NucleotideDihedral.AngleName
+            // .values()) {
+            // System.out.println(an);
+
+            AngleName an = AngleName.EPSILON;
+            List<AngleDifference> differences = DihedralAngles
+                    .calculateAngleDiff(output.getAtoms(),
+                            new NucleotideDihedral(an));
+            for (AngleDifference d : differences) {
+                System.out.println(d);
             }
+            // }
         } catch (IOException | StructureException e) {
             e.printStackTrace();
         }

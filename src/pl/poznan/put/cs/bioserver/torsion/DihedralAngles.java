@@ -16,11 +16,6 @@ import org.biojava.bio.structure.Group;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class DihedralAngles {
-    /** Atoms needed to calculate dihedrals in amino acids. */
-    // private enum AminoAtoms {
-    // C, CA, N;
-    // }
-
     private static final Logger LOGGER = Logger.getLogger(DihedralAngles.class);
 
     /**
@@ -224,6 +219,41 @@ public class DihedralAngles {
     // }
 
     /**
+     * Calculate one dihedral angle value for given four atoms. Use cos^-1 and a
+     * check for pseudovector
+     * 
+     * @param a1
+     *            Atom 1.
+     * @param a2
+     *            Atom 2.
+     * @param a3
+     *            Atom 3.
+     * @param a4
+     *            Atom 4.
+     * @return Dihedral angle between atoms 1-4.
+     */
+    public static double calculateDihedralAcos(Atom a1, Atom a2, Atom a3,
+            Atom a4) {
+        if (a1 == null || a2 == null || a3 == null || a4 == null) {
+            return Double.NaN;
+        }
+
+        Vector3D d1 = new Vector3D(a1, a2);
+        Vector3D d2 = new Vector3D(a2, a3);
+        Vector3D d3 = new Vector3D(a3, a4);
+
+        Vector3D u1 = d1.cross(d2);
+        Vector3D u2 = d2.cross(d3);
+
+        double ctor = u1.dot(u2) / Math.sqrt(u1.dot(u1) * u2.dot(u2));
+        ctor = ctor < -1 ? -1 : ctor > 1 ? 1 : ctor;
+        double torp = Math.acos(ctor);
+        if (u1.dot(u2.cross(d2)) < 0)
+            torp = -torp;
+        return torp;
+    }
+
+    /**
      * Calculate one dihedral angle value for given four atoms.
      * 
      * @param a1
@@ -260,8 +290,8 @@ public class DihedralAngles {
         return calculateDihedral(atoms[0], atoms[1], atoms[2], atoms[3]);
     }
 
-    public static List<AngleDifference> calculateAnglesDifferences(
-            Atom[][] atoms, AngleType angleType) {
+    public static List<AngleDifference> calculateAngleDiff(Atom[][] atoms,
+            AngleType angleType) {
         LOGGER.debug("Number of atoms: " + atoms[0].length + " "
                 + atoms[1].length);
         List<Atom[]> quads1 = getQuadruplets(atoms[0], angleType);
@@ -340,6 +370,7 @@ public class DihedralAngles {
             Atom refAtom = found.get(0).get(j);
             Group refGroup = refAtom.getGroup();
             int refId = refGroup.getResidueNumber().getSeqNum();
+            String refChain = refGroup.getChainId();
 
             List<Atom> quad = new ArrayList<>();
             quad.add(refAtom);
@@ -347,7 +378,8 @@ public class DihedralAngles {
                 for (Atom atom : found.get(k)) {
                     Group group = atom.getGroup();
                     int id = group.getResidueNumber().getSeqNum();
-                    if (id - refId == groupRule[k]) {
+                    String chain = group.getChainId();
+                    if (id - refId == groupRule[k] && refChain.equals(chain)) {
                         quad.add(atom);
                         break;
                     }
@@ -356,6 +388,13 @@ public class DihedralAngles {
 
             if (quad.size() == 4) {
                 filtered.add(quad.toArray(new Atom[quad.size()]));
+            } else {
+                LOGGER.debug("Quad not found, got only " + quad.size()
+                        + " atoms. Angle: " + angleType.getAngleName()
+                        + ". Residue of first: "
+                        + quad.get(0).getGroup().getResidueNumber()
+                        + ". Atoms: "
+                        + Arrays.toString(quad.toArray(new Atom[quad.size()])));
             }
         }
         return filtered;
@@ -386,41 +425,6 @@ public class DihedralAngles {
             diff = Math.min(diff, full - diff);
         }
         return diff;
-    }
-
-    /**
-     * Calculate one dihedral angle value for given four atoms. Use cos^-1 and a
-     * check for pseudovector
-     * 
-     * @param a1
-     *            Atom 1.
-     * @param a2
-     *            Atom 2.
-     * @param a3
-     *            Atom 3.
-     * @param a4
-     *            Atom 4.
-     * @return Dihedral angle between atoms 1-4.
-     */
-    public static double calculateDihedralAcos(Atom a1, Atom a2, Atom a3,
-            Atom a4) {
-        if (a1 == null || a2 == null || a3 == null || a4 == null) {
-            return Double.NaN;
-        }
-
-        Vector3D d1 = new Vector3D(a1, a2);
-        Vector3D d2 = new Vector3D(a2, a3);
-        Vector3D d3 = new Vector3D(a3, a4);
-
-        Vector3D u1 = d1.cross(d2);
-        Vector3D u2 = d2.cross(d3);
-
-        double ctor = u1.dot(u2) / Math.sqrt(u1.dot(u1) * u2.dot(u2));
-        ctor = ctor < -1 ? -1 : ctor > 1 ? 1 : ctor;
-        double torp = Math.acos(ctor);
-        if (u1.dot(u2.cross(d2)) < 0)
-            torp = -torp;
-        return torp;
     }
 
     /**

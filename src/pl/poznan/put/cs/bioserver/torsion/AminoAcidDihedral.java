@@ -1,22 +1,55 @@
 package pl.poznan.put.cs.bioserver.torsion;
 
-import org.biojava.bio.structure.Group;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Dihedral angles for protein group (amino acid).
  * 
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
-public class AminoAcidDihedral extends Dihedral {
-    public static final int PHI = 0;
-    public static final int PSI = 1;
-    public static final int OMEGA = 2;
+public class AminoAcidDihedral implements AngleType {
+    // TODO: add angles provided in Bio3D package
+    public enum AngleName {
+        PHI, PSI, OMEGA
+    }
 
-    public AminoAcidDihedral(double phi, double psi, double omega, Group group) {
-        super(group);
-        angles = new double[3];
-        angles[AminoAcidDihedral.PHI] = phi;
-        angles[AminoAcidDihedral.PSI] = psi;
-        angles[AminoAcidDihedral.OMEGA] = omega;
+    public static final String C = " C  ";
+    public static final String CA = " CA ";
+    public static final String N = " N  ";
+
+    private AngleName angleName;
+
+    private static Map<AngleName, String[]> mapAngleToAtoms;
+    private static Map<AngleName, int[]> mapAngleToRules;
+    static {
+        mapAngleToAtoms = new HashMap<>();
+        mapAngleToAtoms.put(AngleName.PHI, new String[] { C, N, CA, C });
+        mapAngleToAtoms.put(AngleName.PSI, new String[] { N, CA, C, N });
+        mapAngleToAtoms.put(AngleName.OMEGA, new String[] { CA, C, N, CA });
+
+        mapAngleToRules = new HashMap<>();
+        mapAngleToRules.put(AngleName.PHI, new int[] { 0, 1, 1, 1 });
+        mapAngleToRules.put(AngleName.PSI, new int[] { 0, 0, 0, 1 });
+        mapAngleToRules.put(AngleName.OMEGA, new int[] { 0, 0, 1, 1 });
+    }
+
+    public AminoAcidDihedral(AngleName angleName) {
+        this.angleName = angleName;
+    }
+
+    @Override
+    public String[] getAtomNames() {
+        return mapAngleToAtoms.get(angleName);
+    }
+
+    @Override
+    public int[] getGroupRule() {
+        return mapAngleToRules.get(angleName);
+    }
+
+    @Override
+    public String getAngleName() {
+        return angleName.toString();
     }
 }

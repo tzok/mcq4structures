@@ -35,6 +35,9 @@ public class NucleotideDihedral implements AngleType {
     public static final String OP2 = " OP2";
     public static final String P = " P  ";
 
+    public static final String[] USED_ATOMS = new String[] { C1P, C2, C2P, C3P,
+            C4, C4P, C5, C5P, C6, N1, N3, N9, O2P, O3P, O4P, O5P, OP1, OP2, P };
+
     private AngleName angleName;
 
     private static Map<AngleName, String[]> mapAngleToAtoms;
@@ -108,7 +111,6 @@ public class NucleotideDihedral implements AngleType {
                 0, 0, 0 });
         NucleotideDihedral.mapAngleToRules.put(AngleName.TAU5, new int[] { 0,
                 0, 0, 0 });
-
     }
 
     public NucleotideDihedral(AngleName angleName) {
@@ -123,5 +125,10 @@ public class NucleotideDihedral implements AngleType {
     @Override
     public int[] getGroupRule() {
         return NucleotideDihedral.mapAngleToRules.get(angleName);
+    }
+
+    @Override
+    public String getAngleName() {
+        return angleName.toString();
     }
 }

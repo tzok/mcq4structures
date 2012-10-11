@@ -1,16 +1,15 @@
 package pl.poznan.put.cs.bioserver.torsion;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class DihedralContainer {
     private List<AminoAcidDihedral> aminoAcidDihedrals;
-
     private List<NucleotideDihedral> nucleotideDihedrals;
 
     public DihedralContainer() {
-        aminoAcidDihedrals = new Vector<>();
-        nucleotideDihedrals = new Vector<>();
+        aminoAcidDihedrals = new ArrayList<>();
+        nucleotideDihedrals = new ArrayList<>();
     }
 
     public DihedralContainer(List<AminoAcidDihedral> aad,

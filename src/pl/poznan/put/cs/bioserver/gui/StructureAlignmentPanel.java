@@ -26,18 +26,22 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
-import org.jmol.util.Logger;
 
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class StructureAlignmentPanel extends JPanel {
+    static final Logger LOGGER = Logger
+            .getLogger(StructureAlignmentPanel.class);
+
     private class ActionListenerAlign implements ActionListener {
         private Thread thread;
         boolean isAllChainsMode;
@@ -61,30 +65,27 @@ public class StructureAlignmentPanel extends JPanel {
 
             final Structure[] structures = pdbManager
                     .getStructures(settingsPanel.pdbPanel.listModel.elements());
-            final Chain chains[] = new Chain[2];
+
             if (!isAllChainsMode) {
+                Chain chains[] = new Chain[2];
                 chains[0] = structures[0]
                         .getChain(settingsPanel.pdbPanel.comboBoxFirst
                                 .getSelectedIndex());
                 chains[1] = structures[1]
                         .getChain(settingsPanel.pdbPanel.comboBoxSecond
                                 .getSelectedIndex());
+                structures[0] = new StructureImpl(chains[0]);
+                structures[1] = new StructureImpl(chains[1]);
+            }
 
-                boolean isRNA = Helper.isNucleicAcid(chains[0]);
-                if (isRNA != Helper.isNucleicAcid(chains[1])) {
-                    String message = "Structures meant to be aligned "
-                            + "represent different molecule types!";
-                    Logger.error(message);
-                    JOptionPane.showMessageDialog(null, message, "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                Helper.normalizeAtomNames(chains[0]);
-                Helper.normalizeAtomNames(chains[1]);
-            } else {
-                Helper.normalizeAtomNames(structures[0]);
-                Helper.normalizeAtomNames(structures[1]);
+            boolean isRNA = Helper.isNucleicAcid(structures[0]);
+            if (isRNA != Helper.isNucleicAcid(structures[1])) {
+                String message = "Structures meant to be aligned "
+                        + "represent different molecule types!";
+                LOGGER.error(message);
+                JOptionPane.showMessageDialog(null, message, "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
             thread = new Thread(new Runnable() {
@@ -105,25 +106,12 @@ public class StructureAlignmentPanel extends JPanel {
                 @Override
                 public void run() {
                     try {
-                        Structure[] aligned = new StructureImpl[4];
-                        if (!isAllChainsMode) {
-                            // AlternativeAlignment alignment = StructureAligner
-                            // .align(chains[0], chains[1]);
-                            // FIXME
-                            // for (int i = 0; i < 2; i++) {
-                            // Chain chain =
-                            // alignedChains.getAllAtomsChains()[i];
-                            // aligned[i] = new StructureImpl(chain);
-                            // }
-                            // for (int i = 0; i < 2; i++) {
-                            // Chain chain =
-                            // alignedChains.getFilteredChains()[i];
-                            // aligned[i + 2] = new StructureImpl(chain);
-                            // }
-                        } else {
-                            aligned = StructureAligner.align(structures[0],
-                                    structures[1]);
-                        }
+                        Helper.normalizeAtomNames(structures[0]);
+                        Helper.normalizeAtomNames(structures[1]);
+
+                        AlignmentOutput output = StructureAligner.align(
+                                structures[0], structures[1]);
+                        Structure[] aligned = output.getStructures();
 
                         File[] pdbFiles = new File[4];
                         for (int i = 0; i < 4; i++) {
@@ -141,12 +129,11 @@ public class StructureAlignmentPanel extends JPanel {
                         alignmentShowPanel.jmolRightPanel
                                 .executeCmd(generateJmolScript(pdbFiles[2],
                                         pdbFiles[3]));
-                    } catch (StructureException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                    } catch (StructureException | IOException e1) {
+                        LOGGER.error(e1);
+                        JOptionPane.showMessageDialog(getParent(),
+                                e1.getMessage(), "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     } finally {
                         settingsPanel.buttonPanel.timer.cancel();
                         try {
