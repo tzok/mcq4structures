@@ -10,4 +10,8 @@ public class IncomparableStructuresException extends Exception {
     public IncomparableStructuresException(String message) {
         super(message);
     }
+
+    public IncomparableStructuresException(Throwable cause) {
+        super(cause);
+    }
 }

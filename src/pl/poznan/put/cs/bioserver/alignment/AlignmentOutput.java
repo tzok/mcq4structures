@@ -1,89 +1,84 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
-import org.biojava.bio.structure.Chain;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Group;
+import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.align.StructurePairAligner;
+import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
 
 public class AlignmentOutput {
-    private Chain allAtoms1st;
-    private Chain allAtoms2nd;
-    private Chain filtered1st;
-    private Chain filtered2nd;
+    private StructurePairAligner aligner;
+    private Structure s1;
+    private Structure s2;
+    private AlternativeAlignment[] alignments;
 
-    private Chain[] allAtomsChains;
-    private Chain[] filteredChains;
+    public AlignmentOutput(StructurePairAligner aligner, Structure s1,
+            Structure s2) {
+        this.aligner = aligner;
+        this.s1 = s1;
+        this.s2 = s2;
 
-    private Group[][][] compactGroups;
-
-    public AlignmentOutput() {
-        allAtomsChains = new Chain[2];
-        filteredChains = new Chain[2];
-        compactGroups = new Group[2][][];
+        this.alignments = aligner.getAlignments();
     }
 
-    @SuppressWarnings("unused")
-    public AlignmentOutput(Chain[] aligned, Group[][][] compactGroups) {
-        allAtomsChains = new Chain[2];
-        filteredChains = new Chain[2];
-        this.compactGroups = new Group[2][][];
-
-        setAllAtoms1st(aligned[0]);
-        setAllAtoms2nd(aligned[1]);
-        setFiltered1st(aligned[2]);
-        setFiltered2nd(aligned[3]);
-    }
-
-    public Chain getAllAtoms1st() {
-        return allAtoms1st;
-    }
-
-    public Chain getAllAtoms2nd() {
-        return allAtoms2nd;
-    }
-
-    public Chain[] getAllAtomsChains() {
-        return allAtomsChains;
-    }
-
-    public Group[][] getCompactGroups(int index) {
-        assert index == 0 || index == 1;
-        return compactGroups[index];
-    }
-
-    public Chain getFiltered1st() {
-        return filtered1st;
-    }
-
-    public Chain getFiltered2nd() {
-        return filtered2nd;
-    }
-
-    public Chain[] getFilteredChains() {
-        return filteredChains;
-    }
-
-    public void setAllAtoms1st(Chain allAtoms1st) {
-        this.allAtoms1st = allAtoms1st;
-        allAtomsChains[0] = allAtoms1st;
-    }
-
-    public void setAllAtoms2nd(Chain allAtoms2nd) {
-        this.allAtoms2nd = allAtoms2nd;
-        allAtomsChains[1] = allAtoms2nd;
-    }
-
-    public void setFiltered1st(Chain filtered1st) {
-        this.filtered1st = filtered1st;
-        filteredChains[0] = filtered1st;
-    }
-
-    public void setFiltered2nd(Chain filtered2nd) {
-        this.filtered2nd = filtered2nd;
-        filteredChains[1] = filtered2nd;
+    public StructurePairAligner getAligner() {
+        return aligner;
     }
 
     @Override
     public String toString() {
-        // TODO
-        return null;
+        StringBuilder builder = new StringBuilder();
+        builder.append(aligner);
+        for (AlternativeAlignment a : alignments) {
+            builder.append('\n');
+            builder.append(a);
+        }
+        return builder.toString();
+    }
+
+    public Atom[][] getAtoms(int i) {
+        Atom[][] allAtoms = new Atom[][] { aligner.getAlignmentAtoms(s1),
+                aligner.getAlignmentAtoms(s2) };
+        int[][] allIdxs = new int[][] { alignments[i].getIdx1(),
+                alignments[i].getIdx2() };
+        Atom[][] result = new Atom[2][];
+        for (int k = 0; k < 2; k++) {
+            Atom[] atoms = allAtoms[k];
+            int[] idx = allIdxs[k];
+            Atom[] filtered = new Atom[idx.length];
+            for (int j = 0; j < idx.length; j++) {
+                filtered[j] = atoms[idx[j]];
+            }
+            result[k] = filtered;
+        }
+        return result;
+    }
+
+    public Atom[][] getAtoms() {
+        return getAtoms(0);
+    }
+
+    public Group[][] getGroups(int i) {
+        Atom[][] atoms = getAtoms(i);
+        Group[][] result = new Group[2][];
+        for (int j = 0; j < 2; j++) {
+            List<Group> list = new ArrayList<>();
+            Set<Integer> set = new HashSet<>();
+            for (Atom a : atoms[j]) {
+                Group group = a.getGroup();
+                Integer seqNum = group.getResidueNumber().getSeqNum();
+                if (set.contains(seqNum))
+                    continue;
+                set.add(seqNum);
+                list.add(group);
+            }
+            result[j] = list.toArray(new Group[list.size()]);
+        }
+        return result;
     }
 }

@@ -1,9 +1,11 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
@@ -16,17 +18,16 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 
 public class StructureAligner {
     private static Logger LOGGER = Logger.getLogger(StructureAligner.class);
-    private static Map<AlignmentInput, AlternativeAlignment> cache = new HashMap<>();
+    private static Map<AlignmentInput, AlignmentOutput> cache = new HashMap<>();
 
-    // private static int[] parseResidueString(String[] strings) {
-    // int[] integers = new int[strings.length];
-    // int i = 0;
-    // for (String s : strings)
-    // integers[i++] = Integer.valueOf(s.split(":")[0]);
-    // return integers;
-    // }
+    public static List<Atom> toAtomList(AlternativeAlignment alignment,
+            boolean first) {
+        if (first)
+            alignment.getIdx1();
+        return null;
+    }
 
-    public static AlternativeAlignment align(Chain c1, Chain c2)
+    public static AlignmentOutput align(Chain c1, Chain c2)
             throws StructureException {
         /*
          * Check if alignment was made before
@@ -43,21 +44,22 @@ public class StructureAligner {
         StructurePairAligner aligner = new StructurePairAligner();
         if (Helper.isNucleicAcid(c1)) {
             StrucAligParameters parameters = new StrucAligParameters();
+            // FIXME
             parameters.setUsedAtomNames(new String[] { " C1'", " C2 ", " C2'",
                     " C3'", " C4 ", " C4'", " C5 ", " C5'", " C6 ", " N1 ",
                     " N3 ", " O2'", " O3'", " O4'", " O5'", " OP1", " OP2",
                     " P  " });
             aligner.setParams(parameters);
-        }
+        } // no else{} because for proteins the defaults are fine
 
         StructureImpl s1 = new StructureImpl(c1);
         StructureImpl s2 = new StructureImpl(c2);
         Helper.normalizeAtomNames(s1);
         Helper.normalizeAtomNames(s2);
         aligner.align(s1, s2);
-        AlternativeAlignment alignment = aligner.getAlignments()[0];
-        StructureAligner.cache.put(input, alignment);
-        return alignment;
+        AlignmentOutput result = new AlignmentOutput(aligner, s1, s2);
+        StructureAligner.cache.put(input, result);
+        return result;
 
         // Structure structure = alignment.getAlignedStructure(s1, s2);
         //

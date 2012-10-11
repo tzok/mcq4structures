@@ -1,9 +1,26 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
+import org.biojava.bio.structure.Atom;
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.io.PDBFileReader;
+
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
+import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
+import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
+import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -12,6 +29,8 @@ import org.biojava.bio.structure.io.PDBFileReader;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class MCQ extends GlobalComparison {
+    private static final Logger LOGGER = Logger.getLogger(MCQ.class);
+
     public static void main(String[] args) {
         if (args.length != 2) {
             System.out.println("ERROR");
@@ -73,5 +92,18 @@ public class MCQ extends GlobalComparison {
         // }
         // }
         // return Math.atan2(sum[0] / count, sum[1] / count);
+    }
+
+    public double compare(Chain c1, Chain c2)
+            throws IncomparableStructuresException {
+        AlignmentOutput alignmentOutput;
+        try {
+            alignmentOutput = StructureAligner.align(c1, c2);
+        } catch (StructureException e) {
+            LOGGER.error(e);
+            throw new IncomparableStructuresException(e);
+        }
+
+        return 0;
     }
 }

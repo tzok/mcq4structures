@@ -44,13 +44,13 @@ public class TorsionLocalComparison extends LocalComparison {
      */
     public static double[][][] compare(Chain c1, Chain c2) {
         AlternativeAlignment alignment = null;
-        try {
-            alignment = StructureAligner.align(c1, c2);
-        } catch (StructureException e) {
-            TorsionLocalComparison.logger.warn("Failed to align chains prior "
-                    + "to comparison. Will try to compare without it", e);
-            // FIXME ???
-        }
+        // try {
+        // alignment = StructureAligner.align(c1, c2)[0];
+        // } catch (StructureException e) {
+        // TorsionLocalComparison.logger.warn("Failed to align chains prior "
+        // + "to comparison. Will try to compare without it", e);
+        // // FIXME ???
+        // }
 
         DihedralContainer[] containers = new DihedralContainer[2];
         for (int i = 0; i < 2; i++) {
@@ -79,7 +79,7 @@ public class TorsionLocalComparison extends LocalComparison {
                 double[] diffs = new double[count + 1];
                 double sine = 0, cosine = 0;
                 for (int k = 0; k < count; k++) {
-                    diffs[k] += Dihedral.subtract(current[0][k], current[1][k]);
+                    diffs[k] += Dihedral.subtractDihedral(current[0][k], current[1][k]);
                     sine += Math.sin(diffs[k]);
                     cosine += Math.cos(diffs[k]);
                 }
