@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,78 +103,74 @@ public class TorsionLocalComparisonPanel extends JPanel {
             final JFileChooser chooser = new JFileChooser();
             chooser.addChoosableFileFilter(new FileNameExtensionFilter(
                     "PDB file format", "pdb", "pdb1", "ent", "brk", "gz"));
+            chooser.setMultiSelectionEnabled(true);
 
             optionsPanel.addFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-                    /*
-                     * when user clicks on "Add file", then check if new file
-                     * can be added first
-                     */
-                    if (listModel.size() == 2) {
-                        JOptionPane.showMessageDialog(null,
-                                "Only two structures are allowed for"
-                                        + " local comparison measures",
-                                "Maximum number of structures reached",
-                                JOptionPane.WARNING_MESSAGE);
+                    if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
                         return;
                     }
-                    /*
-                     * when user chooses a file, then try to parse it
-                     */
-                    if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                        File file = chooser.getSelectedFile();
-                        try {
-                            String path = file.getCanonicalPath();
-                            if (pdbManager.addStructure(path)) {
-                                listModel.addElement(path);
-                            } else {
-                                JOptionPane.showMessageDialog(null,
-                                        "Specified file is not a "
-                                                + "valid PDB file",
-                                        "Invalid PDB file",
-                                        JOptionPane.ERROR_MESSAGE);
-                            }
-                        } catch (IOException e) {
-                            JOptionPane.showMessageDialog(null,
-                                    "Failed to add file " + file.toString(),
-                                    "Problem with file access",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        /*
-                         * if that was the first file added, then update the
-                         * list of chains
-                         */
-                        loadChainsNames(listModel.size() - 1);
-                        if (listModel.size() == 2) {
-                            instructionsPanel
-                                    .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
+                    for (File f : chooser.getSelectedFiles()) {
+                        if (!addFile(f)) {
+                            break;
                         }
                     }
-                }
-
-                private void loadChainsNames(int index) {
-                    DefaultComboBoxModel<String> model = null;
-                    JComboBox<String> comboBox = null;
-                    if (index == 0) {
-                        model = optionsPanel.comboBoxModelFirst;
-                        comboBox = optionsPanel.comboBoxFirst;
-                    } else {
-                        model = optionsPanel.comboBoxModelSecond;
-                        comboBox = optionsPanel.comboBoxSecond;
-                    }
-
-                    List<String> vector = new ArrayList<>();
-                    vector.add(listModel.getElementAt(index));
-                    Structure[] structures = pdbManager.getStructures(vector);
-                    model.removeAllElements();
-                    for (Chain c : structures[0].getChains()) {
-                        model.addElement(c.getChainID());
-                    }
-                    comboBox.setSelectedIndex(0);
                 }
             });
+        }
+
+        private void loadChainsNames(int index) {
+            DefaultComboBoxModel<String> model = null;
+            JComboBox<String> comboBox = null;
+            if (index == 0) {
+                model = optionsPanel.comboBoxModelFirst;
+                comboBox = optionsPanel.comboBoxFirst;
+            } else {
+                model = optionsPanel.comboBoxModelSecond;
+                comboBox = optionsPanel.comboBoxSecond;
+            }
+
+            List<String> vector = new ArrayList<>();
+            vector.add(listModel.getElementAt(index));
+            Structure[] structures = pdbManager.getStructures(vector);
+            model.removeAllElements();
+            for (Chain c : structures[0].getChains()) {
+                model.addElement(c.getChainID());
+            }
+            comboBox.setSelectedIndex(0);
+        }
+
+        boolean addFile(File file) {
+            if (listModel.size() >= 2) {
+                JOptionPane.showMessageDialog(null,
+                        "Only two structures are allowed for"
+                                + " local comparison measures",
+                        "Maximum number of structures reached",
+                        JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            String path = file.getAbsolutePath();
+            if (pdbManager.addStructure(path)) {
+                listModel.addElement(path);
+            } else {
+                JOptionPane.showMessageDialog(null, "Specified file is not a "
+                        + "valid PDB file", "Invalid PDB file",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            pdbManager.addStructure(path);
+            /*
+             * if that was the first file added, then update the list of chains
+             */
+            loadChainsNames(listModel.size() - 1);
+            if (listModel.size() == 2) {
+                instructionsPanel
+                        .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
+            }
+            return true;
         }
     }
 
@@ -452,5 +447,6 @@ public class TorsionLocalComparisonPanel extends JPanel {
                                 .updateComponentTreeUI(TorsionLocalComparisonPanel.this);
                     }
                 });
+
     }
 }
