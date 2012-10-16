@@ -346,7 +346,6 @@ public class DihedralAngles {
     }
 
     private static List<Atom[]> getQuadruplets(Atom[] atoms, AngleType angleType) {
-        String[] atomNames = angleType.getAtomNames();
         int[] groupRule = angleType.getGroupRule();
         List<List<Atom>> found = new ArrayList<>();
         for (int j = 0; j < 4; j++) {
@@ -354,9 +353,9 @@ public class DihedralAngles {
             found.add(list);
         }
 
-        for (int j = 0; j < atoms.length; j++) {
-            Atom atom = atoms[j];
+        for (Atom atom : atoms) {
             for (int k = 0; k < 4; k++) {
+                String[] atomNames = angleType.getAtomNames(atom.getGroup());
                 if (atom.getFullName().equals(atomNames[k])) {
                     found.get(k).add(atom);
                     break;
@@ -391,7 +390,7 @@ public class DihedralAngles {
             } else {
                 LOGGER.debug("Quad not found, got only " + quad.size()
                         + " atoms. Angle: " + angleType.getAngleName()
-                        + ". Residue of first: "
+                        + ". Residue of first atom: "
                         + quad.get(0).getGroup().getResidueNumber()
                         + ". Atoms: "
                         + Arrays.toString(quad.toArray(new Atom[quad.size()])));
