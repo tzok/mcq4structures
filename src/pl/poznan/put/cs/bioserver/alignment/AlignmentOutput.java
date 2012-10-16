@@ -66,7 +66,12 @@ public class AlignmentOutput {
     }
 
     public Structure[] getStructures() {
-        Structure[] result = new Structure[] { s1, s2, null, null };
+        Structure alignedStructure = alignments[0].getAlignedStructure(s1, s2);
+        Structure sc1 = s1.clone();
+        Structure sc2 = s2.clone();
+        sc1.setChains(alignedStructure.getModel(0));
+        sc2.setChains(alignedStructure.getModel(1));
+        Structure[] result = new Structure[] { sc1, sc2, null, null };
         for (int i = 0; i < 2; i++) {
             Map<String, Set<Integer>> map = new HashMap<>();
             for (Atom a : atoms[i]) {
