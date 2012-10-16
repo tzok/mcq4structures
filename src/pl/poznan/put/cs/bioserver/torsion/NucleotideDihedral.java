@@ -129,7 +129,6 @@ public class NucleotideDihedral implements AngleType {
         if (angleName.equals(AngleName.CHI)) {
             String pdbName = residue.getPDBName();
             char last = pdbName.charAt(pdbName.length() - 1);
-            System.out.println(last);
             if (setPyrimidines.contains(last)) {
                 return new String[] { NucleotideDihedral.O4P,
                         NucleotideDihedral.C1P, NucleotideDihedral.N1,

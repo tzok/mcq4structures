@@ -85,15 +85,29 @@ public class Helper {
 
     public static Atom[][] getCommonAtomArray(Chain c1, Chain c2,
             String[] usedAtoms) {
+        Helper.normalizeAtomNames(c1);
+        Helper.normalizeAtomNames(c2);
+
         List<Atom> l1 = getAtomArray(c1, usedAtoms);
         List<Atom> l2 = getAtomArray(c2, usedAtoms);
         assert l1.size() == l2.size();
-        for (int i = 0; i < l1.size(); i++) {
+        for (int i = 0; i < l1.size();) {
             if (l1.get(i) == null || l2.get(i) == null) {
                 l1.remove(i);
                 l2.remove(i);
+            } else {
+                i++;
             }
         }
+
+        // FIXME
+        assert l1.size() == l2.size();
+        for (int i = 0; i < l1.size(); i++) {
+            assert l1.get(i) != null;
+            assert l2.get(i) != null;
+
+        }
+
         return new Atom[][] { l1.toArray(new Atom[l1.size()]),
                 l2.toArray(new Atom[l2.size()]) };
     }

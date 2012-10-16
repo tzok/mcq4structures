@@ -354,6 +354,7 @@ public class DihedralAngles {
         }
 
         for (Atom atom : atoms) {
+            assert atom != null;
             for (int k = 0; k < 4; k++) {
                 String[] atomNames = angleType.getAtomNames(atom.getGroup());
                 if (atom.getFullName().equals(atomNames[k])) {
