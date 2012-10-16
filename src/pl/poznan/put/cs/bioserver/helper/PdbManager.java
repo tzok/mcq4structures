@@ -2,12 +2,12 @@ package pl.poznan.put.cs.bioserver.helper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Structure;
@@ -76,7 +76,7 @@ public class PdbManager {
     }
 
     public String[] getNames(List<String> elements) {
-        List<String> vector = new Vector<>();
+        List<String> vector = new ArrayList<>();
         for (String element : elements) {
             String name = nameMap.get(element);
             vector.add(name);
@@ -85,7 +85,7 @@ public class PdbManager {
     }
 
     public Structure[] getStructures(Enumeration<?> elements) {
-        List<String> vector = new Vector<>();
+        List<String> vector = new ArrayList<>();
         while (elements.hasMoreElements()) {
             vector.add((String) elements.nextElement());
         }
@@ -93,7 +93,7 @@ public class PdbManager {
     }
 
     public Structure[] getStructures(Iterable<String> elements) {
-        List<Structure> vector = new Vector<>();
+        List<Structure> vector = new ArrayList<>();
         for (String element : elements) {
             Structure structure = mapStructure.get(element);
             vector.add(structure);

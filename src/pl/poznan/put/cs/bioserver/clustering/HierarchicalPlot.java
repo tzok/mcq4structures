@@ -3,7 +3,8 @@ package pl.poznan.put.cs.bioserver.clustering;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.StringWriter;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -21,10 +22,10 @@ import org.jfree.data.xy.DefaultXYDataset;
 public class HierarchicalPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private static String generateLabel(Vector<Vector<Integer>> ids,
+    private static String generateLabel(List<List<Integer>> ids,
             int[] pair, String[] labels) {
-        Vector<Integer> a = ids.get(pair[0]);
-        Vector<Integer> b = ids.get(pair[1]);
+        List<Integer> a = ids.get(pair[0]);
+        List<Integer> b = ids.get(pair[1]);
 
         a.addAll(b);
         ids.remove(pair[1]);
@@ -45,13 +46,13 @@ public class HierarchicalPlot extends JFrame {
     public HierarchicalPlot(double[][] distance, String[] labels, int linkage) {
         int[][] clustering = Clusterer
                 .hierarchicalClustering(distance, linkage);
-        Vector<Integer> allocation = Clusterer.clusters.get(0);
+        List<Integer> allocation = Clusterer.clusters.get(0);
 
-        Vector<double[]> clusters = new Vector<>();
-        Vector<Vector<Integer>> ids = new Vector<>();
+        List<double[]> clusters = new ArrayList<>();
+        List<List<Integer>> ids = new ArrayList<>();
         for (int i = 0; i < distance.length; ++i) {
             clusters.add(new double[] { allocation.indexOf(i), 0 });
-            Vector<Integer> vector = new Vector<>();
+            List<Integer> vector = new ArrayList<>();
             vector.add(i);
             ids.add(vector);
         }

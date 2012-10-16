@@ -3,6 +3,8 @@ package pl.poznan.put.cs.bioserver.torsion;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.biojava.bio.structure.Group;
+
 /**
  * Dihedral angles for protein group (amino acid).
  * 
@@ -39,7 +41,7 @@ public class AminoAcidDihedral implements AngleType {
     }
 
     @Override
-    public String[] getAtomNames() {
+    public String[] getAtomNames(Group g) {
         return mapAngleToAtoms.get(angleName);
     }
 

@@ -13,8 +13,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -506,7 +507,7 @@ public class GlobalComparisonPanel extends JPanel {
         }
 
         Enumeration<String> elements = listModel.elements();
-        Vector<String> vector = new Vector<>();
+        List<String> vector = new ArrayList<>();
         while (elements.hasMoreElements()) {
             String element = elements.nextElement();
             vector.add(element);

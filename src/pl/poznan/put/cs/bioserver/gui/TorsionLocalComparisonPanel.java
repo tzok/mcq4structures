@@ -10,8 +10,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -31,6 +33,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.StructureException;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -42,6 +45,8 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral.AngleName;
 
 /**
  * A panel which is a graphical interface to a local comparison measure based on
@@ -161,7 +166,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         comboBox = optionsPanel.comboBoxSecond;
                     }
 
-                    Vector<String> vector = new Vector<>();
+                    List<String> vector = new ArrayList<>();
                     vector.add(listModel.getElementAt(index));
                     Structure[] structures = pdbManager.getStructures(vector);
                     model.removeAllElements();
@@ -255,11 +260,12 @@ public class TorsionLocalComparisonPanel extends JPanel {
             angleChoiceChecks[0] = new JCheckBox[] { new JCheckBox("phi"),
                     new JCheckBox("psi"), new JCheckBox("omega"),
                     new JCheckBox("MCQ") };
-            angleChoiceChecks[1] = new JCheckBox[] { new JCheckBox("alpha"),
-                    new JCheckBox("beta"), new JCheckBox("gamma"),
-                    new JCheckBox("delta"), new JCheckBox("zeta"),
-                    new JCheckBox("epsilon"), new JCheckBox("chi"),
-                    new JCheckBox("P"), new JCheckBox("MCQ") };
+            AngleName[] values = AngleName.values();
+            angleChoiceChecks[1] = new JCheckBox[values.length + 1];
+            for (int i = 0; i < values.length; i++) {
+                angleChoiceChecks[1][i] = new JCheckBox(values[i].name());
+            }
+            angleChoiceChecks[1][values.length] = new JCheckBox("MCQ");
             for (JCheckBox b : angleChoiceChecks[1]) {
                 b.setEnabled(false);
             }
@@ -384,9 +390,15 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         /*
                          * compare them
                          */
-                        double[][][] compare = null;
-                        compare = TorsionLocalComparison.compare(chains[0],
-                                chains[1]);
+                        Map<String, List<AngleDifference>> compare = null;
+                        try {
+                            compare = TorsionLocalComparison.compare(chains[0],
+                                    chains[1], false);
+                        } catch (StructureException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                            return;
+                        }
                         /*
                          * read options from GUI
                          */
@@ -395,28 +407,26 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         /*
                          * read angles that have to be plotted
                          */
-                        Vector<Integer> anglesToShow = new Vector<>();
-                        int i = 0;
+                        List<String> anglesToShow = new ArrayList<>();
                         for (JCheckBox b : controlPanel.optionsPanel.angleChoiceChecks[type]) {
                             if (b.isSelected()) {
-                                anglesToShow.add(i);
+                                anglesToShow.add(b.getText());
                             }
-                            i++;
                         }
                         /*
                          * prepare dataset with points
                          */
                         DefaultXYDataset dataset = new DefaultXYDataset();
-                        for (int angle : anglesToShow) {
-                            double[] x = new double[compare[type].length];
-                            double[] y = new double[compare[type].length];
-                            for (i = 0; i < compare[type].length; ++i) {
-                                x[i] = i + 1;
-                                y[i] = compare[type][i][angle];
+                        for (String angle : anglesToShow) {
+                            List<AngleDifference> diffs = compare.get(angle);
+                            double[] x = new double[diffs.size()];
+                            double[] y = new double[diffs.size()];
+                            for (int i = 0; i < diffs.size(); i++) {
+                                AngleDifference ad = diffs.get(i);
+                                x[i] = i;
+                                y[i] = ad.difference;
                             }
-                            dataset.addSeries(
-                                    controlPanel.optionsPanel.angleChoiceChecks[type][angle]
-                                            .getText(), new double[][] { x, y });
+                            dataset.addSeries(angle, new double[][] { x, y });
                         }
                         /*
                          * draw a plot and replace the previous one

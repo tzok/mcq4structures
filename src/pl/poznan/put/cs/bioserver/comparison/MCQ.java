@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -84,20 +85,25 @@ public class MCQ extends GlobalComparison {
     }
 
     private static double compare(Atom[][] atoms) {
-        int counter = 0;
-        double sines = 0.0;
-        double cosines = 0.0;
+        List<AngleDifference> allDiffs = new ArrayList<>();
         for (NucleotideDihedral.AngleName an : NucleotideDihedral.AngleName
                 .values()) {
             List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(
                     atoms, new NucleotideDihedral(an));
-            for (AngleDifference ad : diffs) {
-                sines += Math.sin(ad.difference);
-                cosines += Math.cos(ad.difference);
-                counter++;
-            }
+            allDiffs.addAll(diffs);
         }
+        return MCQ.calculate(allDiffs);
+    }
 
+    public static double calculate(List<AngleDifference> diffs) {
+        int counter = 0;
+        double sines = 0.0;
+        double cosines = 0.0;
+        for (AngleDifference ad : diffs) {
+            sines += Math.sin(ad.difference);
+            cosines += Math.cos(ad.difference);
+            counter++;
+        }
         return Math.atan2(sines / counter, cosines / counter);
     }
 }

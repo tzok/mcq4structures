@@ -1,13 +1,14 @@
 package pl.poznan.put.cs.bioserver.clustering;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Vector;
+import java.util.List;
 
 public class Clusterer {
     public static final int SINGLE = 0;
     public static final int COMPLETE = 1;
     public static final int AVERAGE = 2;
-    public static Vector<Vector<Integer>> clusters;
+    public static ArrayList<List<Integer>> clusters;
 
     /**
      * Perform agglomerative, hierarchical clustering using SINGLE, COMPLETE or
@@ -41,14 +42,14 @@ public class Clusterer {
         /*
          * initialise clusters as single elements
          */
-        Clusterer.clusters = new Vector<>();
+        Clusterer.clusters = new ArrayList<>();
         for (int i = 0; i < matrix.length; ++i) {
-            Vector<Integer> c = new Vector<>();
+            List<Integer> c = new ArrayList<>();
             c.add(i);
             Clusterer.clusters.add(c);
         }
 
-        Vector<int[]> result = new Vector<>();
+        List<int[]> result = new ArrayList<>();
         while (Clusterer.clusters.size() > 1) {
             /*
              * get two clusters to be merged
@@ -57,8 +58,8 @@ public class Clusterer {
             double leastDiff = Double.POSITIVE_INFINITY;
             for (int i = 0; i < Clusterer.clusters.size(); ++i) {
                 for (int j = i + 1; j < Clusterer.clusters.size(); ++j) {
-                    Vector<Integer> c1 = Clusterer.clusters.get(i);
-                    Vector<Integer> c2 = Clusterer.clusters.get(j);
+                    List<Integer> c1 = Clusterer.clusters.get(i);
+                    List<Integer> c2 = Clusterer.clusters.get(j);
                     double delta = 0;
 
                     switch (linkage) {
@@ -108,8 +109,8 @@ public class Clusterer {
             /*
              * merge clusters
              */
-            Vector<Integer> c1 = Clusterer.clusters.get(toMerge[0]);
-            Vector<Integer> c2 = Clusterer.clusters.get(toMerge[1]);
+            List<Integer> c1 = Clusterer.clusters.get(toMerge[0]);
+            List<Integer> c2 = Clusterer.clusters.get(toMerge[1]);
             c1.addAll(c2);
             Clusterer.clusters.remove(toMerge[1]);
 

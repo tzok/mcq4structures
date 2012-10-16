@@ -1,8 +1,8 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
@@ -109,7 +109,7 @@ public class SequenceAligner<C extends Compound> {
         SequenceAligner.logger.debug("Failed to parse SEQRES from PDB file. "
                 + "Will attempt to get sequence manually");
         StringBuilder builder = new StringBuilder();
-        List<Group> list = new Vector<>();
+        List<Group> list = new ArrayList<>();
         for (Group g : chain.getAtomGroups()) {
             String type = g.getType();
             if (type.equals("nucleotide") || type.equals("amino")
