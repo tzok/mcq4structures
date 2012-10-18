@@ -11,6 +11,7 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.io.PDBFileReader;
 
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
@@ -69,6 +70,11 @@ public class MCQ extends GlobalComparison {
             atoms = StructureAligner.align(s1, s2).getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(s1, s2);
+            if (atoms[0].length != atoms[1].length) {
+                LOGGER.info("Atom sets have different sizes. Must use alignment before calculating MCQ");
+                AlignmentOutput output = StructureAligner.align(s1, s2);
+                atoms = output.getAtoms();
+            }
         }
         AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral.ANGLES
                 : AminoAcidDihedral.ANGLES;
@@ -82,6 +88,11 @@ public class MCQ extends GlobalComparison {
             atoms = StructureAligner.align(c1, c2).getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(c1, c2);
+            if (atoms[0].length != atoms[1].length) {
+                LOGGER.info("Atom sets have different sizes. Must use alignment before calculating MCQ");
+                AlignmentOutput output = StructureAligner.align(c1, c2);
+                atoms = output.getAtoms();
+            }
         }
         AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral.ANGLES
                 : AminoAcidDihedral.ANGLES;
@@ -89,6 +100,7 @@ public class MCQ extends GlobalComparison {
     }
 
     private static double compare(Atom[][] atoms, AngleType[] angles) {
+        assert atoms[0].length == atoms[1].length;
         List<AngleDifference> allDiffs = new ArrayList<>();
         for (AngleType at : angles) {
             List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(

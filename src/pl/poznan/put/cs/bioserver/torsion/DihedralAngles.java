@@ -306,6 +306,10 @@ public class DihedralAngles {
             List<Atom[]> quadsTmp = quads1;
             quads1 = quads2;
             quads2 = quadsTmp;
+
+            Map<Atom, Integer> mapTmp = map1;
+            map1 = map2;
+            map2 = mapTmp;
         }
 
         List<AngleDifference> differences = new ArrayList<>();
@@ -317,6 +321,18 @@ public class DihedralAngles {
 
                 int[][] ids = new int[][] { new int[4], new int[4] };
                 for (int k = 0; k < 4; k++) {
+
+                    // FIXME
+                    if (!map1.containsKey(q1[k])) {
+                        for (Atom a : atoms[0]) {
+                            if (a.equals(q1[k])) {
+                                System.out.println("FOUND!!!");
+                            }
+                        }
+                    }
+                    assert map1.containsKey(q1[k]);
+                    assert map2.containsKey(q2[k]);
+
                     ids[0][k] = map1.get(q1[k]);
                     ids[1][k] = map2.get(q2[k]);
                 }
