@@ -13,10 +13,11 @@ import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
-import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral.AngleName;
 
 /**
  * Implementation of local dissimilarity measure based on torsion angles.
@@ -34,10 +35,11 @@ public class TorsionLocalComparison extends LocalComparison {
         if (alignFirst) {
             atoms = StructureAligner.align(c1, c2).getAtoms();
         } else {
-            atoms = Helper.getCommonAtomArray(c1, c2,
-                    NucleotideDihedral.USED_ATOMS);
+            atoms = Helper.getCommonAtomArray(c1, c2);
         }
-        return compare(atoms);
+        AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral.ANGLES
+                : AminoAcidDihedral.ANGLES;
+        return compare(atoms, angles);
     }
 
     public static Map<String, List<AngleDifference>> compare(Structure s1,
@@ -46,19 +48,21 @@ public class TorsionLocalComparison extends LocalComparison {
         if (alignFirst) {
             atoms = StructureAligner.align(s1, s2).getAtoms();
         } else {
-            atoms = Helper.getCommonAtomArray(s1, s2,
-                    NucleotideDihedral.USED_ATOMS);
+            atoms = Helper.getCommonAtomArray(s1, s2);
         }
-        return compare(atoms);
+        AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral.ANGLES
+                : AminoAcidDihedral.ANGLES;
+        return compare(atoms, angles);
     }
 
-    public static Map<String, List<AngleDifference>> compare(Atom[][] atoms) {
+    public static Map<String, List<AngleDifference>> compare(Atom[][] atoms,
+            AngleType[] angles) {
         Map<String, List<AngleDifference>> map = new HashMap<>();
         List<AngleDifference> allDiffs = new ArrayList<>();
-        for (AngleName an : AngleName.values()) {
+        for (AngleType at : angles) {
             List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(
-                    atoms, new NucleotideDihedral(an));
-            map.put(an.name(), diffs);
+                    atoms, at);
+            map.put(at.getAngleName(), diffs);
             allDiffs.addAll(diffs);
         }
 

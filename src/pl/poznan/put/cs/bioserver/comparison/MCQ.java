@@ -13,7 +13,9 @@ import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
@@ -66,10 +68,11 @@ public class MCQ extends GlobalComparison {
         if (alignFirst) {
             atoms = StructureAligner.align(s1, s2).getAtoms();
         } else {
-            atoms = Helper.getCommonAtomArray(s1, s2,
-                    NucleotideDihedral.USED_ATOMS);
+            atoms = Helper.getCommonAtomArray(s1, s2);
         }
-        return compare(atoms);
+        AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral.ANGLES
+                : AminoAcidDihedral.ANGLES;
+        return compare(atoms, angles);
     }
 
     public static double compare(Chain c1, Chain c2, boolean alignFirst)
@@ -78,18 +81,18 @@ public class MCQ extends GlobalComparison {
         if (alignFirst) {
             atoms = StructureAligner.align(c1, c2).getAtoms();
         } else {
-            atoms = Helper.getCommonAtomArray(c1, c2,
-                    NucleotideDihedral.USED_ATOMS);
+            atoms = Helper.getCommonAtomArray(c1, c2);
         }
-        return compare(atoms);
+        AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral.ANGLES
+                : AminoAcidDihedral.ANGLES;
+        return compare(atoms, angles);
     }
 
-    private static double compare(Atom[][] atoms) {
+    private static double compare(Atom[][] atoms, AngleType[] angles) {
         List<AngleDifference> allDiffs = new ArrayList<>();
-        for (NucleotideDihedral.AngleName an : NucleotideDihedral.AngleName
-                .values()) {
+        for (AngleType at : angles) {
             List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(
-                    atoms, new NucleotideDihedral(an));
+                    atoms, at);
             allDiffs.addAll(diffs);
         }
         return MCQ.calculate(allDiffs);

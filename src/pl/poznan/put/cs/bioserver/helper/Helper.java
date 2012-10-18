@@ -12,6 +12,9 @@ import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
+import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
+import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
+
 public class Helper {
     private static final Logger LOGGER = Logger.getLogger(Helper.class);
 
@@ -100,14 +103,6 @@ public class Helper {
             }
         }
 
-        // FIXME
-        assert l1.size() == l2.size();
-        for (int i = 0; i < l1.size(); i++) {
-            assert l1.get(i) != null;
-            assert l2.get(i) != null;
-
-        }
-
         return new Atom[][] { l1.toArray(new Atom[l1.size()]),
                 l2.toArray(new Atom[l2.size()]) };
     }
@@ -136,5 +131,28 @@ public class Helper {
         for (Chain c : structure.getChains())
             flag &= isNucleicAcid(c);
         return flag;
+    }
+
+    public static Atom[][] getCommonAtomArray(Structure s1, Structure s2)
+            throws StructureException {
+        boolean isRNA = Helper.isNucleicAcid(s1);
+        if (isRNA != Helper.isNucleicAcid(s2)) {
+            LOGGER.warn("Trying to get common atoms from RNA and protein!");
+            return null;
+        }
+        String[] usedAtoms = isRNA ? NucleotideDihedral.USED_ATOMS
+                : AminoAcidDihedral.USED_ATOMS;
+        return Helper.getCommonAtomArray(s1, s2, usedAtoms);
+    }
+
+    public static Atom[][] getCommonAtomArray(Chain c1, Chain c2) {
+        boolean isRNA = Helper.isNucleicAcid(c1);
+        if (isRNA != Helper.isNucleicAcid(c2)) {
+            LOGGER.warn("Trying to get common atoms from RNA and protein!");
+            return null;
+        }
+        String[] usedAtoms = isRNA ? NucleotideDihedral.USED_ATOMS
+                : AminoAcidDihedral.USED_ATOMS;
+        return Helper.getCommonAtomArray(c1, c2, usedAtoms);
     }
 }

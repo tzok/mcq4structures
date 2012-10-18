@@ -13,7 +13,6 @@ import org.biojava.bio.structure.align.StrucAligParameters;
 import org.biojava.bio.structure.align.StructurePairAligner;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
 public class StructureAligner {
     private static Logger LOGGER = Logger.getLogger(StructureAligner.class);
@@ -40,8 +39,7 @@ public class StructureAligner {
         /*
          * Align the structures
          */
-        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2,
-                NucleotideDihedral.USED_ATOMS);
+        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2);
 
         StructurePairAligner aligner = new StructurePairAligner();
         aligner.align(atoms[0], atoms[1], new StrucAligParameters());

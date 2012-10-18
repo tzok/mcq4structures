@@ -42,6 +42,19 @@ public class NucleotideDihedral implements AngleType {
 
     public static final String[] USED_ATOMS = new String[] { C1P, C2, C2P, C3P,
             C4, C4P, C5, C5P, C6, N1, N3, N9, O2P, O3P, O4P, O5P, OP1, OP2, P };
+    public static final AngleType[] ANGLES = new NucleotideDihedral[] {
+            new NucleotideDihedral(AngleName.ALPHA),
+            new NucleotideDihedral(AngleName.BETA),
+            new NucleotideDihedral(AngleName.GAMMA),
+            new NucleotideDihedral(AngleName.DELTA),
+            new NucleotideDihedral(AngleName.EPSILON),
+            new NucleotideDihedral(AngleName.ZETA),
+            new NucleotideDihedral(AngleName.CHI),
+            new NucleotideDihedral(AngleName.TAU1),
+            new NucleotideDihedral(AngleName.TAU2),
+            new NucleotideDihedral(AngleName.TAU3),
+            new NucleotideDihedral(AngleName.TAU4),
+            new NucleotideDihedral(AngleName.TAU5), };
 
     private AngleName angleName;
 

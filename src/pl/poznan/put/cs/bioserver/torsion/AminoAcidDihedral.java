@@ -19,6 +19,11 @@ public class AminoAcidDihedral implements AngleType {
     public static final String C = " C  ";
     public static final String CA = " CA ";
     public static final String N = " N  ";
+    public static final String[] USED_ATOMS = { C, CA, N };
+    public static final AngleType[] ANGLES = new AminoAcidDihedral[] {
+            new AminoAcidDihedral(AngleName.PHI),
+            new AminoAcidDihedral(AngleName.PSI),
+            new AminoAcidDihedral(AngleName.OMEGA) };
 
     private AngleName angleName;
 

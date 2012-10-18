@@ -44,8 +44,10 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
-import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral.AngleName;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
+import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
 /**
  * A panel which is a graphical interface to a local comparison measure based on
@@ -252,15 +254,23 @@ public class TorsionLocalComparisonPanel extends JPanel {
             group.add(groupChoiceRadios[1]);
 
             angleChoiceChecks = new JCheckBox[2][];
-            angleChoiceChecks[0] = new JCheckBox[] { new JCheckBox("phi"),
-                    new JCheckBox("psi"), new JCheckBox("omega"),
-                    new JCheckBox("MCQ") };
-            AngleName[] values = AngleName.values();
-            angleChoiceChecks[1] = new JCheckBox[values.length + 1];
-            for (int i = 0; i < values.length; i++) {
-                angleChoiceChecks[1][i] = new JCheckBox(values[i].name());
+
+            AngleType[] angles = AminoAcidDihedral.ANGLES;
+            angleChoiceChecks[0] = new JCheckBox[angles.length + 1];
+            for (int i = 0; i < angles.length; i++) {
+                angleChoiceChecks[0][i] = new JCheckBox(
+                        angles[i].getAngleName());
             }
-            angleChoiceChecks[1][values.length] = new JCheckBox("MCQ");
+            angleChoiceChecks[0][angles.length] = new JCheckBox("MCQ");
+
+            angles = NucleotideDihedral.ANGLES;
+            angleChoiceChecks[1] = new JCheckBox[angles.length + 1];
+            for (int i = 0; i < angles.length; i++) {
+                angleChoiceChecks[1][i] = new JCheckBox(
+                        angles[i].getAngleName());
+            }
+            angleChoiceChecks[1][angles.length] = new JCheckBox("MCQ");
+
             for (JCheckBox b : angleChoiceChecks[1]) {
                 b.setEnabled(false);
             }
