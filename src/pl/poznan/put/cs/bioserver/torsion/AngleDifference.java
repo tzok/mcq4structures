@@ -17,9 +17,11 @@ public class AngleDifference {
         angle2 = DihedralAngles.calculateDihedral(q2);
         difference = DihedralAngles.subtractDihedral(angle1, angle2);
     }
-    
-    // FIXME: używa tylko torsion local comparison, które samo inicjuje difference!
-    public AngleDifference(Atom[] q1, Atom[] q2, double angle1, double angle2, double difference) {
+
+    // FIXME: używa tylko torsion local comparison, które samo inicjuje
+    // difference!
+    public AngleDifference(Atom[] q1, Atom[] q2, double angle1, double angle2,
+            double difference) {
         this.quad1 = q1;
         this.quad2 = q2;
         this.angle1 = angle1;

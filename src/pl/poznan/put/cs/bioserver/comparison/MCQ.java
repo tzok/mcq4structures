@@ -58,7 +58,7 @@ public class MCQ extends GlobalComparison {
         try {
             return MCQ.compare(s1, s2, false);
         } catch (StructureException e) {
-            LOGGER.error(e);
+            LOGGER.error(e, e);
             throw new IncomparableStructuresException(e);
         }
     }
@@ -71,7 +71,8 @@ public class MCQ extends GlobalComparison {
         } else {
             atoms = Helper.getCommonAtomArray(s1, s2);
             if (atoms[0].length != atoms[1].length) {
-                LOGGER.info("Atom sets have different sizes. Must use alignment before calculating MCQ");
+                LOGGER.info("Atom sets have different sizes. Must use "
+                        + "alignment before calculating MCQ");
                 AlignmentOutput output = StructureAligner.align(s1, s2);
                 atoms = output.getAtoms();
             }
@@ -89,7 +90,8 @@ public class MCQ extends GlobalComparison {
         } else {
             atoms = Helper.getCommonAtomArray(c1, c2);
             if (atoms[0].length != atoms[1].length) {
-                LOGGER.info("Atom sets have different sizes. Must use alignment before calculating MCQ");
+                LOGGER.info("Atom sets have different sizes. Must use "
+                        + "alignment before calculating MCQ");
                 AlignmentOutput output = StructureAligner.align(c1, c2);
                 atoms = output.getAtoms();
             }
@@ -106,6 +108,14 @@ public class MCQ extends GlobalComparison {
             List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(
                     atoms, at);
             allDiffs.addAll(diffs);
+        }
+        if (LOGGER.isTraceEnabled()) {
+            StringBuilder builder = new StringBuilder("All differences:\n");
+            for (AngleDifference ad : allDiffs) {
+                builder.append(ad);
+                builder.append('\n');
+            }
+            LOGGER.trace(builder.toString());
         }
         return MCQ.calculate(allDiffs);
     }
