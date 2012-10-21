@@ -11,7 +11,6 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.io.PDBFileReader;
 
-import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
@@ -28,6 +27,16 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  */
 public class MCQ extends GlobalComparison {
     private static final Logger LOGGER = Logger.getLogger(MCQ.class);
+
+    private static final AngleType[] USED_ANGLES;
+    static {
+        AngleType[] array1 = NucleotideDihedral.ANGLES;
+        int array2 = AminoAcidDihedral.ANGLES.length;
+        USED_ANGLES = new AngleType[array1.length + array2];
+        System.arraycopy(array1, 0, USED_ANGLES, 0, array1.length);
+        System.arraycopy(AminoAcidDihedral.ANGLES, 0, USED_ANGLES,
+                array1.length, array2);
+    }
 
     public static void main(String[] args) {
         if (args.length != 2) {
@@ -70,16 +79,14 @@ public class MCQ extends GlobalComparison {
             atoms = StructureAligner.align(s1, s2).getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(s1, s2);
-            if (atoms[0].length != atoms[1].length) {
-                LOGGER.info("Atom sets have different sizes. Must use "
-                        + "alignment before calculating MCQ");
-                AlignmentOutput output = StructureAligner.align(s1, s2);
-                atoms = output.getAtoms();
-            }
+            // if (atoms[0].length != atoms[1].length) {
+            // LOGGER.info("Atom sets have different sizes. Must use "
+            // + "alignment before calculating MCQ");
+            // AlignmentOutput output = StructureAligner.align(s1, s2);
+            // atoms = output.getAtoms();
+            // }
         }
-        AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral.ANGLES
-                : AminoAcidDihedral.ANGLES;
-        return compare(atoms, angles);
+        return compare(atoms);
     }
 
     public static double compare(Chain c1, Chain c2, boolean alignFirst)
@@ -89,24 +96,23 @@ public class MCQ extends GlobalComparison {
             atoms = StructureAligner.align(c1, c2).getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(c1, c2);
-            if (atoms[0].length != atoms[1].length) {
-                LOGGER.info("Atom sets have different sizes. Must use "
-                        + "alignment before calculating MCQ");
-                AlignmentOutput output = StructureAligner.align(c1, c2);
-                atoms = output.getAtoms();
-            }
+            // if (atoms[0].length != atoms[1].length) {
+            // LOGGER.info("Atom sets have different sizes. Must use "
+            // + "alignment before calculating MCQ");
+            // AlignmentOutput output = StructureAligner.align(c1, c2);
+            // atoms = output.getAtoms();
+            // }
         }
-        AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral.ANGLES
-                : AminoAcidDihedral.ANGLES;
-        return compare(atoms, angles);
+        return compare(atoms);
     }
 
-    private static double compare(Atom[][] atoms, AngleType[] angles) {
-        assert atoms[0].length == atoms[1].length;
+    private static double compare(Atom[][] atoms) {
+        Atom[][] equalized = Helper.equalize(atoms);
+
         List<AngleDifference> allDiffs = new ArrayList<>();
-        for (AngleType at : angles) {
-            List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(
-                    atoms, at);
+        for (AngleType at : USED_ANGLES) {
+            List<AngleDifference> diffs;
+            diffs = DihedralAngles.calculateAngleDiff(equalized, at);
             allDiffs.addAll(diffs);
         }
         if (LOGGER.isTraceEnabled()) {
