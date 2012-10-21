@@ -43,6 +43,7 @@ import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
@@ -392,6 +393,14 @@ public class TorsionLocalComparisonPanel extends JPanel {
                             chains[i] = structures[i].getChain(indices[i]);
                         }
 
+                        if (Helper.isNucleicAcid(chains[0]) != Helper
+                                .isNucleicAcid(chains[1])) {
+                            JOptionPane.showMessageDialog(null, "Cannot "
+                                    + "compare structures of different type",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         /*
                          * compare them
                          */
@@ -400,8 +409,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
                             compare = TorsionLocalComparison.compare(chains[0],
                                     chains[1], false);
                         } catch (StructureException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            LOGGER.error(e);
+                            JOptionPane.showMessageDialog(null, e.getMessage(),
+                                    "Error", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         /*
@@ -423,6 +433,13 @@ public class TorsionLocalComparisonPanel extends JPanel {
                          */
                         DefaultXYDataset dataset = new DefaultXYDataset();
                         for (String angle : anglesToShow) {
+                            if (!compare.containsKey(angle)) {
+                                JOptionPane.showMessageDialog(null, "The "
+                                        + "angle " + angle + " is not defined "
+                                        + "for loaded molecules", "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
                             List<AngleDifference> diffs = compare.get(angle);
                             double[] x = new double[diffs.size()];
                             double[] y = new double[diffs.size()];

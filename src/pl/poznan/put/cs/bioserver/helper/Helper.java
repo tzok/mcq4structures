@@ -199,8 +199,9 @@ public class Helper {
             boolean doEqualize) throws StructureException {
         boolean isRNA = Helper.isNucleicAcid(s1);
         if (isRNA != Helper.isNucleicAcid(s2)) {
-            LOGGER.warn("Trying to get common atoms from RNA and protein!");
-            return null;
+            String message = "Trying to get common atoms from RNA and protein!";
+            LOGGER.warn(message);
+            throw new StructureException(message);
         }
         String[] usedAtoms = isRNA ? NucleotideDihedral.USED_ATOMS
                 : AminoAcidDihedral.USED_ATOMS;
