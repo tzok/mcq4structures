@@ -1,6 +1,9 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
@@ -23,19 +26,25 @@ public class RMSD extends GlobalComparison {
     private static final Logger LOGGER = Logger.getLogger(RMSD.class);
 
     public static void main(String[] args) {
-        if (args.length != 2) {
+        if (args.length < 2) {
             System.out.println("ERROR");
             System.out.println("Incorrect number of arguments provided");
             return;
         }
         PDBFileReader reader = new PDBFileReader();
         try {
-            Structure[] s = new Structure[] { reader.getStructure(args[0]),
-                    reader.getStructure(args[1]) };
+            List<Structure> list = new ArrayList<>();
+            for (int i = 0; i < args.length; i++) {
+                list.add(reader.getStructure(args[i]));
+            }
+
             RMSD rmsd = new RMSD();
-            double result = rmsd.compare(s[0], s[1]);
+            double[][] compare = rmsd.compare(list.toArray(new Structure[list
+                    .size()]));
             System.out.println("OK");
-            System.out.println(result);
+            for (int i = 0; i < compare.length; i++) {
+                System.out.println(Arrays.toString(compare[i]));
+            }
         } catch (IOException e) {
             System.out.println("ERROR");
             System.out.println(e.getMessage());

@@ -2,6 +2,7 @@ package pl.poznan.put.cs.bioserver.comparison;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -39,19 +40,25 @@ public class MCQ extends GlobalComparison {
     }
 
     public static void main(String[] args) {
-        if (args.length != 2) {
+        if (args.length < 2) {
             System.out.println("ERROR");
             System.out.println("Incorrect number of arguments provided");
             return;
         }
         PDBFileReader reader = new PDBFileReader();
         try {
-            Structure[] s = new Structure[] { reader.getStructure(args[0]),
-                    reader.getStructure(args[1]) };
+            List<Structure> list = new ArrayList<>();
+            for (int i = 0; i < args.length; i++) {
+                list.add(reader.getStructure(args[i]));
+            }
+
             MCQ mcq = new MCQ();
-            double result = mcq.compare(s[0], s[1]);
+            double[][] compare = mcq.compare(list.toArray(new Structure[list
+                    .size()]));
             System.out.println("OK");
-            System.out.println(result);
+            for (int i = 0; i < compare.length; i++) {
+                System.out.println(Arrays.toString(compare[i]));
+            }
         } catch (IOException e) {
             System.out.println("ERROR");
             System.out.println(e.getMessage());
@@ -59,6 +66,7 @@ public class MCQ extends GlobalComparison {
             System.out.println("ERROR");
             System.out.println(e.getMessage());
         }
+
     }
 
     @Override
