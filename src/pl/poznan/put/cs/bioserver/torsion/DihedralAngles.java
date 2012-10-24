@@ -18,6 +18,8 @@ import org.biojava.bio.structure.Group;
 public class DihedralAngles {
     private static final Logger LOGGER = Logger.getLogger(DihedralAngles.class);
 
+    private static Map<Integer, Map<Atom, Integer>> reverseMapCache = new HashMap<>();
+
     /**
      * Implementation of torsion angle calculation for amino acids.
      * 
@@ -292,41 +294,29 @@ public class DihedralAngles {
 
     public static List<AngleDifference> calculateAngleDiff(Atom[][] atoms,
             AngleType angleType) {
-        LOGGER.debug("Number of atoms: " + atoms[0].length + " "
-                + atoms[1].length);
-        List<Atom[]> quads1 = getQuadruplets(atoms[0], angleType);
-        List<Atom[]> quads2 = getQuadruplets(atoms[1], angleType);
-        LOGGER.debug("Number of quadruplets (" + angleType.getAngleName()
-                + "): " + quads1.size() + " " + quads2.size());
-
-        Map<Atom, Integer> map1 = makeReverseMap(atoms[0]);
-        Map<Atom, Integer> map2 = makeReverseMap(atoms[1]);
+        List<Quadruplet> quads1 = getQuadruplets(atoms[0], angleType);
+        List<Quadruplet> quads2 = getQuadruplets(atoms[1], angleType);
+        LOGGER.debug("Processing angle: " + angleType.getAngleName()
+                + ". Atom count: " + atoms[0].length + " " + atoms[1].length
+                + ". Quadruplets found: " + quads1.size() + " " + quads2.size());
 
         if (quads1.size() < quads2.size()) {
-            List<Atom[]> quadsTmp = quads1;
+            List<Quadruplet> quadsTmp = quads1;
             quads1 = quads2;
             quads2 = quadsTmp;
-
-            Map<Atom, Integer> mapTmp = map1;
-            map1 = map2;
-            map2 = mapTmp;
         }
 
+        // FIXME: this all can be greatly improved!
         List<AngleDifference> differences = new ArrayList<>();
         for (int i = 0; i < quads1.size(); i++) {
-            Atom[] q1 = quads1.get(i);
+            Quadruplet q1 = quads1.get(i);
             boolean found = false;
             for (int j = 0; j < quads2.size(); j++) {
-                Atom[] q2 = quads2.get(j);
+                Quadruplet q2 = quads2.get(j);
 
-                int[][] ids = new int[][] { new int[4], new int[4] };
-                for (int k = 0; k < 4; k++) {
-                    ids[0][k] = map1.get(q1[k]);
-                    ids[1][k] = map2.get(q2[k]);
-                }
-
-                if (Arrays.equals(ids[0], ids[1])) {
-                    AngleDifference diff = new AngleDifference(q1, q2);
+                if (q1.isCorresponding(q2)) {
+                    AngleDifference diff = new AngleDifference(q1.getAtoms(),
+                            q2.getAtoms());
                     differences.add(diff);
                     found = true;
                     break;
@@ -334,7 +324,8 @@ public class DihedralAngles {
             }
 
             if (!found) {
-                AngleDifference diff = new AngleDifference(q1, new Atom[4]);
+                AngleDifference diff = new AngleDifference(q1.getAtoms(),
+                        new Atom[4]);
                 differences.add(diff);
             }
         }
@@ -349,7 +340,14 @@ public class DihedralAngles {
         return map;
     }
 
-    private static List<Atom[]> getQuadruplets(Atom[] atoms, AngleType angleType) {
+    private static List<Quadruplet> getQuadruplets(Atom[] atoms,
+            AngleType angleType) {
+        int hashCode = Arrays.hashCode(atoms);
+        if (!reverseMapCache.containsKey(hashCode)) {
+            reverseMapCache.put(hashCode, makeReverseMap(atoms));
+        }
+        Map<Atom, Integer> reverseMap = reverseMapCache.get(hashCode);
+
         int[] groupRule = angleType.getGroupRule();
         List<List<Atom>> found = new ArrayList<>();
         for (int j = 0; j < 4; j++) {
@@ -370,7 +368,7 @@ public class DihedralAngles {
             }
         }
 
-        List<Atom[]> filtered = new ArrayList<>();
+        List<Quadruplet> filtered = new ArrayList<>();
         int size = found.get(0).size();
         for (int j = 0; j < size; j++) {
             Atom refAtom = found.get(0).get(j);
@@ -392,15 +390,19 @@ public class DihedralAngles {
                 }
             }
 
+            Atom[] array = quad.toArray(new Atom[quad.size()]);
             if (quad.size() == 4) {
-                filtered.add(quad.toArray(new Atom[quad.size()]));
+                int[] indices = new int[4];
+                for (int k = 0; k < 4; k++) {
+                    indices[k] = reverseMap.get(array[k]);
+                }
+                filtered.add(new Quadruplet(array, indices));
             } else {
                 LOGGER.debug("Quad not found, got only " + quad.size()
                         + " atoms. Angle: " + angleType.getAngleName()
                         + ". Residue of first atom: "
                         + quad.get(0).getGroup().getResidueNumber()
-                        + ". Atoms: "
-                        + Arrays.toString(quad.toArray(new Atom[quad.size()])));
+                        + ". Atoms: " + Arrays.toString(array));
             }
         }
         return filtered;

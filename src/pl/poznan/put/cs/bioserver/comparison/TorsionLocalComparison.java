@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +9,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -28,6 +31,41 @@ public class TorsionLocalComparison extends LocalComparison {
     @SuppressWarnings("unused")
     private static final Logger logger = Logger
             .getLogger(TorsionLocalComparison.class);
+
+    @SuppressWarnings("unchecked")
+    public static void main(String[] args) {
+        if (args.length != 2 && args.length != 4) {
+            System.out.println("ERROR");
+            System.out.println("Incorrect number of arguments provided");
+            return;
+        }
+
+        try {
+            PDBFileReader reader = new PDBFileReader();
+            Structure[] structures = new Structure[] {
+                    reader.getStructure(args[0]), reader.getStructure(args[1]) };
+            TorsionLocalComparison comparison = new TorsionLocalComparison();
+
+            Map<String, List<AngleDifference>> result;
+            if (args.length == 4) {
+                result = TorsionLocalComparison.compare(
+                        structures[0].getChainByPDB(args[2]),
+                        structures[1].getChainByPDB(args[3]), false);
+            } else {
+                result = (Map<String, List<AngleDifference>>) comparison
+                        .compare(structures[0], structures[1]);
+            }
+
+            List<AngleDifference> list = result.get("MCQ");
+            for (AngleDifference ad : list) {
+                System.out.println(ad.difference);
+            }
+        } catch (IOException | IncomparableStructuresException
+                | StructureException e) {
+            System.out.println("ERROR");
+            System.out.println(e.getMessage());
+        }
+    }
 
     public static Map<String, List<AngleDifference>> compare(Chain c1,
             Chain c2, boolean alignFirst) throws StructureException {
@@ -57,20 +95,21 @@ public class TorsionLocalComparison extends LocalComparison {
 
     public static Map<String, List<AngleDifference>> compare(Atom[][] atoms,
             AngleType[] angles) {
+        Atom[][] equalized = Helper.equalize(atoms);
+
         Map<String, List<AngleDifference>> map = new HashMap<>();
         List<AngleDifference> allDiffs = new ArrayList<>();
         for (AngleType at : angles) {
             List<AngleDifference> diffs = DihedralAngles.calculateAngleDiff(
-                    atoms, at);
+                    equalized, at);
             map.put(at.getAngleName(), diffs);
             allDiffs.addAll(diffs);
         }
 
-        Map<Integer, List<AngleDifference>> mapResidueToDiffs = new HashMap<>();
-        Map<Integer, Atom[][]> mapResidueToQuads = new HashMap<>();
+        Map<ResidueNumber, List<AngleDifference>> mapResidueToDiffs = new HashMap<>();
+        Map<ResidueNumber, Atom[][]> mapResidueToQuads = new HashMap<>();
         for (AngleDifference ad : allDiffs) {
-            Integer residue = ad.quad1[0].getGroup().getResidueNumber()
-                    .getSeqNum();
+            ResidueNumber residue = ad.quad1[0].getGroup().getResidueNumber();
             if (!mapResidueToDiffs.containsKey(residue)) {
                 mapResidueToDiffs
                         .put(residue, new ArrayList<AngleDifference>());
@@ -82,15 +121,15 @@ public class TorsionLocalComparison extends LocalComparison {
         }
 
         List<AngleDifference> mcqList = new ArrayList<>();
-        for (Integer residue : mapResidueToDiffs.keySet()) {
+        for (ResidueNumber residue : mapResidueToDiffs.keySet()) {
             Atom[][] quads = mapResidueToQuads.get(residue);
             AngleDifference difference = new AngleDifference(quads[0],
                     quads[1], Double.NaN, Double.NaN,
                     MCQ.calculate(mapResidueToDiffs.get(residue)));
             mcqList.add(difference);
         }
-        map.put("MCQ", mcqList);
 
+        map.put("MCQ", mcqList);
         return map;
     }
 
@@ -284,8 +323,12 @@ public class TorsionLocalComparison extends LocalComparison {
     // }
 
     @Override
-    public Object[] compare(Structure s1, Structure s2)
+    public Object compare(Structure s1, Structure s2)
             throws IncomparableStructuresException {
-        return compare(s1, s2);
+        try {
+            return TorsionLocalComparison.compare(s1, s2, false);
+        } catch (StructureException e) {
+            throw new IncomparableStructuresException(e);
+        }
     }
 }
