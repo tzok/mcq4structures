@@ -316,7 +316,7 @@ public class DihedralAngles {
 
                 if (q1.isCorresponding(q2)) {
                     AngleDifference diff = new AngleDifference(q1.getAtoms(),
-                            q2.getAtoms());
+                            q2.getAtoms(), angleType.getAngleName());
                     differences.add(diff);
                     found = true;
                     break;
@@ -325,7 +325,7 @@ public class DihedralAngles {
 
             if (!found) {
                 AngleDifference diff = new AngleDifference(q1.getAtoms(),
-                        new Atom[4]);
+                        new Atom[4], angleType.getAngleName());
                 differences.add(diff);
             }
         }

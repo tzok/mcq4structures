@@ -134,7 +134,7 @@ public class MCQ extends GlobalComparison {
         return MCQ.calculate(allDiffs);
     }
 
-    public static double calculate(List<AngleDifference> diffs) {
+    public static double calculate(Iterable<AngleDifference> diffs) {
         int counter = 0;
         double sines = 0.0;
         double cosines = 0.0;
