@@ -13,8 +13,13 @@ public class Quadruplet {
         this.indices = indices;
     }
 
-    public boolean isCorresponding(Quadruplet q) {
-        return Arrays.equals(indices, q.indices);
+    public boolean isCorresponding(Quadruplet q, boolean wasAligned) {
+        if (wasAligned) {
+            return Arrays.equals(indices, q.indices);
+        }
+        int r1 = array[0].getGroup().getResidueNumber().getSeqNum();
+        int r2 = q.array[0].getGroup().getResidueNumber().getSeqNum();
+        return r1 == r2;
     }
 
     public Atom[] getAtoms() {

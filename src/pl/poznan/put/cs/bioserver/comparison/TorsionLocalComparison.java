@@ -85,7 +85,7 @@ public class TorsionLocalComparison extends LocalComparison {
         }
         AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral.ANGLES
                 : AminoAcidDihedral.ANGLES;
-        return compare(atoms, angles);
+        return compare(atoms, angles, alignFirst);
     }
 
     public static Map<String, List<AngleDifference>> compare(Structure s1,
@@ -98,16 +98,17 @@ public class TorsionLocalComparison extends LocalComparison {
         }
         AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral.ANGLES
                 : AminoAcidDihedral.ANGLES;
-        return compare(atoms, angles);
+        return compare(atoms, angles, alignFirst);
     }
 
     public static Map<String, List<AngleDifference>> compare(Atom[][] atoms,
-            AngleType[] angles) {
+            AngleType[] angles, boolean wasAligned) {
         Atom[][] equalized = Helper.equalize(atoms);
 
         List<AngleDifference> allDiffs = new ArrayList<>();
         for (AngleType at : angles) {
-            allDiffs.addAll(DihedralAngles.calculateAngleDiff(equalized, at));
+            allDiffs.addAll(DihedralAngles.calculateAngleDiff(equalized, at,
+                    wasAligned));
         }
 
         Map<ResidueNumber, List<AngleDifference>> mapResToDiffs = new HashMap<>();

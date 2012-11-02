@@ -36,7 +36,7 @@ public class TestAlignment {
             AngleName an = AngleName.EPSILON;
             List<AngleDifference> differences = DihedralAngles
                     .calculateAngleDiff(output.getAtoms(),
-                            new NucleotideDihedral(an));
+                            new NucleotideDihedral(an), true);
             for (AngleDifference d : differences) {
                 System.out.println(d);
             }

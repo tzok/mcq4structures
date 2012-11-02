@@ -94,7 +94,7 @@ public class MCQ extends GlobalComparison {
             // atoms = output.getAtoms();
             // }
         }
-        return compare(atoms);
+        return compare(atoms, alignFirst);
     }
 
     public static double compare(Chain c1, Chain c2, boolean alignFirst)
@@ -104,23 +104,18 @@ public class MCQ extends GlobalComparison {
             atoms = StructureAligner.align(c1, c2).getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(c1, c2);
-            // if (atoms[0].length != atoms[1].length) {
-            // LOGGER.info("Atom sets have different sizes. Must use "
-            // + "alignment before calculating MCQ");
-            // AlignmentOutput output = StructureAligner.align(c1, c2);
-            // atoms = output.getAtoms();
-            // }
         }
-        return compare(atoms);
+        return compare(atoms, alignFirst);
     }
 
-    private static double compare(Atom[][] atoms) {
+    private static double compare(Atom[][] atoms, boolean wasAligned) {
         Atom[][] equalized = Helper.equalize(atoms);
 
         List<AngleDifference> allDiffs = new ArrayList<>();
         for (AngleType at : USED_ANGLES) {
             List<AngleDifference> diffs;
-            diffs = DihedralAngles.calculateAngleDiff(equalized, at);
+            diffs = DihedralAngles
+                    .calculateAngleDiff(equalized, at, wasAligned);
             allDiffs.addAll(diffs);
         }
         if (LOGGER.isTraceEnabled()) {

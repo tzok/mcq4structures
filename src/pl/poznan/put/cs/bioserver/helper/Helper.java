@@ -318,33 +318,44 @@ public class Helper {
             atoms[1] = tmpAtom;
         }
 
-        List<Atom> list = new ArrayList<>(Arrays.asList(atoms[0]));
+        List<Atom> list1 = new ArrayList<>(Arrays.asList(atoms[0]));
+        List<Atom> list2 = new ArrayList<>(Arrays.asList(atoms[1]));
         Patch patch = DiffUtils.diff(l1, l2);
-        int cumulated = 0;
+        int cumulated1 = 0, cumulated2 = 0;
         for (Delta d : patch.getDeltas()) {
             int position = d.getOriginal().getPosition();
             if (d instanceof InsertDelta) {
                 int size = d.getRevised().getLines().size();
                 for (int i = 0; i < size; i++) {
-                    list.add(position + cumulated, null);
+                    list1.add(position + cumulated1, null);
                 }
-                cumulated += size;
+                cumulated1 += size;
             } else if (d instanceof DeleteDelta) {
                 int size = d.getOriginal().getLines().size();
                 for (int i = 0; i < size; i++) {
-                    list.remove(position + cumulated);
+                    list1.remove(position + cumulated1);
                 }
-                cumulated -= size;
+                cumulated1 -= size;
             } else {
-                throw new UnsupportedOperationException(
-                        "Currently not supporting: " + d);
+                int size = d.getOriginal().getLines().size();
+                for (int i = 0; i < size; i++) {
+                    list1.remove(position + cumulated1);
+                }
+                cumulated1 -= size;
+
+                position = d.getRevised().getPosition();
+                size = d.getRevised().getLines().size();
+                for (int i = 0; i < size; i++) {
+                    list2.remove(position + cumulated2);
+                }
+                cumulated2 -= size;
             }
         }
 
         // SANITY CHECK
         // FIXME
-        Atom[][] result = new Atom[][] { list.toArray(new Atom[list.size()]),
-                atoms[1] };
+        Atom[][] result = new Atom[][] { list1.toArray(new Atom[list1.size()]),
+                list2.toArray(new Atom[list2.size()]) };
         assert result[0].length == result[1].length;
         for (int i = 0; i < result[0].length; i++) {
             assert result[0][i] == null

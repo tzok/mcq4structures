@@ -293,7 +293,7 @@ public class DihedralAngles {
     }
 
     public static List<AngleDifference> calculateAngleDiff(Atom[][] atoms,
-            AngleType angleType) {
+            AngleType angleType, boolean wasAligned) {
         List<Quadruplet> quads1 = getQuadruplets(atoms[0], angleType);
         List<Quadruplet> quads2 = getQuadruplets(atoms[1], angleType);
         LOGGER.debug("Processing angle: " + angleType.getAngleName()
@@ -314,7 +314,7 @@ public class DihedralAngles {
             for (int j = 0; j < quads2.size(); j++) {
                 Quadruplet q2 = quads2.get(j);
 
-                if (q1.isCorresponding(q2)) {
+                if (q1.isCorresponding(q2, wasAligned)) {
                     AngleDifference diff = new AngleDifference(q1.getAtoms(),
                             q2.getAtoms(), angleType.getAngleName());
                     differences.add(diff);
