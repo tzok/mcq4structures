@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.alignment;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
@@ -25,7 +26,7 @@ import org.biojava3.core.sequence.template.Sequence;
 public class SequenceAligner<C extends Compound> {
     private static Logger logger = Logger.getLogger(SequenceAligner.class);
     private final Class<?> compound;
-    private final HashMap<Chain, List<Group>> sequenceMap;
+    private final Map<Chain, List<Group>> sequenceMap;
 
     public SequenceAligner(Class<?> clazz) {
         compound = clazz;
