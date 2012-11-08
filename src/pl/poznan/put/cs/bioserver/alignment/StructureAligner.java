@@ -14,17 +14,44 @@ import org.biojava.bio.structure.align.StructurePairAligner;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
 
+/**
+ * A class that allows to computer structural alignment.
+ * 
+ * @author tzok
+ */
 public class StructureAligner {
     private static Logger LOGGER = Logger.getLogger(StructureAligner.class);
     private static Map<AlignmentInput, AlignmentOutput> cache = new HashMap<>();
 
+    /**
+     * Align structurally two chains.
+     * 
+     * @param c1
+     *            First chain.
+     * @param c2
+     *            Second chain
+     * @return An object with all information about computed alignment.
+     * @throws StructureException
+     *             If there were problems during alignment computation.
+     */
     public static AlignmentOutput align(Chain c1, Chain c2)
             throws StructureException {
         StructureImpl s1 = new StructureImpl(c1);
         StructureImpl s2 = new StructureImpl(c2);
-        return align(s1, s2);
+        return StructureAligner.align(s1, s2);
     }
 
+    /**
+     * Align structurally two structures.
+     * 
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @return An object with all information about computed alignment.
+     * @throws StructureException
+     *             If there were problems during alignment computation.
+     */
     public static AlignmentOutput align(Structure s1, Structure s2)
             throws StructureException {
         /*

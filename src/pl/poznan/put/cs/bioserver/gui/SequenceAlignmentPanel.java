@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.util.Collections;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -35,8 +36,14 @@ import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
+/**
+ * A panel in the main window that has all options related to sequence
+ * alignment.
+ * 
+ * @author tzok
+ */
 public class SequenceAlignmentPanel extends JPanel {
-    public class ButtonPanel extends JPanel {
+    private class ButtonPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         JButton buttonAddFile;
         JButton buttonAlign;
@@ -62,7 +69,7 @@ public class SequenceAlignmentPanel extends JPanel {
         }
     }
 
-    public class PdbPanel extends JPanel {
+    private class PdbPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         DefaultListModel<String> listModel;
         JList<String> list;
@@ -120,7 +127,7 @@ public class SequenceAlignmentPanel extends JPanel {
         }
     }
 
-    public class SettingsPanel extends JPanel {
+    private class SettingsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         ButtonPanel buttonPanel;
         PdbPanel pdbPanel;
@@ -137,13 +144,12 @@ public class SequenceAlignmentPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     final JFileChooser chooser = new JFileChooser();
-    PdbManager pdbManager;
     JTextArea textArea;
     SettingsPanel settingsPanel;
 
-    public SequenceAlignmentPanel(PdbManager m) {
+    @SuppressWarnings("javadoc")
+    public SequenceAlignmentPanel() {
         super(new BorderLayout());
-        pdbManager = m;
 
         settingsPanel = new SettingsPanel();
         textArea = new JTextArea();
@@ -182,9 +188,10 @@ public class SequenceAlignmentPanel extends JPanel {
                             return;
                         }
 
-                        Structure[] structures = pdbManager
-                                .getStructures(settingsPanel.pdbPanel.listModel
-                                        .elements());
+                        Structure[] structures = PdbManager
+                                .getStructures(Collections
+                                        .list(settingsPanel.pdbPanel.listModel
+                                                .elements()));
                         Chain chains[] = new Chain[2];
                         chains[0] = structures[0]
                                 .getChain(settingsPanel.pdbPanel.comboBoxFirst
@@ -231,7 +238,7 @@ public class SequenceAlignmentPanel extends JPanel {
             return false;
         }
         String absolutePath = path.getAbsolutePath();
-        pdbManager.addStructure(absolutePath);
+        PdbManager.addStructure(absolutePath);
         settingsPanel.pdbPanel.listModel.addElement(absolutePath);
 
         refreshComboBoxes();
@@ -242,8 +249,8 @@ public class SequenceAlignmentPanel extends JPanel {
         settingsPanel.pdbPanel.comboBoxModelFirst.removeAllElements();
         settingsPanel.pdbPanel.comboBoxModelSecond.removeAllElements();
 
-        Structure[] structures = pdbManager
-                .getStructures(settingsPanel.pdbPanel.listModel.elements());
+        Structure[] structures = PdbManager.getStructures(Collections
+                .list(settingsPanel.pdbPanel.listModel.elements()));
         for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i) {
             for (Chain c : structures[i].getChains()) {
                 if (i == 0) {

@@ -430,7 +430,6 @@ public class GlobalComparisonPanel extends JPanel {
     // fields
     private static final long serialVersionUID = 1L;
     private final MainPanel mainPanel;
-    private final PdbManager manager;
     double[][] comparisonResults;
     JList<String> list;
     DefaultListModel<String> listModel;
@@ -438,9 +437,9 @@ public class GlobalComparisonPanel extends JPanel {
 
     // ////////////////////////////////////////////////////////////////////////
     // constructors
-    public GlobalComparisonPanel(PdbManager manager) {
+    @SuppressWarnings("javadoc")
+    public GlobalComparisonPanel() {
         super(new BorderLayout());
-        this.manager = manager;
 
         listModel = new DefaultListModel<>();
         list = new JList<>(listModel);
@@ -473,9 +472,12 @@ public class GlobalComparisonPanel extends JPanel {
     // methods
     /**
      * Check if selected file is correct PDB and if so, add it to local cache.
+     * 
+     * @param text
+     *            A path to PDB file.
      */
     public void addFile(String text) {
-        if (manager.addStructure(text)) {
+        if (PdbManager.addStructure(text)) {
             listModel.addElement(text);
         } else {
             JOptionPane.showMessageDialog(null,
@@ -512,8 +514,8 @@ public class GlobalComparisonPanel extends JPanel {
             String element = elements.nextElement();
             vector.add(element);
         }
-        Structure[] structures = manager.getStructures(vector);
-        structureNames = manager.getNames(vector);
+        Structure[] structures = PdbManager.getStructures(vector);
+        structureNames = PdbManager.getNames(vector);
 
         try {
             comparisonResults = methods[chosen].compare(structures);

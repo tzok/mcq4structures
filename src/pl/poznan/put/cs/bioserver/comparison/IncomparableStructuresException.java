@@ -7,10 +7,12 @@ package pl.poznan.put.cs.bioserver.comparison;
  */
 @SuppressWarnings("serial")
 public class IncomparableStructuresException extends Exception {
+    @SuppressWarnings("javadoc")
     public IncomparableStructuresException(String message) {
         super(message);
     }
 
+    @SuppressWarnings("javadoc")
     public IncomparableStructuresException(Throwable cause) {
         super(cause);
     }

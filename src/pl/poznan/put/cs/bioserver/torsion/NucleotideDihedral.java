@@ -14,34 +14,44 @@ import org.biojava.bio.structure.Group;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class NucleotideDihedral implements AngleType {
-    // CHI1 for GUA and ADE
-    // CHI2 for URA and CYT
+    /** All names of angles in a nucleotide. */
     public enum AngleName {
         ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, CHI, TAU0, TAU1, TAU2, TAU3, TAU4
     }
 
-    public static final String C1P = " C1'";
-    public static final String C2 = " C2 ";
-    public static final String C2P = " C2'";
-    public static final String C3P = " C3'";
-    public static final String C4 = " C4 ";
-    public static final String C4P = " C4'";
-    public static final String C5 = " C5 ";
-    public static final String C5P = " C5'";
-    public static final String C6 = " C6 ";
-    public static final String N1 = " N1 ";
-    public static final String N3 = " N3 ";
-    public static final String N9 = " N9 ";
-    public static final String O2P = " O2'";
-    public static final String O3P = " O3'";
-    public static final String O4P = " O4'";
-    public static final String O5P = " O5'";
-    public static final String OP1 = " OP1";
-    public static final String OP2 = " OP2";
-    public static final String P = " P  ";
+    private static final String C1P = " C1'";
+    private static final String C2 = " C2 ";
+    private static final String C2P = " C2'";
+    private static final String C3P = " C3'";
+    private static final String C4 = " C4 ";
+    private static final String C4P = " C4'";
+    private static final String C5 = " C5 ";
+    private static final String C5P = " C5'";
+    private static final String C6 = " C6 ";
+    private static final String N1 = " N1 ";
+    private static final String N3 = " N3 ";
+    private static final String N9 = " N9 ";
+    private static final String O2P = " O2'";
+    private static final String O3P = " O3'";
+    private static final String O4P = " O4'";
+    private static final String O5P = " O5'";
+    private static final String OP1 = " OP1";
+    private static final String OP2 = " OP2";
+    private static final String P = " P  ";
 
-    public static final String[] USED_ATOMS = new String[] { C1P, C2, C2P, C3P,
-            C4, C4P, C5, C5P, C6, N1, N3, N9, O2P, O3P, O4P, O5P, OP1, OP2, P };
+    /** A list of all used names. */
+    public static final String[] USED_ATOMS = new String[] {
+            NucleotideDihedral.C1P, NucleotideDihedral.C2,
+            NucleotideDihedral.C2P, NucleotideDihedral.C3P,
+            NucleotideDihedral.C4, NucleotideDihedral.C4P,
+            NucleotideDihedral.C5, NucleotideDihedral.C5P,
+            NucleotideDihedral.C6, NucleotideDihedral.N1,
+            NucleotideDihedral.N3, NucleotideDihedral.N9,
+            NucleotideDihedral.O2P, NucleotideDihedral.O3P,
+            NucleotideDihedral.O4P, NucleotideDihedral.O5P,
+            NucleotideDihedral.OP1, NucleotideDihedral.OP2,
+            NucleotideDihedral.P };
+    /** A list of all defined angles. */
     public static final AngleType[] ANGLES = new NucleotideDihedral[] {
             new NucleotideDihedral(AngleName.ALPHA),
             new NucleotideDihedral(AngleName.BETA),
@@ -55,8 +65,6 @@ public class NucleotideDihedral implements AngleType {
             new NucleotideDihedral(AngleName.TAU2),
             new NucleotideDihedral(AngleName.TAU3),
             new NucleotideDihedral(AngleName.TAU4), };
-
-    private AngleName angleName;
 
     private static Map<AngleName, String[]> mapAngleToAtoms;
     private static Map<AngleName, int[]> mapAngleToRules;
@@ -84,9 +92,6 @@ public class NucleotideDihedral implements AngleType {
         NucleotideDihedral.mapAngleToAtoms.put(AngleName.CHI, new String[] {
                 NucleotideDihedral.O4P, NucleotideDihedral.C1P,
                 NucleotideDihedral.N9, NucleotideDihedral.C4 });
-        // NucleotideDihedral.mapAngleToAtoms.put(AngleName.CHI2, new String[] {
-        // NucleotideDihedral.O4P, NucleotideDihedral.C1P,
-        // NucleotideDihedral.N1, NucleotideDihedral.C2 });
         NucleotideDihedral.mapAngleToAtoms.put(AngleName.TAU0, new String[] {
                 NucleotideDihedral.C4P, NucleotideDihedral.O4P,
                 NucleotideDihedral.C1P, NucleotideDihedral.C2P });
@@ -129,12 +134,21 @@ public class NucleotideDihedral implements AngleType {
         NucleotideDihedral.mapAngleToRules.put(AngleName.TAU4, new int[] { 0,
                 0, 0, 0 });
 
-        setPyrimidines = new HashSet<>();
-        setPyrimidines.addAll(Arrays.asList(new Character[] { 'C', 'U', 'Y' }));
+        NucleotideDihedral.setPyrimidines = new HashSet<>();
+        NucleotideDihedral.setPyrimidines.addAll(Arrays.asList(new Character[] {
+                'C', 'U', 'Y' }));
     }
 
+    private AngleName angleName;
+
+    @SuppressWarnings("javadoc")
     public NucleotideDihedral(AngleName angleName) {
         this.angleName = angleName;
+    }
+
+    @Override
+    public String getAngleName() {
+        return angleName.toString();
     }
 
     @Override
@@ -142,7 +156,7 @@ public class NucleotideDihedral implements AngleType {
         if (angleName.equals(AngleName.CHI)) {
             String pdbName = residue.getPDBName();
             char last = pdbName.charAt(pdbName.length() - 1);
-            if (setPyrimidines.contains(last)) {
+            if (NucleotideDihedral.setPyrimidines.contains(last)) {
                 return new String[] { NucleotideDihedral.O4P,
                         NucleotideDihedral.C1P, NucleotideDihedral.N1,
                         NucleotideDihedral.C2 };
@@ -154,10 +168,5 @@ public class NucleotideDihedral implements AngleType {
     @Override
     public int[] getGroupRule() {
         return NucleotideDihedral.mapAngleToRules.get(angleName);
-    }
-
-    @Override
-    public String getAngleName() {
-        return angleName.toString();
     }
 }

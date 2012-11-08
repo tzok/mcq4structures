@@ -13,6 +13,12 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.align.StructurePairAligner;
 import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
 
+/**
+ * A class that holds the results of structural alignment.
+ * 
+ * @author tzok
+ * 
+ */
 public class AlignmentOutput {
     private StructurePairAligner aligner;
     private Structure s1;
@@ -20,6 +26,19 @@ public class AlignmentOutput {
     private AlternativeAlignment[] alignments;
     private Atom[][] atoms;
 
+    /**
+     * Create an instance which stores information about the computed alignment,
+     * input structures and atoms that were used in the process.
+     * 
+     * @param aligner
+     *            Aligner that was used (it contains also the results).
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @param atoms
+     *            Atoms that were used in the alignment process.
+     */
     public AlignmentOutput(StructurePairAligner aligner, Structure s1,
             Structure s2, Atom[][] atoms) {
         this.aligner = aligner;
@@ -27,24 +46,30 @@ public class AlignmentOutput {
         this.s2 = s2;
         this.atoms = atoms;
 
-        this.alignments = aligner.getAlignments();
+        alignments = aligner.getAlignments();
     }
 
+    @SuppressWarnings("javadoc")
     public StructurePairAligner getAligner() {
         return aligner;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(aligner);
-        for (AlternativeAlignment a : alignments) {
-            builder.append('\n');
-            builder.append(a);
-        }
-        return builder.toString();
+    /**
+     * Get atoms from the default resulting alignment.
+     * 
+     * @return Two arrays of atoms.
+     */
+    public Atom[][] getAtoms() {
+        return getAtoms(0);
     }
 
+    /**
+     * Get atoms from the specified resulting alignment.
+     * 
+     * @param i
+     *            Index of alignment.
+     * @return Two arrays of atoms.
+     */
     public Atom[][] getAtoms(int i) {
         int[][] allIdxs = new int[][] { alignments[i].getIdx1(),
                 alignments[i].getIdx2() };
@@ -61,10 +86,13 @@ public class AlignmentOutput {
         return result;
     }
 
-    public Atom[][] getAtoms() {
-        return getAtoms(0);
-    }
-
+    /**
+     * Recreate the structures after alignment. The first two are directly the
+     * two structures, just superposed on each other. The second two contains
+     * only residues that were aligned.
+     * 
+     * @return Four structures.
+     */
     public Structure[] getStructures() {
         Structure alignedStructure = alignments[0].getAlignedStructure(s1, s2);
         Structure sc1 = s1.clone();
@@ -107,5 +135,16 @@ public class AlignmentOutput {
             result[i + 2] = clone;
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(aligner);
+        for (AlternativeAlignment a : alignments) {
+            builder.append('\n');
+            builder.append(a);
+        }
+        return builder.toString();
     }
 }

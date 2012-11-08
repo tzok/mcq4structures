@@ -15,6 +15,7 @@ import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral.AngleName;
 
+@SuppressWarnings("javadoc")
 public class TestAlignment {
     public static void main(String[] args) {
         try {

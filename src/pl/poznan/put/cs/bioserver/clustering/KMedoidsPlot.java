@@ -18,12 +18,22 @@ import org.jfree.data.xy.DefaultXYDataset;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
 /**
- * Plot of dendrogram representing hierarchical clustering.
+ * Plot of k-medoids clustering.
  */
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
-    public JFreeChart chart;
+    private JFreeChart chart;
 
+    /**
+     * Create an instance of JFrame which shows a k-medoid plot.
+     * 
+     * @param distance
+     *            A distance matrix, NxN.
+     * @param labels
+     *            Labels for every entry, N.
+     * @param k
+     *            Chosen k for k-medoids method.
+     */
     public KMedoidsPlot(double[][] distance, String[] labels, int k) {
         int[] medoids = Clusterer.kMedoids(distance, k);
         HashSet<Integer> medoidSet = new HashSet<>();

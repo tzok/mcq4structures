@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,10 +39,12 @@ import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
+/**
+ * A panel that contains all means necessary to align two structures.
+ * 
+ * @author tzok
+ */
 public class StructureAlignmentPanel extends JPanel {
-    static final Logger LOGGER = Logger
-            .getLogger(StructureAlignmentPanel.class);
-
     private class ActionListenerAlign implements ActionListener {
         private Thread thread;
         boolean isAllChainsMode;
@@ -63,8 +66,8 @@ public class StructureAlignmentPanel extends JPanel {
                 return;
             }
 
-            final Structure[] structures = pdbManager
-                    .getStructures(settingsPanel.pdbPanel.listModel.elements());
+            final Structure[] structures = PdbManager.getStructures(Collections
+                    .list(settingsPanel.pdbPanel.listModel.elements()));
 
             if (!isAllChainsMode) {
                 Chain chains[] = new Chain[2];
@@ -82,7 +85,7 @@ public class StructureAlignmentPanel extends JPanel {
             if (isRNA != Helper.isNucleicAcid(structures[1])) {
                 String message = "Structures meant to be aligned "
                         + "represent different molecule types!";
-                LOGGER.error(message);
+                StructureAlignmentPanel.LOGGER.error(message);
                 JOptionPane.showMessageDialog(null, message, "Error",
                         JOptionPane.ERROR_MESSAGE);
                 return;
@@ -130,7 +133,7 @@ public class StructureAlignmentPanel extends JPanel {
                                 .executeCmd(generateJmolScript(pdbFiles[2],
                                         pdbFiles[3]));
                     } catch (StructureException | IOException e1) {
-                        LOGGER.error(e1);
+                        StructureAlignmentPanel.LOGGER.error(e1);
                         JOptionPane.showMessageDialog(getParent(),
                                 e1.getMessage(), "Error",
                                 JOptionPane.ERROR_MESSAGE);
@@ -170,7 +173,7 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
-    public class AlignmentShowPanel extends JPanel {
+    private class AlignmentShowPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         JmolPanel jmolLeftPanel, jmolRightPanel;
 
@@ -185,7 +188,7 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
-    public class ButtonPanel extends JPanel {
+    private class ButtonPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         protected static final int PROCESSING_MAX_STEP = 5;
         JButton buttonAddFile;
@@ -205,7 +208,7 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
-    public class PdbPanel extends JPanel {
+    private class PdbPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         DefaultListModel<String> listModel;
         JList<String> list;
@@ -263,7 +266,7 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
-    public class SettingsPanel extends JPanel {
+    private class SettingsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         ButtonPanel buttonPanel;
         PdbPanel pdbPanel;
@@ -282,17 +285,19 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
+    static final Logger LOGGER = Logger
+            .getLogger(StructureAlignmentPanel.class);
+
     private static final int PROCESSING_UPDATE_INTERVAL = 250;
 
     private static final long serialVersionUID = 1L;
     final JFileChooser chooser = new JFileChooser();
-    PdbManager pdbManager;
     SettingsPanel settingsPanel;
     AlignmentShowPanel alignmentShowPanel;
 
-    public StructureAlignmentPanel(PdbManager m) {
+    @SuppressWarnings("javadoc")
+    public StructureAlignmentPanel() {
         super(new BorderLayout());
-        pdbManager = m;
 
         settingsPanel = new SettingsPanel();
         alignmentShowPanel = new AlignmentShowPanel();
@@ -331,7 +336,7 @@ public class StructureAlignmentPanel extends JPanel {
             return false;
         }
         String absolutePath = path.getAbsolutePath();
-        pdbManager.addStructure(absolutePath);
+        PdbManager.addStructure(absolutePath);
         settingsPanel.pdbPanel.listModel.addElement(absolutePath);
 
         refreshComboBoxes();
@@ -342,8 +347,8 @@ public class StructureAlignmentPanel extends JPanel {
         settingsPanel.pdbPanel.comboBoxModelFirst.removeAllElements();
         settingsPanel.pdbPanel.comboBoxModelSecond.removeAllElements();
 
-        Structure[] structures = pdbManager
-                .getStructures(settingsPanel.pdbPanel.listModel.elements());
+        Structure[] structures = PdbManager.getStructures(Collections
+                .list(settingsPanel.pdbPanel.listModel.elements()));
         for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i) {
             for (Chain c : structures[i].getChains()) {
                 if (i == 0) {

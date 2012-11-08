@@ -1,9 +1,7 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
@@ -23,14 +21,29 @@ import org.biojava3.core.sequence.compound.RNACompoundSet;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
+/**
+ * A class which allows to compute a global or local sequence alignment.
+ * 
+ * @author tzok
+ * 
+ * @param <C>
+ *            Either a NucleotideCompound or AminoAcidCompund.
+ */
 public class SequenceAligner<C extends Compound> {
     private static Logger logger = Logger.getLogger(SequenceAligner.class);
     private final Class<?> compound;
-    private final Map<Chain, List<Group>> sequenceMap;
 
+    /**
+     * Create an instance of sequence aligner.
+     * 
+     * @param clazz
+     *            You need to repeat the same Compound subclass as was given for
+     *            the type parameter to the class. This is caused by Java
+     *            inability to get information about class type parameter in
+     *            runtime.
+     */
     public SequenceAligner(Class<?> clazz) {
         compound = clazz;
-        sequenceMap = new HashMap<>();
     }
 
     /**
@@ -90,10 +103,6 @@ public class SequenceAligner<C extends Compound> {
         return alignment;
     }
 
-    public List<Group> getAtomGroups(Chain c) {
-        return sequenceMap.get(c);
-    }
-
     @SuppressWarnings("unchecked")
     private Sequence<C> getSequence(final Chain chain) {
         /*
@@ -126,7 +135,6 @@ public class SequenceAligner<C extends Compound> {
         }
         String seqString = builder.toString();
         SequenceAligner.logger.trace("Parsed sequence: " + seqString);
-        sequenceMap.put(chain, list);
         /*
          * Create a Sequence object in correct type
          */

@@ -4,11 +4,20 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * A utility class to allow clustering of data (either hierarchical or
+ * partitional).
+ * 
+ * @author tzok
+ */
 public class Clusterer {
-    public static final int SINGLE = 0;
-    public static final int COMPLETE = 1;
-    public static final int AVERAGE = 2;
-    public static ArrayList<List<Integer>> clusters;
+    /** Available hierarchical clustering types. */
+    public enum Type {
+        SINGLE, COMPLETE, AVERAGE;
+    }
+
+    /** Information about the results of clustering. */
+    public static List<List<Integer>> clusters;
 
     /**
      * Perform agglomerative, hierarchical clustering using SINGLE, COMPLETE or
@@ -21,7 +30,7 @@ public class Clusterer {
      * @return An array of triplets in form (A, B, d(A, B)), where A and B are
      *         cluster IDs and d(A, B) is a scaled distance between them..
      */
-    public static int[][] hierarchicalClustering(double[][] matrix, int linkage) {
+    public static int[][] hierarchicalClustering(double[][] matrix, Type linkage) {
         /*
          * sanity check -- each matrix symmetric, all matrices of the same
          * dimensions
@@ -34,8 +43,8 @@ public class Clusterer {
                 }
             }
         }
-        if (linkage != Clusterer.SINGLE && linkage != Clusterer.COMPLETE
-                && linkage != Clusterer.AVERAGE) {
+        if (linkage != Type.SINGLE && linkage != Type.COMPLETE
+                && linkage != Type.AVERAGE) {
             throw new IllegalArgumentException(
                     "Linkage must be one of: SINGLE, COMPLETE or AVERAGE");
         }
@@ -249,5 +258,8 @@ public class Clusterer {
             }
         }
         return index;
+    }
+
+    private Clusterer() {
     }
 }

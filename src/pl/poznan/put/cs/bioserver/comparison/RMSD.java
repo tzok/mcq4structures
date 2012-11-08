@@ -25,6 +25,16 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 public class RMSD extends GlobalComparison {
     private static final Logger LOGGER = Logger.getLogger(RMSD.class);
 
+    /**
+     * A command line wrapper to calculate RMSD for given structures. It outputs
+     * the upper half of the dissimilarity matrix. For example, for 4 structures
+     * the output will like this:
+     * 
+     * OK 1-vs-2 1-vs-3 1-vs-4 2-vs-3 2-vs-4 3-vs-4
+     * 
+     * @param args
+     *            A list of paths to PDB files.
+     */
     public static void main(String[] args) {
         if (args.length < 2) {
             System.out.println("ERROR");
@@ -34,16 +44,16 @@ public class RMSD extends GlobalComparison {
         PDBFileReader reader = new PDBFileReader();
         try {
             List<Structure> list = new ArrayList<>();
-            for (int i = 0; i < args.length; i++) {
-                list.add(reader.getStructure(args[i]));
+            for (String arg : args) {
+                list.add(reader.getStructure(arg));
             }
 
             RMSD rmsd = new RMSD();
             double[][] compare = rmsd.compare(list.toArray(new Structure[list
                     .size()]));
             System.out.println("OK");
-            for (int i = 0; i < compare.length; i++) {
-                System.out.println(Arrays.toString(compare[i]));
+            for (double[] element : compare) {
+                System.out.println(Arrays.toString(element));
             }
         } catch (IOException e) {
             System.out.println("ERROR");
@@ -54,6 +64,16 @@ public class RMSD extends GlobalComparison {
         }
     }
 
+    /**
+     * Compare two given structures. By default, do not try to align based on
+     * atoms, but if impossible to compare then try the alignment.
+     * 
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @return RMSD.
+     */
     @Override
     public double compare(Structure s1, Structure s2)
             throws IncomparableStructuresException {
@@ -65,7 +85,8 @@ public class RMSD extends GlobalComparison {
             Atom[][] atoms = Helper.getCommonAtomArray(structures[0],
                     structures[1]);
             if (atoms[0].length != atoms[1].length) {
-                LOGGER.info("Atom sets have different sizes. Must use alignment before calculating RMSD");
+                RMSD.LOGGER
+                        .info("Atom sets have different sizes. Must use alignment before calculating RMSD");
                 AlignmentOutput output = StructureAligner.align(s1, s2);
                 return output.getAligner().getAlignments()[0].getRmsd();
             }

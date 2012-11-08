@@ -3,7 +3,23 @@ package pl.poznan.put.cs.bioserver.visualisation;
 import org.biojava.bio.structure.jama.EigenvalueDecomposition;
 import org.biojava.bio.structure.jama.Matrix;
 
+/**
+ * A utility class implementing a Multidimensional Scaling method.
+ * 
+ * @author tzok
+ */
 public class MDS {
+    /**
+     * Calculate the Multidimensional Scaling. It gets a distance matrix and
+     * creates a map of points in N-dimensions whose mutual distances correspond
+     * to the given input matrix.
+     * 
+     * @param distance
+     *            A distance matrix, NxN.
+     * @param dimensions
+     *            Desired number of dimensions, K.
+     * @return A matrix NxK, where for each row there are K coordinates.
+     */
     public static double[][] multidimensionalScaling(double[][] distance,
             int dimensions) {
         /*
@@ -109,5 +125,8 @@ public class MDS {
             }
         }
         return X;
+    }
+
+    private MDS() {
     }
 }

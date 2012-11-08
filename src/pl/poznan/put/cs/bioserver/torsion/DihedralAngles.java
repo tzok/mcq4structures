@@ -17,288 +17,29 @@ import org.biojava.bio.structure.Group;
  */
 public class DihedralAngles {
     private static final Logger LOGGER = Logger.getLogger(DihedralAngles.class);
-
     private static Map<Integer, Map<Atom, Integer>> reverseMapCache = new HashMap<>();
 
     /**
-     * Implementation of torsion angle calculation for amino acids.
+     * Calculate all angle differences for given angle type.
      * 
-     * @param groups
-     *            Amino acids.
-     * @return Collection of calculated dihedral angles.
+     * @param atoms
+     *            Two arrays of atoms for each structure.
+     * @param angleType
+     *            Which angle should be checked.
+     * @param wasAligned
+     *            Was there alignment before?
+     * @return A list of angle differences.
      */
-    // private static List<AminoAcidDihedral> calculateAminoAcidDihedrals(
-    // List<Group> groups) {
-    // Vector<AminoAcidDihedral> aminoDihedrals = new Vector<>();
-    // if (groups.size() == 0) {
-    // return aminoDihedrals;
-    // }
-    //
-    // Atom[][] atoms = new Atom[3][];
-    // atoms[0] = new Atom[AminoAtoms.values().length];
-    // atoms[1] = DihedralAngles.getAtoms(groups.get(0), AminoAtoms.values());
-    // for (int i = 0; i < groups.size(); ++i) {
-    // if (i == groups.size() - 1) {
-    // atoms[2] = new Atom[AminoAtoms.values().length];
-    // } else {
-    // atoms[2] = DihedralAngles.getAtoms(groups.get(i + 1),
-    // AminoAtoms.values());
-    // }
-    //
-    // double phi = DihedralAngles.calculateDihedral(
-    // atoms[0][AminoAtoms.C.ordinal()],
-    // atoms[1][AminoAtoms.N.ordinal()],
-    // atoms[1][AminoAtoms.CA.ordinal()],
-    // atoms[1][AminoAtoms.C.ordinal()]);
-    // double psi = DihedralAngles.calculateDihedral(
-    // atoms[1][AminoAtoms.N.ordinal()],
-    // atoms[1][AminoAtoms.CA.ordinal()],
-    // atoms[1][AminoAtoms.C.ordinal()],
-    // atoms[2][AminoAtoms.N.ordinal()]);
-    // double omega = DihedralAngles.calculateDihedral(
-    // atoms[1][AminoAtoms.CA.ordinal()],
-    // atoms[1][AminoAtoms.C.ordinal()],
-    // atoms[2][AminoAtoms.N.ordinal()],
-    // atoms[2][AminoAtoms.CA.ordinal()]);
-    //
-    // Group group = atoms[1][0].getGroup();
-    // atoms[0] = atoms[1];
-    // atoms[1] = atoms[2];
-    //
-    // AminoAcidDihedral dihedral = new AminoAcidDihedral(phi, psi, omega,
-    // group);
-    // aminoDihedrals.add(dihedral);
-    // }
-    // return aminoDihedrals;
-    // }
-
-    /**
-     * Implementation of torsion angle calculation for nucleotides.
-     * 
-     * @param groups
-     *            Nucleotides.
-     * @return Collection of calculated dihedral angles.
-     */
-    // private static List<NucleotideDihedral> calculateNucleotideDihedrals(
-    // List<Group> groups) {
-    // Vector<NucleotideDihedral> nucleotideDihedrals = new Vector<>();
-    // if (groups.size() == 0) {
-    // return nucleotideDihedrals;
-    // }
-    //
-    // Atom[][] atoms = new Atom[3][];
-    // atoms[0] = new Atom[NucleotideAtoms.values().length];
-    // atoms[1] = DihedralAngles.getAtoms(groups.get(0),
-    // NucleotideAtoms.values());
-    //
-    // for (int i = 0; i < groups.size(); ++i) {
-    // if (i == groups.size() - 1) {
-    // atoms[2] = new Atom[NucleotideAtoms.values().length];
-    // } else {
-    // atoms[2] = DihedralAngles.getAtoms(groups.get(i + 1),
-    // NucleotideAtoms.values());
-    // }
-    //
-    // double alpha = DihedralAngles.calculateDihedral(
-    // atoms[0][NucleotideAtoms.O3P.ordinal()],
-    // atoms[1][NucleotideAtoms.P.ordinal()],
-    // atoms[1][NucleotideAtoms.O5P.ordinal()],
-    // atoms[1][NucleotideAtoms.C5P.ordinal()]);
-    // double beta = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.P.ordinal()],
-    // atoms[1][NucleotideAtoms.O5P.ordinal()],
-    // atoms[1][NucleotideAtoms.C5P.ordinal()],
-    // atoms[1][NucleotideAtoms.C4P.ordinal()]);
-    // double gamma = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.O5P.ordinal()],
-    // atoms[1][NucleotideAtoms.C5P.ordinal()],
-    // atoms[1][NucleotideAtoms.C4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C3P.ordinal()]);
-    // double delta = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.C5P.ordinal()],
-    // atoms[1][NucleotideAtoms.C4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C3P.ordinal()],
-    // atoms[1][NucleotideAtoms.O3P.ordinal()]);
-    // double epsilon = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.C4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C3P.ordinal()],
-    // atoms[1][NucleotideAtoms.O3P.ordinal()],
-    // atoms[2][NucleotideAtoms.P.ordinal()]);
-    // double dzeta = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.C3P.ordinal()],
-    // atoms[1][NucleotideAtoms.O3P.ordinal()],
-    // atoms[2][NucleotideAtoms.P.ordinal()],
-    // atoms[2][NucleotideAtoms.O5P.ordinal()]);
-    //
-    // String pdbName = groups.get(i).getPDBName();
-    // pdbName = pdbName.trim();
-    // double chi;
-    // if (pdbName.equals("G") || pdbName.equals("A")) {
-    // // Guanine or Adenine
-    // chi = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.O4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C1P.ordinal()],
-    // atoms[1][NucleotideAtoms.N9.ordinal()],
-    // atoms[1][NucleotideAtoms.C4.ordinal()]);
-    // } else {
-    // // Uracil or Cytosine
-    // chi = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.O4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C1P.ordinal()],
-    // atoms[1][NucleotideAtoms.N1.ordinal()],
-    // atoms[1][NucleotideAtoms.C2.ordinal()]);
-    // }
-    //
-    // double[] tau = new double[5];
-    // tau[0] = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.C4P.ordinal()],
-    // atoms[1][NucleotideAtoms.O4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C1P.ordinal()],
-    // atoms[1][NucleotideAtoms.C2P.ordinal()]);
-    // tau[1] = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.O4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C1P.ordinal()],
-    // atoms[1][NucleotideAtoms.C2P.ordinal()],
-    // atoms[1][NucleotideAtoms.C3P.ordinal()]);
-    // tau[2] = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.C1P.ordinal()],
-    // atoms[1][NucleotideAtoms.C2P.ordinal()],
-    // atoms[1][NucleotideAtoms.C3P.ordinal()],
-    // atoms[1][NucleotideAtoms.C4P.ordinal()]);
-    // tau[3] = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.C2P.ordinal()],
-    // atoms[1][NucleotideAtoms.C3P.ordinal()],
-    // atoms[1][NucleotideAtoms.C4P.ordinal()],
-    // atoms[1][NucleotideAtoms.O4P.ordinal()]);
-    // tau[4] = DihedralAngles.calculateDihedral(
-    // atoms[1][NucleotideAtoms.C3P.ordinal()],
-    // atoms[1][NucleotideAtoms.C4P.ordinal()],
-    // atoms[1][NucleotideAtoms.O4P.ordinal()],
-    // atoms[1][NucleotideAtoms.C1P.ordinal()]);
-    // double pSin = tau[1] + tau[4] - tau[0] - tau[3];
-    // double pCos = 2.0 * tau[2];
-    // pCos *= Math.sin(36.0 * Math.PI / 180.0)
-    // + Math.sin(72.0 * Math.PI / 180.0);
-    // double P = Math.atan2(pSin, pCos);
-    //
-    // Group group = atoms[1][0].getGroup();
-    // atoms[0] = atoms[1];
-    // atoms[1] = atoms[2];
-    //
-    // NucleotideDihedral dihedral = new NucleotideDihedral(alpha, beta,
-    // gamma, delta, epsilon, dzeta, chi, P, group);
-    // nucleotideDihedrals.add(dihedral);
-    // }
-    // return nucleotideDihedrals;
-    // }
-
-    // private static DihedralContainer computeDihedrals(List<Group> continuous)
-    // {
-    // List<Group> aminoVector = new Vector<>();
-    // List<Group> nucleotideVector = new Vector<>();
-    //
-    // for (Group g : continuous) {
-    // Group group = (Group) g.clone();
-    // for (Group altLoc : g.getAltLocs()) {
-    // for (Atom a : altLoc.getAtoms()) {
-    // group.addAtom(a);
-    // }
-    // }
-    // String type = group.getType();
-    // if (type.equals("amino") || group.hasAminoAtoms()) {
-    // aminoVector.add(group);
-    // } else if (type.equals("nucleotide") || group.hasAtom("P")) {
-    // nucleotideVector.add(group);
-    // }
-    //
-    // }
-    //
-    // List<AminoAcidDihedral> aad = DihedralAngles
-    // .calculateAminoAcidDihedrals(aminoVector);
-    // List<NucleotideDihedral> nd = DihedralAngles
-    // .calculateNucleotideDihedrals(nucleotideVector);
-    // return new DihedralContainer(aad, nd);
-    // }
-
-    /**
-     * Calculate one dihedral angle value for given four atoms. Use cos^-1 and a
-     * check for pseudovector
-     * 
-     * @param a1
-     *            Atom 1.
-     * @param a2
-     *            Atom 2.
-     * @param a3
-     *            Atom 3.
-     * @param a4
-     *            Atom 4.
-     * @return Dihedral angle between atoms 1-4.
-     */
-    public static double calculateDihedralAcos(Atom a1, Atom a2, Atom a3,
-            Atom a4) {
-        if (a1 == null || a2 == null || a3 == null || a4 == null) {
-            return Double.NaN;
-        }
-
-        Vector3D d1 = new Vector3D(a1, a2);
-        Vector3D d2 = new Vector3D(a2, a3);
-        Vector3D d3 = new Vector3D(a3, a4);
-
-        Vector3D u1 = d1.cross(d2);
-        Vector3D u2 = d2.cross(d3);
-
-        double ctor = u1.dot(u2) / Math.sqrt(u1.dot(u1) * u2.dot(u2));
-        ctor = ctor < -1 ? -1 : ctor > 1 ? 1 : ctor;
-        double torp = Math.acos(ctor);
-        if (u1.dot(u2.cross(d2)) < 0)
-            torp = -torp;
-        return torp;
-    }
-
-    /**
-     * Calculate one dihedral angle value for given four atoms.
-     * 
-     * @param a1
-     *            Atom 1.
-     * @param a2
-     *            Atom 2.
-     * @param a3
-     *            Atom 3.
-     * @param a4
-     *            Atom 4.
-     * @return Dihedral angle between atoms 1-4.
-     */
-    public static double calculateDihedralAtan(Atom a1, Atom a2, Atom a3,
-            Atom a4) {
-        if (a1 == null || a2 == null || a3 == null || a4 == null) {
-            return Double.NaN;
-        }
-
-        Vector3D v1 = new Vector3D(a1, a2);
-        Vector3D v2 = new Vector3D(a2, a3);
-        Vector3D v3 = new Vector3D(a3, a4);
-
-        Vector3D tmp1 = v1.cross(v2);
-        Vector3D tmp2 = v2.cross(v3);
-        Vector3D tmp3 = v1.scale(v2.length());
-        return Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
-    }
-
-    public static double calculateDihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
-        return calculateDihedralAtan(a1, a2, a3, a4);
-    }
-
-    public static double calculateDihedral(Atom[] atoms) {
-        return calculateDihedral(atoms[0], atoms[1], atoms[2], atoms[3]);
-    }
-
     public static List<AngleDifference> calculateAngleDiff(Atom[][] atoms,
             AngleType angleType, boolean wasAligned) {
-        List<Quadruplet> quads1 = getQuadruplets(atoms[0], angleType);
-        List<Quadruplet> quads2 = getQuadruplets(atoms[1], angleType);
-        LOGGER.debug("Processing angle: " + angleType.getAngleName()
-                + ". Atom count: " + atoms[0].length + " " + atoms[1].length
-                + ". Quadruplets found: " + quads1.size() + " " + quads2.size());
+        List<Quadruplet> quads1 = DihedralAngles.getQuadruplets(atoms[0],
+                angleType);
+        List<Quadruplet> quads2 = DihedralAngles.getQuadruplets(atoms[1],
+                angleType);
+        DihedralAngles.LOGGER.debug("Processing angle: "
+                + angleType.getAngleName() + ". Atom count: " + atoms[0].length
+                + " " + atoms[1].length + ". Quadruplets found: "
+                + quads1.size() + " " + quads2.size());
 
         if (quads1.size() < quads2.size()) {
             List<Quadruplet> quadsTmp = quads1;
@@ -332,21 +73,109 @@ public class DihedralAngles {
         return differences;
     }
 
-    private static Map<Atom, Integer> makeReverseMap(Atom[] atoms) {
-        Map<Atom, Integer> map = new HashMap<>();
-        for (int i = 0; i < atoms.length; i++) {
-            map.put(atoms[i], i);
+    /**
+     * Calculate one dihedral angle value. By default use the atan method.
+     * 
+     * @param a1
+     *            Atom 1.
+     * @param a2
+     *            Atom 2.
+     * @param a3
+     *            Atom 3.
+     * @param a4
+     *            Atom 4.
+     * @return Value of the torsion angle.
+     */
+    public static double calculateDihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
+        return DihedralAngles.calculateDihedralAtan(a1, a2, a3, a4);
+    }
+
+    /**
+     * Calculate one dihedral angle value. By default use the atan method.
+     * 
+     * @param atoms
+     *            A 4-tuple of atoms.
+     * @return Value of the tosion angle.
+     */
+    public static double calculateDihedral(Atom[] atoms) {
+        return DihedralAngles.calculateDihedral(atoms[0], atoms[1], atoms[2],
+                atoms[3]);
+    }
+
+    /**
+     * Calculate one dihedral angle value for given four atoms. Use cos^-1 and a
+     * check for pseudovector
+     * 
+     * @param a1
+     *            Atom 1.
+     * @param a2
+     *            Atom 2.
+     * @param a3
+     *            Atom 3.
+     * @param a4
+     *            Atom 4.
+     * @return Dihedral angle between atoms 1-4.
+     */
+    public static double calculateDihedralAcos(Atom a1, Atom a2, Atom a3,
+            Atom a4) {
+        if (a1 == null || a2 == null || a3 == null || a4 == null) {
+            return Double.NaN;
         }
-        return map;
+
+        Vector3D d1 = new Vector3D(a1, a2);
+        Vector3D d2 = new Vector3D(a2, a3);
+        Vector3D d3 = new Vector3D(a3, a4);
+
+        Vector3D u1 = d1.cross(d2);
+        Vector3D u2 = d2.cross(d3);
+
+        double ctor = u1.dot(u2) / Math.sqrt(u1.dot(u1) * u2.dot(u2));
+        ctor = ctor < -1 ? -1 : ctor > 1 ? 1 : ctor;
+        double torp = Math.acos(ctor);
+        if (u1.dot(u2.cross(d2)) < 0) {
+            torp = -torp;
+        }
+        return torp;
+    }
+
+    /**
+     * Calculate one dihedral angle value for given four atoms.
+     * 
+     * @param a1
+     *            Atom 1.
+     * @param a2
+     *            Atom 2.
+     * @param a3
+     *            Atom 3.
+     * @param a4
+     *            Atom 4.
+     * @return Dihedral angle between atoms 1-4.
+     */
+    public static double calculateDihedralAtan(Atom a1, Atom a2, Atom a3,
+            Atom a4) {
+        if (a1 == null || a2 == null || a3 == null || a4 == null) {
+            return Double.NaN;
+        }
+
+        Vector3D v1 = new Vector3D(a1, a2);
+        Vector3D v2 = new Vector3D(a2, a3);
+        Vector3D v3 = new Vector3D(a3, a4);
+
+        Vector3D tmp1 = v1.cross(v2);
+        Vector3D tmp2 = v2.cross(v3);
+        Vector3D tmp3 = v1.scale(v2.length());
+        return Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
     }
 
     private static List<Quadruplet> getQuadruplets(Atom[] atoms,
             AngleType angleType) {
         int hashCode = Arrays.hashCode(atoms);
-        if (!reverseMapCache.containsKey(hashCode)) {
-            reverseMapCache.put(hashCode, makeReverseMap(atoms));
+        if (!DihedralAngles.reverseMapCache.containsKey(hashCode)) {
+            DihedralAngles.reverseMapCache.put(hashCode,
+                    DihedralAngles.makeReverseMap(atoms));
         }
-        Map<Atom, Integer> reverseMap = reverseMapCache.get(hashCode);
+        Map<Atom, Integer> reverseMap = DihedralAngles.reverseMapCache
+                .get(hashCode);
 
         int[] groupRule = angleType.getGroupRule();
         List<List<Atom>> found = new ArrayList<>();
@@ -398,14 +227,23 @@ public class DihedralAngles {
                 }
                 filtered.add(new Quadruplet(array, indices));
             } else {
-                LOGGER.debug("Quad not found, got only " + quad.size()
-                        + " atoms. Angle: " + angleType.getAngleName()
+                DihedralAngles.LOGGER.debug("Quad not found, got only "
+                        + quad.size() + " atoms. Angle: "
+                        + angleType.getAngleName()
                         + ". Residue of first atom: "
                         + quad.get(0).getGroup().getResidueNumber()
                         + ". Atoms: " + Arrays.toString(array));
             }
         }
         return filtered;
+    }
+
+    private static Map<Atom, Integer> makeReverseMap(Atom[] atoms) {
+        Map<Atom, Integer> map = new HashMap<>();
+        for (int i = 0; i < atoms.length; i++) {
+            map.put(atoms[i], i);
+        }
+        return map;
     }
 
     /**
@@ -434,87 +272,4 @@ public class DihedralAngles {
         }
         return diff;
     }
-
-    /**
-     * Filter given atom group for specific, named atoms.
-     * 
-     * @param group
-     *            Atom group (amino acid or nucleotide).
-     * @param atomsNames
-     *            Enumeration with names of atoms to filter.
-     * @return An array of filtered atoms.
-     */
-    // private static Atom[] getAtoms(Group group, Enum<?>[] atomsNames) {
-    // Atom[] atoms = new Atom[atomsNames.length];
-    // int i = 0;
-    // for (Enum<?> atomName : atomsNames) {
-    // String name = atomName.name();
-    // Atom atom;
-    // if (name.length() > 1) {
-    // atom = DihedralAngles
-    // .tryGetAtom(group, name.replace('P', '\''));
-    // if (atom == null) {
-    // atom = DihedralAngles.tryGetAtom(group,
-    // name.replace('P', '*'));
-    // }
-    // } else {
-    // atom = DihedralAngles.tryGetAtom(group, name);
-    // }
-    // atoms[i++] = atom;
-    //
-    // }
-    // return atoms;
-    // }
-
-    // public static DihedralContainer getDihedrals(AlignmentOutput alignment) {
-    // DihedralContainer container = new DihedralContainer();
-    // Group[][] compactGroups = alignment.getCompactGroups(whichChain);
-    // for (Group[] groups : compactGroups) {
-    // container.addAll(DihedralAngles.computeDihedrals(Arrays
-    // .asList(groups)));
-    // }
-    // return container;
-    // }
-
-    // public static DihedralContainer getDihedrals(Chain chain) {
-    // return DihedralAngles.computeDihedrals(chain.getAtomGroups());
-    // }
-
-    /**
-     * Iterate through structure's chains, groups and atoms. Return the
-     * collection of calculated dihedral angles for each chain.
-     * 
-     * @param structure
-     *            Structure to calculate dihedral angles within.
-     * @return A collection of dihedral angles for given chain and type. The
-     *         "double[][][] result" array must be interpreted this way:
-     *         result[i] is i-th chain, result[i][0] is for amino acids and
-     *         result[i][1] is for nucleotides, result[i][j][k] is for k-th
-     *         group.
-     */
-    // public static DihedralContainer getDihedrals(Structure structure) {
-    // DihedralContainer allDihedrals = new DihedralContainer();
-    // for (Chain c : structure.getChains()) {
-    // allDihedrals.addAll(DihedralAngles.getDihedrals(c));
-    // }
-    // return allDihedrals;
-    // }
-
-    /**
-     * Get an atom from given group or return null in case of errors (i.e. if
-     * atom is not present).
-     * 
-     * @param group
-     *            A residue.
-     * @param name
-     *            Name of an atom.
-     * @return Object representing this atom.
-     */
-    // private static Atom tryGetAtom(Group group, String name) {
-    // try {
-    // return group.getAtom(name);
-    // } catch (StructureException e) {
-    // return null;
-    // }
-    // }
 }

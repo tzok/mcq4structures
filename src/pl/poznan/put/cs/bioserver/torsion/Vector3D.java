@@ -10,9 +10,18 @@ import org.biojava.bio.structure.Atom;
 public class Vector3D {
     public double x, y, z;
 
-    public Vector3D() {
+    private Vector3D() {
     }
 
+    /**
+     * Create a mathematical vector from points represented by atoms in 3D
+     * space.
+     * 
+     * @param a1
+     *            Atom 1.
+     * @param a2
+     *            Atom 2.
+     */
     public Vector3D(Atom a1, Atom a2) {
         x = a2.getX() - a1.getX();
         y = a2.getY() - a1.getY();

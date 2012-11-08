@@ -22,8 +22,8 @@ import org.jfree.data.xy.DefaultXYDataset;
 public class HierarchicalPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private static String generateLabel(List<List<Integer>> ids,
-            int[] pair, String[] labels) {
+    private static String generateLabel(List<List<Integer>> ids, int[] pair,
+            String[] labels) {
         List<Integer> a = ids.get(pair[0]);
         List<Integer> b = ids.get(pair[1]);
 
@@ -41,11 +41,21 @@ public class HierarchicalPlot extends JFrame {
         return writer.toString();
     }
 
-    public JFreeChart chart;
+    private JFreeChart chart;
 
+    /**
+     * Create a JFrame that shows the result of hierarchical plotting.
+     * 
+     * @param distance
+     *            A distance matrix, NxN.
+     * @param labels
+     *            An array of labels, N.
+     * @param linkage
+     *            Linkage type @see Clusterer.Type;
+     */
     public HierarchicalPlot(double[][] distance, String[] labels, int linkage) {
-        int[][] clustering = Clusterer
-                .hierarchicalClustering(distance, linkage);
+        int[][] clustering = Clusterer.hierarchicalClustering(distance,
+                Clusterer.Type.values()[linkage]);
         List<Integer> allocation = Clusterer.clusters.get(0);
 
         List<double[]> clusters = new ArrayList<>();

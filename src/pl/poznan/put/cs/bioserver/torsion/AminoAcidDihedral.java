@@ -12,51 +12,66 @@ import org.biojava.bio.structure.Group;
  */
 public class AminoAcidDihedral implements AngleType {
     // TODO: add angles provided in Bio3D package
+    /** All names of angles in the amino acid. */
     public enum AngleName {
         PHI, PSI, OMEGA
     }
 
-    public static final String C = " C  ";
-    public static final String CA = " CA ";
-    public static final String N = " N  ";
-    public static final String[] USED_ATOMS = { C, CA, N };
+    private static final String C = " C  ";
+    private static final String CA = " CA ";
+    private static final String N = " N  ";
+
+    /** A list of all used names. */
+    public static final String[] USED_ATOMS = { AminoAcidDihedral.C,
+            AminoAcidDihedral.CA, AminoAcidDihedral.N };
+    /** A list of all defined angles. */
     public static final AngleType[] ANGLES = new AminoAcidDihedral[] {
             new AminoAcidDihedral(AngleName.PHI),
             new AminoAcidDihedral(AngleName.PSI),
             new AminoAcidDihedral(AngleName.OMEGA) };
 
-    private AngleName angleName;
-
     private static Map<AngleName, String[]> mapAngleToAtoms;
     private static Map<AngleName, int[]> mapAngleToRules;
     static {
-        mapAngleToAtoms = new HashMap<>();
-        mapAngleToAtoms.put(AngleName.PHI, new String[] { C, N, CA, C });
-        mapAngleToAtoms.put(AngleName.PSI, new String[] { N, CA, C, N });
-        mapAngleToAtoms.put(AngleName.OMEGA, new String[] { CA, C, N, CA });
+        AminoAcidDihedral.mapAngleToAtoms = new HashMap<>();
+        AminoAcidDihedral.mapAngleToAtoms.put(AngleName.PHI, new String[] {
+                AminoAcidDihedral.C, AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                AminoAcidDihedral.C });
+        AminoAcidDihedral.mapAngleToAtoms.put(AngleName.PSI, new String[] {
+                AminoAcidDihedral.N, AminoAcidDihedral.CA, AminoAcidDihedral.C,
+                AminoAcidDihedral.N });
+        AminoAcidDihedral.mapAngleToAtoms.put(AngleName.OMEGA, new String[] {
+                AminoAcidDihedral.CA, AminoAcidDihedral.C, AminoAcidDihedral.N,
+                AminoAcidDihedral.CA });
 
-        mapAngleToRules = new HashMap<>();
-        mapAngleToRules.put(AngleName.PHI, new int[] { 0, 1, 1, 1 });
-        mapAngleToRules.put(AngleName.PSI, new int[] { 0, 0, 0, 1 });
-        mapAngleToRules.put(AngleName.OMEGA, new int[] { 0, 0, 1, 1 });
+        AminoAcidDihedral.mapAngleToRules = new HashMap<>();
+        AminoAcidDihedral.mapAngleToRules.put(AngleName.PHI, new int[] { 0, 1,
+                1, 1 });
+        AminoAcidDihedral.mapAngleToRules.put(AngleName.PSI, new int[] { 0, 0,
+                0, 1 });
+        AminoAcidDihedral.mapAngleToRules.put(AngleName.OMEGA, new int[] { 0,
+                0, 1, 1 });
     }
 
+    private AngleName angleName;
+
+    @SuppressWarnings("javadoc")
     public AminoAcidDihedral(AngleName angleName) {
         this.angleName = angleName;
     }
 
     @Override
+    public String getAngleName() {
+        return angleName.toString();
+    }
+
+    @Override
     public String[] getAtomNames(Group g) {
-        return mapAngleToAtoms.get(angleName);
+        return AminoAcidDihedral.mapAngleToAtoms.get(angleName);
     }
 
     @Override
     public int[] getGroupRule() {
-        return mapAngleToRules.get(angleName);
-    }
-
-    @Override
-    public String getAngleName() {
-        return angleName.toString();
+        return AminoAcidDihedral.mapAngleToRules.get(angleName);
     }
 }

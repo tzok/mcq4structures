@@ -7,36 +7,42 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
-
+/**
+ * A main window of the application.
+ * 
+ * @author tzok
+ */
 public class Gui extends JFrame {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Run the main graphical application.
+     * 
+     * @param args
+     *            Unused.
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @SuppressWarnings("unused")
             @Override
             public void run() {
-                new Gui(new PdbManager());
+                new Gui();
             }
         });
     }
 
-    public Gui(PdbManager manager) {
+    @SuppressWarnings("javadoc")
+    public Gui() {
         super();
         /*
          * Tabbed pane
          */
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.add("Sequence alignment",
-                new SequenceAlignmentPanel(manager));
-        tabbedPane.add("Structure alignment", new StructureAlignmentPanel(
-                manager));
-        tabbedPane.add("Global comparison", new GlobalComparisonPanel(manager));
+        tabbedPane.add("Sequence alignment", new SequenceAlignmentPanel());
+        tabbedPane.add("Structure alignment", new StructureAlignmentPanel());
+        tabbedPane.add("Global comparison", new GlobalComparisonPanel());
         tabbedPane.add("Torsion local comparison",
-                new TorsionLocalComparisonPanel(manager));
-        // BiojavaJmol jmol = new BiojavaJmol();
-        // tabbedPane.add("Jmol", jmol.getFrame());
+                new TorsionLocalComparisonPanel());
         setContentPane(tabbedPane);
         /*
          * Show window

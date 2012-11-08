@@ -2,7 +2,6 @@ package pl.poznan.put.cs.bioserver.comparison;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -34,101 +33,19 @@ public class MCQ extends GlobalComparison {
         AngleType[] array1 = NucleotideDihedral.ANGLES;
         int array2 = AminoAcidDihedral.ANGLES.length;
         USED_ANGLES = new AngleType[array1.length + array2];
-        System.arraycopy(array1, 0, USED_ANGLES, 0, array1.length);
-        System.arraycopy(AminoAcidDihedral.ANGLES, 0, USED_ANGLES,
+        System.arraycopy(array1, 0, MCQ.USED_ANGLES, 0, array1.length);
+        System.arraycopy(AminoAcidDihedral.ANGLES, 0, MCQ.USED_ANGLES,
                 array1.length, array2);
     }
 
-    public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("ERROR");
-            System.out.println("Incorrect number of arguments provided");
-            return;
-        }
-        PDBFileReader reader = new PDBFileReader();
-        try {
-            List<Structure> list = new ArrayList<>();
-            for (int i = 0; i < args.length; i++) {
-                list.add(reader.getStructure(args[i]));
-            }
-
-            MCQ mcq = new MCQ();
-            double[][] compare = mcq.compare(list.toArray(new Structure[list
-                    .size()]));
-            System.out.println("OK");
-            for (int i = 0; i < compare.length; i++) {
-                System.out.println(Arrays.toString(compare[i]));
-            }
-        } catch (IOException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
-        } catch (IncomparableStructuresException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
-        }
-
-    }
-
-    @Override
-    public double compare(Structure s1, Structure s2)
-            throws IncomparableStructuresException {
-        try {
-            return MCQ.compare(s1, s2, false);
-        } catch (StructureException e) {
-            LOGGER.error(e, e);
-            throw new IncomparableStructuresException(e);
-        }
-    }
-
-    public static double compare(Structure s1, Structure s2, boolean alignFirst)
-            throws StructureException {
-        Atom[][] atoms;
-        if (alignFirst) {
-            atoms = StructureAligner.align(s1, s2).getAtoms();
-        } else {
-            atoms = Helper.getCommonAtomArray(s1, s2);
-            // if (atoms[0].length != atoms[1].length) {
-            // LOGGER.info("Atom sets have different sizes. Must use "
-            // + "alignment before calculating MCQ");
-            // AlignmentOutput output = StructureAligner.align(s1, s2);
-            // atoms = output.getAtoms();
-            // }
-        }
-        return compare(atoms, alignFirst);
-    }
-
-    public static double compare(Chain c1, Chain c2, boolean alignFirst)
-            throws StructureException {
-        Atom[][] atoms;
-        if (alignFirst) {
-            atoms = StructureAligner.align(c1, c2).getAtoms();
-        } else {
-            atoms = Helper.getCommonAtomArray(c1, c2);
-        }
-        return compare(atoms, alignFirst);
-    }
-
-    private static double compare(Atom[][] atoms, boolean wasAligned) {
-        Atom[][] equalized = Helper.equalize(atoms);
-
-        List<AngleDifference> allDiffs = new ArrayList<>();
-        for (AngleType at : USED_ANGLES) {
-            List<AngleDifference> diffs;
-            diffs = DihedralAngles
-                    .calculateAngleDiff(equalized, at, wasAligned);
-            allDiffs.addAll(diffs);
-        }
-        if (LOGGER.isTraceEnabled()) {
-            StringBuilder builder = new StringBuilder("All differences:\n");
-            for (AngleDifference ad : allDiffs) {
-                builder.append(ad);
-                builder.append('\n');
-            }
-            LOGGER.trace(builder.toString());
-        }
-        return MCQ.calculate(allDiffs);
-    }
-
+    /**
+     * Calculate mean of circular quantities (MCQ) for given set of angle
+     * differences.
+     * 
+     * @param diffs
+     *            A collection of angle differences.
+     * @return Mean of Circular Quantities (MCQ).
+     */
     public static double calculate(Iterable<AngleDifference> diffs) {
         int counter = 0;
         double sines = 0.0;
@@ -139,5 +56,146 @@ public class MCQ extends GlobalComparison {
             counter++;
         }
         return Math.atan2(sines / counter, cosines / counter);
+    }
+
+    /**
+     * Compare two sets of atoms using MCQ.
+     * 
+     * @param atoms
+     *            Two arrays of atoms with corresponding indices.
+     * @param wasAligned
+     *            True. if atoms were aligned beforehand.
+     * @return Mean of Circular Quantities (MCQ) for differences between torsion
+     *         angles defined upon the given atoms.
+     */
+    private static double compare(Atom[][] atoms, boolean wasAligned) {
+        Atom[][] equalized = Helper.equalize(atoms);
+
+        List<AngleDifference> allDiffs = new ArrayList<>();
+        for (AngleType at : MCQ.USED_ANGLES) {
+            List<AngleDifference> diffs;
+            diffs = DihedralAngles
+                    .calculateAngleDiff(equalized, at, wasAligned);
+            allDiffs.addAll(diffs);
+        }
+        if (MCQ.LOGGER.isTraceEnabled()) {
+            StringBuilder builder = new StringBuilder("All differences:\n");
+            for (AngleDifference ad : allDiffs) {
+                builder.append(ad);
+                builder.append('\n');
+            }
+            MCQ.LOGGER.trace(builder.toString());
+        }
+        return MCQ.calculate(allDiffs);
+    }
+
+    /**
+     * Compare two given chains.
+     * 
+     * @param c1
+     *            First chain.
+     * @param c2
+     *            Second chain.
+     * @param alignFirst
+     *            Should atoms be aligned first?
+     * @return Mean of Circular Quantities (MCQ).
+     * @throws StructureException
+     *             If the alignment was impossible to make.
+     */
+    public static double compare(Chain c1, Chain c2, boolean alignFirst)
+            throws StructureException {
+        Atom[][] atoms;
+        if (alignFirst) {
+            atoms = StructureAligner.align(c1, c2).getAtoms();
+        } else {
+            atoms = Helper.getCommonAtomArray(c1, c2);
+        }
+        return MCQ.compare(atoms, alignFirst);
+    }
+
+    /**
+     * Compare two given structures.
+     * 
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @param alignFirst
+     *            Should atoms be aligned first?
+     * @return Mean of Circular Quantities (MCQ).
+     * @throws StructureException
+     *             If the alignment was impossible to make.
+     */
+    public static double compare(Structure s1, Structure s2, boolean alignFirst)
+            throws StructureException {
+        Atom[][] atoms;
+        if (alignFirst) {
+            atoms = StructureAligner.align(s1, s2).getAtoms();
+        } else {
+            atoms = Helper.getCommonAtomArray(s1, s2);
+        }
+        return MCQ.compare(atoms, alignFirst);
+    }
+
+    /**
+     * A command line wrapper to calculate MCQ for given structures. It outputs
+     * the upper half of the dissimilarity matrix. For example, for 4 structures
+     * the output will like this:
+     * 
+     * OK 1-vs-2 1-vs-3 1-vs-4 2-vs-3 2-vs-4 3-vs-4
+     * 
+     * @param args
+     *            A list of paths to PDB files.
+     */
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("ERROR");
+            System.out.println("Incorrect number of arguments provided");
+            return;
+        }
+        PDBFileReader reader = new PDBFileReader();
+        try {
+            List<Structure> list = new ArrayList<>();
+            for (String arg : args) {
+                list.add(reader.getStructure(arg));
+            }
+
+            MCQ mcq = new MCQ();
+            double[][] compare = mcq.compare(list.toArray(new Structure[list
+                    .size()]));
+            System.out.println("OK");
+            for (int i = 0; i < compare.length; i++) {
+                for (int j = i + 1; j < compare.length; j++) {
+                    System.out.println(compare[i][j]);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("ERROR");
+            System.out.println(e.getMessage());
+        } catch (IncomparableStructuresException e) {
+            System.out.println("ERROR");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Compare two given structures. By default, do not try to align based on
+     * atoms.
+     * 
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @return Mean of Circular Quantities (MCQ).
+     */
+    @Override
+    public double compare(Structure s1, Structure s2)
+            throws IncomparableStructuresException {
+        try {
+            return MCQ.compare(s1, s2, false);
+        } catch (StructureException e) {
+            MCQ.LOGGER.error(e, e);
+            throw new IncomparableStructuresException(e);
+        }
     }
 }

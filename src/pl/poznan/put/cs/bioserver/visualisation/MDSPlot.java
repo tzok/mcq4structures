@@ -22,6 +22,16 @@ public class MDSPlot extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(MDSPlot.class);
 
+    /**
+     * Create a JFrame which shows a plot of data after applying
+     * Multidimensional Scaling.
+     * 
+     * @see MDS
+     * @param data
+     *            A distance matrix, NxN.
+     * @param labels
+     *            Labels for data, N.
+     */
     public MDSPlot(double[][] data, String[] labels) {
         super();
 

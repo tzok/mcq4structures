@@ -8,6 +8,17 @@ import org.biojava.bio.structure.Structure;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public abstract class GlobalComparison {
+    /**
+     * Compare two structures.
+     * 
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @return Distance between the structures according to some measure.
+     * @throws IncomparableStructuresException
+     *             If the two structure could not be compared.
+     */
     public abstract double compare(Structure s1, Structure s2)
             throws IncomparableStructuresException;
 

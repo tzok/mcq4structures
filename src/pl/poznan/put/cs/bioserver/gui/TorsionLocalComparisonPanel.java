@@ -123,6 +123,38 @@ public class TorsionLocalComparisonPanel extends JPanel {
             });
         }
 
+        boolean addFile(File file) {
+            if (listModel.size() >= 2) {
+                JOptionPane.showMessageDialog(null,
+                        "Only two structures are allowed for"
+                                + " local comparison measures",
+                        "Maximum number of structures reached",
+                        JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            String path = file.getAbsolutePath();
+            if (PdbManager.addStructure(path)) {
+                listModel.addElement(path);
+            } else {
+                JOptionPane.showMessageDialog(null, "Specified file is not a "
+                        + "valid PDB file", "Invalid PDB file",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            PdbManager.addStructure(path);
+            /*
+             * if that was the first file added, then update the list of chains
+             */
+            loadChainsNames(listModel.size() - 1);
+            if (listModel.size() == 2) {
+                instructionsPanel
+                        .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
+            }
+            return true;
+        }
+
         private void loadChainsNames(int index) {
             DefaultComboBoxModel<String> model = null;
             JComboBox<String> comboBox = null;
@@ -136,44 +168,12 @@ public class TorsionLocalComparisonPanel extends JPanel {
 
             List<String> vector = new ArrayList<>();
             vector.add(listModel.getElementAt(index));
-            Structure[] structures = pdbManager.getStructures(vector);
+            Structure[] structures = PdbManager.getStructures(vector);
             model.removeAllElements();
             for (Chain c : structures[0].getChains()) {
                 model.addElement(c.getChainID());
             }
             comboBox.setSelectedIndex(0);
-        }
-
-        boolean addFile(File file) {
-            if (listModel.size() >= 2) {
-                JOptionPane.showMessageDialog(null,
-                        "Only two structures are allowed for"
-                                + " local comparison measures",
-                        "Maximum number of structures reached",
-                        JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-
-            String path = file.getAbsolutePath();
-            if (pdbManager.addStructure(path)) {
-                listModel.addElement(path);
-            } else {
-                JOptionPane.showMessageDialog(null, "Specified file is not a "
-                        + "valid PDB file", "Invalid PDB file",
-                        JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
-
-            pdbManager.addStructure(path);
-            /*
-             * if that was the first file added, then update the list of chains
-             */
-            loadChainsNames(listModel.size() - 1);
-            if (listModel.size() == 2) {
-                instructionsPanel
-                        .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
-            }
-            return true;
         }
     }
 
@@ -345,13 +345,12 @@ public class TorsionLocalComparisonPanel extends JPanel {
             .getLogger(TorsionLocalComparisonPanel.class);
     private JPanel chartPanel;
     ControlPanel controlPanel;
-    PdbManager pdbManager;
 
     // /////////////////////////////////////////////////////////////////////////
     // constructors
-    public TorsionLocalComparisonPanel(final PdbManager manager) {
+    @SuppressWarnings("javadoc")
+    public TorsionLocalComparisonPanel() {
         super(new BorderLayout());
-        pdbManager = manager;
         chartPanel = new JPanel();
 
         controlPanel = new ControlPanel();
@@ -386,8 +385,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         indices[1] = controlPanel.optionsPanel.comboBoxSecond
                                 .getSelectedIndex();
 
-                        Structure[] structures = manager.getStructures(Arrays
-                                .asList(names));
+                        Structure[] structures = PdbManager
+                                .getStructures(Arrays.asList(names));
                         Chain[] chains = new Chain[2];
                         for (int i = 0; i < 2; ++i) {
                             chains[i] = structures[i].getChain(indices[i]);
@@ -409,7 +408,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
                             compare = TorsionLocalComparison.compare(chains[0],
                                     chains[1], false);
                         } catch (StructureException e) {
-                            LOGGER.error(e);
+                            TorsionLocalComparisonPanel.LOGGER.error(e);
                             JOptionPane.showMessageDialog(null, e.getMessage(),
                                     "Error", JOptionPane.ERROR_MESSAGE);
                             return;
