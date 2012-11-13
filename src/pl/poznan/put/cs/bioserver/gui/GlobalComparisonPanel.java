@@ -150,6 +150,13 @@ public class GlobalComparisonPanel extends JPanel {
                                 structureNames, linkage.getSelectedIndex());
                     } else {
                         int k = (Integer) kspinner.getValue();
+                        if (k > comparisonResults.length) {
+                            JOptionPane.showMessageDialog(null, "k in "
+                                    + "k-medoids must be less or equal to the "
+                                    + "number of input structures", "Error!",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                         plot = new KMedoidsPlot(comparisonResults,
                                 structureNames, k);
                     }

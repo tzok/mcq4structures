@@ -396,7 +396,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
                         angles[i].getAngleName());
             }
             angleChoiceChecks[1][angles.length] = new JCheckBox("P");
-            angleChoiceChecks[1][angles.length] = new JCheckBox("MCQ");
+            angleChoiceChecks[1][angles.length + 1] = new JCheckBox("MCQ");
 
             for (JCheckBox b : angleChoiceChecks[1]) {
                 b.setEnabled(false);
