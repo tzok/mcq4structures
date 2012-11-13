@@ -7,7 +7,6 @@ import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
 
-@SuppressWarnings("javadoc")
 public class TestPdbModres {
     public static void main(String[] args) {
         try {

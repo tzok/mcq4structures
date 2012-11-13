@@ -22,7 +22,6 @@ import pl.poznan.put.cs.bioserver.visualisation.MDS;
  */
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
-    private JFreeChart chart;
 
     /**
      * Create an instance of JFrame which shows a k-medoid plot.
@@ -78,7 +77,7 @@ public class KMedoidsPlot extends JFrame {
         XYPlot plot = new XYPlot(dataset, xAxis, yAxis, new XYShapeRenderer());
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(false);
-        chart = new JFreeChart(plot);
+        JFreeChart chart = new JFreeChart(plot);
         ChartPanel panel = new ChartPanel(chart);
         setContentPane(panel);
 

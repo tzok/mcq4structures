@@ -44,12 +44,11 @@ public class AlignmentOutput {
         this.aligner = aligner;
         this.s1 = s1;
         this.s2 = s2;
-        this.atoms = atoms;
+        this.atoms = atoms.clone();
 
         alignments = aligner.getAlignments();
     }
 
-    @SuppressWarnings("javadoc")
     public StructurePairAligner getAligner() {
         return aligner;
     }

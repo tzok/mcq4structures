@@ -8,7 +8,6 @@ import org.biojava.bio.structure.Group;
  * @author tzok
  */
 public interface AngleType {
-    @SuppressWarnings("javadoc")
     String getAngleName();
 
     /**

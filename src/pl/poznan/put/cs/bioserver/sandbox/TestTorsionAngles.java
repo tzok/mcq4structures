@@ -9,7 +9,6 @@ import org.biojava.bio.structure.io.PDBFileReader;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 
-@SuppressWarnings("javadoc")
 public class TestTorsionAngles {
     public static void main(String[] args) {
         try {

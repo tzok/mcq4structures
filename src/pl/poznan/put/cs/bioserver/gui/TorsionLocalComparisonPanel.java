@@ -57,18 +57,141 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class TorsionLocalComparisonPanel extends JPanel {
+    private final class CompareStructures implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            Map<String, List<AngleDifference>> compare = compareStructures();
+            if (compare != null) {
+                drawResults(compare);
+            }
+        }
+
+        private Map<String, List<AngleDifference>> compareStructures() {
+            /*
+             * check structure count
+             */
+            if (controlPanel.listModel.size() != 2) {
+                JOptionPane.showMessageDialog(null,
+                        "You need exactly two structures"
+                                + " to compare them locally",
+                        "Incorrect number of structures " + "to compare",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return null;
+            }
+            /*
+             * get specified structures
+             */
+            String[] names = new String[2];
+            int[] indices = new int[2];
+            names[0] = controlPanel.listModel.get(0);
+            indices[0] = controlPanel.optionsPanel.comboBoxFirst
+                    .getSelectedIndex();
+            names[1] = controlPanel.listModel.get(1);
+            indices[1] = controlPanel.optionsPanel.comboBoxSecond
+                    .getSelectedIndex();
+
+            Structure[] structures = PdbManager.getStructures(Arrays
+                    .asList(names));
+            Chain[] chains = new Chain[2];
+            for (int i = 0; i < 2; ++i) {
+                chains[i] = structures[i].getChain(indices[i]);
+            }
+
+            if (Helper.isNucleicAcid(chains[0]) != Helper
+                    .isNucleicAcid(chains[1])) {
+                JOptionPane.showMessageDialog(null, "Cannot "
+                        + "compare structures of different type", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+
+            /*
+             * compare them
+             */
+            try {
+                return TorsionLocalComparison.compare(chains[0], chains[1],
+                        false);
+            } catch (StructureException e) {
+                TorsionLocalComparisonPanel.LOGGER.error(e);
+                JOptionPane.showMessageDialog(null, e.getMessage(), "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+        }
+
+        private void drawResults(Map<String, List<AngleDifference>> compare) {
+            /*
+             * read options from GUI
+             */
+            int type = controlPanel.optionsPanel.groupChoiceRadios[0]
+                    .isSelected() ? 0 : 1;
+            /*
+             * read angles that have to be plotted
+             */
+            List<String> anglesToShow = new ArrayList<>();
+            for (JCheckBox b : controlPanel.optionsPanel.angleChoiceChecks[type]) {
+                if (b.isSelected()) {
+                    anglesToShow.add(b.getText());
+                }
+            }
+            /*
+             * prepare dataset with points
+             */
+            DefaultXYDataset dataset = new DefaultXYDataset();
+            for (String angle : anglesToShow) {
+                if (!compare.containsKey(angle)) {
+                    JOptionPane.showMessageDialog(null, "The " + "angle "
+                            + angle + " is not defined "
+                            + "for loaded molecules", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                List<AngleDifference> diffs = compare.get(angle);
+                double[] x = new double[diffs.size()];
+                double[] y = new double[diffs.size()];
+                for (int i = 0; i < diffs.size(); i++) {
+                    AngleDifference ad = diffs.get(i);
+                    x[i] = i;
+                    y[i] = ad.getDifference();
+                }
+                dataset.addSeries(angle, new double[][] { x, y });
+            }
+            /*
+             * draw a plot and replace the previous one
+             */
+            TickUnitSource tickUnitSource = NumberAxis.createIntegerTickUnits();
+            NumberTickUnit tickUnit = (NumberTickUnit) tickUnitSource
+                    .getCeilingTickUnit(5);
+            NumberAxis xAxis = new NumberAxis();
+            xAxis.setLabel("Group index");
+            xAxis.setTickUnit(tickUnit);
+
+            NumberAxis yAxis = new NumberAxis();
+            yAxis.setAutoRange(false);
+            yAxis.setRange(0, Math.PI);
+            yAxis.setLabel("Distance [rad]");
+
+            XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
+                    new DefaultXYItemRenderer());
+            remove(1);
+            add(new ChartPanel(new JFreeChart(plot)));
+            SwingUtilities
+                    .updateComponentTreeUI(TorsionLocalComparisonPanel.this);
+        }
+    }
+
     /**
      * Subpanel containing file list and another panel with all options.
      */
-    private class ControlPanel extends JPanel {
+    private static class ControlPanel extends JPanel {
         private static final long serialVersionUID = 1L;
 
         // /////////////////////////////////////////////////////////////////////
         // fields
-        InstructionsPanel instructionsPanel;
-        JList<String> list;
-        DefaultListModel<String> listModel;
-        OptionsPanel optionsPanel;
+        private InstructionsPanel instructionsPanel;
+        private JList<String> list;
+        private DefaultListModel<String> listModel;
+        private OptionsPanel optionsPanel;
 
         // /////////////////////////////////////////////////////////////////////
         // constructors
@@ -180,7 +303,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
     /**
      * Subpanel containing instructions for the user.
      */
-    private class InstructionsPanel extends JPanel {
+    private static class InstructionsPanel extends JPanel {
+        private static final int FONT_SIZE = 12;
         public static final int INSTRUCTION_ADD_FILE = 0;
         public static final int INSTRUCTION_SELECT_CHAIN = 1;
         // /////////////////////////////////////////////////////////////////////
@@ -203,7 +327,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
             instructionsLabel = new JLabel(
                     instructions[InstructionsPanel.INSTRUCTION_ADD_FILE]);
             instructionsLabel.setFont(new Font(Font.DIALOG, Font.BOLD
-                    | Font.ITALIC, 12));
+                    | Font.ITALIC, InstructionsPanel.FONT_SIZE));
             add(instructionsLabel);
         }
 
@@ -224,16 +348,17 @@ public class TorsionLocalComparisonPanel extends JPanel {
      * Subpanel containing all buttons and boxes concerning local comparison
      * measure options.
      */
-    private class OptionsPanel extends JPanel {
+    private static class OptionsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        JButton addFile;
-        JCheckBox[][] angleChoiceChecks;
+        private JButton addFile;
+        private JCheckBox[][] angleChoiceChecks;
         // /////////////////////////////////////////////////////////////////////
         // fields
-        JComboBox<String> comboBoxFirst, comboBoxSecond;
-        DefaultComboBoxModel<String> comboBoxModelFirst, comboBoxModelSecond;
-        JButton compare;
-        JRadioButton[] groupChoiceRadios;
+        private JComboBox<String> comboBoxFirst, comboBoxSecond;
+        private DefaultComboBoxModel<String> comboBoxModelFirst,
+                comboBoxModelSecond;
+        private JButton compare;
+        private JRadioButton[] groupChoiceRadios;
 
         // /////////////////////////////////////////////////////////////////////
         // constructors
@@ -256,7 +381,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
 
             angleChoiceChecks = new JCheckBox[2][];
 
-            AngleType[] angles = AminoAcidDihedral.ANGLES;
+            AngleType[] angles = AminoAcidDihedral.getAngles();
             angleChoiceChecks[0] = new JCheckBox[angles.length + 1];
             for (int i = 0; i < angles.length; i++) {
                 angleChoiceChecks[0][i] = new JCheckBox(
@@ -264,12 +389,13 @@ public class TorsionLocalComparisonPanel extends JPanel {
             }
             angleChoiceChecks[0][angles.length] = new JCheckBox("MCQ");
 
-            angles = NucleotideDihedral.ANGLES;
-            angleChoiceChecks[1] = new JCheckBox[angles.length + 1];
+            angles = NucleotideDihedral.getAngles();
+            angleChoiceChecks[1] = new JCheckBox[angles.length + 2];
             for (int i = 0; i < angles.length; i++) {
                 angleChoiceChecks[1][i] = new JCheckBox(
                         angles[i].getAngleName());
             }
+            angleChoiceChecks[1][angles.length] = new JCheckBox("P");
             angleChoiceChecks[1][angles.length] = new JCheckBox("MCQ");
 
             for (JCheckBox b : angleChoiceChecks[1]) {
@@ -343,136 +469,20 @@ public class TorsionLocalComparisonPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     static final Logger LOGGER = Logger
             .getLogger(TorsionLocalComparisonPanel.class);
-    private JPanel chartPanel;
-    ControlPanel controlPanel;
+    private ControlPanel controlPanel;
 
     // /////////////////////////////////////////////////////////////////////////
     // constructors
-    @SuppressWarnings("javadoc")
     public TorsionLocalComparisonPanel() {
         super(new BorderLayout());
-        chartPanel = new JPanel();
+        JPanel chartPanel = new JPanel();
 
         controlPanel = new ControlPanel();
         add(controlPanel, BorderLayout.NORTH);
         add(chartPanel, BorderLayout.CENTER);
 
         controlPanel.optionsPanel.compare
-                .addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent event) {
-                        /*
-                         * check structure count
-                         */
-                        if (controlPanel.listModel.size() != 2) {
-                            JOptionPane.showMessageDialog(null,
-                                    "You need exactly two structures"
-                                            + " to compare them locally",
-                                    "Incorrect number of structures "
-                                            + "to compare",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                            return;
-                        }
-                        /*
-                         * get specified structures
-                         */
-                        String[] names = new String[2];
-                        int[] indices = new int[2];
-                        names[0] = controlPanel.listModel.get(0);
-                        indices[0] = controlPanel.optionsPanel.comboBoxFirst
-                                .getSelectedIndex();
-                        names[1] = controlPanel.listModel.get(1);
-                        indices[1] = controlPanel.optionsPanel.comboBoxSecond
-                                .getSelectedIndex();
-
-                        Structure[] structures = PdbManager
-                                .getStructures(Arrays.asList(names));
-                        Chain[] chains = new Chain[2];
-                        for (int i = 0; i < 2; ++i) {
-                            chains[i] = structures[i].getChain(indices[i]);
-                        }
-
-                        if (Helper.isNucleicAcid(chains[0]) != Helper
-                                .isNucleicAcid(chains[1])) {
-                            JOptionPane.showMessageDialog(null, "Cannot "
-                                    + "compare structures of different type",
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        /*
-                         * compare them
-                         */
-                        Map<String, List<AngleDifference>> compare = null;
-                        try {
-                            compare = TorsionLocalComparison.compare(chains[0],
-                                    chains[1], false);
-                        } catch (StructureException e) {
-                            TorsionLocalComparisonPanel.LOGGER.error(e);
-                            JOptionPane.showMessageDialog(null, e.getMessage(),
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        /*
-                         * read options from GUI
-                         */
-                        int type = controlPanel.optionsPanel.groupChoiceRadios[0]
-                                .isSelected() ? 0 : 1;
-                        /*
-                         * read angles that have to be plotted
-                         */
-                        List<String> anglesToShow = new ArrayList<>();
-                        for (JCheckBox b : controlPanel.optionsPanel.angleChoiceChecks[type]) {
-                            if (b.isSelected()) {
-                                anglesToShow.add(b.getText());
-                            }
-                        }
-                        /*
-                         * prepare dataset with points
-                         */
-                        DefaultXYDataset dataset = new DefaultXYDataset();
-                        for (String angle : anglesToShow) {
-                            if (!compare.containsKey(angle)) {
-                                JOptionPane.showMessageDialog(null, "The "
-                                        + "angle " + angle + " is not defined "
-                                        + "for loaded molecules", "Error",
-                                        JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                            List<AngleDifference> diffs = compare.get(angle);
-                            double[] x = new double[diffs.size()];
-                            double[] y = new double[diffs.size()];
-                            for (int i = 0; i < diffs.size(); i++) {
-                                AngleDifference ad = diffs.get(i);
-                                x[i] = i;
-                                y[i] = ad.difference;
-                            }
-                            dataset.addSeries(angle, new double[][] { x, y });
-                        }
-                        /*
-                         * draw a plot and replace the previous one
-                         */
-                        TickUnitSource tickUnitSource = NumberAxis
-                                .createIntegerTickUnits();
-                        NumberTickUnit tickUnit = (NumberTickUnit) tickUnitSource
-                                .getCeilingTickUnit(5);
-                        NumberAxis xAxis = new NumberAxis();
-                        xAxis.setLabel("Group index");
-                        xAxis.setTickUnit(tickUnit);
-
-                        NumberAxis yAxis = new NumberAxis();
-                        yAxis.setAutoRange(false);
-                        yAxis.setRange(0, Math.PI);
-                        yAxis.setLabel("Distance [rad]");
-
-                        XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
-                                new DefaultXYItemRenderer());
-                        remove(1);
-                        add(new ChartPanel(new JFreeChart(plot)));
-                        SwingUtilities
-                                .updateComponentTreeUI(TorsionLocalComparisonPanel.this);
-                    }
-                });
+                .addActionListener(new CompareStructures());
 
     }
 }

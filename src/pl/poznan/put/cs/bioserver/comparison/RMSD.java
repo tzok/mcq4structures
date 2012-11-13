@@ -99,7 +99,7 @@ public class RMSD extends GlobalComparison {
             return SVDSuperimposer.getRMS(atoms[0], atoms[1]);
         } catch (StructureException e) {
             RMSD.LOGGER.error("Failed to compare structures", e);
-            throw new IncomparableStructuresException(e.getMessage());
+            throw new IncomparableStructuresException(e);
         }
     }
 }

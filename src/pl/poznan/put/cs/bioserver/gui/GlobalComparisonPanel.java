@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -179,8 +178,8 @@ public class GlobalComparisonPanel extends JPanel {
             // /////////////////////////////////////////////////////////////////
             // fields
             private static final long serialVersionUID = 1L;
-            InstructionsPanel instructionsPanel;
-            MethodPanel methodPanel;
+            private InstructionsPanel instructionsPanel;
+            private MethodPanel methodPanel;
 
             // /////////////////////////////////////////////////////////////////
             // constructors
@@ -205,19 +204,10 @@ public class GlobalComparisonPanel extends JPanel {
                     public void actionPerformed(ActionEvent event) {
                         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                             for (File f : chooser.getSelectedFiles()) {
-                                try {
-                                    addFile(f.getCanonicalPath());
-                                    instructionsPanel
-                                            .setInstruction(InstructionsPanel.INSTRUCTION_COMPARE);
-                                } catch (IOException e) {
-                                    JOptionPane.showMessageDialog(
-                                            null,
-                                            "Failed to add file "
-                                                    + f.toString(),
-                                            "Problem with file access",
-                                            JOptionPane.ERROR_MESSAGE);
-                                }
+                                addFile(f.getAbsolutePath());
                             }
+                            instructionsPanel
+                                    .setInstruction(InstructionsPanel.INSTRUCTION_COMPARE);
                         }
                     }
                 });
@@ -254,10 +244,10 @@ public class GlobalComparisonPanel extends JPanel {
             // ////////////////////////////////////////////////////////////////
             // fields
             private static final long serialVersionUID = 1L;
-            JButton addPDB;
-            JButton cluster;
-            JButton compare;
-            JButton visualise;
+            private JButton addPDB;
+            private JButton cluster;
+            private JButton compare;
+            private JButton visualise;
 
             // ////////////////////////////////////////////////////////////////
             // constructors
@@ -279,6 +269,7 @@ public class GlobalComparisonPanel extends JPanel {
          * Subpanel containing instructions for user.
          */
         private class InstructionsPanel extends JPanel {
+            private static final int FONT_SIZE = 12;
             public static final int INSTRUCTION_ADD_FILE = 0;
             public static final int INSTRUCTION_COMPARE = 1;
             public static final int INSTRUCTION_VISUALIZE_CLUSTER = 2;
@@ -301,7 +292,7 @@ public class GlobalComparisonPanel extends JPanel {
                 instructionsLabel = new JLabel(
                         instructions[InstructionsPanel.INSTRUCTION_ADD_FILE]);
                 instructionsLabel.setFont(new Font(Font.DIALOG, Font.BOLD
-                        | Font.ITALIC, 12));
+                        | Font.ITALIC, InstructionsPanel.FONT_SIZE));
                 add(instructionsLabel);
             }
 
@@ -330,8 +321,8 @@ public class GlobalComparisonPanel extends JPanel {
             // constructors
             public MatrixTableModel(String[] names, double[][] values) {
                 super();
-                tableNames = names;
-                tableValues = values;
+                tableNames = names.clone();
+                tableValues = values.clone();
             }
 
             @Override
@@ -374,7 +365,7 @@ public class GlobalComparisonPanel extends JPanel {
             // fields
             private static final long serialVersionUID = 1L;
             private final JRadioButton rmsdRadio;
-            JRadioButton mcqRadio;
+            private JRadioButton mcqRadio;
 
             // ////////////////////////////////////////////////////////////////
             // constructors
@@ -396,10 +387,10 @@ public class GlobalComparisonPanel extends JPanel {
         // ////////////////////////////////////////////////////////////////////
         // fields
         private static final long serialVersionUID = 1L;
-        public String[] tableNames;
-        public double[][] tableValues;
         private final JTable resultsTable;
-        ActionPanel actionPanel;
+        private double[][] tableValues;
+        private String[] tableNames;
+        private ActionPanel actionPanel;
 
         // ////////////////////////////////////////////////////////////////////
         // constructors
@@ -420,8 +411,8 @@ public class GlobalComparisonPanel extends JPanel {
         // ////////////////////////////////////////////////////////////////////
         // methods
         public void displayResults(String[] names, double[][] results) {
-            tableNames = names;
-            tableValues = results;
+            tableNames = names.clone();
+            tableValues = results.clone();
             resultsTable.setModel(new MatrixTableModel(names, results));
         }
     }
@@ -430,14 +421,13 @@ public class GlobalComparisonPanel extends JPanel {
     // fields
     private static final long serialVersionUID = 1L;
     private final MainPanel mainPanel;
-    double[][] comparisonResults;
-    JList<String> list;
-    DefaultListModel<String> listModel;
-    String[] structureNames;
+    private double[][] comparisonResults;
+    private JList<String> list;
+    private DefaultListModel<String> listModel;
+    private String[] structureNames;
 
     // ////////////////////////////////////////////////////////////////////////
     // constructors
-    @SuppressWarnings("javadoc")
     public GlobalComparisonPanel() {
         super(new BorderLayout());
 
@@ -503,7 +493,8 @@ public class GlobalComparisonPanel extends JPanel {
     public void compare() {
         GlobalComparison[] methods = new GlobalComparison[] { new RMSD(),
                 new MCQ() };
-        int chosen = 0; // RMSD by default
+        // choose RMSD by default
+        int chosen = 0;
         if (mainPanel.actionPanel.methodPanel.mcqRadio.isSelected()) {
             chosen = 1;
         }
@@ -538,6 +529,7 @@ public class GlobalComparisonPanel extends JPanel {
                         "Cannot visualise specified structures in 2D",
                         "Problem during comparison visualisation",
                         JOptionPane.INFORMATION_MESSAGE);
+                return;
             }
             MDSPlot plot = new MDSPlot(mds, structureNames);
             plot.setVisible(true);

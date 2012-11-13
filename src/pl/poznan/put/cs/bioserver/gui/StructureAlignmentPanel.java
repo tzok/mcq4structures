@@ -1,27 +1,20 @@
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -46,8 +39,73 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
  */
 public class StructureAlignmentPanel extends JPanel {
     private class ActionListenerAlign implements ActionListener {
+        private final class AlignerThread implements Runnable {
+            private static final int ALIGNMENT_PDB_OUTPUTS = 4;
+            private final Structure[] structures;
+
+            AlignerThread(Structure[] structures) {
+                this.structures = structures.clone();
+            }
+
+            public String generateJmolScript(File pdb1, File pdb2) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("load FILES \"");
+                builder.append(pdb1);
+                builder.append("\" \"");
+                builder.append(pdb2);
+                builder.append("\"; ");
+                builder.append("frame 0.0; ");
+                builder.append("cartoon only; ");
+                builder.append("select model=1.1; color green; ");
+                builder.append("select model=2.1; color red; ");
+                return builder.toString();
+            }
+
+            @Override
+            public void run() {
+                try {
+                    Helper.normalizeAtomNames(structures[0]);
+                    Helper.normalizeAtomNames(structures[1]);
+
+                    AlignmentOutput output = StructureAligner.align(
+                            structures[0], structures[1]);
+                    Structure[] aligned = output.getStructures();
+
+                    File[] pdbFiles = new File[AlignerThread.ALIGNMENT_PDB_OUTPUTS];
+                    for (int i = 0; i < AlignerThread.ALIGNMENT_PDB_OUTPUTS; i++) {
+                        pdbFiles[i] = File.createTempFile("mcq", ".pdb");
+                        try (FileOutputStream stream = new FileOutputStream(
+                                pdbFiles[i])) {
+                            String pdb = aligned[i].toPDB();
+                            stream.write(pdb.getBytes(Charset.forName("UTF-8")));
+                        }
+                    }
+
+                    alignmentShowPanel.jmolLeftPanel
+                            .executeCmd(generateJmolScript(pdbFiles[0],
+                                    pdbFiles[1]));
+                    alignmentShowPanel.jmolRightPanel
+                            .executeCmd(generateJmolScript(pdbFiles[2],
+                                    pdbFiles[3]));
+                } catch (StructureException | IOException e1) {
+                    StructureAlignmentPanel.LOGGER.error(e1);
+                    JOptionPane.showMessageDialog(getParent(), e1.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    timer.cancel();
+                    try {
+                        Thread.sleep(4 * StructureAlignmentPanel.PROCESSING_UPDATE_INTERVAL);
+                    } catch (InterruptedException ex) {
+                        // do nothing
+                    }
+                    settingsPanel.label.setText("Ready");
+                }
+            }
+        }
+
         private Thread thread;
-        boolean isAllChainsMode;
+        private boolean isAllChainsMode;
+        private Timer timer;
 
         public ActionListenerAlign(boolean isAllChainsMode) {
             this.isAllChainsMode = isAllChainsMode;
@@ -61,22 +119,20 @@ public class StructureAlignmentPanel extends JPanel {
                         JOptionPane.WARNING_MESSAGE);
             }
 
-            if (settingsPanel.pdbPanel.listModel.size() != 2) {
+            if (settingsPanel.pdbPanel.getListModel().size() != 2) {
                 warning();
                 return;
             }
 
             final Structure[] structures = PdbManager.getStructures(Collections
-                    .list(settingsPanel.pdbPanel.listModel.elements()));
+                    .list(settingsPanel.pdbPanel.getListModel().elements()));
 
             if (!isAllChainsMode) {
                 Chain chains[] = new Chain[2];
-                chains[0] = structures[0]
-                        .getChain(settingsPanel.pdbPanel.comboBoxFirst
-                                .getSelectedIndex());
-                chains[1] = structures[1]
-                        .getChain(settingsPanel.pdbPanel.comboBoxSecond
-                                .getSelectedIndex());
+                chains[0] = structures[0].getChain(settingsPanel.pdbPanel
+                        .getComboBoxFirst().getSelectedIndex());
+                chains[1] = structures[1].getChain(settingsPanel.pdbPanel
+                        .getComboBoxSecond().getSelectedIndex());
                 structures[0] = new StructureImpl(chains[0]);
                 structures[1] = new StructureImpl(chains[1]);
             }
@@ -91,91 +147,34 @@ public class StructureAlignmentPanel extends JPanel {
                 return;
             }
 
-            thread = new Thread(new Runnable() {
-                public String generateJmolScript(File pdb1, File pdb2) {
-                    StringBuilder builder = new StringBuilder();
-                    builder.append("load FILES \"");
-                    builder.append(pdb1);
-                    builder.append("\" \"");
-                    builder.append(pdb2);
-                    builder.append("\"; ");
-                    builder.append("frame 0.0; ");
-                    builder.append("cartoon only; ");
-                    builder.append("select model=1.1; color green; ");
-                    builder.append("select model=2.1; color red; ");
-                    return builder.toString();
-                }
+            thread = new Thread(new AlignerThread(structures));
+            thread.start();
+
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                private int step;
 
                 @Override
                 public void run() {
-                    try {
-                        Helper.normalizeAtomNames(structures[0]);
-                        Helper.normalizeAtomNames(structures[1]);
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("Processing");
+                    for (int i = 0; i < step; i++) {
+                        builder.append('.');
+                    }
+                    settingsPanel.label.setText(builder.toString());
 
-                        AlignmentOutput output = StructureAligner.align(
-                                structures[0], structures[1]);
-                        Structure[] aligned = output.getStructures();
-
-                        File[] pdbFiles = new File[4];
-                        for (int i = 0; i < 4; i++) {
-                            pdbFiles[i] = File.createTempFile("mcq", ".pdb");
-                            try (FileOutputStream stream = new FileOutputStream(
-                                    pdbFiles[i])) {
-                                String pdb = aligned[i].toPDB();
-                                stream.write(pdb.getBytes());
-                            }
-                        }
-
-                        alignmentShowPanel.jmolLeftPanel
-                                .executeCmd(generateJmolScript(pdbFiles[0],
-                                        pdbFiles[1]));
-                        alignmentShowPanel.jmolRightPanel
-                                .executeCmd(generateJmolScript(pdbFiles[2],
-                                        pdbFiles[3]));
-                    } catch (StructureException | IOException e1) {
-                        StructureAlignmentPanel.LOGGER.error(e1);
-                        JOptionPane.showMessageDialog(getParent(),
-                                e1.getMessage(), "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                    } finally {
-                        settingsPanel.buttonPanel.timer.cancel();
-                        try {
-                            Thread.sleep(4 * StructureAlignmentPanel.PROCESSING_UPDATE_INTERVAL);
-                        } catch (InterruptedException ex) {
-                            // do nothing
-                        }
-                        settingsPanel.label.setText("Ready");
+                    step++;
+                    if (step >= ButtonPanel.PROCESSING_MAX_STEP) {
+                        step = 0;
                     }
                 }
-            });
-            thread.start();
-
-            settingsPanel.buttonPanel.timer = new Timer();
-            settingsPanel.buttonPanel.timer.scheduleAtFixedRate(
-                    new TimerTask() {
-                        private int step;
-
-                        @Override
-                        public void run() {
-                            StringBuilder builder = new StringBuilder();
-                            builder.append("Processing");
-                            for (int i = 0; i < step; i++) {
-                                builder.append('.');
-                            }
-                            settingsPanel.label.setText(builder.toString());
-
-                            step++;
-                            if (step >= ButtonPanel.PROCESSING_MAX_STEP) {
-                                step = 0;
-                            }
-                        }
-                    }, 0, StructureAlignmentPanel.PROCESSING_UPDATE_INTERVAL);
+            }, 0, StructureAlignmentPanel.PROCESSING_UPDATE_INTERVAL);
         }
     }
 
-    private class AlignmentShowPanel extends JPanel {
+    private static class AlignmentShowPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        JmolPanel jmolLeftPanel, jmolRightPanel;
+        private JmolPanel jmolLeftPanel, jmolRightPanel;
 
         public AlignmentShowPanel() {
             setLayout(new GridLayout(1, 2));
@@ -188,13 +187,12 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
-    private class ButtonPanel extends JPanel {
+    private static class ButtonPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         protected static final int PROCESSING_MAX_STEP = 5;
-        JButton buttonAddFile;
-        JButton buttonAlignChain;
-        JButton buttonAlignAll;
-        Timer timer;
+        private JButton buttonAddFile;
+        private JButton buttonAlignChain;
+        private JButton buttonAlignAll;
 
         public ButtonPanel() {
             super();
@@ -208,69 +206,11 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
-    private class PdbPanel extends JPanel {
+    private static class SettingsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        DefaultListModel<String> listModel;
-        JList<String> list;
-        DefaultComboBoxModel<String> comboBoxModelFirst, comboBoxModelSecond;
-        JComboBox<String> comboBoxFirst, comboBoxSecond;
-
-        public PdbPanel() {
-            super();
-
-            listModel = new DefaultListModel<>();
-            list = new JList<>(listModel);
-            comboBoxModelFirst = new DefaultComboBoxModel<>();
-            comboBoxModelSecond = new DefaultComboBoxModel<>();
-            comboBoxFirst = new JComboBox<>(comboBoxModelFirst);
-            comboBoxSecond = new JComboBox<>(comboBoxModelSecond);
-
-            setLayout(new GridBagLayout());
-            GridBagConstraints c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            c.gridwidth = 1;
-            c.gridheight = 2;
-            add(list, c);
-            c.gridx++;
-            c.gridheight--;
-            add(comboBoxFirst, c);
-            c.gridy++;
-            add(comboBoxSecond, c);
-
-            list.addKeyListener(new KeyListener() {
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                        int index = list.getSelectedIndex();
-                        if (index == 0) {
-                            comboBoxModelFirst.removeAllElements();
-                        } else {
-                            comboBoxModelSecond.removeAllElements();
-                        }
-                        listModel.remove(index);
-                        refreshComboBoxes();
-                    }
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-                    // do nothing
-                }
-
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    // do nothing
-                }
-            });
-        }
-    }
-
-    private class SettingsPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-        ButtonPanel buttonPanel;
-        PdbPanel pdbPanel;
-        JLabel label;
+        private ButtonPanel buttonPanel;
+        private PdbPanel pdbPanel;
+        private JLabel label;
 
         public SettingsPanel() {
             super(new BorderLayout());
@@ -291,11 +231,10 @@ public class StructureAlignmentPanel extends JPanel {
     private static final int PROCESSING_UPDATE_INTERVAL = 250;
 
     private static final long serialVersionUID = 1L;
-    final JFileChooser chooser = new JFileChooser();
-    SettingsPanel settingsPanel;
-    AlignmentShowPanel alignmentShowPanel;
+    private final JFileChooser chooser = new JFileChooser();
+    private SettingsPanel settingsPanel;
+    private AlignmentShowPanel alignmentShowPanel;
 
-    @SuppressWarnings("javadoc")
     public StructureAlignmentPanel() {
         super(new BorderLayout());
 
@@ -331,36 +270,15 @@ public class StructureAlignmentPanel extends JPanel {
     }
 
     boolean addFile(File path) {
-        if (settingsPanel.pdbPanel.listModel.size() >= 2) {
+        if (settingsPanel.pdbPanel.getListModel().size() >= 2) {
             warning();
             return false;
         }
         String absolutePath = path.getAbsolutePath();
         PdbManager.addStructure(absolutePath);
-        settingsPanel.pdbPanel.listModel.addElement(absolutePath);
-
-        refreshComboBoxes();
+        settingsPanel.pdbPanel.getListModel().addElement(absolutePath);
+        settingsPanel.pdbPanel.refreshComboBoxes();
         return true;
-    }
-
-    void refreshComboBoxes() {
-        settingsPanel.pdbPanel.comboBoxModelFirst.removeAllElements();
-        settingsPanel.pdbPanel.comboBoxModelSecond.removeAllElements();
-
-        Structure[] structures = PdbManager.getStructures(Collections
-                .list(settingsPanel.pdbPanel.listModel.elements()));
-        for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i) {
-            for (Chain c : structures[i].getChains()) {
-                if (i == 0) {
-                    settingsPanel.pdbPanel.comboBoxModelFirst.addElement(c
-                            .getChainID());
-                } else {
-                    settingsPanel.pdbPanel.comboBoxModelSecond.addElement(c
-                            .getChainID());
-                }
-            }
-        }
-
     }
 
     void warning() {

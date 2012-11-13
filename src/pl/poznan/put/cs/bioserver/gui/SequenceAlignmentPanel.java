@@ -2,23 +2,15 @@ package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.Collections;
 
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -43,12 +35,59 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
  * @author tzok
  */
 public class SequenceAlignmentPanel extends JPanel {
-    private class ButtonPanel extends JPanel {
+    private final class AlignSequences implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (settingsPanel.pdbPanel.getListModel().size() != 2) {
+                warning();
+                return;
+            }
+
+            Structure[] structures = PdbManager.getStructures(Collections
+                    .list(settingsPanel.pdbPanel.getListModel().elements()));
+            Chain chains[] = new Chain[2];
+            chains[0] = structures[0].getChain(settingsPanel.pdbPanel
+                    .getComboBoxFirst().getSelectedIndex());
+            chains[1] = structures[1].getChain(settingsPanel.pdbPanel
+                    .getComboBoxSecond().getSelectedIndex());
+
+            PairwiseSequenceAlignerType type;
+            if (settingsPanel.buttonPanel.radioGlobal.isSelected()) {
+                type = PairwiseSequenceAlignerType.GLOBAL;
+            } else {
+                type = PairwiseSequenceAlignerType.LOCAL;
+            }
+
+            boolean isRNA = Helper.isNucleicAcid(chains[0]);
+            if (isRNA != Helper.isNucleicAcid(chains[1])) {
+                String message = "Structures meant to be aligned "
+                        + "represent different molecule types!";
+                Logger.error(message);
+                JOptionPane.showMessageDialog(null, message, "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (isRNA) {
+                SequenceAligner<NucleotideCompound> aligner = new SequenceAligner<>(
+                        NucleotideCompound.class);
+                textArea.setText(aligner.alignSequences(chains[0], chains[1],
+                        type).toString());
+            } else {
+                SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
+                        AminoAcidCompound.class);
+                textArea.setText(aligner.alignSequences(chains[0], chains[1],
+                        type).toString());
+            }
+        }
+    }
+
+    private static class ButtonPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        JButton buttonAddFile;
-        JButton buttonAlign;
-        JRadioButton radioGlobal;
-        JRadioButton radioLocal;
+        private JButton buttonAddFile;
+        private JButton buttonAlign;
+        private JRadioButton radioGlobal;
+        private JRadioButton radioLocal;
 
         public ButtonPanel() {
             super();
@@ -69,68 +108,10 @@ public class SequenceAlignmentPanel extends JPanel {
         }
     }
 
-    private class PdbPanel extends JPanel {
+    private static class SettingsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-        DefaultListModel<String> listModel;
-        JList<String> list;
-        DefaultComboBoxModel<String> comboBoxModelFirst, comboBoxModelSecond;
-        JComboBox<String> comboBoxFirst, comboBoxSecond;
-
-        public PdbPanel() {
-            super();
-
-            listModel = new DefaultListModel<>();
-            list = new JList<>(listModel);
-            comboBoxModelFirst = new DefaultComboBoxModel<>();
-            comboBoxModelSecond = new DefaultComboBoxModel<>();
-            comboBoxFirst = new JComboBox<>(comboBoxModelFirst);
-            comboBoxSecond = new JComboBox<>(comboBoxModelSecond);
-
-            setLayout(new GridBagLayout());
-            GridBagConstraints c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 0;
-            c.gridwidth = 1;
-            c.gridheight = 2;
-            add(list, c);
-            c.gridx++;
-            c.gridheight--;
-            add(comboBoxFirst, c);
-            c.gridy++;
-            add(comboBoxSecond, c);
-
-            list.addKeyListener(new KeyListener() {
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                        int index = list.getSelectedIndex();
-                        if (index == 0) {
-                            comboBoxModelFirst.removeAllElements();
-                        } else {
-                            comboBoxModelSecond.removeAllElements();
-                        }
-                        listModel.remove(index);
-                        refreshComboBoxes();
-                    }
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-                    // do nothing
-                }
-
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    // do nothing
-                }
-            });
-        }
-    }
-
-    private class SettingsPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-        ButtonPanel buttonPanel;
-        PdbPanel pdbPanel;
+        private ButtonPanel buttonPanel;
+        private PdbPanel pdbPanel;
 
         public SettingsPanel() {
             super(new BorderLayout());
@@ -142,19 +123,21 @@ public class SequenceAlignmentPanel extends JPanel {
         }
     }
 
-    private static final long serialVersionUID = 1L;
-    final JFileChooser chooser = new JFileChooser();
-    JTextArea textArea;
-    SettingsPanel settingsPanel;
+    private static final int FONT_SIZE = 20;
 
-    @SuppressWarnings("javadoc")
+    private static final long serialVersionUID = 1L;
+    private final JFileChooser chooser = new JFileChooser();
+    private JTextArea textArea;
+    private SettingsPanel settingsPanel;
+
     public SequenceAlignmentPanel() {
         super(new BorderLayout());
 
         settingsPanel = new SettingsPanel();
         textArea = new JTextArea();
 
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN,
+                SequenceAlignmentPanel.FONT_SIZE));
         textArea.setEditable(false);
 
         add(settingsPanel, BorderLayout.NORTH);
@@ -180,89 +163,19 @@ public class SequenceAlignmentPanel extends JPanel {
                 });
 
         settingsPanel.buttonPanel.buttonAlign
-                .addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (settingsPanel.pdbPanel.listModel.size() != 2) {
-                            warning();
-                            return;
-                        }
-
-                        Structure[] structures = PdbManager
-                                .getStructures(Collections
-                                        .list(settingsPanel.pdbPanel.listModel
-                                                .elements()));
-                        Chain chains[] = new Chain[2];
-                        chains[0] = structures[0]
-                                .getChain(settingsPanel.pdbPanel.comboBoxFirst
-                                        .getSelectedIndex());
-                        chains[1] = structures[1]
-                                .getChain(settingsPanel.pdbPanel.comboBoxSecond
-                                        .getSelectedIndex());
-
-                        PairwiseSequenceAlignerType type;
-                        if (settingsPanel.buttonPanel.radioGlobal.isSelected()) {
-                            type = PairwiseSequenceAlignerType.GLOBAL;
-                        } else {
-                            type = PairwiseSequenceAlignerType.LOCAL;
-                        }
-
-                        boolean isRNA = Helper.isNucleicAcid(chains[0]);
-                        if (isRNA != Helper.isNucleicAcid(chains[1])) {
-                            String message = "Structures meant to be aligned "
-                                    + "represent different molecule types!";
-                            Logger.error(message);
-                            JOptionPane.showMessageDialog(null, message,
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-
-                        if (isRNA) {
-                            SequenceAligner<NucleotideCompound> aligner = new SequenceAligner<>(
-                                    NucleotideCompound.class);
-                            textArea.setText(aligner.alignSequences(chains[0],
-                                    chains[1], type).toString());
-                        } else {
-                            SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
-                                    AminoAcidCompound.class);
-                            textArea.setText(aligner.alignSequences(chains[0],
-                                    chains[1], type).toString());
-                        }
-                    }
-                });
+                .addActionListener(new AlignSequences());
     }
 
     boolean addFile(File path) {
-        if (settingsPanel.pdbPanel.listModel.size() >= 2) {
+        if (settingsPanel.pdbPanel.getListModel().size() >= 2) {
             warning();
             return false;
         }
         String absolutePath = path.getAbsolutePath();
         PdbManager.addStructure(absolutePath);
-        settingsPanel.pdbPanel.listModel.addElement(absolutePath);
-
-        refreshComboBoxes();
+        settingsPanel.pdbPanel.getListModel().addElement(absolutePath);
+        settingsPanel.pdbPanel.refreshComboBoxes();
         return true;
-    }
-
-    void refreshComboBoxes() {
-        settingsPanel.pdbPanel.comboBoxModelFirst.removeAllElements();
-        settingsPanel.pdbPanel.comboBoxModelSecond.removeAllElements();
-
-        Structure[] structures = PdbManager.getStructures(Collections
-                .list(settingsPanel.pdbPanel.listModel.elements()));
-        for (int i = 0; i < settingsPanel.pdbPanel.listModel.getSize(); ++i) {
-            for (Chain c : structures[i].getChains()) {
-                if (i == 0) {
-                    settingsPanel.pdbPanel.comboBoxModelFirst.addElement(c
-                            .getChainID());
-                } else {
-                    settingsPanel.pdbPanel.comboBoxModelSecond.addElement(c
-                            .getChainID());
-                }
-            }
-        }
-
     }
 
     void warning() {

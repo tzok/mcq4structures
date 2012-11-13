@@ -31,7 +31,6 @@ public class Gui extends JFrame {
         });
     }
 
-    @SuppressWarnings("javadoc")
     public Gui() {
         super();
         /*

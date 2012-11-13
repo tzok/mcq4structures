@@ -24,12 +24,11 @@ public class Quadruplet {
      */
     public Quadruplet(Atom[] array, int[] indices) {
         this.array = array.clone();
-        this.indices = indices;
+        this.indices = indices.clone();
     }
 
-    @SuppressWarnings("javadoc")
     public Atom[] getAtoms() {
-        return array;
+        return array.clone();
     }
 
     /**

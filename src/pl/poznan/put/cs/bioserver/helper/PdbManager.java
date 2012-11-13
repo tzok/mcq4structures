@@ -16,10 +16,10 @@ import org.biojava.bio.structure.io.PDBFileReader;
  * 
  * @author tzok
  */
-public class PdbManager {
+public final class PdbManager {
     private static final Logger LOGGER = Logger.getLogger(PdbManager.class);
-    private static final Map<String, Structure> mapStructure = new HashMap<>();
-    private static final Map<String, String> nameMap = new HashMap<>();
+    private static final Map<String, Structure> MAP_STRUCTURES = new HashMap<>();
+    private static final Map<String, String> MAP_NAMES = new HashMap<>();
 
     /**
      * Load a structure and remember it being already cached.
@@ -29,7 +29,7 @@ public class PdbManager {
      * @return True, if the file was loaded successfully.
      */
     public static boolean addStructure(String path) {
-        if (PdbManager.mapStructure.containsKey(path)) {
+        if (PdbManager.MAP_STRUCTURES.containsKey(path)) {
             return true;
         }
 
@@ -47,8 +47,8 @@ public class PdbManager {
             structure.setPDBCode(name);
         }
 
-        PdbManager.mapStructure.put(path, structure);
-        PdbManager.nameMap.put(path, name);
+        PdbManager.MAP_STRUCTURES.put(path, structure);
+        PdbManager.MAP_NAMES.put(path, name);
         return true;
     }
 
@@ -62,7 +62,7 @@ public class PdbManager {
     public static String[] getNames(List<String> elements) {
         List<String> vector = new ArrayList<>();
         for (String element : elements) {
-            String name = PdbManager.nameMap.get(element);
+            String name = PdbManager.MAP_NAMES.get(element);
             vector.add(name);
         }
         return vector.toArray(new String[vector.size()]);
@@ -79,7 +79,7 @@ public class PdbManager {
     public static Structure[] getStructures(Iterable<String> elements) {
         List<Structure> vector = new ArrayList<>();
         for (String element : elements) {
-            Structure structure = PdbManager.mapStructure.get(element);
+            Structure structure = PdbManager.MAP_STRUCTURES.get(element);
             vector.add(structure);
         }
         return vector.toArray(new Structure[vector.size()]);

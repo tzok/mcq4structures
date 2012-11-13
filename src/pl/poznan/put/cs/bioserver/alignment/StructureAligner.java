@@ -19,8 +19,9 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
  * 
  * @author tzok
  */
-public class StructureAligner {
-    private static Logger LOGGER = Logger.getLogger(StructureAligner.class);
+public final class StructureAligner {
+    private static final Logger LOGGER = Logger
+            .getLogger(StructureAligner.class);
     private static Map<AlignmentInput, AlignmentOutput> cache = new HashMap<>();
 
     /**
@@ -73,5 +74,8 @@ public class StructureAligner {
         AlignmentOutput result = new AlignmentOutput(aligner, s1, s2, atoms);
         StructureAligner.cache.put(input, result);
         return result;
+    }
+
+    private StructureAligner() {
     }
 }

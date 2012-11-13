@@ -14,7 +14,6 @@ import org.biojava.bio.structure.Structure;
 public class AlignmentInput {
     private List<Structure> list;
 
-    @SuppressWarnings("javadoc")
     public AlignmentInput(Structure s1, Structure s2) {
         list = new ArrayList<>();
         list.add(s1);

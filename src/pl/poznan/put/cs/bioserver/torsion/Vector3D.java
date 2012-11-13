@@ -8,7 +8,7 @@ import org.biojava.bio.structure.Atom;
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class Vector3D {
-    public double x, y, z;
+    private double x, y, z;
 
     private Vector3D() {
     }

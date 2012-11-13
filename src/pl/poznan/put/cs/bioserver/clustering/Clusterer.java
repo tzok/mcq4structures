@@ -10,14 +10,18 @@ import java.util.List;
  * 
  * @author tzok
  */
-public class Clusterer {
+public final class Clusterer {
     /** Available hierarchical clustering types. */
     public enum Type {
         SINGLE, COMPLETE, AVERAGE;
     }
 
     /** Information about the results of clustering. */
-    public static List<List<Integer>> clusters;
+    private static List<List<Integer>> clusters;
+
+    public static List<List<Integer>> getClusters() {
+        return Clusterer.clusters;
+    }
 
     /**
      * Perform agglomerative, hierarchical clustering using SINGLE, COMPLETE or
@@ -30,24 +34,9 @@ public class Clusterer {
      * @return An array of triplets in form (A, B, d(A, B)), where A and B are
      *         cluster IDs and d(A, B) is a scaled distance between them..
      */
-    public static int[][] hierarchicalClustering(double[][] matrix, Type linkage) {
-        /*
-         * sanity check -- each matrix symmetric, all matrices of the same
-         * dimensions
-         */
-        for (int i = 0; i < matrix.length; ++i) {
-            for (int j = 0; j < matrix[i].length; ++j) {
-                if (matrix[i][j] != matrix[j][i]) {
-                    throw new IllegalArgumentException(
-                            "Distance matrix must be symmetric!");
-                }
-            }
-        }
-        if (linkage != Type.SINGLE && linkage != Type.COMPLETE
-                && linkage != Type.AVERAGE) {
-            throw new IllegalArgumentException(
-                    "Linkage must be one of: SINGLE, COMPLETE or AVERAGE");
-        }
+    public static int[][] hierarchicalClustering(double[][] matrix,
+            Clusterer.Type linkage) {
+        Clusterer.sanityChecks(matrix, linkage);
         /*
          * initialise clusters as single elements
          */
@@ -191,18 +180,22 @@ public class Clusterer {
                                     j2 = Clusterer.medoid(distance[j],
                                             medoidSet, i);
                                     if (distance[j][h] >= distance[j][j2]) {
-                                        cost += distance[j][j2]; // first case
+                                        // first case
+                                        cost += distance[j][j2];
                                     } else {
-                                        cost += distance[j][h]; // second case
+                                        // second case
+                                        cost += distance[j][h];
                                     }
                                     cost -= distance[j][i];
                                 } else {
                                     double changeCost = distance[j][h]
                                             - distance[j][j2];
                                     if (changeCost > 0) {
-                                        cost += 0; // third case
+                                        // third case
+                                        cost += 0;
                                     } else {
-                                        cost += changeCost; // fourth case
+                                        // fourth case
+                                        cost += changeCost;
                                     }
                                 }
                             }
@@ -250,14 +243,32 @@ public class Clusterer {
         int index = -1;
         double min = Double.POSITIVE_INFINITY;
         for (int i : candidates) {
-            if (exclude == -1 || i != exclude) {
-                if (row[i] < min) {
-                    min = row[i];
-                    index = i;
-                }
+            if ((exclude == -1 || i != exclude) && row[i] < min) {
+                min = row[i];
+                index = i;
             }
         }
         return index;
+    }
+
+    private static void sanityChecks(double[][] matrix, Clusterer.Type linkage) {
+        /*
+         * sanity check -- each matrix symmetric, all matrices of the same
+         * dimensions
+         */
+        for (int i = 0; i < matrix.length; ++i) {
+            for (int j = 0; j < matrix[i].length; ++j) {
+                if (matrix[i][j] != matrix[j][i]) {
+                    throw new IllegalArgumentException(
+                            "Distance matrix must be symmetric!");
+                }
+            }
+        }
+        if (linkage != Type.SINGLE && linkage != Type.COMPLETE
+                && linkage != Type.AVERAGE) {
+            throw new IllegalArgumentException(
+                    "Linkage must be one of: SINGLE, COMPLETE or AVERAGE");
+        }
     }
 
     private Clusterer() {

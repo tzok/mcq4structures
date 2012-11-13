@@ -56,7 +56,7 @@ public class HierarchicalPlot extends JFrame {
     public HierarchicalPlot(double[][] distance, String[] labels, int linkage) {
         int[][] clustering = Clusterer.hierarchicalClustering(distance,
                 Clusterer.Type.values()[linkage]);
-        List<Integer> allocation = Clusterer.clusters.get(0);
+        List<Integer> allocation = Clusterer.getClusters().get(0);
 
         List<double[]> clusters = new ArrayList<>();
         List<List<Integer>> ids = new ArrayList<>();
@@ -83,8 +83,6 @@ public class HierarchicalPlot extends JFrame {
             a[0] = (a[0] + b[0]) / 2.0;
             a[1] = y;
             clusters.remove(mergedPair[1]);
-
-            // y += 1.0;
         }
 
         NumberAxis xAxis = new NumberAxis();

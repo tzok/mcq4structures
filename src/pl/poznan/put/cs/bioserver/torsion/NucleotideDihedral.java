@@ -39,20 +39,18 @@ public class NucleotideDihedral implements AngleType {
     private static final String OP2 = " OP2";
     private static final String P = " P  ";
 
-    /** A list of all used names. */
-    public static final String[] USED_ATOMS = new String[] {
-            NucleotideDihedral.C1P, NucleotideDihedral.C2,
-            NucleotideDihedral.C2P, NucleotideDihedral.C3P,
-            NucleotideDihedral.C4, NucleotideDihedral.C4P,
-            NucleotideDihedral.C5, NucleotideDihedral.C5P,
-            NucleotideDihedral.C6, NucleotideDihedral.N1,
-            NucleotideDihedral.N3, NucleotideDihedral.N9,
-            NucleotideDihedral.O2P, NucleotideDihedral.O3P,
-            NucleotideDihedral.O4P, NucleotideDihedral.O5P,
-            NucleotideDihedral.OP1, NucleotideDihedral.OP2,
-            NucleotideDihedral.P };
-    /** A list of all defined angles. */
-    public static final AngleType[] ANGLES = new NucleotideDihedral[] {
+    private static String[] atoms = new String[] { NucleotideDihedral.C1P,
+            NucleotideDihedral.C2, NucleotideDihedral.C2P,
+            NucleotideDihedral.C3P, NucleotideDihedral.C4,
+            NucleotideDihedral.C4P, NucleotideDihedral.C5,
+            NucleotideDihedral.C5P, NucleotideDihedral.C6,
+            NucleotideDihedral.N1, NucleotideDihedral.N3,
+            NucleotideDihedral.N9, NucleotideDihedral.O2P,
+            NucleotideDihedral.O3P, NucleotideDihedral.O4P,
+            NucleotideDihedral.O5P, NucleotideDihedral.OP1,
+            NucleotideDihedral.OP2, NucleotideDihedral.P };
+
+    private static NucleotideDihedral[] angles = new NucleotideDihedral[] {
             new NucleotideDihedral(AngleName.ALPHA),
             new NucleotideDihedral(AngleName.BETA),
             new NucleotideDihedral(AngleName.GAMMA),
@@ -68,6 +66,7 @@ public class NucleotideDihedral implements AngleType {
 
     private static Map<AngleName, String[]> mapAngleToAtoms;
     private static Map<AngleName, int[]> mapAngleToRules;
+
     private static Set<Character> setPyrimidines;
     static {
         NucleotideDihedral.mapAngleToAtoms = new HashMap<>();
@@ -139,9 +138,16 @@ public class NucleotideDihedral implements AngleType {
                 'C', 'U', 'Y' }));
     }
 
+    public static AngleType[] getAngles() {
+        return NucleotideDihedral.angles.clone();
+    }
+
+    public static String[] getUsedAtoms() {
+        return NucleotideDihedral.atoms.clone();
+    }
+
     private AngleName angleName;
 
-    @SuppressWarnings("javadoc")
     public NucleotideDihedral(AngleName angleName) {
         this.angleName = angleName;
     }

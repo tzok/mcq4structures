@@ -14,18 +14,18 @@ public class AngleDifference implements Comparable<AngleDifference> {
     }
 
     /** First angle value. */
-    public double angle1;
+    private double angle1;
     /** Second angle value. */
-    public double angle2;
+    private double angle2;
     /** Difference between angles. */
-    public double difference;
+    private double difference;
     /**
      * Information about the residue the angle belongs to (at least for the
      * first angle).
      */
-    public ResidueNumber residue;
+    private ResidueNumber residue;
     /** Name of the angle. */
-    public String angleName;
+    private String angleName;
 
     /**
      * Construct an instance for given two fours of atoms and the name of angle.
@@ -77,12 +77,95 @@ public class AngleDifference implements Comparable<AngleDifference> {
      */
     @Override
     public int compareTo(AngleDifference diff) {
-        int chainCompare = residue.getChainId().compareTo(
-                diff.residue.getChainId());
-        if (chainCompare == 0) {
+        if (equals(diff)) {
+            return 0;
+        }
+
+        String chainId1 = residue.getChainId();
+        String chainId2 = diff.residue.getChainId();
+
+        if (chainId1.equals(chainId2)) {
             return residue.getSeqNum().compareTo(diff.residue.getSeqNum());
         }
-        return chainCompare;
+        return chainId1.compareTo(chainId2);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AngleDifference other = (AngleDifference) obj;
+        if (Double.doubleToLongBits(angle1) != Double
+                .doubleToLongBits(other.angle1)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(angle2) != Double
+                .doubleToLongBits(other.angle2)) {
+            return false;
+        }
+        if (angleName == null) {
+            if (other.angleName != null) {
+                return false;
+            }
+        } else if (!angleName.equals(other.angleName)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(difference) != Double
+                .doubleToLongBits(other.difference)) {
+            return false;
+        }
+        if (residue == null) {
+            if (other.residue != null) {
+                return false;
+            }
+        } else if (!residue.equals(other.residue)) {
+            return false;
+        }
+        return true;
+    }
+
+    public double getAngleFirst() {
+        return angle1;
+    }
+
+    public String getAngleName() {
+        return angleName;
+    }
+
+    public double getAngleSecond() {
+        return angle2;
+    }
+
+    public double getDifference() {
+        return difference;
+    }
+
+    public ResidueNumber getResidue() {
+        return residue;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(angle1);
+        result = prime * result + (int) (temp ^ temp >>> 32);
+        temp = Double.doubleToLongBits(angle2);
+        result = prime * result + (int) (temp ^ temp >>> 32);
+        result = prime * result
+                + (angleName == null ? 0 : angleName.hashCode());
+        temp = Double.doubleToLongBits(difference);
+        result = prime * result + (int) (temp ^ temp >>> 32);
+        result = prime * result + (residue == null ? 0 : residue.hashCode());
+        return result;
     }
 
     @Override

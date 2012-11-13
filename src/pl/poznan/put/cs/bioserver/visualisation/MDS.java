@@ -8,20 +8,8 @@ import org.biojava.bio.structure.jama.Matrix;
  * 
  * @author tzok
  */
-public class MDS {
-    /**
-     * Calculate the Multidimensional Scaling. It gets a distance matrix and
-     * creates a map of points in N-dimensions whose mutual distances correspond
-     * to the given input matrix.
-     * 
-     * @param distance
-     *            A distance matrix, NxN.
-     * @param dimensions
-     *            Desired number of dimensions, K.
-     * @return A matrix NxK, where for each row there are K coordinates.
-     */
-    public static double[][] multidimensionalScaling(double[][] distance,
-            int dimensions) {
+public final class MDS {
+    private static void checkSymmetry(double[][] distance) {
         /*
          * sanity check (symmetric, square matrix as input)
          */
@@ -36,6 +24,22 @@ public class MDS {
                 }
             }
         }
+    }
+
+    /**
+     * Calculate the Multidimensional Scaling. It gets a distance matrix and
+     * creates a map of points in N-dimensions whose mutual distances correspond
+     * to the given input matrix.
+     * 
+     * @param distance
+     *            A distance matrix, NxN.
+     * @param dimensions
+     *            Desired number of dimensions, K.
+     * @return A matrix NxK, where for each row there are K coordinates.
+     */
+    public static double[][] multidimensionalScaling(double[][] distance,
+            int dimensions) {
+        MDS.checkSymmetry(distance);
 
         /*
          * calculate D as distance_ij^2
@@ -71,11 +75,11 @@ public class MDS {
          * calculate B: b_ij = -1/2 * (d_ij - meanRow[i] - meanColumn[j] +
          * meanMatrix)
          */
-        double[][] B = new double[distance.length][];
+        double[][] b = new double[distance.length][];
         for (int i = 0; i < distance.length; ++i) {
-            B[i] = new double[distance.length];
+            b[i] = new double[distance.length];
             for (int j = 0; j < distance.length; ++j) {
-                B[i][j] = -0.5
+                b[i][j] = -0.5
                         * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
             }
         }
@@ -83,48 +87,48 @@ public class MDS {
         /*
          * decompose B = VDV^T (or else called KLK^T)
          */
-        EigenvalueDecomposition evd = new EigenvalueDecomposition(new Matrix(B));
+        EigenvalueDecomposition evd = new EigenvalueDecomposition(new Matrix(b));
 
         /*
          * find maxima in L
          */
-        double[][] L = evd.getD().getArrayCopy();
+        double[][] l = evd.getD().getArrayCopy();
         int[] maxima = new int[dimensions];
         for (int i = 0; i < dimensions; ++i) {
             int max = 0;
-            for (int j = 1; j < L.length; ++j) {
-                if (L[j][j] > L[max][max]) {
+            for (int j = 1; j < l.length; ++j) {
+                if (l[j][j] > l[max][max]) {
                     max = j;
                 }
             }
             // if L[max][max] < 0, then it's impossible to visualise
-            if (L[max][max] < 0) {
+            if (l[max][max] < 0) {
                 return null;
             }
             maxima[i] = max;
-            L[max][max] = Double.NEGATIVE_INFINITY;
+            l[max][max] = Double.NEGATIVE_INFINITY;
         }
 
         /*
          * get sqrt() from those maxima in L
          */
-        L = evd.getD().getArrayCopy();
+        l = evd.getD().getArrayCopy();
         for (int i = 0; i < dimensions; ++i) {
-            L[maxima[i]][maxima[i]] = Math.sqrt(L[maxima[i]][maxima[i]]);
+            l[maxima[i]][maxima[i]] = Math.sqrt(l[maxima[i]][maxima[i]]);
         }
 
         /*
          * calculate X coordinates for visualisation
          */
-        double[][] X = new double[distance.length][];
-        double[][] K = evd.getV().getArray();
+        double[][] x = new double[distance.length][];
+        double[][] k = evd.getV().getArray();
         for (int i = 0; i < distance.length; ++i) {
-            X[i] = new double[dimensions];
+            x[i] = new double[dimensions];
             for (int j = 0; j < dimensions; ++j) {
-                X[i][j] = K[i][maxima[j]] * L[maxima[j]][maxima[j]];
+                x[i][j] = k[i][maxima[j]] * l[maxima[j]][maxima[j]];
             }
         }
-        return X;
+        return x;
     }
 
     private MDS() {

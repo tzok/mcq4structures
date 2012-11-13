@@ -15,7 +15,7 @@ import org.biojava.bio.structure.Group;
  * 
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
-public class DihedralAngles {
+public final class DihedralAngles {
     private static final Logger LOGGER = Logger.getLogger(DihedralAngles.class);
     private static Map<Integer, Map<Atom, Integer>> reverseMapCache = new HashMap<>();
 
@@ -265,11 +265,14 @@ public class DihedralAngles {
             diff = Math.PI;
         } else {
             double full = 2 * Math.PI;
-            double a1_mod = (a1 + full) % full;
-            double a2_mod = (a2 + full) % full;
-            diff = Math.abs(a1_mod - a2_mod);
+            double a1Mod = (a1 + full) % full;
+            double a2Mod = (a2 + full) % full;
+            diff = Math.abs(a1Mod - a2Mod);
             diff = Math.min(diff, full - diff);
         }
         return diff;
+    }
+
+    private DihedralAngles() {
     }
 }

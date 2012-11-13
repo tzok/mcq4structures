@@ -57,7 +57,7 @@ public class MDSPlot extends JFrame {
         for (int i = 0; i < data.length; ++i) {
             dataset.addSeries(labels[i], new double[][] { { data[i][0] },
                     { data[i][1] } });
-            writer.append(String.format("%f %f %s\n", data[i][0], data[i][1],
+            writer.append(String.format("%f %f %s%n", data[i][0], data[i][1],
                     labels[i]));
         }
         MDSPlot.LOGGER.trace("Data to plot in gnuplot:\n" + writer.toString());

@@ -27,12 +27,12 @@ import difflib.Patch;
  * 
  * @author tzok
  */
-public class Helper {
+public final class Helper {
     private static final Logger LOGGER = Logger.getLogger(Helper.class);
     private static final String[] USED_ATOMS;
     static {
-        String[] array1 = NucleotideDihedral.USED_ATOMS;
-        String[] array2 = AminoAcidDihedral.USED_ATOMS;
+        String[] array1 = NucleotideDihedral.getUsedAtoms();
+        String[] array2 = AminoAcidDihedral.getUsedAtoms();
         USED_ATOMS = new String[array1.length + array2.length];
         System.arraycopy(array1, 0, Helper.USED_ATOMS, 0, array1.length);
         System.arraycopy(array2, 0, Helper.USED_ATOMS, array1.length,
@@ -51,21 +51,14 @@ public class Helper {
     public static Atom[][] equalize(Atom[][] atoms) {
         List<String> l1 = new ArrayList<>();
         List<String> l2 = new ArrayList<>();
-        for (Atom a : atoms[0]) {
+
+        // start with the larger list (it's better to remove redundant atoms)
+        int j = atoms[0].length > atoms[1].length ? 0 : 1;
+        for (Atom a : atoms[j]) {
             l1.add(a.getFullName());
         }
-        for (Atom a : atoms[1]) {
+        for (Atom a : atoms[j ^ 1]) {
             l2.add(a.getFullName());
-        }
-        // start with the larger list (it's better to remove redundant atoms)
-        if (l1.size() > l2.size()) {
-            List<String> tmpStr = l1;
-            l1 = l2;
-            l2 = tmpStr;
-
-            Atom[] tmpAtom = atoms[0];
-            atoms[0] = atoms[1];
-            atoms[1] = tmpAtom;
         }
 
         List<Atom> list1 = new ArrayList<>(Arrays.asList(atoms[0]));
@@ -77,40 +70,38 @@ public class Helper {
             if (d instanceof InsertDelta) {
                 int size = d.getRevised().getLines().size();
                 for (int i = 0; i < size; i++) {
-                    list1.add(position + cumulated1, null); // add null atom
+                    // add null atom
+                    list1.add(position + cumulated1, null);
                 }
                 cumulated1 += size;
             } else if (d instanceof DeleteDelta) {
                 int size = d.getOriginal().getLines().size();
                 for (int i = 0; i < size; i++) {
-                    list1.remove(position + cumulated1); // remove atom
+                    // remove atom
+                    list1.remove(position + cumulated1);
                 }
                 cumulated1 -= size;
             } else {
                 int size = d.getOriginal().getLines().size();
                 for (int i = 0; i < size; i++) {
-                    list1.remove(position + cumulated1); // remove from list A
+                    // remove from list A
+                    list1.remove(position + cumulated1);
                 }
                 cumulated1 -= size;
 
                 position = d.getRevised().getPosition();
                 size = d.getRevised().getLines().size();
                 for (int i = 0; i < size; i++) {
-                    list2.remove(position + cumulated2); // remove from list B
+                    // remove from list B
+                    list2.remove(position + cumulated2);
                 }
                 cumulated2 -= size;
             }
         }
 
-        // SANITY CHECK
         Atom[][] result = new Atom[][] { list1.toArray(new Atom[list1.size()]),
                 list2.toArray(new Atom[list2.size()]) };
-        assert result[0].length == result[1].length;
-        for (int i = 0; i < result[0].length; i++) {
-            assert result[0][i] == null
-                    || result[0][i].getFullName().equals(
-                            result[1][i].getFullName());
-        }
+        Helper.sanityCheck(result);
         return result;
     }
 
@@ -221,12 +212,10 @@ public class Helper {
         return Helper.getCommonAtomArray(g1, g2);
     }
 
-    @SuppressWarnings("javadoc")
     public static boolean isAminoAcid(Group g) {
         return g.getType().equals("amino") || g.hasAminoAtoms();
     }
 
-    @SuppressWarnings("javadoc")
     public static boolean isNucleicAcid(Chain c) {
         int amino = 0;
         int nucleotide = 0;
@@ -243,7 +232,6 @@ public class Helper {
         return nucleotide > amino;
     }
 
-    @SuppressWarnings("javadoc")
     public static boolean isNucleicAcid(Structure structure) {
         boolean flag = true;
         for (Chain c : structure.getChains()) {
@@ -252,7 +240,6 @@ public class Helper {
         return flag;
     }
 
-    @SuppressWarnings("javadoc")
     public static boolean isNucleotide(Group g) {
         return g.getType().equals("nucleotide") || g.hasAtom("P");
     }
@@ -285,6 +272,15 @@ public class Helper {
     public static void normalizeAtomNames(Structure s) {
         for (Chain c : s.getChains()) {
             Helper.normalizeAtomNames(c);
+        }
+    }
+
+    private static void sanityCheck(Atom[][] result) {
+        assert result[0].length == result[1].length;
+        for (int i = 0; i < result[0].length; i++) {
+            assert result[0][i] == null
+                    || result[0][i].getFullName().equals(
+                            result[1][i].getFullName());
         }
     }
 

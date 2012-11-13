@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
@@ -30,8 +31,63 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  */
 public class TorsionLocalComparison extends LocalComparison {
     @SuppressWarnings("unused")
-    private static final Logger logger = Logger
+    private static final Logger LOGGER = Logger
             .getLogger(TorsionLocalComparison.class);
+    private static final int TAU_COUNT = 5;
+
+    private static List<AngleDifference> calcAngleP(
+            Map<ResidueNumber, AngleDifference[]> mapResToTaus) {
+        List<AngleDifference> pAngles = new ArrayList<>();
+        // the formula taken from literature
+        double scale = 2 * (Math.sin(36.0 * Math.PI / 180.0) + Math
+                .sin(72.0 * Math.PI / 180.0));
+        for (Entry<ResidueNumber, AngleDifference[]> entry : mapResToTaus
+                .entrySet()) {
+            ResidueNumber residue = entry.getKey();
+            AngleDifference[] taus = entry.getValue();
+
+            // if any of TAUx angle is null, abort calculations
+            boolean flag = false;
+            for (int i = 0; i < TorsionLocalComparison.TAU_COUNT; i++) {
+                flag |= taus[i] == null;
+            }
+
+            if (flag) {
+                pAngles.add(new AngleDifference(residue, Double.NaN,
+                        Double.NaN, Double.NaN, "P"));
+            } else {
+                double y1 = taus[1].getAngleFirst() + taus[4].getAngleFirst()
+                        - taus[0].getAngleFirst() - taus[3].getAngleFirst();
+                double x1 = taus[2].getAngleFirst() * scale;
+                double tau1 = Math.atan2(y1, x1);
+
+                double y2 = taus[1].getAngleSecond() + taus[4].getAngleSecond()
+                        - taus[0].getAngleSecond() - taus[3].getAngleSecond();
+                double x2 = taus[2].getAngleSecond() * scale;
+                double tau2 = Math.atan2(y2, x2);
+
+                double tauDiff = DihedralAngles.subtractDihedral(tau1, tau2);
+                pAngles.add(new AngleDifference(residue, tau1, tau2, tauDiff,
+                        "P"));
+            }
+        }
+        return pAngles;
+    }
+
+    private static List<AngleDifference> calcMcqPerResidue(
+            Map<ResidueNumber, List<AngleDifference>> mapResToDiffs) {
+        List<AngleDifference> mcqAngles = new ArrayList<>();
+        for (Entry<ResidueNumber, List<AngleDifference>> entry : mapResToDiffs
+                .entrySet()) {
+            ResidueNumber residue = entry.getKey();
+            List<AngleDifference> list = entry.getValue();
+
+            double mcq = MCQ.calculate(list);
+            mcqAngles.add(new AngleDifference(residue, Double.NaN, Double.NaN,
+                    mcq, "MCQ"));
+        }
+        return mcqAngles;
+    }
 
     /**
      * Compare two chains.
@@ -60,66 +116,34 @@ public class TorsionLocalComparison extends LocalComparison {
         Map<ResidueNumber, AngleDifference[]> mapResToTaus = new HashMap<>();
         Map<String, List<AngleDifference>> mapNameToDiffs = new HashMap<>();
         for (AngleDifference diff : allDiffs) {
-            if (!mapResToDiffs.containsKey(diff.residue)) {
-                mapResToDiffs.put(diff.residue,
-                        new ArrayList<AngleDifference>());
-                mapResToTaus.put(diff.residue, new AngleDifference[5]);
+            ResidueNumber residue = diff.getResidue();
+            String angleName = diff.getAngleName();
+
+            if (!mapResToDiffs.containsKey(residue)) {
+                mapResToDiffs.put(residue, new ArrayList<AngleDifference>());
+                mapResToTaus.put(residue,
+                        new AngleDifference[TorsionLocalComparison.TAU_COUNT]);
             }
-            List<AngleDifference> list = mapResToDiffs.get(diff.residue);
+            List<AngleDifference> list = mapResToDiffs.get(residue);
             list.add(diff);
 
-            if (diff.angleName.startsWith("TAU")) {
-                AngleDifference[] taus = mapResToTaus.get(diff.residue);
-                int which = diff.angleName.charAt(3) - '0';
+            if (angleName.startsWith("TAU")) {
+                AngleDifference[] taus = mapResToTaus.get(residue);
+                int which = angleName.charAt(3) - '0';
                 taus[which] = diff;
             }
 
-            if (!mapNameToDiffs.containsKey(diff.angleName)) {
-                mapNameToDiffs.put(diff.angleName,
-                        new ArrayList<AngleDifference>());
+            if (!mapNameToDiffs.containsKey(angleName)) {
+                mapNameToDiffs.put(angleName, new ArrayList<AngleDifference>());
             }
-            list = mapNameToDiffs.get(diff.angleName);
+            list = mapNameToDiffs.get(angleName);
             list.add(diff);
         }
 
-        List<AngleDifference> pAngles = new ArrayList<>();
-        mapNameToDiffs.put("P", pAngles);
-
-        double scale = 2 * (Math.sin(36.0 * Math.PI / 180.0) + Math
-                .sin(72.0 * Math.PI / 180.0));
-        for (ResidueNumber residue : mapResToTaus.keySet()) {
-            AngleDifference[] taus = mapResToTaus.get(residue);
-            if (taus[0] == null || taus[1] == null || taus[2] == null
-                    || taus[3] == null || taus[4] == null) {
-                pAngles.add(new AngleDifference(residue, Double.NaN,
-                        Double.NaN, Double.NaN, "P"));
-            } else {
-                double y1 = taus[1].angle1 + taus[4].angle1 - taus[0].angle1
-                        - taus[3].angle1;
-                double x1 = taus[2].angle1 * scale;
-                double tau1 = Math.atan2(y1, x1);
-
-                double y2 = taus[1].angle2 + taus[4].angle2 - taus[0].angle2
-                        - taus[3].angle2;
-                double x2 = taus[2].angle2 * scale;
-                double tau2 = Math.atan2(y2, x2);
-
-                double tauDiff = DihedralAngles.subtractDihedral(tau1, tau2);
-                pAngles.add(new AngleDifference(residue, tau1, tau2, tauDiff,
-                        "P"));
-            }
-        }
-
-        List<AngleDifference> mcqAngles = new ArrayList<>();
-        mapNameToDiffs.put("MCQ", mcqAngles);
-
-        for (ResidueNumber residue : mapResToDiffs.keySet()) {
-            List<AngleDifference> list = mapResToDiffs.get(residue);
-            double mcq = MCQ.calculate(list);
-            mcqAngles.add(new AngleDifference(residue, Double.NaN, Double.NaN,
-                    mcq, "MCQ"));
-        }
-
+        mapNameToDiffs
+                .put("P", TorsionLocalComparison.calcAngleP(mapResToTaus));
+        mapNameToDiffs.put("MCQ",
+                TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs));
         return mapNameToDiffs;
     }
 
@@ -145,8 +169,8 @@ public class TorsionLocalComparison extends LocalComparison {
         } else {
             atoms = Helper.getCommonAtomArray(c1, c2);
         }
-        AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral.ANGLES
-                : AminoAcidDihedral.ANGLES;
+        AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral
+                .getAngles() : AminoAcidDihedral.getAngles();
         return TorsionLocalComparison.compare(atoms, angles, alignFirst);
     }
 
@@ -172,8 +196,8 @@ public class TorsionLocalComparison extends LocalComparison {
         } else {
             atoms = Helper.getCommonAtomArray(s1, s2);
         }
-        AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral.ANGLES
-                : AminoAcidDihedral.ANGLES;
+        AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral
+                .getAngles() : AminoAcidDihedral.getAngles();
         return TorsionLocalComparison.compare(atoms, angles, alignFirst);
     }
 
@@ -217,7 +241,7 @@ public class TorsionLocalComparison extends LocalComparison {
                     .size()]);
             Arrays.sort(array);
             for (AngleDifference ad : array) {
-                System.out.println(ad.residue + " " + ad.difference);
+                System.out.println(ad.getResidue() + " " + ad.getDifference());
             }
         } catch (IOException | IncomparableStructuresException
                 | StructureException e) {

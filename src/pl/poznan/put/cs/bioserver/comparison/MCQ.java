@@ -30,12 +30,12 @@ public class MCQ extends GlobalComparison {
 
     private static final AngleType[] USED_ANGLES;
     static {
-        AngleType[] array1 = NucleotideDihedral.ANGLES;
-        int array2 = AminoAcidDihedral.ANGLES.length;
-        USED_ANGLES = new AngleType[array1.length + array2];
+        AngleType[] array1 = NucleotideDihedral.getAngles();
+        AngleType[] array2 = AminoAcidDihedral.getAngles();
+        USED_ANGLES = new AngleType[array1.length + array2.length];
         System.arraycopy(array1, 0, MCQ.USED_ANGLES, 0, array1.length);
-        System.arraycopy(AminoAcidDihedral.ANGLES, 0, MCQ.USED_ANGLES,
-                array1.length, array2);
+        System.arraycopy(array2, 0, MCQ.USED_ANGLES, array1.length,
+                array2.length);
     }
 
     /**
@@ -51,8 +51,9 @@ public class MCQ extends GlobalComparison {
         double sines = 0.0;
         double cosines = 0.0;
         for (AngleDifference ad : diffs) {
-            sines += Math.sin(ad.difference);
-            cosines += Math.cos(ad.difference);
+            double difference = ad.getDifference();
+            sines += Math.sin(difference);
+            cosines += Math.cos(difference);
             counter++;
         }
         return Math.atan2(sines / counter, cosines / counter);

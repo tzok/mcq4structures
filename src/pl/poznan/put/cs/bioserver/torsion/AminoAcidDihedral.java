@@ -21,17 +21,17 @@ public class AminoAcidDihedral implements AngleType {
     private static final String CA = " CA ";
     private static final String N = " N  ";
 
-    /** A list of all used names. */
-    public static final String[] USED_ATOMS = { AminoAcidDihedral.C,
+    private static String[] atoms = new String[] { AminoAcidDihedral.C,
             AminoAcidDihedral.CA, AminoAcidDihedral.N };
-    /** A list of all defined angles. */
-    public static final AngleType[] ANGLES = new AminoAcidDihedral[] {
+
+    private static AminoAcidDihedral[] angles = new AminoAcidDihedral[] {
             new AminoAcidDihedral(AngleName.PHI),
             new AminoAcidDihedral(AngleName.PSI),
             new AminoAcidDihedral(AngleName.OMEGA) };
 
     private static Map<AngleName, String[]> mapAngleToAtoms;
     private static Map<AngleName, int[]> mapAngleToRules;
+
     static {
         AminoAcidDihedral.mapAngleToAtoms = new HashMap<>();
         AminoAcidDihedral.mapAngleToAtoms.put(AngleName.PHI, new String[] {
@@ -53,9 +53,16 @@ public class AminoAcidDihedral implements AngleType {
                 0, 1, 1 });
     }
 
+    public static AngleType[] getAngles() {
+        return AminoAcidDihedral.angles.clone();
+    }
+
+    public static String[] getUsedAtoms() {
+        return AminoAcidDihedral.atoms.clone();
+    }
+
     private AngleName angleName;
 
-    @SuppressWarnings("javadoc")
     public AminoAcidDihedral(AngleName angleName) {
         this.angleName = angleName;
     }

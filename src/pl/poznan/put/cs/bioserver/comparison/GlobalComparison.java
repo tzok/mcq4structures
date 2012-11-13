@@ -39,8 +39,9 @@ public abstract class GlobalComparison {
         }
         for (int i = 0; i < structures.length; ++i) {
             for (int j = i + 1; j < structures.length; ++j) {
-                result[i][j] = result[j][i] = compare(structures[i],
-                        structures[j]);
+                double value = compare(structures[i], structures[j]);
+                result[i][j] = value;
+                result[j][i] = value;
             }
         }
         return result;
