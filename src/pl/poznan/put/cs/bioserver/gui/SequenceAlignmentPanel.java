@@ -172,7 +172,7 @@ public class SequenceAlignmentPanel extends JPanel {
             return false;
         }
         String absolutePath = path.getAbsolutePath();
-        PdbManager.addStructure(absolutePath);
+        PdbManager.loadStructure(absolutePath);
         settingsPanel.pdbPanel.getListModel().addElement(absolutePath);
         settingsPanel.pdbPanel.refreshComboBoxes();
         return true;

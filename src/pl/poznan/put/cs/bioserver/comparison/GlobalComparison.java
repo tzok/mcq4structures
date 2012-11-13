@@ -1,6 +1,9 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
+import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Structure;
+
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 /**
  * An abstraction of all global comparison measures.
@@ -8,6 +11,9 @@ import org.biojava.bio.structure.Structure;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public abstract class GlobalComparison {
+    private static final Logger LOGGER = Logger
+            .getLogger(GlobalComparison.class);
+
     /**
      * Compare two structures.
      * 
@@ -39,6 +45,9 @@ public abstract class GlobalComparison {
         }
         for (int i = 0; i < structures.length; ++i) {
             for (int j = i + 1; j < structures.length; ++j) {
+                GlobalComparison.LOGGER.trace("Comparing: "
+                        + PdbManager.getStructureName(structures[i]) + " "
+                        + PdbManager.getStructureName(structures[j]));
                 double value = compare(structures[i], structures[j]);
                 result[i][j] = value;
                 result[j][i] = value;

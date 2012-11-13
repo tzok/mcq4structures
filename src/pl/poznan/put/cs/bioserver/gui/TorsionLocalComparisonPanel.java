@@ -257,7 +257,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
             }
 
             String path = file.getAbsolutePath();
-            if (PdbManager.addStructure(path)) {
+            if (PdbManager.loadStructure(path) != null) {
                 listModel.addElement(path);
             } else {
                 JOptionPane.showMessageDialog(null, "Specified file is not a "
@@ -266,7 +266,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
                 return false;
             }
 
-            PdbManager.addStructure(path);
+            PdbManager.loadStructure(path);
             /*
              * if that was the first file added, then update the list of chains
              */

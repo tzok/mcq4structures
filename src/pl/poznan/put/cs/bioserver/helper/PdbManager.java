@@ -18,19 +18,20 @@ import org.biojava.bio.structure.io.PDBFileReader;
  */
 public final class PdbManager {
     private static final Logger LOGGER = Logger.getLogger(PdbManager.class);
-    private static final Map<String, Structure> MAP_STRUCTURES = new HashMap<>();
-    private static final Map<String, String> MAP_NAMES = new HashMap<>();
+    private static final Map<String, Structure> MAP_PATH_STRUCTURE = new HashMap<>();
+    private static final Map<String, String> MAP_PATH_NAME = new HashMap<>();
+    private static final Map<Structure, String> MAP_STRUCTURE_NAME = new HashMap<>();
 
     /**
      * Load a structure and remember it being already cached.
      * 
      * @param path
      *            Path to the PDB file.
-     * @return True, if the file was loaded successfully.
+     * @return Structure object..
      */
-    public static boolean addStructure(String path) {
-        if (PdbManager.MAP_STRUCTURES.containsKey(path)) {
-            return true;
+    public static Structure loadStructure(String path) {
+        if (PdbManager.MAP_PATH_STRUCTURE.containsKey(path)) {
+            return PdbManager.MAP_PATH_STRUCTURE.get(path);
         }
 
         Structure structure;
@@ -38,7 +39,7 @@ public final class PdbManager {
             structure = new PDBFileReader().getStructure(path);
         } catch (IOException e) {
             PdbManager.LOGGER.error("Failed to load the structure: " + path, e);
-            return false;
+            return null;
         }
 
         String name = structure.getPDBCode();
@@ -47,9 +48,10 @@ public final class PdbManager {
             structure.setPDBCode(name);
         }
 
-        PdbManager.MAP_STRUCTURES.put(path, structure);
-        PdbManager.MAP_NAMES.put(path, name);
-        return true;
+        PdbManager.MAP_PATH_STRUCTURE.put(path, structure);
+        PdbManager.MAP_PATH_NAME.put(path, name);
+        PdbManager.MAP_STRUCTURE_NAME.put(structure, name);
+        return structure;
     }
 
     /**
@@ -59,10 +61,10 @@ public final class PdbManager {
      *            List of paths to PDB files.
      * @return Array of names of structures.
      */
-    public static String[] getNames(List<String> elements) {
+    public static String[] getNames(List<String> paths) {
         List<String> vector = new ArrayList<>();
-        for (String element : elements) {
-            String name = PdbManager.MAP_NAMES.get(element);
+        for (String element : paths) {
+            String name = PdbManager.MAP_PATH_NAME.get(element);
             vector.add(name);
         }
         return vector.toArray(new String[vector.size()]);
@@ -79,12 +81,22 @@ public final class PdbManager {
     public static Structure[] getStructures(Iterable<String> elements) {
         List<Structure> vector = new ArrayList<>();
         for (String element : elements) {
-            Structure structure = PdbManager.MAP_STRUCTURES.get(element);
+            Structure structure = PdbManager.MAP_PATH_STRUCTURE.get(element);
             vector.add(structure);
         }
         return vector.toArray(new Structure[vector.size()]);
     }
 
     private PdbManager() {
+    }
+
+    public static String getStructureName(Structure structure) {
+        if (!PdbManager.MAP_STRUCTURE_NAME.containsKey(structure)) {
+            PdbManager.LOGGER.warn("A structure name could not be found in "
+                    + "cache. Was it loaded by PdbManager class in the first "
+                    + "place? The structure is: " + structure);
+            return "UNKNOWN!";
+        }
+        return PdbManager.MAP_STRUCTURE_NAME.get(structure);
     }
 }

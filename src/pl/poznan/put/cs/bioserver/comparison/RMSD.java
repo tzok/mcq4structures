@@ -1,6 +1,5 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,11 +10,11 @@ import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.SVDSuperimposer;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
-import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 /**
  * Implementation of RMSD global similarity measure.
@@ -41,11 +40,10 @@ public class RMSD extends GlobalComparison {
             System.out.println("Incorrect number of arguments provided");
             return;
         }
-        PDBFileReader reader = new PDBFileReader();
         try {
             List<Structure> list = new ArrayList<>();
             for (String arg : args) {
-                list.add(reader.getStructure(arg));
+                list.add(PdbManager.loadStructure(arg));
             }
 
             RMSD rmsd = new RMSD();
@@ -55,9 +53,6 @@ public class RMSD extends GlobalComparison {
             for (double[] element : compare) {
                 System.out.println(Arrays.toString(element));
             }
-        } catch (IOException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
         } catch (IncomparableStructuresException e) {
             System.out.println("ERROR");
             System.out.println(e.getMessage());

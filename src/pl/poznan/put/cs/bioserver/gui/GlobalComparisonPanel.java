@@ -477,7 +477,7 @@ public class GlobalComparisonPanel extends JPanel {
      *            A path to PDB file.
      */
     public void addFile(String text) {
-        if (PdbManager.addStructure(text)) {
+        if (PdbManager.loadStructure(text) != null) {
             listModel.addElement(text);
         } else {
             JOptionPane.showMessageDialog(null,

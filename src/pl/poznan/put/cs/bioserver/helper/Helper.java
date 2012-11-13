@@ -52,13 +52,21 @@ public final class Helper {
         List<String> l1 = new ArrayList<>();
         List<String> l2 = new ArrayList<>();
 
-        // start with the larger list (it's better to remove redundant atoms)
-        int j = atoms[0].length > atoms[1].length ? 0 : 1;
-        for (Atom a : atoms[j]) {
+        for (Atom a : atoms[0]) {
             l1.add(a.getFullName());
         }
-        for (Atom a : atoms[j ^ 1]) {
+        for (Atom a : atoms[1]) {
             l2.add(a.getFullName());
+        }
+        // start with the larger list (it's better to remove redundant atoms)
+        if (l1.size() > l2.size()) {
+            List<String> tmpStr = l1;
+            l1 = l2;
+            l2 = tmpStr;
+
+            Atom[] tmpAtom = atoms[0];
+            atoms[0] = atoms[1];
+            atoms[1] = tmpAtom;
         }
 
         List<Atom> list1 = new ArrayList<>(Arrays.asList(atoms[0]));

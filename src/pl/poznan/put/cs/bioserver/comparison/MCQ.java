@@ -1,6 +1,5 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +8,10 @@ import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
-import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
@@ -154,11 +153,10 @@ public class MCQ extends GlobalComparison {
             System.out.println("Incorrect number of arguments provided");
             return;
         }
-        PDBFileReader reader = new PDBFileReader();
         try {
             List<Structure> list = new ArrayList<>();
             for (String arg : args) {
-                list.add(reader.getStructure(arg));
+                list.add(PdbManager.loadStructure(arg));
             }
 
             MCQ mcq = new MCQ();
@@ -170,9 +168,6 @@ public class MCQ extends GlobalComparison {
                     System.out.println(compare[i][j]);
                 }
             }
-        } catch (IOException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
         } catch (IncomparableStructuresException e) {
             System.out.println("ERROR");
             System.out.println(e.getMessage());
