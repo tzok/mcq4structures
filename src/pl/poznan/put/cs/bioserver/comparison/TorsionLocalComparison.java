@@ -10,10 +10,10 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
-import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
@@ -148,33 +148,6 @@ public class TorsionLocalComparison extends LocalComparison {
     }
 
     /**
-     * Compare two chains.
-     * 
-     * @param c1
-     *            First chain.
-     * @param c2
-     *            Second chain.
-     * @param alignFirst
-     *            Should atoms be aligned beforehand?
-     * @return A map of name of angle to the list of differences defined upon
-     *         it.
-     * @throws StructureException
-     *             If the alignment was impossible to be computed.
-     */
-    public static Map<String, List<AngleDifference>> compare(Chain c1,
-            Chain c2, boolean alignFirst) throws StructureException {
-        Atom[][] atoms;
-        if (alignFirst) {
-            atoms = StructureAligner.align(c1, c2).getAtoms();
-        } else {
-            atoms = Helper.getCommonAtomArray(c1, c2);
-        }
-        AngleType[] angles = Helper.isNucleicAcid(c1) ? NucleotideDihedral
-                .getAngles() : AminoAcidDihedral.getAngles();
-        return TorsionLocalComparison.compare(atoms, angles, alignFirst);
-    }
-
-    /**
      * Compare two structures.
      * 
      * @param s1
@@ -190,15 +163,20 @@ public class TorsionLocalComparison extends LocalComparison {
      */
     public static Map<String, List<AngleDifference>> compare(Structure s1,
             Structure s2, boolean alignFirst) throws StructureException {
+        boolean wasAligned = alignFirst;
         Atom[][] atoms;
         if (alignFirst) {
             atoms = StructureAligner.align(s1, s2).getAtoms();
         } else {
-            atoms = Helper.getCommonAtomArray(s1, s2);
+            atoms = Helper.getCommonAtomArray(s1, s2, false);
+            if (atoms == null) {
+                atoms = Helper.getCommonAtomArray(s1, s2, true);
+                wasAligned = true;
+            }
         }
         AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral
                 .getAngles() : AminoAcidDihedral.getAngles();
-        return TorsionLocalComparison.compare(atoms, angles, alignFirst);
+        return TorsionLocalComparison.compare(atoms, angles, wasAligned);
     }
 
     /**
@@ -224,9 +202,12 @@ public class TorsionLocalComparison extends LocalComparison {
 
             Map<String, List<AngleDifference>> result;
             if (args.length == 5) {
-                result = TorsionLocalComparison.compare(
-                        structures[0].getChainByPDB(args[3]),
-                        structures[1].getChainByPDB(args[4]), false);
+                result = TorsionLocalComparison
+                        .compare(
+                                new StructureImpl(structures[0]
+                                        .getChainByPDB(args[3])),
+                                new StructureImpl(structures[1]
+                                        .getChainByPDB(args[4])), false);
             } else {
                 result = (Map<String, List<AngleDifference>>) comparison
                         .compare(structures[0], structures[1]);

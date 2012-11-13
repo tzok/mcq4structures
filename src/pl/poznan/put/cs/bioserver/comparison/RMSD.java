@@ -78,10 +78,10 @@ public class RMSD extends GlobalComparison {
         try {
             Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
             Atom[][] atoms = Helper.getCommonAtomArray(structures[0],
-                    structures[1]);
-            if (atoms[0].length != atoms[1].length) {
-                RMSD.LOGGER
-                        .info("Atom sets have different sizes. Must use alignment before calculating RMSD");
+                    structures[1], false);
+            if (atoms == null || atoms[0].length != atoms[1].length) {
+                RMSD.LOGGER.info("Atom sets have different sizes. Must use "
+                        + "alignment before calculating RMSD");
                 AlignmentOutput output = StructureAligner.align(s1, s2);
                 return output.getAligner().getAlignments()[0].getRmsd();
             }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
-import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
@@ -90,30 +89,6 @@ public class MCQ extends GlobalComparison {
     }
 
     /**
-     * Compare two given chains.
-     * 
-     * @param c1
-     *            First chain.
-     * @param c2
-     *            Second chain.
-     * @param alignFirst
-     *            Should atoms be aligned first?
-     * @return Mean of Circular Quantities (MCQ).
-     * @throws StructureException
-     *             If the alignment was impossible to make.
-     */
-    public static double compare(Chain c1, Chain c2, boolean alignFirst)
-            throws StructureException {
-        Atom[][] atoms;
-        if (alignFirst) {
-            atoms = StructureAligner.align(c1, c2).getAtoms();
-        } else {
-            atoms = Helper.getCommonAtomArray(c1, c2);
-        }
-        return MCQ.compare(atoms, alignFirst);
-    }
-
-    /**
      * Compare two given structures.
      * 
      * @param s1
@@ -128,13 +103,18 @@ public class MCQ extends GlobalComparison {
      */
     public static double compare(Structure s1, Structure s2, boolean alignFirst)
             throws StructureException {
+        boolean wasAligned = alignFirst;
         Atom[][] atoms;
         if (alignFirst) {
             atoms = StructureAligner.align(s1, s2).getAtoms();
         } else {
-            atoms = Helper.getCommonAtomArray(s1, s2);
+            atoms = Helper.getCommonAtomArray(s1, s2, false);
+            if (atoms == null) {
+                atoms = Helper.getCommonAtomArray(s1, s2, true);
+                wasAligned = true;
+            }
         }
-        return MCQ.compare(atoms, alignFirst);
+        return MCQ.compare(atoms, wasAligned);
     }
 
     /**

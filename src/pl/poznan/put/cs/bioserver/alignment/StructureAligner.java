@@ -67,7 +67,10 @@ public final class StructureAligner {
         /*
          * Align the structures
          */
-        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2);
+        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2, true);
+        if (atoms == null) {
+            atoms = Helper.getCommonAtomArray(s1, s2, true);
+        }
 
         StructurePairAligner aligner = new StructurePairAligner();
         aligner.align(atoms[0], atoms[1], new StrucAligParameters());

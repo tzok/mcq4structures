@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.StructureImpl;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -92,25 +93,26 @@ public class TorsionLocalComparisonPanel extends JPanel {
 
             Structure[] structures = PdbManager.getStructures(Arrays
                     .asList(names));
-            Chain[] chains = new Chain[2];
-            for (int i = 0; i < 2; ++i) {
-                chains[i] = structures[i].getChain(indices[i]);
-            }
-
-            if (Helper.isNucleicAcid(chains[0]) != Helper
-                    .isNucleicAcid(chains[1])) {
-                JOptionPane.showMessageDialog(null, "Cannot "
-                        + "compare structures of different type", "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return null;
-            }
+            // Chain[] chains = new Chain[2];
+            // for (int i = 0; i < 2; ++i) {
+            // chains[i] = structures[i].getChain(indices[i]);
+            // }
+            //
+            // if (Helper.isNucleicAcid(chains[0]) != Helper
+            // .isNucleicAcid(chains[1])) {
+            // JOptionPane.showMessageDialog(null, "Cannot "
+            // + "compare structures of different type", "Error",
+            // JOptionPane.ERROR_MESSAGE);
+            // return null;
+            // }
 
             /*
              * compare them
              */
             try {
-                return TorsionLocalComparison.compare(chains[0], chains[1],
-                        false);
+                return TorsionLocalComparison.compare(structures[0], structures[1], false);
+                // return TorsionLocalComparison.compare(new StructureImpl(
+                // chains[0]), new StructureImpl(chains[1]), false);
             } catch (StructureException e) {
                 TorsionLocalComparisonPanel.LOGGER.error(e);
                 JOptionPane.showMessageDialog(null, e.getMessage(), "Error",

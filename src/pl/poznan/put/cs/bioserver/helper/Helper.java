@@ -150,7 +150,7 @@ public final class Helper {
      *            Second chain.
      * @return Two arrays of atoms.
      */
-    public static Atom[][] getCommonAtomArray(Chain c1, Chain c2) {
+    private static Atom[][] getCommonAtomArray(Chain c1, Chain c2) {
         return Helper
                 .getCommonAtomArray(c1.getAtomGroups(), c2.getAtomGroups());
     }
@@ -180,8 +180,14 @@ public final class Helper {
      * @throws StructureException
      *             If there were problems with resolution of chain names.
      */
-    public static Atom[][] getCommonAtomArray(Structure s1, Structure s2)
-            throws StructureException {
+    public static Atom[][] getCommonAtomArray(Structure s1, Structure s2,
+            boolean streamGroups) throws StructureException {
+        if (streamGroups) {
+            List<Group> g1 = Helper.streamGroups(s1);
+            List<Group> g2 = Helper.streamGroups(s2);
+            return Helper.getCommonAtomArray(g1, g2);
+        }
+
         List<Chain> c1 = s1.getChains();
         List<Chain> c2 = s2.getChains();
         int size = c1.size();
@@ -214,10 +220,9 @@ public final class Helper {
                 return result;
             }
         }
-
-        List<Group> g1 = Helper.streamGroups(s1);
-        List<Group> g2 = Helper.streamGroups(s2);
-        return Helper.getCommonAtomArray(g1, g2);
+        // null means that it is impossible to get common atom array without
+        // streaming of the groups
+        return null;
     }
 
     public static boolean isAminoAcid(Group g) {
