@@ -449,7 +449,10 @@ public class GlobalComparisonPanel extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                    listModel.remove(list.getSelectedIndex());
+                    int index = list.getSelectedIndex();
+                    if (index != -1) {
+                        listModel.remove(index);
+                    }
                 }
             }
 
