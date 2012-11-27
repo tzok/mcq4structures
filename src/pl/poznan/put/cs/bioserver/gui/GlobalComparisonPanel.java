@@ -20,6 +20,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -74,6 +75,11 @@ public class GlobalComparisonPanel extends JPanel {
 
             final JComboBox<String> linkage = new JComboBox<>(new String[] {
                     "Single", "Complete", "Average" });
+            final JComboBox<String> method = new JComboBox<>(new String[] {
+                    "PAM", "PAMSIL" });
+            method.setEnabled(false);
+            final JCheckBox findBestK = new JCheckBox("Find best k?", true);
+            findBestK.setEnabled(false);
             final JSpinner kspinner = new JSpinner();
             kspinner.setModel(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
             kspinner.setEnabled(false);
@@ -93,7 +99,7 @@ public class GlobalComparisonPanel extends JPanel {
             container.add(hierarchical, c);
 
             c.gridx = 1;
-            c.gridwidth = 2;
+            c.gridwidth = 3;
             container.add(linkage, c);
 
             c.gridx = 0;
@@ -102,9 +108,15 @@ public class GlobalComparisonPanel extends JPanel {
             container.add(kmedoids, c);
 
             c.gridx = 1;
-            c.gridwidth = 2;
+            container.add(method, c);
+
+            c.gridx = 2;
+            container.add(findBestK, c);
+
+            c.gridx = 3;
             container.add(kspinner, c);
 
+            c.gridx = 1;
             c.gridy = 2;
             c.gridwidth = 1;
             container.add(ok, c);
@@ -131,11 +143,15 @@ public class GlobalComparisonPanel extends JPanel {
                 public void actionPerformed(ActionEvent arg0) {
                     boolean isHierarchical = hierarchical.isSelected();
                     linkage.setEnabled(isHierarchical);
-                    kspinner.setEnabled(!isHierarchical);
+                    method.setEnabled(!isHierarchical);
+                    findBestK.setEnabled(!isHierarchical);
+                    kspinner.setEnabled(!isHierarchical
+                            && !findBestK.isSelected());
                 }
             };
             hierarchical.addActionListener(radioActionListener);
             kmedoids.addActionListener(radioActionListener);
+            findBestK.addActionListener(radioActionListener);
 
             /*
              * clicking ok makes concrete implementation of clustering to be
@@ -149,16 +165,23 @@ public class GlobalComparisonPanel extends JPanel {
                         plot = new HierarchicalPlot(comparisonResults,
                                 structureNames, linkage.getSelectedIndex());
                     } else {
-                        int k = (Integer) kspinner.getValue();
-                        if (k > comparisonResults.length) {
-                            JOptionPane.showMessageDialog(null, "k in "
-                                    + "k-medoids must be less or equal to the "
-                                    + "number of input structures", "Error!",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return;
+                        int k;
+                        if (findBestK.isSelected()) {
+                            k = 0;
+                        } else {
+                            k = (Integer) kspinner.getValue();
+                            if (k > comparisonResults.length) {
+                                JOptionPane.showMessageDialog(null,
+                                        "k in k-medoids must be less or equal "
+                                                + "to the number of input "
+                                                + "structures", "Error!",
+                                        JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
                         }
                         plot = new KMedoidsPlot(comparisonResults,
-                                structureNames, k);
+                                structureNames, k, (String) method
+                                        .getSelectedItem());
                     }
                     plot.setVisible(true);
                 }

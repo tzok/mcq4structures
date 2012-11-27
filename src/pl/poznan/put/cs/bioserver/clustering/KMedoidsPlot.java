@@ -33,8 +33,26 @@ public class KMedoidsPlot extends JFrame {
      * @param k
      *            Chosen k for k-medoids method.
      */
-    public KMedoidsPlot(double[][] distance, String[] labels, int k) {
-        int[] medoids = Clusterer.kMedoids(distance, k);
+    public KMedoidsPlot(double[][] distance, String[] labels, int k,
+            String method) {
+        int[] medoids = null;
+        if (method.equals("PAM")) {
+            if (k == 0) {
+                medoids = Clusterer.clusterPAM(distance).clusterAssignment();
+            } else {
+                medoids = Clusterer.clusterPAM(distance, k).clusterAssignment();
+            }
+        } else if (method.equals("PAMSIL")) {
+            if (k == 0) {
+                medoids = Clusterer.clusterPAMSIL(distance).clusterAssignment();
+            } else {
+                medoids = Clusterer.clusterPAMSIL(distance, k)
+                        .clusterAssignment();
+            }
+        } else {
+            throw new UnsupportedOperationException("Clustering method "
+                    + method + " not supported");
+        }
         HashSet<Integer> medoidSet = new HashSet<>();
         for (int m : medoids) {
             medoidSet.add(m);

@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
-import org.biojava.bio.structure.StructureImpl;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -44,7 +43,6 @@ import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
-import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
@@ -110,7 +108,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
              * compare them
              */
             try {
-                return TorsionLocalComparison.compare(structures[0], structures[1], false);
+                return TorsionLocalComparison.compare(structures[0],
+                        structures[1], false);
                 // return TorsionLocalComparison.compare(new StructureImpl(
                 // chains[0]), new StructureImpl(chains[1]), false);
             } catch (StructureException e) {
