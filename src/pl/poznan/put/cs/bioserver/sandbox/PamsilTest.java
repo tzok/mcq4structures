@@ -24,7 +24,8 @@ public class PamsilTest {
                 "/home/tzok/pdb/puzzles/Challenge1/models/1_das_5.pdb",
                 "/home/tzok/pdb/puzzles/Challenge1/models/1_dokholyan_1.pdb",
                 "/home/tzok/pdb/puzzles/Challenge1/models/1_major_1.pdb",
-                "/home/tzok/pdb/puzzles/Challenge1/models/1_santalucia_1.pdb" };
+                "/home/tzok/pdb/puzzles/Challenge1/models/1_santalucia_1.pdb",
+                "/home/tzok/pdb/puzzles/Challenge1/targets/1_solution_0.pdb" };
         Structure[] structures = new Structure[paths.length];
         for (int i = 0; i < paths.length; i++) {
             structures[i] = PdbManager.loadStructure(paths[i]);
