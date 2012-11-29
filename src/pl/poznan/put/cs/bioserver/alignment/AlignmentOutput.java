@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,11 +8,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.biojava.bio.structure.Atom;
+import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Element;
 import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
-import org.biojava.bio.structure.align.StructurePairAligner;
-import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
+import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.align.model.AFPChain;
+import org.biojava.bio.structure.jama.Matrix;
 
 /**
  * A class that holds the results of structural alignment.
@@ -20,11 +24,10 @@ import org.biojava.bio.structure.align.pairwise.AlternativeAlignment;
  * 
  */
 public class AlignmentOutput {
-    private StructurePairAligner aligner;
     private Structure s1;
     private Structure s2;
-    private AlternativeAlignment[] alignments;
     private Atom[][] atoms;
+    private AFPChain afpChain;
 
     /**
      * Create an instance which stores information about the computed alignment,
@@ -39,18 +42,16 @@ public class AlignmentOutput {
      * @param atoms
      *            Atoms that were used in the alignment process.
      */
-    public AlignmentOutput(StructurePairAligner aligner, Structure s1,
-            Structure s2, Atom[][] atoms) {
-        this.aligner = aligner;
+    public AlignmentOutput(AFPChain afpChain, Structure s1, Structure s2,
+            Atom[][] atoms) {
+        this.afpChain = afpChain;
         this.s1 = s1;
         this.s2 = s2;
         this.atoms = atoms.clone();
-
-        alignments = aligner.getAlignments();
     }
 
-    public StructurePairAligner getAligner() {
-        return aligner;
+    public AFPChain getAFPChain() {
+        return afpChain;
     }
 
     /**
@@ -59,28 +60,21 @@ public class AlignmentOutput {
      * @return Two arrays of atoms.
      */
     public Atom[][] getAtoms() {
-        return getAtoms(0);
-    }
-
-    /**
-     * Get atoms from the specified resulting alignment.
-     * 
-     * @param i
-     *            Index of alignment.
-     * @return Two arrays of atoms.
-     */
-    public Atom[][] getAtoms(int i) {
-        int[][] allIdxs = new int[][] { alignments[i].getIdx1(),
-                alignments[i].getIdx2() };
         Atom[][] result = new Atom[2][];
-        for (int k = 0; k < 2; k++) {
-            Atom[] current = atoms[k];
-            int[] idx = allIdxs[k];
-            Atom[] filtered = new Atom[idx.length];
-            for (int j = 0; j < idx.length; j++) {
-                filtered[j] = current[idx[j]];
+        int[][][] optAln = afpChain.getOptAln();
+        for (int i = 0; i < 2; i++) {
+            List<Atom> list = new ArrayList<>();
+            for (int j = 0; j < optAln.length; j++) {
+                for (int k = 0; k < optAln[j][i].length; k++) {
+                    Atom a = atoms[i][k];
+                    if (a.getElement().equals(Element.P)) {
+                        a.setName("P");
+                        a.setFullName(" P  ");
+                    }
+                    list.add(a);
+                }
             }
-            result[k] = filtered;
+            result[i] = list.toArray(new Atom[list.size()]);
         }
         return result;
     }
@@ -93,15 +87,23 @@ public class AlignmentOutput {
      * @return Four structures.
      */
     public Structure[] getStructures() {
-        Structure alignedStructure = alignments[0].getAlignedStructure(s1, s2);
-        Structure sc1 = s1.clone();
-        Structure sc2 = s2.clone();
-        sc1.setChains(alignedStructure.getModel(0));
-        sc2.setChains(alignedStructure.getModel(1));
-        Structure[] result = new Structure[] { sc1, sc2, null, null };
+        Structure[] result = new Structure[4];
+        result[0] = s1.clone();
+        result[1] = s2.clone();
+        Matrix matrix = afpChain.getBlockRotationMatrix()[0];
+        try {
+            Calc.shift(result[0], Calc.invert(Calc.getCentroid(atoms[0])));
+            Calc.shift(result[1], Calc.invert(Calc.getCentroid(atoms[1])));
+        } catch (StructureException e) {
+            // TODO
+            e.printStackTrace();
+        }
+        Calc.rotate(result[1], matrix);
+
+        Atom[][] aligned = getAtoms();
         for (int i = 0; i < 2; i++) {
             Map<String, Set<Integer>> map = new HashMap<>();
-            for (Atom a : atoms[i]) {
+            for (Atom a : aligned[i]) {
                 Group g = a.getGroup();
                 Chain c = g.getChain();
                 String chainId = c.getChainID();
@@ -138,12 +140,6 @@ public class AlignmentOutput {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(aligner);
-        for (AlternativeAlignment a : alignments) {
-            builder.append('\n');
-            builder.append(a);
-        }
-        return builder.toString();
+        return afpChain.toString();
     }
 }

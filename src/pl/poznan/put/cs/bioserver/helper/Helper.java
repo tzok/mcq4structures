@@ -142,6 +142,22 @@ public final class Helper {
     }
 
     /**
+     * TODO
+     * 
+     * @param structure
+     * @param atomNames
+     * @return
+     */
+    public static List<Atom> getAtomArray(Structure structure,
+            String[] atomNames) {
+        List<Atom> list = new ArrayList<>();
+        for (Chain c : structure.getChains()) {
+            list.addAll(getAtomArray(c.getAtomGroups(), atomNames));
+        }
+        return list;
+    }
+
+    /**
      * Get atoms needed for torsion angle analysis from both chains.
      * 
      * @param c1

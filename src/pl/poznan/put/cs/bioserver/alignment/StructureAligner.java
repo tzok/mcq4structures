@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -10,7 +11,10 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.StrucAligParameters;
+import org.biojava.bio.structure.align.StructureAlignment;
 import org.biojava.bio.structure.align.StructurePairAligner;
+import org.biojava.bio.structure.align.ce.CeMain;
+import org.biojava.bio.structure.align.model.AFPChain;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
 
@@ -64,17 +68,28 @@ public final class StructureAligner {
             return StructureAligner.cache.get(input);
         }
 
-        /*
-         * Align the structures
-         */
-        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2, true);
-        if (atoms == null) {
-            atoms = Helper.getCommonAtomArray(s1, s2, true);
+        Atom[][] atoms = new Atom[2][];
+        List<Atom> list = Helper.getAtomArray(s1, new String[] { "P", "CA" });
+        for (Atom a : list) {
+            if (a.getName().equals("P")) {
+                a.setName("CA");
+                a.setFullName(" CA ");
+            }
         }
+        atoms[0] = list.toArray(new Atom[list.size()]);
 
-        StructurePairAligner aligner = new StructurePairAligner();
-        aligner.align(atoms[0], atoms[1], new StrucAligParameters());
-        AlignmentOutput result = new AlignmentOutput(aligner, s1, s2, atoms);
+        list = Helper.getAtomArray(s2, new String[] { "P", "CA" });
+        for (Atom a : list) {
+            if (a.getName().equals("P")) {
+                a.setName("CA");
+                a.setFullName(" CA ");
+            }
+        }
+        atoms[1] = list.toArray(new Atom[list.size()]);
+
+        StructureAlignment alignment = new CeMain();
+        AFPChain align = alignment.align(atoms[0], atoms[1]);
+        AlignmentOutput result = new AlignmentOutput(align, s1, s2, atoms);
         StructureAligner.cache.put(input, result);
         return result;
     }

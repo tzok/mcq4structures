@@ -55,7 +55,7 @@ public class StructureAlignmentPanel extends JPanel {
                 builder.append(pdb2);
                 builder.append("\"; ");
                 builder.append("frame 0.0; ");
-                builder.append("cartoon only; ");
+                builder.append("cpk only; ");
                 builder.append("select model=1.1; color green; ");
                 builder.append("select model=2.1; color red; ");
                 return builder.toString();
