@@ -1,18 +1,19 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Element;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
-import org.biojava.bio.structure.align.StrucAligParameters;
 import org.biojava.bio.structure.align.StructureAlignment;
-import org.biojava.bio.structure.align.StructurePairAligner;
 import org.biojava.bio.structure.align.ce.CeMain;
 import org.biojava.bio.structure.align.model.AFPChain;
 
@@ -69,26 +70,31 @@ public final class StructureAligner {
         }
 
         Atom[][] atoms = new Atom[2][];
-        List<Atom> list = Helper.getAtomArray(s1, new String[] { "P", "CA" });
-        for (Atom a : list) {
-            if (a.getName().equals("P")) {
-                a.setName("CA");
-                a.setFullName(" CA ");
-            }
-        }
-        atoms[0] = list.toArray(new Atom[list.size()]);
+        Structure[] structures = new Structure[] { s1, s2 };
 
-        list = Helper.getAtomArray(s2, new String[] { "P", "CA" });
-        for (Atom a : list) {
-            if (a.getName().equals("P")) {
-                a.setName("CA");
-                a.setFullName(" CA ");
+        Set<Atom> changedAtoms = new HashSet<>();
+        for (int j = 0; j < 2; j++) {
+            List<Atom> list = Helper.getAtomArray(structures[j], new String[] {
+                    "P", "CA" });
+            atoms[j] = list.toArray(new Atom[list.size()]);
+
+            for (int i = 0; i < atoms[j].length; i++) {
+                Atom atom = atoms[j][i];
+                if (atom.getElement().equals(Element.P)) {
+                    atom.setName("CA");
+                    atom.setFullName(" CA ");
+                    changedAtoms.add(atom);
+                }
             }
         }
-        atoms[1] = list.toArray(new Atom[list.size()]);
 
         StructureAlignment alignment = new CeMain();
         AFPChain align = alignment.align(atoms[0], atoms[1]);
+
+        for (Atom atom : changedAtoms) {
+            atom.setName("P");
+            atom.setFullName(" P  ");
+        }
         AlignmentOutput result = new AlignmentOutput(align, s1, s2, atoms);
         StructureAligner.cache.put(input, result);
         return result;

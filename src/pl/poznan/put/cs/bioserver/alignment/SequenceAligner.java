@@ -3,6 +3,8 @@ package pl.poznan.put.cs.bioserver.alignment;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
@@ -80,6 +82,12 @@ public class SequenceAligner<C extends Compound> {
         Sequence<C> seq2 = getSequence(c2);
         SequenceAligner.logger.trace("Sequences to be aligned:\n" + seq1 + "\n"
                 + seq2);
+        if (seq1.getLength() == 0 || seq2.getLength() == 0) {
+            String message = "At least one chain has 0 amino acids/residues";
+            String title = "Cannot calculate alignment";
+            JOptionPane.showMessageDialog(null, message, title,
+                    JOptionPane.WARNING_MESSAGE);
+        }
         /*
          * Prepare substitution matrices for the alignment
          */

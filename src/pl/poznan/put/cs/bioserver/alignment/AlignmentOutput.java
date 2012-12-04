@@ -10,7 +10,6 @@ import java.util.Set;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Element;
 import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
@@ -66,12 +65,7 @@ public class AlignmentOutput {
             List<Atom> list = new ArrayList<>();
             for (int j = 0; j < optAln.length; j++) {
                 for (int k = 0; k < optAln[j][i].length; k++) {
-                    Atom a = atoms[i][k];
-                    if (a.getElement().equals(Element.P)) {
-                        a.setName("P");
-                        a.setFullName(" P  ");
-                    }
-                    list.add(a);
+                    list.add(atoms[i][k]);
                 }
             }
             result[i] = list.toArray(new Atom[list.size()]);
@@ -98,7 +92,7 @@ public class AlignmentOutput {
             // TODO
             e.printStackTrace();
         }
-        Calc.rotate(result[1], matrix);
+        Calc.rotate(result[0], matrix);
 
         Atom[][] aligned = getAtoms();
         for (int i = 0; i < 2; i++) {
@@ -127,9 +121,9 @@ public class AlignmentOutput {
                 List<Group> groups = c.getAtomGroups();
                 Set<Integer> set = map.get(chainId);
                 for (int j = 0; j < groups.size(); j++) {
-                    if (!set.contains(groups.get(i).getResidueNumber()
+                    if (!set.contains(groups.get(j).getResidueNumber()
                             .getSeqNum())) {
-                        groups.remove(i);
+                        groups.remove(j);
                     }
                 }
             }
