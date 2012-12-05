@@ -13,16 +13,15 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -33,7 +32,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
-import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
@@ -47,7 +45,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.TextAnchor;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
@@ -69,6 +66,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
 
         public TorsionAxis(Map<String, List<AngleDifference>> comparison) {
             this.comparison = comparison;
+            setTickLabelFont(new Font(Font.DIALOG, Font.PLAIN, 8));
         }
 
         @Override
@@ -82,16 +80,17 @@ public class TorsionLocalComparisonPanel extends JPanel {
             for (int i = 0; i < list.size(); i++) {
                 AngleDifference ad = list.get(i);
                 ResidueNumber residue = ad.getResidue();
-                mapIndexLabel.put((double) i, residue.getChainId() + ":"
-                        + residue.getSeqNum());
+                mapIndexLabel.put(
+                        (double) i,
+                        String.format("%s:%03d", residue.getChainId(),
+                                residue.getSeqNum()));
             }
 
             List<NumberTick> result = new ArrayList<>();
             for (NumberTick nt : ticks) {
                 result.add(new NumberTick(TickType.MINOR, nt.getValue(),
-                        mapIndexLabel.get(nt.getValue()),
-                        TextAnchor.BASELINE_RIGHT, nt.getRotationAnchor(),
-                        Math.PI / 2));
+                        mapIndexLabel.get(nt.getValue()), nt.getTextAnchor(),
+                        nt.getRotationAnchor(), Math.PI / 4));
             }
             return result;
         }
@@ -122,28 +121,11 @@ public class TorsionLocalComparisonPanel extends JPanel {
              * get specified structures
              */
             String[] names = new String[2];
-            // int[] indices = new int[2];
             names[0] = controlPanel.listModel.get(0);
-            // indices[0] = controlPanel.optionsPanel.comboBoxFirst
-            // .getSelectedIndex();
             names[1] = controlPanel.listModel.get(1);
-            // indices[1] = controlPanel.optionsPanel.comboBoxSecond
-            // .getSelectedIndex();
 
             Structure[] structures = PdbManager.getStructures(Arrays
                     .asList(names));
-            // Chain[] chains = new Chain[2];
-            // for (int i = 0; i < 2; ++i) {
-            // chains[i] = structures[i].getChain(indices[i]);
-            // }
-
-            // if (Helper.isNucleicAcid(chains[0]) != Helper
-            // .isNucleicAcid(chains[1])) {
-            // JOptionPane.showMessageDialog(null, "Cannot "
-            // + "compare structures of different type", "Error",
-            // JOptionPane.ERROR_MESSAGE);
-            // return null;
-            // }
 
             /*
              * compare them
@@ -151,8 +133,6 @@ public class TorsionLocalComparisonPanel extends JPanel {
             try {
                 return TorsionLocalComparison.compare(structures[0],
                         structures[1], false);
-                // return TorsionLocalComparison.compare(new StructureImpl(
-                // chains[0]), new StructureImpl(chains[1]), false);
             } catch (StructureException e) {
                 TorsionLocalComparisonPanel.LOGGER.error(e);
                 JOptionPane.showMessageDialog(null, e.getMessage(), "Error",
@@ -182,13 +162,13 @@ public class TorsionLocalComparisonPanel extends JPanel {
             DefaultXYDataset dataset = new DefaultXYDataset();
             for (String angle : anglesToShow) {
                 if (!compare.containsKey(angle)) {
-                    JOptionPane.showMessageDialog(null, "The " + "angle "
-                            + angle + " is not defined "
-                            + "for loaded molecules", "Error",
+                    JOptionPane.showMessageDialog(null, "The angle " + angle
+                            + " is not defined for loaded molecules", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 List<AngleDifference> diffs = compare.get(angle);
+                Collections.sort(diffs);
                 double[] x = new double[diffs.size()];
                 double[] y = new double[diffs.size()];
                 for (int i = 0; i < diffs.size(); i++) {
@@ -304,33 +284,11 @@ public class TorsionLocalComparisonPanel extends JPanel {
             /*
              * if that was the first file added, then update the list of chains
              */
-            loadChainsNames(listModel.size() - 1);
             if (listModel.size() == 2) {
                 instructionsPanel
                         .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
             }
             return true;
-        }
-
-        private void loadChainsNames(int index) {
-            DefaultComboBoxModel<String> model = null;
-            JComboBox<String> comboBox = null;
-            if (index == 0) {
-                model = optionsPanel.comboBoxModelFirst;
-                comboBox = optionsPanel.comboBoxFirst;
-            } else {
-                model = optionsPanel.comboBoxModelSecond;
-                comboBox = optionsPanel.comboBoxSecond;
-            }
-
-            List<String> vector = new ArrayList<>();
-            vector.add(listModel.getElementAt(index));
-            Structure[] structures = PdbManager.getStructures(vector);
-            model.removeAllElements();
-            for (Chain c : structures[0].getChains()) {
-                model.addElement(c.getChainID());
-            }
-            comboBox.setSelectedIndex(0);
         }
     }
 
@@ -346,8 +304,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         private final String[] instructions = {
                 "Click \"Add file\" to select exactly two structures to compare",
-                "<html><ol><li>From the dropdown combo box select chain to compare</li>"
-                        + "<li>Select comparison mode: \"Amino acids\" or "
+                "<html><ol><li>Select comparison mode: \"Amino acids\" or "
                         + "\"Nucleotides\"</li>"
                         + "<li>Select group names to compare and plot.<br>"
                         + "MCQ stands for Mean of Circular Quantities - an average "
@@ -388,9 +345,6 @@ public class TorsionLocalComparisonPanel extends JPanel {
         private JCheckBox[][] angleChoiceChecks;
         // /////////////////////////////////////////////////////////////////////
         // fields
-        private JComboBox<String> comboBoxFirst, comboBoxSecond;
-        private DefaultComboBoxModel<String> comboBoxModelFirst,
-                comboBoxModelSecond;
         private JButton compare;
         private JRadioButton[] groupChoiceRadios;
 
@@ -400,11 +354,6 @@ public class TorsionLocalComparisonPanel extends JPanel {
             setLayout(new GridBagLayout());
             addFile = new JButton("Add file");
             compare = new JButton("Compare");
-
-            comboBoxModelFirst = new DefaultComboBoxModel<>();
-            comboBoxModelSecond = new DefaultComboBoxModel<>();
-            comboBoxFirst = new JComboBox<>(comboBoxModelFirst);
-            comboBoxSecond = new JComboBox<>(comboBoxModelSecond);
 
             groupChoiceRadios = new JRadioButton[] {
                     new JRadioButton("Amino acids", true),
@@ -447,16 +396,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
             c.gridx = 4;
             add(compare, c);
 
-            c.gridx = 2;
-            c.gridy = 1;
-            c.gridwidth = 4;
-            add(comboBoxFirst, c);
-
-            c.gridy = 2;
-            add(comboBoxSecond, c);
-
             c.gridx = 0;
-            c.gridy = 3;
+            c.gridy = 2;
             c.gridwidth = 1;
             for (JRadioButton b : groupChoiceRadios) {
                 add(b, c);
@@ -464,14 +405,14 @@ public class TorsionLocalComparisonPanel extends JPanel {
             }
 
             c.gridx = 1;
-            c.gridy = 3;
+            c.gridy = 2;
             for (JCheckBox b : angleChoiceChecks[0]) {
                 add(b, c);
                 c.gridx++;
             }
 
             c.gridx = 1;
-            c.gridy = 4;
+            c.gridy = 3;
             for (JCheckBox b : angleChoiceChecks[1]) {
                 add(b, c);
                 c.gridx++;
