@@ -2,15 +2,18 @@ package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,16 +34,20 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisState;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.axis.TickUnitSource;
+import org.jfree.chart.axis.NumberTick;
+import org.jfree.chart.axis.TickType;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.TextAnchor;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
@@ -56,6 +63,40 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class TorsionLocalComparisonPanel extends JPanel {
+    private class TorsionAxis extends NumberAxis {
+        private static final long serialVersionUID = 1L;
+        private Map<String, List<AngleDifference>> comparison;
+
+        public TorsionAxis(Map<String, List<AngleDifference>> comparison) {
+            this.comparison = comparison;
+        }
+
+        @Override
+        public List refreshTicks(Graphics2D g2, AxisState state,
+                Rectangle2D dataArea, RectangleEdge edge) {
+            List<NumberTick> ticks = super.refreshTicks(g2, state, dataArea,
+                    edge);
+
+            Map<Double, String> mapIndexLabel = new HashMap<>();
+            List<AngleDifference> list = comparison.get("MCQ");
+            for (int i = 0; i < list.size(); i++) {
+                AngleDifference ad = list.get(i);
+                ResidueNumber residue = ad.getResidue();
+                mapIndexLabel.put((double) i, residue.getChainId() + ":"
+                        + residue.getSeqNum());
+            }
+
+            List<NumberTick> result = new ArrayList<>();
+            for (NumberTick nt : ticks) {
+                result.add(new NumberTick(TickType.MINOR, nt.getValue(),
+                        mapIndexLabel.get(nt.getValue()),
+                        TextAnchor.BASELINE_RIGHT, nt.getRotationAnchor(),
+                        Math.PI / 2));
+            }
+            return result;
+        }
+    }
+
     private final class CompareStructures implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -81,13 +122,13 @@ public class TorsionLocalComparisonPanel extends JPanel {
              * get specified structures
              */
             String[] names = new String[2];
-            int[] indices = new int[2];
+            // int[] indices = new int[2];
             names[0] = controlPanel.listModel.get(0);
-            indices[0] = controlPanel.optionsPanel.comboBoxFirst
-                    .getSelectedIndex();
+            // indices[0] = controlPanel.optionsPanel.comboBoxFirst
+            // .getSelectedIndex();
             names[1] = controlPanel.listModel.get(1);
-            indices[1] = controlPanel.optionsPanel.comboBoxSecond
-                    .getSelectedIndex();
+            // indices[1] = controlPanel.optionsPanel.comboBoxSecond
+            // .getSelectedIndex();
 
             Structure[] structures = PdbManager.getStructures(Arrays
                     .asList(names));
@@ -95,7 +136,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
             // for (int i = 0; i < 2; ++i) {
             // chains[i] = structures[i].getChain(indices[i]);
             // }
-            //
+
             // if (Helper.isNucleicAcid(chains[0]) != Helper
             // .isNucleicAcid(chains[1])) {
             // JOptionPane.showMessageDialog(null, "Cannot "
@@ -157,15 +198,8 @@ public class TorsionLocalComparisonPanel extends JPanel {
                 }
                 dataset.addSeries(angle, new double[][] { x, y });
             }
-            /*
-             * draw a plot and replace the previous one
-             */
-            TickUnitSource tickUnitSource = NumberAxis.createIntegerTickUnits();
-            NumberTickUnit tickUnit = (NumberTickUnit) tickUnitSource
-                    .getCeilingTickUnit(5);
-            NumberAxis xAxis = new NumberAxis();
+            NumberAxis xAxis = new TorsionAxis(compare);
             xAxis.setLabel("Group index");
-            xAxis.setTickUnit(tickUnit);
 
             NumberAxis yAxis = new NumberAxis();
             yAxis.setAutoRange(false);
@@ -267,7 +301,6 @@ public class TorsionLocalComparisonPanel extends JPanel {
                 return false;
             }
 
-            PdbManager.loadStructure(path);
             /*
              * if that was the first file added, then update the list of chains
              */

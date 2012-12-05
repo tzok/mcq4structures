@@ -92,7 +92,7 @@ public class AlignmentOutput {
             // TODO
             e.printStackTrace();
         }
-        Calc.rotate(result[0], matrix);
+        Calc.rotate(result[1], matrix);
 
         Atom[][] aligned = getAtoms();
         for (int i = 0; i < 2; i++) {

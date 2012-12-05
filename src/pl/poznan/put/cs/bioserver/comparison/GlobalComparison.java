@@ -18,7 +18,8 @@ public abstract class GlobalComparison {
             .getLogger(GlobalComparison.class);
 
     private class CompareThread extends Thread {
-        private Structure[] structures;
+        private Structure s1;
+        private Structure s2;
         private double[][] result;
         private int i;
         private int j;
@@ -26,7 +27,8 @@ public abstract class GlobalComparison {
 
         public CompareThread(Structure[] structures, double[][] result, int i,
                 int j) {
-            this.structures = structures;
+            s1 = structures[i].clone();
+            s2 = structures[j].clone();
             this.result = result;
             this.i = i;
             this.j = j;
@@ -35,7 +37,7 @@ public abstract class GlobalComparison {
         @Override
         public void run() {
             try {
-                double value = compare(structures[i], structures[j]);
+                double value = compare(s1, s2);
                 result[i][j] = value;
                 result[j][i] = value;
             } catch (IncomparableStructuresException e) {

@@ -18,6 +18,7 @@ import org.biojava.bio.structure.align.ce.CeMain;
 import org.biojava.bio.structure.align.model.AFPChain;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 /**
  * A class that allows to computer structural alignment.
@@ -77,9 +78,12 @@ public final class StructureAligner {
             List<Atom> list = Helper.getAtomArray(structures[j], new String[] {
                     "P", "CA" });
             atoms[j] = list.toArray(new Atom[list.size()]);
+            assert atoms[j].length != 0 : "There are no P or CA atoms in: "
+                    + PdbManager.getStructureName(structures[j]);
 
             for (int i = 0; i < atoms[j].length; i++) {
                 Atom atom = atoms[j][i];
+                assert atom != null : "Atom is null: " + atom;
                 if (atom.getElement().equals(Element.P)) {
                     atom.setName("CA");
                     atom.setFullName(" CA ");
