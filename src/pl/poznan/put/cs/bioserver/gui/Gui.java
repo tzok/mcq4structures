@@ -6,6 +6,9 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * A main window of the application.
@@ -34,14 +37,28 @@ public class Gui extends JFrame {
     public Gui() {
         super();
         /*
+         * Set L&F
+         */
+        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                try {
+                    UIManager.setLookAndFeel(info.getClassName());
+                } catch (ClassNotFoundException | InstantiationException
+                        | IllegalAccessException
+                        | UnsupportedLookAndFeelException e) {
+                    // do nothing
+                }
+                break;
+            }
+        }
+        /*
          * Tabbed pane
          */
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.add("Sequence alignment", new SequenceAlignmentPanel());
-        tabbedPane.add("Structure alignment", new StructureAlignmentPanel());
         tabbedPane.add("Global comparison", new GlobalComparisonPanel());
-        tabbedPane.add("Torsion local comparison",
-                new TorsionLocalComparisonPanel());
+        tabbedPane.add("Local comparison", new TorsionLocalComparisonPanel());
+        tabbedPane.add("Sequence alignment", new SequenceAlignmentPanel());
+        tabbedPane.add("3D structure alignment", new StructureAlignmentPanel());
         setContentPane(tabbedPane);
         /*
          * Show window

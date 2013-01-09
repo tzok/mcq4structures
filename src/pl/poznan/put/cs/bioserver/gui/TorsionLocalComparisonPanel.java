@@ -23,7 +23,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -203,7 +202,6 @@ public class TorsionLocalComparisonPanel extends JPanel {
 
         // /////////////////////////////////////////////////////////////////////
         // fields
-        private InstructionsPanel instructionsPanel;
         private JList<String> list;
         private DefaultListModel<String> listModel;
         private OptionsPanel optionsPanel;
@@ -216,11 +214,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
             listModel = new DefaultListModel<>();
             list = new JList<>(listModel);
             optionsPanel = new OptionsPanel();
-            instructionsPanel = new InstructionsPanel();
 
             add(list, BorderLayout.EAST);
             add(optionsPanel, BorderLayout.CENTER);
-            add(instructionsPanel, BorderLayout.SOUTH);
 
             list.addKeyListener(new KeyListener() {
                 @Override
@@ -285,53 +281,9 @@ public class TorsionLocalComparisonPanel extends JPanel {
              * if that was the first file added, then update the list of chains
              */
             if (listModel.size() == 2) {
-                instructionsPanel
-                        .setInstruction(InstructionsPanel.INSTRUCTION_SELECT_CHAIN);
+                // TODO
             }
             return true;
-        }
-    }
-
-    /**
-     * Subpanel containing instructions for the user.
-     */
-    private static class InstructionsPanel extends JPanel {
-        private static final int FONT_SIZE = 12;
-        public static final int INSTRUCTION_ADD_FILE = 0;
-        public static final int INSTRUCTION_SELECT_CHAIN = 1;
-        // /////////////////////////////////////////////////////////////////////
-        // fields
-        private static final long serialVersionUID = 1L;
-        private final String[] instructions = {
-                "Click \"Add file\" to select exactly two structures to compare",
-                "<html><ol><li>Select comparison mode: \"Amino acids\" or "
-                        + "\"Nucleotides\"</li>"
-                        + "<li>Select group names to compare and plot.<br>"
-                        + "MCQ stands for Mean of Circular Quantities - an average "
-                        + "value for each group</li></html>" };
-        private final JLabel instructionsLabel;
-
-        // /////////////////////////////////////////////////////////////////////
-        // constructors
-        public InstructionsPanel() {
-            super();
-            instructionsLabel = new JLabel(
-                    instructions[InstructionsPanel.INSTRUCTION_ADD_FILE]);
-            instructionsLabel.setFont(new Font(Font.DIALOG, Font.BOLD
-                    | Font.ITALIC, InstructionsPanel.FONT_SIZE));
-            add(instructionsLabel);
-        }
-
-        // /////////////////////////////////////////////////////////////////
-        // methods
-        /**
-         * Sets text containing instructions for user to take.
-         * 
-         * @param index
-         *            Index of instruction in the set.
-         */
-        public void setInstruction(int index) {
-            instructionsLabel.setText(instructions[index]);
         }
     }
 

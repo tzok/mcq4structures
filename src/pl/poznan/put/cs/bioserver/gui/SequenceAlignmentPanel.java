@@ -34,7 +34,7 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
  * 
  * @author tzok
  */
-public class SequenceAlignmentPanel extends JPanel {
+public class SequenceAlignmentPanel extends JPanel implements PdbChangeListener {
     private final class AlignSequences implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -108,7 +108,7 @@ public class SequenceAlignmentPanel extends JPanel {
         }
     }
 
-    private static class SettingsPanel extends JPanel {
+    private class SettingsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         private ButtonPanel buttonPanel;
         private PdbPanel pdbPanel;
@@ -116,7 +116,7 @@ public class SequenceAlignmentPanel extends JPanel {
         public SettingsPanel() {
             super(new BorderLayout());
             buttonPanel = new ButtonPanel();
-            pdbPanel = new PdbPanel();
+            pdbPanel = new PdbPanel(SequenceAlignmentPanel.this);
 
             add(buttonPanel, BorderLayout.NORTH);
             add(pdbPanel, BorderLayout.SOUTH);
@@ -182,5 +182,10 @@ public class SequenceAlignmentPanel extends JPanel {
         JOptionPane.showMessageDialog(this,
                 "You must have exactly two molecules", "Warning",
                 JOptionPane.WARNING_MESSAGE);
+    }
+
+    @Override
+    public void pdbListChanged() {
+        // TODO Auto-generated method stub
     }
 }

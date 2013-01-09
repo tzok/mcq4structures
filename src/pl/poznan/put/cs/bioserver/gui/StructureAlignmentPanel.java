@@ -37,7 +37,8 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
  * 
  * @author tzok
  */
-public class StructureAlignmentPanel extends JPanel {
+public class StructureAlignmentPanel extends JPanel implements
+        PdbChangeListener {
     private class ActionListenerAlign implements ActionListener {
         private final class AlignerThread implements Runnable {
             private static final int ALIGNMENT_PDB_OUTPUTS = 4;
@@ -164,7 +165,7 @@ public class StructureAlignmentPanel extends JPanel {
                     settingsPanel.label.setText(builder.toString());
 
                     step++;
-                    if (step >= ButtonPanel.PROCESSING_MAX_STEP) {
+                    if (step >= SettingsPanel.ButtonPanel.PROCESSING_MAX_STEP) {
                         step = 0;
                     }
                 }
@@ -187,26 +188,29 @@ public class StructureAlignmentPanel extends JPanel {
         }
     }
 
-    private static class ButtonPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-        protected static final int PROCESSING_MAX_STEP = 5;
-        private JButton buttonAddFile;
-        private JButton buttonAlignChain;
-        private JButton buttonAlignAll;
+    private class SettingsPanel extends JPanel {
+        private class ButtonPanel extends JPanel {
+            private static final long serialVersionUID = 1L;
+            protected static final int PROCESSING_MAX_STEP = 5;
+            private JButton buttonAddFile;
+            private JButton buttonAlignChain;
+            private JButton buttonAlignAll;
 
-        public ButtonPanel() {
-            super();
-            buttonAddFile = new JButton("Add file");
-            buttonAlignChain = new JButton("Align chain");
-            buttonAlignAll = new JButton("Align all chains");
+            public ButtonPanel() {
+                super();
+                buttonAddFile = new JButton("Load structure(s)");
+                buttonAlignChain = new JButton("Align selected chain");
+                buttonAlignAll = new JButton("Align all chains");
 
-            add(buttonAddFile);
-            add(buttonAlignChain);
-            add(buttonAlignAll);
+                buttonAlignChain.setEnabled(false);
+                buttonAlignAll.setEnabled(false);
+
+                add(buttonAddFile);
+                add(buttonAlignChain);
+                add(buttonAlignAll);
+            }
         }
-    }
 
-    private static class SettingsPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         private ButtonPanel buttonPanel;
         private PdbPanel pdbPanel;
@@ -215,7 +219,7 @@ public class StructureAlignmentPanel extends JPanel {
         public SettingsPanel() {
             super(new BorderLayout());
             buttonPanel = new ButtonPanel();
-            pdbPanel = new PdbPanel();
+            pdbPanel = new PdbPanel(StructureAlignmentPanel.this);
             label = new JLabel("Ready");
 
             add(buttonPanel, BorderLayout.NORTH);
@@ -278,12 +282,23 @@ public class StructureAlignmentPanel extends JPanel {
         PdbManager.loadStructure(absolutePath);
         settingsPanel.pdbPanel.getListModel().addElement(absolutePath);
         settingsPanel.pdbPanel.refreshComboBoxes();
+
+        if (settingsPanel.pdbPanel.getListModel().size() == 2) {
+            settingsPanel.buttonPanel.buttonAlignAll.setEnabled(true);
+            settingsPanel.buttonPanel.buttonAlignChain.setEnabled(true);
+        }
         return true;
     }
 
     void warning() {
         JOptionPane.showMessageDialog(this,
-                "You must have exactly two molecules", "Warning",
+                "You must select exactly two molecules", "Warning",
                 JOptionPane.WARNING_MESSAGE);
+    }
+
+    @Override
+    public void pdbListChanged() {
+        settingsPanel.buttonPanel.buttonAlignAll.setEnabled(false);
+        settingsPanel.buttonPanel.buttonAlignChain.setEnabled(false);
     }
 }

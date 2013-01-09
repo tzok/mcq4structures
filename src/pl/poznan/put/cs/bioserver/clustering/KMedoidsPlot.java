@@ -2,12 +2,12 @@ package pl.poznan.put.cs.bioserver.clustering;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.StringWriter;
 import java.util.HashSet;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -22,6 +22,7 @@ import pl.poznan.put.cs.bioserver.visualisation.MDS;
  */
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(KMedoidsPlot.class);
 
     /**
      * Create an instance of JFrame which shows a k-medoid plot.
@@ -60,6 +61,7 @@ public class KMedoidsPlot extends JFrame {
 
         double[][] mds = MDS.multidimensionalScaling(distance, 2);
 
+        StringBuilder dumper = new StringBuilder();
         DefaultXYDataset dataset = new DefaultXYDataset();
         for (int currentMedoid : medoidSet) {
             int count = 0;
@@ -70,21 +72,32 @@ public class KMedoidsPlot extends JFrame {
             }
             double[] x = new double[count];
             double[] y = new double[count];
-            StringWriter writer = new StringWriter();
-            writer.append("[ ");
+            StringBuilder builder = new StringBuilder();
+            builder.append("[ ");
             int j = 0;
             for (int i = 0; i < medoids.length; ++i) {
                 if (medoids[i] == currentMedoid) {
-                    writer.append(labels[i]);
-                    writer.append(", ");
+                    builder.append(labels[i]);
+                    builder.append(", ");
                     x[j] = mds[i][0];
                     y[j] = mds[i][1];
+                    if (KMedoidsPlot.LOGGER.isTraceEnabled()) {
+                        dumper.append(labels[i]);
+                        dumper.append(' ');
+                        dumper.append(x[j]);
+                        dumper.append(' ');
+                        dumper.append(y[j]);
+                        dumper.append(' ');
+                        dumper.append(currentMedoid);
+                        dumper.append('\n');
+                    }
                     j++;
                 }
             }
-            writer.append(" ]");
-            dataset.addSeries(writer.toString(), new double[][] { x, y });
+            builder.append(" ]");
+            dataset.addSeries(builder.toString(), new double[][] { x, y });
         }
+        KMedoidsPlot.LOGGER.trace(dumper.toString());
 
         NumberAxis xAxis = new NumberAxis();
         xAxis.setTickLabelsVisible(false);

@@ -30,6 +30,7 @@ class PdbPanel extends JPanel {
                 }
                 listModel.remove(index);
                 refreshComboBoxes();
+                listener.pdbListChanged();
             }
         }
 
@@ -50,9 +51,12 @@ class PdbPanel extends JPanel {
     private DefaultComboBoxModel<String> comboBoxModelFirst,
             comboBoxModelSecond;
     private JComboBox<String> comboBoxFirst, comboBoxSecond;
+    private PdbChangeListener listener;
 
-    public PdbPanel() {
+    public PdbPanel(PdbChangeListener listener) {
         super();
+
+        this.listener = listener;
 
         listModel = new DefaultListModel<>();
         list = new JList<>(listModel);
@@ -104,6 +108,5 @@ class PdbPanel extends JPanel {
                 }
             }
         }
-
     }
 }
