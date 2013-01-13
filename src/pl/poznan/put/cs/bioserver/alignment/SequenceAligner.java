@@ -12,7 +12,7 @@ import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
 import org.biojava3.alignment.SimpleGapPenalty;
 import org.biojava3.alignment.SubstitutionMatrixHelper;
-import org.biojava3.alignment.template.SequencePair;
+import org.biojava3.alignment.template.PairwiseSequenceAligner;
 import org.biojava3.alignment.template.SubstitutionMatrix;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.RNASequence;
@@ -57,7 +57,7 @@ public class SequenceAligner<C extends Compound> {
      *            Second chain.
      * @return A global alignment of the sequences.
      */
-    public SequencePair<Sequence<C>, C> alignSequences(Chain c1, Chain c2) {
+    public PairwiseSequenceAligner<Sequence<C>, C> alignSequences(Chain c1, Chain c2) {
         return alignSequences(c1, c2, PairwiseSequenceAlignerType.GLOBAL);
     }
 
@@ -72,8 +72,8 @@ public class SequenceAligner<C extends Compound> {
      *            Type of alignment (global or local).
      * @return A global alignment of the sequences.
      */
-    public SequencePair<Sequence<C>, C> alignSequences(Chain c1, Chain c2,
-            PairwiseSequenceAlignerType type) {
+    public PairwiseSequenceAligner<Sequence<C>, C> alignSequences(Chain c1,
+            Chain c2, PairwiseSequenceAlignerType type) {
         /*
          * Parse sequences
          */
@@ -103,11 +103,11 @@ public class SequenceAligner<C extends Compound> {
         /*
          * Align the sequences
          */
-        SequencePair<Sequence<C>, C> alignment = Alignments
-                .getPairwiseAlignment(seq1, seq2, type, new SimpleGapPenalty(),
+        PairwiseSequenceAligner<Sequence<C>, C> aligner = Alignments
+                .getPairwiseAligner(seq1, seq2, type, new SimpleGapPenalty(),
                         matrix);
-        SequenceAligner.logger.trace("Found alignment:\n" + alignment);
-        return alignment;
+        SequenceAligner.logger.trace("Found alignment:\n" + aligner.getPair());
+        return aligner;
     }
 
     @SuppressWarnings("unchecked")
