@@ -24,6 +24,7 @@ import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
@@ -33,7 +34,6 @@ import org.biojava3.alignment.template.SequencePair;
 import org.biojava3.core.sequence.compound.AminoAcidCompound;
 import org.biojava3.core.sequence.compound.NucleotideCompound;
 import org.biojava3.core.sequence.template.Sequence;
-import org.jmol.util.Logger;
 
 import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -78,7 +78,7 @@ public class SequenceAlignmentPanel extends JPanel implements PdbChangeListener 
             if (isRNA != Helper.isNucleicAcid(chains[1])) {
                 String message = "Structures meant to be aligned "
                         + "represent different molecule types!";
-                Logger.error(message);
+                LOGGER.error(message);
                 JOptionPane.showMessageDialog(null, message, "Error",
                         JOptionPane.ERROR_MESSAGE);
                 return;
@@ -274,6 +274,8 @@ public class SequenceAlignmentPanel extends JPanel implements PdbChangeListener 
     }
 
     private static final int FONT_SIZE = 20;
+    private static final Logger LOGGER = Logger
+            .getLogger(SequenceAlignmentPanel.class);
 
     private static final long serialVersionUID = 1L;
     private final JFileChooser chooser = new JFileChooser();

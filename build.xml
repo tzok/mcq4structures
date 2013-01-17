@@ -1,90 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="mcq4structures">
-    <property environment="env"/>
-    <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.7"/>
-    <property name="source" value="1.7"/>
-    <path id="mcq4structures.classpath">
-        <pathelement location="bin"/>
-        <pathelement location="lib/AAProperties-jar-with-dependencies.jar"/>
-        <pathelement location="lib/biojava3-alignment-3.0.2.jar"/>
-        <pathelement location="lib/biojava3-core-3.0.2.jar"/>
-        <pathelement location="lib/biojava3-structure-3.0.2.jar"/>
-        <pathelement location="lib/biojava3-structure-gui-3.0.2.jar"/>
-        <pathelement location="lib/jcommon-1.0.17.jar"/>
-        <pathelement location="lib/jfreechart-1.0.14.jar"/>
-        <pathelement location="lib/Jmol.jar"/>
-        <pathelement location="lib/JmolData.jar"/>
-        <pathelement location="lib/log4j.jar"/>
-        <pathelement location="lib/diffutils-1.2.1.jar"/>
-    </path>
-    <path id="run.Gui.classpath">
-        <pathelement location="."/>
-        <path refid="mcq4structures.classpath"/>
-    </path>
-    <path id="run.TestAlignment.classpath">
-        <pathelement location="."/>
-        <path refid="mcq4structures.classpath"/>
-    </path>
-    <path id="run.TestTorsionAngles.classpath">
-        <pathelement location="."/>
-        <path refid="mcq4structures.classpath"/>
-    </path>
-    <target name="init">
-        <mkdir dir="bin"/>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="src">
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-    </target>
-    <target name="clean">
-        <delete dir="bin"/>
-    </target>
-    <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
-    <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
-            <src path="src"/>
-            <classpath refid="mcq4structures.classpath"/>
-        </javac>
-    </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="Gui">
-        <java classname="pl.poznan.put.cs.bioserver.gui.Gui" failonerror="true" fork="yes">
-            <jvmarg line="-ea"/>
-            <classpath refid="run.Gui.classpath"/>
-        </java>
-    </target>
-    <target name="MCQ">
-        <java classname="pl.poznan.put.cs.bioserver.comparison.MCQ" failonerror="true" fork="yes">
-            <classpath refid="mcq4structures.classpath"/>
-        </java>
-    </target>
-    <target name="RMSD">
-        <java classname="pl.poznan.put.cs.bioserver.comparison.RMSD" failonerror="true" fork="yes">
-            <classpath refid="mcq4structures.classpath"/>
-        </java>
-    </target>
-    <target name="TestAlignment">
-        <java classname="pl.poznan.put.cs.bioserver.sandbox.TestAlignment" failonerror="true" fork="yes">
-            <classpath refid="run.TestAlignment.classpath"/>
-        </java>
-    </target>
-    <target name="TestTorsionAngles">
-        <java classname="pl.poznan.put.cs.bioserver.sandbox.TestTorsionAngles" failonerror="true" fork="yes">
-            <classpath refid="run.TestTorsionAngles.classpath"/>
-        </java>
-    </target>
-    <target name="TestPdbModres">
-        <java classname="pl.poznan.put.cs.bioserver.sandbox.TestPdbModres" failonerror="true" fork="yes">
-            <classpath refid="mcq4structures.classpath"/>
-        </java>
+<project default="create_run_jar" name="Create Runnable Jar for Project mcq4structures">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/home/tzok/code/java/mcq4structures/mcq4structures.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="pl.poznan.put.cs.bioserver.gui.Gui"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="/home/tzok/code/java/mcq4structures"/>
+            <fileset dir="/home/tzok/code/java/mcq4structures/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/biojava3-core-3.0.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/biojava3-structure-3.0.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/biojava3-alignment-3.0.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/AAProperties-jar-with-dependencies.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/biojava3-structure-gui-3.0.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/jcommon-1.0.17.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/jfreechart-1.0.14.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/Jmol.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/JmolData.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/log4j.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/diffutils-1.2.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/tzok/code/java/mcq4structures/lib/commons-lang3-3.1.jar"/>
+        </jar>
     </target>
 </project>
