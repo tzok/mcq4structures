@@ -1,39 +1,40 @@
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JList;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.StructureImpl;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisState;
@@ -46,11 +47,9 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.ui.RectangleEdge;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
+import pl.poznan.put.cs.bioserver.gui.helper.PdbChangeListener;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
-import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
-import pl.poznan.put.cs.bioserver.torsion.AngleType;
-import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
 /**
  * A panel which is a graphical interface to a local comparison measure based on
@@ -59,6 +58,157 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class TorsionLocalComparisonPanel extends JPanel {
+    private class ConfigurationDialog extends JDialog {
+        private static final long serialVersionUID = 1L;
+        private final String[] namesAmino = new String[] { "Phi Φ", "Psi Ψ",
+                "Omega Ω", "Average" };
+        private final String[] namesNucleic = new String[] { "Alpha α",
+                "Beta β", "Gamma γ", "Delta δ", "Epsilon ε", "Zeta ζ", "Chi χ",
+                "Tau0 τ0", "Tau1 τ1", "Tau2 τ2", "Tau3 τ3", "Tau4 τ4",
+                "P (sugar pucker)", "Average" };
+        public List<String> selectedNames;
+
+        public ConfigurationDialog(Frame owner) {
+            super(owner, true);
+
+            JPanel panelAnglesAmino = new JPanel();
+            panelAnglesAmino.setLayout(new BoxLayout(panelAnglesAmino,
+                    BoxLayout.Y_AXIS));
+
+            final JCheckBox[] checksAmino = new JCheckBox[namesAmino.length];
+            for (int i = 0; i < namesAmino.length; i++) {
+                JCheckBox checkBox = new JCheckBox(namesAmino[i]);
+                checksAmino[i] = checkBox;
+                panelAnglesAmino.add(checkBox);
+            }
+
+            final JButton buttonSelectAllAmino = new JButton("Select all");
+            final JButton buttonClearAmino = new JButton("Clear");
+
+            JPanel panelButtonsAmino = new JPanel();
+            panelButtonsAmino.add(buttonSelectAllAmino);
+            panelButtonsAmino.add(buttonClearAmino);
+
+            JPanel panelAmino = new JPanel();
+            panelAmino.setLayout(new BorderLayout());
+            panelAmino.add(panelAnglesAmino, BorderLayout.CENTER);
+            panelAmino.add(panelButtonsAmino, BorderLayout.SOUTH);
+            panelAmino.setBorder(BorderFactory
+                    .createTitledBorder("Amino acids"));
+
+            JPanel panelAnglesNucleic = new JPanel();
+            panelAnglesNucleic.setLayout(new BoxLayout(panelAnglesNucleic,
+                    BoxLayout.Y_AXIS));
+
+            final JCheckBox[] checksNucleic = new JCheckBox[namesNucleic.length];
+            for (int i = 0; i < namesNucleic.length; i++) {
+                JCheckBox checkBox = new JCheckBox(namesNucleic[i]);
+                checksNucleic[i] = checkBox;
+                panelAnglesNucleic.add(checkBox);
+            }
+
+            final JButton buttonSelectAllNucleic = new JButton("Select all");
+            JButton buttonClearNucleic = new JButton("Clear");
+
+            JPanel panelButtonsNucleic = new JPanel();
+            panelButtonsNucleic.add(buttonSelectAllNucleic);
+            panelButtonsNucleic.add(buttonClearNucleic);
+
+            JPanel panelNucleic = new JPanel();
+            panelNucleic.setLayout(new BorderLayout());
+            panelNucleic.add(panelAnglesNucleic, BorderLayout.CENTER);
+            panelNucleic.add(panelButtonsNucleic, BorderLayout.SOUTH);
+            panelNucleic.setBorder(BorderFactory
+                    .createTitledBorder("Nucleotides"));
+
+            JPanel panelOptions = new JPanel();
+            panelOptions.setLayout(new GridLayout(1, 2));
+            panelOptions.add(panelAmino);
+            panelOptions.add(panelNucleic);
+
+            JButton buttonOk = new JButton("OK");
+            JButton buttonCancel = new JButton("Cancel");
+
+            JPanel panelOkCancel = new JPanel();
+            panelOkCancel.add(buttonOk);
+            panelOkCancel.add(buttonCancel);
+
+            setLayout(new BorderLayout());
+            add(panelOptions, BorderLayout.CENTER);
+            add(panelOkCancel, BorderLayout.SOUTH);
+
+            ActionListener actionListenerSelection = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    JCheckBox[] checkBoxes;
+                    boolean state;
+
+                    Object source = arg0.getSource();
+                    if (source.equals(buttonSelectAllAmino)) {
+                        checkBoxes = checksAmino;
+                        state = true;
+                    } else if (source.equals(buttonClearAmino)) {
+                        checkBoxes = checksAmino;
+                        state = false;
+                    } else if (source.equals(buttonSelectAllNucleic)) {
+                        checkBoxes = checksNucleic;
+                        state = true;
+                    } else { // buttonClearNucleic
+                        checkBoxes = checksNucleic;
+                        state = false;
+                    }
+
+                    for (JCheckBox checkBox : checkBoxes) {
+                        checkBox.setSelected(state);
+                    }
+                }
+            };
+            buttonSelectAllAmino.addActionListener(actionListenerSelection);
+            buttonClearAmino.addActionListener(actionListenerSelection);
+            buttonSelectAllNucleic.addActionListener(actionListenerSelection);
+            buttonClearNucleic.addActionListener(actionListenerSelection);
+
+            buttonOk.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectedNames = new ArrayList<>();
+                    for (JCheckBox[] array : new JCheckBox[][] { checksAmino,
+                            checksNucleic }) {
+                        for (JCheckBox checkBox : array) {
+                            if (checkBox.isSelected()) {
+                                String text = checkBox.getText();
+                                text = text.split(" ")[0];
+                                text = text.toUpperCase();
+                                selectedNames.add(text);
+                            }
+                        }
+                    }
+                    dispose();
+                }
+            });
+
+            buttonCancel.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectedNames = null;
+                    dispose();
+                }
+            });
+
+            pack();
+            int width = getPreferredSize().width;
+            int height = getPreferredSize().height;
+
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = screenSize.width - width;
+            int y = screenSize.height - height;
+            setSize(width, height);
+            setLocation(x / 2, y / 2);
+
+            setTitle("Configure local comparison");
+        }
+    }
+
     private class TorsionAxis extends NumberAxis {
         private static final long serialVersionUID = 1L;
         private Map<String, List<AngleDifference>> comparison;
@@ -75,7 +225,7 @@ public class TorsionLocalComparisonPanel extends JPanel {
                     edge);
 
             Map<Double, String> mapIndexLabel = new HashMap<>();
-            List<AngleDifference> list = comparison.get("MCQ");
+            List<AngleDifference> list = comparison.get("AVERAGE");
             for (int i = 0; i < list.size(); i++) {
                 AngleDifference ad = list.get(i);
                 ResidueNumber residue = ad.getResidue();
@@ -95,321 +245,163 @@ public class TorsionLocalComparisonPanel extends JPanel {
         }
     }
 
-    private final class CompareStructures implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent event) {
-            Map<String, List<AngleDifference>> compare = compareStructures();
-            if (compare != null) {
-                drawResults(compare);
-            }
-        }
-
-        private Map<String, List<AngleDifference>> compareStructures() {
-            /*
-             * check structure count
-             */
-            if (controlPanel.listModel.size() != 2) {
-                JOptionPane.showMessageDialog(null,
-                        "You need exactly two structures"
-                                + " to compare them locally",
-                        "Incorrect number of structures " + "to compare",
-                        JOptionPane.INFORMATION_MESSAGE);
-                return null;
-            }
-            /*
-             * get specified structures
-             */
-            String[] names = new String[2];
-            names[0] = controlPanel.listModel.get(0);
-            names[1] = controlPanel.listModel.get(1);
-
-            Structure[] structures = PdbManager.getStructures(Arrays
-                    .asList(names));
-
-            /*
-             * compare them
-             */
-            try {
-                return TorsionLocalComparison.compare(structures[0],
-                        structures[1], false);
-            } catch (StructureException e) {
-                TorsionLocalComparisonPanel.LOGGER.error(e);
-                JOptionPane.showMessageDialog(null, e.getMessage(), "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return null;
-            }
-        }
-
-        private void drawResults(Map<String, List<AngleDifference>> compare) {
-            /*
-             * read options from GUI
-             */
-            int type = controlPanel.optionsPanel.groupChoiceRadios[0]
-                    .isSelected() ? 0 : 1;
-            /*
-             * read angles that have to be plotted
-             */
-            List<String> anglesToShow = new ArrayList<>();
-            for (JCheckBox b : controlPanel.optionsPanel.angleChoiceChecks[type]) {
-                if (b.isSelected()) {
-                    anglesToShow.add(b.getText());
-                }
-            }
-            /*
-             * prepare dataset with points
-             */
-            DefaultXYDataset dataset = new DefaultXYDataset();
-            for (String angle : anglesToShow) {
-                if (!compare.containsKey(angle)) {
-                    JOptionPane.showMessageDialog(null, "The angle " + angle
-                            + " is not defined for loaded molecules", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                List<AngleDifference> diffs = compare.get(angle);
-                Collections.sort(diffs);
-                double[] x = new double[diffs.size()];
-                double[] y = new double[diffs.size()];
-                for (int i = 0; i < diffs.size(); i++) {
-                    AngleDifference ad = diffs.get(i);
-                    x[i] = i;
-                    y[i] = ad.getDifference();
-                }
-                dataset.addSeries(angle, new double[][] { x, y });
-            }
-            NumberAxis xAxis = new TorsionAxis(compare);
-            xAxis.setLabel("Group index");
-
-            NumberAxis yAxis = new NumberAxis();
-            yAxis.setAutoRange(false);
-            yAxis.setRange(0, Math.PI);
-            yAxis.setLabel("Distance [rad]");
-
-            XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
-                    new DefaultXYItemRenderer());
-            remove(1);
-            add(new ChartPanel(new JFreeChart(plot)));
-            SwingUtilities
-                    .updateComponentTreeUI(TorsionLocalComparisonPanel.this);
-        }
-    }
-
-    /**
-     * Subpanel containing file list and another panel with all options.
-     */
-    private static class ControlPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-
-        // /////////////////////////////////////////////////////////////////////
-        // fields
-        private JList<String> list;
-        private DefaultListModel<String> listModel;
-        private OptionsPanel optionsPanel;
-
-        // /////////////////////////////////////////////////////////////////////
-        // constructors
-        public ControlPanel() {
-            super(new BorderLayout());
-
-            listModel = new DefaultListModel<>();
-            list = new JList<>(listModel);
-            optionsPanel = new OptionsPanel();
-
-            add(list, BorderLayout.EAST);
-            add(optionsPanel, BorderLayout.CENTER);
-
-            list.addKeyListener(new KeyListener() {
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                        listModel.remove(list.getSelectedIndex());
-                    }
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-                    // do nothing
-                }
-
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    // do nothing
-                }
-            });
-
-            final JFileChooser chooser = new JFileChooser();
-            chooser.addChoosableFileFilter(new FileNameExtensionFilter(
-                    "PDB file format", "pdb", "pdb1", "ent", "brk", "gz"));
-            chooser.setMultiSelectionEnabled(true);
-
-            optionsPanel.addFile.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent event) {
-                    if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
-                        return;
-                    }
-                    for (File f : chooser.getSelectedFiles()) {
-                        if (!addFile(f)) {
-                            break;
-                        }
-                    }
-                }
-            });
-        }
-
-        boolean addFile(File file) {
-            if (listModel.size() >= 2) {
-                JOptionPane.showMessageDialog(null,
-                        "Only two structures are allowed for"
-                                + " local comparison measures",
-                        "Maximum number of structures reached",
-                        JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-
-            String path = file.getAbsolutePath();
-            if (PdbManager.loadStructure(path) != null) {
-                listModel.addElement(path);
-            } else {
-                JOptionPane.showMessageDialog(null, "Specified file is not a "
-                        + "valid PDB file", "Invalid PDB file",
-                        JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
-
-            /*
-             * if that was the first file added, then update the list of chains
-             */
-            if (listModel.size() == 2) {
-                // TODO
-            }
-            return true;
-        }
-    }
-
-    /**
-     * Subpanel containing all buttons and boxes concerning local comparison
-     * measure options.
-     */
-    private static class OptionsPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-        private JButton addFile;
-        private JCheckBox[][] angleChoiceChecks;
-        // /////////////////////////////////////////////////////////////////////
-        // fields
-        private JButton compare;
-        private JRadioButton[] groupChoiceRadios;
-
-        // /////////////////////////////////////////////////////////////////////
-        // constructors
-        public OptionsPanel() {
-            setLayout(new GridBagLayout());
-            addFile = new JButton("Add file");
-            compare = new JButton("Compare");
-
-            groupChoiceRadios = new JRadioButton[] {
-                    new JRadioButton("Amino acids", true),
-                    new JRadioButton("Nucleotides", false) };
-            ButtonGroup group = new ButtonGroup();
-            group.add(groupChoiceRadios[0]);
-            group.add(groupChoiceRadios[1]);
-
-            angleChoiceChecks = new JCheckBox[2][];
-
-            AngleType[] angles = AminoAcidDihedral.getAngles();
-            angleChoiceChecks[0] = new JCheckBox[angles.length + 1];
-            for (int i = 0; i < angles.length; i++) {
-                angleChoiceChecks[0][i] = new JCheckBox(
-                        angles[i].getAngleName());
-            }
-            angleChoiceChecks[0][angles.length] = new JCheckBox("MCQ");
-
-            angles = NucleotideDihedral.getAngles();
-            angleChoiceChecks[1] = new JCheckBox[angles.length + 2];
-            for (int i = 0; i < angles.length; i++) {
-                angleChoiceChecks[1][i] = new JCheckBox(
-                        angles[i].getAngleName());
-            }
-            angleChoiceChecks[1][angles.length] = new JCheckBox("P");
-            angleChoiceChecks[1][angles.length + 1] = new JCheckBox("MCQ");
-
-            for (JCheckBox b : angleChoiceChecks[1]) {
-                b.setEnabled(false);
-            }
-
-            GridBagConstraints c = new GridBagConstraints();
-            c.gridx = 3;
-            c.gridy = 0;
-            c.gridwidth = 1;
-            c.gridheight = 1;
-            c.fill = GridBagConstraints.BOTH;
-            add(addFile, c);
-
-            c.gridx = 4;
-            add(compare, c);
-
-            c.gridx = 0;
-            c.gridy = 2;
-            c.gridwidth = 1;
-            for (JRadioButton b : groupChoiceRadios) {
-                add(b, c);
-                c.gridy++;
-            }
-
-            c.gridx = 1;
-            c.gridy = 2;
-            for (JCheckBox b : angleChoiceChecks[0]) {
-                add(b, c);
-                c.gridx++;
-            }
-
-            c.gridx = 1;
-            c.gridy = 3;
-            for (JCheckBox b : angleChoiceChecks[1]) {
-                add(b, c);
-                c.gridx++;
-            }
-
-            ActionListener radioActionListener = new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    for (int i = 0; i < 2; ++i) {
-                        if (groupChoiceRadios[i].isSelected()) {
-                            for (JCheckBox b : angleChoiceChecks[i]) {
-                                b.setEnabled(true);
-                            }
-                            for (JCheckBox b : angleChoiceChecks[i ^ 1]) {
-                                b.setEnabled(false);
-                            }
-                            break;
-                        }
-                    }
-                }
-            };
-            groupChoiceRadios[0].addActionListener(radioActionListener);
-            groupChoiceRadios[1].addActionListener(radioActionListener);
-        }
-    }
-
-    // /////////////////////////////////////////////////////////////////////////
-    // fields
     private static final long serialVersionUID = 1L;
     static final Logger LOGGER = Logger
             .getLogger(TorsionLocalComparisonPanel.class);
-    private ControlPanel controlPanel;
+    protected ConfigurationDialog dialog;
 
     // /////////////////////////////////////////////////////////////////////////
     // constructors
     public TorsionLocalComparisonPanel() {
-        super(new BorderLayout());
-        JPanel chartPanel = new JPanel();
+        super();
 
-        controlPanel = new ControlPanel();
-        add(controlPanel, BorderLayout.NORTH);
-        add(chartPanel, BorderLayout.CENTER);
+        JButton buttonLoad = new JButton("Load structure(s)");
+        final JButton buttonConfigure = new JButton("Configure");
+        buttonConfigure.setEnabled(false);
+        final JButton buttonCompareChain = new JButton("Compare selected chain");
+        buttonCompareChain.setEnabled(false);
+        final JButton buttonCompareAll = new JButton("Compare all chains");
+        buttonCompareAll.setEnabled(false);
 
-        controlPanel.optionsPanel.compare
-                .addActionListener(new CompareStructures());
+        JPanel panelButtons = new JPanel();
+        panelButtons.add(buttonLoad);
+        panelButtons.add(buttonConfigure);
+        panelButtons.add(buttonCompareChain);
+        panelButtons.add(buttonCompareAll);
 
+        final PdbPanel panelPdb = new PdbPanel(new PdbChangeListener() {
+            @Override
+            public void pdbListChanged() {
+                buttonConfigure.setEnabled(false);
+                buttonCompareChain.setEnabled(false);
+                buttonCompareAll.setEnabled(false);
+            }
+        });
+
+        JPanel panelButtonsPdb = new JPanel();
+        panelButtonsPdb.setLayout(new GridLayout(2, 1));
+        panelButtonsPdb.add(panelButtons);
+        panelButtonsPdb.add(panelPdb);
+
+        JEditorPane editorPane = new JEditorPane();
+        editorPane.setBackground(new Color(0, 0, 0, 0));
+        editorPane.setContentType("text/html");
+        editorPane.setEditable(false);
+        editorPane
+                .setText("Instructions:<ol>"
+                        + "<li>Load structure(s) from files (PDB or mmCif)</li>"
+                        + "<li>Configure the comparison properties</li>"
+                        + "<li>Calculate differences of torsion angles for specified chains or for whole structures</li></ol>");
+
+        JPanel panelOptions = new JPanel();
+        panelOptions.setLayout(new GridLayout(1, 2));
+        panelOptions.add(panelButtonsPdb);
+        panelOptions.add(editorPane);
+
+        final JPanel panelChart = new JPanel();
+        panelChart.setLayout(new GridLayout(1, 1));
+
+        setLayout(new BorderLayout());
+        add(panelOptions, BorderLayout.NORTH);
+        add(panelChart, BorderLayout.CENTER);
+
+        buttonLoad.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panelPdb.loadStructuresWithOpenDialog();
+                if (panelPdb.getListModel().size() >= 2) {
+                    buttonConfigure.setEnabled(true);
+                }
+            }
+        });
+
+        buttonConfigure.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (dialog == null) {
+                    Container c = getParent();
+                    while (!(c instanceof Frame)) {
+                        c = c.getParent();
+                    }
+                    dialog = new ConfigurationDialog((Frame) c);
+                }
+
+                dialog.setVisible(true);
+                if (dialog.selectedNames != null) {
+                    buttonCompareChain.setEnabled(true);
+                    buttonCompareAll.setEnabled(true);
+                }
+            }
+        });
+
+        ActionListener actionListenerComparison = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ListModel<File> model = panelPdb.getListModel();
+                final Structure[] structures = new Structure[] {
+                        PdbManager.getStructure(model.getElementAt(0)),
+                        PdbManager.getStructure(model.getElementAt(1)) };
+
+                if (e.getSource().equals(buttonCompareChain)) {
+                    int chainIndexFirst = panelPdb.getComboBoxFirst()
+                            .getSelectedIndex();
+                    int chainIndexSecond = panelPdb.getComboBoxSecond()
+                            .getSelectedIndex();
+                    structures[0] = new StructureImpl(
+                            structures[0].getChain(chainIndexFirst));
+                    structures[1] = new StructureImpl(
+                            structures[1].getChain(chainIndexSecond));
+                }
+
+                Map<String, List<AngleDifference>> result;
+                try {
+                    result = TorsionLocalComparison.compare(structures[0],
+                            structures[1], false);
+                } catch (StructureException e1) {
+                    JOptionPane.showMessageDialog(null, e1.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                DefaultXYDataset dataset = new DefaultXYDataset();
+                for (String angle : dialog.selectedNames) {
+                    if (!result.containsKey(angle)) {
+                        continue;
+                    }
+                    List<AngleDifference> diffs = result.get(angle);
+                    Collections.sort(diffs);
+                    double[] x = new double[diffs.size()];
+                    double[] y = new double[diffs.size()];
+                    for (int i = 0; i < diffs.size(); i++) {
+                        AngleDifference ad = diffs.get(i);
+                        x[i] = i;
+                        y[i] = ad.getDifference();
+                    }
+                    dataset.addSeries(angle, new double[][] { x, y });
+                }
+                NumberAxis xAxis = new TorsionAxis(result);
+                xAxis.setLabel("Residue");
+
+                NumberAxis yAxis = new NumberAxis();
+                yAxis.setAutoRange(false);
+                yAxis.setRange(0, Math.PI);
+                yAxis.setLabel("Distance [rad]");
+
+                XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
+                        new DefaultXYItemRenderer());
+                final ChartPanel chart = new ChartPanel(new JFreeChart(plot));
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        panelChart.removeAll();
+                        panelChart.add(chart);
+                        panelChart.validate();
+                    }
+                });
+            }
+        };
+        buttonCompareChain.addActionListener(actionListenerComparison);
+        buttonCompareAll.addActionListener(actionListenerComparison);
     }
 }

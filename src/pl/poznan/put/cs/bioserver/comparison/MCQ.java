@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,12 +137,12 @@ public class MCQ extends GlobalComparison {
         try {
             List<Structure> list = new ArrayList<>();
             for (String arg : args) {
-                list.add(PdbManager.loadStructure(arg));
+                list.add(PdbManager.loadStructure(new File(arg)));
             }
 
             MCQ mcq = new MCQ();
-            double[][] compare = mcq.compare(list.toArray(new Structure[list
-                    .size()]));
+            double[][] compare = mcq.compare(
+                    list.toArray(new Structure[list.size()]), null);
             System.out.println("OK");
             for (int i = 0; i < compare.length; i++) {
                 for (int j = i + 1; j < compare.length; j++) {

@@ -216,13 +216,15 @@ public final class Clusterer {
                 Double.NEGATIVE_INFINITY, null, matrix);
         for (int k = 2; k <= matrix.length; k++) {
             Result result = Clusterer.kMedoids(matrix, sf, k);
-            double score = scoreCluster(result.medoids, matrix, scoringPAMSIL);
+            double score = Clusterer.scoreCluster(result.medoids, matrix,
+                    Clusterer.scoringPAMSIL);
             if (score > overallBest.score) {
                 overallBest.score = score;
                 overallBest.medoids = result.medoids;
             }
         }
-        LOGGER.debug("Final score for clustering: " + overallBest.score);
+        Clusterer.LOGGER.debug("Final score for clustering: "
+                + overallBest.score);
         return overallBest;
     }
 
@@ -237,7 +239,7 @@ public final class Clusterer {
                 options[i] = i;
             }
             for (int i = 0; i < matrix.length; i++) {
-                int j = RANDOM.nextInt(matrix.length);
+                int j = Clusterer.RANDOM.nextInt(matrix.length);
                 int tmp = options[i];
                 options[i] = options[j];
                 options[j] = tmp;

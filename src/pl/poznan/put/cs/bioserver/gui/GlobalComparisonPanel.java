@@ -10,14 +10,10 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -25,28 +21,31 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.cs.bioserver.clustering.HierarchicalPlot;
 import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
+import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
+import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
@@ -57,15 +56,60 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class GlobalComparisonPanel extends JPanel {
-    /**
-     * A dialog to set some additional options concerning clustering.
-     */
+    private class MatrixTableModel extends AbstractTableModel {
+        private static final long serialVersionUID = 1L;
+        private String[] tableNames;
+        private double[][] tableValues;
+
+        public MatrixTableModel(String[] names, double[][] values) {
+            super();
+            tableNames = names.clone();
+            tableValues = values.clone();
+        }
+
+        @Override
+        public int getColumnCount() {
+            if (tableNames.length == 0) {
+                return 0;
+            }
+            return tableNames.length + 1;
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            if (column == 0) {
+                return "";
+            }
+            return tableNames[column - 1];
+        }
+
+        @Override
+        public int getRowCount() {
+            return tableValues.length;
+        }
+
+        @Override
+        public Object getValueAt(int row, int column) {
+            if (column == 0) {
+                return tableNames[row];
+            }
+            return tableValues[row][column - 1];
+        }
+
+        public String[] getNames() {
+            return tableNames;
+        }
+
+        public double[][] getValues() {
+            return tableValues;
+        }
+    }
+
     private class ClusteringDialog extends JDialog {
         private static final long serialVersionUID = 1L;
 
-        // /////////////////////////////////////////////////////////////////////
-        // constructors
-        public ClusteringDialog() {
+        public ClusteringDialog(final String[] structureNames,
+                final double[][] comparisonResults) {
             super();
 
             final JRadioButton hierarchical = new JRadioButton("hierarchical",
@@ -126,20 +170,6 @@ public class GlobalComparisonPanel extends JPanel {
             c.gridx = 2;
             container.add(close, c);
 
-            Dimension preferredSize = container.getPreferredSize();
-            setSize(preferredSize.width * 3 / 2, preferredSize.height * 2);
-            setTitle("Clustering");
-
-            Toolkit toolkit = Toolkit.getDefaultToolkit();
-            Dimension screenSize = toolkit.getScreenSize();
-            Dimension size = getSize();
-            int x = screenSize.width - size.width;
-            int y = screenSize.height - size.height;
-            setLocation(x / 2, y / 2);
-
-            /*
-             * choosing one clustering methods disables another one's option
-             */
             ActionListener radioActionListener = new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
@@ -155,10 +185,6 @@ public class GlobalComparisonPanel extends JPanel {
             kmedoids.addActionListener(radioActionListener);
             findBestK.addActionListener(radioActionListener);
 
-            /*
-             * clicking ok makes concrete implementation of clustering to be
-             * invoked
-             */
             ok.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -195,405 +221,262 @@ public class GlobalComparisonPanel extends JPanel {
                     dispose();
                 }
             });
+
+            pack();
+            int width = getPreferredSize().width;
+            int height = getPreferredSize().height;
+
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = screenSize.width - width;
+            int y = screenSize.height - height;
+            setSize(width, height);
+            setLocation(x / 2, y / 2);
+
+            setTitle("Clustering");
         }
     }
 
-    /**
-     * Main panel which allows user to choose action (compare, cluster,
-     * visualize) and shows visual results of those actions.
-     */
-    private class MainPanel extends JPanel {
-        /**
-         * Subpanel with action items on the left and instructions for the user
-         * on the right
-         */
-        private class ActionInstructionsPanel extends JPanel {
-            /**
-             * Subpanel which shows button and method choice panels in separate
-             * rows
-             */
-            private class ActionPanel extends JPanel {
-                /**
-                 * Subpanel which contains action buttons.
-                 */
-                private class ButtonPanel extends JPanel {
-                    // ////////////////////////////////////////////////////////
-                    // fields
-                    private static final long serialVersionUID = 1L;
-                    private JButton addPDB;
-                    private JButton cluster;
-                    private JButton compare;
-                    private JButton visualise;
+    private static final long serialVersionUID = 1L;
 
-                    // ////////////////////////////////////////////////////////
-                    // constructors
-                    public ButtonPanel() {
-                        super();
-                        addPDB = new JButton("Load structure(s)");
-                        compare = new JButton("Compute distance matrix");
-                        cluster = new JButton("Cluster results");
-                        visualise = new JButton("Visualise results");
+    public GlobalComparisonPanel() {
+        super();
 
-                        compare.setEnabled(false);
-                        cluster.setEnabled(false);
-                        visualise.setEnabled(false);
+        JButton buttonLoad = new JButton("Load structure(s)");
+        final JButton buttonCompare = new JButton("Compute distance matrix");
+        buttonCompare.setEnabled(false);
+        final JButton buttonVisualize = new JButton("Visualize results");
+        buttonVisualize.setEnabled(false);
+        final JButton buttonCluster = new JButton("Cluster results");
+        buttonCluster.setEnabled(false);
 
-                        add(addPDB);
-                        add(compare);
-                        add(visualise);
-                        add(cluster);
+        JPanel panelButtons = new JPanel();
+        panelButtons.add(buttonLoad);
+        panelButtons.add(buttonCompare);
+        panelButtons.add(buttonVisualize);
+        panelButtons.add(buttonCluster);
+
+        final JRadioButton radioRmsd = new JRadioButton("RMSD", true);
+        JRadioButton radioMcq = new JRadioButton("MCQ", false);
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(radioRmsd);
+        buttonGroup.add(radioMcq);
+
+        JPanel panelMethod = new JPanel();
+        panelMethod.add(new JLabel("Select distance measure:"));
+        panelMethod.add(radioRmsd);
+        panelMethod.add(radioMcq);
+
+        JPanel panelButtonsMethod = new JPanel();
+        panelButtonsMethod.setLayout(new GridLayout(2, 1));
+        panelButtonsMethod.add(panelButtons);
+        panelButtonsMethod.add(panelMethod);
+
+        JEditorPane editorPane = new JEditorPane();
+        editorPane.setBackground(new Color(0, 0, 0, 0));
+        editorPane.setContentType("text/html");
+        editorPane.setEditable(false);
+        editorPane.setText("Instructions:<ol>"
+                + "<li>Load structure(s) from files (PDB or mmCif)</li>"
+                + "<li>Select distance measure</li>"
+                + "<li>Compute distance matrix</li>"
+                + "<li>Visualise or cluster results</li></ol>");
+
+        JPanel panelOptions = new JPanel();
+        panelOptions.setLayout(new GridLayout(1, 2));
+        panelOptions.add(panelButtonsMethod);
+        panelOptions.add(editorPane);
+
+        final JProgressBar progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        JPanel panelStatus = new JPanel();
+        panelStatus.add(progressBar);
+
+        JPanel panelOptionsStatus = new JPanel();
+        panelOptionsStatus.setLayout(new BorderLayout());
+        panelOptionsStatus.add(panelOptions, BorderLayout.NORTH);
+        panelOptionsStatus.add(progressBar, BorderLayout.SOUTH);
+
+        final DefaultListModel<File> listModel = new DefaultListModel<>();
+        final JList<File> listFiles = new JList<>(listModel);
+
+        TableModel tableModel = new MatrixTableModel(new String[0],
+                new double[0][]);
+        final JTable tableMatrix = new JTable(tableModel);
+
+        setLayout(new BorderLayout());
+        add(panelOptionsStatus, BorderLayout.NORTH);
+        add(listFiles, BorderLayout.EAST);
+        add(new JScrollPane(tableMatrix), BorderLayout.CENTER);
+
+        buttonLoad.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File[] files = PdbFileChooser
+                        .getSelectedFiles(GlobalComparisonPanel.this);
+                for (File f : files) {
+                    PdbManager.loadStructure(f);
+                    listModel.addElement(f);
+                }
+                if (files.length > 0) {
+                    buttonCompare.setEnabled(true);
+                }
+            }
+        });
+
+        buttonCompare.addActionListener(new ActionListener() {
+            private Thread thread;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (thread != null && thread.isAlive()) {
+                    JOptionPane.showMessageDialog(null,
+                            "Comparison calculation underway!", "Information",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int size = listModel.getSize();
+                        final String[] names = new String[size];
+                        Structure[] structures = new Structure[size];
+                        for (int i = 0; i < size; i++) {
+                            File file = listModel.getElementAt(i);
+                            names[i] = PdbManager.getStructureName(file);
+                            structures[i] = PdbManager.getStructure(file);
+                        }
+
+                        GlobalComparison algorithm;
+                        if (radioRmsd.isSelected()) {
+                            algorithm = new RMSD();
+                        } else {
+                            algorithm = new MCQ();
+                        }
+
+                        final double[][] result;
+                        try {
+                            result = algorithm.compare(structures,
+                                    new ComparisonListener() {
+                                        @Override
+                                        public void stateChanged(long all,
+                                                long completed) {
+                                            progressBar.setMaximum((int) all);
+                                            progressBar
+                                                    .setValue((int) completed);
+                                        }
+                                    });
+                        } catch (IncomparableStructuresException e1) {
+                            JOptionPane.showMessageDialog(
+                                    GlobalComparisonPanel.this,
+                                    e1.getMessage(), "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                MatrixTableModel model = new MatrixTableModel(
+                                        names, result);
+                                tableMatrix.setModel(model);
+
+                                buttonVisualize.setEnabled(true);
+                                buttonCluster.setEnabled(true);
+                            }
+                        });
+                    }
+                });
+                thread.start();
+            }
+        });
+
+        buttonVisualize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MatrixTableModel model = (MatrixTableModel) tableMatrix
+                        .getModel();
+                String[] names = model.getNames();
+                double[][] values = model.getValues();
+
+                for (double[] value : values) {
+                    for (double element : value) {
+                        if (Double.isNaN(element)) {
+                            JOptionPane.showMessageDialog(
+                                    GlobalComparisonPanel.this,
+                                    "Cannot visualize, because some "
+                                            + "of the structures were "
+                                            + "incomparable", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                     }
                 }
 
-                /**
-                 * Subpanel which allows to choose comparison method.
-                 */
-                private class MethodPanel extends JPanel {
-                    // ////////////////////////////////////////////////////////
-                    // fields
-                    private static final long serialVersionUID = 1L;
-                    private final JRadioButton rmsdRadio;
-                    private JRadioButton mcqRadio;
-
-                    // ////////////////////////////////////////////////////////
-                    // constructors
-                    public MethodPanel() {
-                        super();
-                        rmsdRadio = new JRadioButton("RMSD", true);
-                        mcqRadio = new JRadioButton("MCQ", false);
-
-                        ButtonGroup buttonGroup = new ButtonGroup();
-                        buttonGroup.add(rmsdRadio);
-                        buttonGroup.add(mcqRadio);
-
-                        add(new JLabel("Select distance measure: "));
-                        add(rmsdRadio);
-                        add(mcqRadio);
-                    }
+                double[][] mds = MDS.multidimensionalScaling(values, 2);
+                if (mds == null) {
+                    JOptionPane.showMessageDialog(null,
+                            "Cannot visualise specified structures in 2D",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
 
-                // ////////////////////////////////////////////////////////////
-                // fields
-                private static final long serialVersionUID = 1L;
-                private ButtonPanel buttonPanel;
-                private MethodPanel methodPanel;
+                MDSPlot plot = new MDSPlot(mds, names);
+                plot.setVisible(true);
+            }
+        });
 
-                // ////////////////////////////////////////////////////////////
-                // constructors
-                public ActionPanel() {
-                    super();
-                    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-                    buttonPanel = new ButtonPanel();
-                    methodPanel = new MethodPanel();
+        buttonCluster.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        MatrixTableModel model = (MatrixTableModel) tableMatrix
+                                .getModel();
+                        String[] names = model.getNames();
+                        double[][] values = model.getValues();
 
-                    add(buttonPanel);
-                    add(methodPanel);
-
-                    final JFileChooser chooser = new JFileChooser();
-                    chooser.addChoosableFileFilter(new FileNameExtensionFilter(
-                            "PDB file format", "pdb", "pdb1", "ent", "brk",
-                            "pdb.gz"));
-                    chooser.addChoosableFileFilter(new FileNameExtensionFilter(
-                            "mmCif file format", "cif", "cif.gz"));
-                    chooser.setMultiSelectionEnabled(true);
-
-                    buttonPanel.addPDB.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent event) {
-                            if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                                for (File f : chooser.getSelectedFiles()) {
-                                    addFile(f.getAbsolutePath());
+                        for (double[] value : values) {
+                            for (double element : value) {
+                                if (Double.isNaN(element)) {
+                                    JOptionPane.showMessageDialog(
+                                            GlobalComparisonPanel.this,
+                                            "Cannot cluster, because some "
+                                                    + "of the structures were "
+                                                    + "incomparable", "Error",
+                                            JOptionPane.ERROR_MESSAGE);
+                                    return;
                                 }
                             }
                         }
-                    });
 
-                    buttonPanel.compare.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            compare();
-                        }
-                    });
-
-                    buttonPanel.visualise
-                            .addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    visualise();
-                                }
-                            });
-
-                    buttonPanel.cluster.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            cluster();
-                        }
-                    });
-                }
+                        ClusteringDialog dialog = new ClusteringDialog(names,
+                                values);
+                        dialog.setVisible(true);
+                    }
+                });
             }
+        });
 
-            /**
-             * Subpanel with instructions to the user
-             */
-            private class InstructionsPanel extends JPanel {
-                private static final long serialVersionUID = 1L;
-
-                // ////////////////////////////////////////////////////////////
-                // fields
-                private JEditorPane editorPane;
-
-                // ////////////////////////////////////////////////////////////
-                // constructors
-                public InstructionsPanel() {
-                    editorPane = new JEditorPane();
-                    editorPane.setBackground(new Color(0, 0, 0, 0));
-                    editorPane.setContentType("text/html");
-                    editorPane.setEditable(false);
-                    editorPane
-                            .setText("Instructions:<ol>"
-                                    + "<li>Load structure(s) from files (PDB or mmCif)</li>"
-                                    + "<li>Select distance measure</li>"
-                                    + "<li>Compute distance matrix</li>"
-                                    + "<li>Visualise or cluster results</li></ol>");
-
-                    setLayout(new GridLayout(1, 1));
-                    add(editorPane);
-                }
-            }
-
-            // ////////////////////////////////////////////////////////////////
-            // fields
-            private static final long serialVersionUID = 1L;
-            private ActionPanel actionPanel;
-            private InstructionsPanel instructionsPanel;
-
-            // ////////////////////////////////////////////////////////////////
-            // constructors
-            public ActionInstructionsPanel() {
-                actionPanel = new ActionPanel();
-                instructionsPanel = new InstructionsPanel();
-
-                setLayout(new GridLayout(1, 2));
-                add(actionPanel);
-                add(instructionsPanel);
-            }
-        }
-
-        /**
-         * Table model needed to represent distance matrix.
-         */
-        private class MatrixTableModel extends AbstractTableModel {
-            // ////////////////////////////////////////////////////////////
-            // fields
-            private static final long serialVersionUID = 1L;
-
-            // ////////////////////////////////////////////////////////////
-            // constructors
-            public MatrixTableModel(String[] names, double[][] values) {
-                super();
-                tableNames = names.clone();
-                tableValues = values.clone();
-            }
-
-            @Override
-            public int getColumnCount() {
-                if (tableNames.length == 0) {
-                    return 0;
-                }
-                return tableNames.length + 1;
-            }
-
-            // ////////////////////////////////////////////////////////////
-            // methods
-            @Override
-            public String getColumnName(int column) {
-                if (column == 0) {
-                    return "";
-                }
-                return tableNames[column - 1];
-            }
-
-            @Override
-            public int getRowCount() {
-                return tableValues.length;
-            }
-
-            @Override
-            public Object getValueAt(int row, int column) {
-                if (column == 0) {
-                    return tableNames[row];
-                }
-                return tableValues[row][column - 1];
-            }
-        }
-
-        // ////////////////////////////////////////////////////////////////////
-        // fields
-        private static final long serialVersionUID = 1L;
-        private final JTable resultsTable;
-        private double[][] tableValues;
-        private String[] tableNames;
-        private ActionInstructionsPanel actionInstructionsPanel;
-
-        // ////////////////////////////////////////////////////////////////////
-        // constructors
-        public MainPanel() {
-            super(new BorderLayout());
-
-            tableNames = new String[0];
-            tableValues = new double[0][];
-
-            resultsTable = new JTable(new MatrixTableModel(tableNames,
-                    tableValues));
-            actionInstructionsPanel = new ActionInstructionsPanel();
-
-            add(actionInstructionsPanel, BorderLayout.PAGE_START);
-            add(new JScrollPane(resultsTable), BorderLayout.CENTER);
-        }
-
-        // ////////////////////////////////////////////////////////////////////
-        // methods
-        public void displayResults(String[] names, double[][] results) {
-            tableNames = names.clone();
-            tableValues = results.clone();
-            resultsTable.setModel(new MatrixTableModel(names, results));
-        }
-    }
-
-    // ////////////////////////////////////////////////////////////////////////
-    // fields
-    private static final long serialVersionUID = 1L;
-    private final MainPanel mainPanel;
-    private double[][] comparisonResults;
-    private JList<String> list;
-    private DefaultListModel<String> listModel;
-    private String[] structureNames;
-
-    // ////////////////////////////////////////////////////////////////////////
-    // constructors
-    public GlobalComparisonPanel() {
-        super(new BorderLayout());
-
-        listModel = new DefaultListModel<>();
-        list = new JList<>(listModel);
-        mainPanel = new MainPanel();
-
-        add(mainPanel, BorderLayout.CENTER);
-        add(list, BorderLayout.EAST);
-
-        list.addKeyListener(new KeyListener() {
+        listFiles.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
                 if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                    int index = list.getSelectedIndex();
+                    int index = listFiles.getSelectedIndex();
                     if (index != -1) {
                         listModel.remove(index);
                         if (listModel.getSize() == 0) {
-                            mainPanel.actionInstructionsPanel.actionPanel.buttonPanel.compare
-                                    .setEnabled(false);
-                            mainPanel.actionInstructionsPanel.actionPanel.buttonPanel.cluster
-                                    .setEnabled(false);
-                            mainPanel.actionInstructionsPanel.actionPanel.buttonPanel.visualise
-                                    .setEnabled(false);
+                            buttonCompare.setEnabled(false);
+                            buttonVisualize.setEnabled(false);
+                            buttonCluster.setEnabled(false);
                         }
                     }
                 }
-            }
 
-            @Override
-            public void keyReleased(KeyEvent arg0) {
-                // do nothing
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-                // do nothing
             }
         });
-    }
-
-    // ////////////////////////////////////////////////////////////////////////
-    // methods
-    /**
-     * Check if selected file is correct PDB and if so, add it to local cache.
-     * 
-     * @param text
-     *            A path to PDB file.
-     */
-    public void addFile(String text) {
-        if (PdbManager.loadStructure(text) != null) {
-            listModel.addElement(text);
-            mainPanel.actionInstructionsPanel.actionPanel.buttonPanel.compare
-                    .setEnabled(true);
-        } else {
-            JOptionPane.showMessageDialog(null,
-                    "Specified file is not a valid PDB file",
-                    "Invalid PDB file", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    /**
-     * Get data from comparison and cluster it
-     */
-    public void cluster() {
-        if (comparisonResults != null) {
-            ClusteringDialog dialog = new ClusteringDialog();
-            dialog.setVisible(true);
-        }
-    }
-
-    /**
-     * Get picked structures, compare them using selected method and display the
-     * results.
-     */
-    public void compare() {
-        GlobalComparison[] methods = new GlobalComparison[] { new RMSD(),
-                new MCQ() };
-        // choose RMSD by default
-        int chosen = 0;
-        if (mainPanel.actionInstructionsPanel.actionPanel.methodPanel.mcqRadio
-                .isSelected()) {
-            chosen = 1;
-        }
-
-        Enumeration<String> elements = listModel.elements();
-        List<String> vector = new ArrayList<>();
-        while (elements.hasMoreElements()) {
-            String element = elements.nextElement();
-            vector.add(element);
-        }
-        Structure[] structures = PdbManager.getStructures(vector);
-        structureNames = PdbManager.getNames(vector);
-
-        try {
-            comparisonResults = methods[chosen].compare(structures);
-            mainPanel.displayResults(structureNames, comparisonResults);
-            mainPanel.actionInstructionsPanel.actionPanel.buttonPanel.cluster
-                    .setEnabled(true);
-            mainPanel.actionInstructionsPanel.actionPanel.buttonPanel.visualise
-                    .setEnabled(true);
-        } catch (IncomparableStructuresException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(),
-                    "Error during structure comparison",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    /**
-     * Get data from comparison and visualise it on scatter plot.
-     */
-    public void visualise() {
-        if (comparisonResults != null) {
-            double[][] mds = MDS.multidimensionalScaling(comparisonResults, 2);
-            if (mds == null) {
-                JOptionPane.showMessageDialog(null,
-                        "Cannot visualise specified structures in 2D",
-                        "Problem during comparison visualisation",
-                        JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
-            MDSPlot plot = new MDSPlot(mds, structureNames);
-            plot.setVisible(true);
-        }
     }
 }

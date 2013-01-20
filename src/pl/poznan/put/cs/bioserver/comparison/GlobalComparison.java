@@ -2,6 +2,9 @@ package pl.poznan.put.cs.bioserver.comparison;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.biojava.bio.structure.Structure;
@@ -23,12 +26,12 @@ public abstract class GlobalComparison {
         private double[][] result;
         private int i;
         private int j;
-        private IncomparableStructuresException exception;
+        public IncomparableStructuresException exception;
 
         public CompareThread(Structure[] structures, double[][] result, int i,
                 int j) {
-            s1 = structures[i].clone();
-            s2 = structures[j].clone();
+            s1 = structures[i];
+            s2 = structures[j];
             this.result = result;
             this.i = i;
             this.j = j;
@@ -44,7 +47,6 @@ public abstract class GlobalComparison {
                 exception = e;
             }
         }
-
     }
 
     /**
@@ -70,35 +72,62 @@ public abstract class GlobalComparison {
      * @throws IncomparableStructuresException
      *             If any two structures were not comparable.
      */
-    public double[][] compare(Structure[] structures)
-            throws IncomparableStructuresException {
-        double[][] result = new double[structures.length][];
+    public double[][] compare(final Structure[] structures,
+            ComparisonListener listener) throws IncomparableStructuresException {
+        final double[][] result = new double[structures.length][];
         for (int i = 0; i < structures.length; ++i) {
             result[i] = new double[structures.length];
         }
 
-        List<CompareThread> list = new ArrayList<>();
-        for (int i = 0; i < structures.length; ++i) {
-            for (int j = i + 1; j < structures.length; ++j) {
-                GlobalComparison.LOGGER.trace("Comparing: "
-                        + PdbManager.getStructureName(structures[i]) + " "
-                        + PdbManager.getStructureName(structures[j]));
-                CompareThread t = new CompareThread(structures, result, i, j);
-                list.add(t);
-                t.start();
+        final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors
+                .newCachedThreadPool();
+
+        final List<CompareThread> tasks = new ArrayList<>();
+        Thread submit = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < structures.length; ++i) {
+                    for (int j = i + 1; j < structures.length; ++j) {
+                        GlobalComparison.LOGGER.trace("Comparing: "
+                                + PdbManager.getStructureName(structures[i])
+                                + " "
+                                + PdbManager.getStructureName(structures[j]));
+
+                        CompareThread t = new CompareThread(structures, result,
+                                i, j);
+                        tasks.add(t);
+                        threadPool.execute(t);
+                    }
+                }
+                threadPool.shutdown();
+            }
+        });
+        submit.start();
+
+        try {
+            long all = structures.length * (structures.length - 1) / 2;
+            while (!threadPool.awaitTermination(1, TimeUnit.SECONDS)) {
+                if (listener != null) {
+                    listener.stateChanged(all,
+                            threadPool.getCompletedTaskCount());
+                }
+            }
+            if (listener != null) {
+                listener.stateChanged(all, threadPool.getCompletedTaskCount());
+            }
+        } catch (InterruptedException e) {
+            threadPool.shutdownNow();
+            GlobalComparison.LOGGER.error(e);
+            throw new IncomparableStructuresException(e);
+        }
+
+        for (CompareThread thread : tasks) {
+            if (thread.exception != null) {
+                GlobalComparison.LOGGER.error(thread.exception);
+                throw thread.exception;
             }
         }
-        for (CompareThread t : list) {
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                GlobalComparison.LOGGER.error("There was a problem with "
-                        + "computation threads synchronization", e);
-            }
-            if (t.exception != null) {
-                throw t.exception;
-            }
-        }
+
         return result;
     }
 }

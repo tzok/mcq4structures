@@ -142,7 +142,7 @@ public class TorsionLocalComparison extends LocalComparison {
 
         mapNameToDiffs
                 .put("P", TorsionLocalComparison.calcAngleP(mapResToTaus));
-        mapNameToDiffs.put("MCQ",
+        mapNameToDiffs.put("AVERAGE",
                 TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs));
         return mapNameToDiffs;
     }

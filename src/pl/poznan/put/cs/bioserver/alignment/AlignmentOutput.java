@@ -63,8 +63,8 @@ public class AlignmentOutput {
         int[][][] optAln = afpChain.getOptAln();
         for (int i = 0; i < 2; i++) {
             List<Atom> list = new ArrayList<>();
-            for (int j = 0; j < optAln.length; j++) {
-                for (int k = 0; k < optAln[j][i].length; k++) {
+            for (int[][] element : optAln) {
+                for (int k = 0; k < element[i].length; k++) {
                     list.add(atoms[i][k]);
                 }
             }

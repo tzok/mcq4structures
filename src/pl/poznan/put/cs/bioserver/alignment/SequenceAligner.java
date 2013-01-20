@@ -57,7 +57,8 @@ public class SequenceAligner<C extends Compound> {
      *            Second chain.
      * @return A global alignment of the sequences.
      */
-    public PairwiseSequenceAligner<Sequence<C>, C> alignSequences(Chain c1, Chain c2) {
+    public PairwiseSequenceAligner<Sequence<C>, C> alignSequences(Chain c1,
+            Chain c2) {
         return alignSequences(c1, c2, PairwiseSequenceAlignerType.GLOBAL);
     }
 

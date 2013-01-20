@@ -1,5 +1,7 @@
 package pl.poznan.put.cs.bioserver.sandbox;
 
+import java.io.File;
+
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
@@ -28,11 +30,11 @@ public class PamsilTest {
                 "/home/tzok/pdb/puzzles/Challenge1/targets/1_solution_0.pdb" };
         Structure[] structures = new Structure[paths.length];
         for (int i = 0; i < paths.length; i++) {
-            structures[i] = PdbManager.loadStructure(paths[i]);
+            structures[i] = PdbManager.loadStructure(new File(paths[i]));
         }
 
         MCQ mcq = new MCQ();
-        double[][] matrix = mcq.compare(structures);
+        double[][] matrix = mcq.compare(structures, null);
         Clusterer.clusterPAMSIL(matrix);
     }
 }

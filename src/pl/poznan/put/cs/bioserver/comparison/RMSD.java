@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,12 +44,12 @@ public class RMSD extends GlobalComparison {
         try {
             List<Structure> list = new ArrayList<>();
             for (String arg : args) {
-                list.add(PdbManager.loadStructure(arg));
+                list.add(PdbManager.loadStructure(new File(arg)));
             }
 
             RMSD rmsd = new RMSD();
-            double[][] compare = rmsd.compare(list.toArray(new Structure[list
-                    .size()]));
+            double[][] compare = rmsd.compare(
+                    list.toArray(new Structure[list.size()]), null);
             System.out.println("OK");
             for (double[] element : compare) {
                 System.out.println(Arrays.toString(element));
@@ -74,6 +75,10 @@ public class RMSD extends GlobalComparison {
             throws IncomparableStructuresException {
         RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
                 + s2.getPDBCode());
+
+        if (Helper.isNucleicAcid(s1) != Helper.isNucleicAcid(s2)) {
+            return Double.NaN;
+        }
 
         try {
             Structure[] structures = new Structure[] { s1.clone(), s2.clone() };

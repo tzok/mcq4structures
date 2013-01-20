@@ -152,7 +152,7 @@ public final class Helper {
             String[] atomNames) {
         List<Atom> list = new ArrayList<>();
         for (Chain c : structure.getChains()) {
-            list.addAll(getAtomArray(c.getAtomGroups(), atomNames));
+            list.addAll(Helper.getAtomArray(c.getAtomGroups(), atomNames));
         }
         return list;
     }
