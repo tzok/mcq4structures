@@ -7,20 +7,21 @@ import java.io.StringWriter;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Plot of data points calculated from MDS.
  */
 public class MDSPlot extends JFrame {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(MDSPlot.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MDSPlot.class);
 
     /**
      * Create a JFrame which shows a plot of data after applying
