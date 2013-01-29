@@ -2,61 +2,35 @@ package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Collections;
+import java.io.File;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 
+import pl.poznan.put.cs.bioserver.gui.helper.PdbChangeListener;
+import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 class PdbPanel extends JPanel {
-    private final class DeletePdb implements KeyListener {
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                int index = list.getSelectedIndex();
-                if (index == 0) {
-                    comboBoxModelFirst.removeAllElements();
-                } else {
-                    comboBoxModelSecond.removeAllElements();
-                }
-                listModel.remove(index);
-                refreshComboBoxes();
-                listener.pdbListChanged();
-            }
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            // do nothing
-        }
-
-        @Override
-        public void keyTyped(KeyEvent e) {
-            // do nothing
-        }
-    }
-
     private static final long serialVersionUID = 1L;
-    private DefaultListModel<String> listModel;
-    private JList<String> list;
+
+    private DefaultListModel<File> listModel;
+    private JList<File> list;
     private DefaultComboBoxModel<String> comboBoxModelFirst,
             comboBoxModelSecond;
     private JComboBox<String> comboBoxFirst, comboBoxSecond;
-    private PdbChangeListener listener;
 
-    public PdbPanel(PdbChangeListener listener) {
+    public PdbPanel(final PdbChangeListener listener) {
         super();
-
-        this.listener = listener;
 
         listModel = new DefaultListModel<>();
         list = new JList<>(listModel);
@@ -78,7 +52,23 @@ class PdbPanel extends JPanel {
         c.gridy++;
         add(comboBoxSecond, c);
 
-        list.addKeyListener(new DeletePdb());
+        list.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    int index = list.getSelectedIndex();
+                    if (index == 0) {
+                        comboBoxModelFirst.removeAllElements();
+                    } else {
+                        comboBoxModelSecond.removeAllElements();
+                    }
+                    listModel.remove(index);
+
+                    refreshComboBoxes();
+                    listener.pdbListChanged();
+                }
+            }
+        });
     }
 
     public JComboBox<String> getComboBoxFirst() {
@@ -89,7 +79,7 @@ class PdbPanel extends JPanel {
         return comboBoxSecond;
     }
 
-    public DefaultListModel<String> getListModel() {
+    public DefaultListModel<File> getListModel() {
         return listModel;
     }
 
@@ -97,16 +87,39 @@ class PdbPanel extends JPanel {
         comboBoxModelFirst.removeAllElements();
         comboBoxModelSecond.removeAllElements();
 
-        Structure[] structures = PdbManager.getStructures(Collections
-                .list(listModel.elements()));
-        for (int i = 0; i < listModel.getSize(); ++i) {
-            for (Chain c : structures[i].getChains()) {
+        int size = listModel.getSize();
+        for (int i = 0; i < size; ++i) {
+            File file = listModel.getElementAt(i);
+            Structure structure = PdbManager.getStructure(file);
+            for (Chain c : structure.getChains()) {
                 if (i == 0) {
                     comboBoxModelFirst.addElement(c.getChainID());
                 } else {
                     comboBoxModelSecond.addElement(c.getChainID());
                 }
             }
+        }
+    }
+
+    public void loadStructuresWithOpenDialog() {
+        if (listModel.size() >= 2) {
+            JOptionPane.showMessageDialog(null,
+                    "You already have two structures loaded", "Information",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        File[] files = PdbFileChooser.getSelectedFiles(this);
+        for (File f : files) {
+            if (listModel.size() >= 2) {
+                JOptionPane.showMessageDialog(null,
+                        "You cannot load more than two structures", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            PdbManager.loadStructure(f);
+            listModel.addElement(f);
+            refreshComboBoxes();
         }
     }
 }

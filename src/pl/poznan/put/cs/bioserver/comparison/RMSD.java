@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,40 +26,40 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
 public class RMSD extends GlobalComparison {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RMSD.class);
 
-	/**
-	 * A command line wrapper to calculate RMSD for given structures. It outputs
-	 * the upper half of the dissimilarity matrix. For example, for 4 structures
-	 * the output will like this:
-	 * 
-	 * OK 1-vs-2 1-vs-3 1-vs-4 2-vs-3 2-vs-4 3-vs-4
-	 * 
-	 * @param args
-	 *            A list of paths to PDB files.
-	 */
-	public static void main(String[] args) {
-		if (args.length < 2) {
-			System.out.println("ERROR");
-			System.out.println("Incorrect number of arguments provided");
-			return;
-		}
-		try {
-			List<Structure> list = new ArrayList<>();
-			for (String arg : args) {
-				list.add(PdbManager.loadStructure(arg));
-			}
+    /**
+     * A command line wrapper to calculate RMSD for given structures. It outputs
+     * the upper half of the dissimilarity matrix. For example, for 4 structures
+     * the output will like this:
+     * 
+     * OK 1-vs-2 1-vs-3 1-vs-4 2-vs-3 2-vs-4 3-vs-4
+     * 
+     * @param args
+     *            A list of paths to PDB files.
+     */
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("ERROR");
+            System.out.println("Incorrect number of arguments provided");
+            return;
+        }
+        try {
+            List<Structure> list = new ArrayList<>();
+            for (String arg : args) {
+                list.add(PdbManager.loadStructure(new File(arg)));
+            }
 
-			RMSD rmsd = new RMSD();
-			double[][] compare = rmsd.compare(list.toArray(new Structure[list
-					.size()]));
-			System.out.println("OK");
-			for (double[] element : compare) {
-				System.out.println(Arrays.toString(element));
-			}
-		} catch (IncomparableStructuresException e) {
-			System.out.println("ERROR");
-			System.out.println(e.getMessage());
-		}
-	}
+            RMSD rmsd = new RMSD();
+            double[][] compare = rmsd.compare(
+                    list.toArray(new Structure[list.size()]), null);
+            System.out.println("OK");
+            for (double[] element : compare) {
+                System.out.println(Arrays.toString(element));
+            }
+        } catch (IncomparableStructuresException e) {
+            System.out.println("ERROR");
+            System.out.println(e.getMessage());
+        }
+    }
 
 	/**
 	 * Compare two given structures. By default, do not try to align based on
@@ -76,16 +77,20 @@ public class RMSD extends GlobalComparison {
 		RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
 				+ s2.getPDBCode());
 
-		try {
-			Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
-			Atom[][] atoms = Helper.getCommonAtomArray(structures[0],
-					structures[1], false);
-			if (atoms == null || atoms[0].length != atoms[1].length) {
-				RMSD.LOGGER.info("Atom sets have different sizes. Must use "
-						+ "alignment before calculating RMSD");
-				AlignmentOutput output = StructureAligner.align(s1, s2);
-				return output.getAFPChain().getTotalRmsdOpt();
-			}
+        if (Helper.isNucleicAcid(s1) != Helper.isNucleicAcid(s2)) {
+            return Double.NaN;
+        }
+
+        try {
+            Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
+            Atom[][] atoms = Helper.getCommonAtomArray(structures[0],
+                    structures[1], false);
+            if (atoms == null || atoms[0].length != atoms[1].length) {
+                RMSD.LOGGER.info("Atom sets have different sizes. Must use "
+                        + "alignment before calculating RMSD");
+                AlignmentOutput output = StructureAligner.align(s1, s2);
+                return output.getAFPChain().getTotalRmsdOpt();
+            }
 
 			RMSD.LOGGER.debug("Atom set size: " + atoms[0].length);
 			SVDSuperimposer superimposer = new SVDSuperimposer(atoms[0],

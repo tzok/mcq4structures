@@ -14,8 +14,6 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.io.PDBFileReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -31,9 +29,6 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class TorsionLocalComparison extends LocalComparison {
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(TorsionLocalComparison.class);
 	private static final int TAU_COUNT = 5;
 
 	private static List<AngleDifference> calcAngleP(
@@ -143,7 +138,7 @@ public class TorsionLocalComparison extends LocalComparison {
 
 		mapNameToDiffs
 				.put("P", TorsionLocalComparison.calcAngleP(mapResToTaus));
-		mapNameToDiffs.put("MCQ",
+		mapNameToDiffs.put("AVERAGE",
 				TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs));
 		return mapNameToDiffs;
 	}
