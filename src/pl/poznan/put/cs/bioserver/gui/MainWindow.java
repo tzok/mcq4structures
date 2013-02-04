@@ -317,13 +317,6 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemCluster.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // TODO
-            }
-        });
-
         itemVisualise.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -355,6 +348,33 @@ public class MainWindow extends JFrame {
 
                 MDSPlot plot = new MDSPlot(mds, names);
                 plot.setVisible(true);
+            }
+        });
+
+        itemCluster.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                MatrixTableModel model = (MatrixTableModel) tableMatrix
+                        .getModel();
+                String[] names = model.getNames();
+                double[][] values = model.getValues();
+
+                for (double[] value : values) {
+                    for (double element : value) {
+                        if (Double.isNaN(element)) {
+                            JOptionPane.showMessageDialog(MainWindow.this,
+                                    "Cannot cluster, because some "
+                                            + "of the structures were "
+                                            + "incomparable", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                    }
+                }
+
+                ClusteringDialog dialogClustering = new ClusteringDialog(names,
+                        values);
+                dialogClustering.setVisible(true);
             }
         });
     }
