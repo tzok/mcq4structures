@@ -38,6 +38,8 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.visualisation.MDS;
+import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
 public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "MATRIX";
@@ -312,6 +314,47 @@ public class MainWindow extends JFrame {
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+            }
+        });
+
+        itemCluster.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                // TODO
+            }
+        });
+
+        itemVisualise.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MatrixTableModel model = (MatrixTableModel) tableMatrix
+                        .getModel();
+                String[] names = model.getNames();
+                double[][] values = model.getValues();
+
+                for (double[] value : values) {
+                    for (double element : value) {
+                        if (Double.isNaN(element)) {
+                            JOptionPane.showMessageDialog(MainWindow.this,
+                                    "Cannot visualize, because some "
+                                            + "of the structures were "
+                                            + "incomparable", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                    }
+                }
+
+                double[][] mds = MDS.multidimensionalScaling(values, 2);
+                if (mds == null) {
+                    JOptionPane.showMessageDialog(null,
+                            "Cannot visualise specified structures in 2D",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                MDSPlot plot = new MDSPlot(mds, names);
+                plot.setVisible(true);
             }
         });
     }
