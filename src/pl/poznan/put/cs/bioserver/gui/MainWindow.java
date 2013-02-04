@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URL;
+import java.util.Enumeration;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -15,14 +16,21 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.biojava.bio.structure.Structure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
+import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
+import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
+import pl.poznan.put.cs.bioserver.comparison.MCQ;
+import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
@@ -30,6 +38,8 @@ public class MainWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
+    protected StructureSelectionDialog dialog;
+    static JMenuItem itemOpen;
 
     public MainWindow() throws HeadlessException {
         super();
@@ -49,10 +59,12 @@ public class MainWindow extends JFrame {
             }
         }
 
+        dialog = new StructureSelectionDialog(this);
+
         /*
          * Create menu
          */
-        JMenuItem itemOpen = new JMenuItem("Open structure(s)",
+        itemOpen = new JMenuItem("Open structure(s)",
                 loadIcon("/toolbarButtonGraphics/general/Open16.gif"));
         JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
@@ -64,20 +76,20 @@ public class MainWindow extends JFrame {
         menuFile.add(itemSave);
         menuFile.add(itemExit);
 
-        JRadioButton radioMcq = new JRadioButton("MCQ", true);
+        final JRadioButton radioMcq = new JRadioButton("MCQ", true);
         JRadioButton radioRmsd = new JRadioButton("RMSD", false);
         ButtonGroup group = new ButtonGroup();
         group.add(radioMcq);
         group.add(radioRmsd);
-        JMenu menuMeasure = new JMenu("Distance measure");
+        final JMenu menuMeasure = new JMenu("Distance measure");
         menuMeasure.setEnabled(false);
         menuMeasure.add(radioMcq);
         menuMeasure.add(radioRmsd);
 
         final JMenuItem itemSelectStructures = new JMenuItem(
                 "Select structures");
-        itemSelectStructures.setEnabled(false);
-        JMenuItem itemComputeGlobal = new JMenuItem("Compute distance matrix");
+        final JMenuItem itemComputeGlobal = new JMenuItem(
+                "Compute distance matrix");
         itemComputeGlobal.setEnabled(false);
         JMenuItem itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
@@ -92,7 +104,6 @@ public class MainWindow extends JFrame {
         menuGlobal.add(itemCluster);
 
         final JMenuItem itemSelectChainsCompare = new JMenuItem("Select chains");
-        itemSelectChainsCompare.setEnabled(false);
         JMenuItem itemSelectTorsion = new JMenuItem("Select torsion angles");
         itemSelectTorsion.setEnabled(false);
         JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
@@ -120,7 +131,6 @@ public class MainWindow extends JFrame {
 
         final JMenuItem itemSelectChainsAlignSeq = new JMenuItem(
                 "Select chains");
-        itemSelectChainsAlignSeq.setEnabled(false);
         JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
         itemComputeAlignSeq.setEnabled(false);
         JMenu menuAlignSeq = new JMenu("Sequence");
@@ -130,7 +140,6 @@ public class MainWindow extends JFrame {
 
         final JMenuItem itemSelectChainsAlignStruc = new JMenuItem(
                 "Select chains");
-        itemSelectChainsAlignStruc.setEnabled(false);
         JMenuItem itemComputeAlignStruc = new JMenuItem("Compute alignment");
         itemComputeAlignStruc.setEnabled(false);
         JMenu menuAlignStruc = new JMenu("3D structure");
@@ -185,12 +194,6 @@ public class MainWindow extends JFrame {
                 for (File f : files) {
                     PdbManager.loadStructure(f);
                 }
-                if (PdbManager.getSize() > 0) {
-                    itemSelectStructures.setEnabled(true);
-                    itemSelectChainsCompare.setEnabled(true);
-                    itemSelectChainsAlignSeq.setEnabled(true);
-                    itemSelectChainsAlignStruc.setEnabled(true);
-                }
             }
         });
 
@@ -211,10 +214,78 @@ public class MainWindow extends JFrame {
         itemSelectStructures.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                StructureSelectionDialog dialog = new StructureSelectionDialog(
-                        MainWindow.this);
+                Enumeration<File> elements = PdbManagerDialog.model.elements();
+                while (elements.hasMoreElements()) {
+                    File path = elements.nextElement();
+                    if (!dialog.modelAll.contains(path)
+                            && !dialog.modelSelected.contains(path)) {
+                        dialog.modelAll.addElement(path);
+                    }
+                }
+
+                elements = dialog.modelAll.elements();
+                while (elements.hasMoreElements()) {
+                    File path = elements.nextElement();
+                    if (PdbManager.getStructure(path) == null) {
+                        dialog.modelAll.removeElement(path);
+                    }
+                }
+
+                elements = dialog.modelSelected.elements();
+                while (elements.hasMoreElements()) {
+                    File path = elements.nextElement();
+                    if (PdbManager.getStructure(path) == null) {
+                        dialog.modelSelected.removeElement(path);
+                    }
+                }
+
                 dialog.setVisible(true);
-                System.out.println(dialog.selectedStructures);
+                if (dialog.selectedStructures != null
+                        && dialog.selectedStructures.size() >= 2) {
+                    menuMeasure.setEnabled(true);
+                    itemComputeGlobal.setEnabled(true);
+                }
+            }
+        });
+
+        itemComputeGlobal.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (dialog.selectedStructures == null
+                        || dialog.selectedStructures.size() < 2) {
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            "You must open at least two structures",
+                            "Information", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                GlobalComparison comparison;
+                if (radioMcq.isSelected()) {
+                    comparison = new MCQ();
+                } else { // radioRmsd.isSelected() == true
+                    comparison = new RMSD();
+                }
+
+                Structure[] structures = PdbManager
+                        .getSelectedStructures(dialog.selectedStructures);
+                try {
+                    double[][] result = comparison.compare(structures,
+                            new ComparisonListener() {
+                                @Override
+                                public void stateChanged(long all,
+                                        long completed) {
+                                    MainWindow.LOGGER.debug(completed + "/"
+                                            + all);
+                                }
+                            });
+                } catch (IncomparableStructuresException e1) {
+                    JOptionPane.showMessageDialog(
+                            MainWindow.this,
+                            "Failed to compute distance matrix: "
+                                    + e1.getMessage(), "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
         });
     }

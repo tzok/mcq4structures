@@ -23,24 +23,21 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
-
 public class StructureSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
     public ArrayList<File> selectedStructures;
+    DefaultListModel<File> modelAll;
+    DefaultListModel<File> modelSelected;
 
     public StructureSelectionDialog(Frame owner) {
         super(owner, true);
 
-        final DefaultListModel<File> modelAll = new DefaultListModel<>();
-        for (File f : PdbManager.getAllStructures()) {
-            modelAll.addElement(f);
-        }
+        modelAll = new DefaultListModel<>();
         final JList<File> listAll = new JList<>(modelAll);
         listAll.setBorder(BorderFactory
                 .createTitledBorder("Available structures:"));
 
-        final DefaultListModel<File> modelSelected = new DefaultListModel<>();
+        modelSelected = new DefaultListModel<>();
         final JList<File> listSelected = new JList<>(modelSelected);
         listSelected.setBorder(BorderFactory
                 .createTitledBorder("Selected structures:"));
@@ -86,7 +83,7 @@ public class StructureSelectionDialog extends JDialog {
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension dimension = new Dimension(screenSize.width / 3,
-                screenSize.height * 3 / 4);
+                screenSize.height / 2);
         listAll.setPreferredSize(dimension);
         listSelected.setPreferredSize(dimension);
 
