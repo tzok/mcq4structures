@@ -9,11 +9,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -40,6 +44,8 @@ import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
+
+import com.csvreader.CsvWriter;
 
 public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "MATRIX";
@@ -73,7 +79,7 @@ public class MainWindow extends JFrame {
          */
         JMenuItem itemOpen = new JMenuItem("Open structure(s)",
                 loadIcon("/toolbarButtonGraphics/general/Open16.gif"));
-        JMenuItem itemSave = new JMenuItem("Save results",
+        final JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
         JMenuItem itemExit = new JMenuItem("Exit");
@@ -219,7 +225,42 @@ public class MainWindow extends JFrame {
         itemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                MatrixTableModel model = (MatrixTableModel) tableMatrix
+                        .getModel();
+                String[] names = model.getNames();
+                double[][] values = model.getValues();
+
+                JFileChooser chooser = new JFileChooser();
+                int chosenOption = chooser.showSaveDialog(MainWindow.this);
+                if (chosenOption != JFileChooser.APPROVE_OPTION) {
+                    return;
+                }
+
+                try (FileOutputStream stream = new FileOutputStream(chooser
+                        .getSelectedFile())) {
+                    CsvWriter writer = new CsvWriter(stream, ';', Charset
+                            .forName("UTF-8"));
+
+                    int length = names.length;
+                    writer.write("");
+                    for (int i = 0; i < length; i++) {
+                        writer.write(names[i]);
+                    }
+                    writer.endRecord();
+
+                    for (int i = 0; i < length; i++) {
+                        writer.write(names[i]);
+                        for (int j = 0; j < length; j++) {
+                            writer.write(Double.toString(values[i][j]));
+                        }
+                        writer.endRecord();
+                    }
+
+                    writer.close();
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
             }
         });
 
@@ -295,6 +336,7 @@ public class MainWindow extends JFrame {
                                 @Override
                                 public void stateChanged(long all,
                                         long completed) {
+                                    // TODO
                                     MainWindow.LOGGER.debug(completed + "/"
                                             + all);
                                 }
@@ -304,6 +346,7 @@ public class MainWindow extends JFrame {
                     tableMatrix.setModel(model);
                     cardLayout.show(panelCards, CARD_MATRIX);
 
+                    itemSave.setEnabled(true);
                     itemCluster.setEnabled(true);
                     itemVisualise.setEnabled(true);
                 } catch (IncomparableStructuresException e1) {
