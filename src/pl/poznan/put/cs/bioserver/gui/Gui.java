@@ -32,7 +32,8 @@ public class Gui extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Gui();
+                MainWindow window = new MainWindow();
+                window.setVisible(true);
             }
         });
     }
