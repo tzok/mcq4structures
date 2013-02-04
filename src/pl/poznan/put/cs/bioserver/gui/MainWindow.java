@@ -1,5 +1,7 @@
 package pl.poznan.put.cs.bioserver.gui;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
@@ -17,7 +19,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -35,11 +40,11 @@ import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class MainWindow extends JFrame {
+    private static final String CARD_MATRIX = "MATRIX";
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
     protected StructureSelectionDialog dialog;
-    static JMenuItem itemOpen;
 
     public MainWindow() throws HeadlessException {
         super();
@@ -64,7 +69,7 @@ public class MainWindow extends JFrame {
         /*
          * Create menu
          */
-        itemOpen = new JMenuItem("Open structure(s)",
+        JMenuItem itemOpen = new JMenuItem("Open structure(s)",
                 loadIcon("/toolbarButtonGraphics/general/Open16.gif"));
         JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
@@ -91,9 +96,9 @@ public class MainWindow extends JFrame {
         final JMenuItem itemComputeGlobal = new JMenuItem(
                 "Compute distance matrix");
         itemComputeGlobal.setEnabled(false);
-        JMenuItem itemVisualise = new JMenuItem("Visualise results");
+        final JMenuItem itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
-        JMenuItem itemCluster = new JMenuItem("Cluster results");
+        final JMenuItem itemCluster = new JMenuItem("Cluster results");
         itemCluster.setEnabled(false);
         JMenu menuGlobal = new JMenu("Global comparison");
         menuGlobal.add(itemSelectStructures);
@@ -172,6 +177,18 @@ public class MainWindow extends JFrame {
         menuBar.add(itemAbout);
 
         setJMenuBar(menuBar);
+
+        /*
+         * Create card layout
+         */
+        final JTable tableMatrix = new JTable();
+        final CardLayout cardLayout = new CardLayout();
+        final JPanel panelCards = new JPanel();
+        panelCards.setLayout(cardLayout);
+        panelCards.add(new JScrollPane(tableMatrix), CARD_MATRIX);
+
+        setLayout(new BorderLayout());
+        add(panelCards, BorderLayout.CENTER);
 
         /*
          * Set window properties
@@ -266,6 +283,8 @@ public class MainWindow extends JFrame {
                     comparison = new RMSD();
                 }
 
+                String[] names = PdbManager
+                        .getSelectedStructuresNames(dialog.selectedStructures);
                 Structure[] structures = PdbManager
                         .getSelectedStructures(dialog.selectedStructures);
                 try {
@@ -278,6 +297,13 @@ public class MainWindow extends JFrame {
                                             + all);
                                 }
                             });
+
+                    MatrixTableModel model = new MatrixTableModel(names, result);
+                    tableMatrix.setModel(model);
+                    cardLayout.show(panelCards, CARD_MATRIX);
+
+                    itemCluster.setEnabled(true);
+                    itemVisualise.setEnabled(true);
                 } catch (IncomparableStructuresException e1) {
                     JOptionPane.showMessageDialog(
                             MainWindow.this,

@@ -134,4 +134,14 @@ public final class PdbManager {
         storeStructureInfo(pdbFile, structure);
         return structure;
     }
+
+    public static String[] getSelectedStructuresNames(ArrayList<File> files) {
+        int size = files.size();
+        String[] names = new String[size];
+        for (int i = 0; i < size; i++) {
+            File path = files.get(i);
+            names[i] = PdbManager.MAP_PATH_NAME.get(path);
+        }
+        return names;
+    }
 }
