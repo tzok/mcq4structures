@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class PdbManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PdbManager.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(PdbManager.class);
     private static final Map<File, Structure> MAP_PATH_STRUCTURE = new HashMap<>();
     private static final Map<File, String> MAP_PATH_NAME = new HashMap<>();
     private static final Map<Structure, String> MAP_STRUCTURE_NAME = new HashMap<>();
@@ -65,6 +66,6 @@ public final class PdbManager {
         return structure;
     }
 
-	private PdbManager() {
-	}
+    private PdbManager() {
+    }
 }

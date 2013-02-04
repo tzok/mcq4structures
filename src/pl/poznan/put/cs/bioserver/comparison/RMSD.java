@@ -24,7 +24,7 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public class RMSD extends GlobalComparison {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RMSD.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RMSD.class);
 
     /**
      * A command line wrapper to calculate RMSD for given structures. It outputs
@@ -61,21 +61,21 @@ public class RMSD extends GlobalComparison {
         }
     }
 
-	/**
-	 * Compare two given structures. By default, do not try to align based on
-	 * atoms, but if impossible to compare then try the alignment.
-	 * 
-	 * @param s1
-	 *            First structure.
-	 * @param s2
-	 *            Second structure.
-	 * @return RMSD.
-	 */
-	@Override
-	public double compare(Structure s1, Structure s2)
-			throws IncomparableStructuresException {
-		RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
-				+ s2.getPDBCode());
+    /**
+     * Compare two given structures. By default, do not try to align based on
+     * atoms, but if impossible to compare then try the alignment.
+     * 
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @return RMSD.
+     */
+    @Override
+    public double compare(Structure s1, Structure s2)
+            throws IncomparableStructuresException {
+        RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
+                + s2.getPDBCode());
 
         if (Helper.isNucleicAcid(s1) != Helper.isNucleicAcid(s2)) {
             return Double.NaN;
@@ -92,15 +92,15 @@ public class RMSD extends GlobalComparison {
                 return output.getAFPChain().getTotalRmsdOpt();
             }
 
-			RMSD.LOGGER.debug("Atom set size: " + atoms[0].length);
-			SVDSuperimposer superimposer = new SVDSuperimposer(atoms[0],
-					atoms[1]);
-			Calc.rotate(structures[1], superimposer.getRotation());
-			Calc.shift(structures[1], superimposer.getTranslation());
-			return SVDSuperimposer.getRMS(atoms[0], atoms[1]);
-		} catch (StructureException e) {
-			RMSD.LOGGER.error("Failed to compare structures", e);
-			throw new IncomparableStructuresException(e);
-		}
-	}
+            RMSD.LOGGER.debug("Atom set size: " + atoms[0].length);
+            SVDSuperimposer superimposer = new SVDSuperimposer(atoms[0],
+                    atoms[1]);
+            Calc.rotate(structures[1], superimposer.getRotation());
+            Calc.shift(structures[1], superimposer.getTranslation());
+            return SVDSuperimposer.getRMS(atoms[0], atoms[1]);
+        } catch (StructureException e) {
+            RMSD.LOGGER.error("Failed to compare structures", e);
+            throw new IncomparableStructuresException(e);
+        }
+    }
 }
