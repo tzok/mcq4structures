@@ -2,8 +2,12 @@ package pl.poznan.put.cs.bioserver.helper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
@@ -67,5 +71,20 @@ public final class PdbManager {
     }
 
     private PdbManager() {
+    }
+
+    public static int getSize() {
+        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_PATH_STRUCTURE
+                .size();
+        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_STRUCTURE_NAME
+                .size();
+        return PdbManager.MAP_PATH_NAME.size();
+    }
+
+    public static File[] getAllStructures() {
+        Set<File> set = PdbManager.MAP_PATH_NAME.keySet();
+        List<File> list = new ArrayList<>(set);
+        Collections.sort(list);
+        return list.toArray(new File[list.size()]);
     }
 }

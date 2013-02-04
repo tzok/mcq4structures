@@ -3,7 +3,10 @@ package pl.poznan.put.cs.bioserver.gui;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.net.URL;
 
 import javax.swing.ButtonGroup;
@@ -19,6 +22,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class MainWindow extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -68,7 +74,8 @@ public class MainWindow extends JFrame {
         menuMeasure.add(radioMcq);
         menuMeasure.add(radioRmsd);
 
-        JMenuItem itemSelectStructures = new JMenuItem("Select structures");
+        final JMenuItem itemSelectStructures = new JMenuItem(
+                "Select structures");
         itemSelectStructures.setEnabled(false);
         JMenuItem itemComputeGlobal = new JMenuItem("Compute distance matrix");
         itemComputeGlobal.setEnabled(false);
@@ -84,7 +91,7 @@ public class MainWindow extends JFrame {
         menuGlobal.add(itemVisualise);
         menuGlobal.add(itemCluster);
 
-        JMenuItem itemSelectChainsCompare = new JMenuItem("Select chains");
+        final JMenuItem itemSelectChainsCompare = new JMenuItem("Select chains");
         itemSelectChainsCompare.setEnabled(false);
         JMenuItem itemSelectTorsion = new JMenuItem("Select torsion angles");
         itemSelectTorsion.setEnabled(false);
@@ -111,7 +118,8 @@ public class MainWindow extends JFrame {
         menuSelectAlignType.add(radioAlignGlobal);
         menuSelectAlignType.add(radioAlignLocal);
 
-        JMenuItem itemSelectChainsAlignSeq = new JMenuItem("Select chains");
+        final JMenuItem itemSelectChainsAlignSeq = new JMenuItem(
+                "Select chains");
         itemSelectChainsAlignSeq.setEnabled(false);
         JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
         itemComputeAlignSeq.setEnabled(false);
@@ -120,7 +128,8 @@ public class MainWindow extends JFrame {
         menuAlignSeq.add(menuSelectAlignType);
         menuAlignSeq.add(itemComputeAlignSeq);
 
-        JMenuItem itemSelectChainsAlignStruc = new JMenuItem("Select chains");
+        final JMenuItem itemSelectChainsAlignStruc = new JMenuItem(
+                "Select chains");
         itemSelectChainsAlignStruc.setEnabled(false);
         JMenuItem itemComputeAlignStruc = new JMenuItem("Compute alignment");
         itemComputeAlignStruc.setEnabled(false);
@@ -165,6 +174,49 @@ public class MainWindow extends JFrame {
         Dimension size = toolkit.getScreenSize();
         setSize(size.width * 3 / 4, size.height * 3 / 4);
         setLocation(size.width / 8, size.height / 8);
+
+        /*
+         * Set action listeners
+         */
+        itemOpen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File[] files = PdbFileChooser.getSelectedFiles(MainWindow.this);
+                for (File f : files) {
+                    PdbManager.loadStructure(f);
+                }
+                if (PdbManager.getSize() > 0) {
+                    itemSelectStructures.setEnabled(true);
+                    itemSelectChainsCompare.setEnabled(true);
+                    itemSelectChainsAlignSeq.setEnabled(true);
+                    itemSelectChainsAlignStruc.setEnabled(true);
+                }
+            }
+        });
+
+        itemSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        });
+
+        itemExit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
+        itemSelectStructures.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StructureSelectionDialog dialog = new StructureSelectionDialog(
+                        MainWindow.this);
+                dialog.setVisible(true);
+                System.out.println(dialog.selectedStructures);
+            }
+        });
     }
 
     private ImageIcon loadIcon(String name) {
