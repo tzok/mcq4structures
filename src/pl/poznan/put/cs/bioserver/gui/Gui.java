@@ -21,6 +21,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class Gui extends JFrame {
     private static final long serialVersionUID = 1L;
+    public static PdbManagerDialog managerDialog;
 
     /**
      * Run the main graphical application.
@@ -32,7 +33,11 @@ public class Gui extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Gui();
+                managerDialog = new PdbManagerDialog();
+                managerDialog.setVisible(true);
+
+                MainWindow window = new MainWindow();
+                window.setVisible(true);
             }
         });
     }
