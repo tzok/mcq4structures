@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.gui;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -13,7 +14,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -32,6 +36,13 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.StructureException;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +51,10 @@ import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
+import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
@@ -49,6 +62,8 @@ import com.csvreader.CsvWriter;
 
 public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "MATRIX";
+    private static final String CARD_MCQ_LOCAL = "MCQ_LOCAL";
+
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
@@ -195,10 +210,12 @@ public class MainWindow extends JFrame {
          * Create card layout
          */
         final JTable tableMatrix = new JTable();
+        final JPanel panelChart = new JPanel(new GridLayout(1, 1));
         final CardLayout cardLayout = new CardLayout();
         final JPanel panelCards = new JPanel();
         panelCards.setLayout(cardLayout);
         panelCards.add(new JScrollPane(tableMatrix), CARD_MATRIX);
+        panelCards.add(panelChart, CARD_MCQ_LOCAL);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -458,7 +475,6 @@ public class MainWindow extends JFrame {
                     }
 
                     itemSelectTorsion.setEnabled(true);
-                    itemComputeLocal.setEnabled(true);
                 }
             }
         });
@@ -467,13 +483,61 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 torsionDialog.setVisible(true);
+                itemComputeLocal.setEnabled(true);
             }
         });
 
         itemComputeLocal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                // TODO
+                final Structure[] structures = new Structure[] {
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[0]),
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[1]) };
+
+                Map<String, List<AngleDifference>> result;
+                try {
+                    result = TorsionLocalComparison.compare(structures[0],
+                            structures[1], false);
+                } catch (StructureException e1) {
+                    JOptionPane.showMessageDialog(null, e1.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                DefaultXYDataset dataset = new DefaultXYDataset();
+                for (String angle : torsionDialog.selectedNames) {
+                    if (!result.containsKey(angle)) {
+                        continue;
+                    }
+                    List<AngleDifference> diffs = result.get(angle);
+                    Collections.sort(diffs);
+                    double[] x = new double[diffs.size()];
+                    double[] y = new double[diffs.size()];
+                    for (int i = 0; i < diffs.size(); i++) {
+                        AngleDifference ad = diffs.get(i);
+                        x[i] = i;
+                        y[i] = ad.getDifference();
+                    }
+                    dataset.addSeries(angle, new double[][] { x, y });
+                }
+                NumberAxis xAxis = new TorsionAxis(result);
+                xAxis.setLabel("Residue");
+
+                NumberAxis yAxis = new NumberAxis();
+                yAxis.setAutoRange(false);
+                yAxis.setRange(0, Math.PI);
+                yAxis.setLabel("Distance [rad]");
+
+                XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
+                        new DefaultXYItemRenderer());
+
+                panelChart.removeAll();
+                panelChart.add(new ChartPanel(new JFreeChart(plot)));
+                panelChart.revalidate();
+
+                cardLayout.show(panelCards, CARD_MCQ_LOCAL);
             }
         });
     }
