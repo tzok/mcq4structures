@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -110,7 +111,7 @@ public class TorsionLocalComparison extends LocalComparison {
 
         Map<ResidueNumber, List<AngleDifference>> mapResToDiffs = new HashMap<>();
         Map<ResidueNumber, AngleDifference[]> mapResToTaus = new HashMap<>();
-        Map<String, List<AngleDifference>> mapNameToDiffs = new HashMap<>();
+        Map<String, List<AngleDifference>> mapNameToDiffs = new LinkedHashMap<>();
         for (AngleDifference diff : allDiffs) {
             ResidueNumber residue = diff.getResidue();
             String angleName = diff.getAngleName();

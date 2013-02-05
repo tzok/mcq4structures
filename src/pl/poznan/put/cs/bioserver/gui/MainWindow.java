@@ -2,7 +2,9 @@ package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -13,7 +15,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -31,7 +41,15 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.StructureException;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +58,10 @@ import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
+import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
@@ -49,10 +69,17 @@ import com.csvreader.CsvWriter;
 
 public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "MATRIX";
+    private static final String CARD_MCQ_LOCAL = "MCQ_LOCAL";
+
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
-    protected StructureSelectionDialog dialog;
+    private StructureSelectionDialog structureDialog;
+    private ChainSelectionDialog chainDialog;
+    private TorsionAnglesSelectionDialog torsionDialog;
+    protected Map<String, List<AngleDifference>> localComparisonResult;
+    protected String[] globalComparisonNames;
+    protected double[][] globalComparisonResults;
 
     public MainWindow() throws HeadlessException {
         super();
@@ -72,7 +99,9 @@ public class MainWindow extends JFrame {
             }
         }
 
-        dialog = new StructureSelectionDialog(this);
+        structureDialog = new StructureSelectionDialog(this);
+        chainDialog = new ChainSelectionDialog(this);
+        torsionDialog = new TorsionAnglesSelectionDialog(this);
 
         /*
          * Create menu
@@ -117,9 +146,10 @@ public class MainWindow extends JFrame {
         menuGlobal.add(itemCluster);
 
         final JMenuItem itemSelectChainsCompare = new JMenuItem("Select chains");
-        JMenuItem itemSelectTorsion = new JMenuItem("Select torsion angles");
+        final JMenuItem itemSelectTorsion = new JMenuItem(
+                "Select torsion angles");
         itemSelectTorsion.setEnabled(false);
-        JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
+        final JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
         itemComputeLocal.setEnabled(false);
         JMenu menuLocal = new JMenu("Local comparison");
         menuLocal.add(itemSelectChainsCompare);
@@ -190,10 +220,12 @@ public class MainWindow extends JFrame {
          * Create card layout
          */
         final JTable tableMatrix = new JTable();
+        final JPanel panelTorsionChart = new JPanel(new GridLayout(1, 1));
         final CardLayout cardLayout = new CardLayout();
         final JPanel panelCards = new JPanel();
         panelCards.setLayout(cardLayout);
         panelCards.add(new JScrollPane(tableMatrix), CARD_MATRIX);
+        panelCards.add(panelTorsionChart, CARD_MCQ_LOCAL);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -225,41 +257,97 @@ public class MainWindow extends JFrame {
         itemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                MatrixTableModel model = (MatrixTableModel) tableMatrix
-                        .getModel();
-                String[] names = model.getNames();
-                double[][] values = model.getValues();
-
                 JFileChooser chooser = new JFileChooser();
                 int chosenOption = chooser.showSaveDialog(MainWindow.this);
                 if (chosenOption != JFileChooser.APPROVE_OPTION) {
                     return;
                 }
 
-                try (FileOutputStream stream = new FileOutputStream(chooser
-                        .getSelectedFile())) {
-                    CsvWriter writer = new CsvWriter(stream, ';', Charset
-                            .forName("UTF-8"));
+                Component current = getCurrentCard(panelCards);
+                if (current.equals(tableMatrix)) {
+                    try (FileOutputStream stream = new FileOutputStream(chooser
+                            .getSelectedFile())) {
+                        CsvWriter writer = new CsvWriter(stream, ';', Charset
+                                .forName("UTF-8"));
 
-                    int length = names.length;
-                    writer.write("");
-                    for (int i = 0; i < length; i++) {
-                        writer.write(names[i]);
-                    }
-                    writer.endRecord();
-
-                    for (int i = 0; i < length; i++) {
-                        writer.write(names[i]);
-                        for (int j = 0; j < length; j++) {
-                            writer.write(Double.toString(values[i][j]));
+                        int length = globalComparisonNames.length;
+                        writer.write("");
+                        for (int i = 0; i < length; i++) {
+                            writer.write(globalComparisonNames[i]);
                         }
                         writer.endRecord();
+
+                        for (int i = 0; i < length; i++) {
+                            writer.write(globalComparisonNames[i]);
+                            for (int j = 0; j < length; j++) {
+                                writer.write(Double
+                                        .toString(globalComparisonResults[i][j]));
+                            }
+                            writer.endRecord();
+                        }
+
+                        writer.close();
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                } else if (current.equals(panelTorsionChart)) {
+                    SortedMap<String, Map<String, Double>> map = new TreeMap<>();
+                    for (Entry<String, List<AngleDifference>> pair : localComparisonResult
+                            .entrySet()) {
+                        String angleName = pair.getKey();
+                        List<AngleDifference> value = pair.getValue();
+
+                        for (AngleDifference ad : value) {
+                            ResidueNumber residue = ad.getResidue();
+                            String residueName = String.format("%s:%03d",
+                                    residue.getChainId(), residue.getSeqNum());
+
+                            if (!map.containsKey(residueName)) {
+                                map.put(residueName,
+                                        new LinkedHashMap<String, Double>());
+                            }
+                            Map<String, Double> angleValues = map
+                                    .get(residueName);
+                            angleValues.put(angleName, ad.getDifference());
+                        }
                     }
 
-                    writer.close();
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                    try (FileOutputStream stream = new FileOutputStream(chooser
+                            .getSelectedFile())) {
+                        CsvWriter writer = new CsvWriter(stream, ';', Charset
+                                .forName("UTF-8"));
+
+                        writer.write("");
+                        Set<String> keySetReference = map.get(map.firstKey())
+                                .keySet();
+                        for (String angleName : keySetReference) {
+                            writer.write(angleName);
+                        }
+                        writer.endRecord();
+
+                        for (String residueName : map.keySet()) {
+                            writer.write(residueName);
+
+                            Map<String, Double> mapAngles = map
+                                    .get(residueName);
+                            for (String angleName : keySetReference) {
+                                if (mapAngles.containsKey(angleName)) {
+                                    String angleValue = Double
+                                            .toString(mapAngles.get(angleName));
+                                    writer.write(angleValue);
+                                } else {
+                                    writer.write("");
+                                }
+                            }
+                            writer.endRecord();
+                        }
+
+                        writer.close();
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -277,31 +365,31 @@ public class MainWindow extends JFrame {
                 Enumeration<File> elements = PdbManagerDialog.model.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
-                    if (!dialog.modelAll.contains(path)
-                            && !dialog.modelSelected.contains(path)) {
-                        dialog.modelAll.addElement(path);
+                    if (!structureDialog.modelAll.contains(path)
+                            && !structureDialog.modelSelected.contains(path)) {
+                        structureDialog.modelAll.addElement(path);
                     }
                 }
 
-                elements = dialog.modelAll.elements();
+                elements = structureDialog.modelAll.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     if (PdbManager.getStructure(path) == null) {
-                        dialog.modelAll.removeElement(path);
+                        structureDialog.modelAll.removeElement(path);
                     }
                 }
 
-                elements = dialog.modelSelected.elements();
+                elements = structureDialog.modelSelected.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     if (PdbManager.getStructure(path) == null) {
-                        dialog.modelSelected.removeElement(path);
+                        structureDialog.modelSelected.removeElement(path);
                     }
                 }
 
-                dialog.setVisible(true);
-                if (dialog.selectedStructures != null
-                        && dialog.selectedStructures.size() >= 2) {
+                structureDialog.setVisible(true);
+                if (structureDialog.selectedStructures != null
+                        && structureDialog.selectedStructures.size() >= 2) {
                     menuMeasure.setEnabled(true);
                     itemComputeGlobal.setEnabled(true);
                 }
@@ -311,8 +399,8 @@ public class MainWindow extends JFrame {
         itemComputeGlobal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (dialog.selectedStructures == null
-                        || dialog.selectedStructures.size() < 2) {
+                if (structureDialog.selectedStructures == null
+                        || structureDialog.selectedStructures.size() < 2) {
                     JOptionPane.showMessageDialog(MainWindow.this,
                             "You must open at least two structures",
                             "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -326,12 +414,12 @@ public class MainWindow extends JFrame {
                     comparison = new RMSD();
                 }
 
-                String[] names = PdbManager
-                        .getSelectedStructuresNames(dialog.selectedStructures);
+                globalComparisonNames = PdbManager
+                        .getSelectedStructuresNames(structureDialog.selectedStructures);
                 Structure[] structures = PdbManager
-                        .getSelectedStructures(dialog.selectedStructures);
+                        .getSelectedStructures(structureDialog.selectedStructures);
                 try {
-                    double[][] result = comparison.compare(structures,
+                    globalComparisonResults = comparison.compare(structures,
                             new ComparisonListener() {
                                 @Override
                                 public void stateChanged(long all,
@@ -342,7 +430,8 @@ public class MainWindow extends JFrame {
                                 }
                             });
 
-                    MatrixTableModel model = new MatrixTableModel(names, result);
+                    MatrixTableModel model = new MatrixTableModel(
+                            globalComparisonNames, globalComparisonResults);
                     tableMatrix.setModel(model);
                     cardLayout.show(panelCards, CARD_MATRIX);
 
@@ -420,6 +509,114 @@ public class MainWindow extends JFrame {
                 dialogClustering.setVisible(true);
             }
         });
+
+        itemSelectChainsCompare.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                chainDialog.modelLeft.removeAllElements();
+                chainDialog.modelRight.removeAllElements();
+
+                Enumeration<File> elements = PdbManagerDialog.model.elements();
+                while (elements.hasMoreElements()) {
+                    File path = elements.nextElement();
+                    chainDialog.modelLeft.addElement(path);
+                    chainDialog.modelRight.addElement(path);
+                }
+
+                chainDialog.setVisible(true);
+
+                if (chainDialog.selectedStructures != null
+                        && chainDialog.selectedChains != null) {
+                    for (int i = 0; i < 2; i++) {
+                        if (chainDialog.selectedChains[i].length == 0) {
+                            JOptionPane
+                                    .showMessageDialog(
+                                            MainWindow.this,
+                                            "No chains specified for structure: "
+                                                    + chainDialog.selectedStructures[i],
+                                            "Error", JOptionPane.ERROR_MESSAGE);
+                            chainDialog.selectedStructures = null;
+                            chainDialog.selectedChains = null;
+                            return;
+                        }
+                    }
+
+                    itemSelectTorsion.setEnabled(true);
+                }
+            }
+        });
+
+        itemSelectTorsion.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                torsionDialog.setVisible(true);
+                itemComputeLocal.setEnabled(true);
+            }
+        });
+
+        itemComputeLocal.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                final Structure[] structures = new Structure[] {
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[0]),
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[1]) };
+
+                try {
+                    localComparisonResult = TorsionLocalComparison.compare(
+                            structures[0], structures[1], false);
+                } catch (StructureException e1) {
+                    JOptionPane.showMessageDialog(null, e1.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                DefaultXYDataset dataset = new DefaultXYDataset();
+                for (String angle : torsionDialog.selectedNames) {
+                    if (!localComparisonResult.containsKey(angle)) {
+                        continue;
+                    }
+                    List<AngleDifference> diffs = localComparisonResult
+                            .get(angle);
+                    Collections.sort(diffs);
+                    double[] x = new double[diffs.size()];
+                    double[] y = new double[diffs.size()];
+                    for (int i = 0; i < diffs.size(); i++) {
+                        AngleDifference ad = diffs.get(i);
+                        x[i] = i;
+                        y[i] = ad.getDifference();
+                    }
+                    dataset.addSeries(angle, new double[][] { x, y });
+                }
+                NumberAxis xAxis = new TorsionAxis(localComparisonResult);
+                xAxis.setLabel("Residue");
+
+                NumberAxis yAxis = new NumberAxis();
+                yAxis.setAutoRange(false);
+                yAxis.setRange(0, Math.PI);
+                yAxis.setLabel("Distance [rad]");
+
+                XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
+                        new DefaultXYItemRenderer());
+
+                panelTorsionChart.removeAll();
+                panelTorsionChart.add(new ChartPanel(new JFreeChart(plot)));
+                panelTorsionChart.revalidate();
+
+                cardLayout.show(panelCards, CARD_MCQ_LOCAL);
+                itemSave.setEnabled(true);
+            }
+        });
+    }
+
+    protected static Component getCurrentCard(JPanel panel) {
+        for (Component component : panel.getComponents()) {
+            if (component.isVisible()) {
+                return component;
+            }
+        }
+        return null;
     }
 
     private ImageIcon loadIcon(String name) {
