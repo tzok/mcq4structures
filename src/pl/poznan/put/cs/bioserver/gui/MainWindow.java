@@ -74,6 +74,21 @@ public class MainWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
+    protected static final String ABOUT = "MCQ4Structures is a tool for "
+            + "structural similarity computation based on molecule tertiary "
+            + "structure representation in torsional angle space.\nIt has been "
+            + "designed to work primarily for RNA structures. Proteins are "
+            + "also handled and their representation is restricted to the "
+            + "backbone angles.\n\nMCQ4Structures is available as a free Java "
+            + "WebStart application. The source code is licensed under BSD."
+            + "\n\nCiting MCQ4Structures.\n"
+            + "T. Zok, M. Popenda, M. Szachniuk. MCQ4Structures to compute "
+            + "similarity of molecule structures. Central European Journal of "
+            + "Operations Research, in press.\n\nAcknowledgements and funding.\n"
+            + "This work has been partially supported by the European Regional "
+            + "Development Fund within Innovative Economy Programme "
+            + "(POIG.02.03.00-00-018/08 POWIEW)\nand grants from the National "
+            + "Science Centre, Poland (2012/05/B/ST6/03026).";
     private StructureSelectionDialog structureDialog;
     private ChainSelectionDialog chainDialog;
     private TorsionAnglesSelectionDialog torsionDialog;
@@ -606,6 +621,49 @@ public class MainWindow extends JFrame {
 
                 cardLayout.show(panelCards, CARD_MCQ_LOCAL);
                 itemSave.setEnabled(true);
+            }
+        });
+
+        itemSelectChainsAlignSeq.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                // TODO
+            }
+        });
+
+        itemComputeAlignSeq.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+            }
+        });
+
+        itemSelectChainsAlignStruc.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        itemComputeAlignStruc.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        itemGuide.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        itemAbout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(MainWindow.this, ABOUT, "About",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         });
     }
