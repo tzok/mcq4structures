@@ -52,7 +52,8 @@ public class MainWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
-    protected StructureSelectionDialog dialog;
+    protected StructureSelectionDialog structureDialog;
+    protected ChainSelectionDialog chainDialog;
 
     public MainWindow() throws HeadlessException {
         super();
@@ -72,7 +73,8 @@ public class MainWindow extends JFrame {
             }
         }
 
-        dialog = new StructureSelectionDialog(this);
+        structureDialog = new StructureSelectionDialog(this);
+        chainDialog = new ChainSelectionDialog(this);
 
         /*
          * Create menu
@@ -117,7 +119,8 @@ public class MainWindow extends JFrame {
         menuGlobal.add(itemCluster);
 
         final JMenuItem itemSelectChainsCompare = new JMenuItem("Select chains");
-        JMenuItem itemSelectTorsion = new JMenuItem("Select torsion angles");
+        final JMenuItem itemSelectTorsion = new JMenuItem(
+                "Select torsion angles");
         itemSelectTorsion.setEnabled(false);
         JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
         itemComputeLocal.setEnabled(false);
@@ -277,31 +280,31 @@ public class MainWindow extends JFrame {
                 Enumeration<File> elements = PdbManagerDialog.model.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
-                    if (!dialog.modelAll.contains(path)
-                            && !dialog.modelSelected.contains(path)) {
-                        dialog.modelAll.addElement(path);
+                    if (!structureDialog.modelAll.contains(path)
+                            && !structureDialog.modelSelected.contains(path)) {
+                        structureDialog.modelAll.addElement(path);
                     }
                 }
 
-                elements = dialog.modelAll.elements();
+                elements = structureDialog.modelAll.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     if (PdbManager.getStructure(path) == null) {
-                        dialog.modelAll.removeElement(path);
+                        structureDialog.modelAll.removeElement(path);
                     }
                 }
 
-                elements = dialog.modelSelected.elements();
+                elements = structureDialog.modelSelected.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     if (PdbManager.getStructure(path) == null) {
-                        dialog.modelSelected.removeElement(path);
+                        structureDialog.modelSelected.removeElement(path);
                     }
                 }
 
-                dialog.setVisible(true);
-                if (dialog.selectedStructures != null
-                        && dialog.selectedStructures.size() >= 2) {
+                structureDialog.setVisible(true);
+                if (structureDialog.selectedStructures != null
+                        && structureDialog.selectedStructures.size() >= 2) {
                     menuMeasure.setEnabled(true);
                     itemComputeGlobal.setEnabled(true);
                 }
@@ -311,8 +314,8 @@ public class MainWindow extends JFrame {
         itemComputeGlobal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (dialog.selectedStructures == null
-                        || dialog.selectedStructures.size() < 2) {
+                if (structureDialog.selectedStructures == null
+                        || structureDialog.selectedStructures.size() < 2) {
                     JOptionPane.showMessageDialog(MainWindow.this,
                             "You must open at least two structures",
                             "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -327,9 +330,9 @@ public class MainWindow extends JFrame {
                 }
 
                 String[] names = PdbManager
-                        .getSelectedStructuresNames(dialog.selectedStructures);
+                        .getSelectedStructuresNames(structureDialog.selectedStructures);
                 Structure[] structures = PdbManager
-                        .getSelectedStructures(dialog.selectedStructures);
+                        .getSelectedStructures(structureDialog.selectedStructures);
                 try {
                     double[][] result = comparison.compare(structures,
                             new ComparisonListener() {
@@ -418,6 +421,56 @@ public class MainWindow extends JFrame {
                 ClusteringDialog dialogClustering = new ClusteringDialog(names,
                         values);
                 dialogClustering.setVisible(true);
+            }
+        });
+
+        itemSelectChainsCompare.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                chainDialog.modelLeft.removeAllElements();
+                chainDialog.modelRight.removeAllElements();
+
+                Enumeration<File> elements = PdbManagerDialog.model.elements();
+                while (elements.hasMoreElements()) {
+                    File path = elements.nextElement();
+                    chainDialog.modelLeft.addElement(path);
+                    chainDialog.modelRight.addElement(path);
+                }
+
+                chainDialog.setVisible(true);
+
+                if (chainDialog.selectedStructures != null
+                        && chainDialog.selectedChains != null) {
+                    for (int i = 0; i < 2; i++) {
+                        if (chainDialog.selectedChains[i].length == 0) {
+                            JOptionPane
+                                    .showMessageDialog(
+                                            MainWindow.this,
+                                            "No chains specified for structure: "
+                                                    + chainDialog.selectedStructures[i],
+                                            "Error", JOptionPane.ERROR_MESSAGE);
+                            chainDialog.selectedStructures = null;
+                            chainDialog.selectedChains = null;
+                            return;
+                        }
+                    }
+
+                    itemSelectTorsion.setEnabled(true);
+                }
+            }
+        });
+
+        itemSelectTorsion.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                // TODO
+            }
+        });
+
+        itemComputeLocal.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                // TODO
             }
         });
     }
