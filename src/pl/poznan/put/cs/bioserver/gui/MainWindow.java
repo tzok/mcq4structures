@@ -52,8 +52,9 @@ public class MainWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
-    protected StructureSelectionDialog structureDialog;
-    protected ChainSelectionDialog chainDialog;
+    private StructureSelectionDialog structureDialog;
+    private ChainSelectionDialog chainDialog;
+    private TorsionAnglesSelectionDialog torsionDialog;
 
     public MainWindow() throws HeadlessException {
         super();
@@ -75,6 +76,7 @@ public class MainWindow extends JFrame {
 
         structureDialog = new StructureSelectionDialog(this);
         chainDialog = new ChainSelectionDialog(this);
+        torsionDialog = new TorsionAnglesSelectionDialog(this);
 
         /*
          * Create menu
@@ -122,7 +124,7 @@ public class MainWindow extends JFrame {
         final JMenuItem itemSelectTorsion = new JMenuItem(
                 "Select torsion angles");
         itemSelectTorsion.setEnabled(false);
-        JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
+        final JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
         itemComputeLocal.setEnabled(false);
         JMenu menuLocal = new JMenu("Local comparison");
         menuLocal.add(itemSelectChainsCompare);
@@ -456,6 +458,7 @@ public class MainWindow extends JFrame {
                     }
 
                     itemSelectTorsion.setEnabled(true);
+                    itemComputeLocal.setEnabled(true);
                 }
             }
         });
@@ -463,7 +466,7 @@ public class MainWindow extends JFrame {
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                // TODO
+                torsionDialog.setVisible(true);
             }
         });
 
