@@ -71,6 +71,7 @@ public class PdbManagerDialog extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
+        setAlwaysOnTop(true);
         setTitle("Structure manager dialog");
 
         buttonOpen.addActionListener(new ActionListener() {

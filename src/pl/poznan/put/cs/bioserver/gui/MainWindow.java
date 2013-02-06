@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,30 +30,48 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.lang3.StringUtils;
+import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
+import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
+import org.biojava3.alignment.template.AlignedSequence;
+import org.biojava3.alignment.template.PairwiseSequenceAligner;
+import org.biojava3.alignment.template.SequencePair;
+import org.biojava3.core.sequence.compound.AminoAcidCompound;
+import org.biojava3.core.sequence.compound.NucleotideCompound;
+import org.biojava3.core.sequence.template.Sequence;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.jmol.api.JmolViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
+import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
+import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
@@ -60,6 +79,7 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
@@ -68,8 +88,10 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 import com.csvreader.CsvWriter;
 
 public class MainWindow extends JFrame {
-    private static final String CARD_MATRIX = "MATRIX";
-    private static final String CARD_MCQ_LOCAL = "MCQ_LOCAL";
+    private static final String CARD_GLOBAL = "MATRIX";
+    private static final String CARD_LOCAL = "MCQ_LOCAL";
+    private static final String CARD_ALIGN_SEQ = "ALIGN_SEQ";
+    private static final String CARD_ALIGN_STRUC = "ALIGN_STRUC";
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
@@ -177,19 +199,19 @@ public class MainWindow extends JFrame {
         menuDistance.addSeparator();
         menuDistance.add(menuLocal);
 
-        JRadioButton radioAlignGlobal = new JRadioButton("Global", true);
+        final JRadioButton radioAlignGlobal = new JRadioButton("Global", true);
         JRadioButton radioAlignLocal = new JRadioButton("Local", false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignGlobal);
         groupAlign.add(radioAlignLocal);
-        JMenu menuSelectAlignType = new JMenu("Select alignment type");
+        final JMenu menuSelectAlignType = new JMenu("Select alignment type");
         menuSelectAlignType.setEnabled(false);
         menuSelectAlignType.add(radioAlignGlobal);
         menuSelectAlignType.add(radioAlignLocal);
 
         final JMenuItem itemSelectChainsAlignSeq = new JMenuItem(
                 "Select chains");
-        JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
+        final JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
         itemComputeAlignSeq.setEnabled(false);
         JMenu menuAlignSeq = new JMenu("Sequence");
         menuAlignSeq.add(itemSelectChainsAlignSeq);
@@ -198,7 +220,8 @@ public class MainWindow extends JFrame {
 
         final JMenuItem itemSelectChainsAlignStruc = new JMenuItem(
                 "Select chains");
-        JMenuItem itemComputeAlignStruc = new JMenuItem("Compute alignment");
+        final JMenuItem itemComputeAlignStruc = new JMenuItem(
+                "Compute alignment");
         itemComputeAlignStruc.setEnabled(false);
         JMenu menuAlignStruc = new JMenu("3D structure");
         menuAlignStruc.add(itemSelectChainsAlignStruc);
@@ -235,12 +258,36 @@ public class MainWindow extends JFrame {
          * Create card layout
          */
         final JTable tableMatrix = new JTable();
-        final JPanel panelTorsionChart = new JPanel(new GridLayout(1, 1));
-        final CardLayout cardLayout = new CardLayout();
+        final JProgressBar progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        JPanel panelResultsGlobal = new JPanel(new BorderLayout());
+        panelResultsGlobal.add(new JScrollPane(tableMatrix),
+                BorderLayout.CENTER);
+        panelResultsGlobal.add(progressBar, BorderLayout.SOUTH);
+
+        final JPanel panelResultsLocal = new JPanel(new GridLayout(1, 1));
+
+        final JTextArea textAreaAlignSeq = new JTextArea();
+        textAreaAlignSeq.setEditable(false);
+        final JPanel panelAlignmentSeqLabels = new JPanel();
+        JPanel panelResultsAlignSeq = new JPanel(new BorderLayout());
+        panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq),
+                BorderLayout.CENTER);
+        panelResultsAlignSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
+
+        final JmolPanel panelJmolLeft = new JmolPanel();
+        final JmolPanel panelJmolRight = new JmolPanel();
+        JPanel panelResultsAlignStruc = new JPanel(new GridLayout(1, 2));
+        panelResultsAlignStruc.add(panelJmolLeft);
+        panelResultsAlignStruc.add(panelJmolRight);
+
+        final CardLayout layoutCards = new CardLayout();
         final JPanel panelCards = new JPanel();
-        panelCards.setLayout(cardLayout);
-        panelCards.add(new JScrollPane(tableMatrix), CARD_MATRIX);
-        panelCards.add(panelTorsionChart, CARD_MCQ_LOCAL);
+        panelCards.setLayout(layoutCards);
+        panelCards.add(panelResultsGlobal, CARD_GLOBAL);
+        panelCards.add(panelResultsLocal, CARD_LOCAL);
+        panelCards.add(panelResultsAlignSeq, CARD_ALIGN_SEQ);
+        panelCards.add(panelResultsAlignStruc, CARD_ALIGN_STRUC);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -306,7 +353,7 @@ public class MainWindow extends JFrame {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
-                } else if (current.equals(panelTorsionChart)) {
+                } else if (current.equals(panelResultsLocal)) {
                     SortedMap<String, Map<String, Double>> map = new TreeMap<>();
                     for (Entry<String, List<AngleDifference>> pair : localComparisonResult
                             .entrySet()) {
@@ -370,7 +417,8 @@ public class MainWindow extends JFrame {
         itemExit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
+                dispatchEvent(new WindowEvent(MainWindow.this,
+                        WindowEvent.WINDOW_CLOSING));
             }
         });
 
@@ -422,6 +470,8 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
+                layoutCards.show(panelCards, CARD_GLOBAL);
+
                 GlobalComparison comparison;
                 if (radioMcq.isSelected()) {
                     comparison = new MCQ();
@@ -439,16 +489,14 @@ public class MainWindow extends JFrame {
                                 @Override
                                 public void stateChanged(long all,
                                         long completed) {
-                                    // TODO
-                                    MainWindow.LOGGER.debug(completed + "/"
-                                            + all);
+                                    progressBar.setMaximum((int) all);
+                                    progressBar.setValue((int) completed);
                                 }
                             });
 
                     MatrixTableModel model = new MatrixTableModel(
                             globalComparisonNames, globalComparisonResults);
                     tableMatrix.setModel(model);
-                    cardLayout.show(panelCards, CARD_MATRIX);
 
                     itemSave.setEnabled(true);
                     itemCluster.setEnabled(true);
@@ -525,7 +573,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemSelectChainsCompare.addActionListener(new ActionListener() {
+        ActionListener actionListenerSelectChains = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 chainDialog.modelLeft.removeAllElements();
@@ -556,10 +604,22 @@ public class MainWindow extends JFrame {
                         }
                     }
 
-                    itemSelectTorsion.setEnabled(true);
+                    Object source = arg0.getSource();
+                    if (source.equals(itemSelectChainsCompare)) {
+                        itemSelectTorsion.setEnabled(true);
+                    } else if (source.equals(itemSelectChainsAlignSeq)) {
+                        menuSelectAlignType.setEnabled(true);
+                        itemComputeAlignSeq.setEnabled(true);
+                    } else { // source.equals(itemSelectChainsAlignStruc)
+                        itemComputeAlignStruc.setEnabled(true);
+                    }
                 }
             }
-        });
+        };
+        itemSelectChainsCompare.addActionListener(actionListenerSelectChains);
+        itemSelectChainsAlignSeq.addActionListener(actionListenerSelectChains);
+        itemSelectChainsAlignStruc
+                .addActionListener(actionListenerSelectChains);
 
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
@@ -572,6 +632,8 @@ public class MainWindow extends JFrame {
         itemComputeLocal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
+                layoutCards.show(panelCards, CARD_LOCAL);
+
                 final Structure[] structures = new Structure[] {
                         PdbManager
                                 .getStructure(chainDialog.selectedStructures[0]),
@@ -615,47 +677,233 @@ public class MainWindow extends JFrame {
                 XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
                         new DefaultXYItemRenderer());
 
-                panelTorsionChart.removeAll();
-                panelTorsionChart.add(new ChartPanel(new JFreeChart(plot)));
-                panelTorsionChart.revalidate();
+                panelResultsLocal.removeAll();
+                panelResultsLocal.add(new ChartPanel(new JFreeChart(plot)));
+                panelResultsLocal.revalidate();
 
-                cardLayout.show(panelCards, CARD_MCQ_LOCAL);
                 itemSave.setEnabled(true);
-            }
-        });
-
-        itemSelectChainsAlignSeq.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // TODO
             }
         });
 
         itemComputeAlignSeq.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
-            }
-        });
+                layoutCards.show(panelCards, CARD_ALIGN_SEQ);
 
-        itemSelectChainsAlignStruc.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+                Structure[] structures = new Structure[] {
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[0]),
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[1]) };
+
+                // FIXME
+                int chainIndexFirst = 0;
+                int chainIndexSecond = 0;
+                Chain chains[] = new Chain[] {
+                        structures[0].getChain(chainIndexFirst),
+                        structures[1].getChain(chainIndexSecond) };
+
+                PairwiseSequenceAlignerType type;
+                if (radioAlignGlobal.isSelected()) {
+                    type = PairwiseSequenceAlignerType.GLOBAL;
+                } else {
+                    type = PairwiseSequenceAlignerType.LOCAL;
+                }
+
+                boolean isRNA = Helper.isNucleicAcid(chains[0]);
+                if (isRNA != Helper.isNucleicAcid(chains[1])) {
+                    String message = "Structures meant to be aligned "
+                            + "represent different molecule types!";
+                    MainWindow.LOGGER.error(message);
+                    JOptionPane.showMessageDialog(null, message, "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int gaps, length, minScore, maxScore, score;
+                double similarity;
+                String alignment;
+                if (isRNA) {
+                    SequenceAligner<NucleotideCompound> aligner = new SequenceAligner<>(
+                            NucleotideCompound.class);
+                    PairwiseSequenceAligner<Sequence<NucleotideCompound>, NucleotideCompound> sequenceAligner = aligner
+                            .alignSequences(chains[0], chains[1], type);
+                    SequencePair<Sequence<NucleotideCompound>, NucleotideCompound> pair = sequenceAligner
+                            .getPair();
+
+                    gaps = 0;
+                    for (AlignedSequence<Sequence<NucleotideCompound>, NucleotideCompound> as : pair
+                            .getAlignedSequences()) {
+                        gaps += StringUtils.countMatches(
+                                as.getSequenceAsString(), "-");
+                    }
+                    length = pair.getLength();
+                    score = sequenceAligner.getScore();
+                    minScore = sequenceAligner.getMinScore();
+                    maxScore = sequenceAligner.getMaxScore();
+                    similarity = sequenceAligner.getSimilarity();
+
+                    alignment = pair.toString();
+                } else {
+                    SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
+                            AminoAcidCompound.class);
+                    PairwiseSequenceAligner<Sequence<AminoAcidCompound>, AminoAcidCompound> sequenceAligner = aligner
+                            .alignSequences(chains[0], chains[1], type);
+                    SequencePair<Sequence<AminoAcidCompound>, AminoAcidCompound> pair = sequenceAligner
+                            .getPair();
+
+                    gaps = 0;
+                    for (AlignedSequence<Sequence<AminoAcidCompound>, AminoAcidCompound> as : pair
+                            .getAlignedSequences()) {
+                        gaps += StringUtils.countMatches(
+                                as.getSequenceAsString(), "-");
+                    }
+                    length = pair.getLength();
+                    score = sequenceAligner.getScore();
+                    minScore = sequenceAligner.getMinScore();
+                    maxScore = sequenceAligner.getMaxScore();
+                    similarity = sequenceAligner.getSimilarity();
+
+                    alignment = pair.toString();
+                }
+
+                textAreaAlignSeq.setText(alignment);
+                panelAlignmentSeqLabels.removeAll();
+                panelAlignmentSeqLabels.add(new JLabel(String.format(
+                        "Score: %d (min: %d, max: %d)\t"
+                                + "Similarity: %.0f%%\t"
+                                + "Gaps: %d/%d (%.0f%%)", score, minScore,
+                        maxScore, 100.0 * similarity, gaps, length, 100.0
+                                * gaps / length)));
+                panelAlignmentSeqLabels.revalidate();
             }
         });
 
         itemComputeAlignStruc.addActionListener(new ActionListener() {
+            private Thread thread;
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+                if (thread != null && thread.isAlive()) {
+                    JOptionPane.showMessageDialog(null,
+                            "Alignment calculation underway!", "Information",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                layoutCards.show(panelCards, CARD_ALIGN_STRUC);
+
+                final Structure[] structures = new Structure[] {
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[0]),
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[1]) };
+
+                // FIXME
+                // if (arg0.getSource().equals(buttonAlignChain)) {
+                // int chainIndexFirst = panelPdb.getComboBoxFirst()
+                // .getSelectedIndex();
+                // int chainIndexSecond = panelPdb.getComboBoxSecond()
+                // .getSelectedIndex();
+                // structures[0] = new StructureImpl(structures[0]
+                // .getChain(chainIndexFirst));
+                // structures[1] = new StructureImpl(structures[1]
+                // .getChain(chainIndexSecond));
+                // }
+
+                boolean isRNA = Helper.isNucleicAcid(structures[0]);
+                if (isRNA != Helper.isNucleicAcid(structures[1])) {
+                    String message = "Structures meant to be aligned "
+                            + "represent different molecule types!";
+                    MainWindow.LOGGER.error(message);
+                    JOptionPane.showMessageDialog(null, message, "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // FIXME
+                // labelStatus.setText("Processing");
+                // final Timer timer = new Timer(250, new ActionListener() {
+                // @Override
+                // public void actionPerformed(ActionEvent e) {
+                // String text = labelStatus.getText();
+                // int count = StringUtils.countMatches(text, ".");
+                // if (count < 5) {
+                // labelStatus.setText(text + ".");
+                // } else {
+                // labelStatus.setText("Processing");
+                // }
+                // }
+                // });
+                // timer.start();
+
+                thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Helper.normalizeAtomNames(structures[0]);
+                            Helper.normalizeAtomNames(structures[1]);
+
+                            AlignmentOutput output = StructureAligner.align(
+                                    structures[0], structures[1]);
+                            final Structure[] aligned = output.getStructures();
+
+                            SwingUtilities.invokeLater(new Runnable() {
+                                private static final String JMOL_SCRIPT = "frame 0.0; "
+                                        + "cartoon only; "
+                                        + "select model=1.1; color green; "
+                                        + "select model=1.2; color red; ";
+
+                                @Override
+                                public void run() {
+                                    StringBuilder builder = new StringBuilder();
+                                    builder.append("MODEL        1                                                                  \n");
+                                    builder.append(aligned[0].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+                                    builder.append("MODEL        2                                                                  \n");
+                                    builder.append(aligned[1].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+
+                                    JmolViewer viewer = panelJmolLeft
+                                            .getViewer();
+                                    viewer.openStringInline(builder.toString());
+                                    panelJmolLeft.executeCmd(JMOL_SCRIPT);
+
+                                    builder = new StringBuilder();
+                                    builder.append("MODEL        1                                                                  \n");
+                                    builder.append(aligned[2].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+                                    builder.append("MODEL        2                                                                  \n");
+                                    builder.append(aligned[3].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+
+                                    viewer = panelJmolRight.getViewer();
+                                    viewer.openStringInline(builder.toString());
+                                    panelJmolRight.executeCmd(JMOL_SCRIPT);
+                                }
+                            });
+                        } catch (StructureException e1) {
+                            MainWindow.LOGGER.error(
+                                    "Failed to align structures", e1);
+                            JOptionPane.showMessageDialog(getParent(),
+                                    e1.getMessage(), "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        } finally {
+                            // FIXME
+                            // timer.stop();
+                            // labelStatus.setText("Ready");
+                        }
+                    }
+                });
+                thread.start();
             }
         });
 
         itemGuide.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+                QuickGuideDialog dialog = new QuickGuideDialog(MainWindow.this);
+                dialog.setVisible(true);
             }
         });
 
