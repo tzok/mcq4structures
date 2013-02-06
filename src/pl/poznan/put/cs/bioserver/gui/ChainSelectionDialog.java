@@ -145,19 +145,15 @@ class ChainSelectionDialog extends JDialog {
                     List<Chain> list = new ArrayList<>();
                     Structure structure = PdbManager.getStructure(pdb);
                     for (Component component : panels[i].getComponents()) {
-                        if (component instanceof JCheckBox) {
-                            if (((JCheckBox) component).isSelected()) {
-                                String chainId = ((JCheckBox) component)
-                                        .getText();
-                                try {
-                                    list.add(structure.getChainByPDB(chainId));
-                                } catch (StructureException e) {
-                                    ChainSelectionDialog.LOGGER
-                                            .error("Failed to read chain "
-                                                    + chainId
-                                                    + " from structure: " + pdb,
-                                                    e);
-                                }
+                        if (component instanceof JCheckBox
+                                && ((JCheckBox) component).isSelected()) {
+                            String chainId = ((JCheckBox) component).getText();
+                            try {
+                                list.add(structure.getChainByPDB(chainId));
+                            } catch (StructureException e) {
+                                ChainSelectionDialog.LOGGER.error(
+                                        "Failed to read chain " + chainId
+                                                + " from structure: " + pdb, e);
                             }
                         }
                     }

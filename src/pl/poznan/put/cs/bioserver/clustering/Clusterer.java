@@ -55,7 +55,7 @@ public final class Clusterer {
         SINGLE, COMPLETE, AVERAGE;
     }
 
-    private final static Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(Clusterer.class);
 
     private static ScoringFunction scoringPAMSIL = new ScoringFunction() {

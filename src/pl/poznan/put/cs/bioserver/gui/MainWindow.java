@@ -5,7 +5,6 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -127,7 +126,7 @@ class MainWindow extends JFrame {
 
     private double[][] globalComparisonResults;
 
-    public MainWindow() throws HeadlessException {
+    public MainWindow() {
         super();
         /*
          * Set L&F
