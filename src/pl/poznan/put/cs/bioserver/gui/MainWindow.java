@@ -74,7 +74,6 @@ import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
-import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
@@ -483,43 +482,46 @@ class MainWindow extends JFrame {
 
                 layoutCards.show(panelCards, MainWindow.CARD_GLOBAL);
 
-                GlobalComparison comparison;
+                final GlobalComparison comparison;
                 if (radioMcq.isSelected()) {
                     comparison = new MCQ();
                 } else { // radioRmsd.isSelected() == true
                     comparison = new RMSD();
                 }
 
-                globalComparisonNames = PdbManager
-                        .getSelectedStructuresNames(structureDialog.selectedStructures);
-                Structure[] structures = PdbManager
-                        .getSelectedStructures(structureDialog.selectedStructures);
-                try {
-                    globalComparisonResults = comparison.compare(structures,
-                            new ComparisonListener() {
-                                @Override
-                                public void stateChanged(long all,
-                                        long completed) {
-                                    progressBar.setMaximum((int) all);
-                                    progressBar.setValue((int) completed);
-                                }
-                            });
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Structure[] structures = PdbManager
+                                .getSelectedStructures(structureDialog.selectedStructures);
 
-                    MatrixTableModel model = new MatrixTableModel(
-                            globalComparisonNames, globalComparisonResults);
-                    tableMatrix.setModel(model);
+                        globalComparisonNames = PdbManager
+                                .getSelectedStructuresNames(structureDialog.selectedStructures);
+                        globalComparisonResults = comparison.compare(
+                                structures, new ComparisonListener() {
+                                    @Override
+                                    public void stateChanged(long all,
+                                            long completed) {
+                                        progressBar.setMaximum((int) all);
+                                        progressBar.setValue((int) completed);
+                                    }
+                                });
 
-                    itemSave.setEnabled(true);
-                    itemCluster.setEnabled(true);
-                    itemVisualise.setEnabled(true);
-                } catch (IncomparableStructuresException e1) {
-                    JOptionPane.showMessageDialog(
-                            MainWindow.this,
-                            "Failed to compute distance matrix: "
-                                    + e1.getMessage(), "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                MatrixTableModel model = new MatrixTableModel(
+                                        globalComparisonNames,
+                                        globalComparisonResults);
+                                tableMatrix.setModel(model);
+                                itemSave.setEnabled(true);
+                                itemCluster.setEnabled(true);
+                                itemVisualise.setEnabled(true);
+                            }
+                        });
+                    }
+                });
+                thread.start();
             }
         });
 

@@ -27,7 +27,7 @@ public final class Clusterer {
         public Result(double score, Set<Integer> medoids, double[][] matrix) {
             this.score = score;
             this.medoids = medoids;
-            this.matrix = matrix;
+            this.matrix = matrix.clone();
         }
 
         public int[] clusterAssignment() {

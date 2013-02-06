@@ -135,24 +135,19 @@ public class MCQ extends GlobalComparison {
             System.out.println("Incorrect number of arguments provided");
             return;
         }
-        try {
-            List<Structure> list = new ArrayList<>();
-            for (String arg : args) {
-                list.add(PdbManager.loadStructure(new File(arg)));
-            }
+        List<Structure> list = new ArrayList<>();
+        for (String arg : args) {
+            list.add(PdbManager.loadStructure(new File(arg)));
+        }
 
-            MCQ mcq = new MCQ();
-            double[][] compare = mcq.compare(
-                    list.toArray(new Structure[list.size()]), null);
-            System.out.println("OK");
-            for (int i = 0; i < compare.length; i++) {
-                for (int j = i + 1; j < compare.length; j++) {
-                    System.out.println(compare[i][j]);
-                }
+        MCQ mcq = new MCQ();
+        double[][] compare = mcq.compare(
+                list.toArray(new Structure[list.size()]), null);
+        System.out.println("OK");
+        for (int i = 0; i < compare.length; i++) {
+            for (int j = i + 1; j < compare.length; j++) {
+                System.out.println(compare[i][j]);
             }
-        } catch (IncomparableStructuresException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
         }
     }
 
