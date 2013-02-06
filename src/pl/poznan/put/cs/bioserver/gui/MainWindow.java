@@ -39,6 +39,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -48,6 +49,7 @@ import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
 import org.biojava3.alignment.template.AlignedSequence;
 import org.biojava3.alignment.template.PairwiseSequenceAligner;
@@ -61,10 +63,13 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.jmol.api.JmolViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
+import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
@@ -84,6 +89,7 @@ public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "MATRIX";
     private static final String CARD_MCQ_LOCAL = "MCQ_LOCAL";
     private static final String CARD_ALIGN_SEQ = "ALIGN_SEQ";
+    private static final String CARD_ALIGN_STRUC = "ALIGN_STRUC";
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
@@ -260,12 +266,19 @@ public class MainWindow extends JFrame {
                 BorderLayout.CENTER);
         panelAlignmentSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
 
-        final CardLayout cardLayout = new CardLayout();
+        final JmolPanel panelJmolLeft = new JmolPanel();
+        final JmolPanel panelJmolRight = new JmolPanel();
+        JPanel panelAlignStruc = new JPanel(new GridLayout(1, 2));
+        panelAlignStruc.add(panelJmolLeft);
+        panelAlignStruc.add(panelJmolRight);
+
+        final CardLayout layoutCards = new CardLayout();
         final JPanel panelCards = new JPanel();
-        panelCards.setLayout(cardLayout);
+        panelCards.setLayout(layoutCards);
         panelCards.add(new JScrollPane(tableMatrix), CARD_MATRIX);
         panelCards.add(panelTorsionChart, CARD_MCQ_LOCAL);
         panelCards.add(panelAlignmentSeq, CARD_ALIGN_SEQ);
+        panelCards.add(panelAlignStruc, CARD_ALIGN_STRUC);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -473,7 +486,7 @@ public class MainWindow extends JFrame {
                     MatrixTableModel model = new MatrixTableModel(
                             globalComparisonNames, globalComparisonResults);
                     tableMatrix.setModel(model);
-                    cardLayout.show(panelCards, CARD_MATRIX);
+                    layoutCards.show(panelCards, CARD_MATRIX);
 
                     itemSave.setEnabled(true);
                     itemCluster.setEnabled(true);
@@ -656,7 +669,7 @@ public class MainWindow extends JFrame {
                 panelTorsionChart.add(new ChartPanel(new JFreeChart(plot)));
                 panelTorsionChart.revalidate();
 
-                cardLayout.show(panelCards, CARD_MCQ_LOCAL);
+                layoutCards.show(panelCards, CARD_MCQ_LOCAL);
                 itemSave.setEnabled(true);
             }
         });
@@ -743,20 +756,135 @@ public class MainWindow extends JFrame {
 
                 textAreaAlignSeq.setText(alignment);
                 panelAlignmentSeqLabels.removeAll();
-                panelAlignmentSeqLabels.add(new JLabel(
-                        String.format(
-                                "Score: %d (min: %d, max: %d)\tSimilarity: %.0f%%\tGaps: %d/%d (%.0f%%)",
-                                score, minScore, maxScore, 100.0 * similarity,
-                                gaps, length, 100.0 * gaps / length)));
+                panelAlignmentSeqLabels.add(new JLabel(String.format(
+                        "Score: %d (min: %d, max: %d)\t"
+                                + "Similarity: %.0f%%\t"
+                                + "Gaps: %d/%d (%.0f%%)", score, minScore,
+                        maxScore, 100.0 * similarity, gaps, length, 100.0
+                                * gaps / length)));
+                panelAlignmentSeqLabels.revalidate();
 
-                cardLayout.show(panelCards, CARD_ALIGN_SEQ);
+                layoutCards.show(panelCards, CARD_ALIGN_SEQ);
             }
         });
 
         itemComputeAlignStruc.addActionListener(new ActionListener() {
+            private Thread thread;
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+                if (thread != null && thread.isAlive()) {
+                    JOptionPane.showMessageDialog(null,
+                            "Alignment calculation underway!", "Information",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                final Structure[] structures = new Structure[] {
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[0]),
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[1]) };
+
+                // FIXME
+                // if (arg0.getSource().equals(buttonAlignChain)) {
+                // int chainIndexFirst = panelPdb.getComboBoxFirst()
+                // .getSelectedIndex();
+                // int chainIndexSecond = panelPdb.getComboBoxSecond()
+                // .getSelectedIndex();
+                // structures[0] = new StructureImpl(structures[0]
+                // .getChain(chainIndexFirst));
+                // structures[1] = new StructureImpl(structures[1]
+                // .getChain(chainIndexSecond));
+                // }
+
+                boolean isRNA = Helper.isNucleicAcid(structures[0]);
+                if (isRNA != Helper.isNucleicAcid(structures[1])) {
+                    String message = "Structures meant to be aligned "
+                            + "represent different molecule types!";
+                    MainWindow.LOGGER.error(message);
+                    JOptionPane.showMessageDialog(null, message, "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // FIXME
+                // labelStatus.setText("Processing");
+                // final Timer timer = new Timer(250, new ActionListener() {
+                // @Override
+                // public void actionPerformed(ActionEvent e) {
+                // String text = labelStatus.getText();
+                // int count = StringUtils.countMatches(text, ".");
+                // if (count < 5) {
+                // labelStatus.setText(text + ".");
+                // } else {
+                // labelStatus.setText("Processing");
+                // }
+                // }
+                // });
+                // timer.start();
+
+                thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Helper.normalizeAtomNames(structures[0]);
+                            Helper.normalizeAtomNames(structures[1]);
+
+                            AlignmentOutput output = StructureAligner.align(
+                                    structures[0], structures[1]);
+                            final Structure[] aligned = output.getStructures();
+
+                            SwingUtilities.invokeLater(new Runnable() {
+                                private static final String JMOL_SCRIPT = "frame 0.0; "
+                                        + "cartoon only; "
+                                        + "select model=1.1; color green; "
+                                        + "select model=1.2; color red; ";
+
+                                @Override
+                                public void run() {
+                                    StringBuilder builder = new StringBuilder();
+                                    builder.append("MODEL        1                                                                  \n");
+                                    builder.append(aligned[0].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+                                    builder.append("MODEL        2                                                                  \n");
+                                    builder.append(aligned[1].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+
+                                    JmolViewer viewer = panelJmolLeft
+                                            .getViewer();
+                                    viewer.openStringInline(builder.toString());
+                                    panelJmolLeft.executeCmd(JMOL_SCRIPT);
+
+                                    builder = new StringBuilder();
+                                    builder.append("MODEL        1                                                                  \n");
+                                    builder.append(aligned[2].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+                                    builder.append("MODEL        2                                                                  \n");
+                                    builder.append(aligned[3].toPDB());
+                                    builder.append("ENDMDL                                                                          \n");
+
+                                    viewer = panelJmolRight.getViewer();
+                                    viewer.openStringInline(builder.toString());
+                                    panelJmolRight.executeCmd(JMOL_SCRIPT);
+                                }
+                            });
+                        } catch (StructureException e1) {
+                            MainWindow.LOGGER.error(
+                                    "Failed to align structures", e1);
+                            JOptionPane.showMessageDialog(getParent(),
+                                    e1.getMessage(), "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        } finally {
+                            // FIXME
+                            // timer.stop();
+                            // labelStatus.setText("Ready");
+
+                            layoutCards.show(panelCards, CARD_ALIGN_STRUC);
+                        }
+                    }
+                });
+                thread.start();
             }
         });
 
