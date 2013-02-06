@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui.helper;
+package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.Component;
 import java.io.File;
@@ -6,7 +6,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class PdbFileChooser {
+final class PdbFileChooser {
     private static JFileChooser chooser;
 
     static {
@@ -20,14 +20,14 @@ public class PdbFileChooser {
         PdbFileChooser.chooser.setMultiSelectionEnabled(true);
     }
 
-    private PdbFileChooser() {
-    }
-
     public static File[] getSelectedFiles(Component parent) {
         int state = PdbFileChooser.chooser.showOpenDialog(parent);
         if (state == JFileChooser.APPROVE_OPTION) {
             return PdbFileChooser.chooser.getSelectedFiles();
         }
         return new File[0];
+    }
+
+    private PdbFileChooser() {
     }
 }

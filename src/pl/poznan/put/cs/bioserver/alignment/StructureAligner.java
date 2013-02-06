@@ -84,7 +84,7 @@ public final class StructureAligner {
 
             for (int i = 0; i < atoms[j].length; i++) {
                 Atom atom = atoms[j][i];
-                assert atom != null : "Atom is null: " + atom;
+                assert atom != null;
                 if (atom.getElement().equals(Element.P)) {
                     atom.setName("CA");
                     atom.setFullName(" CA ");

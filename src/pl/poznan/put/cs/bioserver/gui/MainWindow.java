@@ -5,7 +5,6 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -74,11 +73,9 @@ import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
-import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
-import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
@@ -87,7 +84,7 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
 import com.csvreader.CsvWriter;
 
-public class MainWindow extends JFrame {
+class MainWindow extends JFrame {
     private static final String CARD_GLOBAL = "MATRIX";
     private static final String CARD_LOCAL = "MCQ_LOCAL";
     private static final String CARD_ALIGN_SEQ = "ALIGN_SEQ";
@@ -96,7 +93,7 @@ public class MainWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
-    protected static final String ABOUT = "MCQ4Structures is a tool for "
+    private static final String ABOUT = "MCQ4Structures is a tool for "
             + "structural similarity computation based on molecule tertiary "
             + "structure representation in torsional angle space.\nIt has been "
             + "designed to work primarily for RNA structures. Proteins are "
@@ -111,14 +108,25 @@ public class MainWindow extends JFrame {
             + "Development Fund within Innovative Economy Programme "
             + "(POIG.02.03.00-00-018/08 POWIEW)\nand grants from the National "
             + "Science Centre, Poland (2012/05/B/ST6/03026).";
+
+    private static Component getCurrentCard(JPanel panel) {
+        for (Component component : panel.getComponents()) {
+            if (component.isVisible()) {
+                return component;
+            }
+        }
+        return null;
+    }
+
     private StructureSelectionDialog structureDialog;
     private ChainSelectionDialog chainDialog;
     private TorsionAnglesSelectionDialog torsionDialog;
-    protected Map<String, List<AngleDifference>> localComparisonResult;
-    protected String[] globalComparisonNames;
-    protected double[][] globalComparisonResults;
+    private Map<String, List<AngleDifference>> localComparisonResult;
+    private String[] globalComparisonNames;
 
-    public MainWindow() throws HeadlessException {
+    private double[][] globalComparisonResults;
+
+    public MainWindow() {
         super();
         /*
          * Set L&F
@@ -284,10 +292,10 @@ public class MainWindow extends JFrame {
         final CardLayout layoutCards = new CardLayout();
         final JPanel panelCards = new JPanel();
         panelCards.setLayout(layoutCards);
-        panelCards.add(panelResultsGlobal, CARD_GLOBAL);
-        panelCards.add(panelResultsLocal, CARD_LOCAL);
-        panelCards.add(panelResultsAlignSeq, CARD_ALIGN_SEQ);
-        panelCards.add(panelResultsAlignStruc, CARD_ALIGN_STRUC);
+        panelCards.add(panelResultsGlobal, MainWindow.CARD_GLOBAL);
+        panelCards.add(panelResultsLocal, MainWindow.CARD_LOCAL);
+        panelCards.add(panelResultsAlignSeq, MainWindow.CARD_ALIGN_SEQ);
+        panelCards.add(panelResultsAlignStruc, MainWindow.CARD_ALIGN_STRUC);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -311,7 +319,9 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 File[] files = PdbFileChooser.getSelectedFiles(MainWindow.this);
                 for (File f : files) {
-                    PdbManager.loadStructure(f);
+                    if (PdbManager.loadStructure(f) != null) {
+                        PdbManagerDialog.MODEL.addElement(f);
+                    }
                 }
             }
         });
@@ -325,7 +335,7 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
-                Component current = getCurrentCard(panelCards);
+                Component current = MainWindow.getCurrentCard(panelCards);
                 if (current.equals(tableMatrix)) {
                     try (FileOutputStream stream = new FileOutputStream(chooser
                             .getSelectedFile())) {
@@ -425,7 +435,7 @@ public class MainWindow extends JFrame {
         itemSelectStructures.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Enumeration<File> elements = PdbManagerDialog.model.elements();
+                Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     if (!structureDialog.modelAll.contains(path)
@@ -470,45 +480,48 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
-                layoutCards.show(panelCards, CARD_GLOBAL);
+                layoutCards.show(panelCards, MainWindow.CARD_GLOBAL);
 
-                GlobalComparison comparison;
+                final GlobalComparison comparison;
                 if (radioMcq.isSelected()) {
                     comparison = new MCQ();
                 } else { // radioRmsd.isSelected() == true
                     comparison = new RMSD();
                 }
 
-                globalComparisonNames = PdbManager
-                        .getSelectedStructuresNames(structureDialog.selectedStructures);
-                Structure[] structures = PdbManager
-                        .getSelectedStructures(structureDialog.selectedStructures);
-                try {
-                    globalComparisonResults = comparison.compare(structures,
-                            new ComparisonListener() {
-                                @Override
-                                public void stateChanged(long all,
-                                        long completed) {
-                                    progressBar.setMaximum((int) all);
-                                    progressBar.setValue((int) completed);
-                                }
-                            });
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Structure[] structures = PdbManager
+                                .getSelectedStructures(structureDialog.selectedStructures);
 
-                    MatrixTableModel model = new MatrixTableModel(
-                            globalComparisonNames, globalComparisonResults);
-                    tableMatrix.setModel(model);
+                        globalComparisonNames = PdbManager
+                                .getSelectedStructuresNames(structureDialog.selectedStructures);
+                        globalComparisonResults = comparison.compare(
+                                structures, new ComparisonListener() {
+                                    @Override
+                                    public void stateChanged(long all,
+                                            long completed) {
+                                        progressBar.setMaximum((int) all);
+                                        progressBar.setValue((int) completed);
+                                    }
+                                });
 
-                    itemSave.setEnabled(true);
-                    itemCluster.setEnabled(true);
-                    itemVisualise.setEnabled(true);
-                } catch (IncomparableStructuresException e1) {
-                    JOptionPane.showMessageDialog(
-                            MainWindow.this,
-                            "Failed to compute distance matrix: "
-                                    + e1.getMessage(), "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                MatrixTableModel model = new MatrixTableModel(
+                                        globalComparisonNames,
+                                        globalComparisonResults);
+                                tableMatrix.setModel(model);
+                                itemSave.setEnabled(true);
+                                itemCluster.setEnabled(true);
+                                itemVisualise.setEnabled(true);
+                            }
+                        });
+                    }
+                });
+                thread.start();
             }
         });
 
@@ -579,7 +592,7 @@ public class MainWindow extends JFrame {
                 chainDialog.modelLeft.removeAllElements();
                 chainDialog.modelRight.removeAllElements();
 
-                Enumeration<File> elements = PdbManagerDialog.model.elements();
+                Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     chainDialog.modelLeft.addElement(path);
@@ -632,7 +645,7 @@ public class MainWindow extends JFrame {
         itemComputeLocal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                layoutCards.show(panelCards, CARD_LOCAL);
+                layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
 
                 final Structure[] structures = new Structure[] {
                         PdbManager
@@ -688,7 +701,7 @@ public class MainWindow extends JFrame {
         itemComputeAlignSeq.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                layoutCards.show(panelCards, CARD_ALIGN_SEQ);
+                layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
                 Structure[] structures = new Structure[] {
                         PdbManager
@@ -791,7 +804,7 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
-                layoutCards.show(panelCards, CARD_ALIGN_STRUC);
+                layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
 
                 final Structure[] structures = new Structure[] {
                         PdbManager
@@ -910,19 +923,11 @@ public class MainWindow extends JFrame {
         itemAbout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(MainWindow.this, ABOUT, "About",
+                JOptionPane.showMessageDialog(MainWindow.this,
+                        MainWindow.ABOUT, "About",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         });
-    }
-
-    protected static Component getCurrentCard(JPanel panel) {
-        for (Component component : panel.getComponents()) {
-            if (component.isVisible()) {
-                return component;
-            }
-        }
-        return null;
     }
 
     private ImageIcon loadIcon(String name) {

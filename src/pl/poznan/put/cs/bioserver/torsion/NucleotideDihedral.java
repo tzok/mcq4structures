@@ -13,9 +13,9 @@ import org.biojava.bio.structure.Group;
  * 
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
-public class NucleotideDihedral implements AngleType {
+public final class NucleotideDihedral implements AngleType {
     /** All names of angles in a nucleotide. */
-    public enum AngleName {
+    private enum AngleName {
         ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, CHI, TAU0, TAU1, TAU2, TAU3, TAU4
     }
 
@@ -148,7 +148,7 @@ public class NucleotideDihedral implements AngleType {
 
     private AngleName angleName;
 
-    public NucleotideDihedral(AngleName angleName) {
+    private NucleotideDihedral(AngleName angleName) {
         this.angleName = angleName;
     }
 

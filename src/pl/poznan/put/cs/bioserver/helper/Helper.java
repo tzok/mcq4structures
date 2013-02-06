@@ -123,7 +123,8 @@ public final class Helper {
      *            An array of names to be accepted.
      * @return A list of atoms.
      */
-    public static List<Atom> getAtomArray(List<Group> groups, String[] atomNames) {
+    private static List<Atom> getAtomArray(List<Group> groups,
+            String[] atomNames) {
         List<Atom> list = new ArrayList<>();
         for (Group g : groups) {
             if (!(Helper.isNucleotide(g) || Helper.isAminoAcid(g))) {
@@ -242,7 +243,7 @@ public final class Helper {
         return null;
     }
 
-    public static boolean isAminoAcid(Group g) {
+    private static boolean isAminoAcid(Group g) {
         return g.getType().equals("amino") || g.hasAminoAtoms();
     }
 
@@ -270,7 +271,7 @@ public final class Helper {
         return flag;
     }
 
-    public static boolean isNucleotide(Group g) {
+    private static boolean isNucleotide(Group g) {
         return g.getType().equals("nucleotide") || g.hasAtom("P");
     }
 
@@ -280,7 +281,7 @@ public final class Helper {
      * @param c
      *            Input chain.
      */
-    public static void normalizeAtomNames(Chain c) {
+    private static void normalizeAtomNames(Chain c) {
         Helper.normalizeAtomNames(c.getAtomGroups());
     }
 

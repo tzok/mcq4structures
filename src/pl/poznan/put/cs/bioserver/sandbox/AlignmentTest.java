@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.sandbox;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.biojava.bio.structure.Atom;
@@ -74,7 +75,7 @@ public class AlignmentTest {
             StructurePairAligner aligner = new StructurePairAligner();
             start = System.currentTimeMillis();
             aligner.align(atoms[0], atoms[1], new StrucAligParameters());
-            System.out.println(aligner.getAlignments());
+            System.out.println(Arrays.toString(aligner.getAlignments()));
             System.out.println("TIME=" + (System.currentTimeMillis() - start));
         } catch (IOException | StructureException e) {
             e.printStackTrace();

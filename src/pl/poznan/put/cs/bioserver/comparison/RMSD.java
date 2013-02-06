@@ -42,22 +42,17 @@ public class RMSD extends GlobalComparison {
             System.out.println("Incorrect number of arguments provided");
             return;
         }
-        try {
-            List<Structure> list = new ArrayList<>();
-            for (String arg : args) {
-                list.add(PdbManager.loadStructure(new File(arg)));
-            }
+        List<Structure> list = new ArrayList<>();
+        for (String arg : args) {
+            list.add(PdbManager.loadStructure(new File(arg)));
+        }
 
-            RMSD rmsd = new RMSD();
-            double[][] compare = rmsd.compare(
-                    list.toArray(new Structure[list.size()]), null);
-            System.out.println("OK");
-            for (double[] element : compare) {
-                System.out.println(Arrays.toString(element));
-            }
-        } catch (IncomparableStructuresException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
+        RMSD rmsd = new RMSD();
+        double[][] compare = rmsd.compare(
+                list.toArray(new Structure[list.size()]), null);
+        System.out.println("OK");
+        for (double[] element : compare) {
+            System.out.println(Arrays.toString(element));
         }
     }
 

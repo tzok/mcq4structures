@@ -9,7 +9,7 @@ import org.biojava.bio.structure.Atom;
  * 
  * @author tzok
  */
-public class Quadruplet {
+class Quadruplet {
     private Atom[] array;
     private int[] indices;
 
@@ -22,7 +22,7 @@ public class Quadruplet {
      * @param indices
      *            Indices of atoms in original list of atoms.
      */
-    public Quadruplet(Atom[] array, int[] indices) {
+    Quadruplet(Atom[] array, int[] indices) {
         this.array = array.clone();
         this.indices = indices.clone();
     }
@@ -42,7 +42,7 @@ public class Quadruplet {
      *            If atoms were aligned before.
      * @return True, if q represents the same torsion angle.
      */
-    public boolean isCorresponding(Quadruplet q, boolean wasAligned) {
+    boolean isCorresponding(Quadruplet q, boolean wasAligned) {
         if (wasAligned) {
             return Arrays.equals(indices, q.indices);
         }

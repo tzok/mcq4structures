@@ -17,7 +17,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-public class TorsionAnglesSelectionDialog extends JDialog {
+class TorsionAnglesSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
     private final String[] namesAmino = new String[] { "Phi Φ", "Psi Ψ",
             "Omega Ω", "Average" };
@@ -25,9 +25,9 @@ public class TorsionAnglesSelectionDialog extends JDialog {
             "Gamma γ", "Delta δ", "Epsilon ε", "Zeta ζ", "Chi χ", "Tau0 τ0",
             "Tau1 τ1", "Tau2 τ2", "Tau3 τ3", "Tau4 τ4", "P (sugar pucker)",
             "Average" };
-    public List<String> selectedNames;
+    List<String> selectedNames;
 
-    public TorsionAnglesSelectionDialog(Frame owner) {
+    TorsionAnglesSelectionDialog(Frame owner) {
         super(owner, true);
 
         JPanel panelAnglesAmino = new JPanel();

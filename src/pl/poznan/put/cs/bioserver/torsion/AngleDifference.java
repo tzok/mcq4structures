@@ -37,7 +37,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
      * @param angleName
      *            The name of the angle.
      */
-    public AngleDifference(Atom[] q1, Atom[] q2, String angleName) {
+    AngleDifference(Atom[] q1, Atom[] q2, String angleName) {
         angle1 = DihedralAngles.calculateDihedral(q1);
         angle2 = DihedralAngles.calculateDihedral(q2);
         difference = DihedralAngles.subtractDihedral(angle1, angle2);

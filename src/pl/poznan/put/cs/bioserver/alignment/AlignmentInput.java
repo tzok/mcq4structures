@@ -11,10 +11,10 @@ import org.biojava.bio.structure.Structure;
  * 
  * @author tzok
  */
-public class AlignmentInput {
+class AlignmentInput {
     private List<Structure> list;
 
-    public AlignmentInput(Structure s1, Structure s2) {
+    AlignmentInput(Structure s1, Structure s2) {
         list = new ArrayList<>();
         list.add(s1);
         list.add(s2);

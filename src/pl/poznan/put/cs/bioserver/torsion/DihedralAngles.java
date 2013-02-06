@@ -88,7 +88,7 @@ public final class DihedralAngles {
      *            Atom 4.
      * @return Value of the torsion angle.
      */
-    public static double calculateDihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
+    private static double calculateDihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
         return DihedralAngles.calculateDihedralAtan(a1, a2, a3, a4);
     }
 
@@ -99,7 +99,7 @@ public final class DihedralAngles {
      *            A 4-tuple of atoms.
      * @return Value of the tosion angle.
      */
-    public static double calculateDihedral(Atom[] atoms) {
+    static double calculateDihedral(Atom[] atoms) {
         return DihedralAngles.calculateDihedral(atoms[0], atoms[1], atoms[2],
                 atoms[3]);
     }
@@ -153,7 +153,7 @@ public final class DihedralAngles {
      *            Atom 4.
      * @return Dihedral angle between atoms 1-4.
      */
-    public static double calculateDihedralAtan(Atom a1, Atom a2, Atom a3,
+    private static double calculateDihedralAtan(Atom a1, Atom a2, Atom a3,
             Atom a4) {
         if (a1 == null || a2 == null || a3 == null || a4 == null) {
             return Double.NaN;

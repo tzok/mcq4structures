@@ -5,13 +5,11 @@ import java.io.File;
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
-import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class PamsilTest {
-    public static void main(String[] args)
-            throws IncomparableStructuresException {
+    public static void main(String[] args) {
         String[] paths = new String[] {
                 "/home/tzok/pdb/puzzles/Challenge1/models/1_bujnicki_1.pdb",
                 "/home/tzok/pdb/puzzles/Challenge1/models/1_bujnicki_2.pdb",

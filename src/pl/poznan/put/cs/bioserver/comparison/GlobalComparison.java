@@ -1,7 +1,9 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -10,45 +12,43 @@ import org.biojava.bio.structure.Structure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
-
 /**
  * An abstraction of all global comparison measures.
  * 
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public abstract class GlobalComparison {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(GlobalComparison.class);
-
-    private class CompareThread extends Thread {
-        private Structure s1;
-        private Structure s2;
-        private double[][] result;
+    private static class Result {
         private int i;
         private int j;
-        public IncomparableStructuresException exception;
+        private double value;
+    }
 
-        public CompareThread(Structure[] structures, double[][] result, int i,
-                int j) {
+    private class CompareCallable implements Callable<Result> {
+        private Structure s1;
+        private Structure s2;
+        private int i;
+        private int j;
+
+        public CompareCallable(Structure[] structures, int i, int j) {
             s1 = structures[i];
             s2 = structures[j];
-            this.result = result;
             this.i = i;
             this.j = j;
         }
 
         @Override
-        public void run() {
-            try {
-                double value = compare(s1, s2);
-                result[i][j] = value;
-                result[j][i] = value;
-            } catch (IncomparableStructuresException e) {
-                exception = e;
-            }
+        public Result call() throws Exception {
+            Result result = new Result();
+            result.i = i;
+            result.j = j;
+            result.value = compare(s1, s2);
+            return result;
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(GlobalComparison.class);
 
     /**
      * Compare two structures.
@@ -70,66 +70,71 @@ public abstract class GlobalComparison {
      * @param structures
      *            An array of structures to be compared.
      * @return A distance matrix.
-     * @throws IncomparableStructuresException
-     *             If any two structures were not comparable.
      */
     public double[][] compare(final Structure[] structures,
-            ComparisonListener listener) throws IncomparableStructuresException {
-        final double[][] result = new double[structures.length][];
+            final ComparisonListener listener) {
+        double[][] matrix = new double[structures.length][];
         for (int i = 0; i < structures.length; ++i) {
-            result[i] = new double[structures.length];
+            matrix[i] = new double[structures.length];
         }
 
-        final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors
-                .newCachedThreadPool();
+        for (int i = 0; i < structures.length; i++) {
+            for (int j = 0; j < structures.length; j++) {
+                if (i == j) {
+                    matrix[i][j] = 0;
+                } else {
+                    matrix[i][j] = Double.NaN;
+                }
+            }
+        }
 
-        final List<CompareThread> tasks = new ArrayList<>();
-        Thread submit = new Thread(new Runnable() {
+        int countThreads = Runtime.getRuntime().availableProcessors() * 2;
+        final ExecutorService threadPool = Executors
+                .newFixedThreadPool(countThreads);
+        ExecutorCompletionService<Result> ecs = new ExecutorCompletionService<>(
+                threadPool);
+        for (int i = 0; i < structures.length; i++) {
+            for (int j = i + 1; j < structures.length; j++) {
+                CompareCallable task = new CompareCallable(structures, i, j);
+                ecs.submit(task);
+            }
+        }
+        threadPool.shutdown();
+
+        final long all = structures.length * (structures.length - 1) / 2;
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < structures.length; ++i) {
-                    for (int j = i + 1; j < structures.length; ++j) {
-                        GlobalComparison.LOGGER.trace("Comparing: "
-                                + PdbManager.getStructureName(structures[i])
-                                + " "
-                                + PdbManager.getStructureName(structures[j]));
-
-                        CompareThread t = new CompareThread(structures, result,
-                                i, j);
-                        tasks.add(t);
-                        threadPool.execute(t);
+                try {
+                    while (!threadPool.awaitTermination(1, TimeUnit.SECONDS)) {
+                        if (listener != null) {
+                            listener.stateChanged(all,
+                                    ((ThreadPoolExecutor) threadPool)
+                                            .getCompletedTaskCount());
+                        }
                     }
+                    if (listener != null) {
+                        listener.stateChanged(all,
+                                ((ThreadPoolExecutor) threadPool)
+                                        .getCompletedTaskCount());
+                    }
+                } catch (InterruptedException e) {
+                    threadPool.shutdownNow();
                 }
-                threadPool.shutdown();
             }
         });
-        submit.start();
+        thread.start();
 
-        try {
-            long all = structures.length * (structures.length - 1) / 2;
-            while (!threadPool.awaitTermination(1, TimeUnit.SECONDS)) {
-                if (listener != null) {
-                    listener.stateChanged(all,
-                            threadPool.getCompletedTaskCount());
-                }
-            }
-            if (listener != null) {
-                listener.stateChanged(all, threadPool.getCompletedTaskCount());
-            }
-        } catch (InterruptedException e) {
-            threadPool.shutdownNow();
-            GlobalComparison.LOGGER.error("Failed to compare structures", e);
-            throw new IncomparableStructuresException(e);
-        }
-
-        for (CompareThread thread : tasks) {
-            if (thread.exception != null) {
-                GlobalComparison.LOGGER.error("Failed to compare structures",
-                        thread.exception);
-                throw thread.exception;
+        for (int i = 0; i < all; i++) {
+            try {
+                Result result = ecs.take().get();
+                matrix[result.i][result.j] = result.value;
+                matrix[result.j][result.i] = result.value;
+            } catch (InterruptedException | ExecutionException e) {
+                GlobalComparison.LOGGER.error(
+                        "Failed to compare a pair of structures", e);
             }
         }
-
-        return result;
+        return matrix;
     }
 }

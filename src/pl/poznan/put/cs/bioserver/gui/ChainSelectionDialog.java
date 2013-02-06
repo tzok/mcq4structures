@@ -30,16 +30,16 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
-public class ChainSelectionDialog extends JDialog {
+class ChainSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-    protected static final Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(ChainSelectionDialog.class);
-    public File[] selectedStructures;
-    public Chain[][] selectedChains;
-    public DefaultComboBoxModel<File> modelLeft;
-    public DefaultComboBoxModel<File> modelRight;
+    File[] selectedStructures;
+    Chain[][] selectedChains;
+    DefaultComboBoxModel<File> modelLeft;
+    DefaultComboBoxModel<File> modelRight;
 
-    public ChainSelectionDialog(JFrame owner) {
+    ChainSelectionDialog(JFrame owner) {
         super(owner, true);
 
         modelLeft = new DefaultComboBoxModel<>();
@@ -145,19 +145,15 @@ public class ChainSelectionDialog extends JDialog {
                     List<Chain> list = new ArrayList<>();
                     Structure structure = PdbManager.getStructure(pdb);
                     for (Component component : panels[i].getComponents()) {
-                        if (component instanceof JCheckBox) {
-                            if (((JCheckBox) component).isSelected()) {
-                                String chainId = ((JCheckBox) component)
-                                        .getText();
-                                try {
-                                    list.add(structure.getChainByPDB(chainId));
-                                } catch (StructureException e) {
-                                    ChainSelectionDialog.LOGGER
-                                            .error("Failed to read chain "
-                                                    + chainId
-                                                    + " from structure: " + pdb,
-                                                    e);
-                                }
+                        if (component instanceof JCheckBox
+                                && ((JCheckBox) component).isSelected()) {
+                            String chainId = ((JCheckBox) component).getText();
+                            try {
+                                list.add(structure.getChainByPDB(chainId));
+                            } catch (StructureException e) {
+                                ChainSelectionDialog.LOGGER.error(
+                                        "Failed to read chain " + chainId
+                                                + " from structure: " + pdb, e);
                             }
                         }
                     }
