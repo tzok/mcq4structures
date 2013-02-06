@@ -891,7 +891,8 @@ public class MainWindow extends JFrame {
         itemGuide.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+                QuickGuideDialog dialog = new QuickGuideDialog(MainWindow.this);
+                dialog.setVisible(true);
             }
         });
 
