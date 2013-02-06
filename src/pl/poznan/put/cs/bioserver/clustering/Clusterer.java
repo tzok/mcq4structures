@@ -326,7 +326,7 @@ public final class Clusterer {
 
                 double bj = Double.POSITIVE_INFINITY;
                 for (Entry<Integer, Set<Integer>> e2 : clustering.entrySet()) {
-                    if (e1.getKey() == e2.getKey()) {
+                    if (e1.getKey().equals(e2.getKey())) {
                         continue;
                     }
 

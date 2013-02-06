@@ -24,12 +24,11 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class PdbManagerDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-    public static DefaultListModel<File> model;
+    public static DefaultListModel<File> model = new DefaultListModel<>();
 
     public PdbManagerDialog() {
         super();
 
-        PdbManagerDialog.model = new DefaultListModel<>();
         final JList<File> list = new JList<>(PdbManagerDialog.model);
         list.setBorder(BorderFactory
                 .createTitledBorder("All loaded structures"));
