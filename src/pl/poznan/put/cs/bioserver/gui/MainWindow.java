@@ -182,14 +182,14 @@ public class MainWindow extends JFrame {
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignGlobal);
         groupAlign.add(radioAlignLocal);
-        JMenu menuSelectAlignType = new JMenu("Select alignment type");
+        final JMenu menuSelectAlignType = new JMenu("Select alignment type");
         menuSelectAlignType.setEnabled(false);
         menuSelectAlignType.add(radioAlignGlobal);
         menuSelectAlignType.add(radioAlignLocal);
 
         final JMenuItem itemSelectChainsAlignSeq = new JMenuItem(
                 "Select chains");
-        JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
+        final JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
         itemComputeAlignSeq.setEnabled(false);
         JMenu menuAlignSeq = new JMenu("Sequence");
         menuAlignSeq.add(itemSelectChainsAlignSeq);
@@ -198,7 +198,8 @@ public class MainWindow extends JFrame {
 
         final JMenuItem itemSelectChainsAlignStruc = new JMenuItem(
                 "Select chains");
-        JMenuItem itemComputeAlignStruc = new JMenuItem("Compute alignment");
+        final JMenuItem itemComputeAlignStruc = new JMenuItem(
+                "Compute alignment");
         itemComputeAlignStruc.setEnabled(false);
         JMenu menuAlignStruc = new JMenu("3D structure");
         menuAlignStruc.add(itemSelectChainsAlignStruc);
@@ -525,7 +526,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemSelectChainsCompare.addActionListener(new ActionListener() {
+        ActionListener actionListenerSelectChains = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 chainDialog.modelLeft.removeAllElements();
@@ -556,10 +557,22 @@ public class MainWindow extends JFrame {
                         }
                     }
 
-                    itemSelectTorsion.setEnabled(true);
+                    Object source = arg0.getSource();
+                    if (source.equals(itemSelectChainsCompare)) {
+                        itemSelectTorsion.setEnabled(true);
+                    } else if (source.equals(itemSelectChainsAlignSeq)) {
+                        menuSelectAlignType.setEnabled(true);
+                        itemComputeAlignSeq.setEnabled(true);
+                    } else { // source.equals(itemSelectChainsAlignStruc)
+                        itemComputeAlignStruc.setEnabled(true);
+                    }
                 }
             }
-        });
+        };
+        itemSelectChainsCompare.addActionListener(actionListenerSelectChains);
+        itemSelectChainsAlignSeq.addActionListener(actionListenerSelectChains);
+        itemSelectChainsAlignStruc
+                .addActionListener(actionListenerSelectChains);
 
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
@@ -624,24 +637,10 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemSelectChainsAlignSeq.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // TODO
-            }
-        });
-
         itemComputeAlignSeq.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO
-            }
-        });
-
-        itemSelectChainsAlignStruc.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
             }
         });
 
