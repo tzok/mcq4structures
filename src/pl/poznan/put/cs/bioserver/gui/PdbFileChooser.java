@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui.helper;
+package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.Component;
 import java.io.File;
@@ -6,7 +6,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class PdbFileChooser {
+final class PdbFileChooser {
     private static JFileChooser chooser;
 
     static {

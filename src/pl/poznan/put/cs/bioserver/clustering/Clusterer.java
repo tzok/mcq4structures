@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class Clusterer {
-    protected class Result {
+    protected static class Result {
         private Set<Integer> medoids;
         private double[][] matrix;
         private double score;
@@ -76,7 +76,6 @@ public final class Clusterer {
 
     /** Information about the results of clustering. */
     private static List<List<Integer>> clusters;
-    private static Clusterer INSTANCE = new Clusterer();
 
     private static final Random RANDOM = new Random();
 
@@ -216,8 +215,7 @@ public final class Clusterer {
     }
 
     private static Result kMedoids(double[][] matrix, ScoringFunction sf) {
-        Result overallBest = Clusterer.INSTANCE.new Result(
-                Double.NEGATIVE_INFINITY, null, matrix);
+        Result overallBest = new Result(Double.NEGATIVE_INFINITY, null, matrix);
         for (int k = 2; k <= matrix.length; k++) {
             Result result = Clusterer.kMedoids(matrix, sf, k);
             double score = Clusterer.scoreCluster(result.medoids, matrix,
@@ -294,8 +292,7 @@ public final class Clusterer {
 
         Clusterer.LOGGER.debug("Final score for clustering (k=" + k + "): "
                 + overallBestScore);
-        return Clusterer.INSTANCE.new Result(overallBestScore,
-                overallBestMedoids, matrix);
+        return new Result(overallBestScore, overallBestMedoids, matrix);
     }
 
     private static double scoreByDistance(

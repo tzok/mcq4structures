@@ -77,7 +77,6 @@ import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
-import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
@@ -321,7 +320,9 @@ class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 File[] files = PdbFileChooser.getSelectedFiles(MainWindow.this);
                 for (File f : files) {
-                    PdbManager.loadStructure(f);
+                    if (PdbManager.loadStructure(f) != null) {
+                        PdbManagerDialog.MODEL.addElement(f);
+                    }
                 }
             }
         });
@@ -435,7 +436,7 @@ class MainWindow extends JFrame {
         itemSelectStructures.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Enumeration<File> elements = PdbManagerDialog.model.elements();
+                Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     if (!structureDialog.modelAll.contains(path)
@@ -592,7 +593,7 @@ class MainWindow extends JFrame {
                 chainDialog.modelLeft.removeAllElements();
                 chainDialog.modelRight.removeAllElements();
 
-                Enumeration<File> elements = PdbManagerDialog.model.elements();
+                Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     chainDialog.modelLeft.addElement(path);

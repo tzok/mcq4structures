@@ -1,9 +1,7 @@
 package pl.poznan.put.cs.bioserver.helper;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +10,6 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import pl.poznan.put.cs.bioserver.gui.PdbManagerDialog;
 
 /**
  * A common manager of loaded PDB files shared between all classes.
@@ -38,7 +34,7 @@ public final class PdbManager {
         return structures;
     }
 
-    public static String[] getSelectedStructuresNames(ArrayList<File> files) {
+    public static String[] getSelectedStructuresNames(List<File> files) {
         int size = files.size();
         String[] names = new String[size];
         for (int i = 0; i < size; i++) {
@@ -78,18 +74,24 @@ public final class PdbManager {
         }
     }
 
-    public static Structure loadStructure(String pdbId) throws IOException {
+    public static File loadStructure(String pdbId) {
         PdbManager.pdbReader.setAutoFetch(true);
-        Structure structure = PdbManager.pdbReader.getStructureById(pdbId);
+        Structure structure;
+        try {
+            structure = PdbManager.pdbReader.getStructureById(pdbId);
+        } catch (IOException e) {
+            PdbManager.LOGGER.error("Failed to fetch PDB id:" + pdbId, e);
+            return null;
+        }
 
         File pdbFile = new File(PdbManager.pdbReader.getPath());
         pdbFile = new File(pdbFile, "pdb" + pdbId.toLowerCase() + ".ent.gz");
         if (!pdbFile.exists()) {
-            throw new FileNotFoundException("File not found: " + pdbFile);
+            return null;
         }
 
         PdbManager.storeStructureInfo(pdbFile, structure);
-        return structure;
+        return pdbFile;
     }
 
     public static void remove(File path) {
@@ -113,8 +115,6 @@ public final class PdbManager {
         PdbManager.MAP_PATH_STRUCTURE.put(file, structure);
         PdbManager.MAP_PATH_NAME.put(file, name);
         PdbManager.MAP_STRUCTURE_NAME.put(structure, name);
-
-        PdbManagerDialog.model.addElement(file);
     }
 
     private PdbManager() {

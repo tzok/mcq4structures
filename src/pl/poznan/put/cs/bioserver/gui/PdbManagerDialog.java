@@ -6,7 +6,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -19,17 +18,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class PdbManagerDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-    public static DefaultListModel<File> model = new DefaultListModel<>();
+    public static final DefaultListModel<File> MODEL = new DefaultListModel<>();
 
     public PdbManagerDialog() {
         super();
 
-        final JList<File> list = new JList<>(PdbManagerDialog.model);
+        final JList<File> list = new JList<>(PdbManagerDialog.MODEL);
         list.setBorder(BorderFactory
                 .createTitledBorder("All loaded structures"));
 
@@ -79,7 +77,9 @@ public class PdbManagerDialog extends JDialog {
                 File[] files = PdbFileChooser
                         .getSelectedFiles(PdbManagerDialog.this);
                 for (File f : files) {
-                    PdbManager.loadStructure(f);
+                    if (PdbManager.loadStructure(f) != null) {
+                        PdbManagerDialog.MODEL.addElement(f);
+                    }
                 }
             }
         });
@@ -90,7 +90,7 @@ public class PdbManagerDialog extends JDialog {
                 List<File> selected = list.getSelectedValuesList();
                 for (File f : selected) {
                     PdbManager.remove(f);
-                    PdbManagerDialog.model.removeElement(f);
+                    PdbManagerDialog.MODEL.removeElement(f);
                 }
             }
         });
@@ -99,9 +99,10 @@ public class PdbManagerDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
-                try {
-                    PdbManager.loadStructure(pdbId);
-                } catch (IOException e) {
+                File path = PdbManager.loadStructure(pdbId);
+                if (path != null) {
+                    PdbManagerDialog.MODEL.addElement(path);
+                } else {
                     JOptionPane.showMessageDialog(PdbManagerDialog.this,
                             "Failed to fetch PDB structure: " + pdbId, "Error",
                             JOptionPane.ERROR_MESSAGE);

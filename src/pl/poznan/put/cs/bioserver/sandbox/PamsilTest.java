@@ -5,7 +5,6 @@ import java.io.File;
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
-import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 

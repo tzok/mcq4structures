@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public abstract class GlobalComparison {
-    private class Result {
-        public int i;
-        public int j;
-        public double value;
+    private static class Result {
+        private int i;
+        private int j;
+        private double value;
     }
 
     private class CompareCallable implements Callable<Result> {

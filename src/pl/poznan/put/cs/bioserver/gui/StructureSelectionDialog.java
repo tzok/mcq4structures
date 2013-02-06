@@ -25,7 +25,7 @@ import javax.swing.event.ListSelectionListener;
 
 class StructureSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-    ArrayList<File> selectedStructures;
+    List<File> selectedStructures;
     DefaultListModel<File> modelAll;
     DefaultListModel<File> modelSelected;
 
