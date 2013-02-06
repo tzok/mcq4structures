@@ -35,6 +35,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -86,8 +87,8 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 import com.csvreader.CsvWriter;
 
 public class MainWindow extends JFrame {
-    private static final String CARD_MATRIX = "MATRIX";
-    private static final String CARD_MCQ_LOCAL = "MCQ_LOCAL";
+    private static final String CARD_GLOBAL = "MATRIX";
+    private static final String CARD_LOCAL = "MCQ_LOCAL";
     private static final String CARD_ALIGN_SEQ = "ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "ALIGN_STRUC";
 
@@ -256,29 +257,36 @@ public class MainWindow extends JFrame {
          * Create card layout
          */
         final JTable tableMatrix = new JTable();
-        final JPanel panelTorsionChart = new JPanel(new GridLayout(1, 1));
+        final JProgressBar progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        JPanel panelResultsGlobal = new JPanel(new BorderLayout());
+        panelResultsGlobal.add(new JScrollPane(tableMatrix),
+                BorderLayout.CENTER);
+        panelResultsGlobal.add(progressBar, BorderLayout.SOUTH);
+
+        final JPanel panelResultsLocal = new JPanel(new GridLayout(1, 1));
 
         final JTextArea textAreaAlignSeq = new JTextArea();
         textAreaAlignSeq.setEditable(false);
         final JPanel panelAlignmentSeqLabels = new JPanel();
-        JPanel panelAlignmentSeq = new JPanel(new BorderLayout());
-        panelAlignmentSeq.add(new JScrollPane(textAreaAlignSeq),
+        JPanel panelResultsAlignSeq = new JPanel(new BorderLayout());
+        panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq),
                 BorderLayout.CENTER);
-        panelAlignmentSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
+        panelResultsAlignSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
 
         final JmolPanel panelJmolLeft = new JmolPanel();
         final JmolPanel panelJmolRight = new JmolPanel();
-        JPanel panelAlignStruc = new JPanel(new GridLayout(1, 2));
-        panelAlignStruc.add(panelJmolLeft);
-        panelAlignStruc.add(panelJmolRight);
+        JPanel panelResultsAlignStruc = new JPanel(new GridLayout(1, 2));
+        panelResultsAlignStruc.add(panelJmolLeft);
+        panelResultsAlignStruc.add(panelJmolRight);
 
         final CardLayout layoutCards = new CardLayout();
         final JPanel panelCards = new JPanel();
         panelCards.setLayout(layoutCards);
-        panelCards.add(new JScrollPane(tableMatrix), CARD_MATRIX);
-        panelCards.add(panelTorsionChart, CARD_MCQ_LOCAL);
-        panelCards.add(panelAlignmentSeq, CARD_ALIGN_SEQ);
-        panelCards.add(panelAlignStruc, CARD_ALIGN_STRUC);
+        panelCards.add(panelResultsGlobal, CARD_GLOBAL);
+        panelCards.add(panelResultsLocal, CARD_LOCAL);
+        panelCards.add(panelResultsAlignSeq, CARD_ALIGN_SEQ);
+        panelCards.add(panelResultsAlignStruc, CARD_ALIGN_STRUC);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -344,7 +352,7 @@ public class MainWindow extends JFrame {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
-                } else if (current.equals(panelTorsionChart)) {
+                } else if (current.equals(panelResultsLocal)) {
                     SortedMap<String, Map<String, Double>> map = new TreeMap<>();
                     for (Entry<String, List<AngleDifference>> pair : localComparisonResult
                             .entrySet()) {
@@ -460,6 +468,8 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
+                layoutCards.show(panelCards, CARD_GLOBAL);
+
                 GlobalComparison comparison;
                 if (radioMcq.isSelected()) {
                     comparison = new MCQ();
@@ -477,16 +487,14 @@ public class MainWindow extends JFrame {
                                 @Override
                                 public void stateChanged(long all,
                                         long completed) {
-                                    // TODO
-                                    MainWindow.LOGGER.debug(completed + "/"
-                                            + all);
+                                    progressBar.setMaximum((int) all);
+                                    progressBar.setValue((int) completed);
                                 }
                             });
 
                     MatrixTableModel model = new MatrixTableModel(
                             globalComparisonNames, globalComparisonResults);
                     tableMatrix.setModel(model);
-                    layoutCards.show(panelCards, CARD_MATRIX);
 
                     itemSave.setEnabled(true);
                     itemCluster.setEnabled(true);
@@ -622,6 +630,8 @@ public class MainWindow extends JFrame {
         itemComputeLocal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
+                layoutCards.show(panelCards, CARD_LOCAL);
+
                 final Structure[] structures = new Structure[] {
                         PdbManager
                                 .getStructure(chainDialog.selectedStructures[0]),
@@ -665,11 +675,10 @@ public class MainWindow extends JFrame {
                 XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
                         new DefaultXYItemRenderer());
 
-                panelTorsionChart.removeAll();
-                panelTorsionChart.add(new ChartPanel(new JFreeChart(plot)));
-                panelTorsionChart.revalidate();
+                panelResultsLocal.removeAll();
+                panelResultsLocal.add(new ChartPanel(new JFreeChart(plot)));
+                panelResultsLocal.revalidate();
 
-                layoutCards.show(panelCards, CARD_MCQ_LOCAL);
                 itemSave.setEnabled(true);
             }
         });
@@ -677,6 +686,8 @@ public class MainWindow extends JFrame {
         itemComputeAlignSeq.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                layoutCards.show(panelCards, CARD_ALIGN_SEQ);
+
                 Structure[] structures = new Structure[] {
                         PdbManager
                                 .getStructure(chainDialog.selectedStructures[0]),
@@ -763,8 +774,6 @@ public class MainWindow extends JFrame {
                         maxScore, 100.0 * similarity, gaps, length, 100.0
                                 * gaps / length)));
                 panelAlignmentSeqLabels.revalidate();
-
-                layoutCards.show(panelCards, CARD_ALIGN_SEQ);
             }
         });
 
@@ -779,6 +788,8 @@ public class MainWindow extends JFrame {
                             JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
+
+                layoutCards.show(panelCards, CARD_ALIGN_STRUC);
 
                 final Structure[] structures = new Structure[] {
                         PdbManager
@@ -879,8 +890,6 @@ public class MainWindow extends JFrame {
                             // FIXME
                             // timer.stop();
                             // labelStatus.setText("Ready");
-
-                            layoutCards.show(panelCards, CARD_ALIGN_STRUC);
                         }
                     }
                 });
