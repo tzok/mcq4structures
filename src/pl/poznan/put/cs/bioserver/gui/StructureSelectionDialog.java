@@ -23,13 +23,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class StructureSelectionDialog extends JDialog {
+class StructureSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-    public ArrayList<File> selectedStructures;
+    ArrayList<File> selectedStructures;
     DefaultListModel<File> modelAll;
     DefaultListModel<File> modelSelected;
 
-    public StructureSelectionDialog(Frame owner) {
+    StructureSelectionDialog(Frame owner) {
         super(owner, true);
 
         modelAll = new DefaultListModel<>();

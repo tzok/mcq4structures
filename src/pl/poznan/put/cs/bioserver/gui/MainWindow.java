@@ -87,7 +87,7 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
 import com.csvreader.CsvWriter;
 
-public class MainWindow extends JFrame {
+class MainWindow extends JFrame {
     private static final String CARD_GLOBAL = "MATRIX";
     private static final String CARD_LOCAL = "MCQ_LOCAL";
     private static final String CARD_ALIGN_SEQ = "ALIGN_SEQ";
@@ -96,7 +96,7 @@ public class MainWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
-    protected static final String ABOUT = "MCQ4Structures is a tool for "
+    private static final String ABOUT = "MCQ4Structures is a tool for "
             + "structural similarity computation based on molecule tertiary "
             + "structure representation in torsional angle space.\nIt has been "
             + "designed to work primarily for RNA structures. Proteins are "
@@ -111,12 +111,23 @@ public class MainWindow extends JFrame {
             + "Development Fund within Innovative Economy Programme "
             + "(POIG.02.03.00-00-018/08 POWIEW)\nand grants from the National "
             + "Science Centre, Poland (2012/05/B/ST6/03026).";
+
+    private static Component getCurrentCard(JPanel panel) {
+        for (Component component : panel.getComponents()) {
+            if (component.isVisible()) {
+                return component;
+            }
+        }
+        return null;
+    }
+
     private StructureSelectionDialog structureDialog;
     private ChainSelectionDialog chainDialog;
     private TorsionAnglesSelectionDialog torsionDialog;
-    protected Map<String, List<AngleDifference>> localComparisonResult;
-    protected String[] globalComparisonNames;
-    protected double[][] globalComparisonResults;
+    private Map<String, List<AngleDifference>> localComparisonResult;
+    private String[] globalComparisonNames;
+
+    private double[][] globalComparisonResults;
 
     public MainWindow() throws HeadlessException {
         super();
@@ -284,10 +295,10 @@ public class MainWindow extends JFrame {
         final CardLayout layoutCards = new CardLayout();
         final JPanel panelCards = new JPanel();
         panelCards.setLayout(layoutCards);
-        panelCards.add(panelResultsGlobal, CARD_GLOBAL);
-        panelCards.add(panelResultsLocal, CARD_LOCAL);
-        panelCards.add(panelResultsAlignSeq, CARD_ALIGN_SEQ);
-        panelCards.add(panelResultsAlignStruc, CARD_ALIGN_STRUC);
+        panelCards.add(panelResultsGlobal, MainWindow.CARD_GLOBAL);
+        panelCards.add(panelResultsLocal, MainWindow.CARD_LOCAL);
+        panelCards.add(panelResultsAlignSeq, MainWindow.CARD_ALIGN_SEQ);
+        panelCards.add(panelResultsAlignStruc, MainWindow.CARD_ALIGN_STRUC);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -325,7 +336,7 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
-                Component current = getCurrentCard(panelCards);
+                Component current = MainWindow.getCurrentCard(panelCards);
                 if (current.equals(tableMatrix)) {
                     try (FileOutputStream stream = new FileOutputStream(chooser
                             .getSelectedFile())) {
@@ -470,7 +481,7 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
-                layoutCards.show(panelCards, CARD_GLOBAL);
+                layoutCards.show(panelCards, MainWindow.CARD_GLOBAL);
 
                 GlobalComparison comparison;
                 if (radioMcq.isSelected()) {
@@ -632,7 +643,7 @@ public class MainWindow extends JFrame {
         itemComputeLocal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                layoutCards.show(panelCards, CARD_LOCAL);
+                layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
 
                 final Structure[] structures = new Structure[] {
                         PdbManager
@@ -688,7 +699,7 @@ public class MainWindow extends JFrame {
         itemComputeAlignSeq.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                layoutCards.show(panelCards, CARD_ALIGN_SEQ);
+                layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
                 Structure[] structures = new Structure[] {
                         PdbManager
@@ -791,7 +802,7 @@ public class MainWindow extends JFrame {
                     return;
                 }
 
-                layoutCards.show(panelCards, CARD_ALIGN_STRUC);
+                layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
 
                 final Structure[] structures = new Structure[] {
                         PdbManager
@@ -910,19 +921,11 @@ public class MainWindow extends JFrame {
         itemAbout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(MainWindow.this, ABOUT, "About",
+                JOptionPane.showMessageDialog(MainWindow.this,
+                        MainWindow.ABOUT, "About",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         });
-    }
-
-    protected static Component getCurrentCard(JPanel panel) {
-        for (Component component : panel.getComponents()) {
-            if (component.isVisible()) {
-                return component;
-            }
-        }
-        return null;
     }
 
     private ImageIcon loadIcon(String name) {

@@ -7,7 +7,7 @@ import org.biojava.bio.structure.Structure;
  * 
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
-public abstract class LocalComparison {
+abstract class LocalComparison {
     /**
      * Compare two strucures using local measure. The result is an arbitrary
      * object, not limited to specific case.

@@ -99,7 +99,7 @@ public class TorsionLocalComparison extends LocalComparison {
      * @return A map of name of angle to the list of differences defined upon
      *         it.
      */
-    public static Map<String, List<AngleDifference>> compare(Atom[][] atoms,
+    private static Map<String, List<AngleDifference>> compare(Atom[][] atoms,
             AngleType[] angles, boolean wasAligned) {
         Atom[][] equalized = Helper.equalize(atoms);
 

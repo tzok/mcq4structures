@@ -46,7 +46,7 @@ public class MCQ extends GlobalComparison {
      *            A collection of angle differences.
      * @return Mean of Circular Quantities (MCQ).
      */
-    public static double calculate(Iterable<AngleDifference> diffs) {
+    static double calculate(Iterable<AngleDifference> diffs) {
         int counter = 0;
         double sines = 0.0;
         double cosines = 0.0;

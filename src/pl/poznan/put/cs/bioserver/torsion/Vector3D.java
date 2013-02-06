@@ -7,7 +7,7 @@ import org.biojava.bio.structure.Atom;
  * 
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
-public class Vector3D {
+class Vector3D {
     private double x, y, z;
 
     private Vector3D() {
@@ -22,7 +22,7 @@ public class Vector3D {
      * @param a2
      *            Atom 2.
      */
-    public Vector3D(Atom a1, Atom a2) {
+    Vector3D(Atom a1, Atom a2) {
         x = a2.getX() - a1.getX();
         y = a2.getY() - a1.getY();
         z = a2.getZ() - a1.getZ();
@@ -35,7 +35,7 @@ public class Vector3D {
      *            Input vector.
      * @return Cross product of this object and vector in parameter.
      */
-    public Vector3D cross(Vector3D v) {
+    Vector3D cross(Vector3D v) {
         Vector3D result = new Vector3D();
         result.x = y * v.z - z * v.y;
         result.y = z * v.x - x * v.z;
@@ -50,7 +50,7 @@ public class Vector3D {
      *            Input vector.
      * @return Dot product of this object and vector in parameter.
      */
-    public double dot(Vector3D v) {
+    double dot(Vector3D v) {
         return x * v.x + y * v.y + z * v.z;
     }
 
@@ -59,7 +59,7 @@ public class Vector3D {
      * 
      * @return Vector length.
      */
-    public double length() {
+    double length() {
         return Math.sqrt(x * x + y * y + z * z);
     }
 
@@ -70,7 +70,7 @@ public class Vector3D {
      *            Scaling factor.
      * @return Vector with values scaled.
      */
-    public Vector3D scale(double factor) {
+    Vector3D scale(double factor) {
         Vector3D result = new Vector3D();
         result.x = x * factor;
         result.y = y * factor;

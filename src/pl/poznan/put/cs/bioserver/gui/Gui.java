@@ -8,9 +8,8 @@ import javax.swing.SwingUtilities;
  * 
  * @author tzok
  */
-public class Gui extends JFrame {
+class Gui extends JFrame {
     private static final long serialVersionUID = 1L;
-    public static PdbManagerDialog managerDialog;
 
     /**
      * Run the main graphical application.
@@ -22,7 +21,8 @@ public class Gui extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                managerDialog = new PdbManagerDialog();
+                // FIXME
+                PdbManagerDialog managerDialog = new PdbManagerDialog();
                 managerDialog.setVisible(true);
 
                 MainWindow window = new MainWindow();

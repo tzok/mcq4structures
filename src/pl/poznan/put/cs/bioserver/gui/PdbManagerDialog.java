@@ -29,8 +29,8 @@ public class PdbManagerDialog extends JDialog {
     public PdbManagerDialog() {
         super();
 
-        model = new DefaultListModel<>();
-        final JList<File> list = new JList<>(model);
+        PdbManagerDialog.model = new DefaultListModel<>();
+        final JList<File> list = new JList<>(PdbManagerDialog.model);
         list.setBorder(BorderFactory
                 .createTitledBorder("All loaded structures"));
 
@@ -91,7 +91,7 @@ public class PdbManagerDialog extends JDialog {
                 List<File> selected = list.getSelectedValuesList();
                 for (File f : selected) {
                     PdbManager.remove(f);
-                    model.removeElement(f);
+                    PdbManagerDialog.model.removeElement(f);
                 }
             }
         });

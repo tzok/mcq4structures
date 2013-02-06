@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
@@ -30,12 +28,28 @@ public final class PdbManager {
     private static final Map<Structure, String> MAP_STRUCTURE_NAME = new HashMap<>();
     private static PDBFileReader pdbReader = new PDBFileReader();
 
-    public static Structure getStructure(File file) {
-        return PdbManager.MAP_PATH_STRUCTURE.get(file);
+    public static Structure[] getSelectedStructures(List<File> files) {
+        int size = files.size();
+        Structure[] structures = new Structure[size];
+        for (int i = 0; i < size; i++) {
+            File path = files.get(i);
+            structures[i] = PdbManager.MAP_PATH_STRUCTURE.get(path);
+        }
+        return structures;
     }
 
-    public static String getStructureName(File file) {
-        return PdbManager.MAP_PATH_NAME.get(file);
+    public static String[] getSelectedStructuresNames(ArrayList<File> files) {
+        int size = files.size();
+        String[] names = new String[size];
+        for (int i = 0; i < size; i++) {
+            File path = files.get(i);
+            names[i] = PdbManager.MAP_PATH_NAME.get(path);
+        }
+        return names;
+    }
+
+    public static Structure getStructure(File file) {
+        return PdbManager.MAP_PATH_STRUCTURE.get(file);
     }
 
     public static String getStructureName(Structure structure) {
@@ -55,13 +69,38 @@ public final class PdbManager {
         }
 
         try {
-            Structure structure = pdbReader.getStructure(file);
-            storeStructureInfo(file, structure);
+            Structure structure = PdbManager.pdbReader.getStructure(file);
+            PdbManager.storeStructureInfo(file, structure);
             return structure;
         } catch (IOException e) {
             PdbManager.LOGGER.error("Failed to load the structure: " + file, e);
             return null;
         }
+    }
+
+    public static Structure loadStructure(String pdbId) throws IOException {
+        PdbManager.pdbReader.setAutoFetch(true);
+        Structure structure = PdbManager.pdbReader.getStructureById(pdbId);
+
+        File pdbFile = new File(PdbManager.pdbReader.getPath());
+        pdbFile = new File(pdbFile, "pdb" + pdbId.toLowerCase() + ".ent.gz");
+        if (!pdbFile.exists()) {
+            throw new FileNotFoundException("File not found: " + pdbFile);
+        }
+
+        PdbManager.storeStructureInfo(pdbFile, structure);
+        return structure;
+    }
+
+    public static void remove(File path) {
+        Structure s = PdbManager.getStructure(path);
+        PdbManager.MAP_PATH_NAME.remove(path);
+        PdbManager.MAP_PATH_STRUCTURE.remove(path);
+        PdbManager.MAP_STRUCTURE_NAME.remove(s);
+        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_PATH_STRUCTURE
+                .size();
+        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_STRUCTURE_NAME
+                .size();
     }
 
     private static void storeStructureInfo(File file, Structure structure) {
@@ -79,69 +118,5 @@ public final class PdbManager {
     }
 
     private PdbManager() {
-    }
-
-    public static int getSize() {
-        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_PATH_STRUCTURE
-                .size();
-        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_STRUCTURE_NAME
-                .size();
-        return PdbManager.MAP_PATH_NAME.size();
-    }
-
-    public static File[] getAllStructures() {
-        Set<File> set = PdbManager.MAP_PATH_NAME.keySet();
-        List<File> list = new ArrayList<>(set);
-        Collections.sort(list);
-        return list.toArray(new File[list.size()]);
-    }
-
-    public static Structure[] getSelectedStructures(List<File> files) {
-        int size = files.size();
-        Structure[] structures = new Structure[size];
-        for (int i = 0; i < size; i++) {
-            File path = files.get(i);
-            structures[i] = PdbManager.MAP_PATH_STRUCTURE.get(path);
-        }
-        return structures;
-    }
-
-    public static void remove(File path) {
-        Structure s = PdbManager.getStructure(path);
-        PdbManager.MAP_PATH_NAME.remove(path);
-        PdbManager.MAP_PATH_STRUCTURE.remove(path);
-        PdbManager.MAP_STRUCTURE_NAME.remove(s);
-        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_PATH_STRUCTURE
-                .size();
-        assert PdbManager.MAP_PATH_NAME.size() == PdbManager.MAP_STRUCTURE_NAME
-                .size();
-    }
-
-    public static void setAutoFetch(boolean autoFetch) {
-        pdbReader.setAutoFetch(autoFetch);
-    }
-
-    public static Structure loadStructure(String pdbId) throws IOException {
-        pdbReader.setAutoFetch(true);
-        Structure structure = pdbReader.getStructureById(pdbId);
-
-        File pdbFile = new File(pdbReader.getPath());
-        pdbFile = new File(pdbFile, "pdb" + pdbId.toLowerCase() + ".ent.gz");
-        if (!pdbFile.exists()) {
-            throw new FileNotFoundException("File not found: " + pdbFile);
-        }
-
-        storeStructureInfo(pdbFile, structure);
-        return structure;
-    }
-
-    public static String[] getSelectedStructuresNames(ArrayList<File> files) {
-        int size = files.size();
-        String[] names = new String[size];
-        for (int i = 0; i < size; i++) {
-            File path = files.get(i);
-            names[i] = PdbManager.MAP_PATH_NAME.get(path);
-        }
-        return names;
     }
 }

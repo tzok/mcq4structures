@@ -18,9 +18,6 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public abstract class GlobalComparison {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(GlobalComparison.class);
-
     private class CompareThread extends Thread {
         private Structure s1;
         private Structure s2;
@@ -49,6 +46,9 @@ public abstract class GlobalComparison {
             }
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(GlobalComparison.class);
 
     /**
      * Compare two structures.

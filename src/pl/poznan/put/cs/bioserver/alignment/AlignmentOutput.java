@@ -41,7 +41,7 @@ public class AlignmentOutput {
      * @param atoms
      *            Atoms that were used in the alignment process.
      */
-    public AlignmentOutput(AFPChain afpChain, Structure s1, Structure s2,
+    AlignmentOutput(AFPChain afpChain, Structure s1, Structure s2,
             Atom[][] atoms) {
         this.afpChain = afpChain;
         this.s1 = s1;

@@ -20,14 +20,14 @@ public class PdbFileChooser {
         PdbFileChooser.chooser.setMultiSelectionEnabled(true);
     }
 
-    private PdbFileChooser() {
-    }
-
     public static File[] getSelectedFiles(Component parent) {
         int state = PdbFileChooser.chooser.showOpenDialog(parent);
         if (state == JFileChooser.APPROVE_OPTION) {
             return PdbFileChooser.chooser.getSelectedFiles();
         }
         return new File[0];
+    }
+
+    private PdbFileChooser() {
     }
 }

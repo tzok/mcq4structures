@@ -30,16 +30,16 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
-public class ChainSelectionDialog extends JDialog {
+class ChainSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-    protected static final Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(ChainSelectionDialog.class);
-    public File[] selectedStructures;
-    public Chain[][] selectedChains;
-    public DefaultComboBoxModel<File> modelLeft;
-    public DefaultComboBoxModel<File> modelRight;
+    File[] selectedStructures;
+    Chain[][] selectedChains;
+    DefaultComboBoxModel<File> modelLeft;
+    DefaultComboBoxModel<File> modelRight;
 
-    public ChainSelectionDialog(JFrame owner) {
+    ChainSelectionDialog(JFrame owner) {
         super(owner, true);
 
         modelLeft = new DefaultComboBoxModel<>();

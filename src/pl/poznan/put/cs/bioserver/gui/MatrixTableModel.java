@@ -2,12 +2,12 @@ package pl.poznan.put.cs.bioserver.gui;
 
 import javax.swing.table.AbstractTableModel;
 
-public class MatrixTableModel extends AbstractTableModel {
+class MatrixTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private String[] tableNames;
     private double[][] tableValues;
 
-    public MatrixTableModel(String[] names, double[][] values) {
+    MatrixTableModel(String[] names, double[][] values) {
         super();
         tableNames = names.clone();
         tableValues = values.clone();
@@ -29,6 +29,10 @@ public class MatrixTableModel extends AbstractTableModel {
         return tableNames[column - 1];
     }
 
+    public String[] getNames() {
+        return tableNames;
+    }
+
     @Override
     public int getRowCount() {
         return tableValues.length;
@@ -40,10 +44,6 @@ public class MatrixTableModel extends AbstractTableModel {
             return tableNames[row];
         }
         return tableValues[row][column - 1];
-    }
-
-    public String[] getNames() {
-        return tableNames;
     }
 
     public double[][] getValues() {

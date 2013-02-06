@@ -18,12 +18,12 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QuickGuideDialog extends JDialog {
+class QuickGuideDialog extends JDialog {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(QuickGuideDialog.class);
 
-    public QuickGuideDialog(Frame owner) {
+    QuickGuideDialog(Frame owner) {
         super(owner, true);
 
         JEditorPane editorPane = new JEditorPane();

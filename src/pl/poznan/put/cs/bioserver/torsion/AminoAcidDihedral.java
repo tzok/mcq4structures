@@ -13,7 +13,7 @@ import org.biojava.bio.structure.Group;
 public class AminoAcidDihedral implements AngleType {
     // TODO: add angles provided in Bio3D package
     /** All names of angles in the amino acid. */
-    public enum AngleName {
+    private enum AngleName {
         PHI, PSI, OMEGA
     }
 
@@ -63,7 +63,7 @@ public class AminoAcidDihedral implements AngleType {
 
     private AngleName angleName;
 
-    public AminoAcidDihedral(AngleName angleName) {
+    private AminoAcidDihedral(AngleName angleName) {
         this.angleName = angleName;
     }
 

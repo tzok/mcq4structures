@@ -5,13 +5,10 @@ package pl.poznan.put.cs.bioserver.comparison;
  * 
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
-@SuppressWarnings("serial")
 public class IncomparableStructuresException extends Exception {
-    public IncomparableStructuresException(String message) {
-        super(message);
-    }
+    private static final long serialVersionUID = 1L;
 
-    public IncomparableStructuresException(Throwable cause) {
+    IncomparableStructuresException(Throwable cause) {
         super(cause);
     }
 }

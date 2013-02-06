@@ -17,11 +17,11 @@ import org.jfree.ui.RectangleEdge;
 
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
-public class TorsionAxis extends NumberAxis {
+class TorsionAxis extends NumberAxis {
     private static final long serialVersionUID = 1L;
     private Map<String, List<AngleDifference>> comparison;
 
-    public TorsionAxis(Map<String, List<AngleDifference>> comparison) {
+    TorsionAxis(Map<String, List<AngleDifference>> comparison) {
         this.comparison = comparison;
         setTickLabelFont(new Font(Font.DIALOG, Font.PLAIN, 8));
     }
