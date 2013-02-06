@@ -29,6 +29,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -37,13 +38,23 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.lang3.StringUtils;
+import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
+import org.biojava3.alignment.template.AlignedSequence;
+import org.biojava3.alignment.template.PairwiseSequenceAligner;
+import org.biojava3.alignment.template.SequencePair;
+import org.biojava3.core.sequence.compound.AminoAcidCompound;
+import org.biojava3.core.sequence.compound.NucleotideCompound;
+import org.biojava3.core.sequence.template.Sequence;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -53,6 +64,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.IncomparableStructuresException;
@@ -60,6 +72,7 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.gui.helper.PdbFileChooser;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
@@ -70,6 +83,7 @@ import com.csvreader.CsvWriter;
 public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "MATRIX";
     private static final String CARD_MCQ_LOCAL = "MCQ_LOCAL";
+    private static final String CARD_ALIGN_SEQ = "ALIGN_SEQ";
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
@@ -177,7 +191,7 @@ public class MainWindow extends JFrame {
         menuDistance.addSeparator();
         menuDistance.add(menuLocal);
 
-        JRadioButton radioAlignGlobal = new JRadioButton("Global", true);
+        final JRadioButton radioAlignGlobal = new JRadioButton("Global", true);
         JRadioButton radioAlignLocal = new JRadioButton("Local", false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignGlobal);
@@ -237,11 +251,21 @@ public class MainWindow extends JFrame {
          */
         final JTable tableMatrix = new JTable();
         final JPanel panelTorsionChart = new JPanel(new GridLayout(1, 1));
+
+        final JTextArea textAreaAlignSeq = new JTextArea();
+        textAreaAlignSeq.setEditable(false);
+        final JPanel panelAlignmentSeqLabels = new JPanel();
+        JPanel panelAlignmentSeq = new JPanel(new BorderLayout());
+        panelAlignmentSeq.add(new JScrollPane(textAreaAlignSeq),
+                BorderLayout.CENTER);
+        panelAlignmentSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
+
         final CardLayout cardLayout = new CardLayout();
         final JPanel panelCards = new JPanel();
         panelCards.setLayout(cardLayout);
         panelCards.add(new JScrollPane(tableMatrix), CARD_MATRIX);
         panelCards.add(panelTorsionChart, CARD_MCQ_LOCAL);
+        panelCards.add(panelAlignmentSeq, CARD_ALIGN_SEQ);
 
         setLayout(new BorderLayout());
         add(panelCards, BorderLayout.CENTER);
@@ -640,7 +664,92 @@ public class MainWindow extends JFrame {
         itemComputeAlignSeq.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
+                Structure[] structures = new Structure[] {
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[0]),
+                        PdbManager
+                                .getStructure(chainDialog.selectedStructures[1]) };
+
+                // FIXME
+                int chainIndexFirst = 0;
+                int chainIndexSecond = 0;
+                Chain chains[] = new Chain[] {
+                        structures[0].getChain(chainIndexFirst),
+                        structures[1].getChain(chainIndexSecond) };
+
+                PairwiseSequenceAlignerType type;
+                if (radioAlignGlobal.isSelected()) {
+                    type = PairwiseSequenceAlignerType.GLOBAL;
+                } else {
+                    type = PairwiseSequenceAlignerType.LOCAL;
+                }
+
+                boolean isRNA = Helper.isNucleicAcid(chains[0]);
+                if (isRNA != Helper.isNucleicAcid(chains[1])) {
+                    String message = "Structures meant to be aligned "
+                            + "represent different molecule types!";
+                    MainWindow.LOGGER.error(message);
+                    JOptionPane.showMessageDialog(null, message, "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int gaps, length, minScore, maxScore, score;
+                double similarity;
+                String alignment;
+                if (isRNA) {
+                    SequenceAligner<NucleotideCompound> aligner = new SequenceAligner<>(
+                            NucleotideCompound.class);
+                    PairwiseSequenceAligner<Sequence<NucleotideCompound>, NucleotideCompound> sequenceAligner = aligner
+                            .alignSequences(chains[0], chains[1], type);
+                    SequencePair<Sequence<NucleotideCompound>, NucleotideCompound> pair = sequenceAligner
+                            .getPair();
+
+                    gaps = 0;
+                    for (AlignedSequence<Sequence<NucleotideCompound>, NucleotideCompound> as : pair
+                            .getAlignedSequences()) {
+                        gaps += StringUtils.countMatches(
+                                as.getSequenceAsString(), "-");
+                    }
+                    length = pair.getLength();
+                    score = sequenceAligner.getScore();
+                    minScore = sequenceAligner.getMinScore();
+                    maxScore = sequenceAligner.getMaxScore();
+                    similarity = sequenceAligner.getSimilarity();
+
+                    alignment = pair.toString();
+                } else {
+                    SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
+                            AminoAcidCompound.class);
+                    PairwiseSequenceAligner<Sequence<AminoAcidCompound>, AminoAcidCompound> sequenceAligner = aligner
+                            .alignSequences(chains[0], chains[1], type);
+                    SequencePair<Sequence<AminoAcidCompound>, AminoAcidCompound> pair = sequenceAligner
+                            .getPair();
+
+                    gaps = 0;
+                    for (AlignedSequence<Sequence<AminoAcidCompound>, AminoAcidCompound> as : pair
+                            .getAlignedSequences()) {
+                        gaps += StringUtils.countMatches(
+                                as.getSequenceAsString(), "-");
+                    }
+                    length = pair.getLength();
+                    score = sequenceAligner.getScore();
+                    minScore = sequenceAligner.getMinScore();
+                    maxScore = sequenceAligner.getMaxScore();
+                    similarity = sequenceAligner.getSimilarity();
+
+                    alignment = pair.toString();
+                }
+
+                textAreaAlignSeq.setText(alignment);
+                panelAlignmentSeqLabels.removeAll();
+                panelAlignmentSeqLabels.add(new JLabel(
+                        String.format(
+                                "Score: %d (min: %d, max: %d)\tSimilarity: %.0f%%\tGaps: %d/%d (%.0f%%)",
+                                score, minScore, maxScore, 100.0 * similarity,
+                                gaps, length, 100.0 * gaps / length)));
+
+                cardLayout.show(panelCards, CARD_ALIGN_SEQ);
             }
         });
 
