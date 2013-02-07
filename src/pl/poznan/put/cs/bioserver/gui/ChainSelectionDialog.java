@@ -85,10 +85,8 @@ class ChainSelectionDialog extends JDialog {
         add(panelBoth, BorderLayout.CENTER);
         add(panelButtons, BorderLayout.SOUTH);
 
-        pack();
-        int width = getPreferredSize().width;
-        int height = getPreferredSize().height;
-
+        int width = 640;
+        int height = 480;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
         int y = screenSize.height - height;
@@ -100,24 +98,21 @@ class ChainSelectionDialog extends JDialog {
         ActionListener actionListenerCombo = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JPanel panelReference;
-
                 JComboBox<File> source = (JComboBox<File>) e.getSource();
+                File file = (File) source.getSelectedItem();
+                Structure structure = PdbManager.getStructure(file);
+                if (structure == null) {
+                    return;
+                }
+
+                JPanel panelReference;
                 if (source.equals(comboLeft)) {
                     panelReference = panelChainsLeft;
                 } else {
                     panelReference = panelChainsRight;
                 }
-                panelReference.removeAll();
 
-                File file = (File) source.getSelectedItem();
-                if (file == null) {
-                    return;
-                }
-                Structure structure = PdbManager.getStructure(file);
-                if (structure == null) {
-                    return;
-                }
+                panelReference.removeAll();
                 for (Chain chain : structure.getChains()) {
                     panelReference.add(new JCheckBox(chain.getChainID()));
                 }
@@ -138,10 +133,8 @@ class ChainSelectionDialog extends JDialog {
                 selectedStructures = new File[2];
                 selectedChains = new Chain[2][];
                 for (int i = 0; i < 2; i++) {
-                    File pdb = (File) combos[i].getSelectedItem();
-                    selectedStructures[i] = pdb;
-
                     List<Chain> list = new ArrayList<>();
+                    File pdb = (File) combos[i].getSelectedItem();
                     Structure structure = PdbManager.getStructure(pdb);
                     for (Component component : panels[i].getComponents()) {
                         if (component instanceof JCheckBox
@@ -156,6 +149,7 @@ class ChainSelectionDialog extends JDialog {
                             }
                         }
                     }
+                    selectedStructures[i] = pdb;
                     selectedChains[i] = list.toArray(new Chain[list.size()]);
                 }
                 dispose();

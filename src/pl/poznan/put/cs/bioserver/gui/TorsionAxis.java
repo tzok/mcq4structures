@@ -4,9 +4,9 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.biojava.bio.structure.ResidueNumber;
 import org.jfree.chart.axis.AxisState;
@@ -19,10 +19,10 @@ import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 class TorsionAxis extends NumberAxis {
     private static final long serialVersionUID = 1L;
-    private Map<String, List<AngleDifference>> comparison;
+    private Map<String, List<AngleDifference>> comparisonResults;
 
     TorsionAxis(Map<String, List<AngleDifference>> comparison) {
-        this.comparison = comparison;
+        comparisonResults = comparison;
         setTickLabelFont(new Font(Font.DIALOG, Font.PLAIN, 8));
     }
 
@@ -31,8 +31,8 @@ class TorsionAxis extends NumberAxis {
             Rectangle2D dataArea, RectangleEdge edge) {
         List<NumberTick> ticks = super.refreshTicks(g2, state, dataArea, edge);
 
-        Map<Double, String> mapIndexLabel = new HashMap<>();
-        List<AngleDifference> list = comparison.get("AVERAGE");
+        Map<Double, String> mapIndexLabel = new TreeMap<>();
+        List<AngleDifference> list = comparisonResults.get("AVERAGE");
         for (int i = 0; i < list.size(); i++) {
             AngleDifference ad = list.get(i);
             ResidueNumber residue = ad.getResidue();
