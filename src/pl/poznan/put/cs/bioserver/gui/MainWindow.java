@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -50,6 +51,7 @@ import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
 import org.biojava3.alignment.template.AlignedSequence;
@@ -124,9 +126,11 @@ class MainWindow extends JFrame {
     private StructureSelectionDialog structureDialog;
     private ChainSelectionDialog chainDialog;
     private TorsionAnglesSelectionDialog torsionDialog;
-    private Map<String, List<AngleDifference>> localComparisonResult;
-    private String[] globalComparisonNames;
-    private double[][] globalComparisonResults;
+
+    private String[] resultGlobalNames;
+    private double[][] resultGlobalMatrix;
+    private Map<String, List<AngleDifference>> resultLocal;
+    private String resultAlignStruc;
 
     public MainWindow() {
         super();
@@ -349,7 +353,16 @@ class MainWindow extends JFrame {
                 } else if (current.equals(panelResultsAlignSeq)) {
                     // TODO saveResultsAlignSeq(...)
                 } else if (current.equals(panelResultsAlignStruc)) {
-                    // TODO saveResultsAlignStruc(...)
+                    try (FileOutputStream stream = new FileOutputStream(chooser
+                            .getSelectedFile())) {
+                        stream.write(resultAlignStruc.getBytes("UTF-8"));
+                    } catch (IOException e1) {
+                        MainWindow.LOGGER.error(
+                                "Failed to save PDB of aligned structures", e1);
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                e1.getMessage(), "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
@@ -437,10 +450,10 @@ class MainWindow extends JFrame {
                         Structure[] structures = PdbManager
                                 .getSelectedStructures(structureDialog.selectedStructures);
 
-                        globalComparisonNames = PdbManager
+                        resultGlobalNames = PdbManager
                                 .getSelectedStructuresNames(structureDialog.selectedStructures);
-                        globalComparisonResults = comparison.compare(
-                                structures, new ComparisonListener() {
+                        resultGlobalMatrix = comparison.compare(structures,
+                                new ComparisonListener() {
                                     @Override
                                     public void stateChanged(long all,
                                             long completed) {
@@ -453,8 +466,7 @@ class MainWindow extends JFrame {
                             @Override
                             public void run() {
                                 MatrixTableModel model = new MatrixTableModel(
-                                        globalComparisonNames,
-                                        globalComparisonResults);
+                                        resultGlobalNames, resultGlobalMatrix);
                                 tableMatrix.setModel(model);
                                 itemSave.setEnabled(true);
                                 itemCluster.setEnabled(true);
@@ -561,6 +573,18 @@ class MainWindow extends JFrame {
                     if (source.equals(itemSelectChainsCompare)) {
                         itemSelectTorsion.setEnabled(true);
                     } else if (source.equals(itemSelectChainsAlignSeq)) {
+                        if (chainDialog.selectedChains[0].length != 1
+                                || chainDialog.selectedChains[1].length != 1) {
+                            JOptionPane.showMessageDialog(MainWindow.this,
+                                    "For sequence alignment, you need "
+                                            + "to select a single chain "
+                                            + "from each structure",
+                                    "Information",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            chainDialog.selectedStructures = null;
+                            chainDialog.selectedChains = null;
+                            return;
+                        }
                         menuSelectAlignType.setEnabled(true);
                         itemComputeAlignSeq.setEnabled(true);
                     } else { // source.equals(itemSelectChainsAlignStruc)
@@ -594,8 +618,8 @@ class MainWindow extends JFrame {
                         .getStructure(chainDialog.selectedStructures[1]);
 
                 try {
-                    localComparisonResult = TorsionLocalComparison.compare(
-                            structures[0], structures[1], false);
+                    resultLocal = TorsionLocalComparison.compare(structures[0],
+                            structures[1], false);
                 } catch (StructureException e1) {
                     JOptionPane.showMessageDialog(MainWindow.this,
                             e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -604,11 +628,10 @@ class MainWindow extends JFrame {
 
                 DefaultXYDataset dataset = new DefaultXYDataset();
                 for (String angle : torsionDialog.selectedNames) {
-                    if (!localComparisonResult.containsKey(angle)) {
+                    if (!resultLocal.containsKey(angle)) {
                         continue;
                     }
-                    List<AngleDifference> diffs = localComparisonResult
-                            .get(angle);
+                    List<AngleDifference> diffs = resultLocal.get(angle);
                     Collections.sort(diffs);
                     double[] x = new double[diffs.size()];
                     double[] y = new double[diffs.size()];
@@ -620,7 +643,7 @@ class MainWindow extends JFrame {
                     dataset.addSeries(angle, new double[][] { x, y });
                 }
 
-                NumberAxis xAxis = new TorsionAxis(localComparisonResult);
+                NumberAxis xAxis = new TorsionAxis(resultLocal);
                 xAxis.setLabel("Residue");
                 NumberAxis yAxis = new NumberAxis();
                 yAxis.setAutoRange(false);
@@ -722,8 +745,8 @@ class MainWindow extends JFrame {
                 textAreaAlignSeq.setText(alignment);
                 panelAlignmentSeqLabels.removeAll();
                 panelAlignmentSeqLabels.add(new JLabel(String.format(
-                        "Score: %d (min: %d, max: %d)\t"
-                                + "Similarity: %.0f%%\t"
+                        "Score: %d (min: %d, max: %d)  "
+                                + "Similarity: %.0f%%  "
                                 + "Gaps: %d/%d (%.0f%%)", score, minScore,
                         maxScore, 100.0 * similarity, gaps, length, 100.0
                                 * gaps / length)));
@@ -745,23 +768,12 @@ class MainWindow extends JFrame {
 
                 layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
 
-                final Structure[] structures = new Structure[] {
-                        PdbManager
-                                .getStructure(chainDialog.selectedStructures[0]),
-                        PdbManager
-                                .getStructure(chainDialog.selectedStructures[1]) };
-
-                // FIXME
-                // if (arg0.getSource().equals(buttonAlignChain)) {
-                // int chainIndexFirst = panelPdb.getComboBoxFirst()
-                // .getSelectedIndex();
-                // int chainIndexSecond = panelPdb.getComboBoxSecond()
-                // .getSelectedIndex();
-                // structures[0] = new StructureImpl(structures[0]
-                // .getChain(chainIndexFirst));
-                // structures[1] = new StructureImpl(structures[1]
-                // .getChain(chainIndexSecond));
-                // }
+                final Structure[] structures = new Structure[2];
+                for (int i = 0; i < 2; i++) {
+                    structures[i] = new StructureImpl();
+                    structures[i].setChains(Arrays
+                            .asList(chainDialog.selectedChains[i]));
+                }
 
                 boolean isRNA = Helper.isNucleicAcid(structures[0]);
                 if (isRNA != Helper.isNucleicAcid(structures[1])) {
@@ -814,6 +826,7 @@ class MainWindow extends JFrame {
                                     builder.append("MODEL        2                                                                  \n");
                                     builder.append(aligned[1].toPDB());
                                     builder.append("ENDMDL                                                                          \n");
+                                    resultAlignStruc = builder.toString();
 
                                     JmolViewer viewer = panelJmolLeft
                                             .getViewer();
@@ -831,6 +844,8 @@ class MainWindow extends JFrame {
                                     viewer = panelJmolRight.getViewer();
                                     viewer.openStringInline(builder.toString());
                                     panelJmolRight.executeCmd(JMOL_SCRIPT);
+
+                                    itemSave.setEnabled(true);
                                 }
                             });
                         } catch (StructureException e1) {
@@ -883,19 +898,19 @@ class MainWindow extends JFrame {
             /*
              * Print header
              */
-            int length = globalComparisonNames.length;
+            int length = resultGlobalNames.length;
             writer.write("");
             for (int i = 0; i < length; i++) {
-                writer.write(globalComparisonNames[i]);
+                writer.write(resultGlobalNames[i]);
             }
             writer.endRecord();
             /*
              * Print each value in the matrix
              */
             for (int i = 0; i < length; i++) {
-                writer.write(globalComparisonNames[i]);
+                writer.write(resultGlobalNames[i]);
                 for (int j = 0; j < length; j++) {
-                    writer.write(Double.toString(globalComparisonResults[i][j]));
+                    writer.write(Double.toString(resultGlobalMatrix[i][j]));
                 }
                 writer.endRecord();
             }
@@ -914,8 +929,7 @@ class MainWindow extends JFrame {
          * [residue -> angleValue(angleName)]
          */
         SortedMap<String, Map<String, Double>> map = new TreeMap<>();
-        for (Entry<String, List<AngleDifference>> pair : localComparisonResult
-                .entrySet()) {
+        for (Entry<String, List<AngleDifference>> pair : resultLocal.entrySet()) {
             String angleName = pair.getKey();
             for (AngleDifference ad : pair.getValue()) {
                 ResidueNumber residue = ad.getResidue();
