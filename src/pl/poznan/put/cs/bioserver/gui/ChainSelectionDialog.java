@@ -44,27 +44,31 @@ class ChainSelectionDialog extends JDialog {
 
         modelLeft = new DefaultComboBoxModel<>();
         final JComboBox<File> comboLeft = new JComboBox<>(modelLeft);
+
         final JPanel panelChainsLeft = new JPanel();
         panelChainsLeft.setLayout(new BoxLayout(panelChainsLeft,
                 BoxLayout.Y_AXIS));
         panelChainsLeft.setBorder(BorderFactory
                 .createTitledBorder("Available chains:"));
+
         final JPanel panelLeft = new JPanel();
-        panelLeft.setLayout(new BoxLayout(panelLeft, BoxLayout.Y_AXIS));
-        panelLeft.add(comboLeft);
-        panelLeft.add(new JScrollPane(panelChainsLeft));
+        panelLeft.setLayout(new BorderLayout());
+        panelLeft.add(comboLeft, BorderLayout.NORTH);
+        panelLeft.add(new JScrollPane(panelChainsLeft), BorderLayout.CENTER);
 
         modelRight = new DefaultComboBoxModel<>();
         final JComboBox<File> comboRight = new JComboBox<>(modelRight);
+
         final JPanel panelChainsRight = new JPanel();
         panelChainsRight.setLayout(new BoxLayout(panelChainsRight,
                 BoxLayout.Y_AXIS));
         panelChainsRight.setBorder(BorderFactory
                 .createTitledBorder("Available chains:"));
+
         JPanel panelRight = new JPanel();
-        panelRight.setLayout(new BoxLayout(panelRight, BoxLayout.Y_AXIS));
-        panelRight.add(comboRight);
-        panelRight.add(new JScrollPane(panelChainsRight));
+        panelRight.setLayout(new BorderLayout());
+        panelRight.add(comboRight, BorderLayout.NORTH);
+        panelRight.add(new JScrollPane(panelChainsRight), BorderLayout.CENTER);
 
         JPanel panelBoth = new JPanel();
         panelBoth.setLayout(new GridLayout(1, 2));
@@ -81,16 +85,11 @@ class ChainSelectionDialog extends JDialog {
         add(panelBoth, BorderLayout.CENTER);
         add(panelButtons, BorderLayout.SOUTH);
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension size = new Dimension(screenSize.width / 4,
-                screenSize.height / 4);
-        panelChainsLeft.setPreferredSize(size);
-        panelChainsRight.setPreferredSize(size);
-
         pack();
         int width = getPreferredSize().width;
         int height = getPreferredSize().height;
 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
         int y = screenSize.height - height;
         setSize(width, height);
