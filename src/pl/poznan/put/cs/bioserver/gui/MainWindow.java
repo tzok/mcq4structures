@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -41,6 +43,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.biojava.bio.structure.Chain;
@@ -267,11 +270,30 @@ class MainWindow extends JFrame {
                 BorderLayout.CENTER);
         panelResultsAlignSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
 
+        JPanel panelAlignStrucInfo = new JPanel(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0.5;
+        panelAlignStrucInfo.add(new JLabel("Whole structures Jmol view"),
+                constraints);
+        constraints.gridx++;
+        constraints.weightx = 0;
+        final JLabel labelAlignStrucStatus = new JLabel("Ready");
+        panelAlignStrucInfo.add(labelAlignStrucStatus, constraints);
+        constraints.gridx++;
+        constraints.weightx = 0.5;
+        panelAlignStrucInfo.add(new JLabel("Aligned fragments Jmol view"),
+                constraints);
+
         final JmolPanel panelJmolLeft = new JmolPanel();
         final JmolPanel panelJmolRight = new JmolPanel();
-        final JPanel panelResultsAlignStruc = new JPanel(new GridLayout(1, 2));
-        panelResultsAlignStruc.add(panelJmolLeft);
-        panelResultsAlignStruc.add(panelJmolRight);
+        JPanel panelJmolBoth = new JPanel(new GridLayout(1, 2));
+        panelJmolBoth.add(panelJmolLeft);
+        panelJmolBoth.add(panelJmolRight);
+        final JPanel panelResultsAlignStruc = new JPanel(new BorderLayout());
+        panelResultsAlignStruc.add(panelAlignStrucInfo, BorderLayout.NORTH);
+        panelResultsAlignStruc.add(panelJmolBoth, BorderLayout.CENTER);
 
         final CardLayout layoutCards = new CardLayout();
         final JPanel panelCards = new JPanel();
@@ -751,21 +773,20 @@ class MainWindow extends JFrame {
                     return;
                 }
 
-                // FIXME
-                // labelStatus.setText("Processing");
-                // final Timer timer = new Timer(250, new ActionListener() {
-                // @Override
-                // public void actionPerformed(ActionEvent e) {
-                // String text = labelStatus.getText();
-                // int count = StringUtils.countMatches(text, ".");
-                // if (count < 5) {
-                // labelStatus.setText(text + ".");
-                // } else {
-                // labelStatus.setText("Processing");
-                // }
-                // }
-                // });
-                // timer.start();
+                labelAlignStrucStatus.setText("Processing");
+                final Timer timer = new Timer(250, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent arg0) {
+                        String text = labelAlignStrucStatus.getText();
+                        int count = StringUtils.countMatches(text, ".");
+                        if (count < 5) {
+                            labelAlignStrucStatus.setText(text + ".");
+                        } else {
+                            labelAlignStrucStatus.setText("Processing");
+                        }
+                    }
+                });
+                timer.start();
 
                 thread = new Thread(new Runnable() {
                     @Override
@@ -819,9 +840,8 @@ class MainWindow extends JFrame {
                                     e1.getMessage(), "Error",
                                     JOptionPane.ERROR_MESSAGE);
                         } finally {
-                            // FIXME
-                            // timer.stop();
-                            // labelStatus.setText("Ready");
+                            timer.stop();
+                            labelAlignStrucStatus.setText("Ready");
                         }
                     }
                 });
