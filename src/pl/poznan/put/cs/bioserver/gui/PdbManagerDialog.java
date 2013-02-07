@@ -58,10 +58,8 @@ public class PdbManagerDialog extends JDialog {
         fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId
                 .getPreferredSize().height));
 
-        pack();
-        int width = getPreferredSize().width;
-        int height = getPreferredSize().height;
-
+        int width = 480;
+        int height = 768;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
         int y = screenSize.height - height;

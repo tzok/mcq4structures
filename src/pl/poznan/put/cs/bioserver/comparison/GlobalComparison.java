@@ -18,13 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
  */
 public abstract class GlobalComparison {
-    private static class Result {
-        private int i;
-        private int j;
-        private double value;
-    }
-
-    private class CompareCallable implements Callable<Result> {
+    private class CompareCallable implements Callable<SingleResult> {
         private Structure s1;
         private Structure s2;
         private int i;
@@ -38,13 +32,19 @@ public abstract class GlobalComparison {
         }
 
         @Override
-        public Result call() throws Exception {
-            Result result = new Result();
+        public SingleResult call() throws Exception {
+            SingleResult result = new SingleResult();
             result.i = i;
             result.j = j;
             result.value = compare(s1, s2);
             return result;
         }
+    }
+
+    private static class SingleResult {
+        private int i;
+        private int j;
+        private double value;
     }
 
     private static final Logger LOGGER = LoggerFactory
@@ -73,11 +73,13 @@ public abstract class GlobalComparison {
      */
     public double[][] compare(final Structure[] structures,
             final ComparisonListener listener) {
+        /*
+         * Create distance matrix, set diagonal to 0 and other values to NaN
+         */
         double[][] matrix = new double[structures.length][];
         for (int i = 0; i < structures.length; ++i) {
             matrix[i] = new double[structures.length];
         }
-
         for (int i = 0; i < structures.length; i++) {
             for (int j = 0; j < structures.length; j++) {
                 if (i == j) {
@@ -88,10 +90,14 @@ public abstract class GlobalComparison {
             }
         }
 
+        /*
+         * Create a fixed pool of threads and a service to gather results from
+         * each calculation
+         */
         int countThreads = Runtime.getRuntime().availableProcessors() * 2;
         final ExecutorService threadPool = Executors
                 .newFixedThreadPool(countThreads);
-        ExecutorCompletionService<Result> ecs = new ExecutorCompletionService<>(
+        ExecutorCompletionService<SingleResult> ecs = new ExecutorCompletionService<>(
                 threadPool);
         for (int i = 0; i < structures.length; i++) {
             for (int j = i + 1; j < structures.length; j++) {
@@ -101,6 +107,10 @@ public abstract class GlobalComparison {
         }
         threadPool.shutdown();
 
+        /*
+         * In a separate thread, inform a listener about current status of
+         * execution
+         */
         final long all = structures.length * (structures.length - 1) / 2;
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -125,9 +135,12 @@ public abstract class GlobalComparison {
         });
         thread.start();
 
+        /*
+         * Finally gather the results back in the matrix
+         */
         for (int i = 0; i < all; i++) {
             try {
-                Result result = ecs.take().get();
+                SingleResult result = ecs.take().get();
                 matrix[result.i][result.j] = result.value;
                 matrix[result.j][result.i] = result.value;
             } catch (InterruptedException | ExecutionException e) {

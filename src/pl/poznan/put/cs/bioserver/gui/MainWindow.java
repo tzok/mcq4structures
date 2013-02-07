@@ -41,9 +41,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.biojava.bio.structure.Chain;
@@ -85,14 +82,17 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 import com.csvreader.CsvWriter;
 
 class MainWindow extends JFrame {
-    private static final String CARD_GLOBAL = "MATRIX";
-    private static final String CARD_LOCAL = "MCQ_LOCAL";
-    private static final String CARD_ALIGN_SEQ = "ALIGN_SEQ";
-    private static final String CARD_ALIGN_STRUC = "ALIGN_STRUC";
-
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
+
+    private static final char CSV_DELIMITER = ';';
+
+    private static final String CARD_GLOBAL = "CARD_GLOBAL";
+    private static final String CARD_LOCAL = "CARD_LOCAL";
+    private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
+    private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
+
     private static final String ABOUT = "MCQ4Structures is a tool for "
             + "structural similarity computation based on molecule tertiary "
             + "structure representation in torsional angle space.\nIt has been "
@@ -123,26 +123,10 @@ class MainWindow extends JFrame {
     private TorsionAnglesSelectionDialog torsionDialog;
     private Map<String, List<AngleDifference>> localComparisonResult;
     private String[] globalComparisonNames;
-
     private double[][] globalComparisonResults;
 
     public MainWindow() {
         super();
-        /*
-         * Set L&F
-         */
-        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-            if ("Nimbus".equals(info.getName())) {
-                try {
-                    UIManager.setLookAndFeel(info.getClassName());
-                } catch (ClassNotFoundException | InstantiationException
-                        | IllegalAccessException
-                        | UnsupportedLookAndFeelException e) {
-                    // do nothing
-                }
-                break;
-            }
-        }
 
         structureDialog = new StructureSelectionDialog(this);
         chainDialog = new ChainSelectionDialog(this);
@@ -278,14 +262,14 @@ class MainWindow extends JFrame {
         final JTextArea textAreaAlignSeq = new JTextArea();
         textAreaAlignSeq.setEditable(false);
         final JPanel panelAlignmentSeqLabels = new JPanel();
-        JPanel panelResultsAlignSeq = new JPanel(new BorderLayout());
+        final JPanel panelResultsAlignSeq = new JPanel(new BorderLayout());
         panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq),
                 BorderLayout.CENTER);
         panelResultsAlignSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
 
         final JmolPanel panelJmolLeft = new JmolPanel();
         final JmolPanel panelJmolRight = new JmolPanel();
-        JPanel panelResultsAlignStruc = new JPanel(new GridLayout(1, 2));
+        final JPanel panelResultsAlignStruc = new JPanel(new GridLayout(1, 2));
         panelResultsAlignStruc.add(panelJmolLeft);
         panelResultsAlignStruc.add(panelJmolRight);
 
@@ -337,89 +321,13 @@ class MainWindow extends JFrame {
 
                 Component current = MainWindow.getCurrentCard(panelCards);
                 if (current.equals(tableMatrix)) {
-                    try (FileOutputStream stream = new FileOutputStream(chooser
-                            .getSelectedFile())) {
-                        CsvWriter writer = new CsvWriter(stream, ';', Charset
-                                .forName("UTF-8"));
-
-                        int length = globalComparisonNames.length;
-                        writer.write("");
-                        for (int i = 0; i < length; i++) {
-                            writer.write(globalComparisonNames[i]);
-                        }
-                        writer.endRecord();
-
-                        for (int i = 0; i < length; i++) {
-                            writer.write(globalComparisonNames[i]);
-                            for (int j = 0; j < length; j++) {
-                                writer.write(Double
-                                        .toString(globalComparisonResults[i][j]));
-                            }
-                            writer.endRecord();
-                        }
-
-                        writer.close();
-                    } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
+                    saveResultsGlobalComparison(chooser.getSelectedFile());
                 } else if (current.equals(panelResultsLocal)) {
-                    SortedMap<String, Map<String, Double>> map = new TreeMap<>();
-                    for (Entry<String, List<AngleDifference>> pair : localComparisonResult
-                            .entrySet()) {
-                        String angleName = pair.getKey();
-                        List<AngleDifference> value = pair.getValue();
-
-                        for (AngleDifference ad : value) {
-                            ResidueNumber residue = ad.getResidue();
-                            String residueName = String.format("%s:%03d",
-                                    residue.getChainId(), residue.getSeqNum());
-
-                            if (!map.containsKey(residueName)) {
-                                map.put(residueName,
-                                        new LinkedHashMap<String, Double>());
-                            }
-                            Map<String, Double> angleValues = map
-                                    .get(residueName);
-                            angleValues.put(angleName, ad.getDifference());
-                        }
-                    }
-
-                    try (FileOutputStream stream = new FileOutputStream(chooser
-                            .getSelectedFile())) {
-                        CsvWriter writer = new CsvWriter(stream, ';', Charset
-                                .forName("UTF-8"));
-
-                        writer.write("");
-                        Set<String> keySetReference = map.get(map.firstKey())
-                                .keySet();
-                        for (String angleName : keySetReference) {
-                            writer.write(angleName);
-                        }
-                        writer.endRecord();
-
-                        for (String residueName : map.keySet()) {
-                            writer.write(residueName);
-
-                            Map<String, Double> mapAngles = map
-                                    .get(residueName);
-                            for (String angleName : keySetReference) {
-                                if (mapAngles.containsKey(angleName)) {
-                                    String angleValue = Double
-                                            .toString(mapAngles.get(angleName));
-                                    writer.write(angleValue);
-                                } else {
-                                    writer.write("");
-                                }
-                            }
-                            writer.endRecord();
-                        }
-
-                        writer.close();
-                    } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
+                    saveResultsLocalComparison(chooser.getSelectedFile());
+                } else if (current.equals(panelResultsAlignSeq)) {
+                    // TODO saveResultsAlignSeq(...)
+                } else if (current.equals(panelResultsAlignStruc)) {
+                    // TODO saveResultsAlignStruc(...)
                 }
             }
         });
@@ -435,6 +343,10 @@ class MainWindow extends JFrame {
         itemSelectStructures.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                /*
+                 * Add new structures to the "all" section of structures
+                 * selection dialog
+                 */
                 Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
@@ -443,7 +355,10 @@ class MainWindow extends JFrame {
                         structureDialog.modelAll.addElement(path);
                     }
                 }
-
+                /*
+                 * Remove from "all" section these structures, that were removed
+                 * in PDB manager dialog
+                 */
                 elements = structureDialog.modelAll.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
@@ -451,7 +366,10 @@ class MainWindow extends JFrame {
                         structureDialog.modelAll.removeElement(path);
                     }
                 }
-
+                /*
+                 * Remove from "selected" section these structures, that were
+                 * removed in PDB manager dialog
+                 */
                 elements = structureDialog.modelSelected.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
@@ -459,7 +377,9 @@ class MainWindow extends JFrame {
                         structureDialog.modelSelected.removeElement(path);
                     }
                 }
-
+                /*
+                 * Show dialog
+                 */
                 structureDialog.setVisible(true);
                 if (structureDialog.selectedStructures != null
                         && structureDialog.selectedStructures.size() >= 2) {
@@ -591,14 +511,12 @@ class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent arg0) {
                 chainDialog.modelLeft.removeAllElements();
                 chainDialog.modelRight.removeAllElements();
-
                 Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
                 while (elements.hasMoreElements()) {
                     File path = elements.nextElement();
                     chainDialog.modelLeft.addElement(path);
                     chainDialog.modelRight.addElement(path);
                 }
-
                 chainDialog.setVisible(true);
 
                 if (chainDialog.selectedStructures != null
@@ -647,18 +565,18 @@ class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent arg0) {
                 layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
 
-                final Structure[] structures = new Structure[] {
-                        PdbManager
-                                .getStructure(chainDialog.selectedStructures[0]),
-                        PdbManager
-                                .getStructure(chainDialog.selectedStructures[1]) };
+                final Structure[] structures = new Structure[2];
+                structures[0] = PdbManager
+                        .getStructure(chainDialog.selectedStructures[0]);
+                structures[1] = PdbManager
+                        .getStructure(chainDialog.selectedStructures[1]);
 
                 try {
                     localComparisonResult = TorsionLocalComparison.compare(
                             structures[0], structures[1], false);
                 } catch (StructureException e1) {
-                    JOptionPane.showMessageDialog(null, e1.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -679,14 +597,13 @@ class MainWindow extends JFrame {
                     }
                     dataset.addSeries(angle, new double[][] { x, y });
                 }
+
                 NumberAxis xAxis = new TorsionAxis(localComparisonResult);
                 xAxis.setLabel("Residue");
-
                 NumberAxis yAxis = new NumberAxis();
                 yAxis.setAutoRange(false);
                 yAxis.setRange(0, Math.PI);
                 yAxis.setLabel("Distance [rad]");
-
                 XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
                         new DefaultXYItemRenderer());
 
@@ -937,5 +854,96 @@ class MainWindow extends JFrame {
             return null;
         }
         return new ImageIcon(resource);
+    }
+
+    private void saveResultsGlobalComparison(File outputFile) {
+        try (FileOutputStream stream = new FileOutputStream(outputFile)) {
+            CsvWriter writer = new CsvWriter(stream, MainWindow.CSV_DELIMITER,
+                    Charset.forName("UTF-8"));
+            /*
+             * Print header
+             */
+            int length = globalComparisonNames.length;
+            writer.write("");
+            for (int i = 0; i < length; i++) {
+                writer.write(globalComparisonNames[i]);
+            }
+            writer.endRecord();
+            /*
+             * Print each value in the matrix
+             */
+            for (int i = 0; i < length; i++) {
+                writer.write(globalComparisonNames[i]);
+                for (int j = 0; j < length; j++) {
+                    writer.write(Double.toString(globalComparisonResults[i][j]));
+                }
+                writer.endRecord();
+            }
+            writer.close();
+        } catch (IOException e) {
+            MainWindow.LOGGER.error(
+                    "Failed to save results from global comparison", e);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void saveResultsLocalComparison(File outputFile) {
+        /*
+         * Reverse information: [angleName -> angleValue(residue)] into:
+         * [residue -> angleValue(angleName)]
+         */
+        SortedMap<String, Map<String, Double>> map = new TreeMap<>();
+        for (Entry<String, List<AngleDifference>> pair : localComparisonResult
+                .entrySet()) {
+            String angleName = pair.getKey();
+            for (AngleDifference ad : pair.getValue()) {
+                ResidueNumber residue = ad.getResidue();
+                String residueName = String.format("%s:%03d",
+                        residue.getChainId(), residue.getSeqNum());
+                if (!map.containsKey(residueName)) {
+                    map.put(residueName, new LinkedHashMap<String, Double>());
+                }
+                Map<String, Double> angleValues = map.get(residueName);
+                angleValues.put(angleName, ad.getDifference());
+            }
+        }
+
+        try (FileOutputStream stream = new FileOutputStream(outputFile)) {
+            CsvWriter writer = new CsvWriter(stream, MainWindow.CSV_DELIMITER,
+                    Charset.forName("UTF-8"));
+            /*
+             * Write header
+             */
+            writer.write("");
+            Set<String> keySetReference = map.get(map.firstKey()).keySet();
+            for (String angleName : keySetReference) {
+                writer.write(angleName);
+            }
+            writer.endRecord();
+            /*
+             * Write a record for each residue
+             */
+            for (String residueName : map.keySet()) {
+                writer.write(residueName);
+                Map<String, Double> mapAngles = map.get(residueName);
+                for (String angleName : keySetReference) {
+                    if (mapAngles.containsKey(angleName)) {
+                        String angleValue = Double.toString(mapAngles
+                                .get(angleName));
+                        writer.write(angleValue);
+                    } else {
+                        writer.write("");
+                    }
+                }
+                writer.endRecord();
+            }
+            writer.close();
+        } catch (IOException e) {
+            MainWindow.LOGGER.error(
+                    "Failed to save results from local comparison", e);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
