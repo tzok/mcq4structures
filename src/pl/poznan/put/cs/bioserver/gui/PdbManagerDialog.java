@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
@@ -39,7 +40,7 @@ public class PdbManagerDialog extends JDialog {
 
         JPanel panelListButtons = new JPanel();
         panelListButtons.setLayout(new BorderLayout());
-        panelListButtons.add(list, BorderLayout.CENTER);
+        panelListButtons.add(new JScrollPane(list), BorderLayout.CENTER);
         panelListButtons.add(panelButtons, BorderLayout.SOUTH);
 
         final JTextField fieldPdbId = new JTextField();
@@ -52,17 +53,16 @@ public class PdbManagerDialog extends JDialog {
         setLayout(new BorderLayout());
         add(panelListButtons, BorderLayout.CENTER);
         add(panelFetch, BorderLayout.SOUTH);
+        getRootPane().setDefaultButton(buttonFetch);
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        list.setPreferredSize(new Dimension(screenSize.width / 3,
-                screenSize.height / 2));
-        fieldPdbId.setPreferredSize(new Dimension(screenSize.width / 6,
-                fieldPdbId.getPreferredSize().height));
+        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId
+                .getPreferredSize().height));
 
         pack();
         int width = getPreferredSize().width;
         int height = getPreferredSize().height;
 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
         int y = screenSize.height - height;
         setSize(width, height);
