@@ -612,10 +612,11 @@ class MainWindow extends JFrame {
                 layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
 
                 final Structure[] structures = new Structure[2];
-                structures[0] = PdbManager
-                        .getStructure(chainDialog.selectedStructures[0]);
-                structures[1] = PdbManager
-                        .getStructure(chainDialog.selectedStructures[1]);
+                for (int i = 0; i < 2; i++) {
+                    structures[i] = new StructureImpl();
+                    structures[i].setChains(Arrays
+                            .asList(chainDialog.selectedChains[i]));
+                }
 
                 try {
                     resultLocal = TorsionLocalComparison.compare(structures[0],
@@ -665,18 +666,9 @@ class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
-                Structure[] structures = new Structure[] {
-                        PdbManager
-                                .getStructure(chainDialog.selectedStructures[0]),
-                        PdbManager
-                                .getStructure(chainDialog.selectedStructures[1]) };
-
-                // FIXME
-                int chainIndexFirst = 0;
-                int chainIndexSecond = 0;
                 Chain chains[] = new Chain[] {
-                        structures[0].getChain(chainIndexFirst),
-                        structures[1].getChain(chainIndexSecond) };
+                        chainDialog.selectedChains[0][0],
+                        chainDialog.selectedChains[1][0] };
 
                 PairwiseSequenceAlignerType type;
                 if (radioAlignGlobal.isSelected()) {
