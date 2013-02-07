@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -66,13 +67,25 @@ class StructureSelectionDialog extends JDialog {
         panelButtons.add(buttonDeselectAll, constraints);
 
         JPanel panelMain = new JPanel();
-        panelMain.add(listAll);
-        panelMain.add(panelButtons);
-        panelMain.add(listSelected);
+        panelMain.setLayout(new GridBagLayout());
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        panelMain.add(new JScrollPane(listAll), constraints);
+        constraints.gridx++;
+        constraints.weightx = 0;
+        constraints.fill = GridBagConstraints.VERTICAL;
+        panelMain.add(panelButtons, constraints);
+        constraints.gridx++;
+        constraints.weightx = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        panelMain.add(new JScrollPane(listSelected), constraints);
 
         JButton buttonOk = new JButton("OK");
         JButton buttonCancel = new JButton("Cancel");
-
         JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
         panelOkCancel.add(buttonCancel);
@@ -81,19 +94,13 @@ class StructureSelectionDialog extends JDialog {
         add(panelMain, BorderLayout.CENTER);
         add(panelOkCancel, BorderLayout.SOUTH);
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension dimension = new Dimension(screenSize.width / 3,
-                screenSize.height / 2);
-        listAll.setPreferredSize(dimension);
-        listSelected.setPreferredSize(dimension);
-
         pack();
         int width = getPreferredSize().width;
         int height = getPreferredSize().height;
 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
         int y = screenSize.height - height;
-        setSize(width, height);
         setLocation(x / 2, y / 2);
 
         setTitle("Structure selection dialog");
