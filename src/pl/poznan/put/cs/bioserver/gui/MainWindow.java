@@ -126,6 +126,7 @@ class MainWindow extends JFrame {
     private double[][] resultGlobalMatrix;
     private Map<String, List<AngleDifference>> resultLocal;
     private String resultAlignStruc;
+    private String resultAlignSeq;
 
     public MainWindow() {
         super();
@@ -254,7 +255,7 @@ class MainWindow extends JFrame {
         final JTable tableMatrix = new JTable();
         final JProgressBar progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
-        JPanel panelResultsGlobal = new JPanel(new BorderLayout());
+        final JPanel panelResultsGlobal = new JPanel(new BorderLayout());
         panelResultsGlobal.add(new JScrollPane(tableMatrix),
                 BorderLayout.CENTER);
         panelResultsGlobal.add(progressBar, BorderLayout.SOUTH);
@@ -340,12 +341,21 @@ class MainWindow extends JFrame {
                 }
 
                 Component current = MainWindow.getCurrentCard(panelCards);
-                if (current.equals(tableMatrix)) {
+                if (current.equals(panelResultsGlobal)) {
                     saveResultsGlobalComparison(chooser.getSelectedFile());
                 } else if (current.equals(panelResultsLocal)) {
                     saveResultsLocalComparison(chooser.getSelectedFile());
                 } else if (current.equals(panelResultsAlignSeq)) {
-                    // TODO saveResultsAlignSeq(...)
+                    try (FileOutputStream stream = new FileOutputStream(chooser
+                            .getSelectedFile())) {
+                        stream.write(resultAlignSeq.getBytes("UTF-8"));
+                    } catch (IOException e1) {
+                        MainWindow.LOGGER.error(
+                                "Failed to save aligned sequences", e1);
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                e1.getMessage(), "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 } else if (current.equals(panelResultsAlignStruc)) {
                     try (FileOutputStream stream = new FileOutputStream(chooser
                             .getSelectedFile())) {
@@ -463,6 +473,7 @@ class MainWindow extends JFrame {
                                         resultGlobalNames, resultGlobalMatrix);
                                 tableMatrix.setModel(model);
                                 itemSave.setEnabled(true);
+                                itemSave.setText("Save results (CSV)");
                                 itemCluster.setEnabled(true);
                                 itemVisualise.setEnabled(true);
                             }
@@ -652,6 +663,7 @@ class MainWindow extends JFrame {
                 panelResultsLocal.revalidate();
 
                 itemSave.setEnabled(true);
+                itemSave.setText("Save results (CSV)");
             }
         });
 
@@ -676,7 +688,11 @@ class MainWindow extends JFrame {
 
                 OutputAlignSeq alignment = SequenceAligner.align(chains[0],
                         chains[1], radioAlignGlobal.isSelected());
-                textAreaAlignSeq.setText(alignment.toString());
+                resultAlignSeq = alignment.toString();
+                textAreaAlignSeq.setText(resultAlignSeq);
+
+                itemSave.setEnabled(true);
+                itemSave.setText("Save results (TXT)");
             }
         });
 
@@ -772,6 +788,7 @@ class MainWindow extends JFrame {
                                     panelJmolRight.executeCmd(JMOL_SCRIPT);
 
                                     itemSave.setEnabled(true);
+                                    itemSave.setText("Save results (PDB)");
                                 }
                             });
                         } catch (StructureException e1) {
