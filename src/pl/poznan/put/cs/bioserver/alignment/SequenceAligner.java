@@ -3,110 +3,78 @@ package pl.poznan.put.cs.bioserver.alignment;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
-import org.biojava3.alignment.Alignments;
-import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
+import org.biojava3.alignment.NeedlemanWunsch;
 import org.biojava3.alignment.SimpleGapPenalty;
+import org.biojava3.alignment.SmithWaterman;
 import org.biojava3.alignment.SubstitutionMatrixHelper;
-import org.biojava3.alignment.template.PairwiseSequenceAligner;
+import org.biojava3.alignment.template.AbstractPairwiseSequenceAligner;
 import org.biojava3.alignment.template.SubstitutionMatrix;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.RNASequence;
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.compound.AminoAcidCompoundSet;
-import org.biojava3.core.sequence.compound.NucleotideCompound;
-import org.biojava3.core.sequence.compound.RNACompoundSet;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import pl.poznan.put.cs.bioserver.helper.Helper;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
  * 
  * @author tzok
  * 
- * @param <C>
- *            Either a NucleotideCompound or AminoAcidCompund.
  */
-public class SequenceAligner<C extends Compound> {
+public class SequenceAligner {
     private static Logger logger = LoggerFactory
             .getLogger(SequenceAligner.class);
-    private final Class<?> compound;
 
-    /**
-     * Create an instance of sequence aligner.
-     * 
-     * @param clazz
-     *            You need to repeat the same Compound subclass as was given for
-     *            the type parameter to the class. This is caused by Java
-     *            inability to get information about class type parameter in
-     *            runtime.
-     */
-    public SequenceAligner(Class<?> clazz) {
-        compound = clazz;
-    }
-
-    /**
-     * Align the sequences found in the given chain.
-     * 
-     * @param c1
-     *            First chain.
-     * @param c2
-     *            Second chain.
-     * @param type
-     *            Type of alignment (global or local).
-     * @return A global alignment of the sequences.
-     */
-    public PairwiseSequenceAligner<Sequence<C>, C> alignSequences(Chain c1,
-            Chain c2, PairwiseSequenceAlignerType type) {
+    @SuppressWarnings("unchecked")
+    public static OutputAlignSeq align(Chain c1, Chain c2, boolean isGlobal) {
         /*
          * Parse sequences
          */
-        Sequence<C> seq1 = getSequence(c1);
-        Sequence<C> seq2 = getSequence(c2);
-        SequenceAligner.logger.trace("Sequences to be aligned:\n" + seq1 + "\n"
-                + seq2);
-        if (seq1.getLength() == 0 || seq2.getLength() == 0) {
-            String message = "At least one chain has 0 amino acids/residues";
-            String title = "Cannot calculate alignment";
-            JOptionPane.showMessageDialog(null, message, title,
-                    JOptionPane.WARNING_MESSAGE);
+        Sequence<? extends Compound> query = SequenceAligner.getSequence(c1);
+        Sequence<? extends Compound> target = SequenceAligner.getSequence(c2);
+        if (query.getLength() == 0 || target.getLength() == 0) {
+            SequenceAligner.logger.warn("At least one chain has 0 residues");
+            return null;
         }
+        SequenceAligner.logger.trace("Sequences to be aligned:\n" + query
+                + "\n" + target);
         /*
          * Prepare substitution matrices for the alignment
          */
-        SubstitutionMatrix<C> matrix = null;
-        if (compound.equals(NucleotideCompound.class)) {
-            matrix = (SubstitutionMatrix<C>) SubstitutionMatrixHelper
-                    .getNuc4_4();
-        } else if (compound.equals(AminoAcidCompound.class)) {
-            matrix = (SubstitutionMatrix<C>) SubstitutionMatrixHelper
-                    .getBlosum62();
+        SubstitutionMatrix<? extends Compound> matrix;
+        if (Helper.isNucleicAcid(c1)) {
+            matrix = SubstitutionMatrixHelper.getNuc4_4();
         } else {
-            throw new IllegalArgumentException("Unknown sequence type");
+            matrix = SubstitutionMatrixHelper.getBlosum62();
         }
         /*
          * Align the sequences
          */
-        PairwiseSequenceAligner<Sequence<C>, C> aligner = Alignments
-                .getPairwiseAligner(seq1, seq2, type, new SimpleGapPenalty(),
-                        matrix);
-        SequenceAligner.logger.trace("Found alignment:\n" + aligner.getPair());
-        return aligner;
+        AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner;
+        if (isGlobal) {
+            aligner = new NeedlemanWunsch<>();
+        } else {
+            aligner = new SmithWaterman<>();
+        }
+        aligner.setQuery((Sequence<Compound>) query);
+        aligner.setTarget((Sequence<Compound>) target);
+        aligner.setGapPenalty(new SimpleGapPenalty());
+        aligner.setSubstitutionMatrix((SubstitutionMatrix<Compound>) matrix);
+        return new OutputAlignSeq(aligner);
     }
 
-    @SuppressWarnings("unchecked")
-    private Sequence<C> getSequence(final Chain chain) {
+    private static Sequence<? extends Compound> getSequence(Chain chain) {
         /*
          * Try to get sequence from parsed SEQRES entries
          */
         Sequence<?> sequence = chain.getBJSequence();
         if (sequence.getLength() != 0) {
-            return (Sequence<C>) sequence;
+            return sequence;
         }
         /*
          * Iterate over the structure and prepare a sequence string in FASTA
@@ -134,15 +102,14 @@ public class SequenceAligner<C extends Compound> {
         /*
          * Create a Sequence object in correct type
          */
-        if (compound.equals(NucleotideCompound.class)) {
-            sequence = new RNASequence(seqString,
-                    RNACompoundSet.getRNACompoundSet());
-        } else if (compound.equals(AminoAcidCompound.class)) {
-            sequence = new ProteinSequence(seqString,
-                    AminoAcidCompoundSet.getAminoAcidCompoundSet());
+        if (Helper.isNucleicAcid(chain)) {
+            sequence = new RNASequence(seqString);
         } else {
-            throw new IllegalArgumentException("Unknown sequence type");
+            sequence = new ProteinSequence(seqString);
         }
-        return (Sequence<C>) sequence;
+        return sequence;
+    }
+
+    private SequenceAligner() {
     }
 }

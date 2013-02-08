@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -53,13 +54,6 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
-import org.biojava3.alignment.Alignments.PairwiseSequenceAlignerType;
-import org.biojava3.alignment.template.AlignedSequence;
-import org.biojava3.alignment.template.PairwiseSequenceAligner;
-import org.biojava3.alignment.template.SequencePair;
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.compound.NucleotideCompound;
-import org.biojava3.core.sequence.template.Sequence;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -71,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
+import pl.poznan.put.cs.bioserver.alignment.OutputAlignSeq;
 import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
@@ -268,11 +263,10 @@ class MainWindow extends JFrame {
 
         final JTextArea textAreaAlignSeq = new JTextArea();
         textAreaAlignSeq.setEditable(false);
-        final JPanel panelAlignmentSeqLabels = new JPanel();
+        textAreaAlignSeq.setFont(new Font("Monospaced", Font.PLAIN, 20));
         final JPanel panelResultsAlignSeq = new JPanel(new BorderLayout());
         panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq),
                 BorderLayout.CENTER);
-        panelResultsAlignSeq.add(panelAlignmentSeqLabels, BorderLayout.SOUTH);
 
         JPanel panelAlignStrucInfo = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -670,13 +664,6 @@ class MainWindow extends JFrame {
                         chainDialog.selectedChains[0][0],
                         chainDialog.selectedChains[1][0] };
 
-                PairwiseSequenceAlignerType type;
-                if (radioAlignGlobal.isSelected()) {
-                    type = PairwiseSequenceAlignerType.GLOBAL;
-                } else {
-                    type = PairwiseSequenceAlignerType.LOCAL;
-                }
-
                 boolean isRNA = Helper.isNucleicAcid(chains[0]);
                 if (isRNA != Helper.isNucleicAcid(chains[1])) {
                     String message = "Structures meant to be aligned "
@@ -687,62 +674,64 @@ class MainWindow extends JFrame {
                     return;
                 }
 
-                int gaps, length, minScore, maxScore, score;
-                double similarity;
-                String alignment;
-                if (isRNA) {
-                    SequenceAligner<NucleotideCompound> aligner = new SequenceAligner<>(
-                            NucleotideCompound.class);
-                    PairwiseSequenceAligner<Sequence<NucleotideCompound>, NucleotideCompound> sequenceAligner = aligner
-                            .alignSequences(chains[0], chains[1], type);
-                    SequencePair<Sequence<NucleotideCompound>, NucleotideCompound> pair = sequenceAligner
-                            .getPair();
+                // int gaps, length, minScore, maxScore, score;
+                // double similarity;
+                // String alignment;
+                // if (isRNA) {
+                // SequenceAligner<NucleotideCompound> aligner = new
+                // SequenceAligner<>(
+                // NucleotideCompound.class);
+                // PairwiseSequenceAligner<Sequence<NucleotideCompound>,
+                // NucleotideCompound> sequenceAligner = aligner
+                // .alignSequences(chains[0], chains[1], type);
+                // SequencePair<Sequence<NucleotideCompound>,
+                // NucleotideCompound> pair = sequenceAligner
+                // .getPair();
+                //
+                // gaps = 0;
+                // for (AlignedSequence<Sequence<NucleotideCompound>,
+                // NucleotideCompound> as : pair
+                // .getAlignedSequences()) {
+                // gaps += StringUtils.countMatches(
+                // as.getSequenceAsString(), "-");
+                // }
+                // length = pair.getLength();
+                // score = sequenceAligner.getScore();
+                // minScore = sequenceAligner.getMinScore();
+                // maxScore = sequenceAligner.getMaxScore();
+                // similarity = sequenceAligner.getSimilarity();
+                //
+                // alignment = pair.toString();
+                // } else {
+                // SequenceAligner<AminoAcidCompound> aligner = new
+                // SequenceAligner<>(
+                // AminoAcidCompound.class);
+                // PairwiseSequenceAligner<Sequence<AminoAcidCompound>,
+                // AminoAcidCompound> sequenceAligner = aligner
+                // .alignSequences(chains[0], chains[1], type);
+                // SequencePair<Sequence<AminoAcidCompound>, AminoAcidCompound>
+                // pair = sequenceAligner
+                // .getPair();
+                //
+                // gaps = 0;
+                // for (AlignedSequence<Sequence<AminoAcidCompound>,
+                // AminoAcidCompound> as : pair
+                // .getAlignedSequences()) {
+                // gaps += StringUtils.countMatches(
+                // as.getSequenceAsString(), "-");
+                // }
+                // length = pair.getLength();
+                // score = sequenceAligner.getScore();
+                // minScore = sequenceAligner.getMinScore();
+                // maxScore = sequenceAligner.getMaxScore();
+                // similarity = sequenceAligner.getSimilarity();
+                //
+                // alignment = pair.toString();
+                // }
 
-                    gaps = 0;
-                    for (AlignedSequence<Sequence<NucleotideCompound>, NucleotideCompound> as : pair
-                            .getAlignedSequences()) {
-                        gaps += StringUtils.countMatches(
-                                as.getSequenceAsString(), "-");
-                    }
-                    length = pair.getLength();
-                    score = sequenceAligner.getScore();
-                    minScore = sequenceAligner.getMinScore();
-                    maxScore = sequenceAligner.getMaxScore();
-                    similarity = sequenceAligner.getSimilarity();
-
-                    alignment = pair.toString();
-                } else {
-                    SequenceAligner<AminoAcidCompound> aligner = new SequenceAligner<>(
-                            AminoAcidCompound.class);
-                    PairwiseSequenceAligner<Sequence<AminoAcidCompound>, AminoAcidCompound> sequenceAligner = aligner
-                            .alignSequences(chains[0], chains[1], type);
-                    SequencePair<Sequence<AminoAcidCompound>, AminoAcidCompound> pair = sequenceAligner
-                            .getPair();
-
-                    gaps = 0;
-                    for (AlignedSequence<Sequence<AminoAcidCompound>, AminoAcidCompound> as : pair
-                            .getAlignedSequences()) {
-                        gaps += StringUtils.countMatches(
-                                as.getSequenceAsString(), "-");
-                    }
-                    length = pair.getLength();
-                    score = sequenceAligner.getScore();
-                    minScore = sequenceAligner.getMinScore();
-                    maxScore = sequenceAligner.getMaxScore();
-                    similarity = sequenceAligner.getSimilarity();
-
-                    alignment = pair.toString();
-                }
-
-                textAreaAlignSeq.setText(alignment);
-                panelAlignmentSeqLabels.removeAll();
-                panelAlignmentSeqLabels.add(new JLabel(String.format(
-                        "Score: %d (min: %d, max: %d)  "
-                                + "Similarity: %.0f%%  "
-                                + "Gaps: %d/%d (%.0f%%)", score, minScore,
-                        maxScore, 100.0 * similarity, gaps, length, 100.0
-                                * gaps / length)));
-                panelAlignmentSeqLabels.revalidate();
+                OutputAlignSeq alignment = SequenceAligner.align(chains[0],
+                        chains[1], radioAlignGlobal.isSelected());
+                textAreaAlignSeq.setText(alignment.toString());
             }
         });
 
