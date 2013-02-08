@@ -7,11 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.biojava.bio.structure.Atom;
-import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Element;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
-import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.StructureAlignment;
 import org.biojava.bio.structure.align.ce.CeMain;
 import org.biojava.bio.structure.align.model.AFPChain;
@@ -30,24 +28,6 @@ public final class StructureAligner {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(StructureAligner.class);
     private static Map<AlignmentInput, AlignmentOutput> cache = new HashMap<>();
-
-    /**
-     * Align structurally two chains.
-     * 
-     * @param c1
-     *            First chain.
-     * @param c2
-     *            Second chain
-     * @return An object with all information about computed alignment.
-     * @throws StructureException
-     *             If there were problems during alignment computation.
-     */
-    public static AlignmentOutput align(Chain c1, Chain c2)
-            throws StructureException {
-        StructureImpl s1 = new StructureImpl(c1);
-        StructureImpl s2 = new StructureImpl(c2);
-        return StructureAligner.align(s1, s2);
-    }
 
     /**
      * Align structurally two structures.

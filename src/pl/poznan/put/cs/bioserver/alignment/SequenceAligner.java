@@ -51,20 +51,6 @@ public class SequenceAligner<C extends Compound> {
     }
 
     /**
-     * Align the sequences found in the given chain globally.
-     * 
-     * @param c1
-     *            First chain.
-     * @param c2
-     *            Second chain.
-     * @return A global alignment of the sequences.
-     */
-    public PairwiseSequenceAligner<Sequence<C>, C> alignSequences(Chain c1,
-            Chain c2) {
-        return alignSequences(c1, c2, PairwiseSequenceAlignerType.GLOBAL);
-    }
-
-    /**
      * Align the sequences found in the given chain.
      * 
      * @param c1
