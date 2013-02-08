@@ -674,61 +674,6 @@ class MainWindow extends JFrame {
                     return;
                 }
 
-                // int gaps, length, minScore, maxScore, score;
-                // double similarity;
-                // String alignment;
-                // if (isRNA) {
-                // SequenceAligner<NucleotideCompound> aligner = new
-                // SequenceAligner<>(
-                // NucleotideCompound.class);
-                // PairwiseSequenceAligner<Sequence<NucleotideCompound>,
-                // NucleotideCompound> sequenceAligner = aligner
-                // .alignSequences(chains[0], chains[1], type);
-                // SequencePair<Sequence<NucleotideCompound>,
-                // NucleotideCompound> pair = sequenceAligner
-                // .getPair();
-                //
-                // gaps = 0;
-                // for (AlignedSequence<Sequence<NucleotideCompound>,
-                // NucleotideCompound> as : pair
-                // .getAlignedSequences()) {
-                // gaps += StringUtils.countMatches(
-                // as.getSequenceAsString(), "-");
-                // }
-                // length = pair.getLength();
-                // score = sequenceAligner.getScore();
-                // minScore = sequenceAligner.getMinScore();
-                // maxScore = sequenceAligner.getMaxScore();
-                // similarity = sequenceAligner.getSimilarity();
-                //
-                // alignment = pair.toString();
-                // } else {
-                // SequenceAligner<AminoAcidCompound> aligner = new
-                // SequenceAligner<>(
-                // AminoAcidCompound.class);
-                // PairwiseSequenceAligner<Sequence<AminoAcidCompound>,
-                // AminoAcidCompound> sequenceAligner = aligner
-                // .alignSequences(chains[0], chains[1], type);
-                // SequencePair<Sequence<AminoAcidCompound>, AminoAcidCompound>
-                // pair = sequenceAligner
-                // .getPair();
-                //
-                // gaps = 0;
-                // for (AlignedSequence<Sequence<AminoAcidCompound>,
-                // AminoAcidCompound> as : pair
-                // .getAlignedSequences()) {
-                // gaps += StringUtils.countMatches(
-                // as.getSequenceAsString(), "-");
-                // }
-                // length = pair.getLength();
-                // score = sequenceAligner.getScore();
-                // minScore = sequenceAligner.getMinScore();
-                // maxScore = sequenceAligner.getMaxScore();
-                // similarity = sequenceAligner.getSimilarity();
-                //
-                // alignment = pair.toString();
-                // }
-
                 OutputAlignSeq alignment = SequenceAligner.align(chains[0],
                         chains[1], radioAlignGlobal.isSelected());
                 textAreaAlignSeq.setText(alignment.toString());
