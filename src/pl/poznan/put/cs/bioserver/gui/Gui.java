@@ -42,9 +42,6 @@ class Gui extends JFrame {
                     }
                 }
 
-                PdbManagerDialog managerDialog = PdbManagerDialog.getInstance();
-                managerDialog.setVisible(true);
-
                 MainWindow window = new MainWindow();
                 window.setVisible(true);
             }

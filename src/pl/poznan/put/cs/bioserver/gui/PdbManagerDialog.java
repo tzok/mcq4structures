@@ -2,6 +2,7 @@ package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,15 +27,15 @@ public class PdbManagerDialog extends JDialog {
     public static final DefaultListModel<File> MODEL = new DefaultListModel<>();
     private static PdbManagerDialog INSTANCE;
 
-    public static PdbManagerDialog getInstance() {
+    public static PdbManagerDialog getInstance(Frame owner) {
         if (PdbManagerDialog.INSTANCE == null) {
-            PdbManagerDialog.INSTANCE = new PdbManagerDialog();
+            PdbManagerDialog.INSTANCE = new PdbManagerDialog(owner);
         }
         return PdbManagerDialog.INSTANCE;
     }
 
-    private PdbManagerDialog() {
-        super();
+    private PdbManagerDialog(Frame parent) {
+        super(parent);
 
         final JList<File> list = new JList<>(PdbManagerDialog.MODEL);
         list.setBorder(BorderFactory

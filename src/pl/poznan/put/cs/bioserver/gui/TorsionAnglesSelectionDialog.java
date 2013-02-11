@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 
 class TorsionAnglesSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
+    private static TorsionAnglesSelectionDialog INSTANCE;
     private final String[] namesAmino = new String[] { "Phi Φ", "Psi Ψ",
             "Omega Ω", "Average" };
     private final String[] namesNucleic = new String[] { "Alpha α", "Beta β",
@@ -27,7 +28,15 @@ class TorsionAnglesSelectionDialog extends JDialog {
             "Average" };
     List<String> selectedNames;
 
-    TorsionAnglesSelectionDialog(Frame owner) {
+    public static TorsionAnglesSelectionDialog getInstance(Frame owner) {
+        if (TorsionAnglesSelectionDialog.INSTANCE == null) {
+            TorsionAnglesSelectionDialog.INSTANCE = new TorsionAnglesSelectionDialog(
+                    owner);
+        }
+        return TorsionAnglesSelectionDialog.INSTANCE;
+    }
+
+    private TorsionAnglesSelectionDialog(Frame owner) {
         super(owner, true);
 
         JPanel panelAnglesAmino = new JPanel();

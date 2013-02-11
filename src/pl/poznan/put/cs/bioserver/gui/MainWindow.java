@@ -12,6 +12,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -87,6 +88,7 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 import com.csvreader.CsvWriter;
 
 class MainWindow extends JFrame {
+    private static final String TITLE = "MCQ4Structures: computing similarity of 3D RNA / protein structures";
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
@@ -123,6 +125,7 @@ class MainWindow extends JFrame {
         return null;
     }
 
+    private PdbManagerDialog managerDialog;
     private StructureSelectionDialog structureDialog;
     private ChainSelectionDialog chainDialog;
     private TorsionAnglesSelectionDialog torsionDialog;
@@ -136,9 +139,11 @@ class MainWindow extends JFrame {
     public MainWindow() {
         super();
 
-        structureDialog = new StructureSelectionDialog(this);
-        chainDialog = new ChainSelectionDialog(this);
-        torsionDialog = new TorsionAnglesSelectionDialog(this);
+        managerDialog = PdbManagerDialog.getInstance(this);
+        managerDialog.setVisible(true);
+        structureDialog = StructureSelectionDialog.getInstance(this);
+        chainDialog = ChainSelectionDialog.getInstance(this);
+        torsionDialog = TorsionAnglesSelectionDialog.getInstance(this);
 
         /*
          * Create menu
@@ -325,7 +330,7 @@ class MainWindow extends JFrame {
          * Set window properties
          */
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("MCQ4Structures: computing similarity of 3D RNA / protein structures");
+        setTitle(MainWindow.TITLE);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension size = toolkit.getScreenSize();
@@ -335,6 +340,14 @@ class MainWindow extends JFrame {
         /*
          * Set action listeners
          */
+        managerDialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                checkBoxManager.setSelected(false);
+            }
+        });
+
         itemOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -390,8 +403,7 @@ class MainWindow extends JFrame {
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PdbManagerDialog.getInstance().setVisible(
-                        checkBoxManager.isSelected());
+                managerDialog.setVisible(checkBoxManager.isSelected());
             }
         });
 

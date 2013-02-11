@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -18,7 +19,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -34,12 +34,20 @@ class ChainSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ChainSelectionDialog.class);
+    private static ChainSelectionDialog INSTANCE;
     File[] selectedStructures;
     Chain[][] selectedChains;
     DefaultComboBoxModel<File> modelLeft;
     DefaultComboBoxModel<File> modelRight;
 
-    ChainSelectionDialog(JFrame owner) {
+    public static ChainSelectionDialog getInstance(Frame owner) {
+        if (ChainSelectionDialog.INSTANCE == null) {
+            ChainSelectionDialog.INSTANCE = new ChainSelectionDialog(owner);
+        }
+        return ChainSelectionDialog.INSTANCE;
+    }
+
+    private ChainSelectionDialog(Frame owner) {
         super(owner, true);
 
         modelLeft = new DefaultComboBoxModel<>();

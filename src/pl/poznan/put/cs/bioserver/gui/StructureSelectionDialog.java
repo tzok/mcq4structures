@@ -26,11 +26,20 @@ import javax.swing.event.ListSelectionListener;
 
 class StructureSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
+    private static StructureSelectionDialog INSTANCE;
     List<File> selectedStructures;
     DefaultListModel<File> modelAll;
     DefaultListModel<File> modelSelected;
 
-    StructureSelectionDialog(Frame owner) {
+    public static StructureSelectionDialog getInstance(Frame owner) {
+        if (StructureSelectionDialog.INSTANCE == null) {
+            StructureSelectionDialog.INSTANCE = new StructureSelectionDialog(
+                    owner);
+        }
+        return StructureSelectionDialog.INSTANCE;
+    }
+
+    private StructureSelectionDialog(Frame owner) {
         super(owner, true);
 
         modelAll = new DefaultListModel<>();
