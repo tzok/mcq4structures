@@ -12,6 +12,7 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.align.StructureAlignment;
 import org.biojava.bio.structure.align.ce.CeMain;
+import org.biojava.bio.structure.align.ce.CeParameters;
 import org.biojava.bio.structure.align.model.AFPChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,15 +75,28 @@ public final class StructureAligner {
         }
 
         StructureAlignment alignment = new CeMain();
-        AFPChain align = alignment.align(atoms[0], atoms[1]);
+        CeParameters parameters = new CeParameters();
+        while (true) {
+            AFPChain align = alignment.align(atoms[0], atoms[1], parameters);
+            if (align.getBlockRotationMatrix().length == 0) {
+                int winSize = parameters.getWinSize();
+                winSize--;
+                if (winSize <= 0) {
+                    throw new StructureException(
+                            "Could not find structure alignment");
+                }
+                parameters.setWinSize(winSize);
+                continue;
+            }
 
-        for (Atom atom : changedAtoms) {
-            atom.setName("P");
-            atom.setFullName(" P  ");
+            for (Atom atom : changedAtoms) {
+                atom.setName("P");
+                atom.setFullName(" P  ");
+            }
+            AlignmentOutput result = new AlignmentOutput(align, s1, s2, atoms);
+            StructureAligner.cache.put(input, result);
+            return result;
         }
-        AlignmentOutput result = new AlignmentOutput(align, s1, s2, atoms);
-        StructureAligner.cache.put(input, result);
-        return result;
     }
 
     private StructureAligner() {

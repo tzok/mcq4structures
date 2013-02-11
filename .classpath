@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/AAProperties-jar-with-dependencies.jar"/>
-	<classpathentry kind="lib" path="lib/biojava3-alignment-3.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/biojava3-core-3.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/biojava3-structure-3.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/biojava3-structure-gui-3.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-alignment-3.0.5.jar" sourcepath="lib/biojava3-alignment-3.0.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-core-3.0.5.jar" sourcepath="lib/biojava3-core-3.0.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-structure-3.0.5.jar" sourcepath="lib/biojava3-structure-3.0.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-structure-gui-3.0.5.jar" sourcepath="lib/biojava3-structure-gui-3.0.5-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/diffutils-1.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/javacsv.jar"/>

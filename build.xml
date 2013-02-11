@@ -3,7 +3,7 @@
     <property name="name" value="mcq4structures"/>
 
     <path id="classpath">
-        <fileset dir="lib/" includes="*.jar"/>
+        <fileset dir="lib/" includes="*.jar" excludes="*-sources.jar"/>
     </path>
 
     <macrodef name="unsignjar">
