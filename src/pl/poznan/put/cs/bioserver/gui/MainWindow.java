@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -257,10 +258,16 @@ class MainWindow extends JFrame {
         final JTable tableMatrix = new JTable();
         final JProgressBar progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
+        JPanel panelProgressBar = new JPanel();
+        panelProgressBar.setLayout(new BoxLayout(panelProgressBar,
+                BoxLayout.X_AXIS));
+        panelProgressBar.add(new JLabel("Progress of computations:"));
+        panelProgressBar.add(progressBar);
+
         final JPanel panelResultsGlobal = new JPanel(new BorderLayout());
         panelResultsGlobal.add(new JScrollPane(tableMatrix),
                 BorderLayout.CENTER);
-        panelResultsGlobal.add(progressBar, BorderLayout.SOUTH);
+        panelResultsGlobal.add(panelProgressBar, BorderLayout.SOUTH);
 
         final JPanel panelResultsLocal = new JPanel(new GridLayout(1, 1));
 
