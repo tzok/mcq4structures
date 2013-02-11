@@ -24,8 +24,16 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
 public class PdbManagerDialog extends JDialog {
     private static final long serialVersionUID = 1L;
     public static final DefaultListModel<File> MODEL = new DefaultListModel<>();
+    private static PdbManagerDialog INSTANCE;
+    
+    public static PdbManagerDialog getInstance() {
+        if (PdbManagerDialog.INSTANCE == null) {
+            PdbManagerDialog.INSTANCE = new PdbManagerDialog();
+        }
+        return PdbManagerDialog.INSTANCE;
+    }
 
-    public PdbManagerDialog() {
+    private PdbManagerDialog() {
         super();
 
         final JList<File> list = new JList<>(PdbManagerDialog.MODEL);

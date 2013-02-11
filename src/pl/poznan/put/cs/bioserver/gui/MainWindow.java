@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -146,11 +147,15 @@ class MainWindow extends JFrame {
         final JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
+        final JCheckBox checkBoxManager = new JCheckBox("PDB manager dialog", true);
         JMenuItem itemExit = new JMenuItem("Exit");
         JMenu menuFile = new JMenu("File");
         menuFile.setMnemonic(KeyEvent.VK_F);
         menuFile.add(itemOpen);
         menuFile.add(itemSave);
+        menuFile.addSeparator();
+        menuFile.add(checkBoxManager);
+        menuFile.addSeparator();
         menuFile.add(itemExit);
 
         final JRadioButton radioMcq = new JRadioButton("MCQ", true);
@@ -377,6 +382,14 @@ class MainWindow extends JFrame {
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }
+            }
+        });
+
+        checkBoxManager.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PdbManagerDialog.getInstance().setVisible(
+                        checkBoxManager.isSelected());
             }
         });
 
