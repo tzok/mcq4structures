@@ -1,2 +1,4 @@
 .sonar
 bin
+certs
+signed
