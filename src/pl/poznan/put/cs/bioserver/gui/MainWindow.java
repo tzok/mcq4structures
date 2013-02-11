@@ -18,9 +18,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -632,6 +634,18 @@ class MainWindow extends JFrame {
                     return;
                 }
 
+                Set<ResidueNumber> set = new HashSet<>();
+                for (String angle : torsionDialog.selectedNames) {
+                    if (!resultLocal.containsKey(angle)) {
+                        continue;
+                    }
+                    for (AngleDifference ad : resultLocal.get(angle)) {
+                        set.add(ad.getResidue());
+                    }
+                }
+                List<ResidueNumber> list = new ArrayList<>(set);
+                Collections.sort(list);
+
                 DefaultXYDataset dataset = new DefaultXYDataset();
                 for (String angle : torsionDialog.selectedNames) {
                     if (!resultLocal.containsKey(angle)) {
@@ -639,11 +653,12 @@ class MainWindow extends JFrame {
                     }
                     List<AngleDifference> diffs = resultLocal.get(angle);
                     Collections.sort(diffs);
+
                     double[] x = new double[diffs.size()];
                     double[] y = new double[diffs.size()];
                     for (int i = 0; i < diffs.size(); i++) {
                         AngleDifference ad = diffs.get(i);
-                        x[i] = ad.getResidue().getSeqNum();
+                        x[i] = list.indexOf(ad.getResidue());
                         y[i] = ad.getDifference();
                     }
                     dataset.addSeries(angle, new double[][] { x, y });

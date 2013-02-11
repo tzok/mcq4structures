@@ -4,15 +4,14 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.biojava.bio.structure.ResidueNumber;
 import org.jfree.chart.axis.AxisState;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTick;
-import org.jfree.chart.axis.TickType;
 import org.jfree.ui.RectangleEdge;
 
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
@@ -22,6 +21,7 @@ class TorsionAxis extends NumberAxis {
     private Map<String, List<AngleDifference>> comparisonResults;
 
     TorsionAxis(Map<String, List<AngleDifference>> comparison) {
+        super();
         comparisonResults = comparison;
         setTickLabelFont(new Font(Font.DIALOG, Font.PLAIN, 8));
     }
@@ -31,22 +31,32 @@ class TorsionAxis extends NumberAxis {
             Rectangle2D dataArea, RectangleEdge edge) {
         List<NumberTick> ticks = super.refreshTicks(g2, state, dataArea, edge);
 
-        Map<Double, String> mapIndexLabel = new TreeMap<>();
-        List<AngleDifference> list = comparisonResults.get("AVERAGE");
-        for (int i = 0; i < list.size(); i++) {
-            AngleDifference ad = list.get(i);
-            ResidueNumber residue = ad.getResidue();
-            mapIndexLabel.put(
-                    (double) i,
-                    String.format("%s:%03d", residue.getChainId(),
-                            residue.getSeqNum()));
+        List<NumberTick> visibleIntegerTicks = new ArrayList<>();
+        for (NumberTick t : ticks) {
+            double value = t.getValue();
+            if (value == Math.floor(value)) {
+                visibleIntegerTicks.add(t);
+            }
         }
 
+        List<AngleDifference> list = comparisonResults.get("AVERAGE");
+        int size = list.size();
+        String[] labels = new String[size];
+        for (int i = 0; i < size; i++) {
+            ResidueNumber residue = list.get(i).getResidue();
+            labels[i] = String.format("%s:%03d", residue.getChainId(),
+                    residue.getSeqNum());
+        }
+        Arrays.sort(labels);
+
         List<NumberTick> result = new ArrayList<>();
-        for (NumberTick nt : ticks) {
-            result.add(new NumberTick(TickType.MINOR, nt.getValue(),
-                    mapIndexLabel.get(nt.getValue()), nt.getTextAnchor(), nt
-                            .getRotationAnchor(), Math.PI / 4));
+        for (int i = 0; i < visibleIntegerTicks.size(); i++) {
+            NumberTick nt = visibleIntegerTicks.get(i);
+            int index = (int) nt.getValue();
+            if (index < labels.length) {
+                result.add(new NumberTick(index, labels[index], nt
+                        .getTextAnchor(), nt.getRotationAnchor(), Math.PI / 4));
+            }
         }
         return result;
     }
