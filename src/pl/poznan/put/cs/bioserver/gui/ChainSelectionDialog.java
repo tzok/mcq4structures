@@ -116,7 +116,7 @@ class ChainSelectionDialog extends JDialog {
                 for (Chain chain : structure.getChains()) {
                     panelReference.add(new JCheckBox(chain.getChainID()));
                 }
-                panelReference.revalidate();
+                panelReference.updateUI();
             }
         };
         comboLeft.addActionListener(actionListenerCombo);
