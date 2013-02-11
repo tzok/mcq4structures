@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/AAProperties-jar-with-dependencies.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-alignment-3.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-core-3.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-structure-3.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/biojava3-structure-gui-3.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/diffutils-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/javacsv.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.17.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar"/>
+	<classpathentry kind="lib" path="lib/jlfgr-1_0.jar"/>
+	<classpathentry kind="lib" path="lib/Jmol.jar"/>
+	<classpathentry kind="lib" path="lib/JmolData.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/commons-io.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
