@@ -65,7 +65,9 @@
             </path>
         </foreach>
         <foreach target="sign" param="path">
-            <fileset dir="signed/" includes="*.jar"/>
+            <path>
+                <fileset dir="signed/" includes="*.jar"/>
+            </path>
         </foreach>
 
         <delete file="${name}.jar"/>
