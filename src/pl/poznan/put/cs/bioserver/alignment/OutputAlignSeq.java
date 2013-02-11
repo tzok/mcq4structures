@@ -18,6 +18,7 @@ public class OutputAlignSeq {
         builder.append(Integer.toString(j));
         builder.append('\n');
     }
+
     private String consensus;
     private AlignedSequence<Sequence<Compound>, Compound> query;
 
@@ -73,8 +74,8 @@ public class OutputAlignSeq {
         assert charsQuery.length == charsConsensus.length;
 
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("Score: %d (min: %d, max: %d)\n"
-                + "Similarity: %.0f%%\nGaps: %d/%d (%.0f%%)\n\n", score,
+        builder.append(String.format("Score: %d (min: %d, max: %d)%n"
+                + "Similarity: %.0f%%%nGaps: %d/%d (%.0f%%)%n%n", score,
                 minScore, maxScore, 100.0 * similarity, gaps, length, 100.0
                         * gaps / length));
 

@@ -25,7 +25,7 @@ public class PdbManagerDialog extends JDialog {
     private static final long serialVersionUID = 1L;
     public static final DefaultListModel<File> MODEL = new DefaultListModel<>();
     private static PdbManagerDialog INSTANCE;
-    
+
     public static PdbManagerDialog getInstance() {
         if (PdbManagerDialog.INSTANCE == null) {
             PdbManagerDialog.INSTANCE = new PdbManagerDialog();

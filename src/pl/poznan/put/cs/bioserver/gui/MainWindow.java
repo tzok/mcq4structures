@@ -147,7 +147,8 @@ class MainWindow extends JFrame {
         final JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
-        final JCheckBox checkBoxManager = new JCheckBox("PDB manager dialog", true);
+        final JCheckBox checkBoxManager = new JCheckBox("PDB manager dialog",
+                true);
         JMenuItem itemExit = new JMenuItem("Exit");
         JMenu menuFile = new JMenu("File");
         menuFile.setMnemonic(KeyEvent.VK_F);
