@@ -12,7 +12,6 @@
     <resources>
         <java version="1.7+"/>
         <jar href="mcq4structures-develop.jar" main="true"/>
-        <jar href="AAProperties-jar-with-dependencies.jar"/>
         <jar href="Jmol.jar"/>
         <jar href="JmolData.jar"/>
         <jar href="biojava3-alignment-3.0.5.jar"/>
