@@ -210,7 +210,7 @@ public class TorsionLocalComparison extends LocalComparison {
                         .compare(structures[0], structures[1]);
             }
 
-            String angleName = "MCQ";
+            String angleName = "AVERAGE";
             if (args.length == 3 || args.length == 5) {
                 angleName = args[2];
             }
