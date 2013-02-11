@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -908,8 +909,10 @@ class MainWindow extends JFrame {
          * [residue -> angleValue(angleName)]
          */
         SortedMap<String, Map<String, Double>> map = new TreeMap<>();
+        Set<String> setAngleNames = new LinkedHashSet<>();
         for (Entry<String, List<AngleDifference>> pair : resultLocal.entrySet()) {
             String angleName = pair.getKey();
+            boolean isAnyNotNaN = false;
             for (AngleDifference ad : pair.getValue()) {
                 ResidueNumber residue = ad.getResidue();
                 String residueName = String.format("%s:%03d",
@@ -918,7 +921,14 @@ class MainWindow extends JFrame {
                     map.put(residueName, new LinkedHashMap<String, Double>());
                 }
                 Map<String, Double> angleValues = map.get(residueName);
-                angleValues.put(angleName, ad.getDifference());
+                double difference = ad.getDifference();
+                angleValues.put(angleName, difference);
+                if (!Double.isNaN(difference)) {
+                    isAnyNotNaN = true;
+                }
+            }
+            if (isAnyNotNaN) {
+                setAngleNames.add(angleName);
             }
         }
 
@@ -929,8 +939,7 @@ class MainWindow extends JFrame {
              * Write header
              */
             writer.write("");
-            Set<String> keySetReference = map.get(map.firstKey()).keySet();
-            for (String angleName : keySetReference) {
+            for (String angleName : setAngleNames) {
                 writer.write(angleName);
             }
             writer.endRecord();
@@ -940,7 +949,7 @@ class MainWindow extends JFrame {
             for (String residueName : map.keySet()) {
                 writer.write(residueName);
                 Map<String, Double> mapAngles = map.get(residueName);
-                for (String angleName : keySetReference) {
+                for (String angleName : setAngleNames) {
                     if (mapAngles.containsKey(angleName)) {
                         String angleValue = Double.toString(mapAngles
                                 .get(angleName));

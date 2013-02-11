@@ -18,11 +18,9 @@ import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
-import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
 /**
  * Implementation of local dissimilarity measure based on torsion angles.
@@ -171,9 +169,8 @@ public class TorsionLocalComparison extends LocalComparison {
                 wasAligned = true;
             }
         }
-        AngleType[] angles = Helper.isNucleicAcid(s1) ? NucleotideDihedral
-                .getAngles() : AminoAcidDihedral.getAngles();
-        return TorsionLocalComparison.compare(atoms, angles, wasAligned);
+        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES,
+                wasAligned);
     }
 
     /**
