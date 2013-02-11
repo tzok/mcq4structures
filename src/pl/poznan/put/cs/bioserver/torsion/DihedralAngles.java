@@ -99,7 +99,7 @@ public final class DihedralAngles {
      *            A 4-tuple of atoms.
      * @return Value of the tosion angle.
      */
-    static double calculateDihedral(Atom[] atoms) {
+    public static double calculateDihedral(Atom[] atoms) {
         return DihedralAngles.calculateDihedral(atoms[0], atoms[1], atoms[2],
                 atoms[3]);
     }
@@ -169,7 +169,7 @@ public final class DihedralAngles {
         return Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
     }
 
-    private static List<Quadruplet> getQuadruplets(Atom[] atoms,
+    public static List<Quadruplet> getQuadruplets(Atom[] atoms,
             AngleType angleType) {
         int hashCode = Arrays.hashCode(atoms);
         if (!DihedralAngles.reverseMapCache.containsKey(hashCode)) {

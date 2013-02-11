@@ -9,7 +9,7 @@ import org.biojava.bio.structure.Atom;
  * 
  * @author tzok
  */
-class Quadruplet {
+public class Quadruplet {
     private Atom[] array;
     private int[] indices;
 

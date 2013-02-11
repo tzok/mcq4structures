@@ -643,7 +643,7 @@ class MainWindow extends JFrame {
                     double[] y = new double[diffs.size()];
                     for (int i = 0; i < diffs.size(); i++) {
                         AngleDifference ad = diffs.get(i);
-                        x[i] = i;
+                        x[i] = ad.getResidue().getSeqNum();
                         y[i] = ad.getDifference();
                     }
                     dataset.addSeries(angle, new double[][] { x, y });
