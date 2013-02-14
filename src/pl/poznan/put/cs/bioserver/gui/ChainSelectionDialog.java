@@ -19,8 +19,11 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
@@ -101,7 +104,22 @@ class ChainSelectionDialog extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
-        setTitle("Chain selection dialog");
+        setTitle("MCQ4Structures: chain selection");
+
+        final ListCellRenderer<? super File> renderer = comboLeft.getRenderer();
+        ListCellRenderer<File> pdbCellRenderer = new ListCellRenderer<File>() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<? extends File> list, File value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) renderer.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
+                label.setText(PdbManager.getStructureName(value));
+                return label;
+            }
+        };
+        comboLeft.setRenderer(pdbCellRenderer);
+        comboRight.setRenderer(pdbCellRenderer);
 
         ActionListener actionListenerCombo = new ActionListener() {
             @Override

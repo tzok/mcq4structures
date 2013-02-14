@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -17,12 +18,16 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 class StructureSelectionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -45,12 +50,27 @@ class StructureSelectionDialog extends JDialog {
         modelAll = new DefaultListModel<>();
         final JList<File> listAll = new JList<>(modelAll);
         listAll.setBorder(BorderFactory
-                .createTitledBorder("Available structures:"));
-
+                .createTitledBorder("Available structures"));
+        final ListCellRenderer<? super File> renderer = listAll
+                .getCellRenderer();
         modelSelected = new DefaultListModel<>();
         final JList<File> listSelected = new JList<>(modelSelected);
         listSelected.setBorder(BorderFactory
-                .createTitledBorder("Selected structures:"));
+                .createTitledBorder("Selected structures"));
+
+        ListCellRenderer<File> pdbCellRenderer = new ListCellRenderer<File>() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<? extends File> list, File value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) renderer.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
+                label.setText(PdbManager.getStructureName(value));
+                return label;
+            }
+        };
+        listAll.setCellRenderer(pdbCellRenderer);
+        listSelected.setCellRenderer(pdbCellRenderer);
 
         final JButton buttonSelect = new JButton("Select ->");
         buttonSelect.setEnabled(false);
@@ -111,7 +131,7 @@ class StructureSelectionDialog extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
-        setTitle("Structure selection dialog");
+        setTitle("MCQ4Structures: structure selection");
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override

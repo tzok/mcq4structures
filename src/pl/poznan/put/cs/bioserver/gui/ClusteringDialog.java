@@ -146,6 +146,6 @@ class ClusteringDialog extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
-        setTitle("Clustering dialog");
+        setTitle("MCQ4Structures: clustering method");
     }
 }

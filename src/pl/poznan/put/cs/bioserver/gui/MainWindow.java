@@ -19,9 +19,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -125,6 +127,7 @@ class MainWindow extends JFrame {
         return null;
     }
 
+    private JFileChooser chooserSaveFile;
     private PdbManagerDialog managerDialog;
     private StructureSelectionDialog structureDialog;
     private ChainSelectionDialog chainDialog;
@@ -139,6 +142,7 @@ class MainWindow extends JFrame {
     public MainWindow() {
         super();
 
+        chooserSaveFile = new JFileChooser();
         managerDialog = PdbManagerDialog.getInstance(this);
         managerDialog.setVisible(true);
         structureDialog = StructureSelectionDialog.getInstance(this);
@@ -153,8 +157,8 @@ class MainWindow extends JFrame {
         final JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
-        final JCheckBox checkBoxManager = new JCheckBox("PDB manager dialog",
-                true);
+        final JCheckBox checkBoxManager = new JCheckBox(
+                "View structure manager", true);
         JMenuItem itemExit = new JMenuItem("Exit");
         JMenu menuFile = new JMenu("File");
         menuFile.setMnemonic(KeyEvent.VK_F);
@@ -170,13 +174,9 @@ class MainWindow extends JFrame {
         ButtonGroup group = new ButtonGroup();
         group.add(radioMcq);
         group.add(radioRmsd);
-        final JMenu menuMeasure = new JMenu("Distance measure");
-        menuMeasure.setEnabled(false);
-        menuMeasure.add(radioMcq);
-        menuMeasure.add(radioRmsd);
 
         final JMenuItem itemSelectStructures = new JMenuItem(
-                "Select structures");
+                "Select structures to compare");
         final JMenuItem itemComputeGlobal = new JMenuItem(
                 "Compute distance matrix");
         itemComputeGlobal.setEnabled(false);
@@ -184,21 +184,26 @@ class MainWindow extends JFrame {
         itemVisualise.setEnabled(false);
         final JMenuItem itemCluster = new JMenuItem("Cluster results");
         itemCluster.setEnabled(false);
-        JMenu menuGlobal = new JMenu("Global comparison");
+        JMenu menuGlobal = new JMenu("Global distance");
         menuGlobal.add(itemSelectStructures);
-        menuGlobal.add(menuMeasure);
+        menuGlobal.addSeparator();
+        menuGlobal.add(new JLabel("Distance measure:"));
+        menuGlobal.add(radioMcq);
+        menuGlobal.add(radioRmsd);
+        menuGlobal.addSeparator();
         menuGlobal.add(itemComputeGlobal);
         menuGlobal.add(itemVisualise);
         menuGlobal.add(itemVisualise);
         menuGlobal.add(itemCluster);
 
-        final JMenuItem itemSelectChainsCompare = new JMenuItem("Select chains");
+        final JMenuItem itemSelectChainsCompare = new JMenuItem(
+                "Select chains to compare");
         final JMenuItem itemSelectTorsion = new JMenuItem(
                 "Select torsion angles");
         itemSelectTorsion.setEnabled(false);
         final JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
         itemComputeLocal.setEnabled(false);
-        JMenu menuLocal = new JMenu("Local comparison");
+        JMenu menuLocal = new JMenu("Local distance");
         menuLocal.add(itemSelectChainsCompare);
         menuLocal.add(itemSelectTorsion);
         menuLocal.add(itemComputeLocal);
@@ -214,26 +219,25 @@ class MainWindow extends JFrame {
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignGlobal);
         groupAlign.add(radioAlignLocal);
-        final JMenu menuSelectAlignType = new JMenu("Select alignment type");
-        menuSelectAlignType.setEnabled(false);
-        menuSelectAlignType.add(radioAlignGlobal);
-        menuSelectAlignType.add(radioAlignLocal);
 
         final JMenuItem itemSelectChainsAlignSeq = new JMenuItem(
-                "Select chains");
+                "Select chains to align");
         final JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
         itemComputeAlignSeq.setEnabled(false);
-        JMenu menuAlignSeq = new JMenu("Sequence");
+        JMenu menuAlignSeq = new JMenu("Sequence alignment");
         menuAlignSeq.add(itemSelectChainsAlignSeq);
-        menuAlignSeq.add(menuSelectAlignType);
+        menuAlignSeq.addSeparator();
+        menuAlignSeq.add(radioAlignGlobal);
+        menuAlignSeq.add(radioAlignLocal);
+        menuAlignSeq.addSeparator();
         menuAlignSeq.add(itemComputeAlignSeq);
 
         final JMenuItem itemSelectChainsAlignStruc = new JMenuItem(
-                "Select chains");
+                "Select chains to align");
         final JMenuItem itemComputeAlignStruc = new JMenuItem(
                 "Compute alignment");
         itemComputeAlignStruc.setEnabled(false);
-        JMenu menuAlignStruc = new JMenu("3D structure");
+        JMenu menuAlignStruc = new JMenu("3D structure alignment");
         menuAlignStruc.add(itemSelectChainsAlignStruc);
         menuAlignStruc.add(itemComputeAlignStruc);
 
@@ -273,7 +277,7 @@ class MainWindow extends JFrame {
         JPanel panelProgressBar = new JPanel();
         panelProgressBar.setLayout(new BoxLayout(panelProgressBar,
                 BoxLayout.X_AXIS));
-        panelProgressBar.add(new JLabel("Progress of computations:"));
+        panelProgressBar.add(new JLabel("Progress in computing:"));
         panelProgressBar.add(progressBar);
 
         final JPanel panelResultsGlobal = new JPanel(new BorderLayout());
@@ -295,7 +299,7 @@ class MainWindow extends JFrame {
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.weightx = 0.5;
-        panelAlignStrucInfo.add(new JLabel("Whole structures Jmol view"),
+        panelAlignStrucInfo.add(new JLabel("Whole structures (Jmol view)"),
                 constraints);
         constraints.gridx++;
         constraints.weightx = 0;
@@ -303,11 +307,13 @@ class MainWindow extends JFrame {
         panelAlignStrucInfo.add(labelAlignStrucStatus, constraints);
         constraints.gridx++;
         constraints.weightx = 0.5;
-        panelAlignStrucInfo.add(new JLabel("Aligned fragments Jmol view"),
+        panelAlignStrucInfo.add(new JLabel("Aligned fragments (Jmol view)"),
                 constraints);
 
         final JmolPanel panelJmolLeft = new JmolPanel();
+        panelJmolLeft.executeCmd("background lightgrey");
         final JmolPanel panelJmolRight = new JmolPanel();
+        panelJmolRight.executeCmd("background darkgray");
         JPanel panelJmolBoth = new JPanel(new GridLayout(1, 2));
         panelJmolBoth.add(panelJmolLeft);
         panelJmolBoth.add(panelJmolRight);
@@ -363,20 +369,50 @@ class MainWindow extends JFrame {
         itemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser();
-                int chosenOption = chooser.showSaveDialog(MainWindow.this);
+                Component current = MainWindow.getCurrentCard(panelCards);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD-HH-mm");
+                Date now = new Date();
+
+                File proposedName = null;
+                if (current.equals(panelResultsGlobal)) {
+                    proposedName = new File(sdf.format(now) + "-global.csv");
+                } else {
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(PdbManager
+                            .getStructureName(chainDialog.selectedStructures[0]));
+                    builder.append('-');
+                    builder.append(PdbManager
+                            .getStructureName(chainDialog.selectedStructures[1]));
+
+                    if (current.equals(panelResultsLocal)) {
+                        proposedName = new File(sdf.format(now) + "-local-"
+                                + builder.toString() + ".csv");
+                    } else if (current.equals(panelResultsAlignSeq)) {
+                        proposedName = new File(sdf.format(now) + "-alignseq-"
+                                + builder.toString() + ".txt");
+                    } else { // current.equals(panelResultsAlignStruc)
+                        proposedName = new File(sdf.format(now)
+                                + "-alignstruc-" + builder.toString() + ".pdb");
+                    }
+                }
+                chooserSaveFile.setSelectedFile(proposedName);
+
+                int chosenOption = chooserSaveFile
+                        .showSaveDialog(MainWindow.this);
                 if (chosenOption != JFileChooser.APPROVE_OPTION) {
                     return;
                 }
 
-                Component current = MainWindow.getCurrentCard(panelCards);
                 if (current.equals(panelResultsGlobal)) {
-                    saveResultsGlobalComparison(chooser.getSelectedFile());
+                    saveResultsGlobalComparison(chooserSaveFile
+                            .getSelectedFile());
                 } else if (current.equals(panelResultsLocal)) {
-                    saveResultsLocalComparison(chooser.getSelectedFile());
+                    saveResultsLocalComparison(chooserSaveFile
+                            .getSelectedFile());
                 } else if (current.equals(panelResultsAlignSeq)) {
-                    try (FileOutputStream stream = new FileOutputStream(chooser
-                            .getSelectedFile())) {
+                    try (FileOutputStream stream = new FileOutputStream(
+                            chooserSaveFile.getSelectedFile())) {
                         stream.write(resultAlignSeq.getBytes("UTF-8"));
                     } catch (IOException e1) {
                         MainWindow.LOGGER.error(
@@ -385,9 +421,9 @@ class MainWindow extends JFrame {
                                 e1.getMessage(), "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     }
-                } else if (current.equals(panelResultsAlignStruc)) {
-                    try (FileOutputStream stream = new FileOutputStream(chooser
-                            .getSelectedFile())) {
+                } else { // current.equals(panelResultsAlignStruc)
+                    try (FileOutputStream stream = new FileOutputStream(
+                            chooserSaveFile.getSelectedFile())) {
                         stream.write(resultAlignStruc.getBytes("UTF-8"));
                     } catch (IOException e1) {
                         MainWindow.LOGGER.error(
@@ -458,7 +494,6 @@ class MainWindow extends JFrame {
                 structureDialog.setVisible(true);
                 if (structureDialog.selectedStructures != null
                         && structureDialog.selectedStructures.size() >= 2) {
-                    menuMeasure.setEnabled(true);
                     itemComputeGlobal.setEnabled(true);
                 }
             }
@@ -626,7 +661,6 @@ class MainWindow extends JFrame {
                             chainDialog.selectedChains = null;
                             return;
                         }
-                        menuSelectAlignType.setEnabled(true);
                         itemComputeAlignSeq.setEnabled(true);
                     } else { // source.equals(itemSelectChainsAlignStruc)
                         itemComputeAlignStruc.setEnabled(true);
@@ -655,6 +689,7 @@ class MainWindow extends JFrame {
                 final Structure[] structures = new Structure[2];
                 for (int i = 0; i < 2; i++) {
                     structures[i] = new StructureImpl();
+                    // FIXME: NPE after hitting Cancel on chain selection
                     structures[i].setChains(Arrays
                             .asList(chainDialog.selectedChains[i]));
                 }
