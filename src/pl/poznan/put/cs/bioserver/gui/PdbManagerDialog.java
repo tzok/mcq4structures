@@ -39,10 +39,10 @@ public class PdbManagerDialog extends JDialog {
 
         final JList<File> list = new JList<>(PdbManagerDialog.MODEL);
         list.setBorder(BorderFactory
-                .createTitledBorder("All loaded structures"));
+                .createTitledBorder("Uploaded structures"));
 
         JButton buttonOpen = new JButton("Open structure(s)");
-        JButton buttonRemove = new JButton("Remove structure(s)");
+        JButton buttonRemove = new JButton("Close selected structure(s)");
         JPanel panelButtons = new JPanel();
         panelButtons.add(buttonOpen);
         panelButtons.add(buttonRemove);
@@ -76,7 +76,7 @@ public class PdbManagerDialog extends JDialog {
         setLocation(x / 2, y / 2);
 
         setAlwaysOnTop(true);
-        setTitle("Structure manager dialog");
+        setTitle("MCQ4Structures: structure manager");
 
         buttonOpen.addActionListener(new ActionListener() {
             @Override

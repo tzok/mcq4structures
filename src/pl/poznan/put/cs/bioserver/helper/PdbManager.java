@@ -52,6 +52,10 @@ public final class PdbManager {
         return PdbManager.MAP_STRUCTURE_NAME.get(structure);
     }
 
+    public static String getStructureName(File path) {
+        return PdbManager.MAP_PATH_NAME.get(path);
+    }
+
     /**
      * Load a structure and remember it being already cached.
      * 
@@ -109,6 +113,9 @@ public final class PdbManager {
         String name = structure.getPDBCode();
         if (name == null || name.trim().equals("")) {
             name = file.getName();
+            if (name.endsWith(".pdb")) {
+                name = name.substring(0, name.length() - 4);
+            }
             structure.setPDBCode(name);
         }
 

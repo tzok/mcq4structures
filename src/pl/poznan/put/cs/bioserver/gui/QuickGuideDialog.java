@@ -47,7 +47,7 @@ class QuickGuideDialog extends JDialog {
         add(panelButton, BorderLayout.SOUTH);
 
         pack();
-        setTitle("Quick guide");
+        setTitle("MCQ4Structures: quick guide");
 
         buttonClose.addActionListener(new ActionListener() {
             @Override
