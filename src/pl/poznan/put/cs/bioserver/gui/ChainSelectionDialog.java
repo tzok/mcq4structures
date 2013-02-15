@@ -34,10 +34,13 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 class ChainSelectionDialog extends JDialog {
+    public static final int OK = 0;
+    public static final int CANCEL = 1;
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ChainSelectionDialog.class);
     private static ChainSelectionDialog INSTANCE;
+    public int chosenOption;
     File[] selectedStructures;
     Chain[][] selectedChains;
     DefaultComboBoxModel<File> modelLeft;
@@ -178,6 +181,8 @@ class ChainSelectionDialog extends JDialog {
                     selectedStructures[i] = pdb;
                     selectedChains[i] = list.toArray(new Chain[list.size()]);
                 }
+                
+                chosenOption = ChainSelectionDialog.OK;
                 dispose();
             }
         });
@@ -185,7 +190,7 @@ class ChainSelectionDialog extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedChains = null;
+                chosenOption = ChainSelectionDialog.CANCEL;
                 dispose();
             }
         });
