@@ -1,40 +1,51 @@
 <h1>Global distance computation</h1>
-In order to perform global comparison of structures take the following steps (in the given order):
+Global comparison can be performed either in torsional angle space (MCQ value
+determines the distance) or in Cartesian space (RMSD value shows the distance).
+In order to compare structures globally, take the following steps (in the given
+order):
 <ol>
-	<li>Open structure(s) from files (PDB or mmCif)</li>
-	<li>Select structures to compare</li>
-	<li>Select distance measure</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
+    <li>Select structures to compare</li>
+    <li>Select distance measure: MCQ (default) or RMSD</li>
     <li>Compute distance matrix</li>
-	<li>Visualise or cluster results</li>
+    <li>Visualise or cluster results</li>
 </ol>
+
 
 <h1>Local distance(s) computation</h1>
+Local comparison is performed in torsional angle space. In order to compute a
+vector of local distances, i.e. distances between the corresponding angles
+identified along the structure, take the following steps (in the given order):
 <ol>
-	<li>Open structure(s) from files (PDB or mmCif)</li>
-	<li>Select chain(s) to compare</li>
-    <li>Configure the comparison properties</li>
-    <li>Calculate differences of torsion angles for specified chains or for whole structures</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
+    <li>Select chain(s) to compare</li>
+    <li>Select torsion angle(s) for distance computation</li>
+    <li>Compute distance vector</li>
 </ol>
 
+
 <h1>Sequence alignment</h1>
+In order to perform sequence alignment take the following steps:
 <ol>
-	<li>Open structure(s) from files (PDB or mmCif)</li>
-	<li>Select chain(s) to align</li>
-	<li>Select global (Smith-Waterman) or local (Needleman-Wunsch) alignment method</li>
-	<li>Compute alignment</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
+    <li>Select chain(s) to align</li>
+    <li>Select alignment method: global (Smith-Waterman) or local (Needleman-Wunsch)</li>
+    <li>Compute alignment</li>
 </ol>
 
 <h3>Sequence alignment is performed with the following parameters:</h3>
 <ul>
-	<li>Open penalty: 1</li>
-	<li>Extension penalty: 10</li>
-	<li>Substitution matrix for nucleic acids: NUC 4.4</li>
-	<li>Substitution matrix for proteins: BLOSUM62</li>
+    <li>Open penalty: 1</li>
+    <li>Extension penalty: 10</li>
+    <li>Substitution matrix for nucleic acids: NUC 4.4</li>
+    <li>Substitution matrix for proteins: BLOSUM62</li>
 </ul>
 
+
 <h1>Structure alignment</h1>
+In order to perform 3D structure alignment take the following steps:
 <ol>
-    <li>Open structure(s) from files (PDB or mmCif)</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
     <li>Select chain(s) to compare</li>
     <li>Compute alignment</li>
 </ol>

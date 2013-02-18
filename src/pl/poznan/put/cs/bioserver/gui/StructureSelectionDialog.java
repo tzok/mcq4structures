@@ -30,8 +30,11 @@ import javax.swing.event.ListSelectionListener;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 class StructureSelectionDialog extends JDialog {
+    public static final int OK = 0;
+    public static final int CANCEL = 1;
     private static final long serialVersionUID = 1L;
     private static StructureSelectionDialog INSTANCE;
+    public int chosenOption;
     List<File> selectedStructures;
     DefaultListModel<File> modelAll;
     DefaultListModel<File> modelSelected;
@@ -203,6 +206,7 @@ class StructureSelectionDialog extends JDialog {
                 while (elements.hasMoreElements()) {
                     selectedStructures.add(elements.nextElement());
                 }
+                chosenOption = StructureSelectionDialog.OK;
                 dispose();
             }
         });
@@ -210,7 +214,7 @@ class StructureSelectionDialog extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                selectedStructures = null;
+                chosenOption = StructureSelectionDialog.CANCEL;
                 dispose();
             }
         });

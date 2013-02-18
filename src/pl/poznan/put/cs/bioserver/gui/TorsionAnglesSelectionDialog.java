@@ -100,11 +100,12 @@ class TorsionAnglesSelectionDialog extends JDialog {
         panelOptions.add(panelAmino);
 
         JButton buttonOk = new JButton("OK");
-        JButton buttonCancel = new JButton("Cancel");
+        // FIXME: Cancel button necessary?
+        // JButton buttonCancel = new JButton("Cancel");
 
         JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
-        panelOkCancel.add(buttonCancel);
+        // panelOkCancel.add(buttonCancel);
 
         setLayout(new BorderLayout());
         add(panelOptions, BorderLayout.CENTER);
@@ -163,13 +164,13 @@ class TorsionAnglesSelectionDialog extends JDialog {
             }
         });
 
-        buttonCancel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectedNames = null;
-                dispose();
-            }
-        });
+        // buttonCancel.addActionListener(new ActionListener() {
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        // selectedNames = null;
+        // dispose();
+        // }
+        // });
 
         pack();
         int width = getPreferredSize().width;
