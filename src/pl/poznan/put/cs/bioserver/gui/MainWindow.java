@@ -472,7 +472,7 @@ class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
-                if (source.equals(itemComputeDistances)
+                if (source.equals(itemSelectStructuresCompare)
                         && (radioGlobalMcq.isSelected() || radioGlobalRmsd
                                 .isSelected())) {
                     /*
