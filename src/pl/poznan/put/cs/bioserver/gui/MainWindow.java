@@ -273,8 +273,8 @@ class MainWindow extends JFrame {
         progressBar.setStringPainted(true);
 
         final JPanel panelResultsGlobal = new JPanel(new BorderLayout());
-        panel = new JPanel();
-        panel.add(labelInfoGlobal);
+        panel = new JPanel(new BorderLayout());
+        panel.add(labelInfoGlobal, BorderLayout.WEST);
         panelResultsGlobal.add(panel, BorderLayout.NORTH);
         panelResultsGlobal.add(new JScrollPane(tableMatrix),
                 BorderLayout.CENTER);
@@ -291,8 +291,8 @@ class MainWindow extends JFrame {
         final JPanel panelLocalPlot = new JPanel(new GridLayout(1, 1));
 
         final JPanel panelResultsLocal = new JPanel(new BorderLayout());
-        panel = new JPanel();
-        panel.add(labelInfoLocal);
+        panel = new JPanel(new BorderLayout());
+        panel.add(labelInfoLocal, BorderLayout.WEST);
         panelResultsLocal.add(panel, BorderLayout.NORTH);
         panelResultsLocal.add(panelLocalPlot, BorderLayout.CENTER);
 
@@ -306,8 +306,8 @@ class MainWindow extends JFrame {
         textAreaAlignSeq.setFont(new Font("Monospaced", Font.PLAIN, 20));
 
         final JPanel panelResultsAlignSeq = new JPanel(new BorderLayout());
-        panel = new JPanel();
-        panel.add(labelInfoAlignSeq);
+        panel = new JPanel(new BorderLayout());
+        panel.add(labelInfoAlignSeq, BorderLayout.WEST);
         panelResultsAlignSeq.add(panel, BorderLayout.NORTH);
         panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq),
                 BorderLayout.CENTER);

@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -63,7 +64,7 @@ public class AboutDialog extends JDialog {
         panelClose.add(buttonClose);
 
         JPanel panelImage = new JPanel(new BorderLayout());
-        panelImage.add(labelImage, BorderLayout.NORTH);
+        panelImage.add(labelImage, BorderLayout.CENTER);
 
         setLayout(new BorderLayout());
         add(panelImage, BorderLayout.WEST);
@@ -72,20 +73,15 @@ public class AboutDialog extends JDialog {
 
         setTitle("MCQ4Structures: about");
 
+        setPreferredSize(new Dimension(640, 500));
         pack();
-        int width;
-        if (image != null) {
-            width = image.getWidth() * 5 / 2;
-        } else {
-            width = getPreferredSize().width / 2;
-        }
-        int height = getPreferredSize().height * 3 / 2;
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - width;
-        int y = screenSize.height - height;
-        setSize(width, height);
+        int x = screenSize.width - 640;
+        int y = screenSize.height - 500;
         setLocation(x / 2, y / 2);
+
+        panelImage.setBackground(Color.white);
 
         editorPane.addHyperlinkListener(new HyperlinkListener() {
             @Override

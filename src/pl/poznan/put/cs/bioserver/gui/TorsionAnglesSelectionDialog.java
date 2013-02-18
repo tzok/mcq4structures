@@ -55,6 +55,7 @@ class TorsionAnglesSelectionDialog extends JDialog {
             checksAmino[i] = checkBox;
             panelAnglesAmino.add(checkBox);
         }
+        checksAmino[checksAmino.length - 1].setSelected(true);
 
         final JButton buttonSelectAllAmino = new JButton("Select all");
         final JButton buttonClearAmino = new JButton("Clear");
@@ -80,6 +81,7 @@ class TorsionAnglesSelectionDialog extends JDialog {
             checksNucleic[i] = checkBox;
             panelAnglesNucleic.add(checkBox);
         }
+        checksNucleic[checksNucleic.length - 1].setSelected(true);
 
         final JButton buttonSelectAllNucleic = new JButton("Select all");
         JButton buttonClearNucleic = new JButton("Clear");
