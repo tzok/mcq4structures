@@ -31,8 +31,7 @@ class TorsionAnglesSelectionDialog extends JDialog {
     private static final String[] NUCLEIC_CODES = new String[] { "ALPHA",
             "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
             "TAU2", "TAU3", "TAU4", "P", "AVERAGE" };
-    List<String> selectedNames;
-
+    
     public static TorsionAnglesSelectionDialog getInstance(Frame owner) {
         if (TorsionAnglesSelectionDialog.INSTANCE == null) {
             TorsionAnglesSelectionDialog.INSTANCE = new TorsionAnglesSelectionDialog(
@@ -40,6 +39,8 @@ class TorsionAnglesSelectionDialog extends JDialog {
         }
         return TorsionAnglesSelectionDialog.INSTANCE;
     }
+
+    List<String> selectedNames;
 
     private TorsionAnglesSelectionDialog(Frame owner) {
         super(owner, true);

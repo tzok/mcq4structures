@@ -40,11 +40,6 @@ class ChainSelectionDialog extends JDialog {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ChainSelectionDialog.class);
     private static ChainSelectionDialog INSTANCE;
-    public int chosenOption;
-    File[] selectedStructures;
-    Chain[][] selectedChains;
-    DefaultComboBoxModel<File> modelLeft;
-    DefaultComboBoxModel<File> modelRight;
 
     public static ChainSelectionDialog getInstance(Frame owner) {
         if (ChainSelectionDialog.INSTANCE == null) {
@@ -52,6 +47,12 @@ class ChainSelectionDialog extends JDialog {
         }
         return ChainSelectionDialog.INSTANCE;
     }
+
+    public int chosenOption;
+    File[] selectedStructures;
+    Chain[][] selectedChains;
+    DefaultComboBoxModel<File> modelLeft;
+    DefaultComboBoxModel<File> modelRight;
 
     private ChainSelectionDialog(Frame owner) {
         super(owner, true);
@@ -181,7 +182,7 @@ class ChainSelectionDialog extends JDialog {
                     selectedStructures[i] = pdb;
                     selectedChains[i] = list.toArray(new Chain[list.size()]);
                 }
-                
+
                 chosenOption = ChainSelectionDialog.OK;
                 dispose();
             }

@@ -34,10 +34,6 @@ class StructureSelectionDialog extends JDialog {
     public static final int CANCEL = 1;
     private static final long serialVersionUID = 1L;
     private static StructureSelectionDialog INSTANCE;
-    public int chosenOption;
-    List<File> selectedStructures;
-    DefaultListModel<File> modelAll;
-    DefaultListModel<File> modelSelected;
 
     public static StructureSelectionDialog getInstance(Frame owner) {
         if (StructureSelectionDialog.INSTANCE == null) {
@@ -46,6 +42,11 @@ class StructureSelectionDialog extends JDialog {
         }
         return StructureSelectionDialog.INSTANCE;
     }
+
+    public int chosenOption;
+    List<File> selectedStructures;
+    DefaultListModel<File> modelAll;
+    DefaultListModel<File> modelSelected;
 
     private StructureSelectionDialog(Frame owner) {
         super(owner, true);

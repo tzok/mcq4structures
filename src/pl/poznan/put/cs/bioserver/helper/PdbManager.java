@@ -48,12 +48,12 @@ public final class PdbManager {
         return PdbManager.MAP_PATH_STRUCTURE.get(file);
     }
 
-    public static String getStructureName(Structure structure) {
-        return PdbManager.MAP_STRUCTURE_NAME.get(structure);
-    }
-
     public static String getStructureName(File path) {
         return PdbManager.MAP_PATH_NAME.get(path);
+    }
+
+    public static String getStructureName(Structure structure) {
+        return PdbManager.MAP_STRUCTURE_NAME.get(structure);
     }
 
     /**

@@ -522,15 +522,16 @@ class MainWindow extends JFrame {
                 if (structureDialog.chosenOption == StructureSelectionDialog.OK
                         && structureDialog.selectedStructures != null) {
                     if (structureDialog.selectedStructures.size() < 2) {
-                        JOptionPane.showMessageDialog(MainWindow.this,
-                                "You need to select at least two structures",
-                                "Information", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(MainWindow.this, "At "
+                                + "least two structures must be selected to "
+                                + "compute global distance", "Information",
+                                JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
 
                     tableMatrix.setModel(new MatrixTableModel(new String[0],
                             new double[0][]));
-                    layoutCards.show(panelCards, CARD_GLOBAL);
+                    layoutCards.show(panelCards, MainWindow.CARD_GLOBAL);
 
                     itemSave.setEnabled(false);
                     radioMcq.setEnabled(true);
@@ -603,11 +604,10 @@ class MainWindow extends JFrame {
                 for (double[] value : values) {
                     for (double element : value) {
                         if (Double.isNaN(element)) {
-                            JOptionPane.showMessageDialog(MainWindow.this,
-                                    "Cannot visualize, because some "
-                                            + "of the structures were "
-                                            + "incomparable", "Error",
-                                    JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(MainWindow.this, ""
+                                    + "Results cannot be visualized. Some "
+                                    + "structures could not be compared.",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                     }
@@ -615,8 +615,8 @@ class MainWindow extends JFrame {
 
                 double[][] mds = MDS.multidimensionalScaling(values, 2);
                 if (mds == null) {
-                    JOptionPane.showMessageDialog(null,
-                            "Cannot visualise specified structures in 2D",
+                    JOptionPane.showMessageDialog(MainWindow.this, "Cannot "
+                            + "visualise specified structures in 2D space",
                             "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
@@ -637,11 +637,10 @@ class MainWindow extends JFrame {
                 for (double[] value : values) {
                     for (double element : value) {
                         if (Double.isNaN(element)) {
-                            JOptionPane.showMessageDialog(MainWindow.this,
-                                    "Cannot cluster, because some "
-                                            + "of the structures were "
-                                            + "incomparable", "Error",
-                                    JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(MainWindow.this, ""
+                                    + "Results cannot be visualized. Some "
+                                    + "structures could not be compared.",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                     }
@@ -686,7 +685,7 @@ class MainWindow extends JFrame {
                     if (source.equals(itemSelectChainsCompare)) {
                         panelLocalPlot.removeAll();
                         panelLocalPlot.revalidate();
-                        layoutCards.show(panelCards, CARD_LOCAL);
+                        layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
 
                         itemSelectTorsion.setEnabled(true);
                         radioAlignGlobal.setEnabled(false);
@@ -696,10 +695,9 @@ class MainWindow extends JFrame {
                     } else if (source.equals(itemSelectChainsAlignSeq)) {
                         if (chainDialog.selectedChains[0].length != 1
                                 || chainDialog.selectedChains[1].length != 1) {
-                            JOptionPane.showMessageDialog(MainWindow.this,
-                                    "For sequence alignment, you need "
-                                            + "to select a single chain "
-                                            + "from each structure",
+                            JOptionPane.showMessageDialog(MainWindow.this, "A "
+                                    + "single chain should be selected from "
+                                    + "each structure in sequence alignment.",
                                     "Information",
                                     JOptionPane.INFORMATION_MESSAGE);
                             chainDialog.selectedStructures = null;
@@ -708,7 +706,7 @@ class MainWindow extends JFrame {
                         }
 
                         textAreaAlignSeq.setText("");
-                        layoutCards.show(panelCards, CARD_ALIGN_SEQ);
+                        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
                         itemSelectTorsion.setEnabled(false);
                         radioAlignGlobal.setEnabled(true);
@@ -718,7 +716,8 @@ class MainWindow extends JFrame {
                     } else { // source.equals(itemSelectChainsAlignStruc)
                         panelJmolLeft.executeCmd("restore state state_init");
                         panelJmolRight.executeCmd("restore state state_init");
-                        layoutCards.show(panelCards, CARD_ALIGN_STRUC);
+                        layoutCards.show(panelCards,
+                                MainWindow.CARD_ALIGN_STRUC);
 
                         itemSelectTorsion.setEnabled(false);
                         radioAlignGlobal.setEnabled(false);
@@ -863,7 +862,8 @@ class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (thread != null && thread.isAlive()) {
                     JOptionPane.showMessageDialog(null,
-                            "Alignment calculation underway!", "Information",
+                            "3D structure alignment computation has not "
+                                    + "finished yet!", "Information",
                             JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
