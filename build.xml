@@ -89,7 +89,9 @@
     <target name="build">
         <mkdir dir="bin/"/>
         <javac srcdir="src/" destdir="bin/" includeAntRuntime="no" classpathref="classpath"/>
+        <copy file="src/pl/poznan/put/cs/bioserver/gui/about.html" todir="bin/pl/poznan/put/cs/bioserver/gui/"/>
         <copy file="src/pl/poznan/put/cs/bioserver/gui/guide.html" todir="bin/pl/poznan/put/cs/bioserver/gui/"/>
+        <copy file="src/pl/poznan/put/cs/bioserver/gui/rabit.png" todir="bin/pl/poznan/put/cs/bioserver/gui/"/>
     </target>
 
     <target name="clean">

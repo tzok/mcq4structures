@@ -39,7 +39,7 @@ public class PdbManagerDialog extends JDialog {
 
         final JList<File> list = new JList<>(PdbManagerDialog.MODEL);
         list.setBorder(BorderFactory
-                .createTitledBorder("Uploaded structures"));
+                .createTitledBorder("List of open structures"));
 
         JButton buttonOpen = new JButton("Open structure(s)");
         JButton buttonRemove = new JButton("Close selected structure(s)");
@@ -53,7 +53,7 @@ public class PdbManagerDialog extends JDialog {
         panelListButtons.add(panelButtons, BorderLayout.SOUTH);
 
         final JTextField fieldPdbId = new JTextField();
-        JButton buttonFetch = new JButton("Fetch");
+        JButton buttonFetch = new JButton("Download from PDB");
         JPanel panelFetch = new JPanel();
         panelFetch.add(new JLabel("PDB id:"));
         panelFetch.add(fieldPdbId);
@@ -68,7 +68,7 @@ public class PdbManagerDialog extends JDialog {
                 .getPreferredSize().height));
 
         int width = 480;
-        int height = 768;
+        int height = 480;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
         int y = screenSize.height - height;
