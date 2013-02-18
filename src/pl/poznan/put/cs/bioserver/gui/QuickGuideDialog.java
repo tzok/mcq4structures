@@ -46,7 +46,7 @@ class QuickGuideDialog extends JDialog {
         add(new JScrollPane(editorPane), BorderLayout.CENTER);
         add(panelButton, BorderLayout.SOUTH);
 
-        pack();
+        setSize(640, 480);
         setTitle("MCQ4Structures: quick guide");
 
         buttonClose.addActionListener(new ActionListener() {

@@ -62,8 +62,11 @@ public class AboutDialog extends JDialog {
         JPanel panelClose = new JPanel();
         panelClose.add(buttonClose);
 
+        JPanel panelImage = new JPanel(new BorderLayout());
+        panelImage.add(labelImage, BorderLayout.NORTH);
+
         setLayout(new BorderLayout());
-        add(labelImage, BorderLayout.WEST);
+        add(panelImage, BorderLayout.WEST);
         add(editorPane, BorderLayout.CENTER);
         add(panelClose, BorderLayout.SOUTH);
 
@@ -72,11 +75,11 @@ public class AboutDialog extends JDialog {
         pack();
         int width;
         if (image != null) {
-            width = image.getWidth() * 2;
+            width = image.getWidth() * 5 / 2;
         } else {
             width = getPreferredSize().width / 2;
         }
-        int height = getPreferredSize().height;
+        int height = getPreferredSize().height * 3 / 2;
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
@@ -92,7 +95,7 @@ public class AboutDialog extends JDialog {
                         try {
                             Desktop.getDesktop().browse(e.getURL().toURI());
                         } catch (IOException | URISyntaxException e1) {
-                            AboutDialog.LOGGER.error("Failed to browser URL: "
+                            AboutDialog.LOGGER.error("Failed to browse URL: "
                                     + e.getURL(), e1);
                         }
                     }

@@ -38,7 +38,7 @@ import java.util.TreeMap;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -48,7 +48,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JRadioButton;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -141,7 +141,7 @@ class MainWindow extends JFrame {
         final JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
-        final JCheckBox checkBoxManager = new JCheckBox(
+        final JCheckBoxMenuItem checkBoxManager = new JCheckBoxMenuItem(
                 "View structure manager", true);
         JMenuItem itemExit = new JMenuItem("Exit");
         JMenu menuFile = new JMenu("File");
@@ -153,9 +153,11 @@ class MainWindow extends JFrame {
         menuFile.addSeparator();
         menuFile.add(itemExit);
 
-        final JRadioButton radioMcq = new JRadioButton("MCQ", true);
+        final JRadioButtonMenuItem radioMcq = new JRadioButtonMenuItem("MCQ",
+                true);
         radioMcq.setEnabled(false);
-        final JRadioButton radioRmsd = new JRadioButton("RMSD", false);
+        final JRadioButtonMenuItem radioRmsd = new JRadioButtonMenuItem("RMSD",
+                false);
         radioRmsd.setEnabled(false);
         ButtonGroup group = new ButtonGroup();
         group.add(radioMcq);
@@ -173,7 +175,7 @@ class MainWindow extends JFrame {
         JMenu menuGlobal = new JMenu("Global distance");
         menuGlobal.add(itemSelectStructures);
         menuGlobal.addSeparator();
-        menuGlobal.add(new JLabel("Distance measure:"));
+        menuGlobal.add(new JLabel("    Distance measure:"));
         menuGlobal.add(radioMcq);
         menuGlobal.add(radioRmsd);
         menuGlobal.addSeparator();
@@ -187,7 +189,8 @@ class MainWindow extends JFrame {
         final JMenuItem itemSelectTorsion = new JMenuItem(
                 "Select torsion angles");
         itemSelectTorsion.setEnabled(false);
-        final JMenuItem itemComputeLocal = new JMenuItem("Compute distances");
+        final JMenuItem itemComputeLocal = new JMenuItem(
+                "Compute distance vector");
         itemComputeLocal.setEnabled(false);
         JMenu menuLocal = new JMenu("Local distance");
         menuLocal.add(itemSelectChainsCompare);
@@ -200,9 +203,11 @@ class MainWindow extends JFrame {
         menuDistance.addSeparator();
         menuDistance.add(menuLocal);
 
-        final JRadioButton radioAlignGlobal = new JRadioButton("Global", true);
+        final JRadioButtonMenuItem radioAlignGlobal = new JRadioButtonMenuItem(
+                "Global", true);
         radioAlignGlobal.setEnabled(false);
-        final JRadioButton radioAlignLocal = new JRadioButton("Local", false);
+        final JRadioButtonMenuItem radioAlignLocal = new JRadioButtonMenuItem(
+                "Local", false);
         radioAlignLocal.setEnabled(false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignGlobal);
@@ -215,6 +220,7 @@ class MainWindow extends JFrame {
         JMenu menuAlignSeq = new JMenu("Sequence alignment");
         menuAlignSeq.add(itemSelectChainsAlignSeq);
         menuAlignSeq.addSeparator();
+        menuAlignSeq.add(new JLabel("    Alignment type:"));
         menuAlignSeq.add(radioAlignGlobal);
         menuAlignSeq.add(radioAlignLocal);
         menuAlignSeq.addSeparator();
@@ -344,6 +350,7 @@ class MainWindow extends JFrame {
         final CardLayout layoutCards = new CardLayout();
         final JPanel panelCards = new JPanel();
         panelCards.setLayout(layoutCards);
+        panelCards.add(new JPanel());
         panelCards.add(panelResultsGlobal, MainWindow.CARD_GLOBAL);
         panelCards.add(panelResultsLocal, MainWindow.CARD_LOCAL);
         panelCards.add(panelResultsAlignSeq, MainWindow.CARD_ALIGN_SEQ);
