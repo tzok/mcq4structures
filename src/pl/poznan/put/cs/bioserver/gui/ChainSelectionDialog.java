@@ -59,30 +59,31 @@ class ChainSelectionDialog extends JDialog {
 
         modelLeft = new DefaultComboBoxModel<>();
         final JComboBox<File> comboLeft = new JComboBox<>(modelLeft);
-
         final JPanel panelChainsLeft = new JPanel();
         panelChainsLeft.setLayout(new BoxLayout(panelChainsLeft,
                 BoxLayout.Y_AXIS));
         panelChainsLeft.setBorder(BorderFactory
-                .createTitledBorder("Available chains:"));
-
-        final JPanel panelLeft = new JPanel();
-        panelLeft.setLayout(new BorderLayout());
-        panelLeft.add(comboLeft, BorderLayout.NORTH);
+                .createTitledBorder("Select chain(s)"));
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(new JLabel("Select structure"), BorderLayout.NORTH);
+        panel.add(comboLeft, BorderLayout.CENTER);
+        final JPanel panelLeft = new JPanel(new BorderLayout());
+        panelLeft.add(panel, BorderLayout.NORTH);
         panelLeft.add(new JScrollPane(panelChainsLeft), BorderLayout.CENTER);
 
         modelRight = new DefaultComboBoxModel<>();
         final JComboBox<File> comboRight = new JComboBox<>(modelRight);
-
         final JPanel panelChainsRight = new JPanel();
         panelChainsRight.setLayout(new BoxLayout(panelChainsRight,
                 BoxLayout.Y_AXIS));
         panelChainsRight.setBorder(BorderFactory
-                .createTitledBorder("Available chains:"));
-
+                .createTitledBorder("Select chain(s)"));
+        panel = new JPanel(new BorderLayout());
+        panel.add(new JLabel("Select structure"), BorderLayout.NORTH);
+        panel.add(comboRight, BorderLayout.CENTER);
         JPanel panelRight = new JPanel();
         panelRight.setLayout(new BorderLayout());
-        panelRight.add(comboRight, BorderLayout.NORTH);
+        panelRight.add(panel, BorderLayout.NORTH);
         panelRight.add(new JScrollPane(panelChainsRight), BorderLayout.CENTER);
 
         JPanel panelBoth = new JPanel();
@@ -108,7 +109,7 @@ class ChainSelectionDialog extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
-        setTitle("MCQ4Structures: chain selection");
+        setTitle("MCQ4Structures: structure & chain selection");
 
         final ListCellRenderer<? super File> renderer = comboLeft.getRenderer();
         ListCellRenderer<File> pdbCellRenderer = new ListCellRenderer<File>() {

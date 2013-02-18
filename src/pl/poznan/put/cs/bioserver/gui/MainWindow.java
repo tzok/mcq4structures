@@ -136,129 +136,100 @@ class MainWindow extends JFrame {
         /*
          * Create menu
          */
-        JMenuItem itemOpen = new JMenuItem("Open structure(s)",
+        JMenuBar menuBar = new JMenuBar();
+
+        final JMenuItem itemOpen = new JMenuItem("Open structure(s)",
                 loadIcon("/toolbarButtonGraphics/general/Open16.gif"));
         final JMenuItem itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
         final JCheckBoxMenuItem checkBoxManager = new JCheckBoxMenuItem(
                 "View structure manager", true);
-        JMenuItem itemExit = new JMenuItem("Exit");
-        JMenu menuFile = new JMenu("File");
-        menuFile.setMnemonic(KeyEvent.VK_F);
-        menuFile.add(itemOpen);
-        menuFile.add(itemSave);
-        menuFile.addSeparator();
-        menuFile.add(checkBoxManager);
-        menuFile.addSeparator();
-        menuFile.add(itemExit);
+        final JMenuItem itemExit = new JMenuItem("Exit");
+        JMenu menu = new JMenu("File");
+        menu.setMnemonic(KeyEvent.VK_F);
+        menu.add(itemOpen);
+        menu.add(itemSave);
+        menu.addSeparator();
+        menu.add(checkBoxManager);
+        menu.addSeparator();
+        menu.add(itemExit);
+        menuBar.add(menu);
 
-        final JRadioButtonMenuItem radioMcq = new JRadioButtonMenuItem("MCQ",
-                true);
-        radioMcq.setEnabled(false);
-        final JRadioButtonMenuItem radioRmsd = new JRadioButtonMenuItem("RMSD",
-                false);
-        radioRmsd.setEnabled(false);
+        final JRadioButtonMenuItem radioGlobalMcq = new JRadioButtonMenuItem(
+                "Global MCQ", true);
+        final JRadioButtonMenuItem radioGlobalRmsd = new JRadioButtonMenuItem(
+                "Global RMSD", false);
+        final JRadioButtonMenuItem radioLocal = new JRadioButtonMenuItem(
+                "Local distances", false);
         ButtonGroup group = new ButtonGroup();
-        group.add(radioMcq);
-        group.add(radioRmsd);
+        group.add(radioGlobalMcq);
+        group.add(radioGlobalRmsd);
+        group.add(radioLocal);
 
-        final JMenuItem itemSelectStructures = new JMenuItem(
+        final JMenuItem itemSelectTorsion = new JMenuItem(
+                "Select torsion angles");
+        itemSelectTorsion.setEnabled(false);
+        final JMenuItem itemSelectStructuresCompare = new JMenuItem(
                 "Select structures to compare");
-        final JMenuItem itemComputeGlobal = new JMenuItem(
-                "Compute distance matrix");
-        itemComputeGlobal.setEnabled(false);
+        final JMenuItem itemComputeDistances = new JMenuItem(
+                "Compute distance(s)");
+        itemComputeDistances.setEnabled(false);
         final JMenuItem itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
         final JMenuItem itemCluster = new JMenuItem("Cluster results");
         itemCluster.setEnabled(false);
-        JMenu menuGlobal = new JMenu("Global distance");
-        menuGlobal.add(itemSelectStructures);
-        menuGlobal.addSeparator();
-        menuGlobal.add(new JLabel("    Distance measure:"));
-        menuGlobal.add(radioMcq);
-        menuGlobal.add(radioRmsd);
-        menuGlobal.addSeparator();
-        menuGlobal.add(itemComputeGlobal);
-        menuGlobal.add(itemVisualise);
-        menuGlobal.add(itemVisualise);
-        menuGlobal.add(itemCluster);
 
-        final JMenuItem itemSelectChainsCompare = new JMenuItem(
-                "Select chains to compare");
-        final JMenuItem itemSelectTorsion = new JMenuItem(
-                "Select torsion angles");
-        itemSelectTorsion.setEnabled(false);
-        final JMenuItem itemComputeLocal = new JMenuItem(
-                "Compute distance vector");
-        itemComputeLocal.setEnabled(false);
-        JMenu menuLocal = new JMenu("Local distance");
-        menuLocal.add(itemSelectChainsCompare);
-        menuLocal.add(itemSelectTorsion);
-        menuLocal.add(itemComputeLocal);
+        menu = new JMenu("Distance measure");
+        menu.setMnemonic(KeyEvent.VK_D);
+        menu.add(new JLabel("    Select distance type:"));
+        menu.add(radioGlobalMcq);
+        menu.add(radioGlobalRmsd);
+        menu.add(radioLocal);
+        menu.addSeparator();
+        menu.add(itemSelectTorsion);
+        menu.add(itemSelectStructuresCompare);
+        menu.addSeparator();
+        menu.add(itemComputeDistances);
+        menu.add(itemVisualise);
+        menu.add(itemCluster);
+        menuBar.add(menu);
 
-        JMenu menuDistance = new JMenu("Distance computation");
-        menuDistance.setMnemonic(KeyEvent.VK_D);
-        menuDistance.add(menuGlobal);
-        menuDistance.addSeparator();
-        menuDistance.add(menuLocal);
-
-        final JRadioButtonMenuItem radioAlignGlobal = new JRadioButtonMenuItem(
-                "Global", true);
-        radioAlignGlobal.setEnabled(false);
-        final JRadioButtonMenuItem radioAlignLocal = new JRadioButtonMenuItem(
-                "Local", false);
-        radioAlignLocal.setEnabled(false);
+        final JRadioButtonMenuItem radioAlignSeqGlobal = new JRadioButtonMenuItem(
+                "Global sequence alignment", true);
+        final JRadioButtonMenuItem radioAlignSeqLocal = new JRadioButtonMenuItem(
+                "Local sequence alignment", false);
+        final JRadioButtonMenuItem radioAlignStruc = new JRadioButtonMenuItem(
+                "3D structure alignment", false);
         ButtonGroup groupAlign = new ButtonGroup();
-        groupAlign.add(radioAlignGlobal);
-        groupAlign.add(radioAlignLocal);
+        groupAlign.add(radioAlignSeqGlobal);
+        groupAlign.add(radioAlignSeqLocal);
+        groupAlign.add(radioAlignStruc);
 
-        final JMenuItem itemSelectChainsAlignSeq = new JMenuItem(
-                "Select chains to align");
-        final JMenuItem itemComputeAlignSeq = new JMenuItem("Compute alignment");
-        itemComputeAlignSeq.setEnabled(false);
-        JMenu menuAlignSeq = new JMenu("Sequence alignment");
-        menuAlignSeq.add(itemSelectChainsAlignSeq);
-        menuAlignSeq.addSeparator();
-        menuAlignSeq.add(new JLabel("    Alignment type:"));
-        menuAlignSeq.add(radioAlignGlobal);
-        menuAlignSeq.add(radioAlignLocal);
-        menuAlignSeq.addSeparator();
-        menuAlignSeq.add(itemComputeAlignSeq);
+        final JMenuItem itemSelectStructuresAlign = new JMenuItem(
+                "Select structures to align");
+        final JMenuItem itemComputeAlign = new JMenuItem("Compute alignment");
+        itemComputeAlign.setEnabled(false);
 
-        final JMenuItem itemSelectChainsAlignStruc = new JMenuItem(
-                "Select chains to align");
-        final JMenuItem itemComputeAlignStruc = new JMenuItem(
-                "Compute alignment");
-        itemComputeAlignStruc.setEnabled(false);
-        JMenu menuAlignStruc = new JMenu("3D structure alignment");
-        menuAlignStruc.add(itemSelectChainsAlignStruc);
-        menuAlignStruc.add(itemComputeAlignStruc);
-
-        JMenu menuAlignment = new JMenu("Alignment");
-        menuAlignment.setMnemonic(KeyEvent.VK_A);
-        menuAlignment.add(menuAlignSeq);
-        menuAlignment.addSeparator();
-        menuAlignment.add(menuAlignStruc);
+        menu = new JMenu("Alignment");
+        menu.setMnemonic(KeyEvent.VK_A);
+        menu.add(new JLabel("    Select alignment type:"));
+        menu.add(radioAlignSeqGlobal);
+        menu.add(radioAlignSeqLocal);
+        menu.add(radioAlignStruc);
+        menu.addSeparator();
+        menu.add(itemSelectStructuresAlign);
+        menu.add(itemComputeAlign);
+        menuBar.add(menu);
 
         JMenuItem itemGuide = new JMenuItem("Quick guide");
-        itemGuide.setMnemonic(KeyEvent.VK_Q);
-        itemGuide.setMaximumSize(new Dimension(
-                itemGuide.getPreferredSize().width,
-                itemGuide.getMaximumSize().height));
-
         JMenuItem itemAbout = new JMenuItem("About");
-        itemAbout.setMnemonic(KeyEvent.VK_O);
-        itemAbout.setMaximumSize(new Dimension(
-                itemAbout.getPreferredSize().width,
-                itemAbout.getMaximumSize().height));
 
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.add(menuFile);
-        menuBar.add(menuDistance);
-        menuBar.add(menuAlignment);
-        menuBar.add(itemGuide);
-        menuBar.add(itemAbout);
+        menu = new JMenu("Help");
+        menu.setMnemonic(KeyEvent.VK_H);
+        menu.add(itemGuide);
+        menu.add(itemAbout);
+        menuBar.add(menu);
 
         setJMenuBar(menuBar);
 
@@ -440,6 +411,7 @@ class MainWindow extends JFrame {
                 } else if (current.equals(panelResultsAlignSeq)) {
                     try (FileOutputStream stream = new FileOutputStream(
                             chooserSaveFile.getSelectedFile())) {
+                        // TODO: output structure names
                         stream.write(resultAlignSeq.getBytes("UTF-8"));
                     } catch (IOException e1) {
                         MainWindow.LOGGER.error(
@@ -478,118 +450,300 @@ class MainWindow extends JFrame {
             }
         });
 
-        itemSelectStructures.addActionListener(new ActionListener() {
+        ActionListener radioActionListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                /*
-                 * Add new structures to the "all" section of structures
-                 * selection dialog
-                 */
-                Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
-                while (elements.hasMoreElements()) {
-                    File path = elements.nextElement();
-                    if (!structureDialog.modelAll.contains(path)
-                            && !structureDialog.modelSelected.contains(path)) {
-                        structureDialog.modelAll.addElement(path);
-                    }
-                }
-                /*
-                 * Remove from "all" section these structures, that were removed
-                 * in PDB manager dialog
-                 */
-                elements = structureDialog.modelAll.elements();
-                while (elements.hasMoreElements()) {
-                    File path = elements.nextElement();
-                    if (PdbManager.getStructure(path) == null) {
-                        structureDialog.modelAll.removeElement(path);
-                    }
-                }
-                /*
-                 * Remove from "selected" section these structures, that were
-                 * removed in PDB manager dialog
-                 */
-                elements = structureDialog.modelSelected.elements();
-                while (elements.hasMoreElements()) {
-                    File path = elements.nextElement();
-                    if (PdbManager.getStructure(path) == null) {
-                        structureDialog.modelSelected.removeElement(path);
-                    }
-                }
-                /*
-                 * Show dialog
-                 */
-                structureDialog.setVisible(true);
-                if (structureDialog.chosenOption == StructureSelectionDialog.OK
-                        && structureDialog.selectedStructures != null) {
-                    if (structureDialog.selectedStructures.size() < 2) {
-                        JOptionPane.showMessageDialog(MainWindow.this, "At "
-                                + "least two structures must be selected to "
-                                + "compute global distance", "Information",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
+            public void actionPerformed(ActionEvent arg0) {
+                Object source = arg0.getSource();
+                itemSelectTorsion.setEnabled(source.equals(radioLocal));
+            }
+        };
+        radioGlobalMcq.addActionListener(radioActionListener);
+        radioGlobalRmsd.addActionListener(radioActionListener);
+        radioLocal.addActionListener(radioActionListener);
 
-                    tableMatrix.setModel(new MatrixTableModel(new String[0],
-                            new double[0][]));
-                    layoutCards.show(panelCards, MainWindow.CARD_GLOBAL);
-
-                    itemSave.setEnabled(false);
-                    radioMcq.setEnabled(true);
-                    radioRmsd.setEnabled(true);
-                    itemComputeGlobal.setEnabled(true);
-                }
+        itemSelectTorsion.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                torsionDialog.setVisible(true);
             }
         });
 
-        itemComputeGlobal.addActionListener(new ActionListener() {
+        ActionListener selectActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final GlobalComparison comparison;
-                if (radioMcq.isSelected()) {
-                    comparison = new MCQ();
-                } else { // radioRmsd.isSelected() == true
-                    comparison = new RMSD();
-                }
-
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Structure[] structures = PdbManager
-                                .getSelectedStructures(structureDialog.selectedStructures);
-
-                        resultGlobalNames = PdbManager
-                                .getSelectedStructuresNames(structureDialog.selectedStructures);
-                        resultGlobalMatrix = comparison.compare(structures,
-                                new ComparisonListener() {
-                                    @Override
-                                    public void stateChanged(long all,
-                                            long completed) {
-                                        progressBar.setMaximum((int) all);
-                                        progressBar.setValue((int) completed);
-                                    }
-                                });
-
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                MatrixTableModel model = new MatrixTableModel(
-                                        resultGlobalNames, resultGlobalMatrix);
-                                tableMatrix.setModel(model);
-
-                                itemSave.setEnabled(true);
-                                itemSave.setText("Save results (CSV)");
-                                itemCluster.setEnabled(true);
-                                itemVisualise.setEnabled(true);
-
-                                labelInfoGlobal.setText("Global comparison "
-                                        + "results: distance matrix for "
-                                        + (radioMcq.isSelected() ? "MCQ"
-                                                : "RMSD"));
-                            }
-                        });
+                Object source = e.getSource();
+                if (source.equals(itemComputeDistances)
+                        && (radioGlobalMcq.isSelected() || radioGlobalRmsd
+                                .isSelected())) {
+                    /*
+                     * Add new structures to the "all" section of structures
+                     * selection dialog
+                     */
+                    Enumeration<File> elements = PdbManagerDialog.MODEL
+                            .elements();
+                    while (elements.hasMoreElements()) {
+                        File path = elements.nextElement();
+                        if (!structureDialog.modelAll.contains(path)
+                                && !structureDialog.modelSelected
+                                        .contains(path)) {
+                            structureDialog.modelAll.addElement(path);
+                        }
                     }
-                });
-                thread.start();
+                    /*
+                     * Remove from "all" section these structures, that were
+                     * removed in PDB manager dialog
+                     */
+                    elements = structureDialog.modelAll.elements();
+                    while (elements.hasMoreElements()) {
+                        File path = elements.nextElement();
+                        if (PdbManager.getStructure(path) == null) {
+                            structureDialog.modelAll.removeElement(path);
+                        }
+                    }
+                    /*
+                     * Remove from "selected" section these structures, that
+                     * were removed in PDB manager dialog
+                     */
+                    elements = structureDialog.modelSelected.elements();
+                    while (elements.hasMoreElements()) {
+                        File path = elements.nextElement();
+                        if (PdbManager.getStructure(path) == null) {
+                            structureDialog.modelSelected.removeElement(path);
+                        }
+                    }
+                    /*
+                     * Show dialog
+                     */
+                    structureDialog.setVisible(true);
+                    if (structureDialog.chosenOption == StructureSelectionDialog.OK
+                            && structureDialog.selectedStructures != null) {
+                        if (structureDialog.selectedStructures.size() < 2) {
+                            JOptionPane
+                                    .showMessageDialog(
+                                            MainWindow.this,
+                                            "At "
+                                                    + "least two structures must be selected to "
+                                                    + "compute global distance",
+                                            "Information",
+                                            JOptionPane.INFORMATION_MESSAGE);
+                            return;
+                        }
+
+                        tableMatrix.setModel(new MatrixTableModel(
+                                new String[0], new double[0][]));
+                        layoutCards.show(panelCards, MainWindow.CARD_GLOBAL);
+
+                        itemSave.setEnabled(false);
+                        radioGlobalMcq.setEnabled(true);
+                        radioGlobalRmsd.setEnabled(true);
+                        itemComputeDistances.setEnabled(true);
+                    }
+                } else {
+                    chainDialog.modelLeft.removeAllElements();
+                    chainDialog.modelRight.removeAllElements();
+                    Enumeration<File> elements = PdbManagerDialog.MODEL
+                            .elements();
+                    while (elements.hasMoreElements()) {
+                        File path = elements.nextElement();
+                        chainDialog.modelLeft.addElement(path);
+                        chainDialog.modelRight.addElement(path);
+                    }
+
+                    chainDialog.setVisible(true);
+                    if (chainDialog.chosenOption == ChainSelectionDialog.OK
+                            && chainDialog.selectedStructures != null
+                            && chainDialog.selectedChains != null) {
+                        for (int i = 0; i < 2; i++) {
+                            if (chainDialog.selectedChains[i].length == 0) {
+                                String message = "No chains specified for structure: "
+                                        + chainDialog.selectedStructures[i];
+                                JOptionPane.showMessageDialog(MainWindow.this,
+                                        message, "Information",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                                chainDialog.selectedStructures = null;
+                                chainDialog.selectedChains = null;
+                                return;
+                            }
+                        }
+
+                        if (source.equals(itemSelectStructuresCompare)) {
+                            panelLocalPlot.removeAll();
+                            panelLocalPlot.revalidate();
+                            layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
+
+                            itemSelectTorsion.setEnabled(true);
+                            itemComputeAlign.setEnabled(false);
+                        } else if (radioAlignSeqGlobal.isSelected()
+                                || radioAlignSeqLocal.isSelected()) {
+                            if (chainDialog.selectedChains[0].length != 1
+                                    || chainDialog.selectedChains[1].length != 1) {
+                                JOptionPane.showMessageDialog(MainWindow.this,
+                                        "A single chain should be "
+                                                + "selected from each "
+                                                + "structure in "
+                                                + "sequence alignment.",
+                                        "Information",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                                chainDialog.selectedStructures = null;
+                                chainDialog.selectedChains = null;
+                                return;
+                            }
+
+                            textAreaAlignSeq.setText("");
+                            layoutCards.show(panelCards,
+                                    MainWindow.CARD_ALIGN_SEQ);
+
+                            itemSelectTorsion.setEnabled(false);
+                            itemComputeAlign.setEnabled(true);
+                        } else { // source.equals(itemSelectChainsAlignStruc)
+                            panelJmolLeft.executeCmd("restore state "
+                                    + "state_init");
+                            panelJmolRight.executeCmd("restore state "
+                                    + "state_init");
+                            layoutCards.show(panelCards,
+                                    MainWindow.CARD_ALIGN_STRUC);
+
+                            itemSelectTorsion.setEnabled(false);
+                            itemComputeAlign.setEnabled(true);
+                        }
+                    }
+                }
+            }
+        };
+        itemSelectStructuresCompare.addActionListener(selectActionListener);
+        itemSelectStructuresAlign.addActionListener(selectActionListener);
+
+        itemComputeDistances.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (radioGlobalMcq.isSelected() || radioGlobalRmsd.isSelected()) {
+                    final GlobalComparison comparison;
+                    if (radioGlobalMcq.isSelected()) {
+                        comparison = new MCQ();
+                    } else { // radioRmsd.isSelected() == true
+                        comparison = new RMSD();
+                    }
+
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Structure[] structures = PdbManager
+                                    .getSelectedStructures(structureDialog.selectedStructures);
+
+                            resultGlobalNames = PdbManager
+                                    .getSelectedStructuresNames(structureDialog.selectedStructures);
+                            resultGlobalMatrix = comparison.compare(structures,
+                                    new ComparisonListener() {
+                                        @Override
+                                        public void stateChanged(long all,
+                                                long completed) {
+                                            progressBar.setMaximum((int) all);
+                                            progressBar
+                                                    .setValue((int) completed);
+                                        }
+                                    });
+
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MatrixTableModel model = new MatrixTableModel(
+                                            resultGlobalNames,
+                                            resultGlobalMatrix);
+                                    tableMatrix.setModel(model);
+
+                                    itemSave.setEnabled(true);
+                                    itemSave.setText("Save results (CSV)");
+                                    itemCluster.setEnabled(true);
+                                    itemVisualise.setEnabled(true);
+
+                                    labelInfoGlobal.setText("Global comparison "
+                                            + "results: distance matrix for "
+                                            + (radioGlobalMcq.isSelected() ? "MCQ"
+                                                    : "RMSD"));
+                                }
+                            });
+                        }
+                    });
+                    thread.start();
+                } else {
+                    layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
+
+                    final Structure[] structures = new Structure[2];
+                    for (int i = 0; i < 2; i++) {
+                        structures[i] = new StructureImpl();
+                        // FIXME: NPE after hitting Cancel on chain selection
+                        structures[i].setChains(Arrays
+                                .asList(chainDialog.selectedChains[i]));
+                    }
+
+                    try {
+                        resultLocal = TorsionLocalComparison.compare(
+                                structures[0], structures[1], false);
+                    } catch (StructureException e1) {
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                e1.getMessage(), "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    Set<ResidueNumber> set = new HashSet<>();
+                    for (String angle : torsionDialog.selectedNames) {
+                        if (!resultLocal.containsKey(angle)) {
+                            continue;
+                        }
+                        for (AngleDifference ad : resultLocal.get(angle)) {
+                            set.add(ad.getResidue());
+                        }
+                    }
+                    List<ResidueNumber> list = new ArrayList<>(set);
+                    Collections.sort(list);
+
+                    DefaultXYDataset dataset = new DefaultXYDataset();
+                    for (String angle : torsionDialog.selectedNames) {
+                        if (!resultLocal.containsKey(angle)) {
+                            continue;
+                        }
+                        List<AngleDifference> diffs = resultLocal.get(angle);
+                        Collections.sort(diffs);
+
+                        double[] x = new double[diffs.size()];
+                        double[] y = new double[diffs.size()];
+                        for (int i = 0; i < diffs.size(); i++) {
+                            AngleDifference ad = diffs.get(i);
+                            x[i] = list.indexOf(ad.getResidue());
+                            y[i] = ad.getDifference();
+                        }
+                        dataset.addSeries(angle, new double[][] { x, y });
+                    }
+
+                    NumberAxis xAxis = new TorsionAxis(resultLocal);
+                    xAxis.setLabel("Residue");
+                    NumberAxis yAxis = new NumberAxis();
+                    yAxis.setAutoRange(false);
+                    yAxis.setRange(0, Math.PI);
+                    yAxis.setLabel("Distance [rad]");
+                    XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
+                            new DefaultXYItemRenderer());
+
+                    panelLocalPlot.removeAll();
+                    panelLocalPlot.add(new ChartPanel(new JFreeChart(plot)));
+                    panelLocalPlot.revalidate();
+
+                    itemSave.setEnabled(true);
+                    itemSave.setText("Save results (CSV)");
+
+                    File[] pdbs = new File[] {
+                            chainDialog.selectedStructures[0],
+                            chainDialog.selectedStructures[1] };
+                    String[] names = new String[] {
+                            PdbManager.getStructureName(pdbs[0]),
+                            PdbManager.getStructureName(pdbs[1]) };
+                    labelInfoLocal
+                            .setText("Local comparison results: distance "
+                                    + "plot for " + names[0] + " and "
+                                    + names[1]);
+
+                }
             }
         });
 
@@ -652,333 +806,171 @@ class MainWindow extends JFrame {
             }
         });
 
-        ActionListener actionListenerSelectChains = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                chainDialog.modelLeft.removeAllElements();
-                chainDialog.modelRight.removeAllElements();
-                Enumeration<File> elements = PdbManagerDialog.MODEL.elements();
-                while (elements.hasMoreElements()) {
-                    File path = elements.nextElement();
-                    chainDialog.modelLeft.addElement(path);
-                    chainDialog.modelRight.addElement(path);
-                }
-
-                chainDialog.setVisible(true);
-                if (chainDialog.chosenOption == ChainSelectionDialog.OK
-                        && chainDialog.selectedStructures != null
-                        && chainDialog.selectedChains != null) {
-                    for (int i = 0; i < 2; i++) {
-                        if (chainDialog.selectedChains[i].length == 0) {
-                            String message = "No chains specified for structure: "
-                                    + chainDialog.selectedStructures[i];
-                            JOptionPane.showMessageDialog(MainWindow.this,
-                                    message, "Information",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                            chainDialog.selectedStructures = null;
-                            chainDialog.selectedChains = null;
-                            return;
-                        }
-                    }
-
-                    Object source = arg0.getSource();
-                    if (source.equals(itemSelectChainsCompare)) {
-                        panelLocalPlot.removeAll();
-                        panelLocalPlot.revalidate();
-                        layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
-
-                        itemSelectTorsion.setEnabled(true);
-                        radioAlignGlobal.setEnabled(false);
-                        radioAlignLocal.setEnabled(false);
-                        itemComputeAlignSeq.setEnabled(false);
-                        itemComputeAlignStruc.setEnabled(false);
-                    } else if (source.equals(itemSelectChainsAlignSeq)) {
-                        if (chainDialog.selectedChains[0].length != 1
-                                || chainDialog.selectedChains[1].length != 1) {
-                            JOptionPane.showMessageDialog(MainWindow.this, "A "
-                                    + "single chain should be selected from "
-                                    + "each structure in sequence alignment.",
-                                    "Information",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                            chainDialog.selectedStructures = null;
-                            chainDialog.selectedChains = null;
-                            return;
-                        }
-
-                        textAreaAlignSeq.setText("");
-                        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
-
-                        itemSelectTorsion.setEnabled(false);
-                        radioAlignGlobal.setEnabled(true);
-                        radioAlignLocal.setEnabled(true);
-                        itemComputeAlignSeq.setEnabled(true);
-                        itemComputeAlignStruc.setEnabled(false);
-                    } else { // source.equals(itemSelectChainsAlignStruc)
-                        panelJmolLeft.executeCmd("restore state state_init");
-                        panelJmolRight.executeCmd("restore state state_init");
-                        layoutCards.show(panelCards,
-                                MainWindow.CARD_ALIGN_STRUC);
-
-                        itemSelectTorsion.setEnabled(false);
-                        radioAlignGlobal.setEnabled(false);
-                        radioAlignLocal.setEnabled(false);
-                        itemComputeAlignSeq.setEnabled(false);
-                        itemComputeAlignStruc.setEnabled(true);
-                    }
-                }
-            }
-        };
-        itemSelectChainsCompare.addActionListener(actionListenerSelectChains);
-        itemSelectChainsAlignSeq.addActionListener(actionListenerSelectChains);
-        itemSelectChainsAlignStruc
-                .addActionListener(actionListenerSelectChains);
-
-        itemSelectTorsion.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                torsionDialog.setVisible(true);
-                itemComputeLocal.setEnabled(true);
-            }
-        });
-
-        itemComputeLocal.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                layoutCards.show(panelCards, MainWindow.CARD_LOCAL);
-
-                final Structure[] structures = new Structure[2];
-                for (int i = 0; i < 2; i++) {
-                    structures[i] = new StructureImpl();
-                    // FIXME: NPE after hitting Cancel on chain selection
-                    structures[i].setChains(Arrays
-                            .asList(chainDialog.selectedChains[i]));
-                }
-
-                try {
-                    resultLocal = TorsionLocalComparison.compare(structures[0],
-                            structures[1], false);
-                } catch (StructureException e1) {
-                    JOptionPane.showMessageDialog(MainWindow.this,
-                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                Set<ResidueNumber> set = new HashSet<>();
-                for (String angle : torsionDialog.selectedNames) {
-                    if (!resultLocal.containsKey(angle)) {
-                        continue;
-                    }
-                    for (AngleDifference ad : resultLocal.get(angle)) {
-                        set.add(ad.getResidue());
-                    }
-                }
-                List<ResidueNumber> list = new ArrayList<>(set);
-                Collections.sort(list);
-
-                DefaultXYDataset dataset = new DefaultXYDataset();
-                for (String angle : torsionDialog.selectedNames) {
-                    if (!resultLocal.containsKey(angle)) {
-                        continue;
-                    }
-                    List<AngleDifference> diffs = resultLocal.get(angle);
-                    Collections.sort(diffs);
-
-                    double[] x = new double[diffs.size()];
-                    double[] y = new double[diffs.size()];
-                    for (int i = 0; i < diffs.size(); i++) {
-                        AngleDifference ad = diffs.get(i);
-                        x[i] = list.indexOf(ad.getResidue());
-                        y[i] = ad.getDifference();
-                    }
-                    dataset.addSeries(angle, new double[][] { x, y });
-                }
-
-                NumberAxis xAxis = new TorsionAxis(resultLocal);
-                xAxis.setLabel("Residue");
-                NumberAxis yAxis = new NumberAxis();
-                yAxis.setAutoRange(false);
-                yAxis.setRange(0, Math.PI);
-                yAxis.setLabel("Distance [rad]");
-                XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
-                        new DefaultXYItemRenderer());
-
-                panelLocalPlot.removeAll();
-                panelLocalPlot.add(new ChartPanel(new JFreeChart(plot)));
-                panelLocalPlot.revalidate();
-
-                itemSave.setEnabled(true);
-                itemSave.setText("Save results (CSV)");
-
-                File[] pdbs = new File[] { chainDialog.selectedStructures[0],
-                        chainDialog.selectedStructures[1] };
-                String[] names = new String[] {
-                        PdbManager.getStructureName(pdbs[0]),
-                        PdbManager.getStructureName(pdbs[1]) };
-                labelInfoLocal.setText("Local comparison results: distance "
-                        + "plot for " + names[0] + " and " + names[1]);
-            }
-        });
-
-        itemComputeAlignSeq.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
-
-                Chain chains[] = new Chain[] {
-                        chainDialog.selectedChains[0][0],
-                        chainDialog.selectedChains[1][0] };
-
-                boolean isRNA = Helper.isNucleicAcid(chains[0]);
-                if (isRNA != Helper.isNucleicAcid(chains[1])) {
-                    String message = "Cannot align structures: different molecular types";
-                    MainWindow.LOGGER.error(message);
-                    JOptionPane.showMessageDialog(null, message, "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                OutputAlignSeq alignment = SequenceAligner.align(chains[0],
-                        chains[1], radioAlignGlobal.isSelected());
-                resultAlignSeq = alignment.toString();
-                textAreaAlignSeq.setText(resultAlignSeq);
-
-                itemSave.setEnabled(true);
-                itemSave.setText("Save results (TXT)");
-
-                File[] pdbs = new File[] { chainDialog.selectedStructures[0],
-                        chainDialog.selectedStructures[1] };
-                String[] names = new String[] {
-                        PdbManager.getStructureName(pdbs[0]),
-                        PdbManager.getStructureName(pdbs[1]) };
-                labelInfoAlignSeq.setText("Sequence alignment results for "
-                        + names[0] + " and " + names[1]);
-            }
-        });
-
-        itemComputeAlignStruc.addActionListener(new ActionListener() {
+        itemComputeAlign.addActionListener(new ActionListener() {
             private Thread thread;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (thread != null && thread.isAlive()) {
-                    JOptionPane.showMessageDialog(null,
-                            "3D structure alignment computation has not "
-                                    + "finished yet!", "Information",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
+                if (radioAlignSeqGlobal.isSelected()
+                        || radioAlignSeqLocal.isSelected()) {
+                    layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
-                layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
+                    Chain chains[] = new Chain[] {
+                            chainDialog.selectedChains[0][0],
+                            chainDialog.selectedChains[1][0] };
 
-                final Structure[] structures = new Structure[2];
-                for (int i = 0; i < 2; i++) {
-                    structures[i] = new StructureImpl();
-                    structures[i].setChains(Arrays
-                            .asList(chainDialog.selectedChains[i]));
-                }
-
-                boolean isRNA = Helper.isNucleicAcid(structures[0]);
-                if (isRNA != Helper.isNucleicAcid(structures[1])) {
-                    String message = "Cannot align structures: different molecular types";
-                    MainWindow.LOGGER.error(message);
-                    JOptionPane.showMessageDialog(null, message, "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                labelInfoAlignStruc.setText("Processing");
-                final Timer timer = new Timer(250, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent arg0) {
-                        String text = labelInfoAlignStruc.getText();
-                        int count = StringUtils.countMatches(text, ".");
-                        if (count < 5) {
-                            labelInfoAlignStruc.setText(text + ".");
-                        } else {
-                            labelInfoAlignStruc.setText("Processing");
-                        }
+                    boolean isRNA = Helper.isNucleicAcid(chains[0]);
+                    if (isRNA != Helper.isNucleicAcid(chains[1])) {
+                        String message = "Cannot align structures: different molecular types";
+                        MainWindow.LOGGER.error(message);
+                        JOptionPane.showMessageDialog(null, message, "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
-                });
-                timer.start();
 
-                thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Helper.normalizeAtomNames(structures[0]);
-                            Helper.normalizeAtomNames(structures[1]);
+                    OutputAlignSeq alignment = SequenceAligner.align(chains[0],
+                            chains[1], radioAlignSeqGlobal.isSelected());
+                    resultAlignSeq = alignment.toString();
+                    textAreaAlignSeq.setText(resultAlignSeq);
 
-                            AlignmentOutput output = StructureAligner.align(
-                                    structures[0], structures[1]);
-                            final Structure[] aligned = output.getStructures();
+                    itemSave.setEnabled(true);
+                    itemSave.setText("Save results (TXT)");
 
-                            SwingUtilities.invokeLater(new Runnable() {
-                                private static final String JMOL_SCRIPT = "frame 0.0; "
-                                        + "cartoon only; "
-                                        + "select model=1.1; color green; "
-                                        + "select model=1.2; color red; ";
-
-                                @Override
-                                public void run() {
-                                    StringBuilder builder = new StringBuilder();
-                                    builder.append("MODEL        1                                                                  \n");
-                                    builder.append(aligned[0].toPDB());
-                                    builder.append("ENDMDL                                                                          \n");
-                                    builder.append("MODEL        2                                                                  \n");
-                                    builder.append(aligned[1].toPDB());
-                                    builder.append("ENDMDL                                                                          \n");
-                                    resultAlignStruc = builder.toString();
-
-                                    JmolViewer viewer = panelJmolLeft
-                                            .getViewer();
-                                    viewer.openStringInline(builder.toString());
-                                    panelJmolLeft.executeCmd(JMOL_SCRIPT);
-
-                                    builder = new StringBuilder();
-                                    builder.append("MODEL        1                                                                  \n");
-                                    builder.append(aligned[2].toPDB());
-                                    builder.append("ENDMDL                                                                          \n");
-                                    builder.append("MODEL        2                                                                  \n");
-                                    builder.append(aligned[3].toPDB());
-                                    builder.append("ENDMDL                                                                          \n");
-
-                                    viewer = panelJmolRight.getViewer();
-                                    viewer.openStringInline(builder.toString());
-                                    panelJmolRight.executeCmd(JMOL_SCRIPT);
-
-                                    itemSave.setEnabled(true);
-                                    itemSave.setText("Save results (PDB)");
-                                }
-                            });
-                        } catch (StructureException e1) {
-                            MainWindow.LOGGER.error(
-                                    "Failed to align structures", e1);
-                            JOptionPane.showMessageDialog(getParent(),
-                                    e1.getMessage(), "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                        } finally {
-                            timer.stop();
-
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    File[] pdbs = new File[] {
-                                            chainDialog.selectedStructures[0],
-                                            chainDialog.selectedStructures[1] };
-                                    String[] names = new String[] {
-                                            PdbManager
-                                                    .getStructureName(pdbs[0]),
-                                            PdbManager
-                                                    .getStructureName(pdbs[1]) };
-                                    labelInfoAlignStruc.setText("3D structure "
-                                            + "alignments results for "
-                                            + names[0] + " and " + names[1]);
-                                }
-                            });
-                        }
+                    File[] pdbs = new File[] {
+                            chainDialog.selectedStructures[0],
+                            chainDialog.selectedStructures[1] };
+                    String[] names = new String[] {
+                            PdbManager.getStructureName(pdbs[0]),
+                            PdbManager.getStructureName(pdbs[1]) };
+                    labelInfoAlignSeq.setText("Sequence alignment results for "
+                            + names[0] + " and " + names[1]);
+                } else {
+                    if (thread != null && thread.isAlive()) {
+                        JOptionPane.showMessageDialog(null,
+                                "3D structure alignment computation has not "
+                                        + "finished yet!", "Information",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        return;
                     }
-                });
-                thread.start();
+
+                    layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
+
+                    final Structure[] structures = new Structure[2];
+                    for (int i = 0; i < 2; i++) {
+                        structures[i] = new StructureImpl();
+                        structures[i].setChains(Arrays
+                                .asList(chainDialog.selectedChains[i]));
+                    }
+
+                    boolean isRNA = Helper.isNucleicAcid(structures[0]);
+                    if (isRNA != Helper.isNucleicAcid(structures[1])) {
+                        String message = "Cannot align structures: different molecular types";
+                        MainWindow.LOGGER.error(message);
+                        JOptionPane.showMessageDialog(null, message, "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    labelInfoAlignStruc.setText("Processing");
+                    final Timer timer = new Timer(250, new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent arg0) {
+                            String text = labelInfoAlignStruc.getText();
+                            int count = StringUtils.countMatches(text, ".");
+                            if (count < 5) {
+                                labelInfoAlignStruc.setText(text + ".");
+                            } else {
+                                labelInfoAlignStruc.setText("Processing");
+                            }
+                        }
+                    });
+                    timer.start();
+
+                    thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Helper.normalizeAtomNames(structures[0]);
+                                Helper.normalizeAtomNames(structures[1]);
+
+                                AlignmentOutput output = StructureAligner
+                                        .align(structures[0], structures[1]);
+                                final Structure[] aligned = output
+                                        .getStructures();
+
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    private static final String JMOL_SCRIPT = "frame 0.0; "
+                                            + "cartoon only; "
+                                            + "select model=1.1; color green; "
+                                            + "select model=1.2; color red; ";
+
+                                    @Override
+                                    public void run() {
+                                        StringBuilder builder = new StringBuilder();
+                                        builder.append("MODEL        1                                                                  \n");
+                                        builder.append(aligned[0].toPDB());
+                                        builder.append("ENDMDL                                                                          \n");
+                                        builder.append("MODEL        2                                                                  \n");
+                                        builder.append(aligned[1].toPDB());
+                                        builder.append("ENDMDL                                                                          \n");
+                                        resultAlignStruc = builder.toString();
+
+                                        JmolViewer viewer = panelJmolLeft
+                                                .getViewer();
+                                        viewer.openStringInline(builder
+                                                .toString());
+                                        panelJmolLeft.executeCmd(JMOL_SCRIPT);
+
+                                        builder = new StringBuilder();
+                                        builder.append("MODEL        1                                                                  \n");
+                                        builder.append(aligned[2].toPDB());
+                                        builder.append("ENDMDL                                                                          \n");
+                                        builder.append("MODEL        2                                                                  \n");
+                                        builder.append(aligned[3].toPDB());
+                                        builder.append("ENDMDL                                                                          \n");
+
+                                        viewer = panelJmolRight.getViewer();
+                                        viewer.openStringInline(builder
+                                                .toString());
+                                        panelJmolRight.executeCmd(JMOL_SCRIPT);
+
+                                        itemSave.setEnabled(true);
+                                        itemSave.setText("Save results (PDB)");
+                                    }
+                                });
+                            } catch (StructureException e1) {
+                                MainWindow.LOGGER.error(
+                                        "Failed to align structures", e1);
+                                JOptionPane.showMessageDialog(getParent(),
+                                        e1.getMessage(), "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            } finally {
+                                timer.stop();
+
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        File[] pdbs = new File[] {
+                                                chainDialog.selectedStructures[0],
+                                                chainDialog.selectedStructures[1] };
+                                        String[] names = new String[] {
+                                                PdbManager
+                                                        .getStructureName(pdbs[0]),
+                                                PdbManager
+                                                        .getStructureName(pdbs[1]) };
+                                        labelInfoAlignStruc
+                                                .setText("3D structure "
+                                                        + "alignments results for "
+                                                        + names[0] + " and "
+                                                        + names[1]);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    thread.start();
+
+                }
             }
         });
 
