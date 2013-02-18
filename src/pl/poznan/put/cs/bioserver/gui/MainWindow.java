@@ -369,19 +369,21 @@ class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Component current = MainWindow.getCurrentCard(panelCards);
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD-HH-mm");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
                 Date now = new Date();
 
                 File proposedName = null;
+                String name1 = PdbManager
+                        .getStructureName(chainDialog.selectedStructures[0]);
+                String name2 = PdbManager
+                        .getStructureName(chainDialog.selectedStructures[1]);
                 if (current.equals(panelResultsGlobal)) {
                     proposedName = new File(sdf.format(now) + "-global.csv");
                 } else {
                     StringBuilder builder = new StringBuilder();
-                    builder.append(PdbManager
-                            .getStructureName(chainDialog.selectedStructures[0]));
+                    builder.append(name1);
                     builder.append('-');
-                    builder.append(PdbManager
-                            .getStructureName(chainDialog.selectedStructures[1]));
+                    builder.append(name2);
 
                     if (current.equals(panelResultsLocal)) {
                         proposedName = new File(sdf.format(now) + "-local-"
@@ -411,7 +413,16 @@ class MainWindow extends JFrame {
                 } else if (current.equals(panelResultsAlignSeq)) {
                     try (FileOutputStream stream = new FileOutputStream(
                             chooserSaveFile.getSelectedFile())) {
-                        // TODO: output structure names
+                        // FIXME: this information should be remembered before!
+                        String type = radioAlignSeqGlobal.isSelected() ? "Global"
+                                : "Local";
+                        String info = String.format(
+                                "%s alignment of %s.%s and %s.%s\n\n", type,
+                                name1,
+                                chainDialog.selectedChains[0][0].getChainID(),
+                                name2,
+                                chainDialog.selectedChains[1][0].getChainID());
+                        stream.write(info.getBytes("UTF-8"));
                         stream.write(resultAlignSeq.getBytes("UTF-8"));
                     } catch (IOException e1) {
                         MainWindow.LOGGER.error(
