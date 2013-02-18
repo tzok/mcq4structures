@@ -762,8 +762,7 @@ class MainWindow extends JFrame {
 
                 boolean isRNA = Helper.isNucleicAcid(chains[0]);
                 if (isRNA != Helper.isNucleicAcid(chains[1])) {
-                    String message = "Structures meant to be aligned "
-                            + "represent different molecule types!";
+                    String message = "Cannot align structures: different molecular types";
                     MainWindow.LOGGER.error(message);
                     JOptionPane.showMessageDialog(null, message, "Error",
                             JOptionPane.ERROR_MESSAGE);
@@ -803,8 +802,7 @@ class MainWindow extends JFrame {
 
                 boolean isRNA = Helper.isNucleicAcid(structures[0]);
                 if (isRNA != Helper.isNucleicAcid(structures[1])) {
-                    String message = "Structures meant to be aligned "
-                            + "represent different molecule types!";
+                    String message = "Cannot align structures: different molecular types";
                     MainWindow.LOGGER.error(message);
                     JOptionPane.showMessageDialog(null, message, "Error",
                             JOptionPane.ERROR_MESSAGE);

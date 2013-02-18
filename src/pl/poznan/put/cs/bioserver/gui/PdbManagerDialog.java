@@ -111,7 +111,7 @@ public class PdbManagerDialog extends JDialog {
                     PdbManagerDialog.MODEL.addElement(path);
                 } else {
                     JOptionPane.showMessageDialog(PdbManagerDialog.this,
-                            "Failed to fetch PDB structure: " + pdbId, "Error",
+                            "Failed to download " + pdbId + " from the Protein Data Bank", "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
