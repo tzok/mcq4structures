@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui;
+package pl.poznan.put.cs.bioserver.gui.windows;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -11,8 +11,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -29,36 +32,82 @@ import javax.swing.event.ListSelectionListener;
 
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
-class StructureSelectionDialog extends JDialog {
+class DialogStructures extends JDialog {
     public static final int OK = 0;
     public static final int CANCEL = 1;
     private static final long serialVersionUID = 1L;
-    private static StructureSelectionDialog INSTANCE;
 
-    public static StructureSelectionDialog getInstance(Frame owner) {
-        if (StructureSelectionDialog.INSTANCE == null) {
-            StructureSelectionDialog.INSTANCE = new StructureSelectionDialog(
-                    owner);
+    private static int chosenOption;
+    private static DialogStructures instance;
+    private static DefaultListModel<File> modelAll;
+    private static DefaultListModel<File> modelSelected;
+    private static File[] selectedStructures;
+
+    private static void fillCollection(Enumeration<File> enumeration,
+            Collection<File> collection) {
+        while (enumeration.hasMoreElements()) {
+            collection.add(enumeration.nextElement());
         }
-        return StructureSelectionDialog.INSTANCE;
     }
 
-    public int chosenOption;
-    List<File> selectedStructures;
-    DefaultListModel<File> modelAll;
-    DefaultListModel<File> modelSelected;
+    public static DialogStructures getInstance(Frame owner) {
+        if (DialogStructures.instance == null) {
+            DialogStructures.instance = new DialogStructures(
+                    owner);
+        }
+        return DialogStructures.instance;
+    }
 
-    private StructureSelectionDialog(Frame owner) {
+    public static File[] getFiles() {
+        return DialogStructures.selectedStructures;
+    }
+
+    public static int showDialog() {
+        Set<File> setManager = PdbManager.getAllStructures();
+        Set<File> setLeft = new HashSet<>();
+        Set<File> setRight = new HashSet<>();
+
+        DialogStructures.fillCollection(
+                DialogStructures.modelAll.elements(), setLeft);
+        DialogStructures.fillCollection(
+                DialogStructures.modelSelected.elements(), setRight);
+
+        Set<File> set = new HashSet<>(setLeft);
+        set.removeAll(setManager);
+        for (File file : set) {
+            DialogStructures.modelAll.removeElement(file);
+        }
+
+        set = new HashSet<>(setRight);
+        set.removeAll(setManager);
+        for (File file : set) {
+            DialogStructures.modelSelected.removeElement(file);
+        }
+
+        set = new HashSet<>(setLeft);
+        set.addAll(setRight);
+        setManager.removeAll(set);
+        for (File file : setManager) {
+            DialogStructures.modelAll.addElement(file);
+        }
+
+        DialogStructures.instance.setVisible(true);
+        return DialogStructures.chosenOption;
+    }
+
+    private DialogStructures(Frame owner) {
         super(owner, true);
 
-        modelAll = new DefaultListModel<>();
-        final JList<File> listAll = new JList<>(modelAll);
+        DialogStructures.modelAll = new DefaultListModel<>();
+        final JList<File> listAll = new JList<>(
+                DialogStructures.modelAll);
         listAll.setBorder(BorderFactory
                 .createTitledBorder("Available structures"));
         final ListCellRenderer<? super File> renderer = listAll
                 .getCellRenderer();
-        modelSelected = new DefaultListModel<>();
-        final JList<File> listSelected = new JList<>(modelSelected);
+        DialogStructures.modelSelected = new DefaultListModel<>();
+        final JList<File> listSelected = new JList<>(
+                DialogStructures.modelSelected);
         listSelected.setBorder(BorderFactory
                 .createTitledBorder("Selected structures"));
 
@@ -69,7 +118,7 @@ class StructureSelectionDialog extends JDialog {
                     boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
-                label.setText(PdbManager.getStructureName(value));
+                label.setText(PdbManager.getName(value));
                 return label;
             }
         };
@@ -166,7 +215,8 @@ class StructureSelectionDialog extends JDialog {
                     isSelect = true;
                 } else if (source.equals(buttonSelectAll)) {
                     values = new ArrayList<>();
-                    Enumeration<File> elements = modelAll.elements();
+                    Enumeration<File> elements = DialogStructures.modelAll
+                            .elements();
                     while (elements.hasMoreElements()) {
                         values.add(elements.nextElement());
                     }
@@ -176,7 +226,8 @@ class StructureSelectionDialog extends JDialog {
                     isSelect = false;
                 } else { // source.equals(buttonSelectAll)
                     values = new ArrayList<>();
-                    Enumeration<File> elements = modelSelected.elements();
+                    Enumeration<File> elements = DialogStructures.modelSelected
+                            .elements();
                     while (elements.hasMoreElements()) {
                         values.add(elements.nextElement());
                     }
@@ -185,11 +236,11 @@ class StructureSelectionDialog extends JDialog {
 
                 for (File f : values) {
                     if (isSelect) {
-                        modelAll.removeElement(f);
-                        modelSelected.addElement(f);
+                        DialogStructures.modelAll.removeElement(f);
+                        DialogStructures.modelSelected.addElement(f);
                     } else {
-                        modelAll.addElement(f);
-                        modelSelected.removeElement(f);
+                        DialogStructures.modelAll.addElement(f);
+                        DialogStructures.modelSelected.removeElement(f);
                     }
                 }
             }
@@ -202,12 +253,13 @@ class StructureSelectionDialog extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedStructures = new ArrayList<>();
-                Enumeration<File> elements = modelSelected.elements();
-                while (elements.hasMoreElements()) {
-                    selectedStructures.add(elements.nextElement());
-                }
-                chosenOption = StructureSelectionDialog.OK;
+                List<File> list = new ArrayList<>();
+                DialogStructures.fillCollection(
+                        DialogStructures.modelSelected.elements(), list);
+                DialogStructures.selectedStructures = list
+                        .toArray(new File[list.size()]);
+
+                DialogStructures.chosenOption = DialogStructures.OK;
                 dispose();
             }
         });
@@ -215,7 +267,7 @@ class StructureSelectionDialog extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                chosenOption = StructureSelectionDialog.CANCEL;
+                DialogStructures.chosenOption = DialogStructures.CANCEL;
                 dispose();
             }
         });

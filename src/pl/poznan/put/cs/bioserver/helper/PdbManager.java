@@ -3,8 +3,8 @@ package pl.poznan.put.cs.bioserver.helper;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
@@ -24,22 +24,22 @@ public final class PdbManager {
     private static final Map<Structure, String> MAP_STRUCTURE_NAME = new HashMap<>();
     private static PDBFileReader pdbReader = new PDBFileReader();
 
-    public static Structure[] getSelectedStructures(List<File> files) {
-        int size = files.size();
-        Structure[] structures = new Structure[size];
-        for (int i = 0; i < size; i++) {
-            File path = files.get(i);
-            structures[i] = PdbManager.MAP_PATH_STRUCTURE.get(path);
+    public static Set<File> getAllStructures() {
+        return PdbManager.MAP_PATH_NAME.keySet();
+    }
+
+    public static Structure[] getSelectedStructures(File[] files) {
+        Structure[] structures = new Structure[files.length];
+        for (int i = 0; i < files.length; i++) {
+            structures[i] = PdbManager.MAP_PATH_STRUCTURE.get(files[i]);
         }
         return structures;
     }
 
-    public static String[] getSelectedStructuresNames(List<File> files) {
-        int size = files.size();
-        String[] names = new String[size];
-        for (int i = 0; i < size; i++) {
-            File path = files.get(i);
-            names[i] = PdbManager.MAP_PATH_NAME.get(path);
+    public static String[] getSelectedStructuresNames(File[] files) {
+        String[] names = new String[files.length];
+        for (int i = 0; i < files.length; i++) {
+            names[i] = PdbManager.MAP_PATH_NAME.get(files[i]);
         }
         return names;
     }
@@ -48,7 +48,7 @@ public final class PdbManager {
         return PdbManager.MAP_PATH_STRUCTURE.get(file);
     }
 
-    public static String getStructureName(File path) {
+    public static String getName(File path) {
         return PdbManager.MAP_PATH_NAME.get(path);
     }
 

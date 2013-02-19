@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui;
+package pl.poznan.put.cs.bioserver.gui.windows;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -20,24 +21,25 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import pl.poznan.put.cs.bioserver.gui.PdbFileChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
-public class PdbManagerDialog extends JDialog {
+public class DialogPdbs extends JDialog {
     private static final long serialVersionUID = 1L;
-    public static final DefaultListModel<File> MODEL = new DefaultListModel<>();
-    private static PdbManagerDialog INSTANCE;
+    private static final DefaultListModel<File> MODEL = new DefaultListModel<>();
+    private static DialogPdbs INSTANCE;
 
-    public static PdbManagerDialog getInstance(Frame owner) {
-        if (PdbManagerDialog.INSTANCE == null) {
-            PdbManagerDialog.INSTANCE = new PdbManagerDialog(owner);
+    public static DialogPdbs getInstance(Frame owner) {
+        if (DialogPdbs.INSTANCE == null) {
+            DialogPdbs.INSTANCE = new DialogPdbs(owner);
         }
-        return PdbManagerDialog.INSTANCE;
+        return DialogPdbs.INSTANCE;
     }
 
-    private PdbManagerDialog(Frame parent) {
+    private DialogPdbs(Frame parent) {
         super(parent);
 
-        final JList<File> list = new JList<>(PdbManagerDialog.MODEL);
+        final JList<File> list = new JList<>(DialogPdbs.MODEL);
         list.setBorder(BorderFactory
                 .createTitledBorder("List of open structures"));
 
@@ -82,10 +84,10 @@ public class PdbManagerDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 File[] files = PdbFileChooser
-                        .getSelectedFiles(PdbManagerDialog.this);
+                        .getSelectedFiles(DialogPdbs.this);
                 for (File f : files) {
                     if (PdbManager.loadStructure(f) != null) {
-                        PdbManagerDialog.MODEL.addElement(f);
+                        DialogPdbs.MODEL.addElement(f);
                     }
                 }
             }
@@ -97,7 +99,7 @@ public class PdbManagerDialog extends JDialog {
                 List<File> selected = list.getSelectedValuesList();
                 for (File f : selected) {
                     PdbManager.remove(f);
-                    PdbManagerDialog.MODEL.removeElement(f);
+                    DialogPdbs.MODEL.removeElement(f);
                 }
             }
         });
@@ -108,14 +110,24 @@ public class PdbManagerDialog extends JDialog {
                 String pdbId = fieldPdbId.getText();
                 File path = PdbManager.loadStructure(pdbId);
                 if (path != null) {
-                    PdbManagerDialog.MODEL.addElement(path);
+                    DialogPdbs.MODEL.addElement(path);
                 } else {
-                    JOptionPane.showMessageDialog(PdbManagerDialog.this,
+                    JOptionPane.showMessageDialog(DialogPdbs.this,
                             "Failed to download " + pdbId
                                     + " from the Protein Data Bank", "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
+    }
+
+    public static void loadStructure(File file) {
+        if (PdbManager.loadStructure(file) != null) {
+            DialogPdbs.MODEL.addElement(file);
+        }
+    }
+
+    public static Enumeration<File> getElements() {
+        return DialogPdbs.MODEL.elements();
     }
 }

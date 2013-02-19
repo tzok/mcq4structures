@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui;
+package pl.poznan.put.cs.bioserver.gui.windows;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -17,9 +17,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-class TorsionAnglesSelectionDialog extends JDialog {
+class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
-    private static TorsionAnglesSelectionDialog INSTANCE;
+    private static DialogAngles INSTANCE;
     private static final String[] AMINO_NAMES = new String[] { "Φ (phi)",
             "Ψ (psi)", "Ω (omega)", "Average" };
     private static final String[] AMINO_CODES = new String[] { "PHI", "PSI",
@@ -32,27 +32,27 @@ class TorsionAnglesSelectionDialog extends JDialog {
             "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
             "TAU2", "TAU3", "TAU4", "P", "AVERAGE" };
     
-    public static TorsionAnglesSelectionDialog getInstance(Frame owner) {
-        if (TorsionAnglesSelectionDialog.INSTANCE == null) {
-            TorsionAnglesSelectionDialog.INSTANCE = new TorsionAnglesSelectionDialog(
+    public static DialogAngles getInstance(Frame owner) {
+        if (DialogAngles.INSTANCE == null) {
+            DialogAngles.INSTANCE = new DialogAngles(
                     owner);
         }
-        return TorsionAnglesSelectionDialog.INSTANCE;
+        return DialogAngles.INSTANCE;
     }
 
     List<String> selectedNames;
 
-    private TorsionAnglesSelectionDialog(Frame owner) {
+    private DialogAngles(Frame owner) {
         super(owner, true);
 
         JPanel panelAnglesAmino = new JPanel();
         panelAnglesAmino.setLayout(new BoxLayout(panelAnglesAmino,
                 BoxLayout.Y_AXIS));
 
-        final JCheckBox[] checksAmino = new JCheckBox[TorsionAnglesSelectionDialog.AMINO_NAMES.length];
-        for (int i = 0; i < TorsionAnglesSelectionDialog.AMINO_NAMES.length; i++) {
+        final JCheckBox[] checksAmino = new JCheckBox[DialogAngles.AMINO_NAMES.length];
+        for (int i = 0; i < DialogAngles.AMINO_NAMES.length; i++) {
             JCheckBox checkBox = new JCheckBox(
-                    TorsionAnglesSelectionDialog.AMINO_NAMES[i]);
+                    DialogAngles.AMINO_NAMES[i]);
             checksAmino[i] = checkBox;
             panelAnglesAmino.add(checkBox);
         }
@@ -75,10 +75,10 @@ class TorsionAnglesSelectionDialog extends JDialog {
         panelAnglesNucleic.setLayout(new BoxLayout(panelAnglesNucleic,
                 BoxLayout.Y_AXIS));
 
-        final JCheckBox[] checksNucleic = new JCheckBox[TorsionAnglesSelectionDialog.NUCLEIC_NAMES.length];
-        for (int i = 0; i < TorsionAnglesSelectionDialog.NUCLEIC_NAMES.length; i++) {
+        final JCheckBox[] checksNucleic = new JCheckBox[DialogAngles.NUCLEIC_NAMES.length];
+        for (int i = 0; i < DialogAngles.NUCLEIC_NAMES.length; i++) {
             JCheckBox checkBox = new JCheckBox(
-                    TorsionAnglesSelectionDialog.NUCLEIC_NAMES[i]);
+                    DialogAngles.NUCLEIC_NAMES[i]);
             checksNucleic[i] = checkBox;
             panelAnglesNucleic.add(checkBox);
         }
@@ -153,8 +153,8 @@ class TorsionAnglesSelectionDialog extends JDialog {
                 JCheckBox[][] checkBoxes = new JCheckBox[][] { checksAmino,
                         checksNucleic };
                 String[][] codes = new String[][] {
-                        TorsionAnglesSelectionDialog.AMINO_CODES,
-                        TorsionAnglesSelectionDialog.NUCLEIC_CODES };
+                        DialogAngles.AMINO_CODES,
+                        DialogAngles.NUCLEIC_CODES };
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < checkBoxes[i].length; j++) {
                         if (checkBoxes[i][j].isSelected()) {

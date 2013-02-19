@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui;
+package pl.poznan.put.cs.bioserver.gui.windows;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -28,12 +28,12 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AboutDialog extends JDialog {
+public class DialogAbout extends JDialog {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(AboutDialog.class);
+            .getLogger(DialogAbout.class);
 
-    public AboutDialog(Frame owner) {
+    public DialogAbout(Frame owner) {
         super(owner, true);
 
         JEditorPane editorPane = new JEditorPane();
@@ -45,7 +45,7 @@ public class AboutDialog extends JDialog {
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
         } catch (IOException e) {
-            AboutDialog.LOGGER.error("Failed to load 'About' text", e);
+            DialogAbout.LOGGER.error("Failed to load 'About' text", e);
         }
 
         BufferedImage image = null;
@@ -56,7 +56,7 @@ public class AboutDialog extends JDialog {
             image = ImageIO.read(resource);
             labelImage = new JLabel(new ImageIcon(image));
         } catch (IOException e) {
-            AboutDialog.LOGGER.error("Failed to load RABIT logo image", e);
+            DialogAbout.LOGGER.error("Failed to load RABIT logo image", e);
         }
 
         JButton buttonClose = new JButton("Close");
@@ -91,7 +91,7 @@ public class AboutDialog extends JDialog {
                         try {
                             Desktop.getDesktop().browse(e.getURL().toURI());
                         } catch (IOException | URISyntaxException e1) {
-                            AboutDialog.LOGGER.error("Failed to browse URL: "
+                            DialogAbout.LOGGER.error("Failed to browse URL: "
                                     + e.getURL(), e1);
                         }
                     }
