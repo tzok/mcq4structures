@@ -78,7 +78,6 @@ public class MainWindow extends JFrame {
 
     private JFileChooser chooserSaveFile;
     private DialogPdbs managerDialog;
-    private DialogAngles torsionDialog;
 
     private Exportable exportableResults;
     private Thread threadAlignment;
@@ -132,7 +131,7 @@ public class MainWindow extends JFrame {
         managerDialog.setVisible(true);
         DialogStructures.getInstance(this);
         DialogChains.getInstance(this);
-        torsionDialog = DialogAngles.getInstance(this);
+        DialogAngles.getInstance(this);
 
         /*
          * Create menu
@@ -231,8 +230,7 @@ public class MainWindow extends JFrame {
          * Create panel with global comparison results
          */
         JPanel panel;
-        labelInfoMatrix = new JLabel(
-                "Global/local comparison results: matrix");
+        labelInfoMatrix = new JLabel("Global/local comparison results: matrix");
         tableMatrix = new JTable();
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
@@ -383,7 +381,7 @@ public class MainWindow extends JFrame {
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                torsionDialog.setVisible(true);
+                DialogAngles.selectAngles();
             }
         });
 

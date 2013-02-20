@@ -101,12 +101,9 @@ class DialogAngles extends JDialog {
         panelOptions.add(panelAmino);
 
         JButton buttonOk = new JButton("OK");
-        // FIXME: Cancel button necessary?
-        // JButton buttonCancel = new JButton("Cancel");
 
         JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
-        // panelOkCancel.add(buttonCancel);
 
         setLayout(new BorderLayout());
         add(panelOptions, BorderLayout.CENTER);
@@ -167,14 +164,6 @@ class DialogAngles extends JDialog {
             }
         });
 
-        // buttonCancel.addActionListener(new ActionListener() {
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // selectedNames = null;
-        // dispose();
-        // }
-        // });
-
         pack();
         int width = getPreferredSize().width;
         int height = getPreferredSize().height;
@@ -190,5 +179,9 @@ class DialogAngles extends JDialog {
 
     public static String[] getAngles() {
         return DialogAngles.selectedNames;
+    }
+
+    public static void selectAngles() {
+        DialogAngles.INSTANCE.setVisible(true);
     }
 }
