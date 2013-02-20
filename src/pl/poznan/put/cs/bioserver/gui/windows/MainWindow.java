@@ -232,7 +232,7 @@ public class MainWindow extends JFrame {
          */
         JPanel panel;
         labelInfoMatrix = new JLabel(
-                "Global comparison results: distance matrix");
+                "Global/local comparison results: matrix");
         tableMatrix = new JTable();
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);

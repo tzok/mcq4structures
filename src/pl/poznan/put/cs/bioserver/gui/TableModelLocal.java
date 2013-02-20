@@ -1,6 +1,8 @@
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -158,7 +160,11 @@ public class TableModelLocal extends AbstractTableModel implements
         JFrame frame = new JFrame();
         frame.setLayout(new BorderLayout());
         frame.add(new ChartPanel(new JFreeChart(plot)));
-        frame.setSize(640, 480);
+        
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension size = toolkit.getScreenSize();
+        frame.setSize(size.width * 2 / 3, size.height * 2 / 3);
+        frame.setLocation(size.width / 6, size.height / 6);
         frame.setVisible(true);
     }
 
