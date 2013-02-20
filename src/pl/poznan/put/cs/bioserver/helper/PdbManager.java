@@ -28,7 +28,7 @@ public final class PdbManager {
         return PdbManager.MAP_PATH_NAME.keySet();
     }
 
-    public static Structure[] getSelectedStructures(File[] files) {
+    public static Structure[] getStructures(File[] files) {
         Structure[] structures = new Structure[files.length];
         for (int i = 0; i < files.length; i++) {
             structures[i] = PdbManager.MAP_PATH_STRUCTURE.get(files[i]);
@@ -36,7 +36,7 @@ public final class PdbManager {
         return structures;
     }
 
-    public static String[] getSelectedStructuresNames(File[] files) {
+    public static String[] getNames(File[] files) {
         String[] names = new String[files.length];
         for (int i = 0; i < files.length; i++) {
             names[i] = PdbManager.MAP_PATH_NAME.get(files[i]);

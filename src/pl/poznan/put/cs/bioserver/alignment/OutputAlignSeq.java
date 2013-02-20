@@ -1,5 +1,7 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
+import java.io.File;
+
 import org.apache.commons.lang3.StringUtils;
 import org.biojava3.alignment.template.AbstractPairwiseSequenceAligner;
 import org.biojava3.alignment.template.AlignedSequence;
@@ -7,7 +9,9 @@ import org.biojava3.alignment.template.SequencePair;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
-public class OutputAlignSeq {
+import pl.poznan.put.cs.bioserver.helper.Exportable;
+
+public class OutputAlignSeq implements Exportable {
     private static void generateLine(StringBuilder builder, char[] chars, int i) {
         int j = i;
         while (j < i + 60 && j < chars.length) {
@@ -93,5 +97,17 @@ public class OutputAlignSeq {
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public File suggestName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void export(File file) {
+        // TODO Auto-generated method stub
+        
     }
 }

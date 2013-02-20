@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,13 +17,15 @@ import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.align.model.AFPChain;
 import org.biojava.bio.structure.jama.Matrix;
 
+import pl.poznan.put.cs.bioserver.helper.Exportable;
+
 /**
  * A class that holds the results of structural alignment.
  * 
  * @author tzok
  * 
  */
-public class AlignmentOutput {
+public class AlignmentOutput implements Exportable {
     private Structure s1;
     private Structure s2;
     private Atom[][] atoms;
@@ -135,5 +138,17 @@ public class AlignmentOutput {
     @Override
     public String toString() {
         return afpChain.toString();
+    }
+
+    @Override
+    public File suggestName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void export(File file) {
+        // TODO Auto-generated method stub
+        
     }
 }

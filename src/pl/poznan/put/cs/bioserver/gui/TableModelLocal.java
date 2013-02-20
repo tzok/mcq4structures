@@ -1,6 +1,8 @@
 package pl.poznan.put.cs.bioserver.gui;
 
+import java.awt.BorderLayout;
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,10 +11,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.swing.JFrame;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.biojava.bio.structure.ResidueNumber;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
@@ -25,9 +34,12 @@ public class TableModelLocal extends AbstractTableModel implements
     private double[][] values;
     private String[] columnNames;
     private String[] rowsNames;
+    private Set<String> setAngles;
 
-    public TableModelLocal(Map<String, List<AngleDifference>> results) {
+    public TableModelLocal(Map<String, List<AngleDifference>> results,
+            String[] angles) {
         super();
+        this.setAngles = new LinkedHashSet<>(Arrays.asList(angles));
 
         Set<String> setNames = new LinkedHashSet<>();
         Set<ResidueNumber> setResidues = new TreeSet<>();
@@ -41,6 +53,10 @@ public class TableModelLocal extends AbstractTableModel implements
                 }
 
                 String name = difference.getAngleName();
+                if (!setAngles.contains(name)) {
+                    continue;
+                }
+
                 ResidueNumber residue = difference.getResidue();
                 MultiKey key = new MultiKey(name, residue);
                 setNames.add(name);
@@ -113,14 +129,43 @@ public class TableModelLocal extends AbstractTableModel implements
 
     @Override
     public void visualize() {
-        // TODO Auto-generated method stub
-        
+        double[] x = new double[rowCount];
+        for (int i = 0; i < rowCount; i++) {
+            x[i] = i;
+        }
+        double[][] y = new double[columnCount][rowCount];
+        for (int i = 0; i < columnCount; i++) {
+            y[i] = new double[rowCount];
+            for (int j = 0; j < rowCount; j++) {
+                y[i][j] = values[j][i];
+            }
+        }
+
+        DefaultXYDataset dataset = new DefaultXYDataset();
+        for (int i = 0; i < y.length - 1; i++) {
+            dataset.addSeries(columnNames[i + 1], new double[][] { x, y[i] });
+        }
+
+        NumberAxis xAxis = new TorsionAxis(rowsNames);
+        xAxis.setLabel("Residue");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setAutoRange(false);
+        yAxis.setRange(0, Math.PI);
+        yAxis.setLabel("Distance [rad]");
+        XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
+                new DefaultXYItemRenderer());
+
+        JFrame frame = new JFrame();
+        frame.setLayout(new BorderLayout());
+        frame.add(new ChartPanel(new JFreeChart(plot)));
+        frame.setSize(640, 480);
+        frame.setVisible(true);
     }
 
     @Override
     public void export(File file) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
