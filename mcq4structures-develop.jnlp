@@ -18,6 +18,7 @@
         <jar href="biojava3-core-3.0.5.jar"/>
         <jar href="biojava3-structure-3.0.5.jar"/>
         <jar href="biojava3-structure-gui-3.0.5.jar"/>
+        <jar href="commons-collections.jar"/>
         <jar href="commons-io.jar"/>
         <jar href="commons-lang3-3.1.jar"/>
         <jar href="diffutils-1.2.1.jar"/>
