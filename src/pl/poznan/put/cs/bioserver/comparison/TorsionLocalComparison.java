@@ -79,7 +79,7 @@ public class TorsionLocalComparison extends LocalComparison {
 
             double mcq = MCQ.calculate(list);
             mcqAngles.add(new AngleDifference(residue, Double.NaN, Double.NaN,
-                    mcq, "MCQ"));
+                    mcq, "AVERAGE"));
         }
         return mcqAngles;
     }

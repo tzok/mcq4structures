@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui;
+package pl.poznan.put.cs.bioserver.gui.windows;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -18,12 +18,12 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class QuickGuideDialog extends JDialog {
+class DialogGuide extends JDialog {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(QuickGuideDialog.class);
+            .getLogger(DialogGuide.class);
 
-    QuickGuideDialog(Frame owner) {
+    DialogGuide(Frame owner) {
         super(owner, true);
 
         JEditorPane editorPane = new JEditorPane();
@@ -35,7 +35,7 @@ class QuickGuideDialog extends JDialog {
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
         } catch (IOException e) {
-            QuickGuideDialog.LOGGER.error("Failed to load quick guide text", e);
+            DialogGuide.LOGGER.error("Failed to load quick guide text", e);
         }
 
         JButton buttonClose = new JButton("Close");

@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui;
+package pl.poznan.put.cs.bioserver.gui.windows;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -33,28 +33,28 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
-class ChainSelectionDialog extends JDialog {
+class DialogChains extends JDialog {
     public static final int OK = 0;
     public static final int CANCEL = 1;
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(ChainSelectionDialog.class);
-    private static ChainSelectionDialog INSTANCE;
+            .getLogger(DialogChains.class);
+    private static DialogChains INSTANCE;
 
-    public static ChainSelectionDialog getInstance(Frame owner) {
-        if (ChainSelectionDialog.INSTANCE == null) {
-            ChainSelectionDialog.INSTANCE = new ChainSelectionDialog(owner);
+    public static DialogChains getInstance(Frame owner) {
+        if (DialogChains.INSTANCE == null) {
+            DialogChains.INSTANCE = new DialogChains(owner);
         }
-        return ChainSelectionDialog.INSTANCE;
+        return DialogChains.INSTANCE;
     }
 
-    public int chosenOption;
-    File[] selectedStructures;
-    Chain[][] selectedChains;
-    DefaultComboBoxModel<File> modelLeft;
-    DefaultComboBoxModel<File> modelRight;
+    private static int chosenOption;
+    private static File[] selectedStructures;
+    private static Chain[][] selectedChains;
+    private static DefaultComboBoxModel<File> modelLeft;
+    private static DefaultComboBoxModel<File> modelRight;
 
-    private ChainSelectionDialog(Frame owner) {
+    private DialogChains(Frame owner) {
         super(owner, true);
 
         modelLeft = new DefaultComboBoxModel<>();
@@ -119,7 +119,7 @@ class ChainSelectionDialog extends JDialog {
                     boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
-                label.setText(PdbManager.getStructureName(value));
+                label.setText(PdbManager.getName(value));
                 return label;
             }
         };
@@ -174,7 +174,7 @@ class ChainSelectionDialog extends JDialog {
                             try {
                                 list.add(structure.getChainByPDB(chainId));
                             } catch (StructureException e) {
-                                ChainSelectionDialog.LOGGER.error(
+                                DialogChains.LOGGER.error(
                                         "Failed to read chain " + chainId
                                                 + " from structure: " + pdb, e);
                             }
@@ -184,7 +184,7 @@ class ChainSelectionDialog extends JDialog {
                     selectedChains[i] = list.toArray(new Chain[list.size()]);
                 }
 
-                chosenOption = ChainSelectionDialog.OK;
+                chosenOption = DialogChains.OK;
                 dispose();
             }
         });
@@ -192,9 +192,35 @@ class ChainSelectionDialog extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                chosenOption = ChainSelectionDialog.CANCEL;
+                chosenOption = DialogChains.CANCEL;
                 dispose();
             }
         });
+    }
+
+    public static String[] getNames() {
+        return new String[] {
+                PdbManager.getName(selectedStructures[0]),
+                PdbManager.getName(selectedStructures[1]) };
+    }
+
+    public static int showDialog() {
+        modelLeft.removeAllElements();
+        modelRight.removeAllElements();
+        for (File file : PdbManager.getAllStructures()) {
+            modelLeft.addElement(file);
+            modelRight.addElement(file);
+        }
+
+        INSTANCE.setVisible(true);
+        return chosenOption;
+    }
+    
+    public static Chain[][] getChains() {
+        return selectedChains;
+    }
+    
+    public static File[] getFiles() {
+        return selectedStructures;
     }
 }

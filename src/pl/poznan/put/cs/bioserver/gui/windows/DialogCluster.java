@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui;
+package pl.poznan.put.cs.bioserver.gui.windows;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -22,10 +22,10 @@ import javax.swing.SpinnerNumberModel;
 import pl.poznan.put.cs.bioserver.clustering.HierarchicalPlot;
 import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
 
-class ClusteringDialog extends JDialog {
+public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    ClusteringDialog(final String[] structureNames,
+    public DialogCluster(final String[] structureNames,
             final double[][] comparisonResults) {
         super();
 
