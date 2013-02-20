@@ -122,4 +122,10 @@ public class TableModelLocal extends AbstractTableModel implements
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public File suggestName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

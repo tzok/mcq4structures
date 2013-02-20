@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import pl.poznan.put.cs.bioserver.gui.PdbFileChooser;
+import pl.poznan.put.cs.bioserver.gui.PdbChooser;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 public class DialogPdbs extends JDialog {
@@ -83,7 +83,7 @@ public class DialogPdbs extends JDialog {
         buttonOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                File[] files = PdbFileChooser
+                File[] files = PdbChooser
                         .getSelectedFiles(DialogPdbs.this);
                 for (File f : files) {
                     if (PdbManager.loadStructure(f) != null) {

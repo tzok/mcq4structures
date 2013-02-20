@@ -6,28 +6,28 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public final class PdbFileChooser {
+public final class PdbChooser {
     private static JFileChooser chooser;
 
     static {
-        PdbFileChooser.chooser = new JFileChooser();
-        PdbFileChooser.chooser
+        PdbChooser.chooser = new JFileChooser();
+        PdbChooser.chooser
                 .addChoosableFileFilter(new FileNameExtensionFilter(
                         "PDB file format", "pdb", "pdb1", "ent", "brk", "gz"));
-        PdbFileChooser.chooser
+        PdbChooser.chooser
                 .addChoosableFileFilter(new FileNameExtensionFilter(
                         "mmCIF file format", "cif", "gz"));
-        PdbFileChooser.chooser.setMultiSelectionEnabled(true);
+        PdbChooser.chooser.setMultiSelectionEnabled(true);
     }
 
     public static File[] getSelectedFiles(Component parent) {
-        int state = PdbFileChooser.chooser.showOpenDialog(parent);
+        int state = PdbChooser.chooser.showOpenDialog(parent);
         if (state == JFileChooser.APPROVE_OPTION) {
-            return PdbFileChooser.chooser.getSelectedFiles();
+            return PdbChooser.chooser.getSelectedFiles();
         }
         return new File[0];
     }
 
-    private PdbFileChooser() {
+    private PdbChooser() {
     }
 }

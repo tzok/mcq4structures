@@ -22,10 +22,10 @@ import javax.swing.SpinnerNumberModel;
 import pl.poznan.put.cs.bioserver.clustering.HierarchicalPlot;
 import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
 
-class DialogCluster extends JDialog {
+public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    DialogCluster(final String[] structureNames,
+    public DialogCluster(final String[] structureNames,
             final double[][] comparisonResults) {
         super();
 

@@ -15,9 +15,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,8 +47,6 @@ import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.jmol.api.JmolViewer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.OutputAlignSeq;
@@ -62,7 +58,7 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.gui.Clusterable;
-import pl.poznan.put.cs.bioserver.gui.PdbFileChooser;
+import pl.poznan.put.cs.bioserver.gui.PdbChooser;
 import pl.poznan.put.cs.bioserver.gui.TableModelGlobal;
 import pl.poznan.put.cs.bioserver.gui.TableModelLocal;
 import pl.poznan.put.cs.bioserver.gui.Visualizable;
@@ -72,10 +68,9 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 public class MainWindow extends JFrame {
-    private static final String TITLE = "MCQ4Structures: computing similarity of 3D RNA / protein structures";
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(MainWindow.class);
+    private static final String TITLE = "MCQ4Structures: computing similarity "
+            + "of 3D RNA / protein structures";
 
     private static final String CARD_MATRIX = "CARD_MATRIX";
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
@@ -254,19 +249,6 @@ public class MainWindow extends JFrame {
         panel.add(progressBar);
 
         /*
-         * Create panel with local comparison results
-         */
-        // final JLabel labelInfoLocal = new JLabel(
-        // "Local comparison results: distance plot");
-        // final JPanel panelLocalPlot = new JPanel(new GridLayout(1, 1));
-        //
-        // final JPanel panelResultsLocal = new JPanel(new BorderLayout());
-        // panel = new JPanel(new BorderLayout());
-        // panel.add(labelInfoLocal, BorderLayout.WEST);
-        // panelResultsLocal.add(panel, BorderLayout.NORTH);
-        // panelResultsLocal.add(panelLocalPlot, BorderLayout.CENTER);
-
-        /*
          * Create panel with sequence alignment
          */
         labelInfoAlignSeq = new JLabel("Sequence alignment results");
@@ -351,7 +333,7 @@ public class MainWindow extends JFrame {
         itemOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                File[] files = PdbFileChooser.getSelectedFiles(MainWindow.this);
+                File[] files = PdbChooser.getSelectedFiles(MainWindow.this);
                 for (File f : files) {
                     DialogPdbs.loadStructure(f);
                 }
@@ -361,68 +343,11 @@ public class MainWindow extends JFrame {
         itemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*
-                 * generate a proposition of filename for storing results
-                 */
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD-HH-mm");
-                String prefix = sdf.format(new Date());
-                File proposedName = null;
-                if (results instanceof TableModelGlobal) {
-                    proposedName = new File(prefix + "-global.csv");
-                } else {
-                    String[] names = DialogChains.getNames();
-                    prefix += String.format("-%s-%s", names[0], names[1]);
-                    if (results instanceof TableModelLocal) {
-                        proposedName = new File(prefix + "-local.csv");
-                        // } else if (current.equals(panelResultsAlignSeq)) {
-                        // proposedName = new File(prefix + "-alignseq.txt");
-                        // } else { // current.equals(panelResultsAlignStruc)
-                        // proposedName = new File(prefix + "-alignstruc.pdb");
-                    }
+                chooserSaveFile.setSelectedFile(results.suggestName());
+                int option = chooserSaveFile.showSaveDialog(MainWindow.this);
+                if (option == JFileChooser.APPROVE_OPTION) {
+                    results.export(chooserSaveFile.getSelectedFile());
                 }
-                /*
-                 * display the Save Dialog
-                 */
-                chooserSaveFile.setSelectedFile(proposedName);
-                int chosenOption = chooserSaveFile
-                        .showSaveDialog(MainWindow.this);
-                if (chosenOption != JFileChooser.APPROVE_OPTION) {
-                    return;
-                }
-                /*
-                 * export the results
-                 */
-                results.export(chooserSaveFile.getSelectedFile());
-                //
-                // Exportable exportable;
-                // if (current.equals(panelResultsGlobal)
-                // || current.equals(panelResultsLocal)) {
-                // exportable = (Exportable) tableMatrix.getModel();
-                // } else if (current.equals(panelResultsAlignSeq)) {
-                // try (FileOutputStream stream = new FileOutputStream(
-                // chooserSaveFile.getSelectedFile())) {
-                // // TODO: output structure names
-                // stream.write(resultAlignSeq.getBytes("UTF-8"));
-                // } catch (IOException e1) {
-                // MainWindow.LOGGER.error(
-                // "Failed to save aligned sequences", e1);
-                // JOptionPane.showMessageDialog(MainWindow.this,
-                // e1.getMessage(), "Error",
-                // JOptionPane.ERROR_MESSAGE);
-                // }
-                // } else { // current.equals(panelResultsAlignStruc)
-                // try (FileOutputStream stream = new FileOutputStream(
-                // chooserSaveFile.getSelectedFile())) {
-                // stream.write(resultAlignStruc.getBytes("UTF-8"));
-                // } catch (IOException e1) {
-                // MainWindow.LOGGER.error(
-                // "Failed to save PDB of aligned structures", e1);
-                // JOptionPane.showMessageDialog(MainWindow.this,
-                // e1.getMessage(), "Error",
-                // JOptionPane.ERROR_MESSAGE);
-                // }
-                // }
-                // model.export(chooserSaveFile.getSelectedFile());
             }
         });
 
@@ -499,26 +424,6 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent arg0) {
                 Clusterable clusterable = (Clusterable) tableMatrix.getModel();
                 clusterable.cluster();
-                // TableModelGlobal model = (TableModelGlobal) tableMatrix
-                // .getModel();
-                // String[] names = model.getNames();
-                // double[][] values = model.getValues();
-                //
-                // for (double[] value : values) {
-                // for (double element : value) {
-                // if (Double.isNaN(element)) {
-                // JOptionPane.showMessageDialog(MainWindow.this, ""
-                // + "Results cannot be visualized. Some "
-                // + "structures could not be compared.",
-                // "Error", JOptionPane.ERROR_MESSAGE);
-                // return;
-                // }
-                // }
-                // }
-                //
-                // DialogCluster dialogClustering = new DialogCluster(names,
-                // values);
-                // dialogClustering.setVisible(true);
             }
         });
 
@@ -552,20 +457,18 @@ public class MainWindow extends JFrame {
     }
 
     private void alignSequences() {
-        Chain chains[] = new Chain[] { DialogChains.getChains()[0][0],
-                DialogChains.getChains()[1][0] };
+        Chain[][] chains = DialogChains.getChains();
 
-        boolean isRNA = Helper.isNucleicAcid(chains[0]);
-        if (isRNA != Helper.isNucleicAcid(chains[1])) {
-            String message = "Cannot align structures: different molecular types";
-            MainWindow.LOGGER.error(message);
-            JOptionPane.showMessageDialog(null, message, "Error",
+        boolean isRNA = Helper.isNucleicAcid(chains[0][0]);
+        if (isRNA != Helper.isNucleicAcid(chains[1][0])) {
+            JOptionPane.showMessageDialog(this, "Cannot align structures: "
+                    + "different molecular types", "Error",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        OutputAlignSeq alignment = SequenceAligner.align(chains[0], chains[1],
-                radioAlignSeqGlobal.isSelected());
+        OutputAlignSeq alignment = SequenceAligner.align(chains[0][0],
+                chains[1][0], radioAlignSeqGlobal.isSelected());
         textAreaAlignSeq.setText(alignment.toString());
 
         itemSave.setEnabled(true);
@@ -598,9 +501,8 @@ public class MainWindow extends JFrame {
 
         boolean isRNA = Helper.isNucleicAcid(structures[0]);
         if (isRNA != Helper.isNucleicAcid(structures[1])) {
-            String message = "Cannot align structures: different molecular types";
-            MainWindow.LOGGER.error(message);
-            JOptionPane.showMessageDialog(null, message, "Error",
+            JOptionPane.showMessageDialog(this, "Cannot align structures: "
+                    + "different molecular types", "Error",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -668,9 +570,8 @@ public class MainWindow extends JFrame {
                         }
                     });
                 } catch (StructureException e1) {
-                    MainWindow.LOGGER.error("Failed to align structures", e1);
-                    JOptionPane.showMessageDialog(getParent(), e1.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 } finally {
                     timer.stop();
 
@@ -826,7 +727,6 @@ public class MainWindow extends JFrame {
     private ImageIcon loadIcon(String name) {
         URL resource = getClass().getResource(name);
         if (resource == null) {
-            MainWindow.LOGGER.error("Failed to load icon: " + name);
             return null;
         }
         return new ImageIcon(resource);
