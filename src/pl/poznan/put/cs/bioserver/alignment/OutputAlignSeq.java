@@ -81,7 +81,7 @@ public class OutputAlignSeq implements Exportable, Serializable {
 
     @Override
     public void export(File file) {
-        try (PrintWriter writer = new PrintWriter(file)) {
+        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             writer.write(isGlobal ? "Global" : "Local");
             writer.write(" sequence alignment: ");
             writer.write(names[0]);

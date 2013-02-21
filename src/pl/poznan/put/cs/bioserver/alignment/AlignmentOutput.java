@@ -58,7 +58,7 @@ public class AlignmentOutput implements Exportable {
     @Override
     public void export(File file) {
         Structure[] structures = getStructures();
-        try (PrintWriter writer = new PrintWriter(file)) {
+        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             writer.write("MODEL        1                                                                  \n");
             writer.write(structures[0].toPDB());
             writer.write("ENDMDL                                                                          \n");
