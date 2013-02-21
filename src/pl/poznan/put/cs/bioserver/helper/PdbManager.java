@@ -28,12 +28,12 @@ public final class PdbManager {
         return PdbManager.MAP_PATH_NAME.keySet();
     }
 
-    public static Structure[] getStructures(File[] files) {
-        Structure[] structures = new Structure[files.length];
-        for (int i = 0; i < files.length; i++) {
-            structures[i] = PdbManager.MAP_PATH_STRUCTURE.get(files[i]);
-        }
-        return structures;
+    public static String getName(File path) {
+        return PdbManager.MAP_PATH_NAME.get(path);
+    }
+
+    public static String getName(Structure structure) {
+        return PdbManager.MAP_STRUCTURE_NAME.get(structure);
     }
 
     public static String[] getNames(File[] files) {
@@ -44,16 +44,24 @@ public final class PdbManager {
         return names;
     }
 
+    public static String[] getNames(Structure[] structures) {
+        String[] names = new String[structures.length];
+        for (int i = 0; i < structures.length; i++) {
+            names[i] = PdbManager.MAP_STRUCTURE_NAME.get(structures[i]);
+        }
+        return names;
+    }
+
     public static Structure getStructure(File file) {
         return PdbManager.MAP_PATH_STRUCTURE.get(file);
     }
 
-    public static String getName(File path) {
-        return PdbManager.MAP_PATH_NAME.get(path);
-    }
-
-    public static String getStructureName(Structure structure) {
-        return PdbManager.MAP_STRUCTURE_NAME.get(structure);
+    public static Structure[] getStructures(File[] files) {
+        Structure[] structures = new Structure[files.length];
+        for (int i = 0; i < files.length; i++) {
+            structures[i] = PdbManager.MAP_PATH_STRUCTURE.get(files[i]);
+        }
+        return structures;
     }
 
     /**

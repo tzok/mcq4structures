@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
+import org.biojava.bio.structure.Structure;
 import org.biojava3.alignment.NeedlemanWunsch;
 import org.biojava3.alignment.SimpleGapPenalty;
 import org.biojava3.alignment.SmithWaterman;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
@@ -26,22 +28,22 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
  * @author tzok
  * 
  */
-public class SequenceAligner {
+public class AlignerSequence {
     private static Logger logger = LoggerFactory
-            .getLogger(SequenceAligner.class);
+            .getLogger(AlignerSequence.class);
 
     @SuppressWarnings("unchecked")
     public static OutputAlignSeq align(Chain c1, Chain c2, boolean isGlobal) {
         /*
          * Parse sequences
          */
-        Sequence<? extends Compound> query = SequenceAligner.getSequence(c1);
-        Sequence<? extends Compound> target = SequenceAligner.getSequence(c2);
+        Sequence<? extends Compound> query = AlignerSequence.getSequence(c1);
+        Sequence<? extends Compound> target = AlignerSequence.getSequence(c2);
         if (query.getLength() == 0 || target.getLength() == 0) {
-            SequenceAligner.logger.warn("At least one chain has 0 residues");
+            AlignerSequence.logger.warn("At least one chain has 0 residues");
             return null;
         }
-        SequenceAligner.logger.trace("Sequences to be aligned:\n" + query
+        AlignerSequence.logger.trace("Sequences to be aligned:\n" + query
                 + "\n" + target);
         /*
          * Prepare substitution matrices for the alignment
@@ -65,7 +67,13 @@ public class SequenceAligner {
         aligner.setTarget((Sequence<Compound>) target);
         aligner.setGapPenalty(new SimpleGapPenalty());
         aligner.setSubstitutionMatrix((SubstitutionMatrix<Compound>) matrix);
-        return new OutputAlignSeq(aligner);
+
+        Structure[] structures = new Structure[] { c1.getParent(),
+                c2.getParent() };
+        String[] names = PdbManager.getNames(structures);
+        names[0] += "." + c1.getChainID();
+        names[1] += "." + c2.getChainID();
+        return new OutputAlignSeq(aligner, names);
     }
 
     private static Sequence<? extends Compound> getSequence(Chain chain) {
@@ -80,7 +88,7 @@ public class SequenceAligner {
          * Iterate over the structure and prepare a sequence string in FASTA
          * format
          */
-        SequenceAligner.logger.debug("Failed to parse SEQRES from PDB file. "
+        AlignerSequence.logger.debug("Failed to parse SEQRES from PDB file. "
                 + "Will attempt to get sequence manually");
         StringBuilder builder = new StringBuilder();
         List<Group> list = new ArrayList<>();
@@ -98,7 +106,7 @@ public class SequenceAligner {
             }
         }
         String seqString = builder.toString();
-        SequenceAligner.logger.trace("Parsed sequence: " + seqString);
+        AlignerSequence.logger.trace("Parsed sequence: " + seqString);
         /*
          * Create a Sequence object in correct type
          */
@@ -110,6 +118,6 @@ public class SequenceAligner {
         return sequence;
     }
 
-    private SequenceAligner() {
+    private AlignerSequence() {
     }
 }

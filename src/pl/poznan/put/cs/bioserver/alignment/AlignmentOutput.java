@@ -1,6 +1,8 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +20,7 @@ import org.biojava.bio.structure.align.model.AFPChain;
 import org.biojava.bio.structure.jama.Matrix;
 
 import pl.poznan.put.cs.bioserver.helper.Exportable;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 
 /**
  * A class that holds the results of structural alignment.
@@ -50,6 +53,22 @@ public class AlignmentOutput implements Exportable {
         this.s1 = s1;
         this.s2 = s2;
         this.atoms = atoms.clone();
+    }
+
+    @Override
+    public void export(File file) {
+        Structure[] structures = getStructures();
+        try (PrintWriter writer = new PrintWriter(file)) {
+            writer.write("MODEL        1                                                                  \n");
+            writer.write(structures[0].toPDB());
+            writer.write("ENDMDL                                                                          \n");
+            writer.write("MODEL        2                                                                  \n");
+            writer.write(structures[1].toPDB());
+            writer.write("ENDMDL                                                                          \n");
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
     }
 
     public AFPChain getAFPChain() {
@@ -136,19 +155,18 @@ public class AlignmentOutput implements Exportable {
     }
 
     @Override
+    public File suggestName() {
+        String filename = Helper.getExportPrefix();
+        filename += "-structalign-";
+        filename += s1.getPDBCode();
+        filename += '-';
+        filename += s2.getPDBCode();
+        filename += ".pdb";
+        return new File(filename);
+    }
+
+    @Override
     public String toString() {
         return afpChain.toString();
-    }
-
-    @Override
-    public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void export(File file) {
-        // TODO Auto-generated method stub
-        
     }
 }

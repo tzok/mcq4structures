@@ -78,23 +78,6 @@ public final class DihedralAngles {
     /**
      * Calculate one dihedral angle value. By default use the atan method.
      * 
-     * @param a1
-     *            Atom 1.
-     * @param a2
-     *            Atom 2.
-     * @param a3
-     *            Atom 3.
-     * @param a4
-     *            Atom 4.
-     * @return Value of the torsion angle.
-     */
-    private static double calculateDihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
-        return DihedralAngles.calculateDihedralAtan(a1, a2, a3, a4);
-    }
-
-    /**
-     * Calculate one dihedral angle value. By default use the atan method.
-     * 
      * @param atoms
      *            A 4-tuple of atoms.
      * @return Value of the tosion angle.
@@ -138,35 +121,6 @@ public final class DihedralAngles {
             torp = -torp;
         }
         return torp;
-    }
-
-    /**
-     * Calculate one dihedral angle value for given four atoms.
-     * 
-     * @param a1
-     *            Atom 1.
-     * @param a2
-     *            Atom 2.
-     * @param a3
-     *            Atom 3.
-     * @param a4
-     *            Atom 4.
-     * @return Dihedral angle between atoms 1-4.
-     */
-    private static double calculateDihedralAtan(Atom a1, Atom a2, Atom a3,
-            Atom a4) {
-        if (a1 == null || a2 == null || a3 == null || a4 == null) {
-            return Double.NaN;
-        }
-
-        Vector3D v1 = new Vector3D(a1, a2);
-        Vector3D v2 = new Vector3D(a2, a3);
-        Vector3D v3 = new Vector3D(a3, a4);
-
-        Vector3D tmp1 = v1.cross(v2);
-        Vector3D tmp2 = v2.cross(v3);
-        Vector3D tmp3 = v1.scale(v2.length());
-        return Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
     }
 
     public static List<Quadruplet> getQuadruplets(Atom[] atoms,
@@ -240,14 +194,6 @@ public final class DihedralAngles {
         return filtered;
     }
 
-    private static Map<Atom, Integer> makeReverseMap(Atom[] atoms) {
-        Map<Atom, Integer> map = new HashMap<>();
-        for (int i = 0; i < atoms.length; i++) {
-            map.put(atoms[i], i);
-        }
-        return map;
-    }
-
     /**
      * Subtract two angles (circular values) and return the difference.
      * 
@@ -273,6 +219,60 @@ public final class DihedralAngles {
             diff = Math.min(diff, full - diff);
         }
         return diff;
+    }
+
+    /**
+     * Calculate one dihedral angle value. By default use the atan method.
+     * 
+     * @param a1
+     *            Atom 1.
+     * @param a2
+     *            Atom 2.
+     * @param a3
+     *            Atom 3.
+     * @param a4
+     *            Atom 4.
+     * @return Value of the torsion angle.
+     */
+    private static double calculateDihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
+        return DihedralAngles.calculateDihedralAtan(a1, a2, a3, a4);
+    }
+
+    /**
+     * Calculate one dihedral angle value for given four atoms.
+     * 
+     * @param a1
+     *            Atom 1.
+     * @param a2
+     *            Atom 2.
+     * @param a3
+     *            Atom 3.
+     * @param a4
+     *            Atom 4.
+     * @return Dihedral angle between atoms 1-4.
+     */
+    private static double calculateDihedralAtan(Atom a1, Atom a2, Atom a3,
+            Atom a4) {
+        if (a1 == null || a2 == null || a3 == null || a4 == null) {
+            return Double.NaN;
+        }
+
+        Vector3D v1 = new Vector3D(a1, a2);
+        Vector3D v2 = new Vector3D(a2, a3);
+        Vector3D v3 = new Vector3D(a3, a4);
+
+        Vector3D tmp1 = v1.cross(v2);
+        Vector3D tmp2 = v2.cross(v3);
+        Vector3D tmp3 = v1.scale(v2.length());
+        return Math.atan2(tmp3.dot(tmp2), tmp1.dot(tmp2));
+    }
+
+    private static Map<Atom, Integer> makeReverseMap(Atom[] atoms) {
+        Map<Atom, Integer> map = new HashMap<>();
+        for (int i = 0; i < atoms.length; i++) {
+            map.put(atoms[i], i);
+        }
+        return map;
     }
 
     private DihedralAngles() {

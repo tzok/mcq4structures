@@ -9,23 +9,6 @@ import org.biojava.bio.structure.jama.Matrix;
  * @author tzok
  */
 public final class MDS {
-    private static void checkSymmetry(double[][] distance) {
-        /*
-         * sanity check (symmetric, square matrix as input)
-         */
-        String msg = "Distance matrix is not symmetrical!";
-        for (int i = 0; i < distance.length; ++i) {
-            if (distance[i].length != distance.length) {
-                throw new IllegalArgumentException(msg);
-            }
-            for (int j = 0; j < distance[i].length; ++j) {
-                if (distance[i][j] != distance[j][i]) {
-                    throw new IllegalArgumentException(msg);
-                }
-            }
-        }
-    }
-
     /**
      * Calculate the Multidimensional Scaling. It gets a distance matrix and
      * creates a map of points in N-dimensions whose mutual distances correspond
@@ -129,6 +112,23 @@ public final class MDS {
             }
         }
         return x;
+    }
+
+    private static void checkSymmetry(double[][] distance) {
+        /*
+         * sanity check (symmetric, square matrix as input)
+         */
+        String msg = "Distance matrix is not symmetrical!";
+        for (int i = 0; i < distance.length; ++i) {
+            if (distance[i].length != distance.length) {
+                throw new IllegalArgumentException(msg);
+            }
+            for (int j = 0; j < distance[i].length; ++j) {
+                if (distance[i][j] != distance[j][i]) {
+                    throw new IllegalArgumentException(msg);
+                }
+            }
+        }
     }
 
     private MDS() {

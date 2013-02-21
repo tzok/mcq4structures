@@ -41,6 +41,21 @@ class DialogChains extends JDialog {
             .getLogger(DialogChains.class);
     private static DialogChains INSTANCE;
 
+    private static int chosenOption;
+
+    private static File[] selectedStructures;
+    private static Chain[][] selectedChains;
+    private static DefaultComboBoxModel<File> modelLeft;
+    private static DefaultComboBoxModel<File> modelRight;
+
+    public static Chain[][] getChains() {
+        return DialogChains.selectedChains;
+    }
+
+    public static File[] getFiles() {
+        return DialogChains.selectedStructures;
+    }
+
     public static DialogChains getInstance(Frame owner) {
         if (DialogChains.INSTANCE == null) {
             DialogChains.INSTANCE = new DialogChains(owner);
@@ -48,17 +63,30 @@ class DialogChains extends JDialog {
         return DialogChains.INSTANCE;
     }
 
-    private static int chosenOption;
-    private static File[] selectedStructures;
-    private static Chain[][] selectedChains;
-    private static DefaultComboBoxModel<File> modelLeft;
-    private static DefaultComboBoxModel<File> modelRight;
+    public static String[] getNames() {
+        return new String[] {
+                PdbManager.getName(DialogChains.selectedStructures[0]),
+                PdbManager.getName(DialogChains.selectedStructures[1]) };
+    }
+
+    public static int showDialog() {
+        DialogChains.modelLeft.removeAllElements();
+        DialogChains.modelRight.removeAllElements();
+        for (File file : PdbManager.getAllStructures()) {
+            DialogChains.modelLeft.addElement(file);
+            DialogChains.modelRight.addElement(file);
+        }
+
+        DialogChains.INSTANCE.setVisible(true);
+        return DialogChains.chosenOption;
+    }
 
     private DialogChains(Frame owner) {
         super(owner, true);
 
-        modelLeft = new DefaultComboBoxModel<>();
-        final JComboBox<File> comboLeft = new JComboBox<>(modelLeft);
+        DialogChains.modelLeft = new DefaultComboBoxModel<>();
+        final JComboBox<File> comboLeft = new JComboBox<>(
+                DialogChains.modelLeft);
         final JPanel panelChainsLeft = new JPanel();
         panelChainsLeft.setLayout(new BoxLayout(panelChainsLeft,
                 BoxLayout.Y_AXIS));
@@ -71,8 +99,9 @@ class DialogChains extends JDialog {
         panelLeft.add(panel, BorderLayout.NORTH);
         panelLeft.add(new JScrollPane(panelChainsLeft), BorderLayout.CENTER);
 
-        modelRight = new DefaultComboBoxModel<>();
-        final JComboBox<File> comboRight = new JComboBox<>(modelRight);
+        DialogChains.modelRight = new DefaultComboBoxModel<>();
+        final JComboBox<File> comboRight = new JComboBox<>(
+                DialogChains.modelRight);
         final JPanel panelChainsRight = new JPanel();
         panelChainsRight.setLayout(new BoxLayout(panelChainsRight,
                 BoxLayout.Y_AXIS));
@@ -161,8 +190,8 @@ class DialogChains extends JDialog {
                 JPanel[] panels = new JPanel[] { panelChainsLeft,
                         panelChainsRight };
 
-                selectedStructures = new File[2];
-                selectedChains = new Chain[2][];
+                DialogChains.selectedStructures = new File[2];
+                DialogChains.selectedChains = new Chain[2][];
                 for (int i = 0; i < 2; i++) {
                     List<Chain> list = new ArrayList<>();
                     File pdb = (File) combos[i].getSelectedItem();
@@ -180,11 +209,12 @@ class DialogChains extends JDialog {
                             }
                         }
                     }
-                    selectedStructures[i] = pdb;
-                    selectedChains[i] = list.toArray(new Chain[list.size()]);
+                    DialogChains.selectedStructures[i] = pdb;
+                    DialogChains.selectedChains[i] = list
+                            .toArray(new Chain[list.size()]);
                 }
 
-                chosenOption = DialogChains.OK;
+                DialogChains.chosenOption = DialogChains.OK;
                 dispose();
             }
         });
@@ -192,35 +222,9 @@ class DialogChains extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                chosenOption = DialogChains.CANCEL;
+                DialogChains.chosenOption = DialogChains.CANCEL;
                 dispose();
             }
         });
-    }
-
-    public static String[] getNames() {
-        return new String[] {
-                PdbManager.getName(selectedStructures[0]),
-                PdbManager.getName(selectedStructures[1]) };
-    }
-
-    public static int showDialog() {
-        modelLeft.removeAllElements();
-        modelRight.removeAllElements();
-        for (File file : PdbManager.getAllStructures()) {
-            modelLeft.addElement(file);
-            modelRight.addElement(file);
-        }
-
-        INSTANCE.setVisible(true);
-        return chosenOption;
-    }
-    
-    public static Chain[][] getChains() {
-        return selectedChains;
-    }
-    
-    public static File[] getFiles() {
-        return selectedStructures;
     }
 }

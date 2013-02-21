@@ -25,9 +25,9 @@ import pl.poznan.put.cs.bioserver.helper.PdbManager;
  * 
  * @author tzok
  */
-public final class StructureAligner {
+public final class AlignerStructure {
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(StructureAligner.class);
+            .getLogger(AlignerStructure.class);
     private static Map<AlignmentInput, AlignmentOutput> cache = new HashMap<>();
 
     /**
@@ -47,9 +47,9 @@ public final class StructureAligner {
          * Check if alignment was made before
          */
         AlignmentInput input = new AlignmentInput(s1, s2);
-        if (StructureAligner.cache.containsKey(input)) {
-            StructureAligner.LOGGER.info("Reusing alignment data from cache");
-            return StructureAligner.cache.get(input);
+        if (AlignerStructure.cache.containsKey(input)) {
+            AlignerStructure.LOGGER.info("Reusing alignment data from cache");
+            return AlignerStructure.cache.get(input);
         }
 
         Atom[][] atoms = new Atom[2][];
@@ -61,7 +61,7 @@ public final class StructureAligner {
                     "P", "CA" });
             atoms[j] = list.toArray(new Atom[list.size()]);
             assert atoms[j].length != 0 : "There are no P or CA atoms in: "
-                    + PdbManager.getStructureName(structures[j]);
+                    + PdbManager.getName(structures[j]);
 
             for (int i = 0; i < atoms[j].length; i++) {
                 Atom atom = atoms[j][i];
@@ -94,11 +94,11 @@ public final class StructureAligner {
                 atom.setFullName(" P  ");
             }
             AlignmentOutput result = new AlignmentOutput(align, s1, s2, atoms);
-            StructureAligner.cache.put(input, result);
+            AlignerStructure.cache.put(input, result);
             return result;
         }
     }
 
-    private StructureAligner() {
+    private AlignerStructure() {
     }
 }

@@ -16,7 +16,7 @@ import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.io.PDBFileReader;
 
-import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
+import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
@@ -29,6 +29,89 @@ import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
  */
 public class TorsionLocalComparison extends LocalComparison {
     private static final int TAU_COUNT = 5;
+
+    /**
+     * Compare two structures.
+     * 
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @param alignFirst
+     *            Should atoms be aligned beforehand?
+     * @return A map of name of angle to the list of differences defined upon
+     *         it.
+     * @throws StructureException
+     *             If the alignment was impossible to be computed.
+     */
+    public static Map<String, List<AngleDifference>> compare(Structure s1,
+            Structure s2, boolean alignFirst) throws StructureException {
+        boolean wasAligned = alignFirst;
+        Atom[][] atoms;
+        if (alignFirst) {
+            atoms = AlignerStructure.align(s1, s2).getAtoms();
+        } else {
+            atoms = Helper.getCommonAtomArray(s1, s2, false);
+            if (atoms == null) {
+                atoms = Helper.getCommonAtomArray(s1, s2, true);
+                wasAligned = true;
+            }
+        }
+        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES,
+                wasAligned);
+    }
+
+    /**
+     * A command line wrapper to compare two structures locally.
+     * 
+     * @param args
+     *            Two paths to PDB files, then angle name (eg. MCQ), then
+     *            optionally two more arguments with chain names.
+     */
+    @SuppressWarnings("unchecked")
+    public static void main(String[] args) {
+        if (args.length != 2 && args.length != 3 && args.length != 5) {
+            System.out.println("ERROR");
+            System.out.println("Incorrect number of arguments provided");
+            return;
+        }
+
+        try {
+            PDBFileReader reader = new PDBFileReader();
+            Structure[] structures = new Structure[] {
+                    reader.getStructure(args[0]), reader.getStructure(args[1]) };
+            TorsionLocalComparison comparison = new TorsionLocalComparison();
+
+            Map<String, List<AngleDifference>> result;
+            if (args.length == 5) {
+                result = TorsionLocalComparison
+                        .compare(
+                                new StructureImpl(structures[0]
+                                        .getChainByPDB(args[3])),
+                                new StructureImpl(structures[1]
+                                        .getChainByPDB(args[4])), false);
+            } else {
+                result = (Map<String, List<AngleDifference>>) comparison
+                        .compare(structures[0], structures[1]);
+            }
+
+            String angleName = "AVERAGE";
+            if (args.length == 3 || args.length == 5) {
+                angleName = args[2];
+            }
+            List<AngleDifference> list = result.get(angleName);
+            AngleDifference[] array = list.toArray(new AngleDifference[list
+                    .size()]);
+            Arrays.sort(array);
+            for (AngleDifference ad : array) {
+                System.out.println(ad.getResidue() + " " + ad.getDifference());
+            }
+        } catch (IOException | IncomparableStructuresException
+                | StructureException e) {
+            System.out.println("ERROR");
+            System.out.println(e.getMessage());
+        }
+    }
 
     private static List<AngleDifference> calcAngleP(
             Map<ResidueNumber, AngleDifference[]> mapResToTaus) {
@@ -140,89 +223,6 @@ public class TorsionLocalComparison extends LocalComparison {
         mapNameToDiffs.put("AVERAGE",
                 TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs));
         return mapNameToDiffs;
-    }
-
-    /**
-     * Compare two structures.
-     * 
-     * @param s1
-     *            First structure.
-     * @param s2
-     *            Second structure.
-     * @param alignFirst
-     *            Should atoms be aligned beforehand?
-     * @return A map of name of angle to the list of differences defined upon
-     *         it.
-     * @throws StructureException
-     *             If the alignment was impossible to be computed.
-     */
-    public static Map<String, List<AngleDifference>> compare(Structure s1,
-            Structure s2, boolean alignFirst) throws StructureException {
-        boolean wasAligned = alignFirst;
-        Atom[][] atoms;
-        if (alignFirst) {
-            atoms = StructureAligner.align(s1, s2).getAtoms();
-        } else {
-            atoms = Helper.getCommonAtomArray(s1, s2, false);
-            if (atoms == null) {
-                atoms = Helper.getCommonAtomArray(s1, s2, true);
-                wasAligned = true;
-            }
-        }
-        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES,
-                wasAligned);
-    }
-
-    /**
-     * A command line wrapper to compare two structures locally.
-     * 
-     * @param args
-     *            Two paths to PDB files, then angle name (eg. MCQ), then
-     *            optionally two more arguments with chain names.
-     */
-    @SuppressWarnings("unchecked")
-    public static void main(String[] args) {
-        if (args.length != 2 && args.length != 3 && args.length != 5) {
-            System.out.println("ERROR");
-            System.out.println("Incorrect number of arguments provided");
-            return;
-        }
-
-        try {
-            PDBFileReader reader = new PDBFileReader();
-            Structure[] structures = new Structure[] {
-                    reader.getStructure(args[0]), reader.getStructure(args[1]) };
-            TorsionLocalComparison comparison = new TorsionLocalComparison();
-
-            Map<String, List<AngleDifference>> result;
-            if (args.length == 5) {
-                result = TorsionLocalComparison
-                        .compare(
-                                new StructureImpl(structures[0]
-                                        .getChainByPDB(args[3])),
-                                new StructureImpl(structures[1]
-                                        .getChainByPDB(args[4])), false);
-            } else {
-                result = (Map<String, List<AngleDifference>>) comparison
-                        .compare(structures[0], structures[1]);
-            }
-
-            String angleName = "AVERAGE";
-            if (args.length == 3 || args.length == 5) {
-                angleName = args[2];
-            }
-            List<AngleDifference> list = result.get(angleName);
-            AngleDifference[] array = list.toArray(new AngleDifference[list
-                    .size()]);
-            Arrays.sort(array);
-            for (AngleDifference ad : array) {
-                System.out.println(ad.getResidue() + " " + ad.getDifference());
-            }
-        } catch (IOException | IncomparableStructuresException
-                | StructureException e) {
-            System.out.println("ERROR");
-            System.out.println(e.getMessage());
-        }
     }
 
     @Override

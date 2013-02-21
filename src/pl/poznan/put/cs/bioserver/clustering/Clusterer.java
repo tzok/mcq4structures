@@ -19,6 +19,10 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class Clusterer {
+    private interface ScoringFunction {
+        double score(Map<Integer, Set<Integer>> clustering, double[][] matrix);
+    }
+
     protected static class Result {
         private Set<Integer> medoids;
         private double[][] matrix;
@@ -44,10 +48,6 @@ public final class Clusterer {
             }
             return result;
         }
-    }
-
-    private interface ScoringFunction {
-        double score(Map<Integer, Set<Integer>> clustering, double[][] matrix);
     }
 
     /** Available hierarchical clustering types. */
@@ -79,20 +79,8 @@ public final class Clusterer {
 
     private static final Random RANDOM = new Random();
 
-    static Result clusterPAM(double[][] matrix) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM);
-    }
-
-    static Result clusterPAM(double[][] matrix, int k) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM, k);
-    }
-
     public static Result clusterPAMSIL(double[][] matrix) {
         return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL);
-    }
-
-    static Result clusterPAMSIL(double[][] matrix, int k) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL, k);
     }
 
     private static Map<Integer, Set<Integer>> getClustering(
@@ -114,104 +102,6 @@ public final class Clusterer {
             set.add(i);
         }
         return clustering;
-    }
-
-    static List<List<Integer>> getClusters() {
-        return Clusterer.clusters;
-    }
-
-    /**
-     * Perform agglomerative, hierarchical clustering using SINGLE, COMPLETE or
-     * AVERAGE linkage.
-     * 
-     * @param matrix
-     *            Distance matrix.
-     * @param linkage
-     *            SINGLE, COMPLETE or AVERAGE.
-     * @return An array of triplets in form (A, B, d(A, B)), where A and B are
-     *         cluster IDs and d(A, B) is a scaled distance between them..
-     */
-    static int[][] hierarchicalClustering(double[][] matrix,
-            Clusterer.Type linkage) {
-        /*
-         * initialise clusters as single elements
-         */
-        Clusterer.clusters = new ArrayList<>();
-        for (int i = 0; i < matrix.length; ++i) {
-            List<Integer> c = new ArrayList<>();
-            c.add(i);
-            Clusterer.clusters.add(c);
-        }
-
-        List<int[]> result = new ArrayList<>();
-        while (Clusterer.clusters.size() > 1) {
-            /*
-             * get two clusters to be merged
-             */
-            int[] toMerge = new int[2];
-            double leastDiff = Double.POSITIVE_INFINITY;
-            for (int i = 0; i < Clusterer.clusters.size(); ++i) {
-                for (int j = i + 1; j < Clusterer.clusters.size(); ++j) {
-                    List<Integer> c1 = Clusterer.clusters.get(i);
-                    List<Integer> c2 = Clusterer.clusters.get(j);
-                    double delta = 0;
-
-                    switch (linkage) {
-                    case SINGLE:
-                        delta = Double.POSITIVE_INFINITY;
-                        for (int m : c1) {
-                            for (int n : c2) {
-                                if (matrix[m][n] < delta) {
-                                    delta = matrix[m][n];
-                                }
-                            }
-                        }
-                        break;
-                    case COMPLETE:
-                        delta = Double.NEGATIVE_INFINITY;
-                        for (int m : c1) {
-                            for (int n : c2) {
-                                if (matrix[m][n] > delta) {
-                                    delta = matrix[m][n];
-                                }
-                            }
-                        }
-                        break;
-                    case AVERAGE:
-                        int count = 0;
-                        for (int m : c1) {
-                            for (int n : c2) {
-                                delta += matrix[m][n];
-                                count++;
-                            }
-                        }
-                        delta /= count;
-                        break;
-                    default:
-                        // TODO: fill the default case
-                        break;
-                    }
-
-                    if (delta < leastDiff) {
-                        toMerge[0] = i;
-                        toMerge[1] = j;
-                        leastDiff = delta;
-                    }
-                }
-            }
-
-            /*
-             * merge clusters
-             */
-            List<Integer> c1 = Clusterer.clusters.get(toMerge[0]);
-            List<Integer> c2 = Clusterer.clusters.get(toMerge[1]);
-            c1.addAll(c2);
-            Clusterer.clusters.remove(toMerge[1]);
-
-            result.add(new int[] { toMerge[0], toMerge[1],
-                    (int) (1000.0 * leastDiff) });
-        }
-        return result.toArray(new int[result.size()][]);
     }
 
     private static Result kMedoids(double[][] matrix, ScoringFunction sf) {
@@ -348,6 +238,116 @@ public final class Clusterer {
         Map<Integer, Set<Integer>> clustering = Clusterer.getClustering(
                 medoids, matrix);
         return sf.score(clustering, matrix);
+    }
+
+    static Result clusterPAM(double[][] matrix) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM);
+    }
+
+    static Result clusterPAM(double[][] matrix, int k) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM, k);
+    }
+
+    static Result clusterPAMSIL(double[][] matrix, int k) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL, k);
+    }
+
+    static List<List<Integer>> getClusters() {
+        return Clusterer.clusters;
+    }
+
+    /**
+     * Perform agglomerative, hierarchical clustering using SINGLE, COMPLETE or
+     * AVERAGE linkage.
+     * 
+     * @param matrix
+     *            Distance matrix.
+     * @param linkage
+     *            SINGLE, COMPLETE or AVERAGE.
+     * @return An array of triplets in form (A, B, d(A, B)), where A and B are
+     *         cluster IDs and d(A, B) is a scaled distance between them..
+     */
+    static int[][] hierarchicalClustering(double[][] matrix,
+            Clusterer.Type linkage) {
+        /*
+         * initialise clusters as single elements
+         */
+        Clusterer.clusters = new ArrayList<>();
+        for (int i = 0; i < matrix.length; ++i) {
+            List<Integer> c = new ArrayList<>();
+            c.add(i);
+            Clusterer.clusters.add(c);
+        }
+
+        List<int[]> result = new ArrayList<>();
+        while (Clusterer.clusters.size() > 1) {
+            /*
+             * get two clusters to be merged
+             */
+            int[] toMerge = new int[2];
+            double leastDiff = Double.POSITIVE_INFINITY;
+            for (int i = 0; i < Clusterer.clusters.size(); ++i) {
+                for (int j = i + 1; j < Clusterer.clusters.size(); ++j) {
+                    List<Integer> c1 = Clusterer.clusters.get(i);
+                    List<Integer> c2 = Clusterer.clusters.get(j);
+                    double delta = 0;
+
+                    switch (linkage) {
+                    case SINGLE:
+                        delta = Double.POSITIVE_INFINITY;
+                        for (int m : c1) {
+                            for (int n : c2) {
+                                if (matrix[m][n] < delta) {
+                                    delta = matrix[m][n];
+                                }
+                            }
+                        }
+                        break;
+                    case COMPLETE:
+                        delta = Double.NEGATIVE_INFINITY;
+                        for (int m : c1) {
+                            for (int n : c2) {
+                                if (matrix[m][n] > delta) {
+                                    delta = matrix[m][n];
+                                }
+                            }
+                        }
+                        break;
+                    case AVERAGE:
+                        int count = 0;
+                        for (int m : c1) {
+                            for (int n : c2) {
+                                delta += matrix[m][n];
+                                count++;
+                            }
+                        }
+                        delta /= count;
+                        break;
+                    default:
+                        // TODO: fill the default case
+                        break;
+                    }
+
+                    if (delta < leastDiff) {
+                        toMerge[0] = i;
+                        toMerge[1] = j;
+                        leastDiff = delta;
+                    }
+                }
+            }
+
+            /*
+             * merge clusters
+             */
+            List<Integer> c1 = Clusterer.clusters.get(toMerge[0]);
+            List<Integer> c2 = Clusterer.clusters.get(toMerge[1]);
+            c1.addAll(c2);
+            Clusterer.clusters.remove(toMerge[1]);
+
+            result.add(new int[] { toMerge[0], toMerge[1],
+                    (int) (1000.0 * leastDiff) });
+        }
+        return result.toArray(new int[result.size()][]);
     }
 
     private Clusterer() {

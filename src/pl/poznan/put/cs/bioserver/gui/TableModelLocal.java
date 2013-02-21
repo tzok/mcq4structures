@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -26,7 +28,10 @@ import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.helper.Exportable;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+
+import com.csvreader.CsvWriter;
 
 public class TableModelLocal extends AbstractTableModel implements
         Visualizable, Exportable {
@@ -37,11 +42,13 @@ public class TableModelLocal extends AbstractTableModel implements
     private String[] columnNames;
     private String[] rowsNames;
     private Set<String> setAngles;
+    private String[] names;
 
     public TableModelLocal(Map<String, List<AngleDifference>> results,
-            String[] angles) {
+            String[] angles, String[] names) {
         super();
-        this.setAngles = new LinkedHashSet<>(Arrays.asList(angles));
+        setAngles = new LinkedHashSet<>(Arrays.asList(angles));
+        this.names = names.clone();
 
         Set<String> setNames = new LinkedHashSet<>();
         Set<ResidueNumber> setResidues = new TreeSet<>();
@@ -71,7 +78,7 @@ public class TableModelLocal extends AbstractTableModel implements
         columnCount = setNames.size() + 1;
 
         columnNames = new String[columnCount];
-        columnNames[0] = "Residue";
+        columnNames[0] = "Residue\\Angles";
         int i = 1;
         for (String name : setNames) {
             columnNames[i] = name;
@@ -107,8 +114,35 @@ public class TableModelLocal extends AbstractTableModel implements
     }
 
     @Override
+    public void export(File file) {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            CsvWriter csvWriter = new CsvWriter(writer, '\t');
+            for (String name : columnNames) {
+                csvWriter.write(name);
+            }
+            csvWriter.endRecord();
+
+            for (int i = 0; i < values.length; i++) {
+                csvWriter.write(rowsNames[i]);
+                for (int j = 0; j < values[i].length - 1; j++) {
+                    csvWriter.write(Double.toString(values[i][j]));
+                }
+                csvWriter.endRecord();
+            }
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public int getColumnCount() {
         return columnCount;
+    }
+
+    @Override
+    public String getColumnName(int column) {
+        return columnNames[column];
     }
 
     @Override
@@ -125,8 +159,14 @@ public class TableModelLocal extends AbstractTableModel implements
     }
 
     @Override
-    public String getColumnName(int column) {
-        return columnNames[column];
+    public File suggestName() {
+        String filename = Helper.getExportPrefix();
+        filename += "-localcmp-";
+        filename += names[0];
+        filename += '-';
+        filename += names[1];
+        filename += ".csv";
+        return new File(filename);
     }
 
     @Override
@@ -160,23 +200,11 @@ public class TableModelLocal extends AbstractTableModel implements
         JFrame frame = new JFrame();
         frame.setLayout(new BorderLayout());
         frame.add(new ChartPanel(new JFreeChart(plot)));
-        
+
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension size = toolkit.getScreenSize();
         frame.setSize(size.width * 2 / 3, size.height * 2 / 3);
         frame.setLocation(size.width / 6, size.height / 6);
         frame.setVisible(true);
-    }
-
-    @Override
-    public void export(File file) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

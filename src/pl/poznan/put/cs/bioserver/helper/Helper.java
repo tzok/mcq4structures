@@ -1,7 +1,9 @@
 package pl.poznan.put.cs.bioserver.helper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.biojava.bio.structure.Atom;
@@ -115,35 +117,6 @@ public final class Helper {
     }
 
     /**
-     * Extract atoms of given names from a list of groups.
-     * 
-     * @param groups
-     *            A list of groups (in most cases, a single chain).
-     * @param atomNames
-     *            An array of names to be accepted.
-     * @return A list of atoms.
-     */
-    private static List<Atom> getAtomArray(List<Group> groups,
-            String[] atomNames) {
-        List<Atom> list = new ArrayList<>();
-        for (Group g : groups) {
-            if (!(Helper.isNucleotide(g) || Helper.isAminoAcid(g))) {
-                continue;
-            }
-
-            for (String name : atomNames) {
-                try {
-                    Atom atom = g.getAtom(name);
-                    list.add(atom);
-                } catch (StructureException e) {
-                    // do nothing
-                }
-            }
-        }
-        return list;
-    }
-
-    /**
      * TODO
      * 
      * @param structure
@@ -157,32 +130,6 @@ public final class Helper {
             list.addAll(Helper.getAtomArray(c.getAtomGroups(), atomNames));
         }
         return list;
-    }
-
-    /**
-     * Get atoms needed for torsion angle analysis from both chains.
-     * 
-     * @param c1
-     *            First chain.
-     * @param c2
-     *            Second chain.
-     * @return Two arrays of atoms.
-     */
-    private static Atom[][] getCommonAtomArray(Chain c1, Chain c2) {
-        return Helper
-                .getCommonAtomArray(c1.getAtomGroups(), c2.getAtomGroups());
-    }
-
-    private static Atom[][] getCommonAtomArray(List<Group> g1, List<Group> g2) {
-        Helper.normalizeAtomNames(g1);
-        Helper.normalizeAtomNames(g2);
-
-        Atom[][] result = new Atom[2][];
-        List<Atom> list = Helper.getAtomArray(g1, Helper.USED_ATOMS);
-        result[0] = list.toArray(new Atom[list.size()]);
-        list = Helper.getAtomArray(g2, Helper.USED_ATOMS);
-        result[1] = list.toArray(new Atom[list.size()]);
-        return result;
     }
 
     /**
@@ -243,8 +190,9 @@ public final class Helper {
         return null;
     }
 
-    private static boolean isAminoAcid(Group g) {
-        return g.getType().equals("amino") || g.hasAminoAtoms();
+    public static String getExportPrefix() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+        return sdf.format(new Date());
     }
 
     public static boolean isNucleicAcid(Chain c) {
@@ -271,6 +219,77 @@ public final class Helper {
         return flag;
     }
 
+    /**
+     * Normalize the names of atoms i.e. change all asterisks into apostrophes.
+     * 
+     * @param s
+     *            Input structure.
+     */
+    public static void normalizeAtomNames(Structure s) {
+        for (Chain c : s.getChains()) {
+            Helper.normalizeAtomNames(c);
+        }
+    }
+
+    /**
+     * Extract atoms of given names from a list of groups.
+     * 
+     * @param groups
+     *            A list of groups (in most cases, a single chain).
+     * @param atomNames
+     *            An array of names to be accepted.
+     * @return A list of atoms.
+     */
+    private static List<Atom> getAtomArray(List<Group> groups,
+            String[] atomNames) {
+        List<Atom> list = new ArrayList<>();
+        for (Group g : groups) {
+            if (!(Helper.isNucleotide(g) || Helper.isAminoAcid(g))) {
+                continue;
+            }
+
+            for (String name : atomNames) {
+                try {
+                    Atom atom = g.getAtom(name);
+                    list.add(atom);
+                } catch (StructureException e) {
+                    // do nothing
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Get atoms needed for torsion angle analysis from both chains.
+     * 
+     * @param c1
+     *            First chain.
+     * @param c2
+     *            Second chain.
+     * @return Two arrays of atoms.
+     */
+    private static Atom[][] getCommonAtomArray(Chain c1, Chain c2) {
+        return Helper
+                .getCommonAtomArray(c1.getAtomGroups(), c2.getAtomGroups());
+    }
+
+    private static Atom[][] getCommonAtomArray(List<Group> g1, List<Group> g2) {
+        Helper.normalizeAtomNames(g1);
+        Helper.normalizeAtomNames(g2);
+
+        Atom[][] result = new Atom[2][];
+        List<Atom> list = Helper.getAtomArray(g1, Helper.USED_ATOMS);
+        result[0] = list.toArray(new Atom[list.size()]);
+        list = Helper.getAtomArray(g2, Helper.USED_ATOMS);
+        result[1] = list.toArray(new Atom[list.size()]);
+        return result;
+    }
+
+    private static boolean isAminoAcid(Group g) {
+        return g.getType().equals("amino") || g.hasAminoAtoms();
+    }
+
     private static boolean isNucleotide(Group g) {
         return g.getType().equals("nucleotide") || g.hasAtom("P");
     }
@@ -291,18 +310,6 @@ public final class Helper {
                 a.setName(a.getName().replace('*', '\''));
                 a.setFullName(a.getFullName().replace('*', '\''));
             }
-        }
-    }
-
-    /**
-     * Normalize the names of atoms i.e. change all asterisks into apostrophes.
-     * 
-     * @param s
-     *            Input structure.
-     */
-    public static void normalizeAtomNames(Structure s) {
-        for (Chain c : s.getChains()) {
-            Helper.normalizeAtomNames(c);
         }
     }
 

@@ -48,10 +48,10 @@ import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.jmol.api.JmolViewer;
 
+import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
+import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.OutputAlignSeq;
-import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
-import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
@@ -78,7 +78,6 @@ public class MainWindow extends JFrame {
 
     private JFileChooser chooserSaveFile;
     private DialogPdbs managerDialog;
-    private DialogAngles torsionDialog;
 
     private Exportable exportableResults;
     private Thread threadAlignment;
@@ -132,7 +131,7 @@ public class MainWindow extends JFrame {
         managerDialog.setVisible(true);
         DialogStructures.getInstance(this);
         DialogChains.getInstance(this);
-        torsionDialog = DialogAngles.getInstance(this);
+        DialogAngles.getInstance(this);
 
         /*
          * Create menu
@@ -231,8 +230,7 @@ public class MainWindow extends JFrame {
          * Create panel with global comparison results
          */
         JPanel panel;
-        labelInfoMatrix = new JLabel(
-                "Global/local comparison results: matrix");
+        labelInfoMatrix = new JLabel("Global/local comparison results: matrix");
         tableMatrix = new JTable();
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
@@ -383,7 +381,7 @@ public class MainWindow extends JFrame {
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                torsionDialog.setVisible(true);
+                DialogAngles.selectAngles();
             }
         });
 
@@ -469,7 +467,7 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        OutputAlignSeq alignment = SequenceAligner.align(chains[0][0],
+        OutputAlignSeq alignment = AlignerSequence.align(chains[0][0],
                 chains[1][0], radioAlignSeqGlobal.isSelected());
         exportableResults = alignment;
 
@@ -493,9 +491,12 @@ public class MainWindow extends JFrame {
         }
 
         final Structure[] structures = new Structure[2];
+        final File[] files = DialogChains.getFiles();
+        Chain[][] chains = DialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
-            structures[i].setChains(Arrays.asList(DialogChains.getChains()[i]));
+            structures[i].setChains(Arrays.asList(chains[i]));
+            structures[i].setPDBCode(PdbManager.getName(files[i]));
         }
 
         boolean isRNA = Helper.isNucleicAcid(structures[0]);
@@ -528,7 +529,7 @@ public class MainWindow extends JFrame {
                     Helper.normalizeAtomNames(structures[0]);
                     Helper.normalizeAtomNames(structures[1]);
 
-                    AlignmentOutput output = StructureAligner.align(
+                    AlignmentOutput output = AlignerStructure.align(
                             structures[0], structures[1]);
                     exportableResults = output;
 
@@ -614,7 +615,7 @@ public class MainWindow extends JFrame {
                     public void run() {
                         String[] names = PdbManager.getNames(files);
                         TableModelGlobal model = new TableModelGlobal(names,
-                                matrix);
+                                matrix, comparison);
                         exportableResults = model;
                         tableMatrix.setModel(model);
 
@@ -643,8 +644,10 @@ public class MainWindow extends JFrame {
         try {
             Map<String, List<AngleDifference>> result = TorsionLocalComparison
                     .compare(structures[0], structures[1], false);
+
+            File[] files = DialogChains.getFiles();
             TableModelLocal model = new TableModelLocal(result,
-                    DialogAngles.getAngles());
+                    DialogAngles.getAngles(), PdbManager.getNames(files));
             exportableResults = model;
             tableMatrix.setModel(model);
 
@@ -653,7 +656,6 @@ public class MainWindow extends JFrame {
             itemVisualise.setEnabled(true);
             itemCluster.setEnabled(false);
 
-            File[] files = DialogChains.getFiles();
             labelInfoMatrix.setText("Local comparison results for: "
                     + PdbManager.getName(files[0]) + " and "
                     + PdbManager.getName(files[1]));

@@ -29,11 +29,21 @@ public class DialogPdbs extends JDialog {
     private static final DefaultListModel<File> MODEL = new DefaultListModel<>();
     private static DialogPdbs INSTANCE;
 
+    public static Enumeration<File> getElements() {
+        return DialogPdbs.MODEL.elements();
+    }
+
     public static DialogPdbs getInstance(Frame owner) {
         if (DialogPdbs.INSTANCE == null) {
             DialogPdbs.INSTANCE = new DialogPdbs(owner);
         }
         return DialogPdbs.INSTANCE;
+    }
+
+    public static void loadStructure(File file) {
+        if (PdbManager.loadStructure(file) != null) {
+            DialogPdbs.MODEL.addElement(file);
+        }
     }
 
     private DialogPdbs(Frame parent) {
@@ -83,8 +93,7 @@ public class DialogPdbs extends JDialog {
         buttonOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                File[] files = PdbChooser
-                        .getSelectedFiles(DialogPdbs.this);
+                File[] files = PdbChooser.getSelectedFiles(DialogPdbs.this);
                 for (File f : files) {
                     if (PdbManager.loadStructure(f) != null) {
                         DialogPdbs.MODEL.addElement(f);
@@ -119,15 +128,5 @@ public class DialogPdbs extends JDialog {
                 }
             }
         });
-    }
-
-    public static void loadStructure(File file) {
-        if (PdbManager.loadStructure(file) != null) {
-            DialogPdbs.MODEL.addElement(file);
-        }
-    }
-
-    public static Enumeration<File> getElements() {
-        return DialogPdbs.MODEL.elements();
     }
 }

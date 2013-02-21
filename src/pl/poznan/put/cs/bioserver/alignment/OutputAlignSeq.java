@@ -1,8 +1,11 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.biojava3.alignment.NeedlemanWunsch;
 import org.biojava3.alignment.template.AbstractPairwiseSequenceAligner;
 import org.biojava3.alignment.template.AlignedSequence;
 import org.biojava3.alignment.template.SequencePair;
@@ -10,6 +13,7 @@ import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
 import pl.poznan.put.cs.bioserver.helper.Exportable;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 
 public class OutputAlignSeq implements Exportable {
     private static void generateLine(StringBuilder builder, char[] chars, int i) {
@@ -25,18 +29,22 @@ public class OutputAlignSeq implements Exportable {
 
     private String consensus;
     private AlignedSequence<Sequence<Compound>, Compound> query;
-
     private AlignedSequence<Sequence<Compound>, Compound> target;
+    private String[] names;
     public int score;
     public int minScore;
     public int maxScore;
     public double similarity;
     public int gaps;
-
     public int length;
+    private boolean isGlobal;
 
     public OutputAlignSeq(
-            AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner) {
+            AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner,
+            String[] names) {
+        isGlobal = aligner instanceof NeedlemanWunsch<?, ?>;
+        this.names = names.clone();
+
         SequencePair<Sequence<Compound>, Compound> pair = aligner.getPair();
         query = pair.getQuery();
         target = pair.getTarget();
@@ -69,6 +77,33 @@ public class OutputAlignSeq implements Exportable {
     }
 
     @Override
+    public void export(File file) {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            writer.write(isGlobal ? "Global" : "Local");
+            writer.write(" sequence alignment: ");
+            writer.write(names[0]);
+            writer.write(", ");
+            writer.write(names[1]);
+            writer.write("\n\n");
+            writer.write(toString());
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public File suggestName() {
+        String filename = Helper.getExportPrefix();
+        filename += "-seqalign-";
+        filename += names[0];
+        filename += '-';
+        filename += names[1];
+        filename += ".txt";
+        return new File(filename);
+    }
+
+    @Override
     public String toString() {
         char[] charsQuery = query.toString().toCharArray();
         char[] charsTarget = target.toString().toCharArray();
@@ -97,17 +132,5 @@ public class OutputAlignSeq implements Exportable {
         }
 
         return builder.toString();
-    }
-
-    @Override
-    public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void export(File file) {
-        // TODO Auto-generated method stub
-        
     }
 }
