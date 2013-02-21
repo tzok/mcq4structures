@@ -87,10 +87,6 @@ public class TableModelGlobal extends AbstractTableModel implements
         return names[column - 1];
     }
 
-    public String[] getNames() {
-        return names;
-    }
-
     @Override
     public int getRowCount() {
         return values.length;
@@ -102,10 +98,6 @@ public class TableModelGlobal extends AbstractTableModel implements
             return names[row];
         }
         return values[row][column - 1];
-    }
-
-    public double[][] getValues() {
-        return values;
     }
 
     @Override
