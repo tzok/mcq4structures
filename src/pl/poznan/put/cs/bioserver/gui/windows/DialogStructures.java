@@ -30,7 +30,7 @@ import javax.swing.event.ListSelectionListener;
 
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
-class DialogStructures extends JDialog {
+final class DialogStructures extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
     private static final long serialVersionUID = 1L;

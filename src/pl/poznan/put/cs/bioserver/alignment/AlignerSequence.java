@@ -28,7 +28,7 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
  * @author tzok
  * 
  */
-public class AlignerSequence {
+public final class AlignerSequence {
     private static Logger logger = LoggerFactory
             .getLogger(AlignerSequence.class);
 

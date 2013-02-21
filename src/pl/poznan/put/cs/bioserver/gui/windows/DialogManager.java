@@ -25,7 +25,7 @@ import javax.swing.JTextField;
 import pl.poznan.put.cs.bioserver.gui.PdbChooser;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
-public class DialogManager extends JDialog {
+public final class DialogManager extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private static DialogManager instance;

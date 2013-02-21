@@ -32,7 +32,7 @@ import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
-class DialogChains extends JDialog {
+final class DialogChains extends JDialog {
     private static final long serialVersionUID = 1L;
     public static final int CANCEL = 0;
     public static final int OK = 1;

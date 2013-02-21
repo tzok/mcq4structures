@@ -18,7 +18,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-class DialogAngles extends JDialog {
+final class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
     private static final String[] AMINO_NAMES = new String[] { "Φ (phi)",
             "Ψ (psi)", "Ω (omega)", "Average of all angles" };
