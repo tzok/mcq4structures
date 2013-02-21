@@ -116,13 +116,15 @@ public final class StructureManager {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(new GZIPInputStream(stream),
                                 "UTF-8"))) {
-                    return reader.readLine().startsWith("data_");
+                    String line = reader.readLine();
+                    return line != null && line.startsWith("data_");
                 }
             }
 
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(stream))) {
-                return reader.readLine().startsWith("data_");
+                String line = reader.readLine();
+                return line != null && line.startsWith("data_");
             }
         }
     }
