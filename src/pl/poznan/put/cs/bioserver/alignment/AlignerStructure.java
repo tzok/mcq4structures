@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 /**
  * A class that allows to computer structural alignment.
@@ -61,7 +61,7 @@ public final class AlignerStructure {
                     "P", "CA" });
             atoms[j] = list.toArray(new Atom[list.size()]);
             assert atoms[j].length != 0 : "There are no P or CA atoms in: "
-                    + PdbManager.getName(structures[j]);
+                    + StructureManager.getName(structures[j]);
 
             for (int i = 0; i < atoms[j].length; i++) {
                 Atom atom = atoms[j][i];

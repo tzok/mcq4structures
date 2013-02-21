@@ -22,7 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import pl.poznan.put.cs.bioserver.gui.PdbChooser;
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public class DialogPdbs extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -41,7 +41,7 @@ public class DialogPdbs extends JDialog {
     }
 
     public static void loadStructure(File file) {
-        if (PdbManager.loadStructure(file) != null) {
+        if (StructureManager.loadStructure(file) != null) {
             DialogPdbs.MODEL.addElement(file);
         }
     }
@@ -95,7 +95,7 @@ public class DialogPdbs extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 File[] files = PdbChooser.getSelectedFiles(DialogPdbs.this);
                 for (File f : files) {
-                    if (PdbManager.loadStructure(f) != null) {
+                    if (StructureManager.loadStructure(f) != null) {
                         DialogPdbs.MODEL.addElement(f);
                     }
                 }
@@ -107,7 +107,7 @@ public class DialogPdbs extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 List<File> selected = list.getSelectedValuesList();
                 for (File f : selected) {
-                    PdbManager.remove(f);
+                    StructureManager.remove(f);
                     DialogPdbs.MODEL.removeElement(f);
                 }
             }
@@ -117,7 +117,7 @@ public class DialogPdbs extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
-                File path = PdbManager.loadStructure(pdbId);
+                File path = StructureManager.loadStructure(pdbId);
                 if (path != null) {
                     DialogPdbs.MODEL.addElement(path);
                 } else {

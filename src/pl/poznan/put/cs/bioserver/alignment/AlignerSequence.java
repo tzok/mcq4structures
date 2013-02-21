@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
@@ -70,7 +70,7 @@ public class AlignerSequence {
 
         Structure[] structures = new Structure[] { c1.getParent(),
                 c2.getParent() };
-        String[] names = PdbManager.getNames(structures);
+        String[] names = StructureManager.getNames(structures);
         names[0] += "." + c1.getChainID();
         names[1] += "." + c2.getChainID();
         return new OutputAlignSeq(aligner, names);

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 /**
  * Implementation of RMSD global similarity measure.
@@ -44,7 +44,7 @@ public class RMSD extends GlobalComparison {
         }
         List<Structure> list = new ArrayList<>();
         for (String arg : args) {
-            list.add(PdbManager.loadStructure(new File(arg)));
+            list.add(StructureManager.loadStructure(new File(arg)));
         }
 
         RMSD rmsd = new RMSD();
