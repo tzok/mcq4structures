@@ -33,8 +33,8 @@ import javax.swing.event.ListSelectionListener;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 class DialogStructures extends JDialog {
-    public static final int OK = 0;
-    public static final int CANCEL = 1;
+    public static final int CANCEL = 0;
+    public static final int OK = 1;
     private static final long serialVersionUID = 1L;
 
     private static int chosenOption;
@@ -83,6 +83,7 @@ class DialogStructures extends JDialog {
             DialogStructures.modelAll.addElement(file);
         }
 
+        DialogStructures.chosenOption = DialogStructures.CANCEL;
         DialogStructures.instance.setVisible(true);
         return DialogStructures.chosenOption;
     }

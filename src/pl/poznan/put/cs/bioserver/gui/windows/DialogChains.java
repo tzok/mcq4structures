@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 class DialogChains extends JDialog {
-    public static final int OK = 0;
-    public static final int CANCEL = 1;
+    public static final int CANCEL = 0;
+    public static final int OK = 1;
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DialogChains.class);
@@ -77,6 +77,7 @@ class DialogChains extends JDialog {
             DialogChains.modelRight.addElement(file);
         }
 
+        DialogChains.chosenOption = DialogChains.CANCEL;
         DialogChains.INSTANCE.setVisible(true);
         return DialogChains.chosenOption;
     }

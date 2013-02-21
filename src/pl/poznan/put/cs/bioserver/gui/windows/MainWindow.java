@@ -743,5 +743,7 @@ public class MainWindow extends JFrame {
         tableMatrix.setModel(new DefaultTableModel());
         itemSave.setEnabled(false);
         itemComputeDistances.setEnabled(true);
+        itemVisualise.setEnabled(false);
+        itemCluster.setEnabled(false);
     }
 }
