@@ -122,7 +122,7 @@ public final class StructureManager {
             }
 
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream))) {
+                    new InputStreamReader(stream, "UTF-8"))) {
                 String line = reader.readLine();
                 return line != null && line.startsWith("data_");
             }
@@ -145,7 +145,7 @@ public final class StructureManager {
             }
 
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream))) {
+                    new InputStreamReader(stream, "UTF-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("ATOM")) {
