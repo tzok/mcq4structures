@@ -694,10 +694,14 @@ public class MainWindow extends JFrame {
             tableMatrix.setModel(new DefaultTableModel());
             layoutCards.show(panelCards, MainWindow.CARD_MATRIX);
 
+            itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
+
+            labelInfoMatrix.setText("Structures selected for local "
+                    + "comparison: " + DialogChains.getSelectionDescription());
         } else if (radioAlignSeqGlobal.isSelected()
                 || radioAlignSeqLocal.isSelected()) {
             if (chains[0].length != 1 || chains[1].length != 1) {
@@ -711,19 +715,27 @@ public class MainWindow extends JFrame {
             textAreaAlignSeq.setText("");
             layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
+            itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
+
+            labelInfoAlignSeq.setText("Structures selected for sequence "
+                    + "alignment: " + DialogChains.getSelectionDescription());
         } else { // source.equals(itemSelectChainsAlignStruc)
             panelJmolLeft.executeCmd("restore state " + "state_init");
             panelJmolRight.executeCmd("restore state " + "state_init");
             layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
 
+            itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
+
+            labelInfoAlignSeq.setText("Structures selected for 3D structure "
+                    + "alignment: " + DialogChains.getSelectionDescription());
         }
     }
 
@@ -740,11 +752,15 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        layoutCards.show(panelCards, MainWindow.CARD_MATRIX);
         tableMatrix.setModel(new DefaultTableModel());
+        layoutCards.show(panelCards, MainWindow.CARD_MATRIX);
+
         itemSave.setEnabled(false);
         itemComputeDistances.setEnabled(true);
         itemVisualise.setEnabled(false);
         itemCluster.setEnabled(false);
+
+        labelInfoMatrix.setText("Structures selected for global comparison: "
+                + DialogStructures.getSelectionDescription());
     }
 }

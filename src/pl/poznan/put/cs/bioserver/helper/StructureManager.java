@@ -187,8 +187,10 @@ public final class StructureManager {
         String name = structure.getPDBCode();
         if (name == null || name.trim().equals("")) {
             name = file.getName();
-            if (name.endsWith(".pdb")) {
+            if (name.endsWith(".pdb") || name.endsWith(".cif")) {
                 name = name.substring(0, name.length() - 4);
+            } else if (name.endsWith(".pdb.gz") || name.endsWith(".cif.gz")) {
+                name = name.substring(0, name.length() - 7);
             }
             structure.setPDBCode(name);
         }

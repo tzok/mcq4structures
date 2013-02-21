@@ -54,6 +54,18 @@ class DialogStructures extends JDialog {
         return DialogStructures.instance;
     }
 
+    public static String getSelectionDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < DialogStructures.selectedStructures.length; i++) {
+            builder.append(StructureManager
+                    .getName(DialogStructures.selectedStructures[i]));
+            if (i != DialogStructures.selectedStructures.length - 1) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
     public static int showDialog() {
         Set<File> setManager = StructureManager.getAllStructures();
         Set<File> setLeft = new HashSet<>();

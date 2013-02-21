@@ -28,7 +28,7 @@ public class TableModelGlobal extends AbstractTableModel implements
         super();
         this.names = names.clone();
         this.values = values.clone();
-        this.measure = measure.toString();
+        this.measure = "Global " + measure.toString();
     }
 
     @Override

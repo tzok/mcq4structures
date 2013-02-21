@@ -22,13 +22,13 @@ class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
     private static DialogAngles INSTANCE;
     private static final String[] AMINO_NAMES = new String[] { "Φ (phi)",
-            "Ψ (psi)", "Ω (omega)", "Average" };
+            "Ψ (psi)", "Ω (omega)", "Average of all angles" };
     private static final String[] AMINO_CODES = new String[] { "PHI", "PSI",
             "OMEGA", "AVERAGE" };
     private static final String[] NUCLEIC_NAMES = new String[] { "α (alpha)",
             "β (beta)", "γ (gamma)", "δ (delta)", "ε (epsilon)", "ζ (zeta)",
             "χ (chi)", "τ0 (tau0)", "τ1 (tau1)", "τ2 (tau2)", "τ3 (tau3)",
-            "τ4 (tau4)", "P (sugar pucker)", "Average" };
+            "τ4 (tau4)", "P (sugar pucker)", "Average of all angles" };
     private static final String[] NUCLEIC_CODES = new String[] { "ALPHA",
             "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
             "TAU2", "TAU3", "TAU4", "P", "AVERAGE" };

@@ -69,6 +69,22 @@ class DialogChains extends JDialog {
                 StructureManager.getName(DialogChains.selectedStructures[1]) };
     }
 
+    public static String getSelectionDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 2; i++) {
+            builder.append(StructureManager
+                    .getName(DialogChains.selectedStructures[i]));
+            builder.append('.');
+            for (Chain chain : DialogChains.selectedChains[i]) {
+                builder.append(chain.getChainID());
+            }
+            if (i == 0) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
     public static int showDialog() {
         DialogChains.modelLeft.removeAllElements();
         DialogChains.modelRight.removeAllElements();
