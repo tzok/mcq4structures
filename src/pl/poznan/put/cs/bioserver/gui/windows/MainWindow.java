@@ -77,6 +77,7 @@ public class MainWindow extends JFrame {
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
 
     private JFileChooser chooserSaveFile;
+    private DialogStructures dialogStructures;
     private DialogPdbs managerDialog;
 
     private Exportable exportableResults;
@@ -129,7 +130,7 @@ public class MainWindow extends JFrame {
         chooserSaveFile = new JFileChooser();
         managerDialog = DialogPdbs.getInstance(this);
         managerDialog.setVisible(true);
-        DialogStructures.getInstance(this);
+        dialogStructures = DialogStructures.getInstance(this);
         DialogChains.getInstance(this);
         DialogAngles.getInstance(this);
 
@@ -606,7 +607,7 @@ public class MainWindow extends JFrame {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final File[] files = DialogStructures.getFiles();
+                final File[] files = dialogStructures.getFiles();
                 Structure[] structures = StructureManager.getStructures(files);
 
                 final double[][] matrix = comparison.compare(structures,
@@ -634,7 +635,7 @@ public class MainWindow extends JFrame {
 
                         labelInfoMatrix.setText("<html>"
                                 + "Structures selected for global distance measure: "
-                                + DialogStructures.getSelectionDescription()
+                                + dialogStructures.getSelectionDescription()
                                 + "<br>"
                                 + "Global comparison results: distance matrix ("
                                 + comparison.toString() + ")" + "</html>");
@@ -754,10 +755,10 @@ public class MainWindow extends JFrame {
     }
 
     private void selectStructures() {
-        if (DialogStructures.showDialog() != DialogStructures.OK) {
+        if (dialogStructures.showDialog() != DialogStructures.OK) {
             return;
         }
-        File[] files = DialogStructures.getFiles();
+        File[] files = dialogStructures.getFiles();
         if (files == null || files.length < 2) {
             JOptionPane.showMessageDialog(MainWindow.this, "At "
                     + "least two structures must be selected to "
@@ -775,6 +776,6 @@ public class MainWindow extends JFrame {
         itemCluster.setEnabled(false);
 
         labelInfoMatrix.setText("Structures selected for global distance "
-                + "measure: " + DialogStructures.getSelectionDescription());
+                + "measure: " + dialogStructures.getSelectionDescription());
     }
 }
