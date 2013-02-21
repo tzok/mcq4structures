@@ -49,6 +49,9 @@ import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.jmol.api.JmolViewer;
 
+import darrylbu.component.StayOpenCheckBoxMenuItem;
+import darrylbu.component.StayOpenRadioButtonMenuItem;
+
 import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
@@ -144,7 +147,8 @@ public class MainWindow extends JFrame {
         itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
-        checkBoxManager = new JCheckBoxMenuItem("View structure manager", true);
+        checkBoxManager = new StayOpenCheckBoxMenuItem(
+                "View structure manager", true);
         itemExit = new JMenuItem("Exit");
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
@@ -156,9 +160,9 @@ public class MainWindow extends JFrame {
         menu.add(itemExit);
         menuBar.add(menu);
 
-        radioGlobalMcq = new JRadioButtonMenuItem("Global MCQ", true);
-        radioGlobalRmsd = new JRadioButtonMenuItem("Global RMSD", false);
-        radioLocal = new JRadioButtonMenuItem("Local distances", false);
+        radioGlobalMcq = new StayOpenRadioButtonMenuItem("Global MCQ", true);
+        radioGlobalRmsd = new StayOpenRadioButtonMenuItem("Global RMSD", false);
+        radioLocal = new StayOpenRadioButtonMenuItem("Local distances", false);
         ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
         group.add(radioGlobalRmsd);
@@ -190,12 +194,12 @@ public class MainWindow extends JFrame {
         menu.add(itemCluster);
         menuBar.add(menu);
 
-        radioAlignSeqGlobal = new JRadioButtonMenuItem(
+        radioAlignSeqGlobal = new StayOpenRadioButtonMenuItem(
                 "Global sequence alignment", true);
-        radioAlignSeqLocal = new JRadioButtonMenuItem(
+        radioAlignSeqLocal = new StayOpenRadioButtonMenuItem(
                 "Local sequence alignment", false);
-        radioAlignStruc = new JRadioButtonMenuItem("3D structure alignment",
-                false);
+        radioAlignStruc = new StayOpenRadioButtonMenuItem(
+                "3D structure alignment", false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignSeqGlobal);
         groupAlign.add(radioAlignSeqLocal);
@@ -490,7 +494,7 @@ public class MainWindow extends JFrame {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for local sequence alignment: "
                     + dialogChains.getSelectionDescription() + "<br>"
-                    + "Local sequence results" + "</html>");
+                    + "Local sequence alignment results" + "</html>");
         }
     }
 
