@@ -518,7 +518,7 @@ public class MainWindow extends JFrame {
         }
 
         labelInfoAlignStruc.setText("Processing");
-        final Timer timer = new Timer(250, new ActionListener() {
+        final Timer timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String text = labelInfoAlignStruc.getText();
@@ -533,17 +533,22 @@ public class MainWindow extends JFrame {
         timer.start();
 
         threadAlignment = new Thread(new Runnable() {
+            private AlignmentOutput output;
+
             @Override
             public void run() {
                 try {
                     Helper.normalizeAtomNames(structures[0]);
                     Helper.normalizeAtomNames(structures[1]);
-
-                    AlignmentOutput output = AlignerStructure.align(
-                            structures[0], structures[1]);
+                    output = AlignerStructure.align(structures[0],
+                            structures[1]);
                     exportableResults = output;
+                } catch (StructureException e1) {
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    timer.stop();
 
-                    final Structure[] aligned = output.getStructures();
                     SwingUtilities.invokeLater(new Runnable() {
                         private static final String JMOL_SCRIPT = "frame 0.0; "
                                 + "cartoon only; "
@@ -552,6 +557,11 @@ public class MainWindow extends JFrame {
 
                         @Override
                         public void run() {
+                            if (output == null) {
+                                return;
+                            }
+                            Structure[] aligned = output.getStructures();
+
                             StringBuilder builder = new StringBuilder();
                             builder.append("MODEL        1                                                                  \n");
                             builder.append(aligned[0].toPDB());
@@ -579,18 +589,14 @@ public class MainWindow extends JFrame {
                             itemSave.setEnabled(true);
                             itemSave.setText("Save results (PDB)");
 
-                            labelInfoAlignSeq.setText("<html>"
+                            labelInfoAlignStruc.setText("<html><center>"
                                     + "Structures selected for 3D structure alignment: "
                                     + dialogChains.getSelectionDescription()
                                     + "<br>" + "3D structure alignment results"
-                                    + "</html>");
+                                    + "</center></html>");
                         }
                     });
-                } catch (StructureException e1) {
-                    JOptionPane.showMessageDialog(MainWindow.this,
-                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                } finally {
-                    timer.stop();
+
                 }
             }
         });
@@ -750,7 +756,7 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
-            labelInfoAlignSeq.setText("Structures selected for 3D structure "
+            labelInfoAlignStruc.setText("Structures selected for 3D structure "
                     + "alignment: " + dialogChains.getSelectionDescription());
         }
     }
