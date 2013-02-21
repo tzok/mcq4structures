@@ -491,9 +491,12 @@ public class MainWindow extends JFrame {
         }
 
         final Structure[] structures = new Structure[2];
+        final File[] files = DialogChains.getFiles();
+        Chain[][] chains = DialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
-            structures[i].setChains(Arrays.asList(DialogChains.getChains()[i]));
+            structures[i].setChains(Arrays.asList(chains[i]));
+            structures[i].setPDBCode(PdbManager.getName(files[i]));
         }
 
         boolean isRNA = Helper.isNucleicAcid(structures[0]);

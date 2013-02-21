@@ -87,6 +87,7 @@ public class OutputAlignSeq implements Exportable {
             writer.write("\n\n");
             writer.write(toString());
         } catch (IOException e) {
+            // TODO
             e.printStackTrace();
         }
     }
