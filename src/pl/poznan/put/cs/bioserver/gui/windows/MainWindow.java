@@ -79,6 +79,7 @@ public class MainWindow extends JFrame {
     private JFileChooser chooserSaveFile;
     private DialogStructures dialogStructures;
     private DialogChains dialogChains;
+    private DialogAngles dialogAngles;
     private DialogPdbs managerDialog;
 
     private Exportable exportableResults;
@@ -133,7 +134,7 @@ public class MainWindow extends JFrame {
         managerDialog.setVisible(true);
         dialogStructures = DialogStructures.getInstance(this);
         dialogChains = DialogChains.getInstance(this);
-        DialogAngles.getInstance(this);
+        dialogAngles = DialogAngles.getInstance(this);
 
         /*
          * Create menu
@@ -666,7 +667,7 @@ public class MainWindow extends JFrame {
 
             File[] files = dialogChains.getFiles();
             TableModelLocal model = new TableModelLocal(result,
-                    DialogAngles.getAngles(), StructureManager.getNames(files));
+                    dialogAngles.getAngles(), StructureManager.getNames(files));
             exportableResults = model;
             tableMatrix.setModel(model);
 

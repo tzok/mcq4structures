@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 
 class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
-    private static DialogAngles INSTANCE;
     private static final String[] AMINO_NAMES = new String[] { "Φ (phi)",
             "Ψ (psi)", "Ω (omega)", "Average of all angles" };
     private static final String[] AMINO_CODES = new String[] { "PHI", "PSI",
@@ -33,21 +32,23 @@ class DialogAngles extends JDialog {
             "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
             "TAU2", "TAU3", "TAU4", "P", "AVERAGE" };
 
-    private static String[] selectedNames = new String[] { "AVERAGE" };
+    private static DialogAngles instance;
 
-    public static String[] getAngles() {
-        return DialogAngles.selectedNames;
+    private String[] selectedNames = new String[] { "AVERAGE" };
+
+    public String[] getAngles() {
+        return selectedNames;
     }
 
     public static DialogAngles getInstance(Frame owner) {
-        if (DialogAngles.INSTANCE == null) {
-            DialogAngles.INSTANCE = new DialogAngles(owner);
+        if (DialogAngles.instance == null) {
+            DialogAngles.instance = new DialogAngles(owner);
         }
-        return DialogAngles.INSTANCE;
+        return DialogAngles.instance;
     }
 
     public static void selectAngles() {
-        DialogAngles.INSTANCE.setVisible(true);
+        DialogAngles.instance.setVisible(true);
     }
 
     private DialogAngles(Frame owner) {
@@ -165,8 +166,7 @@ class DialogAngles extends JDialog {
                     }
                 }
                 List<String> list = new ArrayList<>(set);
-                DialogAngles.selectedNames = list.toArray(new String[list
-                        .size()]);
+                selectedNames = list.toArray(new String[list.size()]);
 
                 dispose();
             }
