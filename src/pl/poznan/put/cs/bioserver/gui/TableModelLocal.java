@@ -29,6 +29,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 import com.csvreader.CsvWriter;

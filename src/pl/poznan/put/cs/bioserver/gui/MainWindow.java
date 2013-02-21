@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui.windows;
+package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -57,14 +57,11 @@ import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
-import pl.poznan.put.cs.bioserver.gui.Clusterable;
-import pl.poznan.put.cs.bioserver.gui.PdbChooser;
-import pl.poznan.put.cs.bioserver.gui.TableModelGlobal;
-import pl.poznan.put.cs.bioserver.gui.TableModelLocal;
-import pl.poznan.put.cs.bioserver.gui.Visualizable;
+import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
+import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 public class MainWindow extends JFrame {

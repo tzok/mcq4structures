@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui.windows;
+package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,7 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import pl.poznan.put.cs.bioserver.gui.PdbChooser;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public final class DialogManager extends JDialog {
