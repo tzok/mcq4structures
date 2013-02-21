@@ -670,8 +670,11 @@ public class MainWindow extends JFrame {
         }
 
         try {
+            progressBar.setMaximum(1);
+            progressBar.setValue(0);
             Map<String, List<AngleDifference>> result = TorsionLocalComparison
                     .compare(structures[0], structures[1], false);
+            progressBar.setValue(1);
 
             File[] files = dialogChains.getFiles();
             TableModelLocal model = new TableModelLocal(result,
