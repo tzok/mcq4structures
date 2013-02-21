@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui.windows;
+package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -37,60 +37,17 @@ final class DialogStructures extends JDialog {
 
     private static DialogStructures instance;
 
-    private int chosenOption;
-    private DefaultListModel<File> modelAll;
-    private DefaultListModel<File> modelSelected;
-    private File[] selectedStructures;
-
-    public File[] getFiles() {
-        return selectedStructures;
-    }
-
     public static DialogStructures getInstance(Frame owner) {
         if (DialogStructures.instance == null) {
             DialogStructures.instance = new DialogStructures(owner);
         }
         return DialogStructures.instance;
     }
+    private int chosenOption;
+    private DefaultListModel<File> modelAll;
+    private DefaultListModel<File> modelSelected;
 
-    public String getSelectionDescription() {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < selectedStructures.length; i++) {
-            builder.append(StructureManager.getName(selectedStructures[i]));
-            if (i != selectedStructures.length - 1) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
-    }
-
-    public int showDialog() {
-        SortedSet<File> setManager = StructureManager.getAllStructures();
-        ArrayList<File> listLeft = Collections.list(modelAll.elements());
-        ArrayList<File> listRight = Collections.list(modelSelected.elements());
-
-        ArrayList<File> list = (ArrayList<File>) listLeft.clone();
-        list.removeAll(setManager);
-        for (File file : list) {
-            modelAll.removeElement(file);
-        }
-
-        list = (ArrayList<File>) listRight.clone();
-        list.removeAll(setManager);
-        for (File file : list) {
-            modelSelected.removeElement(file);
-        }
-
-        setManager.removeAll(listLeft);
-        setManager.removeAll(listRight);
-        for (File file : setManager) {
-            modelAll.addElement(file);
-        }
-
-        chosenOption = DialogStructures.CANCEL;
-        setVisible(true);
-        return chosenOption;
-    }
+    private File[] selectedStructures;
 
     private DialogStructures(Frame owner) {
         super(owner, true);
@@ -253,5 +210,48 @@ final class DialogStructures extends JDialog {
                 dispose();
             }
         });
+    }
+
+    public File[] getFiles() {
+        return selectedStructures;
+    }
+
+    public String getSelectionDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < selectedStructures.length; i++) {
+            builder.append(StructureManager.getName(selectedStructures[i]));
+            if (i != selectedStructures.length - 1) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
+    public int showDialog() {
+        SortedSet<File> setManager = StructureManager.getAllStructures();
+        ArrayList<File> listLeft = Collections.list(modelAll.elements());
+        ArrayList<File> listRight = Collections.list(modelSelected.elements());
+
+        ArrayList<File> list = (ArrayList<File>) listLeft.clone();
+        list.removeAll(setManager);
+        for (File file : list) {
+            modelAll.removeElement(file);
+        }
+
+        list = (ArrayList<File>) listRight.clone();
+        list.removeAll(setManager);
+        for (File file : list) {
+            modelSelected.removeElement(file);
+        }
+
+        setManager.removeAll(listLeft);
+        setManager.removeAll(listRight);
+        for (File file : setManager) {
+            modelAll.addElement(file);
+        }
+
+        chosenOption = DialogStructures.CANCEL;
+        setVisible(true);
+        return chosenOption;
     }
 }

@@ -8,9 +8,10 @@ import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
-import pl.poznan.put.cs.bioserver.gui.windows.DialogCluster;
+import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 

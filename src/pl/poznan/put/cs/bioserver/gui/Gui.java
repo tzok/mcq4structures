@@ -6,8 +6,6 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import pl.poznan.put.cs.bioserver.gui.windows.MainWindow;
-
 /**
  * A main window of the application.
  * 

@@ -29,6 +29,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 import com.csvreader.CsvWriter;
@@ -41,13 +42,13 @@ public class TableModelLocal extends AbstractTableModel implements
     private double[][] values;
     private String[] columnNames;
     private String[] rowsNames;
-    private Set<String> setAngles;
     private String[] names;
 
     public TableModelLocal(Map<String, List<AngleDifference>> results,
             String[] angles, String[] names) {
         super();
-        setAngles = new LinkedHashSet<>(Arrays.asList(angles));
+        LinkedHashSet<String> setAngles = new LinkedHashSet<>(
+                Arrays.asList(angles));
         this.names = names.clone();
 
         Set<String> setNames = new LinkedHashSet<>();

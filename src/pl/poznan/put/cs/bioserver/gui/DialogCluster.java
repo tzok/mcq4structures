@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui.windows;
+package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;

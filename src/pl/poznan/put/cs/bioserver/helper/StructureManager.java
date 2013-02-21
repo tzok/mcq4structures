@@ -90,13 +90,13 @@ public final class StructureManager {
             Structure structure;
             String name = file.getName();
             if (name.endsWith(".cif") || name.endsWith(".cif.gz")) {
-                if (!isMmCif(file)) {
+                if (!StructureManager.isMmCif(file)) {
                     String message = "File is not a mmCIF structure: " + file;
                     throw new IOException(message);
                 }
                 structure = StructureManager.mmcifReader.getStructure(file);
             } else {
-                if (!isPdb(file)) {
+                if (!StructureManager.isPdb(file)) {
                     String message = "File is not a PDB structure: " + file;
                     throw new IOException(message);
                 }
@@ -108,51 +108,6 @@ public final class StructureManager {
             StructureManager.LOGGER.error("Failed to load structure", e);
             throw e;
         }
-    }
-
-    private static boolean isMmCif(File file) throws IOException {
-        try (InputStream stream = new FileInputStream(file)) {
-            if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
-                    return reader.readLine().startsWith("data_");
-                }
-            }
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream))) {
-                return reader.readLine().startsWith("data_");
-            }
-        }
-    }
-
-    private static boolean isPdb(File file) throws IOException {
-        try (InputStream stream = new FileInputStream(file)) {
-            if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        if (line.startsWith("ATOM")) {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("ATOM")) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     public static File loadStructure(String pdbId) {
@@ -184,6 +139,53 @@ public final class StructureManager {
                 .size();
         assert StructureManager.MAP_PATH_NAME.size() == StructureManager.MAP_STRUCTURE_NAME
                 .size();
+    }
+
+    private static boolean isMmCif(File file) throws IOException {
+        try (InputStream stream = new FileInputStream(file)) {
+            if (file.getName().endsWith(".gz")) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new GZIPInputStream(stream),
+                                "UTF-8"))) {
+                    String line = reader.readLine();
+                    return line != null && line.startsWith("data_");
+                }
+            }
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(stream, "UTF-8"))) {
+                String line = reader.readLine();
+                return line != null && line.startsWith("data_");
+            }
+        }
+    }
+
+    private static boolean isPdb(File file) throws IOException {
+        try (InputStream stream = new FileInputStream(file)) {
+            if (file.getName().endsWith(".gz")) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new GZIPInputStream(stream),
+                                "UTF-8"))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("ATOM")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(stream, "UTF-8"))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith("ATOM")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private static void storeStructureInfo(File file, Structure structure) {

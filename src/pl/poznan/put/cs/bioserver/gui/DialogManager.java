@@ -1,4 +1,4 @@
-package pl.poznan.put.cs.bioserver.gui.windows;
+package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,19 +22,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import pl.poznan.put.cs.bioserver.gui.PdbChooser;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public final class DialogManager extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private static DialogManager instance;
-
-    private DefaultListModel<File> model = new DefaultListModel<>();
-
-    public Enumeration<File> getElements() {
-        return model.elements();
-    }
 
     public static DialogManager getInstance(Frame owner) {
         if (DialogManager.instance == null) {
@@ -43,16 +36,7 @@ public final class DialogManager extends JDialog {
         return DialogManager.instance;
     }
 
-    public void loadStructure(File file) {
-        try {
-            if (StructureManager.loadStructure(file) != null) {
-                model.addElement(file);
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(DialogManager.instance,
-                    e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    private DefaultListModel<File> model = new DefaultListModel<>();
 
     private DialogManager(Frame parent) {
         super(parent);
@@ -134,5 +118,20 @@ public final class DialogManager extends JDialog {
                 }
             }
         });
+    }
+
+    public Enumeration<File> getElements() {
+        return model.elements();
+    }
+
+    public void loadStructure(File file) {
+        try {
+            if (StructureManager.loadStructure(file) != null) {
+                model.addElement(file);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(DialogManager.instance,
+                    e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
