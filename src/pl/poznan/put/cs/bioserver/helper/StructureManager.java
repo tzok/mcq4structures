@@ -1,10 +1,15 @@
 package pl.poznan.put.cs.bioserver.helper;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.MMCIFFileReader;
@@ -73,25 +78,78 @@ public final class StructureManager {
      *            Path to the PDB file.
      * @return Structure object..
      */
-    public static Structure loadStructure(File file) {
+    public static Structure loadStructure(File file) throws IOException {
         if (StructureManager.MAP_PATH_STRUCTURE.containsKey(file)) {
             return StructureManager.MAP_PATH_STRUCTURE.get(file);
         }
 
         try {
-            String name = file.getName();
             Structure structure;
+            String name = file.getName();
             if (name.endsWith(".cif") || name.endsWith(".cif.gz")) {
-                structure = mmcifReader.getStructure(file);
+                if (!isMmCif(file)) {
+                    String message = "File is not a mmCIF structure: " + file;
+                    throw new IOException(message);
+                }
+                structure = StructureManager.mmcifReader.getStructure(file);
             } else {
-                structure = pdbReader.getStructure(file);
+                if (!isPdb(file)) {
+                    String message = "File is not a PDB structure: " + file;
+                    throw new IOException(message);
+                }
+                structure = StructureManager.pdbReader.getStructure(file);
             }
             StructureManager.storeStructureInfo(file, structure);
             return structure;
         } catch (IOException e) {
-            StructureManager.LOGGER.error("Failed to read structure file", e);
-            return null;
+            StructureManager.LOGGER.error("Failed to load structure", e);
+            throw e;
         }
+    }
+
+    private static boolean isMmCif(File file) throws IOException {
+        try (InputStream stream = new FileInputStream(file)) {
+            if (file.getName().endsWith(".gz")) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new GZIPInputStream(stream),
+                                "UTF-8"))) {
+                    return reader.readLine().startsWith("data_");
+                }
+            }
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(stream))) {
+                return reader.readLine().startsWith("data_");
+            }
+        }
+    }
+
+    private static boolean isPdb(File file) throws IOException {
+        try (InputStream stream = new FileInputStream(file)) {
+            if (file.getName().endsWith(".gz")) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new GZIPInputStream(stream),
+                                "UTF-8"))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("ATOM")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(stream))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith("ATOM")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public static File loadStructure(String pdbId) {

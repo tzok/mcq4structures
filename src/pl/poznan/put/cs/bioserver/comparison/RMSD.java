@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.comparison;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,12 @@ public class RMSD extends GlobalComparison {
         }
         List<Structure> list = new ArrayList<>();
         for (String arg : args) {
-            list.add(StructureManager.loadStructure(new File(arg)));
+            try {
+                list.add(StructureManager.loadStructure(new File(arg)));
+            } catch (IOException e) {
+                System.out.println("ERROR");
+                e.printStackTrace();
+            }
         }
 
         RMSD rmsd = new RMSD();

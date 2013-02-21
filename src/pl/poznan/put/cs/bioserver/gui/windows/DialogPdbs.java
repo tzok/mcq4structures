@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -41,8 +42,13 @@ public class DialogPdbs extends JDialog {
     }
 
     public static void loadStructure(File file) {
-        if (StructureManager.loadStructure(file) != null) {
-            DialogPdbs.MODEL.addElement(file);
+        try {
+            if (StructureManager.loadStructure(file) != null) {
+                DialogPdbs.MODEL.addElement(file);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(DialogPdbs.INSTANCE, e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -95,9 +101,7 @@ public class DialogPdbs extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 File[] files = PdbChooser.getSelectedFiles(DialogPdbs.this);
                 for (File f : files) {
-                    if (StructureManager.loadStructure(f) != null) {
-                        DialogPdbs.MODEL.addElement(f);
-                    }
+                    DialogPdbs.loadStructure(f);
                 }
             }
         });

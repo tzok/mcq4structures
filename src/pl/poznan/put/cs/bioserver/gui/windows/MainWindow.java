@@ -569,7 +569,8 @@ public class MainWindow extends JFrame {
                             File[] pdbs = DialogChains.getFiles();
                             labelInfoAlignStruc.setText("3D structure "
                                     + "alignments results for "
-                                    + StructureManager.getName(pdbs[0]) + " and "
+                                    + StructureManager.getName(pdbs[0])
+                                    + " and "
                                     + StructureManager.getName(pdbs[1]));
 
                             itemSave.setEnabled(true);
