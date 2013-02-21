@@ -38,6 +38,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang3.StringUtils;
@@ -231,6 +232,7 @@ public class MainWindow extends JFrame {
          */
         JPanel panel;
         labelInfoMatrix = new JLabel();
+        labelInfoMatrix.setBorder(new EmptyBorder(0, 10, 0, 0));
         tableMatrix = new JTable();
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
@@ -251,6 +253,7 @@ public class MainWindow extends JFrame {
          * Create panel with sequence alignment
          */
         labelInfoAlignSeq = new JLabel();
+        labelInfoAlignSeq.setBorder(new EmptyBorder(0, 10, 0, 0));
         textAreaAlignSeq = new JTextArea();
         textAreaAlignSeq.setEditable(false);
         textAreaAlignSeq.setFont(new Font("Monospaced", Font.PLAIN, 20));
@@ -468,6 +471,8 @@ public class MainWindow extends JFrame {
             return;
         }
 
+        layoutCards.show(panelCards, CARD_ALIGN_SEQ);
+
         OutputAlignSeq alignment = AlignerSequence.align(chains[0][0],
                 chains[1][0], radioAlignSeqGlobal.isSelected());
         exportableResults = alignment;
@@ -514,6 +519,8 @@ public class MainWindow extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        layoutCards.show(panelCards, CARD_ALIGN_STRUC);
 
         labelInfoAlignStruc.setText("Processing");
         final Timer timer = new Timer(100, new ActionListener() {
