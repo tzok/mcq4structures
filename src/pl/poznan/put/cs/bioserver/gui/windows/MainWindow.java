@@ -80,7 +80,7 @@ public class MainWindow extends JFrame {
     private DialogStructures dialogStructures;
     private DialogChains dialogChains;
     private DialogAngles dialogAngles;
-    private DialogPdbs managerDialog;
+    private DialogManager dialogManager;
 
     private Exportable exportableResults;
     private Thread threadAlignment;
@@ -130,8 +130,8 @@ public class MainWindow extends JFrame {
         super();
 
         chooserSaveFile = new JFileChooser();
-        managerDialog = DialogPdbs.getInstance(this);
-        managerDialog.setVisible(true);
+        dialogManager = DialogManager.getInstance(this);
+        dialogManager.setVisible(true);
         dialogStructures = DialogStructures.getInstance(this);
         dialogChains = DialogChains.getInstance(this);
         dialogAngles = DialogAngles.getInstance(this);
@@ -324,7 +324,7 @@ public class MainWindow extends JFrame {
         /*
          * Set action listeners
          */
-        managerDialog.addWindowListener(new WindowAdapter() {
+        dialogManager.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
@@ -337,7 +337,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 File[] files = PdbChooser.getSelectedFiles(MainWindow.this);
                 for (File f : files) {
-                    DialogPdbs.loadStructure(f);
+                    dialogManager.loadStructure(f);
                 }
             }
         });
@@ -356,7 +356,7 @@ public class MainWindow extends JFrame {
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                managerDialog.setVisible(checkBoxManager.isSelected());
+                dialogManager.setVisible(checkBoxManager.isSelected());
             }
         });
 
