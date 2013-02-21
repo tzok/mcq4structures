@@ -39,54 +39,18 @@ final class DialogChains extends JDialog {
 
     private static DialogChains instance;
 
-    private int chosenOption;
-    private File[] selectedStructures;
-    private Chain[][] selectedChains;
-    private DefaultComboBoxModel<File> modelLeft;
-    private DefaultComboBoxModel<File> modelRight;
-
-    public Chain[][] getChains() {
-        return selectedChains;
-    }
-
-    public File[] getFiles() {
-        return selectedStructures;
-    }
-
     public static DialogChains getInstance(Frame owner) {
         if (DialogChains.instance == null) {
             DialogChains.instance = new DialogChains(owner);
         }
         return DialogChains.instance;
     }
+    private int chosenOption;
+    private File[] selectedStructures;
+    private Chain[][] selectedChains;
+    private DefaultComboBoxModel<File> modelLeft;
 
-    public String getSelectionDescription() {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 2; i++) {
-            builder.append(StructureManager.getName(selectedStructures[i]));
-            builder.append('.');
-            for (Chain chain : selectedChains[i]) {
-                builder.append(chain.getChainID());
-            }
-            if (i == 0) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
-    }
-
-    public int showDialog() {
-        modelLeft.removeAllElements();
-        modelRight.removeAllElements();
-        for (File file : StructureManager.getAllStructures()) {
-            modelLeft.addElement(file);
-            modelRight.addElement(file);
-        }
-
-        chosenOption = DialogChains.CANCEL;
-        setVisible(true);
-        return chosenOption;
-    }
+    private DefaultComboBoxModel<File> modelRight;
 
     private DialogChains(Frame owner) {
         super(owner, true);
@@ -233,5 +197,41 @@ final class DialogChains extends JDialog {
                 dispose();
             }
         });
+    }
+
+    public Chain[][] getChains() {
+        return selectedChains;
+    }
+
+    public File[] getFiles() {
+        return selectedStructures;
+    }
+
+    public String getSelectionDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 2; i++) {
+            builder.append(StructureManager.getName(selectedStructures[i]));
+            builder.append('.');
+            for (Chain chain : selectedChains[i]) {
+                builder.append(chain.getChainID());
+            }
+            if (i == 0) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
+    public int showDialog() {
+        modelLeft.removeAllElements();
+        modelRight.removeAllElements();
+        for (File file : StructureManager.getAllStructures()) {
+            modelLeft.addElement(file);
+            modelRight.addElement(file);
+        }
+
+        chosenOption = DialogChains.CANCEL;
+        setVisible(true);
+        return chosenOption;
     }
 }

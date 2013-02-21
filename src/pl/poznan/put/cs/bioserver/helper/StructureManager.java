@@ -90,13 +90,13 @@ public final class StructureManager {
             Structure structure;
             String name = file.getName();
             if (name.endsWith(".cif") || name.endsWith(".cif.gz")) {
-                if (!isMmCif(file)) {
+                if (!StructureManager.isMmCif(file)) {
                     String message = "File is not a mmCIF structure: " + file;
                     throw new IOException(message);
                 }
                 structure = StructureManager.mmcifReader.getStructure(file);
             } else {
-                if (!isPdb(file)) {
+                if (!StructureManager.isPdb(file)) {
                     String message = "File is not a PDB structure: " + file;
                     throw new IOException(message);
                 }
@@ -108,6 +108,37 @@ public final class StructureManager {
             StructureManager.LOGGER.error("Failed to load structure", e);
             throw e;
         }
+    }
+
+    public static File loadStructure(String pdbId) {
+        StructureManager.pdbReader.setAutoFetch(true);
+        Structure structure;
+        try {
+            structure = StructureManager.pdbReader.getStructureById(pdbId);
+        } catch (IOException e) {
+            StructureManager.LOGGER.error("Failed to fetch PDB id:" + pdbId, e);
+            return null;
+        }
+
+        File pdbFile = new File(StructureManager.pdbReader.getPath());
+        pdbFile = new File(pdbFile, "pdb" + pdbId.toLowerCase() + ".ent.gz");
+        if (!pdbFile.exists()) {
+            return null;
+        }
+
+        StructureManager.storeStructureInfo(pdbFile, structure);
+        return pdbFile;
+    }
+
+    public static void remove(File path) {
+        Structure s = StructureManager.getStructure(path);
+        StructureManager.MAP_PATH_NAME.remove(path);
+        StructureManager.MAP_PATH_STRUCTURE.remove(path);
+        StructureManager.MAP_STRUCTURE_NAME.remove(s);
+        assert StructureManager.MAP_PATH_NAME.size() == StructureManager.MAP_PATH_STRUCTURE
+                .size();
+        assert StructureManager.MAP_PATH_NAME.size() == StructureManager.MAP_STRUCTURE_NAME
+                .size();
     }
 
     private static boolean isMmCif(File file) throws IOException {
@@ -155,37 +186,6 @@ public final class StructureManager {
             }
         }
         return false;
-    }
-
-    public static File loadStructure(String pdbId) {
-        StructureManager.pdbReader.setAutoFetch(true);
-        Structure structure;
-        try {
-            structure = StructureManager.pdbReader.getStructureById(pdbId);
-        } catch (IOException e) {
-            StructureManager.LOGGER.error("Failed to fetch PDB id:" + pdbId, e);
-            return null;
-        }
-
-        File pdbFile = new File(StructureManager.pdbReader.getPath());
-        pdbFile = new File(pdbFile, "pdb" + pdbId.toLowerCase() + ".ent.gz");
-        if (!pdbFile.exists()) {
-            return null;
-        }
-
-        StructureManager.storeStructureInfo(pdbFile, structure);
-        return pdbFile;
-    }
-
-    public static void remove(File path) {
-        Structure s = StructureManager.getStructure(path);
-        StructureManager.MAP_PATH_NAME.remove(path);
-        StructureManager.MAP_PATH_STRUCTURE.remove(path);
-        StructureManager.MAP_STRUCTURE_NAME.remove(s);
-        assert StructureManager.MAP_PATH_NAME.size() == StructureManager.MAP_PATH_STRUCTURE
-                .size();
-        assert StructureManager.MAP_PATH_NAME.size() == StructureManager.MAP_STRUCTURE_NAME
-                .size();
     }
 
     private static void storeStructureInfo(File file, Structure structure) {

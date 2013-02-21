@@ -34,12 +34,6 @@ final class DialogAngles extends JDialog {
 
     private static DialogAngles instance;
 
-    private String[] selectedNames = new String[] { "AVERAGE" };
-
-    public String[] getAngles() {
-        return selectedNames;
-    }
-
     public static DialogAngles getInstance(Frame owner) {
         if (DialogAngles.instance == null) {
             DialogAngles.instance = new DialogAngles(owner);
@@ -50,6 +44,8 @@ final class DialogAngles extends JDialog {
     public static void selectAngles() {
         DialogAngles.instance.setVisible(true);
     }
+
+    private String[] selectedNames = new String[] { "AVERAGE" };
 
     private DialogAngles(Frame owner) {
         super(owner, true);
@@ -183,5 +179,9 @@ final class DialogAngles extends JDialog {
         setLocation(x / 2, y / 2);
 
         setTitle("MCQ4Structures: torsion angle(s) selection");
+    }
+
+    public String[] getAngles() {
+        return selectedNames;
     }
 }

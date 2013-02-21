@@ -29,12 +29,6 @@ public final class DialogManager extends JDialog {
 
     private static DialogManager instance;
 
-    private DefaultListModel<File> model = new DefaultListModel<>();
-
-    public Enumeration<File> getElements() {
-        return model.elements();
-    }
-
     public static DialogManager getInstance(Frame owner) {
         if (DialogManager.instance == null) {
             DialogManager.instance = new DialogManager(owner);
@@ -42,16 +36,7 @@ public final class DialogManager extends JDialog {
         return DialogManager.instance;
     }
 
-    public void loadStructure(File file) {
-        try {
-            if (StructureManager.loadStructure(file) != null) {
-                model.addElement(file);
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(DialogManager.instance,
-                    e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    private DefaultListModel<File> model = new DefaultListModel<>();
 
     private DialogManager(Frame parent) {
         super(parent);
@@ -133,5 +118,20 @@ public final class DialogManager extends JDialog {
                 }
             }
         });
+    }
+
+    public Enumeration<File> getElements() {
+        return model.elements();
+    }
+
+    public void loadStructure(File file) {
+        try {
+            if (StructureManager.loadStructure(file) != null) {
+                model.addElement(file);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(DialogManager.instance,
+                    e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
