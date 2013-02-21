@@ -230,7 +230,7 @@ public class MainWindow extends JFrame {
          * Create panel with global comparison results
          */
         JPanel panel;
-        labelInfoMatrix = new JLabel("Global/local comparison results: matrix");
+        labelInfoMatrix = new JLabel();
         tableMatrix = new JTable();
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
@@ -245,11 +245,12 @@ public class MainWindow extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.add(new JLabel("Progress in computing:"));
         panel.add(progressBar);
+        panelResultsMatrix.add(panel, BorderLayout.SOUTH);
 
         /*
          * Create panel with sequence alignment
          */
-        labelInfoAlignSeq = new JLabel("Sequence alignment results");
+        labelInfoAlignSeq = new JLabel();
         textAreaAlignSeq = new JTextArea();
         textAreaAlignSeq.setEditable(false);
         textAreaAlignSeq.setFont(new Font("Monospaced", Font.PLAIN, 20));
@@ -273,7 +274,7 @@ public class MainWindow extends JFrame {
                 constraints);
         constraints.gridx++;
         constraints.weightx = 0;
-        labelInfoAlignStruc = new JLabel("3D structure alignment results");
+        labelInfoAlignStruc = new JLabel();
         panelAlignStrucInfo.add(labelInfoAlignStruc, constraints);
         constraints.gridx++;
         constraints.weightx = 0.5;
@@ -470,15 +471,22 @@ public class MainWindow extends JFrame {
         OutputAlignSeq alignment = AlignerSequence.align(chains[0][0],
                 chains[1][0], radioAlignSeqGlobal.isSelected());
         exportableResults = alignment;
-
-        File[] pdbs = DialogChains.getFiles();
-        labelInfoAlignSeq.setText("Sequence alignment results for "
-                + StructureManager.getName(pdbs[0]) + " and "
-                + StructureManager.getName(pdbs[1]));
         textAreaAlignSeq.setText(alignment.toString());
 
         itemSave.setEnabled(true);
         itemSave.setText("Save results (TXT)");
+
+        if (radioAlignSeqGlobal.isSelected()) {
+            labelInfoAlignSeq.setText("<html>"
+                    + "Structures selected for global sequence alignment: "
+                    + DialogChains.getSelectionDescription() + "<br>"
+                    + "Global sequence alignment results" + "</html>");
+        } else {
+            labelInfoAlignSeq.setText("<html>"
+                    + "Structures selected for local sequence alignment: "
+                    + DialogChains.getSelectionDescription() + "<br>"
+                    + "Local sequence results" + "</html>");
+        }
     }
 
     private void alignStructures() {
@@ -566,15 +574,14 @@ public class MainWindow extends JFrame {
                             viewer.openStringInline(builder.toString());
                             panelJmolRight.executeCmd(JMOL_SCRIPT);
 
-                            File[] pdbs = DialogChains.getFiles();
-                            labelInfoAlignStruc.setText("3D structure "
-                                    + "alignments results for "
-                                    + StructureManager.getName(pdbs[0])
-                                    + " and "
-                                    + StructureManager.getName(pdbs[1]));
-
                             itemSave.setEnabled(true);
                             itemSave.setText("Save results (PDB)");
+
+                            labelInfoAlignSeq.setText("<html>"
+                                    + "Structures selected for 3D structure alignment: "
+                                    + DialogChains.getSelectionDescription()
+                                    + "<br>" + "3D structure alignment results"
+                                    + "</html>");
                         }
                     });
                 } catch (StructureException e1) {
@@ -625,9 +632,12 @@ public class MainWindow extends JFrame {
                         itemVisualise.setEnabled(true);
                         itemCluster.setEnabled(true);
 
-                        labelInfoMatrix.setText("Global comparison results: "
-                                + "distance matrix for "
-                                + (radioGlobalMcq.isSelected() ? "MCQ" : "RMSD"));
+                        labelInfoMatrix.setText("<html>"
+                                + "Structures selected for global distance measure: "
+                                + DialogStructures.getSelectionDescription()
+                                + "<br>"
+                                + "Global comparison results: distance matrix ("
+                                + comparison.toString() + ")" + "</html>");
                     }
                 });
             }
@@ -657,9 +667,11 @@ public class MainWindow extends JFrame {
             itemVisualise.setEnabled(true);
             itemCluster.setEnabled(false);
 
-            labelInfoMatrix.setText("Local comparison results for: "
-                    + StructureManager.getName(files[0]) + " and "
-                    + StructureManager.getName(files[1]));
+            labelInfoMatrix.setText("<html>" + "Structures selected for local "
+                    + "distance measure: "
+                    + DialogChains.getSelectionDescription() + "<br>"
+                    + "Local comparison results: local distance vector"
+                    + "</html>");
         } catch (StructureException e1) {
             JOptionPane.showMessageDialog(MainWindow.this, e1.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -700,8 +712,8 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
-            labelInfoMatrix.setText("Structures selected for local "
-                    + "comparison: " + DialogChains.getSelectionDescription());
+            labelInfoMatrix.setText("Structures selected for local distance "
+                    + "measure: " + DialogChains.getSelectionDescription());
         } else if (radioAlignSeqGlobal.isSelected()
                 || radioAlignSeqLocal.isSelected()) {
             if (chains[0].length != 1 || chains[1].length != 1) {
@@ -721,8 +733,10 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
-            labelInfoAlignSeq.setText("Structures selected for sequence "
-                    + "alignment: " + DialogChains.getSelectionDescription());
+            labelInfoAlignSeq.setText("Structures selected for "
+                    + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
+                    + " sequence alignment: "
+                    + DialogChains.getSelectionDescription());
         } else { // source.equals(itemSelectChainsAlignStruc)
             panelJmolLeft.executeCmd("restore state " + "state_init");
             panelJmolRight.executeCmd("restore state " + "state_init");
@@ -760,7 +774,7 @@ public class MainWindow extends JFrame {
         itemVisualise.setEnabled(false);
         itemCluster.setEnabled(false);
 
-        labelInfoMatrix.setText("Structures selected for global comparison: "
-                + DialogStructures.getSelectionDescription());
+        labelInfoMatrix.setText("Structures selected for global distance "
+                + "measure: " + DialogStructures.getSelectionDescription());
     }
 }

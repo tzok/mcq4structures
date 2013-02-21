@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 
 import org.biojava.bio.structure.Structure;
@@ -25,14 +27,15 @@ import org.slf4j.LoggerFactory;
 public final class StructureManager {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(StructureManager.class);
-    private static final Map<File, Structure> MAP_PATH_STRUCTURE = new HashMap<>();
-    private static final Map<File, String> MAP_PATH_NAME = new HashMap<>();
+    private static final Map<File, Structure> MAP_PATH_STRUCTURE = new TreeMap<>();
+    private static final Map<File, String> MAP_PATH_NAME = new TreeMap<>();
     private static final Map<Structure, String> MAP_STRUCTURE_NAME = new HashMap<>();
+
     private static PDBFileReader pdbReader = new PDBFileReader();
     private static MMCIFFileReader mmcifReader = new MMCIFFileReader();
 
-    public static Set<File> getAllStructures() {
-        return StructureManager.MAP_PATH_NAME.keySet();
+    public static SortedSet<File> getAllStructures() {
+        return new TreeSet<>(StructureManager.MAP_PATH_NAME.keySet());
     }
 
     public static String getName(File path) {

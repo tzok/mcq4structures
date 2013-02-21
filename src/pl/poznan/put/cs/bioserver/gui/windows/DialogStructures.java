@@ -12,10 +12,13 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -67,44 +70,33 @@ class DialogStructures extends JDialog {
     }
 
     public static int showDialog() {
-        Set<File> setManager = StructureManager.getAllStructures();
-        Set<File> setLeft = new HashSet<>();
-        Set<File> setRight = new HashSet<>();
+        SortedSet<File> setManager = StructureManager.getAllStructures();
+        ArrayList<File> listLeft = Collections.list(DialogStructures.modelAll
+                .elements());
+        ArrayList<File> listRight = Collections
+                .list(DialogStructures.modelSelected.elements());
 
-        DialogStructures.fillCollection(DialogStructures.modelAll.elements(),
-                setLeft);
-        DialogStructures.fillCollection(
-                DialogStructures.modelSelected.elements(), setRight);
-
-        Set<File> set = new HashSet<>(setLeft);
-        set.removeAll(setManager);
-        for (File file : set) {
+        ArrayList<File> list = (ArrayList<File>) listLeft.clone();
+        list.removeAll(setManager);
+        for (File file : list) {
             DialogStructures.modelAll.removeElement(file);
         }
 
-        set = new HashSet<>(setRight);
-        set.removeAll(setManager);
-        for (File file : set) {
+        list = (ArrayList<File>) listRight.clone();
+        list.removeAll(setManager);
+        for (File file : list) {
             DialogStructures.modelSelected.removeElement(file);
         }
 
-        set = new HashSet<>(setManager);
-        set.removeAll(setLeft);
-        set.removeAll(setRight);
-        for (File file : set) {
+        setManager.removeAll(listLeft);
+        setManager.removeAll(listRight);
+        for (File file : setManager) {
             DialogStructures.modelAll.addElement(file);
         }
 
         DialogStructures.chosenOption = DialogStructures.CANCEL;
         DialogStructures.instance.setVisible(true);
         return DialogStructures.chosenOption;
-    }
-
-    private static void fillCollection(Enumeration<File> enumeration,
-            Collection<File> collection) {
-        while (enumeration.hasMoreElements()) {
-            collection.add(enumeration.nextElement());
-        }
     }
 
     private DialogStructures(Frame owner) {
@@ -264,9 +256,8 @@ class DialogStructures extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<File> list = new ArrayList<>();
-                DialogStructures.fillCollection(
-                        DialogStructures.modelSelected.elements(), list);
+                List<File> list = Collections
+                        .list(DialogStructures.modelSelected.elements());
                 DialogStructures.selectedStructures = list
                         .toArray(new File[list.size()]);
 
