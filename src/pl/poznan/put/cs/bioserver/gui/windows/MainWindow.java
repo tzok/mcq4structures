@@ -48,10 +48,10 @@ import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.jmol.api.JmolViewer;
 
-import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
-import pl.poznan.put.cs.bioserver.alignment.OutputAlignSeq;
 import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
+import pl.poznan.put.cs.bioserver.alignment.OutputAlignSeq;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;

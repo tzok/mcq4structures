@@ -43,23 +43,15 @@ class DialogStructures extends JDialog {
     private static DefaultListModel<File> modelSelected;
     private static File[] selectedStructures;
 
-    private static void fillCollection(Enumeration<File> enumeration,
-            Collection<File> collection) {
-        while (enumeration.hasMoreElements()) {
-            collection.add(enumeration.nextElement());
-        }
+    public static File[] getFiles() {
+        return DialogStructures.selectedStructures;
     }
 
     public static DialogStructures getInstance(Frame owner) {
         if (DialogStructures.instance == null) {
-            DialogStructures.instance = new DialogStructures(
-                    owner);
+            DialogStructures.instance = new DialogStructures(owner);
         }
         return DialogStructures.instance;
-    }
-
-    public static File[] getFiles() {
-        return DialogStructures.selectedStructures;
     }
 
     public static int showDialog() {
@@ -67,8 +59,8 @@ class DialogStructures extends JDialog {
         Set<File> setLeft = new HashSet<>();
         Set<File> setRight = new HashSet<>();
 
-        DialogStructures.fillCollection(
-                DialogStructures.modelAll.elements(), setLeft);
+        DialogStructures.fillCollection(DialogStructures.modelAll.elements(),
+                setLeft);
         DialogStructures.fillCollection(
                 DialogStructures.modelSelected.elements(), setRight);
 
@@ -95,12 +87,18 @@ class DialogStructures extends JDialog {
         return DialogStructures.chosenOption;
     }
 
+    private static void fillCollection(Enumeration<File> enumeration,
+            Collection<File> collection) {
+        while (enumeration.hasMoreElements()) {
+            collection.add(enumeration.nextElement());
+        }
+    }
+
     private DialogStructures(Frame owner) {
         super(owner, true);
 
         DialogStructures.modelAll = new DefaultListModel<>();
-        final JList<File> listAll = new JList<>(
-                DialogStructures.modelAll);
+        final JList<File> listAll = new JList<>(DialogStructures.modelAll);
         listAll.setBorder(BorderFactory
                 .createTitledBorder("Available structures"));
         final ListCellRenderer<? super File> renderer = listAll

@@ -69,6 +69,19 @@ public class OutputAlignSeq implements Exportable {
     }
 
     @Override
+    public void export(File file) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public File suggestName() {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public String toString() {
         char[] charsQuery = query.toString().toCharArray();
         char[] charsTarget = target.toString().toCharArray();
@@ -97,17 +110,5 @@ public class OutputAlignSeq implements Exportable {
         }
 
         return builder.toString();
-    }
-
-    @Override
-    public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void export(File file) {
-        // TODO Auto-generated method stub
-        
     }
 }

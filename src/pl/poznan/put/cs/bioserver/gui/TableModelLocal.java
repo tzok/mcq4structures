@@ -41,7 +41,7 @@ public class TableModelLocal extends AbstractTableModel implements
     public TableModelLocal(Map<String, List<AngleDifference>> results,
             String[] angles) {
         super();
-        this.setAngles = new LinkedHashSet<>(Arrays.asList(angles));
+        setAngles = new LinkedHashSet<>(Arrays.asList(angles));
 
         Set<String> setNames = new LinkedHashSet<>();
         Set<ResidueNumber> setResidues = new TreeSet<>();
@@ -107,8 +107,19 @@ public class TableModelLocal extends AbstractTableModel implements
     }
 
     @Override
+    public void export(File file) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     public int getColumnCount() {
         return columnCount;
+    }
+
+    @Override
+    public String getColumnName(int column) {
+        return columnNames[column];
     }
 
     @Override
@@ -125,8 +136,9 @@ public class TableModelLocal extends AbstractTableModel implements
     }
 
     @Override
-    public String getColumnName(int column) {
-        return columnNames[column];
+    public File suggestName() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -160,23 +172,11 @@ public class TableModelLocal extends AbstractTableModel implements
         JFrame frame = new JFrame();
         frame.setLayout(new BorderLayout());
         frame.add(new ChartPanel(new JFreeChart(plot)));
-        
+
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension size = toolkit.getScreenSize();
         frame.setSize(size.width * 2 / 3, size.height * 2 / 3);
         frame.setLocation(size.width / 6, size.height / 6);
         frame.setVisible(true);
-    }
-
-    @Override
-    public void export(File file) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

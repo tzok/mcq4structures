@@ -28,24 +28,6 @@ public class AngleDifference implements Comparable<AngleDifference> {
     private String angleName;
 
     /**
-     * Construct an instance for given two fours of atoms and the name of angle.
-     * 
-     * @param q1
-     *            First quadruplet of atoms.
-     * @param q2
-     *            Second quadruplet of atoms.
-     * @param angleName
-     *            The name of the angle.
-     */
-    AngleDifference(Atom[] q1, Atom[] q2, String angleName) {
-        angle1 = DihedralAngles.calculateDihedral(q1);
-        angle2 = DihedralAngles.calculateDihedral(q2);
-        difference = DihedralAngles.subtractDihedral(angle1, angle2);
-        residue = q1[1].getGroup().getResidueNumber();
-        this.angleName = angleName;
-    }
-
-    /**
      * Construct an instance of angle difference which is not necessarily
      * defined on fours of atoms. This should only be used for difference based
      * on pseudo-pucker phase (P) or MCQ where the angle value is calculated in
@@ -69,6 +51,24 @@ public class AngleDifference implements Comparable<AngleDifference> {
         this.difference = difference;
         this.angleName = angleName;
         this.residue = residue;
+    }
+
+    /**
+     * Construct an instance for given two fours of atoms and the name of angle.
+     * 
+     * @param q1
+     *            First quadruplet of atoms.
+     * @param q2
+     *            Second quadruplet of atoms.
+     * @param angleName
+     *            The name of the angle.
+     */
+    AngleDifference(Atom[] q1, Atom[] q2, String angleName) {
+        angle1 = DihedralAngles.calculateDihedral(q1);
+        angle2 = DihedralAngles.calculateDihedral(q2);
+        difference = DihedralAngles.subtractDihedral(angle1, angle2);
+        residue = q1[1].getGroup().getResidueNumber();
+        this.angleName = angleName;
     }
 
     /**

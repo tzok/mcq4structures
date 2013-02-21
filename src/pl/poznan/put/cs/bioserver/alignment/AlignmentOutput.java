@@ -52,6 +52,12 @@ public class AlignmentOutput implements Exportable {
         this.atoms = atoms.clone();
     }
 
+    @Override
+    public void export(File file) {
+        // TODO Auto-generated method stub
+
+    }
+
     public AFPChain getAFPChain() {
         return afpChain;
     }
@@ -136,19 +142,13 @@ public class AlignmentOutput implements Exportable {
     }
 
     @Override
-    public String toString() {
-        return afpChain.toString();
-    }
-
-    @Override
     public File suggestName() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void export(File file) {
-        // TODO Auto-generated method stub
-        
+    public String toString() {
+        return afpChain.toString();
     }
 }

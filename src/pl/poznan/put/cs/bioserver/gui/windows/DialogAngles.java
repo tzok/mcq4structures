@@ -33,6 +33,12 @@ class DialogAngles extends JDialog {
             "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
             "TAU2", "TAU3", "TAU4", "P", "AVERAGE" };
 
+    private static String[] selectedNames = new String[] { "AVERAGE" };
+
+    public static String[] getAngles() {
+        return DialogAngles.selectedNames;
+    }
+
     public static DialogAngles getInstance(Frame owner) {
         if (DialogAngles.INSTANCE == null) {
             DialogAngles.INSTANCE = new DialogAngles(owner);
@@ -40,7 +46,9 @@ class DialogAngles extends JDialog {
         return DialogAngles.INSTANCE;
     }
 
-    private static String[] selectedNames = new String[] { "AVERAGE" };
+    public static void selectAngles() {
+        DialogAngles.INSTANCE.setVisible(true);
+    }
 
     private DialogAngles(Frame owner) {
         super(owner, true);
@@ -175,13 +183,5 @@ class DialogAngles extends JDialog {
         setLocation(x / 2, y / 2);
 
         setTitle("MCQ4Structures: torsion angle(s) selection");
-    }
-
-    public static String[] getAngles() {
-        return DialogAngles.selectedNames;
-    }
-
-    public static void selectAngles() {
-        DialogAngles.INSTANCE.setVisible(true);
     }
 }

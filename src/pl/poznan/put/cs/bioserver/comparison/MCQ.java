@@ -39,58 +39,6 @@ public class MCQ extends GlobalComparison {
     }
 
     /**
-     * Calculate mean of circular quantities (MCQ) for given set of angle
-     * differences.
-     * 
-     * @param diffs
-     *            A collection of angle differences.
-     * @return Mean of Circular Quantities (MCQ).
-     */
-    static double calculate(Iterable<AngleDifference> diffs) {
-        int counter = 0;
-        double sines = 0.0;
-        double cosines = 0.0;
-        for (AngleDifference ad : diffs) {
-            double difference = ad.getDifference();
-            sines += Math.sin(difference);
-            cosines += Math.cos(difference);
-            counter++;
-        }
-        return Math.atan2(sines / counter, cosines / counter);
-    }
-
-    /**
-     * Compare two sets of atoms using MCQ.
-     * 
-     * @param atoms
-     *            Two arrays of atoms with corresponding indices.
-     * @param wasAligned
-     *            True. if atoms were aligned beforehand.
-     * @return Mean of Circular Quantities (MCQ) for differences between torsion
-     *         angles defined upon the given atoms.
-     */
-    private static double compare(Atom[][] atoms, boolean wasAligned) {
-        Atom[][] equalized = Helper.equalize(atoms);
-
-        List<AngleDifference> allDiffs = new ArrayList<>();
-        for (AngleType at : MCQ.USED_ANGLES) {
-            List<AngleDifference> diffs;
-            diffs = DihedralAngles
-                    .calculateAngleDiff(equalized, at, wasAligned);
-            allDiffs.addAll(diffs);
-        }
-        if (MCQ.LOGGER.isTraceEnabled()) {
-            StringBuilder builder = new StringBuilder("All differences:\n");
-            for (AngleDifference ad : allDiffs) {
-                builder.append(ad);
-                builder.append('\n');
-            }
-            MCQ.LOGGER.trace(builder.toString());
-        }
-        return MCQ.calculate(allDiffs);
-    }
-
-    /**
      * Compare two given structures.
      * 
      * @param s1
@@ -149,6 +97,58 @@ public class MCQ extends GlobalComparison {
                 System.out.println(compare[i][j]);
             }
         }
+    }
+
+    /**
+     * Compare two sets of atoms using MCQ.
+     * 
+     * @param atoms
+     *            Two arrays of atoms with corresponding indices.
+     * @param wasAligned
+     *            True. if atoms were aligned beforehand.
+     * @return Mean of Circular Quantities (MCQ) for differences between torsion
+     *         angles defined upon the given atoms.
+     */
+    private static double compare(Atom[][] atoms, boolean wasAligned) {
+        Atom[][] equalized = Helper.equalize(atoms);
+
+        List<AngleDifference> allDiffs = new ArrayList<>();
+        for (AngleType at : MCQ.USED_ANGLES) {
+            List<AngleDifference> diffs;
+            diffs = DihedralAngles
+                    .calculateAngleDiff(equalized, at, wasAligned);
+            allDiffs.addAll(diffs);
+        }
+        if (MCQ.LOGGER.isTraceEnabled()) {
+            StringBuilder builder = new StringBuilder("All differences:\n");
+            for (AngleDifference ad : allDiffs) {
+                builder.append(ad);
+                builder.append('\n');
+            }
+            MCQ.LOGGER.trace(builder.toString());
+        }
+        return MCQ.calculate(allDiffs);
+    }
+
+    /**
+     * Calculate mean of circular quantities (MCQ) for given set of angle
+     * differences.
+     * 
+     * @param diffs
+     *            A collection of angle differences.
+     * @return Mean of Circular Quantities (MCQ).
+     */
+    static double calculate(Iterable<AngleDifference> diffs) {
+        int counter = 0;
+        double sines = 0.0;
+        double cosines = 0.0;
+        for (AngleDifference ad : diffs) {
+            double difference = ad.getDifference();
+            sines += Math.sin(difference);
+            cosines += Math.cos(difference);
+            counter++;
+        }
+        return Math.atan2(sines / counter, cosines / counter);
     }
 
     /**

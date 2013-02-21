@@ -23,6 +23,29 @@ public class TableModelGlobal extends AbstractTableModel implements
     }
 
     @Override
+    public void cluster() {
+        for (double[] value : values) {
+            for (double element : value) {
+                if (Double.isNaN(element)) {
+                    JOptionPane.showMessageDialog(null, "Results cannot be "
+                            + "visualized. Some structures could not be "
+                            + "compared.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        }
+
+        DialogCluster dialogClustering = new DialogCluster(names, values);
+        dialogClustering.setVisible(true);
+    }
+
+    @Override
+    public void export(File file) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     public int getColumnCount() {
         if (names.length == 0) {
             return 0;
@@ -60,6 +83,12 @@ public class TableModelGlobal extends AbstractTableModel implements
     }
 
     @Override
+    public File suggestName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public void visualize() {
         for (double[] value : values) {
             for (double element : value) {
@@ -82,34 +111,5 @@ public class TableModelGlobal extends AbstractTableModel implements
 
         MDSPlot plot = new MDSPlot(mds, names);
         plot.setVisible(true);
-    }
-
-    @Override
-    public void cluster() {
-        for (double[] value : values) {
-            for (double element : value) {
-                if (Double.isNaN(element)) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "visualized. Some structures could not be "
-                            + "compared.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-        }
-
-        DialogCluster dialogClustering = new DialogCluster(names, values);
-        dialogClustering.setVisible(true);
-    }
-
-    @Override
-    public void export(File file) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
     }
 }
