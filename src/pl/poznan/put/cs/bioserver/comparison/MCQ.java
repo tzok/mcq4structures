@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
@@ -85,7 +85,7 @@ public class MCQ extends GlobalComparison {
         }
         List<Structure> list = new ArrayList<>();
         for (String arg : args) {
-            list.add(PdbManager.loadStructure(new File(arg)));
+            list.add(StructureManager.loadStructure(new File(arg)));
         }
 
         MCQ mcq = new MCQ();

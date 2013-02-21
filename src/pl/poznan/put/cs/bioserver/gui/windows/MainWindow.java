@@ -64,7 +64,7 @@ import pl.poznan.put.cs.bioserver.gui.TableModelLocal;
 import pl.poznan.put.cs.bioserver.gui.Visualizable;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 public class MainWindow extends JFrame {
@@ -473,8 +473,8 @@ public class MainWindow extends JFrame {
 
         File[] pdbs = DialogChains.getFiles();
         labelInfoAlignSeq.setText("Sequence alignment results for "
-                + PdbManager.getName(pdbs[0]) + " and "
-                + PdbManager.getName(pdbs[1]));
+                + StructureManager.getName(pdbs[0]) + " and "
+                + StructureManager.getName(pdbs[1]));
         textAreaAlignSeq.setText(alignment.toString());
 
         itemSave.setEnabled(true);
@@ -496,7 +496,7 @@ public class MainWindow extends JFrame {
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
             structures[i].setChains(Arrays.asList(chains[i]));
-            structures[i].setPDBCode(PdbManager.getName(files[i]));
+            structures[i].setPDBCode(StructureManager.getName(files[i]));
         }
 
         boolean isRNA = Helper.isNucleicAcid(structures[0]);
@@ -569,8 +569,8 @@ public class MainWindow extends JFrame {
                             File[] pdbs = DialogChains.getFiles();
                             labelInfoAlignStruc.setText("3D structure "
                                     + "alignments results for "
-                                    + PdbManager.getName(pdbs[0]) + " and "
-                                    + PdbManager.getName(pdbs[1]));
+                                    + StructureManager.getName(pdbs[0]) + " and "
+                                    + StructureManager.getName(pdbs[1]));
 
                             itemSave.setEnabled(true);
                             itemSave.setText("Save results (PDB)");
@@ -599,7 +599,7 @@ public class MainWindow extends JFrame {
             @Override
             public void run() {
                 final File[] files = DialogStructures.getFiles();
-                Structure[] structures = PdbManager.getStructures(files);
+                Structure[] structures = StructureManager.getStructures(files);
 
                 final double[][] matrix = comparison.compare(structures,
                         new ComparisonListener() {
@@ -613,7 +613,7 @@ public class MainWindow extends JFrame {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        String[] names = PdbManager.getNames(files);
+                        String[] names = StructureManager.getNames(files);
                         TableModelGlobal model = new TableModelGlobal(names,
                                 matrix, comparison);
                         exportableResults = model;
@@ -647,7 +647,7 @@ public class MainWindow extends JFrame {
 
             File[] files = DialogChains.getFiles();
             TableModelLocal model = new TableModelLocal(result,
-                    DialogAngles.getAngles(), PdbManager.getNames(files));
+                    DialogAngles.getAngles(), StructureManager.getNames(files));
             exportableResults = model;
             tableMatrix.setModel(model);
 
@@ -657,8 +657,8 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
 
             labelInfoMatrix.setText("Local comparison results for: "
-                    + PdbManager.getName(files[0]) + " and "
-                    + PdbManager.getName(files[1]));
+                    + StructureManager.getName(files[0]) + " and "
+                    + StructureManager.getName(files[1]));
         } catch (StructureException e1) {
             JOptionPane.showMessageDialog(MainWindow.this, e1.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);

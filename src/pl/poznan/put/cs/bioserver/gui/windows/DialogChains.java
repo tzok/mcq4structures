@@ -31,7 +31,7 @@ import org.biojava.bio.structure.StructureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 class DialogChains extends JDialog {
     public static final int OK = 0;
@@ -65,14 +65,14 @@ class DialogChains extends JDialog {
 
     public static String[] getNames() {
         return new String[] {
-                PdbManager.getName(DialogChains.selectedStructures[0]),
-                PdbManager.getName(DialogChains.selectedStructures[1]) };
+                StructureManager.getName(DialogChains.selectedStructures[0]),
+                StructureManager.getName(DialogChains.selectedStructures[1]) };
     }
 
     public static int showDialog() {
         DialogChains.modelLeft.removeAllElements();
         DialogChains.modelRight.removeAllElements();
-        for (File file : PdbManager.getAllStructures()) {
+        for (File file : StructureManager.getAllStructures()) {
             DialogChains.modelLeft.addElement(file);
             DialogChains.modelRight.addElement(file);
         }
@@ -148,7 +148,7 @@ class DialogChains extends JDialog {
                     boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
-                label.setText(PdbManager.getName(value));
+                label.setText(StructureManager.getName(value));
                 return label;
             }
         };
@@ -160,7 +160,7 @@ class DialogChains extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 JComboBox<File> source = (JComboBox<File>) e.getSource();
                 File file = (File) source.getSelectedItem();
-                Structure structure = PdbManager.getStructure(file);
+                Structure structure = StructureManager.getStructure(file);
                 if (structure == null) {
                     return;
                 }
@@ -195,7 +195,7 @@ class DialogChains extends JDialog {
                 for (int i = 0; i < 2; i++) {
                     List<Chain> list = new ArrayList<>();
                     File pdb = (File) combos[i].getSelectedItem();
-                    Structure structure = PdbManager.getStructure(pdb);
+                    Structure structure = StructureManager.getStructure(pdb);
                     for (Component component : panels[i].getComponents()) {
                         if (component instanceof JCheckBox
                                 && ((JCheckBox) component).isSelected()) {

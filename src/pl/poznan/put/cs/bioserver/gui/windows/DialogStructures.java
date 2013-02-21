@@ -30,7 +30,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import pl.poznan.put.cs.bioserver.helper.PdbManager;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 class DialogStructures extends JDialog {
     public static final int OK = 0;
@@ -55,7 +55,7 @@ class DialogStructures extends JDialog {
     }
 
     public static int showDialog() {
-        Set<File> setManager = PdbManager.getAllStructures();
+        Set<File> setManager = StructureManager.getAllStructures();
         Set<File> setLeft = new HashSet<>();
         Set<File> setRight = new HashSet<>();
 
@@ -116,7 +116,7 @@ class DialogStructures extends JDialog {
                     boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
-                label.setText(PdbManager.getName(value));
+                label.setText(StructureManager.getName(value));
                 return label;
             }
         };
