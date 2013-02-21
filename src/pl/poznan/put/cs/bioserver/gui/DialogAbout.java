@@ -86,14 +86,13 @@ public class DialogAbout extends JDialog {
         editorPane.addHyperlinkListener(new HyperlinkListener() {
             @Override
             public void hyperlinkUpdate(HyperlinkEvent e) {
-                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    if (Desktop.isDesktopSupported()) {
-                        try {
-                            Desktop.getDesktop().browse(e.getURL().toURI());
-                        } catch (IOException | URISyntaxException e1) {
-                            DialogAbout.LOGGER.error("Failed to browse URL: "
-                                    + e.getURL(), e1);
-                        }
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+                        && Desktop.isDesktopSupported()) {
+                    try {
+                        Desktop.getDesktop().browse(e.getURL().toURI());
+                    } catch (IOException | URISyntaxException e1) {
+                        DialogAbout.LOGGER.error(
+                                "Failed to browse URL: " + e.getURL(), e1);
                     }
                 }
             }
