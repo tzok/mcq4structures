@@ -78,6 +78,7 @@ public class MainWindow extends JFrame {
 
     private JFileChooser chooserSaveFile;
     private DialogStructures dialogStructures;
+    private DialogChains dialogChains;
     private DialogPdbs managerDialog;
 
     private Exportable exportableResults;
@@ -131,7 +132,7 @@ public class MainWindow extends JFrame {
         managerDialog = DialogPdbs.getInstance(this);
         managerDialog.setVisible(true);
         dialogStructures = DialogStructures.getInstance(this);
-        DialogChains.getInstance(this);
+        dialogChains = DialogChains.getInstance(this);
         DialogAngles.getInstance(this);
 
         /*
@@ -460,7 +461,7 @@ public class MainWindow extends JFrame {
     }
 
     private void alignSequences() {
-        Chain[][] chains = DialogChains.getChains();
+        Chain[][] chains = dialogChains.getChains();
         boolean isRNA = Helper.isNucleicAcid(chains[0][0]);
         if (isRNA != Helper.isNucleicAcid(chains[1][0])) {
             JOptionPane.showMessageDialog(this, "Cannot align structures: "
@@ -480,12 +481,12 @@ public class MainWindow extends JFrame {
         if (radioAlignSeqGlobal.isSelected()) {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for global sequence alignment: "
-                    + DialogChains.getSelectionDescription() + "<br>"
+                    + dialogChains.getSelectionDescription() + "<br>"
                     + "Global sequence alignment results" + "</html>");
         } else {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for local sequence alignment: "
-                    + DialogChains.getSelectionDescription() + "<br>"
+                    + dialogChains.getSelectionDescription() + "<br>"
                     + "Local sequence results" + "</html>");
         }
     }
@@ -500,8 +501,8 @@ public class MainWindow extends JFrame {
         }
 
         final Structure[] structures = new Structure[2];
-        final File[] files = DialogChains.getFiles();
-        Chain[][] chains = DialogChains.getChains();
+        final File[] files = dialogChains.getFiles();
+        Chain[][] chains = dialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
             structures[i].setChains(Arrays.asList(chains[i]));
@@ -580,7 +581,7 @@ public class MainWindow extends JFrame {
 
                             labelInfoAlignSeq.setText("<html>"
                                     + "Structures selected for 3D structure alignment: "
-                                    + DialogChains.getSelectionDescription()
+                                    + dialogChains.getSelectionDescription()
                                     + "<br>" + "3D structure alignment results"
                                     + "</html>");
                         }
@@ -650,14 +651,14 @@ public class MainWindow extends JFrame {
         final Structure[] structures = new Structure[2];
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
-            structures[i].setChains(Arrays.asList(DialogChains.getChains()[i]));
+            structures[i].setChains(Arrays.asList(dialogChains.getChains()[i]));
         }
 
         try {
             Map<String, List<AngleDifference>> result = TorsionLocalComparison
                     .compare(structures[0], structures[1], false);
 
-            File[] files = DialogChains.getFiles();
+            File[] files = dialogChains.getFiles();
             TableModelLocal model = new TableModelLocal(result,
                     DialogAngles.getAngles(), StructureManager.getNames(files));
             exportableResults = model;
@@ -670,7 +671,7 @@ public class MainWindow extends JFrame {
 
             labelInfoMatrix.setText("<html>" + "Structures selected for local "
                     + "distance measure: "
-                    + DialogChains.getSelectionDescription() + "<br>"
+                    + dialogChains.getSelectionDescription() + "<br>"
                     + "Local comparison results: local distance vector"
                     + "</html>");
         } catch (StructureException e1) {
@@ -688,11 +689,11 @@ public class MainWindow extends JFrame {
     }
 
     private void selectChains(Object source) {
-        if (DialogChains.showDialog() != DialogChains.OK) {
+        if (dialogChains.showDialog() != DialogChains.OK) {
             return;
         }
-        File[] structures = DialogChains.getFiles();
-        Chain[][] chains = DialogChains.getChains();
+        File[] structures = dialogChains.getFiles();
+        Chain[][] chains = dialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             if (chains[i].length == 0) {
                 String message = "No chains specified for structure: "
@@ -714,7 +715,7 @@ public class MainWindow extends JFrame {
             itemComputeAlign.setEnabled(false);
 
             labelInfoMatrix.setText("Structures selected for local distance "
-                    + "measure: " + DialogChains.getSelectionDescription());
+                    + "measure: " + dialogChains.getSelectionDescription());
         } else if (radioAlignSeqGlobal.isSelected()
                 || radioAlignSeqLocal.isSelected()) {
             if (chains[0].length != 1 || chains[1].length != 1) {
@@ -737,7 +738,7 @@ public class MainWindow extends JFrame {
             labelInfoAlignSeq.setText("Structures selected for "
                     + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
                     + " sequence alignment: "
-                    + DialogChains.getSelectionDescription());
+                    + dialogChains.getSelectionDescription());
         } else { // source.equals(itemSelectChainsAlignStruc)
             panelJmolLeft.executeCmd("restore state " + "state_init");
             panelJmolRight.executeCmd("restore state " + "state_init");
@@ -750,7 +751,7 @@ public class MainWindow extends JFrame {
             itemComputeAlign.setEnabled(true);
 
             labelInfoAlignSeq.setText("Structures selected for 3D structure "
-                    + "alignment: " + DialogChains.getSelectionDescription());
+                    + "alignment: " + dialogChains.getSelectionDescription());
         }
     }
 
