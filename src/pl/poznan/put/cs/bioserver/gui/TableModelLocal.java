@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -25,7 +27,10 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import com.csvreader.CsvWriter;
+
 import pl.poznan.put.cs.bioserver.helper.Exportable;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 public class TableModelLocal extends AbstractTableModel implements
@@ -37,11 +42,13 @@ public class TableModelLocal extends AbstractTableModel implements
     private String[] columnNames;
     private String[] rowsNames;
     private Set<String> setAngles;
+    private String[] names;
 
     public TableModelLocal(Map<String, List<AngleDifference>> results,
-            String[] angles) {
+            String[] angles, String[] names) {
         super();
         setAngles = new LinkedHashSet<>(Arrays.asList(angles));
+        this.names = names.clone();
 
         Set<String> setNames = new LinkedHashSet<>();
         Set<ResidueNumber> setResidues = new TreeSet<>();
@@ -71,7 +78,7 @@ public class TableModelLocal extends AbstractTableModel implements
         columnCount = setNames.size() + 1;
 
         columnNames = new String[columnCount];
-        columnNames[0] = "Residue";
+        columnNames[0] = "Residue\\Angles";
         int i = 1;
         for (String name : setNames) {
             columnNames[i] = name;
@@ -108,8 +115,24 @@ public class TableModelLocal extends AbstractTableModel implements
 
     @Override
     public void export(File file) {
-        // TODO Auto-generated method stub
+        try (PrintWriter writer = new PrintWriter(file)) {
+            CsvWriter csvWriter = new CsvWriter(writer, '\t');
+            for (String name : columnNames) {
+                csvWriter.write(name);
+            }
+            csvWriter.endRecord();
 
+            for (int i = 0; i < values.length; i++) {
+                csvWriter.write(rowsNames[i]);
+                for (int j = 0; j < values[i].length - 1; j++) {
+                    csvWriter.write(Double.toString(values[i][j]));
+                }
+                csvWriter.endRecord();
+            }
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }        
     }
 
     @Override
@@ -137,8 +160,13 @@ public class TableModelLocal extends AbstractTableModel implements
 
     @Override
     public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
+        String filename = Helper.getExportPrefix();
+        filename += "-localcmp-";
+        filename += names[0];
+        filename += '-';
+        filename += names[1];
+        filename += ".csv";
+        return new File(filename);        
     }
 
     @Override

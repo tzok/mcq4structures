@@ -644,8 +644,10 @@ public class MainWindow extends JFrame {
         try {
             Map<String, List<AngleDifference>> result = TorsionLocalComparison
                     .compare(structures[0], structures[1], false);
+
+            File[] files = DialogChains.getFiles();
             TableModelLocal model = new TableModelLocal(result,
-                    DialogAngles.getAngles());
+                    DialogAngles.getAngles(), PdbManager.getNames(files));
             exportableResults = model;
             tableMatrix.setModel(model);
 
@@ -654,7 +656,6 @@ public class MainWindow extends JFrame {
             itemVisualise.setEnabled(true);
             itemCluster.setEnabled(false);
 
-            File[] files = DialogChains.getFiles();
             labelInfoMatrix.setText("Local comparison results for: "
                     + PdbManager.getName(files[0]) + " and "
                     + PdbManager.getName(files[1]));
