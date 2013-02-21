@@ -1,7 +1,9 @@
 package pl.poznan.put.cs.bioserver.helper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.biojava.bio.structure.Atom;
@@ -345,5 +347,10 @@ public final class Helper {
     }
 
     private Helper() {
+    }
+
+    public static String getExportPrefix() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+        return sdf.format(new Date());
     }
 }

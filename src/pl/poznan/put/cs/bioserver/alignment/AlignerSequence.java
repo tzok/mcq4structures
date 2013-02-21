@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
+import org.biojava.bio.structure.Structure;
 import org.biojava3.alignment.NeedlemanWunsch;
 import org.biojava3.alignment.SimpleGapPenalty;
 import org.biojava3.alignment.SmithWaterman;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
@@ -65,7 +67,13 @@ public class AlignerSequence {
         aligner.setTarget((Sequence<Compound>) target);
         aligner.setGapPenalty(new SimpleGapPenalty());
         aligner.setSubstitutionMatrix((SubstitutionMatrix<Compound>) matrix);
-        return new OutputAlignSeq(aligner);
+
+        Structure[] structures = new Structure[] { c1.getParent(),
+                c2.getParent() };
+        String[] names = PdbManager.getNames(structures);
+        names[0] += "." + c1.getChainID();
+        names[1] += "." + c2.getChainID();
+        return new OutputAlignSeq(aligner, names);
     }
 
     private static Sequence<? extends Compound> getSequence(Chain chain) {

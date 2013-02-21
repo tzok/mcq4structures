@@ -61,7 +61,7 @@ public final class AlignerStructure {
                     "P", "CA" });
             atoms[j] = list.toArray(new Atom[list.size()]);
             assert atoms[j].length != 0 : "There are no P or CA atoms in: "
-                    + PdbManager.getStructureName(structures[j]);
+                    + PdbManager.getName(structures[j]);
 
             for (int i = 0; i < atoms[j].length; i++) {
                 Atom atom = atoms[j][i];
