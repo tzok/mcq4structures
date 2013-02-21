@@ -50,7 +50,7 @@ public class TableModelGlobal extends AbstractTableModel implements
 
     @Override
     public void export(File file) {
-        try (PrintWriter writer = new PrintWriter(file)) {
+        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
             csvWriter.write(measure);
             for (String name : names) {
@@ -87,10 +87,6 @@ public class TableModelGlobal extends AbstractTableModel implements
         return names[column - 1];
     }
 
-    public String[] getNames() {
-        return names;
-    }
-
     @Override
     public int getRowCount() {
         return values.length;
@@ -102,10 +98,6 @@ public class TableModelGlobal extends AbstractTableModel implements
             return names[row];
         }
         return values[row][column - 1];
-    }
-
-    public double[][] getValues() {
-        return values;
     }
 
     @Override

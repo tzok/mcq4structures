@@ -77,7 +77,10 @@ public class MainWindow extends JFrame {
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
 
     private JFileChooser chooserSaveFile;
-    private DialogPdbs managerDialog;
+    private DialogStructures dialogStructures;
+    private DialogChains dialogChains;
+    private DialogAngles dialogAngles;
+    private DialogManager dialogManager;
 
     private Exportable exportableResults;
     private Thread threadAlignment;
@@ -127,11 +130,11 @@ public class MainWindow extends JFrame {
         super();
 
         chooserSaveFile = new JFileChooser();
-        managerDialog = DialogPdbs.getInstance(this);
-        managerDialog.setVisible(true);
-        DialogStructures.getInstance(this);
-        DialogChains.getInstance(this);
-        DialogAngles.getInstance(this);
+        dialogManager = DialogManager.getInstance(this);
+        dialogManager.setVisible(true);
+        dialogStructures = DialogStructures.getInstance(this);
+        dialogChains = DialogChains.getInstance(this);
+        dialogAngles = DialogAngles.getInstance(this);
 
         /*
          * Create menu
@@ -321,7 +324,7 @@ public class MainWindow extends JFrame {
         /*
          * Set action listeners
          */
-        managerDialog.addWindowListener(new WindowAdapter() {
+        dialogManager.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
@@ -334,7 +337,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 File[] files = PdbChooser.getSelectedFiles(MainWindow.this);
                 for (File f : files) {
-                    DialogPdbs.loadStructure(f);
+                    dialogManager.loadStructure(f);
                 }
             }
         });
@@ -353,7 +356,7 @@ public class MainWindow extends JFrame {
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                managerDialog.setVisible(checkBoxManager.isSelected());
+                dialogManager.setVisible(checkBoxManager.isSelected());
             }
         });
 
@@ -459,7 +462,7 @@ public class MainWindow extends JFrame {
     }
 
     private void alignSequences() {
-        Chain[][] chains = DialogChains.getChains();
+        Chain[][] chains = dialogChains.getChains();
         boolean isRNA = Helper.isNucleicAcid(chains[0][0]);
         if (isRNA != Helper.isNucleicAcid(chains[1][0])) {
             JOptionPane.showMessageDialog(this, "Cannot align structures: "
@@ -479,12 +482,12 @@ public class MainWindow extends JFrame {
         if (radioAlignSeqGlobal.isSelected()) {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for global sequence alignment: "
-                    + DialogChains.getSelectionDescription() + "<br>"
+                    + dialogChains.getSelectionDescription() + "<br>"
                     + "Global sequence alignment results" + "</html>");
         } else {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for local sequence alignment: "
-                    + DialogChains.getSelectionDescription() + "<br>"
+                    + dialogChains.getSelectionDescription() + "<br>"
                     + "Local sequence results" + "</html>");
         }
     }
@@ -499,8 +502,8 @@ public class MainWindow extends JFrame {
         }
 
         final Structure[] structures = new Structure[2];
-        final File[] files = DialogChains.getFiles();
-        Chain[][] chains = DialogChains.getChains();
+        final File[] files = dialogChains.getFiles();
+        Chain[][] chains = dialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
             structures[i].setChains(Arrays.asList(chains[i]));
@@ -516,7 +519,7 @@ public class MainWindow extends JFrame {
         }
 
         labelInfoAlignStruc.setText("Processing");
-        final Timer timer = new Timer(250, new ActionListener() {
+        final Timer timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String text = labelInfoAlignStruc.getText();
@@ -531,17 +534,22 @@ public class MainWindow extends JFrame {
         timer.start();
 
         threadAlignment = new Thread(new Runnable() {
+            private AlignmentOutput output;
+
             @Override
             public void run() {
                 try {
                     Helper.normalizeAtomNames(structures[0]);
                     Helper.normalizeAtomNames(structures[1]);
-
-                    AlignmentOutput output = AlignerStructure.align(
-                            structures[0], structures[1]);
+                    output = AlignerStructure.align(structures[0],
+                            structures[1]);
                     exportableResults = output;
+                } catch (StructureException e1) {
+                    JOptionPane.showMessageDialog(MainWindow.this,
+                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    timer.stop();
 
-                    final Structure[] aligned = output.getStructures();
                     SwingUtilities.invokeLater(new Runnable() {
                         private static final String JMOL_SCRIPT = "frame 0.0; "
                                 + "cartoon only; "
@@ -550,6 +558,11 @@ public class MainWindow extends JFrame {
 
                         @Override
                         public void run() {
+                            if (output == null) {
+                                return;
+                            }
+                            Structure[] aligned = output.getStructures();
+
                             StringBuilder builder = new StringBuilder();
                             builder.append("MODEL        1                                                                  \n");
                             builder.append(aligned[0].toPDB());
@@ -577,18 +590,14 @@ public class MainWindow extends JFrame {
                             itemSave.setEnabled(true);
                             itemSave.setText("Save results (PDB)");
 
-                            labelInfoAlignSeq.setText("<html>"
+                            labelInfoAlignStruc.setText("<html><center>"
                                     + "Structures selected for 3D structure alignment: "
-                                    + DialogChains.getSelectionDescription()
+                                    + dialogChains.getSelectionDescription()
                                     + "<br>" + "3D structure alignment results"
-                                    + "</html>");
+                                    + "</center></html>");
                         }
                     });
-                } catch (StructureException e1) {
-                    JOptionPane.showMessageDialog(MainWindow.this,
-                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                } finally {
-                    timer.stop();
+
                 }
             }
         });
@@ -606,7 +615,7 @@ public class MainWindow extends JFrame {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final File[] files = DialogStructures.getFiles();
+                final File[] files = dialogStructures.getFiles();
                 Structure[] structures = StructureManager.getStructures(files);
 
                 final double[][] matrix = comparison.compare(structures,
@@ -634,7 +643,7 @@ public class MainWindow extends JFrame {
 
                         labelInfoMatrix.setText("<html>"
                                 + "Structures selected for global distance measure: "
-                                + DialogStructures.getSelectionDescription()
+                                + dialogStructures.getSelectionDescription()
                                 + "<br>"
                                 + "Global comparison results: distance matrix ("
                                 + comparison.toString() + ")" + "</html>");
@@ -649,16 +658,16 @@ public class MainWindow extends JFrame {
         final Structure[] structures = new Structure[2];
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
-            structures[i].setChains(Arrays.asList(DialogChains.getChains()[i]));
+            structures[i].setChains(Arrays.asList(dialogChains.getChains()[i]));
         }
 
         try {
             Map<String, List<AngleDifference>> result = TorsionLocalComparison
                     .compare(structures[0], structures[1], false);
 
-            File[] files = DialogChains.getFiles();
+            File[] files = dialogChains.getFiles();
             TableModelLocal model = new TableModelLocal(result,
-                    DialogAngles.getAngles(), StructureManager.getNames(files));
+                    dialogAngles.getAngles(), StructureManager.getNames(files));
             exportableResults = model;
             tableMatrix.setModel(model);
 
@@ -669,7 +678,7 @@ public class MainWindow extends JFrame {
 
             labelInfoMatrix.setText("<html>" + "Structures selected for local "
                     + "distance measure: "
-                    + DialogChains.getSelectionDescription() + "<br>"
+                    + dialogChains.getSelectionDescription() + "<br>"
                     + "Local comparison results: local distance vector"
                     + "</html>");
         } catch (StructureException e1) {
@@ -687,11 +696,11 @@ public class MainWindow extends JFrame {
     }
 
     private void selectChains(Object source) {
-        if (DialogChains.showDialog() != DialogChains.OK) {
+        if (dialogChains.showDialog() != DialogChains.OK) {
             return;
         }
-        File[] structures = DialogChains.getFiles();
-        Chain[][] chains = DialogChains.getChains();
+        File[] structures = dialogChains.getFiles();
+        Chain[][] chains = dialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             if (chains[i].length == 0) {
                 String message = "No chains specified for structure: "
@@ -713,7 +722,7 @@ public class MainWindow extends JFrame {
             itemComputeAlign.setEnabled(false);
 
             labelInfoMatrix.setText("Structures selected for local distance "
-                    + "measure: " + DialogChains.getSelectionDescription());
+                    + "measure: " + dialogChains.getSelectionDescription());
         } else if (radioAlignSeqGlobal.isSelected()
                 || radioAlignSeqLocal.isSelected()) {
             if (chains[0].length != 1 || chains[1].length != 1) {
@@ -736,7 +745,7 @@ public class MainWindow extends JFrame {
             labelInfoAlignSeq.setText("Structures selected for "
                     + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
                     + " sequence alignment: "
-                    + DialogChains.getSelectionDescription());
+                    + dialogChains.getSelectionDescription());
         } else { // source.equals(itemSelectChainsAlignStruc)
             panelJmolLeft.executeCmd("restore state " + "state_init");
             panelJmolRight.executeCmd("restore state " + "state_init");
@@ -748,16 +757,16 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
-            labelInfoAlignSeq.setText("Structures selected for 3D structure "
-                    + "alignment: " + DialogChains.getSelectionDescription());
+            labelInfoAlignStruc.setText("Structures selected for 3D structure "
+                    + "alignment: " + dialogChains.getSelectionDescription());
         }
     }
 
     private void selectStructures() {
-        if (DialogStructures.showDialog() != DialogStructures.OK) {
+        if (dialogStructures.showDialog() != DialogStructures.OK) {
             return;
         }
-        File[] files = DialogStructures.getFiles();
+        File[] files = dialogStructures.getFiles();
         if (files == null || files.length < 2) {
             JOptionPane.showMessageDialog(MainWindow.this, "At "
                     + "least two structures must be selected to "
@@ -775,6 +784,6 @@ public class MainWindow extends JFrame {
         itemCluster.setEnabled(false);
 
         labelInfoMatrix.setText("Structures selected for global distance "
-                + "measure: " + DialogStructures.getSelectionDescription());
+                + "measure: " + dialogStructures.getSelectionDescription());
     }
 }
