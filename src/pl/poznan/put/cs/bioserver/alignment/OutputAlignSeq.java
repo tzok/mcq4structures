@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.alignment;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.biojava3.alignment.NeedlemanWunsch;
@@ -15,7 +16,9 @@ import org.biojava3.core.sequence.template.Sequence;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 
-public class OutputAlignSeq implements Exportable {
+public class OutputAlignSeq implements Exportable, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private static void generateLine(StringBuilder builder, char[] chars, int i) {
         int j = i;
         while (j < i + 60 && j < chars.length) {
