@@ -171,9 +171,9 @@ public class MCQ extends GlobalComparison {
             throw new IncomparableStructuresException(e);
         }
     }
-    
+
     @Override
     public String toString() {
         return "MCQ";
-    }    
+    }
 }

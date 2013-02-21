@@ -27,11 +27,11 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import com.csvreader.CsvWriter;
-
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+
+import com.csvreader.CsvWriter;
 
 public class TableModelLocal extends AbstractTableModel implements
         Visualizable, Exportable {
@@ -132,7 +132,7 @@ public class TableModelLocal extends AbstractTableModel implements
         } catch (IOException e) {
             // TODO
             e.printStackTrace();
-        }        
+        }
     }
 
     @Override
@@ -166,7 +166,7 @@ public class TableModelLocal extends AbstractTableModel implements
         filename += '-';
         filename += names[1];
         filename += ".csv";
-        return new File(filename);        
+        return new File(filename);
     }
 
     @Override

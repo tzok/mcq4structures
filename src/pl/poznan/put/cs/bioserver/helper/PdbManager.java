@@ -43,14 +43,14 @@ public final class PdbManager {
         }
         return names;
     }
-    
+
     public static String[] getNames(Structure[] structures) {
         String[] names = new String[structures.length];
         for (int i = 0; i < structures.length; i++) {
             names[i] = PdbManager.MAP_STRUCTURE_NAME.get(structures[i]);
         }
         return names;
-    }    
+    }
 
     public static Structure getStructure(File file) {
         return PdbManager.MAP_PATH_STRUCTURE.get(file);

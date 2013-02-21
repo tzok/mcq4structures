@@ -47,6 +47,7 @@ class DialogChains extends JDialog {
     private static Chain[][] selectedChains;
     private static DefaultComboBoxModel<File> modelLeft;
     private static DefaultComboBoxModel<File> modelRight;
+
     public static Chain[][] getChains() {
         return DialogChains.selectedChains;
     }

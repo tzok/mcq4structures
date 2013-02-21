@@ -190,6 +190,11 @@ public final class Helper {
         return null;
     }
 
+    public static String getExportPrefix() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+        return sdf.format(new Date());
+    }
+
     public static boolean isNucleicAcid(Chain c) {
         int amino = 0;
         int nucleotide = 0;
@@ -347,10 +352,5 @@ public final class Helper {
     }
 
     private Helper() {
-    }
-
-    public static String getExportPrefix() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
-        return sdf.format(new Date());
     }
 }
