@@ -15,12 +15,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
@@ -47,6 +49,8 @@ public class DialogAbout extends JDialog {
         } catch (IOException e) {
             DialogAbout.LOGGER.error("Failed to load 'About' text", e);
         }
+        JScrollPane scrollPane = new JScrollPane(editorPane);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         BufferedImage image = null;
         JLabel labelImage = new JLabel();
@@ -68,17 +72,17 @@ public class DialogAbout extends JDialog {
 
         setLayout(new BorderLayout());
         add(panelImage, BorderLayout.WEST);
-        add(editorPane, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.CENTER);
         add(panelClose, BorderLayout.SOUTH);
 
         setTitle("MCQ4Structures: about");
 
-        setPreferredSize(new Dimension(640, 500));
+        setPreferredSize(new Dimension(660, 510));
         pack();
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - 640;
-        int y = screenSize.height - 500;
+        int x = screenSize.width - 660;
+        int y = screenSize.height - 510;
         setLocation(x / 2, y / 2);
 
         panelImage.setBackground(Color.white);
