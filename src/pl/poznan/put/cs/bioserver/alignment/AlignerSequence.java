@@ -26,22 +26,22 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
  * @author tzok
  * 
  */
-public class SequenceAligner {
+public class AlignerSequence {
     private static Logger logger = LoggerFactory
-            .getLogger(SequenceAligner.class);
+            .getLogger(AlignerSequence.class);
 
     @SuppressWarnings("unchecked")
     public static OutputAlignSeq align(Chain c1, Chain c2, boolean isGlobal) {
         /*
          * Parse sequences
          */
-        Sequence<? extends Compound> query = SequenceAligner.getSequence(c1);
-        Sequence<? extends Compound> target = SequenceAligner.getSequence(c2);
+        Sequence<? extends Compound> query = AlignerSequence.getSequence(c1);
+        Sequence<? extends Compound> target = AlignerSequence.getSequence(c2);
         if (query.getLength() == 0 || target.getLength() == 0) {
-            SequenceAligner.logger.warn("At least one chain has 0 residues");
+            AlignerSequence.logger.warn("At least one chain has 0 residues");
             return null;
         }
-        SequenceAligner.logger.trace("Sequences to be aligned:\n" + query
+        AlignerSequence.logger.trace("Sequences to be aligned:\n" + query
                 + "\n" + target);
         /*
          * Prepare substitution matrices for the alignment
@@ -80,7 +80,7 @@ public class SequenceAligner {
          * Iterate over the structure and prepare a sequence string in FASTA
          * format
          */
-        SequenceAligner.logger.debug("Failed to parse SEQRES from PDB file. "
+        AlignerSequence.logger.debug("Failed to parse SEQRES from PDB file. "
                 + "Will attempt to get sequence manually");
         StringBuilder builder = new StringBuilder();
         List<Group> list = new ArrayList<>();
@@ -98,7 +98,7 @@ public class SequenceAligner {
             }
         }
         String seqString = builder.toString();
-        SequenceAligner.logger.trace("Parsed sequence: " + seqString);
+        AlignerSequence.logger.trace("Parsed sequence: " + seqString);
         /*
          * Create a Sequence object in correct type
          */
@@ -110,6 +110,6 @@ public class SequenceAligner {
         return sequence;
     }
 
-    private SequenceAligner() {
+    private AlignerSequence() {
     }
 }

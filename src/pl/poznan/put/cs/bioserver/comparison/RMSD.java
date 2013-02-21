@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
-import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
+import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 
@@ -83,7 +83,7 @@ public class RMSD extends GlobalComparison {
             if (atoms == null || atoms[0].length != atoms[1].length) {
                 RMSD.LOGGER.info("Atom sets have different sizes. Must use "
                         + "alignment before calculating RMSD");
-                AlignmentOutput output = StructureAligner.align(structures[0],
+                AlignmentOutput output = AlignerStructure.align(structures[0],
                         structures[1]);
                 return output.getAFPChain().getTotalRmsdOpt();
             }

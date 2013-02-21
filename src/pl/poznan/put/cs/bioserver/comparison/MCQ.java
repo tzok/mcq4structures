@@ -10,7 +10,7 @@ import org.biojava.bio.structure.StructureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
+import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.PdbManager;
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
@@ -108,7 +108,7 @@ public class MCQ extends GlobalComparison {
         boolean wasAligned = alignFirst;
         Atom[][] atoms;
         if (alignFirst) {
-            atoms = StructureAligner.align(s1, s2).getAtoms();
+            atoms = AlignerStructure.align(s1, s2).getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(s1, s2, false);
             if (atoms == null) {

@@ -50,8 +50,8 @@ import org.jmol.api.JmolViewer;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.alignment.OutputAlignSeq;
-import pl.poznan.put.cs.bioserver.alignment.SequenceAligner;
-import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
+import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
+import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
@@ -467,7 +467,7 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        OutputAlignSeq alignment = SequenceAligner.align(chains[0][0],
+        OutputAlignSeq alignment = AlignerSequence.align(chains[0][0],
                 chains[1][0], radioAlignSeqGlobal.isSelected());
         exportableResults = alignment;
 
@@ -526,7 +526,7 @@ public class MainWindow extends JFrame {
                     Helper.normalizeAtomNames(structures[0]);
                     Helper.normalizeAtomNames(structures[1]);
 
-                    AlignmentOutput output = StructureAligner.align(
+                    AlignmentOutput output = AlignerStructure.align(
                             structures[0], structures[1]);
                     exportableResults = output;
 

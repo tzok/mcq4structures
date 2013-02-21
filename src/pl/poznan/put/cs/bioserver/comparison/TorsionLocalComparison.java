@@ -16,7 +16,7 @@ import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.io.PDBFileReader;
 
-import pl.poznan.put.cs.bioserver.alignment.StructureAligner;
+import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
@@ -161,7 +161,7 @@ public class TorsionLocalComparison extends LocalComparison {
         boolean wasAligned = alignFirst;
         Atom[][] atoms;
         if (alignFirst) {
-            atoms = StructureAligner.align(s1, s2).getAtoms();
+            atoms = AlignerStructure.align(s1, s2).getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(s1, s2, false);
             if (atoms == null) {
