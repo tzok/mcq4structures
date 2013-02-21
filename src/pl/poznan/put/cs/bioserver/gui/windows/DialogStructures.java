@@ -76,10 +76,10 @@ class DialogStructures extends JDialog {
             DialogStructures.modelSelected.removeElement(file);
         }
 
-        set = new HashSet<>(setLeft);
-        set.addAll(setRight);
-        setManager.removeAll(set);
-        for (File file : setManager) {
+        set = new HashSet<>(setManager);
+        set.removeAll(setLeft);
+        set.removeAll(setRight);
+        for (File file : set) {
             DialogStructures.modelAll.addElement(file);
         }
 

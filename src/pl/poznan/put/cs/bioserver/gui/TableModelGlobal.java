@@ -1,25 +1,34 @@
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
+import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.gui.windows.DialogCluster;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
+
+import com.csvreader.CsvWriter;
 
 public class TableModelGlobal extends AbstractTableModel implements
         Visualizable, Clusterable, Exportable {
     private static final long serialVersionUID = 1L;
     private String[] names;
     private double[][] values;
+    private String measure;
 
-    public TableModelGlobal(String[] names, double[][] values) {
+    public TableModelGlobal(String[] names, double[][] values,
+            GlobalComparison measure) {
         super();
         this.names = names.clone();
         this.values = values.clone();
+        this.measure = measure.toString();
     }
 
     @Override
@@ -28,7 +37,7 @@ public class TableModelGlobal extends AbstractTableModel implements
             for (double element : value) {
                 if (Double.isNaN(element)) {
                     JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "visualized. Some structures could not be "
+                            + "clustered. Some structures could not be "
                             + "compared.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -41,8 +50,25 @@ public class TableModelGlobal extends AbstractTableModel implements
 
     @Override
     public void export(File file) {
-        // TODO Auto-generated method stub
+        try (PrintWriter writer = new PrintWriter(file)) {
+            CsvWriter csvWriter = new CsvWriter(writer, '\t');
+            csvWriter.write(measure);
+            for (String name : names) {
+                csvWriter.write(name);
+            }
+            csvWriter.endRecord();
 
+            for (int i = 0; i < values.length; i++) {
+                csvWriter.write(names[i]);
+                for (int j = 0; j < values[i].length; j++) {
+                    csvWriter.write(Double.toString(values[i][j]));
+                }
+                csvWriter.endRecord();
+            }
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -56,7 +82,7 @@ public class TableModelGlobal extends AbstractTableModel implements
     @Override
     public String getColumnName(int column) {
         if (column == 0) {
-            return "";
+            return measure;
         }
         return names[column - 1];
     }
@@ -84,8 +110,11 @@ public class TableModelGlobal extends AbstractTableModel implements
 
     @Override
     public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
+        String filename = Helper.getExportPrefix();
+        filename += "-globalcmp-";
+        filename += measure;
+        filename += ".csv";
+        return new File(filename);
     }
 
     @Override

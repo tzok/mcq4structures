@@ -615,7 +615,7 @@ public class MainWindow extends JFrame {
                     public void run() {
                         String[] names = PdbManager.getNames(files);
                         TableModelGlobal model = new TableModelGlobal(names,
-                                matrix);
+                                matrix, comparison);
                         exportableResults = model;
                         tableMatrix.setModel(model);
 

@@ -99,4 +99,9 @@ public class RMSD extends GlobalComparison {
             throw new IncomparableStructuresException(e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "RMSD";
+    }
 }
