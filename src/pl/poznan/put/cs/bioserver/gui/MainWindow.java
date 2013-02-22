@@ -381,7 +381,6 @@ public class MainWindow extends JFrame {
                 if (isGlobalNow != isGlobalPrevious) {
                     itemComputeDistances.setEnabled(false);
                 }
-                System.out.println(isGlobalPrevious + " " + isGlobalNow);
                 isGlobalPrevious = isGlobalNow;
             }
         };
@@ -660,8 +659,8 @@ public class MainWindow extends JFrame {
                                 + "Structures selected for global distance measure: "
                                 + dialogStructures.getSelectionDescription()
                                 + "<br>"
-                                + "Global comparison results: distance matrix ("
-                                + comparison.toString() + ")" + "</html>");
+                                + "Global comparison results, distance matrix ("
+                                + comparison.toString() + "):" + "</html>");
                     }
                 });
             }
@@ -697,7 +696,7 @@ public class MainWindow extends JFrame {
             labelInfoMatrix.setText("<html>" + "Structures selected for local "
                     + "distance measure: "
                     + dialogChains.getSelectionDescription() + "<br>"
-                    + "Local comparison results: local distance vector"
+                    + "Local comparison results, local distance vectors:"
                     + "</html>");
         } catch (StructureException e1) {
             JOptionPane.showMessageDialog(MainWindow.this, e1.getMessage(),

@@ -33,7 +33,6 @@ public class OutputAlignSeq implements Exportable, Serializable {
     private String consensus;
     private AlignedSequence<Sequence<Compound>, Compound> query;
     private AlignedSequence<Sequence<Compound>, Compound> target;
-    private String[] names;
     public int score;
     public int minScore;
     public int maxScore;
@@ -85,9 +84,7 @@ public class OutputAlignSeq implements Exportable, Serializable {
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             writer.write(isGlobal ? "Global" : "Local");
             writer.write(" sequence alignment: ");
-            writer.write(names[0]);
-            writer.write(", ");
-            writer.write(names[1]);
+            writer.write(description);
             writer.write("\n\n");
             writer.write(toString());
         } catch (IOException e) {
@@ -99,7 +96,7 @@ public class OutputAlignSeq implements Exportable, Serializable {
     @Override
     public File suggestName() {
         String filename = Helper.getExportPrefix();
-        filename += (isGlobal ? "-GSA-" : "LSA");
+        filename += (isGlobal ? "-GSA-" : "-LSA-");
         filename += description.replace(", ", "-");
         filename += ".txt";
         return new File(filename);
