@@ -29,7 +29,7 @@ public class TableModelGlobal extends AbstractTableModel implements
         super();
         this.names = names.clone();
         this.values = values.clone();
-        this.measure = "Global " + measure.toString();
+        this.measure = measure.toString();
     }
 
     @Override
@@ -45,7 +45,9 @@ public class TableModelGlobal extends AbstractTableModel implements
             }
         }
 
-        DialogCluster dialogClustering = new DialogCluster(names, values);
+        DialogCluster dialogClustering = new DialogCluster(names, values,
+                "MCQ4Structures: global distance (" + measure
+                        + ") clusters by ");
         dialogClustering.setVisible(true);
     }
 
@@ -53,7 +55,7 @@ public class TableModelGlobal extends AbstractTableModel implements
     public void export(File file) {
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
-            csvWriter.write(measure);
+            csvWriter.write("Global" + measure);
             for (String name : names) {
                 csvWriter.write(name);
             }
@@ -83,7 +85,7 @@ public class TableModelGlobal extends AbstractTableModel implements
     @Override
     public String getColumnName(int column) {
         if (column == 0) {
-            return measure;
+            return "Global" + measure;
         }
         return names[column - 1];
     }
@@ -104,7 +106,7 @@ public class TableModelGlobal extends AbstractTableModel implements
     @Override
     public File suggestName() {
         String filename = Helper.getExportPrefix();
-        filename += "-globalcmp-";
+        filename += "-Global-";
         filename += measure;
         filename += ".csv";
         return new File(filename);
@@ -132,6 +134,8 @@ public class TableModelGlobal extends AbstractTableModel implements
         }
 
         MDSPlot plot = new MDSPlot(mds, names);
+        plot.setTitle("MCQ4Structures: global distance diagram (" + measure
+                + ")");
         plot.setVisible(true);
     }
 }

@@ -31,4 +31,8 @@ public final class PdbChooser {
 
     private PdbChooser() {
     }
+
+    public static File getCurrentDirectory() {
+        return PdbChooser.chooser.getCurrentDirectory();
+    }
 }

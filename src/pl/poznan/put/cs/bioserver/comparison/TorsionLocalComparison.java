@@ -49,7 +49,7 @@ public class TorsionLocalComparison extends LocalComparison {
         boolean wasAligned = alignFirst;
         Atom[][] atoms;
         if (alignFirst) {
-            atoms = AlignerStructure.align(s1, s2).getAtoms();
+            atoms = AlignerStructure.align(s1, s2, "").getAtoms();
         } else {
             atoms = Helper.getCommonAtomArray(s1, s2, false);
             if (atoms == null) {

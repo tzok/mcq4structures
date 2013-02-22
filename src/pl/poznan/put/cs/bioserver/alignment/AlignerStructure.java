@@ -37,12 +37,13 @@ public final class AlignerStructure {
      *            First structure.
      * @param s2
      *            Second structure.
+     * @param description
      * @return An object with all information about computed alignment.
      * @throws StructureException
      *             If there were problems during alignment computation.
      */
-    public static AlignmentOutput align(Structure s1, Structure s2)
-            throws StructureException {
+    public static AlignmentOutput align(Structure s1, Structure s2,
+            String description) throws StructureException {
         /*
          * Check if alignment was made before
          */
@@ -93,7 +94,8 @@ public final class AlignerStructure {
                 atom.setName("P");
                 atom.setFullName(" P  ");
             }
-            AlignmentOutput result = new AlignmentOutput(align, s1, s2, atoms);
+            AlignmentOutput result = new AlignmentOutput(align, s1, s2, atoms,
+                    description);
             AlignerStructure.cache.put(input, result);
             return result;
         }

@@ -90,7 +90,7 @@ public class RMSD extends GlobalComparison {
                 RMSD.LOGGER.info("Atom sets have different sizes. Must use "
                         + "alignment before calculating RMSD");
                 AlignmentOutput output = AlignerStructure.align(structures[0],
-                        structures[1]);
+                        structures[1], "");
                 return output.getAFPChain().getTotalRmsdOpt();
             }
 

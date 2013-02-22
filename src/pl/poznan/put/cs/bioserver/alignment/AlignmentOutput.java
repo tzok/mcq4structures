@@ -33,6 +33,7 @@ public class AlignmentOutput implements Exportable {
     private Structure s2;
     private Atom[][] atoms;
     private AFPChain afpChain;
+    private String description;
 
     /**
      * Create an instance which stores information about the computed alignment,
@@ -48,11 +49,12 @@ public class AlignmentOutput implements Exportable {
      *            Atoms that were used in the alignment process.
      */
     AlignmentOutput(AFPChain afpChain, Structure s1, Structure s2,
-            Atom[][] atoms) {
+            Atom[][] atoms, String description) {
         this.afpChain = afpChain;
         this.s1 = s1;
         this.s2 = s2;
         this.atoms = atoms.clone();
+        this.description = description;
     }
 
     @Override
@@ -157,10 +159,8 @@ public class AlignmentOutput implements Exportable {
     @Override
     public File suggestName() {
         String filename = Helper.getExportPrefix();
-        filename += "-structalign-";
-        filename += s1.getPDBCode();
-        filename += '-';
-        filename += s2.getPDBCode();
+        filename += "-3DSTRA-";
+        filename += description.replace(", ", "-");
         filename += ".pdb";
         return new File(filename);
     }

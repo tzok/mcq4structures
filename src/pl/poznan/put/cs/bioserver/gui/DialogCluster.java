@@ -26,7 +26,7 @@ public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
     public DialogCluster(final String[] structureNames,
-            final double[][] comparisonResults) {
+            final double[][] comparisonResults, final String plotTitlePrefix) {
         super();
 
         final JRadioButton hierarchical = new JRadioButton("hierarchical", true);
@@ -104,9 +104,13 @@ public class DialogCluster extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFrame plot;
+                String plotTitle = plotTitlePrefix;
                 if (hierarchical.isSelected()) {
                     plot = new HierarchicalPlot(comparisonResults,
                             structureNames, linkage.getSelectedIndex());
+                    plotTitle += "hierarchical clustering (";
+                    plotTitle += linkage.getSelectedItem();
+                    plotTitle += " linkage)";
                 } else {
                     int k;
                     if (findBestK.isSelected()) {
@@ -123,7 +127,13 @@ public class DialogCluster extends JDialog {
                     }
                     plot = new KMedoidsPlot(comparisonResults, structureNames,
                             k, (String) method.getSelectedItem());
+                    plotTitle += "k-medoids (";
+                    plotTitle += method.getSelectedItem();
+                    plotTitle += ", k =";
+                    plotTitle += (k == 0 ? "auto" : Integer.toString(k));
+                    plotTitle += ")";
                 }
+                plot.setTitle(plotTitle);
                 plot.setVisible(true);
             }
         });

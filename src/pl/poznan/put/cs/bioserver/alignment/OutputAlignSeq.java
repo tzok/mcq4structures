@@ -41,12 +41,13 @@ public class OutputAlignSeq implements Exportable, Serializable {
     public int gaps;
     public int length;
     private boolean isGlobal;
+    private String description;
 
     public OutputAlignSeq(
             AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner,
-            String[] names) {
+            String description) {
         isGlobal = aligner instanceof NeedlemanWunsch<?, ?>;
-        this.names = names.clone();
+        this.description = description;
 
         SequencePair<Sequence<Compound>, Compound> pair = aligner.getPair();
         query = pair.getQuery();
@@ -98,10 +99,8 @@ public class OutputAlignSeq implements Exportable, Serializable {
     @Override
     public File suggestName() {
         String filename = Helper.getExportPrefix();
-        filename += "-seqalign-";
-        filename += names[0];
-        filename += '-';
-        filename += names[1];
+        filename += (isGlobal ? "-GSA-" : "LSA");
+        filename += description.replace(", ", "-");
         filename += ".txt";
         return new File(filename);
     }

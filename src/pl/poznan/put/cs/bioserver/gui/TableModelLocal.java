@@ -42,14 +42,14 @@ public class TableModelLocal extends AbstractTableModel implements
     private double[][] values;
     private String[] columnNames;
     private String[] rowsNames;
-    private String[] names;
+    private String description;
 
     public TableModelLocal(Map<String, List<AngleDifference>> results,
-            String[] angles, String[] names) {
+            String[] angles, String description) {
         super();
         LinkedHashSet<String> setAngles = new LinkedHashSet<>(
                 Arrays.asList(angles));
-        this.names = names.clone();
+        this.description = description;
 
         Set<String> setNames = new LinkedHashSet<>();
         Set<ResidueNumber> setResidues = new TreeSet<>();
@@ -162,10 +162,8 @@ public class TableModelLocal extends AbstractTableModel implements
     @Override
     public File suggestName() {
         String filename = Helper.getExportPrefix();
-        filename += "-localcmp-";
-        filename += names[0];
-        filename += '-';
-        filename += names[1];
+        filename += "-Local-Distance-";
+        filename += description.replace(", ", "-");
         filename += ".csv";
         return new File(filename);
     }
@@ -206,6 +204,7 @@ public class TableModelLocal extends AbstractTableModel implements
         Dimension size = toolkit.getScreenSize();
         frame.setSize(size.width * 2 / 3, size.height * 2 / 3);
         frame.setLocation(size.width / 6, size.height / 6);
+        frame.setTitle("MCQ4Structures: local distance plot");
         frame.setVisible(true);
     }
 }

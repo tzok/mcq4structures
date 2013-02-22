@@ -1,51 +1,75 @@
+MCQ4Structures allows to:
+<ul>
+    <li>compute global or local distances between structures of RNAs/proteins</li>
+    <li>align sequences or 3D structures of RNAs/proteins.</li>
+</ul>
+Here you can find basic instructions for using our tool in the above processes.
+
+
 <h1>Global distance computation</h1>
-Global comparison can be performed either in torsional angle space (MCQ value
-determines the distance) or in Cartesian space (RMSD value shows the distance).
-In order to compare structures globally, take the following steps (in the given
-order):
+Global comparison can be performed either in torsional angle space (MCQ value determines the distance) or in Cartesian space (RMSD value shows the distance). In order to compare structures globally, take the following steps:
 <ol>
-    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
-    <li>Select structures to compare</li>
-    <li>Select distance measure: MCQ (default) or RMSD</li>
-    <li>Compute distance matrix</li>
-    <li>Visualise or cluster results</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format): <em><u>F</u>ile→Open structure(s)</em></li>
+    <li>Select structures to compare: <em><u>D</u>istance measure→Select structures to compare</em></li>
+    <li>Select distance type: <em><u>D</u>istance measure→Global MCQ</em> or <em><u>D</u>istance measure→Global RMSD</em></li>
+    <li>Compute distance matrix: <em><u>D</u>istance measure→Compute distance(s)</em></li>
+    <li>Visualise or cluster results: <em><u>D</u>istance measure→Visualise results</em> or 
+    <em><u>D</u>istance measure→Cluster results</em>
+    </li>
 </ol>
+In order to save the results of global distance computation use <em><u>F</u>ile→Save results</em>. The results are saved to <em>csv</em> file.
 
 
 <h1>Local distance(s) computation</h1>
-Local comparison is performed in torsional angle space. In order to compute a
-vector of local distances, i.e. distances between the corresponding angles
-identified along the structure, take the following steps (in the given order):
+Local comparison is performed in torsional angle space. In order to compute a vector of local distances, i.e. distances between the corresponding angles identified along the structure, take the following steps:
 <ol>
-    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
-    <li>Select chain(s) to compare</li>
-    <li>Select torsion angle(s) for distance computation</li>
-    <li>Compute distance vector</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format): <em><u>F</u>ile→Open structure(s)</em></li>
+    <li>Select structures and chain(s) to compare: <em><u>D</u>istance measure→Select structures to compare</em></li>
+    <li>Select torsion angle(s) for distance computation: <em><u>D</u>istance measure→Select torsion angles</em></li>
+    <li>Compute distance vector: <em><u>D</u>istance measure→Compute distance(s)</em></li>
+    <li>Visualise results: <em><u>D</u>istance measure→Visualise results</em></li>
 </ol>
+In order to save the results of local distance computation use <em><u>F</u>ile→Save results</em>. The results are saved to <em>csv</em> file.
 
 
 <h1>Sequence alignment</h1>
-In order to perform sequence alignment take the following steps:
+In order to perform sequence alignment (global or local) take the following steps:
 <ol>
-    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
-    <li>Select chain(s) to align</li>
-    <li>Select alignment method: global (Smith-Waterman) or local (Needleman-Wunsch)</li>
-    <li>Compute alignment</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format): <em><u>F</u>ile→Open structure(s)</em></li>
+    <li>Select structures and chain(s) to align: <em><u>A</u>lignment→Select structures to align</em></li>
+    <li>Select alignment method: 
+    <ul>
+        <li>Global sequence alignment (Smith-Waterman): <em><u>A</u>lignment→Global sequence alignment</em></li>
+        <li>Local sequence alignment (Needleman-Wunsch): <em><u>A</u>lignment→Local sequence alignment</em></li>
+    </ul>
+    </li>
+    <li>Compute alignment: <em><u>A</u>lignment→Compute alignment</em></li>
 </ol>
 
-<h3>Sequence alignment is performed with the following parameters:</h3>
+Sequence alignment is performed with the following parameters:
 <ul>
     <li>Open penalty: 1</li>
     <li>Extension penalty: 10</li>
     <li>Substitution matrix for nucleic acids: NUC 4.4</li>
     <li>Substitution matrix for proteins: BLOSUM62</li>
 </ul>
+In order to save the results of sequence alignment use <em><u>F</u>ile→Save results</em>. The results are saved to <em>TXT</em> file.
 
 
-<h1>Structure alignment</h1>
+<h1>3D Structure alignment</h1>
 In order to perform 3D structure alignment take the following steps:
 <ol>
-    <li>Open structure(s) from file(s) (PDB or mmCif format)</li>
-    <li>Select chain(s) to compare</li>
-    <li>Compute alignment</li>
+    <li>Open structure(s) from file(s) (PDB or mmCif format): <em><u>F</u>ile→Open structure(s)</em></li>
+    <li>Select structures and chain(s) to align: <em><u>A</u>lignment→Select structures to align</em></li>
+    <li>Select 3D structure alignment: <em><u>A</u>lignment→3D structure alignment</em></li>
+    <li>Compute alignment: <em><u>A</u>lignment→Compute alignment</em></li>
+</ol>
+In order to save the results of 3D structure alignment use <em><u>F</u>ile→Save results</em>. The results are saved to <em>PDB</em> file.
+<br>
+<br>
+
+<h3>Remarks</h3>
+<ol>
+    <li>In case of processing multi-model pdb file only the first model is opened by MCQ4Structures.</li>
+    <li>If the open structure contains residues/atoms with more than one alternative position (coordinate set) only the first one is considered.</li>
 </ol>
