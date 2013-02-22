@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.biojava.bio.structure.Atom;
@@ -275,6 +276,9 @@ public final class Helper {
     }
 
     private static Atom[][] getCommonAtomArray(List<Group> g1, List<Group> g2) {
+        Helper.removeInsertedResidues(g1);
+        Helper.removeInsertedResidues(g2);
+
         Helper.normalizeAtomNames(g1);
         Helper.normalizeAtomNames(g2);
 
@@ -284,6 +288,18 @@ public final class Helper {
         list = Helper.getAtomArray(g2, Helper.USED_ATOMS);
         result[1] = list.toArray(new Atom[list.size()]);
         return result;
+    }
+
+    private static void removeInsertedResidues(List<Group> g) {
+        Iterator<Group> iterator = g.iterator();
+        while (iterator.hasNext()) {
+            Group group = iterator.next();
+            if (group.getResidueNumber().getInsCode() != null) {
+                Helper.LOGGER.warn("Temporarily removing an inserted residue: "
+                        + group);
+                iterator.remove();
+            }
+        }
     }
 
     private static boolean isAminoAcid(Group g) {
