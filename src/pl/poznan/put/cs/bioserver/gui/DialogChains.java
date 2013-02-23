@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.Border;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
@@ -50,70 +51,65 @@ final class DialogChains extends JDialog {
     private int chosenOption;
     private File[] selectedStructures;
     private Chain[][] selectedChains;
-    private DefaultComboBoxModel<File> modelLeft;
 
-    private DefaultComboBoxModel<File> modelRight;
+    private DefaultComboBoxModel<File> modelLeft = new DefaultComboBoxModel<>();
+    private JComboBox<File> comboLeft = new JComboBox<>(modelLeft);
+    private JPanel panelChainsLeft = new JPanel();
+    private JButton buttonRNAsLeft = new JButton("Select RNA chains");
+    private JButton buttonProteinsLeft = new JButton("Select protein chains");
+
+    private DefaultComboBoxModel<File> modelRight = new DefaultComboBoxModel<>();
+    private JComboBox<File> comboRight = new JComboBox<>(modelRight);
+    private JPanel panelChainsRight = new JPanel();
+    private JButton buttonRNAsRight = new JButton("Select RNA chains");
+    private JButton buttonProteinsRight = new JButton("Select protein chains");
 
     private DialogChains(Frame owner) {
         super(owner, true);
+        setLayout(new BorderLayout());
+        setTitle("MCQ4Structures: structure & chain selection");
 
-        modelLeft = new DefaultComboBoxModel<>();
-        final JComboBox<File> comboLeft = new JComboBox<>(modelLeft);
-        final JPanel panelChainsLeft = new JPanel();
-        panelChainsLeft.setLayout(new BoxLayout(panelChainsLeft,
-                BoxLayout.Y_AXIS));
-        panelChainsLeft.setBorder(BorderFactory
-                .createTitledBorder("Select chain(s)"));
+        Border border = BorderFactory.createTitledBorder("Select chain(s)");
+
+        JPanel panelLeft = new JPanel(new BorderLayout());
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new JLabel("Select structure"), BorderLayout.NORTH);
         panel.add(comboLeft, BorderLayout.CENTER);
-        final JPanel panelLeft = new JPanel(new BorderLayout());
         panelLeft.add(panel, BorderLayout.NORTH);
+        BoxLayout layout = new BoxLayout(panelChainsLeft, BoxLayout.Y_AXIS);
+        panelChainsLeft.setLayout(layout);
+        panelChainsLeft.setBorder(border);
         panelLeft.add(new JScrollPane(panelChainsLeft), BorderLayout.CENTER);
-        final JButton buttonSelectRNAsLeft = new JButton("Select RNA chains");
-        final JButton buttonSelectProteinsLeft = new JButton(
-                "Select protein chains");
         panel = new JPanel();
-        panel.add(buttonSelectRNAsLeft);
-        panel.add(buttonSelectProteinsLeft);
+        panel.add(buttonRNAsLeft);
+        panel.add(buttonProteinsLeft);
         panelLeft.add(panel, BorderLayout.SOUTH);
 
-        modelRight = new DefaultComboBoxModel<>();
-        final JComboBox<File> comboRight = new JComboBox<>(modelRight);
-        final JPanel panelChainsRight = new JPanel();
-        panelChainsRight.setLayout(new BoxLayout(panelChainsRight,
-                BoxLayout.Y_AXIS));
-        panelChainsRight.setBorder(BorderFactory
-                .createTitledBorder("Select chain(s)"));
+        JPanel panelRight = new JPanel(new BorderLayout());
         panel = new JPanel(new BorderLayout());
         panel.add(new JLabel("Select structure"), BorderLayout.NORTH);
         panel.add(comboRight, BorderLayout.CENTER);
-        JPanel panelRight = new JPanel();
-        panelRight.setLayout(new BorderLayout());
         panelRight.add(panel, BorderLayout.NORTH);
+        layout = new BoxLayout(panelChainsRight, BoxLayout.Y_AXIS);
+        panelChainsRight.setLayout(layout);
+        panelChainsRight.setBorder(border);
         panelRight.add(new JScrollPane(panelChainsRight), BorderLayout.CENTER);
-        final JButton buttonSelectRNAsRight = new JButton("Select RNA chains");
-        final JButton buttonSelectProteinsRight = new JButton(
-                "Select protein chains");
         panel = new JPanel();
-        panel.add(buttonSelectRNAsRight);
-        panel.add(buttonSelectProteinsRight);
+        panel.add(buttonRNAsRight);
+        panel.add(buttonProteinsRight);
         panelRight.add(panel, BorderLayout.SOUTH);
 
-        JPanel panelBoth = new JPanel();
-        panelBoth.setLayout(new GridLayout(1, 2));
-        panelBoth.add(panelLeft);
-        panelBoth.add(panelRight);
-
+        panel = new JPanel();
+        panel.setLayout(new GridLayout(1, 2));
+        panel.add(panelLeft);
+        panel.add(panelRight);
+        add(panel, BorderLayout.CENTER);
         JButton buttonOk = new JButton("OK");
         JButton buttonCancel = new JButton("Cancel");
-        JPanel panelButtons = new JPanel();
-        panelButtons.add(buttonOk);
-        panelButtons.add(buttonCancel);
-
-        setLayout(new BorderLayout());
-        add(panelBoth, BorderLayout.CENTER);
-        add(panelButtons, BorderLayout.SOUTH);
+        panel = new JPanel();
+        panel.add(buttonOk);
+        panel.add(buttonCancel);
+        add(panel, BorderLayout.SOUTH);
 
         int width = 640;
         int height = 480;
@@ -123,27 +119,29 @@ final class DialogChains extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
-        setTitle("MCQ4Structures: structure & chain selection");
-
         ActionListener selectChainsListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
+                if (StructureManager.getAllStructures().size() == 0) {
+                    return;
+                }
+
                 JPanel panelReference;
                 Structure structure;
                 boolean isRna;
 
                 Object source = arg0.getSource();
-                if (source.equals(buttonSelectRNAsLeft)) {
+                if (source.equals(buttonRNAsLeft)) {
                     panelReference = panelChainsLeft;
                     structure = StructureManager.getStructure((File) comboLeft
                             .getSelectedItem());
                     isRna = true;
-                } else if (source.equals(buttonSelectProteinsLeft)) {
+                } else if (source.equals(buttonProteinsLeft)) {
                     panelReference = panelChainsLeft;
                     structure = StructureManager.getStructure((File) comboLeft
                             .getSelectedItem());
                     isRna = false;
-                } else if (source.equals(buttonSelectRNAsRight)) {
+                } else if (source.equals(buttonRNAsRight)) {
                     panelReference = panelChainsRight;
                     structure = StructureManager.getStructure((File) comboRight
                             .getSelectedItem());
@@ -172,10 +170,10 @@ final class DialogChains extends JDialog {
                 }
             }
         };
-        buttonSelectRNAsLeft.addActionListener(selectChainsListener);
-        buttonSelectProteinsLeft.addActionListener(selectChainsListener);
-        buttonSelectRNAsRight.addActionListener(selectChainsListener);
-        buttonSelectProteinsRight.addActionListener(selectChainsListener);
+        buttonRNAsLeft.addActionListener(selectChainsListener);
+        buttonProteinsLeft.addActionListener(selectChainsListener);
+        buttonRNAsRight.addActionListener(selectChainsListener);
+        buttonProteinsRight.addActionListener(selectChainsListener);
 
         final ListCellRenderer<? super File> renderer = comboLeft.getRenderer();
         ListCellRenderer<File> pdbCellRenderer = new ListCellRenderer<File>() {
