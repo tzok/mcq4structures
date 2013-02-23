@@ -273,7 +273,7 @@ public class MainWindow extends JFrame {
         JPanel panelInfoJmol = new JPanel(new GridLayout(1, 3));
         panelInfoJmol.add(new JLabel("Whole structures (Jmol view)",
                 SwingConstants.CENTER));
-        labelAlignmentStatus = new JLabel("Ready", SwingConstants.CENTER);
+        labelAlignmentStatus = new JLabel("", SwingConstants.CENTER);
         panelInfoJmol.add(labelAlignmentStatus);
         panelInfoJmol.add(new JLabel("Aligned fragments (Jmol view)",
                 SwingConstants.CENTER));
@@ -469,6 +469,13 @@ public class MainWindow extends JFrame {
 
     private void alignSequences() {
         Chain[][] chains = dialogChains.getChains();
+        if (chains[0].length != 1 || chains[1].length != 1) {
+            JOptionPane.showMessageDialog(MainWindow.this,
+                    "A single chain should be selected from each structure in "
+                            + "sequence alignment.", "Information",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         boolean isRNA = Helper.isNucleicAcid(chains[0][0]);
         if (isRNA != Helper.isNucleicAcid(chains[1][0])) {
             JOptionPane.showMessageDialog(this, "Cannot align structures: "
@@ -477,6 +484,7 @@ public class MainWindow extends JFrame {
             return;
         }
 
+        textAreaAlignSeq.setText("");
         layoutCards.show(panelCards, CARD_ALIGN_SEQ);
 
         OutputAlignSeq alignment = AlignerSequence.align(chains[0][0],
@@ -527,6 +535,8 @@ public class MainWindow extends JFrame {
             return;
         }
 
+        panelJmolLeft.executeCmd("restore state " + "state_init");
+        panelJmolRight.executeCmd("restore state " + "state_init");
         layoutCards.show(panelCards, CARD_ALIGN_STRUC);
 
         labelAlignmentStatus.setText("Processing");
@@ -602,7 +612,7 @@ public class MainWindow extends JFrame {
                             itemSave.setEnabled(true);
                             itemSave.setText("Save results (PDB)");
 
-                            labelAlignmentStatus.setText("Ready");
+                            labelAlignmentStatus.setText("Computation finished");
                             labelInfoAlignStruc.setText("<html>"
                                     + "Structures selected for 3D structure alignment: "
                                     + dialogChains.getSelectionDescription()

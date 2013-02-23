@@ -46,6 +46,7 @@ public class DialogAbout extends JDialog {
                 "/pl/poznan/put/cs/bioserver/gui/about.html");
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
+            editorPane.setCaretPosition(0);
         } catch (IOException e) {
             DialogAbout.LOGGER.error("Failed to load 'About' text", e);
         }

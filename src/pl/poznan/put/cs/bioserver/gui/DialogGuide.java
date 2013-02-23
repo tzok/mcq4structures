@@ -34,6 +34,7 @@ class DialogGuide extends JDialog {
                 "/pl/poznan/put/cs/bioserver/gui/guide.html");
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
+            editorPane.setCaretPosition(0);
         } catch (IOException e) {
             DialogGuide.LOGGER.error("Failed to load quick guide text", e);
         }

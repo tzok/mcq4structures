@@ -55,7 +55,7 @@ public class TableModelGlobal extends AbstractTableModel implements
     public void export(File file) {
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
-            csvWriter.write("Global" + measure);
+            csvWriter.write("Global " + measure);
             for (String name : names) {
                 csvWriter.write(name);
             }
@@ -85,7 +85,7 @@ public class TableModelGlobal extends AbstractTableModel implements
     @Override
     public String getColumnName(int column) {
         if (column == 0) {
-            return "Global" + measure;
+            return "Global " + measure;
         }
         return names[column - 1];
     }
