@@ -30,6 +30,7 @@ import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 final class DialogChains extends JDialog {
@@ -45,6 +46,7 @@ final class DialogChains extends JDialog {
         }
         return DialogChains.instance;
     }
+
     private int chosenOption;
     private File[] selectedStructures;
     private Chain[][] selectedChains;
@@ -68,6 +70,13 @@ final class DialogChains extends JDialog {
         final JPanel panelLeft = new JPanel(new BorderLayout());
         panelLeft.add(panel, BorderLayout.NORTH);
         panelLeft.add(new JScrollPane(panelChainsLeft), BorderLayout.CENTER);
+        final JButton buttonSelectRNAsLeft = new JButton("Select RNA chains");
+        final JButton buttonSelectProteinsLeft = new JButton(
+                "Select protein chains");
+        panel = new JPanel();
+        panel.add(buttonSelectRNAsLeft);
+        panel.add(buttonSelectProteinsLeft);
+        panelLeft.add(panel, BorderLayout.SOUTH);
 
         modelRight = new DefaultComboBoxModel<>();
         final JComboBox<File> comboRight = new JComboBox<>(modelRight);
@@ -83,6 +92,13 @@ final class DialogChains extends JDialog {
         panelRight.setLayout(new BorderLayout());
         panelRight.add(panel, BorderLayout.NORTH);
         panelRight.add(new JScrollPane(panelChainsRight), BorderLayout.CENTER);
+        final JButton buttonSelectRNAsRight = new JButton("Select RNA chains");
+        final JButton buttonSelectProteinsRight = new JButton(
+                "Select protein chains");
+        panel = new JPanel();
+        panel.add(buttonSelectRNAsRight);
+        panel.add(buttonSelectProteinsRight);
+        panelRight.add(panel, BorderLayout.SOUTH);
 
         JPanel panelBoth = new JPanel();
         panelBoth.setLayout(new GridLayout(1, 2));
@@ -109,6 +125,58 @@ final class DialogChains extends JDialog {
 
         setTitle("MCQ4Structures: structure & chain selection");
 
+        ActionListener selectChainsListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                JPanel panelReference;
+                Structure structure;
+                boolean isRna;
+
+                Object source = arg0.getSource();
+                if (source.equals(buttonSelectRNAsLeft)) {
+                    panelReference = panelChainsLeft;
+                    structure = StructureManager.getStructure((File) comboLeft
+                            .getSelectedItem());
+                    isRna = true;
+                } else if (source.equals(buttonSelectProteinsLeft)) {
+                    panelReference = panelChainsLeft;
+                    structure = StructureManager.getStructure((File) comboLeft
+                            .getSelectedItem());
+                    isRna = false;
+                } else if (source.equals(buttonSelectRNAsRight)) {
+                    panelReference = panelChainsRight;
+                    structure = StructureManager.getStructure((File) comboRight
+                            .getSelectedItem());
+                    isRna = true;
+                } else { // source.equals(buttonSelectProteinsRight)
+                    panelReference = panelChainsRight;
+                    structure = StructureManager.getStructure((File) comboRight
+                            .getSelectedItem());
+                    isRna = false;
+                }
+
+                for (Component component : panelReference.getComponents()) {
+                    if (component instanceof JCheckBox) {
+                        String chainId = ((JCheckBox) component).getText();
+                        try {
+                            Chain chain = structure.getChainByPDB(chainId);
+                            if (Helper.isNucleicAcid(chain) == isRna) {
+                                ((JCheckBox) component).setSelected(true);
+                            }
+                        } catch (StructureException e) {
+                            JOptionPane.showMessageDialog(DialogChains.this,
+                                    e.getMessage(), "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+            }
+        };
+        buttonSelectRNAsLeft.addActionListener(selectChainsListener);
+        buttonSelectProteinsLeft.addActionListener(selectChainsListener);
+        buttonSelectRNAsRight.addActionListener(selectChainsListener);
+        buttonSelectProteinsRight.addActionListener(selectChainsListener);
+
         final ListCellRenderer<? super File> renderer = comboLeft.getRenderer();
         ListCellRenderer<File> pdbCellRenderer = new ListCellRenderer<File>() {
             @Override
@@ -117,7 +185,9 @@ final class DialogChains extends JDialog {
                     boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
-                label.setText(StructureManager.getName(value));
+                if (value != null) {
+                    label.setText(StructureManager.getName(value));
+                }
                 return label;
             }
         };
