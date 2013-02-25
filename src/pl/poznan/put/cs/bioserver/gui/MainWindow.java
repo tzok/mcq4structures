@@ -612,7 +612,8 @@ public class MainWindow extends JFrame {
                             itemSave.setEnabled(true);
                             itemSave.setText("Save results (PDB)");
 
-                            labelAlignmentStatus.setText("Computation finished");
+                            labelAlignmentStatus
+                                    .setText("Computation finished");
                             labelInfoAlignStruc.setText("<html>"
                                     + "Structures selected for 3D structure alignment: "
                                     + dialogChains.getSelectionDescription()
@@ -668,8 +669,7 @@ public class MainWindow extends JFrame {
                         labelInfoMatrix.setText("<html>"
                                 + "Structures selected for global distance measure: "
                                 + dialogStructures.getSelectionDescription()
-                                + "<br>"
-                                + "Global comparison results, distance matrix ("
+                                + "<br>" + "Global distance matrix ("
                                 + comparison.toString() + "):" + "</html>");
                     }
                 });
@@ -706,8 +706,7 @@ public class MainWindow extends JFrame {
             labelInfoMatrix.setText("<html>" + "Structures selected for local "
                     + "distance measure: "
                     + dialogChains.getSelectionDescription() + "<br>"
-                    + "Local comparison results, local distance vectors:"
-                    + "</html>");
+                    + "Local distance vector(s):" + "</html>");
         } catch (StructureException e1) {
             JOptionPane.showMessageDialog(MainWindow.this, e1.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
