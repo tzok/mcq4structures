@@ -1,5 +1,8 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,17 +19,21 @@ import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.align.model.AFPChain;
 import org.biojava.bio.structure.jama.Matrix;
 
+import pl.poznan.put.cs.bioserver.helper.Exportable;
+import pl.poznan.put.cs.bioserver.helper.Helper;
+
 /**
  * A class that holds the results of structural alignment.
  * 
  * @author tzok
  * 
  */
-public class AlignmentOutput {
+public class AlignmentOutput implements Exportable {
     private Structure s1;
     private Structure s2;
     private Atom[][] atoms;
     private AFPChain afpChain;
+    private String description;
 
     /**
      * Create an instance which stores information about the computed alignment,
@@ -41,12 +48,29 @@ public class AlignmentOutput {
      * @param atoms
      *            Atoms that were used in the alignment process.
      */
-    public AlignmentOutput(AFPChain afpChain, Structure s1, Structure s2,
-            Atom[][] atoms) {
+    AlignmentOutput(AFPChain afpChain, Structure s1, Structure s2,
+            Atom[][] atoms, String description) {
         this.afpChain = afpChain;
         this.s1 = s1;
         this.s2 = s2;
         this.atoms = atoms.clone();
+        this.description = description;
+    }
+
+    @Override
+    public void export(File file) {
+        Structure[] structures = getStructures();
+        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+            writer.write("MODEL        1                                                                  \n");
+            writer.write(structures[0].toPDB());
+            writer.write("ENDMDL                                                                          \n");
+            writer.write("MODEL        2                                                                  \n");
+            writer.write(structures[1].toPDB());
+            writer.write("ENDMDL                                                                          \n");
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
     }
 
     public AFPChain getAFPChain() {
@@ -130,6 +154,15 @@ public class AlignmentOutput {
             result[i + 2] = clone;
         }
         return result;
+    }
+
+    @Override
+    public File suggestName() {
+        String filename = Helper.getExportPrefix();
+        filename += "-3DSTRA-";
+        filename += description.replace(", ", "-");
+        filename += ".pdb";
+        return new File(filename);
     }
 
     @Override
