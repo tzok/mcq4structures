@@ -145,29 +145,28 @@ final class DialogChains extends JDialog {
     }
 
     private int chosenOption;
-    private File[] structures;
+    private File[] files;
     private Chain[][] chains;
-    private PanelChains[] panelsChains;
+
+    private PanelChains[] panelsChains = new PanelChains[] { new PanelChains(),
+            new PanelChains() };
 
     private DialogChains(Frame owner) {
         super(owner, true);
         setLayout(new BorderLayout());
         setTitle("MCQ4Structures: structure & chain selection");
 
-        panelsChains = new PanelChains[2];
-        panelsChains[0] = new PanelChains();
-        panelsChains[1] = new PanelChains();
-
-        JPanel panelBoth = new JPanel(new GridLayout(1, 2));
-        panelBoth.add(panelsChains[0]);
-        panelBoth.add(panelsChains[1]);
-
         JButton buttonOk = new JButton("OK");
         JButton buttonCancel = new JButton("Cancel");
-        JPanel panel = new JPanel();
+
+        JPanel panel = new JPanel(new GridLayout(1, 2));
+        panel.add(panelsChains[0]);
+        panel.add(panelsChains[1]);
+        add(panel, BorderLayout.CENTER);
+
+        panel = new JPanel();
         panel.add(buttonOk);
         panel.add(buttonCancel);
-        add(panelBoth, BorderLayout.CENTER);
         add(panel, BorderLayout.SOUTH);
 
         int width = 640;
@@ -181,10 +180,10 @@ final class DialogChains extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                structures = new File[2];
-                structures[0] = (File) panelsChains[0].combo.getSelectedItem();
-                structures[1] = (File) panelsChains[1].combo.getSelectedItem();
-                if (structures[0] == null || structures[1] == null) {
+                files = new File[2];
+                files[0] = (File) panelsChains[0].combo.getSelectedItem();
+                files[1] = (File) panelsChains[1].combo.getSelectedItem();
+                if (files[0] == null || files[1] == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();
                     return;
@@ -218,13 +217,13 @@ final class DialogChains extends JDialog {
     }
 
     public File[] getFiles() {
-        return structures;
+        return files;
     }
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 2; i++) {
-            builder.append(StructureManager.getName(structures[i]));
+            builder.append(StructureManager.getName(files[i]));
             builder.append('.');
             for (Chain chain : chains[i]) {
                 builder.append(chain.getChainID());
