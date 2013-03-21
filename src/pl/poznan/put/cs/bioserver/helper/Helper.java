@@ -4,8 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
@@ -41,6 +43,16 @@ public final class Helper {
         System.arraycopy(array1, 0, Helper.USED_ATOMS, 0, array1.length);
         System.arraycopy(array2, 0, Helper.USED_ATOMS, array1.length,
                 array2.length);
+    }
+
+    private static final Set<String> SET_NUCLEOTIDE_ATOMS;
+    static {
+        SET_NUCLEOTIDE_ATOMS = new HashSet<>();
+        for (String name : new String[] { " C1'", " C2 ", " C2'", " C3'",
+                " C4 ", " C4'", " C5 ", " C5'", " C6 ", " N1 ", " N3 ", " O2'",
+                " O3'", " O4'", " O5'", " OP1", " OP2", " P  " }) {
+            Helper.SET_NUCLEOTIDE_ATOMS.add(name);
+        }
     }
 
     /**
@@ -307,7 +319,17 @@ public final class Helper {
     }
 
     private static boolean isNucleotide(Group g) {
-        return g.getType().equals("nucleotide") || g.hasAtom("P");
+        if (g.getType().equals("nucleotide")) {
+            return true;
+        }
+
+        int count = 0;
+        for (Atom a : g.getAtoms()) {
+            if (Helper.SET_NUCLEOTIDE_ATOMS.contains(a.getFullName())) {
+                count++;
+            }
+        }
+        return count > Helper.SET_NUCLEOTIDE_ATOMS.size() / 2;
     }
 
     /**
