@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -516,13 +515,8 @@ public class MainWindow extends JFrame {
                     + "Local sequence alignment results:" + "</html>");
         }
 
-        try {
-            System.out.println(AlignerSequence.clustalw(new Chain[] {
-                    chains[0][0], chains[1][0] }, new String[] { "A", "B" }));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        System.out.println(AlignerSequence.align(new Chain[] { chains[0][0],
+                chains[1][0], chains[0][0] }));
     }
 
     private void alignStructures() {

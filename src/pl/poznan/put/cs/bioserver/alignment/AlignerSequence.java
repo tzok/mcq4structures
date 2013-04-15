@@ -1,30 +1,31 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
-import java.io.File;
-    import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
+import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.NeedlemanWunsch;
 import org.biojava3.alignment.SimpleGapPenalty;
+import org.biojava3.alignment.SimpleSubstitutionMatrix;
 import org.biojava3.alignment.SmithWaterman;
 import org.biojava3.alignment.SubstitutionMatrixHelper;
 import org.biojava3.alignment.template.AbstractPairwiseSequenceAligner;
+import org.biojava3.alignment.template.Profile;
 import org.biojava3.alignment.template.SubstitutionMatrix;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.RNASequence;
+import org.biojava3.core.sequence.compound.NucleotideCompound;
+import org.biojava3.core.sequence.compound.RNACompoundSet;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
-import pl.poznan.put.cs.bioserver.jna.ClustalW;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
@@ -55,7 +56,7 @@ public final class AlignerSequence {
          */
         SubstitutionMatrix<? extends Compound> matrix;
         if (Helper.isNucleicAcid(c1)) {
-            matrix = SubstitutionMatrixHelper.getNuc4_4();
+            matrix = AlignerSequence.getRNASubstitutionMatrix(); // SubstitutionMatrixHelper.getNuc4_4();
         } else {
             matrix = SubstitutionMatrixHelper.getBlosum62();
         }
@@ -75,46 +76,37 @@ public final class AlignerSequence {
         return new OutputAlignSeq(aligner, description);
     }
 
-    public static String clustalw(Chain[] chains, String[] names)
-            throws IOException {
-        assert chains.length == names.length;
-
-        for (int i = 1; i < names.length; i++) {
-            assert !names[0].equals(names[i]);
-        }
-
-        File fileIn = File.createTempFile("clustalw", ".in");
-        File fileOut = File.createTempFile("clustalw", ".out");
-        AlignerSequence.logger.debug("Files for ClustalW: " + fileIn + ", "
-                + fileOut);
-
-        StringBuilder builder = new StringBuilder();
-        int i = 0;
+    public static String align(Chain[] chains) {
+        List<Sequence<Compound>> sequences = new ArrayList<>();
         for (Chain c : chains) {
-            builder.append('>');
-            builder.append(names[i++]);
-            builder.append('\n');
-            builder.append(AlignerSequence.getSequence(c));
-            builder.append('\n');
-        }
-        AlignerSequence.logger
-                .trace("Input for ClustalW:" + builder.toString());
-
-        try (FileWriter writer = new FileWriter(fileIn)) {
-            writer.write(builder.toString());
+            sequences.add((Sequence<Compound>) AlignerSequence.getSequence(c));
         }
 
-        String[] argv = new String[] { "clustalw", "-infile=" + fileIn,
-                "-outfile=" + fileOut, "-align", "-seqnos=on" };
-        AlignerSequence.logger.debug("Running equivalent of: "
-                + Arrays.toString(argv));
-        ClustalW.INSTANCE.main(argv.length, argv);
-
-        try (FileReader reader = new FileReader(fileOut)) {
-            char[] cbuf = new char[(int) fileOut.length()];
-            reader.read(cbuf);
-            return new String(cbuf);
+        Profile<Sequence<Compound>, Compound> alignment;
+        if (sequences.get(0).getCompoundSet()
+                .equals(RNACompoundSet.getRNACompoundSet())) {
+            alignment = Alignments.getMultipleSequenceAlignment(sequences,
+                    AlignerSequence.getRNASubstitutionMatrix());
+        } else {
+            alignment = Alignments.getMultipleSequenceAlignment(sequences);
         }
+
+        return alignment.toString();
+    }
+
+    private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {
+        try (InputStreamReader reader = new InputStreamReader(
+                AlignerSequence.class.getResourceAsStream("/pl/poznan/put/cs/"
+                        + "bioserver/alignment/NUC44.txt"))) {
+            return new SimpleSubstitutionMatrix<>(
+                    RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
+        } catch (IOException e) {
+            AlignerSequence.logger.error(
+                    "Failed to load substitution matrix for RNA", e);
+        }
+
+        // the default will not work with MSA for RNAs!
+        return SubstitutionMatrixHelper.getNuc4_4();
     }
 
     private static Sequence<? extends Compound> getSequence(Chain chain) {
