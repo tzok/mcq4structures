@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -99,6 +100,7 @@ public class MainWindow extends JFrame {
 
     private JRadioButtonMenuItem radioAlignSeqGlobal;
     private JRadioButtonMenuItem radioAlignSeqLocal;
+    private JRadioButtonMenuItem radioAlignMultiple;
     private JRadioButtonMenuItem radioAlignStruc;
     private JMenuItem itemSelectStructuresAlign;
     private JMenuItem itemComputeAlign;
@@ -194,11 +196,14 @@ public class MainWindow extends JFrame {
                 "Global sequence alignment", true);
         radioAlignSeqLocal = new StayOpenRadioButtonMenuItem(
                 "Local sequence alignment", false);
+        radioAlignMultiple = new StayOpenRadioButtonMenuItem(
+                "Multiple sequence alignment", false);
         radioAlignStruc = new StayOpenRadioButtonMenuItem(
                 "3D structure alignment", false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignSeqGlobal);
         groupAlign.add(radioAlignSeqLocal);
+        groupAlign.add(radioAlignMultiple);
         groupAlign.add(radioAlignStruc);
 
         itemSelectStructuresAlign = new JMenuItem("Select structures to align");
@@ -210,6 +215,7 @@ public class MainWindow extends JFrame {
         menu.add(new JLabel("    Select alignment type:"));
         menu.add(radioAlignSeqGlobal);
         menu.add(radioAlignSeqLocal);
+        menu.add(radioAlignMultiple);
         menu.add(radioAlignStruc);
         menu.addSeparator();
         menu.add(itemSelectStructuresAlign);
@@ -444,6 +450,8 @@ public class MainWindow extends JFrame {
                 if (radioAlignSeqGlobal.isSelected()
                         || radioAlignSeqLocal.isSelected()) {
                     alignSequences();
+                } else if (radioAlignMultiple.isSelected()) {
+                    alignSequences();
                 } else {
                     alignStructures();
                 }
@@ -506,6 +514,14 @@ public class MainWindow extends JFrame {
                     + "Structures selected for local sequence alignment: "
                     + dialogChains.getSelectionDescription() + "<br>"
                     + "Local sequence alignment results:" + "</html>");
+        }
+
+        try {
+            System.out.println(AlignerSequence.clustalw(new Chain[] {
+                    chains[0][0], chains[1][0] }, new String[] { "A", "B" }));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

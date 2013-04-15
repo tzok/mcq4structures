@@ -1,0 +1,29 @@
+*** amenu.c.orig	2013-04-12 22:01:47.264238733 +0200
+--- amenu.c	2013-04-12 22:01:27.684229940 +0200
+***************
+*** 205,211 ****
+  			case 'H': get_help('1');
+  				break;
+  			case 'Q':
+! 			case 'X': exit(0);
+  				break;
+  			default: fprintf(stdout,"\n\nUnrecognised Command\n\n");
+  				break;
+--- 205,211 ----
+  			case 'H': get_help('1');
+  				break;
+  			case 'Q':
+! 			case 'X': return;
+  				break;
+  			default: fprintf(stdout,"\n\nUnrecognised Command\n\n");
+  				break;
+***************
+*** 1251,1257 ****
+  	vfprintf(stdout,msg,ap);
+  	fprintf(stdout,"\n\n");
+  	va_end(ap);
+- 	exit(1);
+  }
+  
+  /*
+--- 1251,1256 ----

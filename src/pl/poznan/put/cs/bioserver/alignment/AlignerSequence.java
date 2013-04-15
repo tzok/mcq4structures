@@ -1,6 +1,11 @@
 package pl.poznan.put.cs.bioserver.alignment;
 
+import java.io.File;
+    import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.biojava.bio.structure.Chain;
@@ -19,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.jna.ClustalW;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
@@ -67,6 +73,48 @@ public final class AlignerSequence {
         aligner.setGapPenalty(new SimpleGapPenalty());
         aligner.setSubstitutionMatrix((SubstitutionMatrix<Compound>) matrix);
         return new OutputAlignSeq(aligner, description);
+    }
+
+    public static String clustalw(Chain[] chains, String[] names)
+            throws IOException {
+        assert chains.length == names.length;
+
+        for (int i = 1; i < names.length; i++) {
+            assert !names[0].equals(names[i]);
+        }
+
+        File fileIn = File.createTempFile("clustalw", ".in");
+        File fileOut = File.createTempFile("clustalw", ".out");
+        AlignerSequence.logger.debug("Files for ClustalW: " + fileIn + ", "
+                + fileOut);
+
+        StringBuilder builder = new StringBuilder();
+        int i = 0;
+        for (Chain c : chains) {
+            builder.append('>');
+            builder.append(names[i++]);
+            builder.append('\n');
+            builder.append(AlignerSequence.getSequence(c));
+            builder.append('\n');
+        }
+        AlignerSequence.logger
+                .trace("Input for ClustalW:" + builder.toString());
+
+        try (FileWriter writer = new FileWriter(fileIn)) {
+            writer.write(builder.toString());
+        }
+
+        String[] argv = new String[] { "clustalw", "-infile=" + fileIn,
+                "-outfile=" + fileOut, "-align", "-seqnos=on" };
+        AlignerSequence.logger.debug("Running equivalent of: "
+                + Arrays.toString(argv));
+        ClustalW.INSTANCE.main(argv.length, argv);
+
+        try (FileReader reader = new FileReader(fileOut)) {
+            char[] cbuf = new char[(int) fileOut.length()];
+            reader.read(cbuf);
+            return new String(cbuf);
+        }
     }
 
     private static Sequence<? extends Compound> getSequence(Chain chain) {

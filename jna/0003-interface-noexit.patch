@@ -1,0 +1,603 @@
+*** interface.c.orig	2013-04-12 22:01:56.917576401 +0200
+--- interface.c	2013-04-12 21:59:54.260854654 +0200
+***************
+*** 289,295 ****
+  	    (param_arg[i] == NULL)) {
+  	  fprintf(stdout,
+  		  "Error: parameter required for /%s\n",params[i]);
+! 	  exit(1);
+  	}
+  	/*  JULIE
+  	    convert parameters to lower case now, unless the parameter is a filename
+--- 289,295 ----
+  	    (param_arg[i] == NULL)) {
+  	  fprintf(stdout,
+  		  "Error: parameter required for /%s\n",params[i]);
+! 	  return(1);
+  	}
+  	/*  JULIE
+  	    convert parameters to lower case now, unless the parameter is a filename
+***************
+*** 324,330 ****
+                                      (param_arg[i] == NULL)) {
+  					fprintf(stdout,
+                         				 "Error: parameter required for /%s\n",params[i]);
+! 					exit(1);
+  				}
+  				break;
+  			}
+--- 324,330 ----
+                                      (param_arg[i] == NULL)) {
+  					fprintf(stdout,
+                         				 "Error: parameter required for /%s\n",params[i]);
+! 					return(1);
+  				}
+  				break;
+  			}
+***************
+*** 347,353 ****
+                                      (param_arg[i] == NULL)) {
+  					fprintf(stdout,
+                         				 "Error: parameter required for /%s\n",params[i]);
+! 					exit(1);
+  				}
+  				break;
+  			}
+--- 347,353 ----
+                                      (param_arg[i] == NULL)) {
+  					fprintf(stdout,
+                         				 "Error: parameter required for /%s\n",params[i]);
+! 					return(1);
+  				}
+  				break;
+  			}
+***************
+*** 362,368 ****
+  		if (match[i] == -1) {
+  			fprintf(stdout,
+                          "Error: unknown option %c%s\n",COMMANDSEP,params[i]);
+! 			exit(1);
+  		}
+  	}
+          return(n);
+--- 362,368 ----
+  		if (match[i] == -1) {
+  			fprintf(stdout,
+                          "Error: unknown option %c%s\n",COMMANDSEP,params[i]);
+! 			return(1);
+  		}
+  	}
+          return(n);
+***************
+*** 627,633 ****
+                                       strcpy(pw_usermtrxname,param_arg[setpwmatrix]);
+                                       pw_matnum=5;
+                                    }
+! 				else exit(1);
+  			}
+  
+  		}
+--- 627,633 ----
+                                       strcpy(pw_usermtrxname,param_arg[setpwmatrix]);
+                                       pw_matnum=5;
+                                    }
+! 				else return(1);
+  			}
+  
+  		}
+***************
+*** 667,673 ****
+                                       strcpy(usermtrxname,param_arg[setmatrix]);
+                                       matnum=5;
+                                    }
+! 				else exit(1);
+  			}
+  
+  		}
+--- 667,673 ----
+                                       strcpy(usermtrxname,param_arg[setmatrix]);
+                                       matnum=5;
+                                    }
+! 				else return(1);
+  			}
+  
+  		}
+***************
+*** 699,705 ****
+                                       strcpy(pw_dnausermtrxname,param_arg[setpwdnamatrix]);
+                                       pw_dnamatnum=3;
+                                    }
+! 				else exit(1);
+  			}
+  
+  		}
+--- 699,705 ----
+                                       strcpy(pw_dnausermtrxname,param_arg[setpwdnamatrix]);
+                                       pw_dnamatnum=3;
+                                    }
+! 				else return(1);
+  			}
+  
+  		}
+***************
+*** 731,737 ****
+                                       strcpy(dnausermtrxname,param_arg[setdnamatrix]);
+                                       dnamatnum=3;
+                                    }
+! 				else exit(1);
+  			}
+  
+  		}
+--- 731,737 ----
+                                       strcpy(dnausermtrxname,param_arg[setdnamatrix]);
+                                       dnamatnum=3;
+                                    }
+! 				else return(1);
+  			}
+  
+  		}
+***************
+*** 1328,1338 ****
+  */
+  
+      numparams = check_param(args, params, param_arg);
+! 	if (numparams <0) exit(1);
+  
+  	if(sethelp != -1) {
+  		get_help('9');
+! 		exit(1);
+  	}
+  
+  	if(setoptions != -1) {
+--- 1328,1338 ----
+  */
+  
+      numparams = check_param(args, params, param_arg);
+! 	if (numparams <0) return(1);
+  
+  	if(sethelp != -1) {
+  		get_help('9');
+! 		return(1);
+  	}
+  
+  	if(setoptions != -1) {
+***************
+*** 1367,1373 ****
+  			}
+  			fprintf(stdout,"\n");
+  		}
+! 		exit(1);
+  	}
+  
+  
+--- 1367,1373 ----
+  			}
+  			fprintf(stdout,"\n");
+  		}
+! 		return(1);
+  	}
+  
+  
+***************
+*** 1412,1418 ****
+  	if(setinfile != -1) {
+  		if(strlen(param_arg[setinfile]) <= 0) {
+  			error("Bad sequence file name");
+! 			exit(1);
+  		}
+  		strcpy(seqname, param_arg[setinfile]);
+  	}
+--- 1412,1418 ----
+  	if(setinfile != -1) {
+  		if(strlen(param_arg[setinfile]) <= 0) {
+  			error("Bad sequence file name");
+! 			return(1);
+  		}
+  		strcpy(seqname, param_arg[setinfile]);
+  	}
+***************
+*** 1426,1432 ****
+  			else cl_error_code = 4;
+                  	fprintf(stdout,
+  			"\nNo. of seqs. read = %d. No alignment!\n",(pint)nseqs);
+! 			exit(cl_error_code);
+  		}
+  		for(i = 1; i<=nseqs; i++) 
+  			info("Sequence %d: %-*s   %6.d %s",
+--- 1426,1432 ----
+  			else cl_error_code = 4;
+                  	fprintf(stdout,
+  			"\nNo. of seqs. read = %d. No alignment!\n",(pint)nseqs);
+! 			return(cl_error_code);
+  		}
+  		for(i = 1; i<=nseqs; i++) 
+  			info("Sequence %d: %-*s   %6.d %s",
+***************
+*** 1445,1451 ****
+  	if(setprofile1 != -1) {
+  		if(strlen(param_arg[setprofile1]) <= 0) {
+  			error("Bad profile 1 file name");
+! 			exit(1);
+  		}
+  		strcpy(seqname, param_arg[setprofile1]);
+  		profile_no = 1;
+--- 1445,1451 ----
+  	if(setprofile1 != -1) {
+  		if(strlen(param_arg[setprofile1]) <= 0) {
+  			error("Bad profile 1 file name");
+! 			return(1);
+  		}
+  		strcpy(seqname, param_arg[setprofile1]);
+  		profile_no = 1;
+***************
+*** 1453,1459 ****
+  		if(nseqs <= 0) {
+  			if(nseqs<0) cl_error_code=2;
+  			else if(nseqs==0) cl_error_code=3;
+! 			exit(cl_error_code);
+  		}
+  		strcpy(profile1_name,seqname);
+  	}
+--- 1453,1459 ----
+  		if(nseqs <= 0) {
+  			if(nseqs<0) cl_error_code=2;
+  			else if(nseqs==0) cl_error_code=3;
+! 			return(cl_error_code);
+  		}
+  		strcpy(profile1_name,seqname);
+  	}
+***************
+*** 1461,1471 ****
+  	if(setprofile2 != -1) {
+  		if(strlen(param_arg[setprofile2]) <= 0) {
+  			error("Bad profile 2 file name");
+! 			exit(1);
+  		}
+  		if(profile1_empty) {
+  			error("Only 1 profile file (profile 2) specified.");
+! 			exit(1);
+  		}
+  		strcpy(seqname, param_arg[setprofile2]);
+  		profile_no = 2;
+--- 1461,1471 ----
+  	if(setprofile2 != -1) {
+  		if(strlen(param_arg[setprofile2]) <= 0) {
+  			error("Bad profile 2 file name");
+! 			return(1);
+  		}
+  		if(profile1_empty) {
+  			error("Only 1 profile file (profile 2) specified.");
+! 			return(1);
+  		}
+  		strcpy(seqname, param_arg[setprofile2]);
+  		profile_no = 2;
+***************
+*** 1476,1482 ****
+  			if(nseqs<0) cl_error_code=2;
+  			else if(nseqs==0) cl_error_code=3;
+  			error("No sequences read from profile 2");
+! 			exit(cl_error_code);
+  		}
+  		strcpy(profile2_name,seqname);
+  	}
+--- 1476,1482 ----
+  			if(nseqs<0) cl_error_code=2;
+  			else if(nseqs==0) cl_error_code=3;
+  			error("No sequences read from profile 2");
+! 			return(cl_error_code);
+  		}
+  		strcpy(profile2_name,seqname);
+  	}
+***************
+*** 1505,1511 ****
+  	if(settree != -1 )
+  		if(empty) {
+  			error("Cannot draw tree.  No input alignment file");
+! 			exit(1);
+  		}
+  		else 
+  			do_tree = TRUE;
+--- 1505,1511 ----
+  	if(settree != -1 )
+  		if(empty) {
+  			error("Cannot draw tree.  No input alignment file");
+! 			return(1);
+  		}
+  		else 
+  			do_tree = TRUE;
+***************
+*** 1513,1519 ****
+  	if(setbootstrap != -1)
+  		if(empty) {
+  			error("Cannot bootstrap tree. No input alignment file");
+! 			exit(1);
+  		}
+  		else {
+  			temp = 0;
+--- 1513,1519 ----
+  	if(setbootstrap != -1)
+  		if(empty) {
+  			error("Cannot bootstrap tree. No input alignment file");
+! 			return(1);
+  		}
+  		else {
+  			temp = 0;
+***************
+*** 1529,1535 ****
+  	if(setalign != -1)
+  		if(empty) {
+  			error("Cannot align sequences.  No input file");
+! 			exit(1);
+  		}
+  		else 
+  			do_align = TRUE;
+--- 1529,1535 ----
+  	if(setalign != -1)
+  		if(empty) {
+  			error("Cannot align sequences.  No input file");
+! 			return(1);
+  		}
+  		else 
+  			do_align = TRUE;
+***************
+*** 1537,1543 ****
+  	if(setconvert != -1)
+  		if(empty) {
+  			error("Cannot convert sequences.  No input file");
+! 			exit(1);
+  		}
+  		else 
+  			do_convert = TRUE;
+--- 1537,1543 ----
+  	if(setconvert != -1)
+  		if(empty) {
+  			error("Cannot convert sequences.  No input file");
+! 			return(1);
+  		}
+  		else 
+  			do_convert = TRUE;
+***************
+*** 1545,1556 ****
+  	if(setusetree != -1)
+  		if(empty) {
+  			error("Cannot align sequences.  No input file");
+! 			exit(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setusetree]) == 0) {
+  				error("Cannot align sequences.  No tree file specified");
+! 				exit(1);
+  		        }
+                          else {
+  			        strcpy(phylip_tree_name, param_arg[setusetree]);
+--- 1545,1556 ----
+  	if(setusetree != -1)
+  		if(empty) {
+  			error("Cannot align sequences.  No input file");
+! 			return(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setusetree]) == 0) {
+  				error("Cannot align sequences.  No tree file specified");
+! 				return(1);
+  		        }
+                          else {
+  			        strcpy(phylip_tree_name, param_arg[setusetree]);
+***************
+*** 1562,1573 ****
+  	if(setnewtree != -1)
+  		if(empty) {
+  			error("Cannot align sequences.  No input file");
+! 			exit(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setnewtree]) == 0) {
+  				error("Cannot align sequences.  No tree file specified");
+! 				exit(1);
+  		        }
+                          else {
+  			        strcpy(phylip_tree_name, param_arg[setnewtree]);
+--- 1562,1573 ----
+  	if(setnewtree != -1)
+  		if(empty) {
+  			error("Cannot align sequences.  No input file");
+! 			return(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setnewtree]) == 0) {
+  				error("Cannot align sequences.  No tree file specified");
+! 				return(1);
+  		        }
+                          else {
+  			        strcpy(phylip_tree_name, param_arg[setnewtree]);
+***************
+*** 1579,1594 ****
+  	if(setusetree1 != -1)
+  		if(profile1_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			exit(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /usetree1.");
+! 			exit(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setusetree1]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				exit(1);
+  		        }
+                          else {
+  			        strcpy(p1_tree_name, param_arg[setusetree1]);
+--- 1579,1594 ----
+  	if(setusetree1 != -1)
+  		if(profile1_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			return(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /usetree1.");
+! 			return(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setusetree1]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				return(1);
+  		        }
+                          else {
+  			        strcpy(p1_tree_name, param_arg[setusetree1]);
+***************
+*** 1600,1615 ****
+  	if(setnewtree1 != -1)
+  		if(profile1_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			exit(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /newtree1.");
+! 			exit(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setnewtree1]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				exit(1);
+  		        }
+                          else {
+  			        strcpy(p1_tree_name, param_arg[setnewtree1]);
+--- 1600,1615 ----
+  	if(setnewtree1 != -1)
+  		if(profile1_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			return(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /newtree1.");
+! 			return(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setnewtree1]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				return(1);
+  		        }
+                          else {
+  			        strcpy(p1_tree_name, param_arg[setnewtree1]);
+***************
+*** 1620,1635 ****
+  	if(setusetree2 != -1)
+  		if(profile2_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			exit(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /usetree2.");
+! 			exit(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setusetree2]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				exit(1);
+  		        }
+                          else {
+  			        strcpy(p2_tree_name, param_arg[setusetree2]);
+--- 1620,1635 ----
+  	if(setusetree2 != -1)
+  		if(profile2_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			return(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /usetree2.");
+! 			return(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setusetree2]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				return(1);
+  		        }
+                          else {
+  			        strcpy(p2_tree_name, param_arg[setusetree2]);
+***************
+*** 1641,1656 ****
+  	if(setnewtree2 != -1)
+  		if(profile2_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			exit(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /newtree2.");
+! 			exit(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setnewtree2]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				exit(1);
+  		        }
+                          else {
+  			        strcpy(p2_tree_name, param_arg[setnewtree2]);
+--- 1641,1656 ----
+  	if(setnewtree2 != -1)
+  		if(profile2_empty) {
+  			error("Cannot align profiles.  No input file");
+! 			return(1);
+  		}
+  		else if(profile_type == SEQUENCE) {
+  			error("Invalid option /newtree2.");
+! 			return(1);
+  		}
+  		else  {
+  		        if(strlen(param_arg[setnewtree2]) == 0) {
+  				error("Cannot align profiles.  No tree file specified");
+! 				return(1);
+  		        }
+                          else {
+  			        strcpy(p2_tree_name, param_arg[setnewtree2]);
+***************
+*** 1696,1702 ****
+  
+  	if(!do_something) {
+  		error("No input file(s) specified");
+! 		exit(1);
+  	}
+  
+  
+--- 1696,1702 ----
+  
+  	if(!do_something) {
+  		error("No input file(s) specified");
+! 		return(1);
+  	}
+  
+  
+***************
+*** 1717,1723 ****
+  
+          else if(do_convert) {
+                  get_path(seqname,path);
+!                 if(!open_alignment_output(path)) exit(1);
+                  create_alignment_output(1,nseqs);
+          }
+  
+--- 1717,1723 ----
+  
+          else if(do_convert) {
+                  get_path(seqname,path);
+!                 if(!open_alignment_output(path)) return(1);
+                  create_alignment_output(1,nseqs);
+          }
+  
+***************
+*** 1734,1740 ****
+  		bootstrap_tree(phylip_tree_name,clustal_tree_name,nexus_tree_name);
+  
+  	fprintf(stdout,"\n");
+! 	exit(0);
+  
+  /*******whew!***now*go*home****/
+  }
+--- 1734,1740 ----
+  		bootstrap_tree(phylip_tree_name,clustal_tree_name,nexus_tree_name);
+  
+  	fprintf(stdout,"\n");
+! 	return(0);
+  
+  /*******whew!***now*go*home****/
+  }
