@@ -46,12 +46,14 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
+import org.biojava3.alignment.template.Profile;
+import org.biojava3.core.sequence.template.Compound;
+import org.biojava3.core.sequence.template.Sequence;
 import org.jmol.api.JmolViewer;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
-import pl.poznan.put.cs.bioserver.alignment.OutputAlignSeq;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
@@ -77,6 +79,7 @@ public class MainWindow extends JFrame {
 
     private DialogStructures dialogStructures;
     private DialogChains dialogChains;
+    private DialogChainsMultiple dialogChainsMultiple;
     private DialogAngles dialogAngles;
     private DialogManager dialogManager;
 
@@ -99,7 +102,6 @@ public class MainWindow extends JFrame {
 
     private JRadioButtonMenuItem radioAlignSeqGlobal;
     private JRadioButtonMenuItem radioAlignSeqLocal;
-    private JRadioButtonMenuItem radioAlignMultiple;
     private JRadioButtonMenuItem radioAlignStruc;
     private JMenuItem itemSelectStructuresAlign;
     private JMenuItem itemComputeAlign;
@@ -132,6 +134,7 @@ public class MainWindow extends JFrame {
         dialogManager.setVisible(true);
         dialogStructures = DialogStructures.getInstance(this);
         dialogChains = DialogChains.getInstance(this);
+        dialogChainsMultiple = DialogChainsMultiple.getInstance(this);
         dialogAngles = DialogAngles.getInstance(this);
 
         /*
@@ -195,14 +198,11 @@ public class MainWindow extends JFrame {
                 "Global sequence alignment", true);
         radioAlignSeqLocal = new StayOpenRadioButtonMenuItem(
                 "Local sequence alignment", false);
-        radioAlignMultiple = new StayOpenRadioButtonMenuItem(
-                "Multiple sequence alignment", false);
         radioAlignStruc = new StayOpenRadioButtonMenuItem(
                 "3D structure alignment", false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignSeqGlobal);
         groupAlign.add(radioAlignSeqLocal);
-        groupAlign.add(radioAlignMultiple);
         groupAlign.add(radioAlignStruc);
 
         itemSelectStructuresAlign = new JMenuItem("Select structures to align");
@@ -214,7 +214,6 @@ public class MainWindow extends JFrame {
         menu.add(new JLabel("    Select alignment type:"));
         menu.add(radioAlignSeqGlobal);
         menu.add(radioAlignSeqLocal);
-        menu.add(radioAlignMultiple);
         menu.add(radioAlignStruc);
         menu.addSeparator();
         menu.add(itemSelectStructuresAlign);
@@ -404,11 +403,18 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
-                if (source.equals(itemSelectStructuresCompare)
-                        && !radioLocal.isSelected()) {
-                    selectStructures();
+                if (source.equals(itemSelectStructuresCompare)) {
+                    if (radioLocal.isSelected()) {
+                        selectChains(source);
+                    } else {
+                        selectStructures();
+                    }
                 } else {
-                    selectChains(source);
+                    if (radioAlignStruc.isSelected()) {
+                        selectChains(source);
+                    } else {
+                        selectChainsMultiple();
+                    }
                 }
             }
         };
@@ -449,8 +455,6 @@ public class MainWindow extends JFrame {
                 if (radioAlignSeqGlobal.isSelected()
                         || radioAlignSeqLocal.isSelected()) {
                     alignSequences();
-                } else if (radioAlignMultiple.isSelected()) {
-                    alignSequences();
                 } else {
                     alignStructures();
                 }
@@ -475,29 +479,14 @@ public class MainWindow extends JFrame {
     }
 
     private void alignSequences() {
-        Chain[][] chains = dialogChains.getChains();
-        if (chains[0].length != 1 || chains[1].length != 1) {
-            JOptionPane.showMessageDialog(MainWindow.this,
-                    "A single chain should be selected from each structure in "
-                            + "sequence alignment.", "Information",
-                    JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        boolean isRNA = Helper.isNucleicAcid(chains[0][0]);
-        if (isRNA != Helper.isNucleicAcid(chains[1][0])) {
-            JOptionPane.showMessageDialog(this, "Cannot align structures: "
-                    + "different molecular types", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        Chain[] chains = dialogChainsMultiple.getChains();
 
         textAreaAlignSeq.setText("");
         layoutCards.show(panelCards, CARD_ALIGN_SEQ);
 
-        OutputAlignSeq alignment = AlignerSequence.align(chains[0][0],
-                chains[1][0], radioAlignSeqGlobal.isSelected(),
-                dialogChains.getSelectionDescription());
-        exportableResults = alignment;
+        Profile<Sequence<Compound>, Compound> alignment = AlignerSequence
+                .align(chains, radioAlignSeqGlobal.isSelected());
+        // exportableResults = alignment;
         textAreaAlignSeq.setText(alignment.toString());
 
         itemSave.setEnabled(true);
@@ -514,9 +503,6 @@ public class MainWindow extends JFrame {
                     + dialogChains.getSelectionDescription() + "<br>"
                     + "Local sequence alignment results:" + "</html>");
         }
-
-        System.out.println(AlignerSequence.align(new Chain[] { chains[0][0],
-                chains[1][0], chains[0][0] }));
     }
 
     private void alignStructures() {
@@ -759,29 +745,6 @@ public class MainWindow extends JFrame {
 
             labelInfoMatrix.setText("Structures selected for local distance "
                     + "measure: " + dialogChains.getSelectionDescription());
-        } else if (radioAlignSeqGlobal.isSelected()
-                || radioAlignSeqLocal.isSelected()) {
-            if (chains[0].length != 1 || chains[1].length != 1) {
-                JOptionPane.showMessageDialog(MainWindow.this,
-                        "A single chain should be " + "selected from each "
-                                + "structure in " + "sequence alignment.",
-                        "Information", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
-
-            textAreaAlignSeq.setText("");
-            layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
-
-            itemSave.setEnabled(false);
-            itemComputeDistances.setEnabled(false);
-            itemVisualise.setEnabled(false);
-            itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(true);
-
-            labelInfoAlignSeq.setText("Structures selected for "
-                    + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
-                    + " sequence alignment: "
-                    + dialogChains.getSelectionDescription());
         } else { // source.equals(itemSelectChainsAlignStruc)
             panelJmolLeft.executeCmd("restore state " + "state_init");
             panelJmolRight.executeCmd("restore state " + "state_init");
@@ -796,6 +759,37 @@ public class MainWindow extends JFrame {
             labelInfoAlignStruc.setText("Structures selected for 3D structure "
                     + "alignment: " + dialogChains.getSelectionDescription());
         }
+    }
+
+    private void selectChainsMultiple() {
+        if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK) {
+            return;
+        }
+
+        Chain[] chains = dialogChainsMultiple.getChains();
+        boolean isRNA = Helper.isNucleicAcid(chains[0]);
+        for (Chain c : chains) {
+            if (Helper.isNucleicAcid(c) != isRNA) {
+                JOptionPane.showMessageDialog(this, "Cannot align structures: "
+                        + "different molecular types", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        textAreaAlignSeq.setText("");
+        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+
+        itemSave.setEnabled(false);
+        itemComputeDistances.setEnabled(false);
+        itemVisualise.setEnabled(false);
+        itemCluster.setEnabled(false);
+        itemComputeAlign.setEnabled(true);
+
+        labelInfoAlignSeq.setText("Structures selected for "
+                + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
+                + " sequence alignment: "
+                + dialogChains.getSelectionDescription());
     }
 
     private void selectStructures() {

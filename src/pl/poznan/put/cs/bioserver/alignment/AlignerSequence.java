@@ -8,12 +8,9 @@ import java.util.List;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
 import org.biojava3.alignment.Alignments;
-import org.biojava3.alignment.NeedlemanWunsch;
-import org.biojava3.alignment.SimpleGapPenalty;
+import org.biojava3.alignment.Alignments.ProfileProfileAlignerType;
 import org.biojava3.alignment.SimpleSubstitutionMatrix;
-import org.biojava3.alignment.SmithWaterman;
 import org.biojava3.alignment.SubstitutionMatrixHelper;
-import org.biojava3.alignment.template.AbstractPairwiseSequenceAligner;
 import org.biojava3.alignment.template.Profile;
 import org.biojava3.alignment.template.SubstitutionMatrix;
 import org.biojava3.core.sequence.ProteinSequence;
@@ -38,60 +35,23 @@ public final class AlignerSequence {
             .getLogger(AlignerSequence.class);
 
     @SuppressWarnings("unchecked")
-    public static OutputAlignSeq align(Chain c1, Chain c2, boolean isGlobal,
-            String description) {
-        /*
-         * Parse sequences
-         */
-        Sequence<? extends Compound> query = AlignerSequence.getSequence(c1);
-        Sequence<? extends Compound> target = AlignerSequence.getSequence(c2);
-        if (query.getLength() == 0 || target.getLength() == 0) {
-            AlignerSequence.logger.warn("At least one chain has 0 residues");
-            return null;
-        }
-        AlignerSequence.logger.trace("Sequences to be aligned:\n" + query
-                + "\n" + target);
-        /*
-         * Prepare substitution matrices for the alignment
-         */
-        SubstitutionMatrix<? extends Compound> matrix;
-        if (Helper.isNucleicAcid(c1)) {
-            matrix = AlignerSequence.getRNASubstitutionMatrix(); // SubstitutionMatrixHelper.getNuc4_4();
-        } else {
-            matrix = SubstitutionMatrixHelper.getBlosum62();
-        }
-        /*
-         * Align the sequences
-         */
-        AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner;
-        if (isGlobal) {
-            aligner = new NeedlemanWunsch<>();
-        } else {
-            aligner = new SmithWaterman<>();
-        }
-        aligner.setQuery((Sequence<Compound>) query);
-        aligner.setTarget((Sequence<Compound>) target);
-        aligner.setGapPenalty(new SimpleGapPenalty());
-        aligner.setSubstitutionMatrix((SubstitutionMatrix<Compound>) matrix);
-        return new OutputAlignSeq(aligner, description);
-    }
-
-    public static String align(Chain[] chains) {
+    public static Profile<Sequence<Compound>, Compound> align(Chain[] chains,
+            boolean isGlobal) {
         List<Sequence<Compound>> sequences = new ArrayList<>();
         for (Chain c : chains) {
             sequences.add((Sequence<Compound>) AlignerSequence.getSequence(c));
         }
 
-        Profile<Sequence<Compound>, Compound> alignment;
-        if (sequences.get(0).getCompoundSet()
-                .equals(RNACompoundSet.getRNACompoundSet())) {
-            alignment = Alignments.getMultipleSequenceAlignment(sequences,
-                    AlignerSequence.getRNASubstitutionMatrix());
-        } else {
-            alignment = Alignments.getMultipleSequenceAlignment(sequences);
-        }
+        SubstitutionMatrix<? extends Compound> matrix = AlignerSequence
+                .getSubstitutionMatrix(chains[0]);
+        ProfileProfileAlignerType type = isGlobal ? ProfileProfileAlignerType.GLOBAL
+                : ProfileProfileAlignerType.LOCAL;
 
-        return alignment.toString();
+        return Alignments.getMultipleSequenceAlignment(sequences, matrix, type);
+    }
+
+    private static SubstitutionMatrix<? extends Compound> getProteinSubsitutionMatrix() {
+        return SubstitutionMatrixHelper.getBlosum62();
     }
 
     private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {
@@ -105,7 +65,7 @@ public final class AlignerSequence {
                     "Failed to load substitution matrix for RNA", e);
         }
 
-        // the default will not work with MSA for RNAs!
+        // warning, the default will not work with MSA for RNAs!
         return SubstitutionMatrixHelper.getNuc4_4();
     }
 
@@ -149,6 +109,14 @@ public final class AlignerSequence {
             sequence = new ProteinSequence(seqString);
         }
         return sequence;
+    }
+
+    private static SubstitutionMatrix<? extends Compound> getSubstitutionMatrix(
+            Chain chain) {
+        if (Helper.isNucleicAcid(chain)) {
+            return AlignerSequence.getRNASubstitutionMatrix();
+        }
+        return AlignerSequence.getProteinSubsitutionMatrix();
     }
 
     private AlignerSequence() {

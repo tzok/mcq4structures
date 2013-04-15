@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -11,13 +12,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
 
+import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -28,55 +28,128 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Structure;
+
+import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
-final class DialogStructures extends JDialog {
+final class DialogChainsMultiple extends JDialog {
+    private class FilteredListModel extends AbstractListModel<Chain> {
+        private static final long serialVersionUID = 1L;
+
+        private boolean isRNA = true;
+        private boolean isProtein = true;
+        private List<Chain> listRNAs = new ArrayList<>();
+        private List<Chain> listProteins = new ArrayList<>();
+
+        @Override
+        public Chain getElementAt(int index) {
+            if (isRNA) {
+                if (index < listRNAs.size()) {
+                    return listRNAs.get(index);
+                }
+                return listProteins.get(index - listRNAs.size());
+            }
+            return listProteins.get(index);
+        }
+
+        @Override
+        public int getSize() {
+            return (isRNA ? listRNAs.size() : 0)
+                    + (isProtein ? listProteins.size() : 0);
+        }
+
+        public ArrayList<Chain> getElements() {
+            ArrayList<Chain> list = new ArrayList<>();
+            list.addAll(listRNAs);
+            list.addAll(listProteins);
+            return list;
+        }
+
+        public List<Chain> getSelectedElements() {
+            List<Chain> list = new ArrayList<>();
+            if (isRNA) {
+                list.addAll(listRNAs);
+            }
+            if (isProtein) {
+                list.addAll(listProteins);
+            }
+            return list;
+        }
+
+        public void removeElement(Chain f) {
+            if (listRNAs.contains(f)) {
+                listRNAs.remove(f);
+            } else {
+                listProteins.remove(f);
+            }
+        }
+
+        public void addElement(Chain f) {
+            if (Helper.isNucleicAcid(f)) {
+                listRNAs.add(f);
+            } else {
+                listProteins.add(f);
+            }
+        }
+    }
+
     public static final int CANCEL = 0;
     public static final int OK = 1;
     private static final long serialVersionUID = 1L;
 
-    private static DialogStructures instance;
+    private static DialogChainsMultiple instance;
 
-    public static DialogStructures getInstance(Frame owner) {
-        if (DialogStructures.instance == null) {
-            DialogStructures.instance = new DialogStructures(owner);
+    public static DialogChainsMultiple getInstance(Frame owner) {
+        if (DialogChainsMultiple.instance == null) {
+            DialogChainsMultiple.instance = new DialogChainsMultiple(owner);
         }
-        return DialogStructures.instance;
+        return DialogChainsMultiple.instance;
     }
 
     private int chosenOption;
-    private DefaultListModel<File> modelAll;
-    private DefaultListModel<File> modelSelected;
-    private File[] selectedStructures;
+    private FilteredListModel modelAll;
+    private FilteredListModel modelSelected;
+    private Chain[] selectedChains;
+    private JList<Chain> listAll;
+    private JList<Chain> listSelected;
 
-    private DialogStructures(Frame owner) {
+    private DialogChainsMultiple(Frame owner) {
         super(owner, true);
 
-        modelAll = new DefaultListModel<>();
-        final JList<File> listAll = new JList<>(modelAll);
-        listAll.setBorder(BorderFactory
-                .createTitledBorder("Available structures"));
-        final ListCellRenderer<? super File> renderer = listAll
-                .getCellRenderer();
-        modelSelected = new DefaultListModel<>();
-        final JList<File> listSelected = new JList<>(modelSelected);
+        modelAll = new FilteredListModel();
+        listAll = new JList<>(modelAll);
+        listAll.setBorder(BorderFactory.createTitledBorder("Available chains"));
+        modelSelected = new FilteredListModel();
+        listSelected = new JList<>(modelSelected);
         listSelected.setBorder(BorderFactory
-                .createTitledBorder("Selected structures"));
+                .createTitledBorder("Selected chains"));
 
-        ListCellRenderer<File> pdbCellRenderer = new ListCellRenderer<File>() {
+        final ListCellRenderer<? super Chain> renderer = listAll
+                .getCellRenderer();
+        ListCellRenderer<Chain> pdbCellRenderer = new ListCellRenderer<Chain>() {
             @Override
             public Component getListCellRendererComponent(
-                    JList<? extends File> list, File value, int index,
+                    JList<? extends Chain> list, Chain value, int index,
                     boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
-                label.setText(StructureManager.getName(value));
+                boolean isRNA = Helper.isNucleicAcid(value);
+                String text = String.format("%s.%s (%s, %d %s)",
+                        StructureManager.getName(value.getParent()), value
+                                .getChainID(), isRNA ? "RNA" : "protein", value
+                                .getAtomGroups().size(), isRNA ? "nt" : "aa");
+                label.setText(text);
+                label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                 return label;
             }
         };
         listAll.setCellRenderer(pdbCellRenderer);
         listSelected.setCellRenderer(pdbCellRenderer);
 
+        final JCheckBox checkRNA = new JCheckBox("RNAs", true);
+        final JCheckBox checkProtein = new JCheckBox("proteins", true);
         final JButton buttonSelect = new JButton("Select ->");
         buttonSelect.setEnabled(false);
         final JButton buttonSelectAll = new JButton("Select all ->");
@@ -92,6 +165,12 @@ final class DialogStructures extends JDialog {
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        panelButtons.add(new JLabel("Limit to:"), constraints);
+        constraints.gridy++;
+        panelButtons.add(checkRNA, constraints);
+        constraints.gridy++;
+        panelButtons.add(checkProtein, constraints);
+        constraints.gridy++;
         panelButtons.add(buttonSelect, constraints);
         constraints.gridy++;
         panelButtons.add(buttonSelectAll, constraints);
@@ -136,7 +215,7 @@ final class DialogStructures extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
-        setTitle("MCQ4Structures: structure selection");
+        setTitle("MCQ4Structures: multiple chain selection");
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
@@ -158,7 +237,7 @@ final class DialogStructures extends JDialog {
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                List<File> values;
+                List<Chain> values;
                 boolean isSelect;
 
                 Object source = arg0.getSource();
@@ -166,17 +245,17 @@ final class DialogStructures extends JDialog {
                     values = listAll.getSelectedValuesList();
                     isSelect = true;
                 } else if (source.equals(buttonSelectAll)) {
-                    values = Collections.list(modelAll.elements());
+                    values = modelAll.getElements();
                     isSelect = true;
                 } else if (source.equals(buttonDeselect)) {
                     values = listSelected.getSelectedValuesList();
                     isSelect = false;
                 } else { // source.equals(buttonDeselectAll)
-                    values = Collections.list(modelSelected.elements());
+                    values = modelSelected.getElements();
                     isSelect = false;
                 }
 
-                for (File f : values) {
+                for (Chain f : values) {
                     if (isSelect) {
                         modelAll.removeElement(f);
                         modelSelected.addElement(f);
@@ -185,6 +264,9 @@ final class DialogStructures extends JDialog {
                         modelSelected.removeElement(f);
                     }
                 }
+
+                listAll.updateUI();
+                listSelected.updateUI();
             }
         };
         buttonSelect.addActionListener(actionListenerSelectDeselect);
@@ -195,10 +277,10 @@ final class DialogStructures extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<File> list = Collections.list(modelSelected.elements());
-                selectedStructures = list.toArray(new File[list.size()]);
+                List<Chain> list = modelSelected.getSelectedElements();
+                selectedChains = list.toArray(new Chain[list.size()]);
 
-                chosenOption = DialogStructures.OK;
+                chosenOption = DialogChainsMultiple.OK;
                 dispose();
             }
         });
@@ -206,51 +288,67 @@ final class DialogStructures extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                chosenOption = DialogStructures.CANCEL;
+                chosenOption = DialogChainsMultiple.CANCEL;
                 dispose();
             }
         });
-    }
 
-    public File[] getFiles() {
-        return selectedStructures;
-    }
+        ActionListener checkBoxListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean isRNA = checkRNA.isSelected();
+                boolean isProtein = checkProtein.isSelected();
+                modelAll.isRNA = isRNA;
+                modelAll.isProtein = isProtein;
+                modelSelected.isRNA = isRNA;
+                modelSelected.isProtein = isProtein;
 
-    public String getSelectionDescription() {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < selectedStructures.length; i++) {
-            builder.append(StructureManager.getName(selectedStructures[i]));
-            if (i != selectedStructures.length - 1) {
-                builder.append(", ");
+                listAll.updateUI();
+                listSelected.updateUI();
             }
-        }
-        return builder.toString();
+        };
+        checkRNA.addActionListener(checkBoxListener);
+        checkProtein.addActionListener(checkBoxListener);
+    }
+
+    public Chain[] getChains() {
+        return selectedChains;
     }
 
     public int showDialog() {
-        SortedSet<File> setManager = StructureManager.getAllStructures();
-        ArrayList<File> listLeft = Collections.list(modelAll.elements());
-        ArrayList<File> listRight = Collections.list(modelSelected.elements());
+        List<Chain> setManager = new ArrayList<>();
+        for (File file : StructureManager.getAllStructures()) {
+            Structure structure = StructureManager.getStructure(file);
+            for (Chain chain : structure.getChains()) {
+                setManager.add(chain);
+            }
+        }
 
-        ArrayList<File> list = (ArrayList<File>) listLeft.clone();
+        ArrayList<Chain> listLeft = modelAll.getElements();
+        ArrayList<Chain> listRight = modelSelected.getElements();
+
+        ArrayList<Chain> list = (ArrayList<Chain>) listLeft.clone();
         list.removeAll(setManager);
-        for (File file : list) {
+        for (Chain file : list) {
             modelAll.removeElement(file);
         }
 
-        list = (ArrayList<File>) listRight.clone();
+        list = (ArrayList<Chain>) listRight.clone();
         list.removeAll(setManager);
-        for (File file : list) {
+        for (Chain file : list) {
             modelSelected.removeElement(file);
         }
 
         setManager.removeAll(listLeft);
         setManager.removeAll(listRight);
-        for (File file : setManager) {
+        for (Chain file : setManager) {
             modelAll.addElement(file);
         }
 
-        chosenOption = DialogStructures.CANCEL;
+        listAll.updateUI();
+        listSelected.updateUI();
+
+        chosenOption = DialogChainsMultiple.CANCEL;
         setVisible(true);
         return chosenOption;
     }
