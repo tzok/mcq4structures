@@ -105,8 +105,9 @@ public final class StructureManager {
             StructureManager.storeStructureInfo(file, structure);
             return structure;
         } catch (IOException e) {
-            StructureManager.LOGGER.error("Failed to load structure", e);
-            throw e;
+            String message = "Failed to load structure: " + file;
+            StructureManager.LOGGER.error(message, e);
+            throw new IOException(message, e);
         }
     }
 

@@ -131,7 +131,8 @@ public final class DialogManager extends JDialog {
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(DialogManager.instance,
-                    e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    e.getMessage(), "Error: " + e.getClass(),
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }
