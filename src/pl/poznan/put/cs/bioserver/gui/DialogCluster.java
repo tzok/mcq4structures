@@ -130,7 +130,7 @@ public class DialogCluster extends JDialog {
                     plotTitle += "k-medoids (";
                     plotTitle += method.getSelectedItem();
                     plotTitle += ", k =";
-                    plotTitle += (k == 0 ? "auto" : Integer.toString(k));
+                    plotTitle += k == 0 ? "auto" : Integer.toString(k);
                     plotTitle += ")";
                 }
                 plot.setTitle(plotTitle);

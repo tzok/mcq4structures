@@ -96,7 +96,7 @@ public class OutputAlignSeq implements Exportable, Serializable {
     @Override
     public File suggestName() {
         String filename = Helper.getExportPrefix();
-        filename += (isGlobal ? "-GSA-" : "-LSA-");
+        filename += isGlobal ? "-GSA-" : "-LSA-";
         filename += description.replace(", ", "-");
         filename += ".txt";
         return new File(filename);

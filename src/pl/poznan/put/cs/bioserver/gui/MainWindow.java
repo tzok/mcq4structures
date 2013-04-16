@@ -485,7 +485,7 @@ public class MainWindow extends JFrame {
         final Chain[] chains = dialogChainsMultiple.getChains();
 
         textAreaAlignSeq.setText("");
-        layoutCards.show(panelCards, CARD_ALIGN_SEQ);
+        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
         final String[] names = new String[chains.length];
         for (int i = 0; i < chains.length; i++) {
@@ -583,7 +583,7 @@ public class MainWindow extends JFrame {
 
         panelJmolLeft.executeCmd("restore state " + "state_init");
         panelJmolRight.executeCmd("restore state " + "state_init");
-        layoutCards.show(panelCards, CARD_ALIGN_STRUC);
+        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
 
         labelAlignmentStatus.setText("Processing");
         final Timer timer = new Timer(100, new ActionListener() {

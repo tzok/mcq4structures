@@ -1,6 +1,5 @@
 package pl.poznan.put.cs.bioserver.sandbox;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -9,18 +8,17 @@ import java.util.List;
 
 import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.SimpleSubstitutionMatrix;
-import org.biojava3.alignment.SubstitutionMatrixHelper;
 import org.biojava3.alignment.template.SubstitutionMatrix;
 import org.biojava3.core.sequence.DNASequence;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.RNASequence;
-import org.biojava3.core.sequence.compound.AmbiguityDNACompoundSet;
 import org.biojava3.core.sequence.compound.NucleotideCompound;
 import org.biojava3.core.sequence.compound.RNACompoundSet;
 import org.biojava3.core.sequence.io.FastaReaderHelper;
 import org.biojava3.core.sequence.template.Sequence;
 
 public class MSA {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void main(String[] args) throws IOException, Exception {
         List<ProteinSequence> sequences = new ArrayList<>();
         for (String id : new String[] { "Q21691", "Q21495", "O48771" }) {
@@ -43,7 +41,7 @@ public class MSA {
         try (InputStreamReader reader = new InputStreamReader(
                 MSA.class
                         .getResourceAsStream("/pl/poznan/put/cs/bioserver/alignment/NUC44.txt"))) {
-            matrix = new SimpleSubstitutionMatrix<NucleotideCompound>(
+            matrix = new SimpleSubstitutionMatrix<>(
                     RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
         }
 
