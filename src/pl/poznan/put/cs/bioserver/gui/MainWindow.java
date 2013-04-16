@@ -12,6 +12,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -479,28 +482,75 @@ public class MainWindow extends JFrame {
     }
 
     private void alignSequences() {
-        Chain[] chains = dialogChainsMultiple.getChains();
+        final Chain[] chains = dialogChainsMultiple.getChains();
 
         textAreaAlignSeq.setText("");
         layoutCards.show(panelCards, CARD_ALIGN_SEQ);
 
-        Profile<Sequence<Compound>, Compound> alignment = AlignerSequence
-                .align(chains, radioAlignSeqGlobal.isSelected());
-        // exportableResults = alignment;
-        textAreaAlignSeq.setText(alignment.toString());
+        final String[] names = new String[chains.length];
+        for (int i = 0; i < chains.length; i++) {
+            Chain chain = chains[i];
+            names[i] = StructureManager.getName(chain.getParent()) + "."
+                    + chain.getChainID();
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(names[0]);
+        for (int i = 1; i < names.length; i++) {
+            builder.append(", ");
+            builder.append(names[i]);
+        }
+        final String description = builder.toString();
+
+        final boolean isGlobal = radioAlignSeqGlobal.isSelected();
+        final Profile<Sequence<Compound>, Compound> alignment = AlignerSequence
+                .align(chains, isGlobal);
+
+        final String output = AlignerSequence
+                .toClustalFormat(alignment, chains);
+        textAreaAlignSeq.setText(output);
+
+        exportableResults = new Exportable() {
+            @Override
+            public File suggestName() {
+                StringBuilder filename = new StringBuilder();
+                filename.append(Helper.getExportPrefix());
+                filename.append(isGlobal ? "-GSA-" : "-LSA-");
+                filename.append(description.replace(", ", "-"));
+                filename.append(".txt");
+                return new File(filename.toString());
+            }
+
+            @Override
+            public void export(File file) {
+                try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+                    writer.write(isGlobal ? "Global" : "Local");
+                    writer.write(" sequence alignment: ");
+                    writer.write(description);
+                    writer.write("\n\n");
+                    writer.write(output);
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        };
 
         itemSave.setEnabled(true);
         itemSave.setText("Save results (TXT)");
 
-        if (radioAlignSeqGlobal.isSelected()) {
+        if (isGlobal) {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for global sequence alignment: "
-                    + dialogChains.getSelectionDescription() + "<br>"
+                    + description + "<br>"
                     + "Global sequence alignment results:" + "</html>");
         } else {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for local sequence alignment: "
-                    + dialogChains.getSelectionDescription() + "<br>"
+                    + description + "<br>"
                     + "Local sequence alignment results:" + "</html>");
         }
     }

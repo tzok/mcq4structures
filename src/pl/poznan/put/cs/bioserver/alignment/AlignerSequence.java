@@ -3,14 +3,16 @@ package pl.poznan.put.cs.bioserver.alignment;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
 import org.biojava3.alignment.Alignments;
-import org.biojava3.alignment.Alignments.ProfileProfileAlignerType;
+import org.biojava3.alignment.Alignments.PairwiseSequenceScorerType;
 import org.biojava3.alignment.SimpleSubstitutionMatrix;
 import org.biojava3.alignment.SubstitutionMatrixHelper;
+import org.biojava3.alignment.template.AlignedSequence;
 import org.biojava3.alignment.template.Profile;
 import org.biojava3.alignment.template.SubstitutionMatrix;
 import org.biojava3.core.sequence.ProteinSequence;
@@ -23,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
@@ -44,8 +47,8 @@ public final class AlignerSequence {
 
         SubstitutionMatrix<? extends Compound> matrix = AlignerSequence
                 .getSubstitutionMatrix(chains[0]);
-        ProfileProfileAlignerType type = isGlobal ? ProfileProfileAlignerType.GLOBAL
-                : ProfileProfileAlignerType.LOCAL;
+        PairwiseSequenceScorerType type = isGlobal ? PairwiseSequenceScorerType.GLOBAL
+                : PairwiseSequenceScorerType.LOCAL;
 
         return Alignments.getMultipleSequenceAlignment(sequences, matrix, type);
     }
@@ -117,6 +120,51 @@ public final class AlignerSequence {
             return AlignerSequence.getRNASubstitutionMatrix();
         }
         return AlignerSequence.getProteinSubsitutionMatrix();
+    }
+
+    public static String toClustalFormat(
+            Profile<Sequence<Compound>, Compound> profile, Chain[] chains) {
+        final String[] names = new String[chains.length];
+        for (int i = 0; i < chains.length; i++) {
+            Chain chain = chains[i];
+            names[i] = StructureManager.getName(chain.getParent()) + "."
+                    + chain.getChainID();
+        }
+
+        List<AlignedSequence<Sequence<Compound>, Compound>> list = profile
+                .getAlignedSequences();
+        char[][] sequences = new char[list.size()][];
+        for (int i = 0; i < list.size(); i++) {
+            sequences[i] = list.get(i).toString().toCharArray();
+            assert sequences[i].length == sequences[0].length;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < sequences[0].length; i += 60) {
+            char[][] copy = new char[list.size()][];
+            for (int j = 0; j < list.size(); j++) {
+                copy[j] = Arrays.copyOfRange(sequences[j], i,
+                        Math.min(i + 60, sequences[j].length));
+                String name = names[j].substring(0,
+                        Math.min(names[j].length(), 11));
+                builder.append(String.format("%-12s", name));
+                builder.append(copy[j]);
+                builder.append('\n');
+            }
+            builder.append("            ");
+            for (int k = 0; k < copy[0].length; k++) {
+                boolean flag = true;
+                for (int j = 0; j < list.size(); j++) {
+                    if (copy[j][k] != copy[0][k]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                builder.append(flag ? '*' : ' ');
+            }
+            builder.append("\n\n");
+        }
+        return builder.toString();
     }
 
     private AlignerSequence() {
