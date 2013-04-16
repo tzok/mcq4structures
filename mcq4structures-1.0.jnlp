@@ -14,6 +14,7 @@
         <jar href="mcq4structures-1.0.jar" main="true"/>
         <jar href="Jmol.jar"/>
         <jar href="JmolData.jar"/>
+        <jar href="AAProperties-jar-with-dependencies.jar"/>
         <jar href="biojava3-alignment-3.0.5.jar"/>
         <jar href="biojava3-core-3.0.5.jar"/>
         <jar href="biojava3-structure-3.0.5.jar"/>
