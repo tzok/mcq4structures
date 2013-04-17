@@ -24,14 +24,12 @@ public class BenchmarkTime {
             }
         }
 
-        int dummy = 0;
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
             new MCQ().compare(structures, null);
             System.out.println("Time: " + (System.currentTimeMillis() - start)
                     + " ms");
         }
-        dummy = 1;
     }
 
     public static List<File> list(File directory) {

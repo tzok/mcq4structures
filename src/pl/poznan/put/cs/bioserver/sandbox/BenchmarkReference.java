@@ -24,8 +24,10 @@ public class BenchmarkReference {
             }
         }
 
-        System.out.println(Arrays.deepToString(new MCQ().compare(structures,
-                null)));
+        double[][] result = new MCQ().compare(structures, null);
+        for (double[] row : result) {
+            System.out.println(Arrays.toString(row));
+        }
     }
 
     public static List<File> list(File directory) {
