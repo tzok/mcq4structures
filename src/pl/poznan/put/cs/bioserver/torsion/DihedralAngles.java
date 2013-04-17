@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Group;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public final class DihedralAngles {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DihedralAngles.class);
     private static Map<Integer, Map<Atom, Integer>> reverseMapCache = new HashMap<>();
+    private static MultiKeyMap mapAtomsQuadruplets = new MultiKeyMap();
 
     /**
      * Calculate all angle differences for given angle type.
@@ -123,9 +125,14 @@ public final class DihedralAngles {
         return torp;
     }
 
-    public static List<Quadruplet> getQuadruplets(Atom[] atoms,
+    public static synchronized List<Quadruplet> getQuadruplets(Atom[] atoms,
             AngleType angleType) {
         int hashCode = Arrays.hashCode(atoms);
+
+        if (mapAtomsQuadruplets.containsKey(hashCode, angleType)) {
+            return (List<Quadruplet>) mapAtomsQuadruplets.get(hashCode,
+                    angleType);
+        }
         if (!DihedralAngles.reverseMapCache.containsKey(hashCode)) {
             DihedralAngles.reverseMapCache.put(hashCode,
                     DihedralAngles.makeReverseMap(atoms));
@@ -191,6 +198,8 @@ public final class DihedralAngles {
                         + ". Atoms: " + Arrays.toString(array));
             }
         }
+
+        mapAtomsQuadruplets.put(hashCode, angleType, filtered);
         return filtered;
     }
 
