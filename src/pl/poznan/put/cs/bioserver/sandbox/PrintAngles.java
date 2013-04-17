@@ -22,6 +22,7 @@ public class PrintAngles {
 
         try {
             Structure structure = new PDBFileReader().getStructure(args[0]);
+            Helper.normalizeAtomNames(structure);
             List<Atom> atomArray = Helper.getAtomArray(structure,
                     NucleotideDihedral.getUsedAtoms());
             for (AngleType type : NucleotideDihedral.getAngles()) {
