@@ -14,11 +14,7 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
 public class BenchmarkReference {
     public static void main(String[] args) {
         List<File> pdbs = new ArrayList<>();
-        // pdbs.addAll(list(new File("/home/tzok/pdb/puzzles/")));
-        pdbs.addAll(list(new File(
-                "/home/tzok/pdb/puzzles/Challenge3/1/targets/3_solution_1.pdb")));
-        pdbs.addAll(list(new File(
-                "/home/tzok/pdb/puzzles/Challenge3/1/models/3_bujnicki_1.pdb")));
+        pdbs.addAll(list(new File("/home/tzok/pdb/puzzles/")));
         Structure[] structures = new Structure[pdbs.size()];
         for (int i = 0; i < pdbs.size(); i++) {
             try {
@@ -28,8 +24,10 @@ public class BenchmarkReference {
             }
         }
 
-        System.out.println(Arrays.deepToString(new MCQ().compare(structures,
-                null)));
+        double[][] result = new MCQ().compare(structures, null);
+        for (double[] row : result) {
+            System.out.println(Arrays.toString(row));
+        }
     }
 
     public static List<File> list(File directory) {

@@ -10,7 +10,7 @@ import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
-public class TimeBenchmark {
+public class BenchmarkTime {
     public static void main(String[] args) {
         List<File> pdbs = list(new File("/home/tzok/pdb/puzzles/"));
         pdbs.addAll(list(new File("/home/tzok/pdb/puzzles/")));
