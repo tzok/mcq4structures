@@ -53,6 +53,8 @@ import org.biojava3.alignment.template.Profile;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 import org.jmol.api.JmolViewer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
@@ -79,6 +81,8 @@ public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "CARD_MATRIX";
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
+    private static final Logger logger = LoggerFactory
+            .getLogger(MainWindow.class);
 
     private DialogStructures dialogStructures;
     private DialogChains dialogChains;
@@ -689,6 +693,7 @@ public class MainWindow extends JFrame {
                 final File[] files = dialogStructures.getFiles();
                 Structure[] structures = StructureManager.getStructures(files);
 
+                long start = System.currentTimeMillis();
                 final double[][] matrix = comparison.compare(structures,
                         new ComparisonListener() {
                             @Override
@@ -697,6 +702,8 @@ public class MainWindow extends JFrame {
                                 progressBar.setValue((int) completed);
                             }
                         });
+                MainWindow.logger.debug("Structure comparison took "
+                        + (System.currentTimeMillis() - start) + " ms");
 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
