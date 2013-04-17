@@ -13,6 +13,7 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 public class TimeBenchmark {
     public static void main(String[] args) {
         List<File> pdbs = list(new File("/home/tzok/pdb/puzzles/"));
+        pdbs.addAll(list(new File("/home/tzok/pdb/puzzles/")));
         Structure[] structures = new Structure[pdbs.size()];
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {
@@ -23,12 +24,14 @@ public class TimeBenchmark {
             }
         }
 
+        int dummy = 0;
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
             new MCQ().compare(structures, null);
             System.out.println("Time: " + (System.currentTimeMillis() - start)
                     + " ms");
         }
+        dummy = 1;
     }
 
     public static List<File> list(File directory) {
