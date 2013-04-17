@@ -142,7 +142,7 @@ public final class DihedralAngles {
         Map<Atom, Integer> reverseMap = DihedralAngles.reverseMapCache
                 .get(hashCode);
 
-        MultiKeyMap mapChainResidue[] = new MultiKeyMap[] { null,
+        MultiKeyMap mapChainResidue[] = new MultiKeyMap[] { new MultiKeyMap(),
                 new MultiKeyMap(), new MultiKeyMap(), new MultiKeyMap() };
         List<Atom> listReference = new ArrayList<>();
 
@@ -158,12 +158,10 @@ public final class DihedralAngles {
                 if (atom.getFullName().equals(atomNames[i])) {
                     if (i == 0) {
                         listReference.add(atom);
-                    } else {
-                        char chain = group.getChainId().charAt(0);
-                        int residue = group.getResidueNumber().getSeqNum();
-                        mapChainResidue[i].put(chain, residue, atom);
                     }
-                    break;
+                    char chain = group.getChainId().charAt(0);
+                    int residue = group.getResidueNumber().getSeqNum();
+                    mapChainResidue[i].put(chain, residue, atom);
                 }
             }
         }
