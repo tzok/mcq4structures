@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ChainImpl;
@@ -54,6 +55,8 @@ public final class Helper {
             Helper.SET_NUCLEOTIDE_ATOMS.add(name);
         }
     }
+
+    private static final MultiKeyMap MAP_GROUPS_ATOMS = new MultiKeyMap();
 
     /**
      * Given two lists of atoms (possibly of different size), make them equal
@@ -253,24 +256,28 @@ public final class Helper {
      *            An array of names to be accepted.
      * @return A list of atoms.
      */
-    private static List<Atom> getAtomArray(List<Group> groups,
+    private static synchronized List<Atom> getAtomArray(List<Group> groups,
             String[] atomNames) {
-        List<Atom> list = new ArrayList<>();
-        for (Group g : groups) {
-            if (!(Helper.isNucleotide(g) || Helper.isAminoAcid(g))) {
-                continue;
-            }
+        if (!Helper.MAP_GROUPS_ATOMS.containsKey(groups, atomNames)) {
+            List<Atom> list = new ArrayList<>();
+            for (Group g : groups) {
+                if (!(Helper.isNucleotide(g) || Helper.isAminoAcid(g))) {
+                    continue;
+                }
 
-            for (String name : atomNames) {
-                try {
-                    Atom atom = g.getAtom(name);
-                    list.add(atom);
-                } catch (StructureException e) {
-                    // do nothing
+                for (String name : atomNames) {
+                    try {
+                        // Atom atom = getAtom(g, name);
+                        Atom atom = g.getAtom(name);
+                        list.add(atom);
+                    } catch (StructureException e) {
+                        // do nothing
+                    }
                 }
             }
+            Helper.MAP_GROUPS_ATOMS.put(groups, atomNames, list);
         }
-        return list;
+        return (List<Atom>) Helper.MAP_GROUPS_ATOMS.get(groups, atomNames);
     }
 
     /**

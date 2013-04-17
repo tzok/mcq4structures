@@ -3,7 +3,6 @@ package pl.poznan.put.cs.bioserver.sandbox;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.biojava.bio.structure.Structure;
@@ -11,9 +10,10 @@ import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
-public class BenchmarkReference {
+public class BenchmarkTime {
     public static void main(String[] args) {
         List<File> pdbs = list(new File("/home/tzok/pdb/puzzles/"));
+        pdbs.addAll(list(new File("/home/tzok/pdb/puzzles/")));
         Structure[] structures = new Structure[pdbs.size()];
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {
@@ -24,8 +24,14 @@ public class BenchmarkReference {
             }
         }
 
-        System.out.println(Arrays.deepToString(new MCQ().compare(structures,
-                null)));
+        int dummy = 0;
+        for (int i = 0; i < 5; i++) {
+            long start = System.currentTimeMillis();
+            new MCQ().compare(structures, null);
+            System.out.println("Time: " + (System.currentTimeMillis() - start)
+                    + " ms");
+        }
+        dummy = 1;
     }
 
     public static List<File> list(File directory) {

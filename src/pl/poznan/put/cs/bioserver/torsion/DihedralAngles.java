@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 /**
  * A class to calculate and manage dihedral angles for given BioJava structure.
@@ -20,6 +23,7 @@ public final class DihedralAngles {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DihedralAngles.class);
     private static Map<Integer, Map<Atom, Integer>> reverseMapCache = new HashMap<>();
+    private static MultiKeyMap mapAtomsQuadruplets = new MultiKeyMap();
 
     /**
      * Calculate all angle differences for given angle type.
@@ -123,9 +127,14 @@ public final class DihedralAngles {
         return torp;
     }
 
-    public static List<Quadruplet> getQuadruplets(Atom[] atoms,
+    public static synchronized List<Quadruplet> getQuadruplets(Atom[] atoms,
             AngleType angleType) {
         int hashCode = Arrays.hashCode(atoms);
+        if (mapAtomsQuadruplets.containsKey(hashCode, angleType)) {
+            return (List<Quadruplet>) mapAtomsQuadruplets.get(hashCode,
+                    angleType);
+        }
+
         if (!DihedralAngles.reverseMapCache.containsKey(hashCode)) {
             DihedralAngles.reverseMapCache.put(hashCode,
                     DihedralAngles.makeReverseMap(atoms));
@@ -133,65 +142,66 @@ public final class DihedralAngles {
         Map<Atom, Integer> reverseMap = DihedralAngles.reverseMapCache
                 .get(hashCode);
 
-        int[] groupRule = angleType.getGroupRule();
-        List<List<Atom>> found = new ArrayList<>();
-        for (int j = 0; j < 4; j++) {
-            List<Atom> list = new ArrayList<>();
-            found.add(list);
-        }
+        MultiKeyMap mapChainResidue[] = new MultiKeyMap[] { new MultiKeyMap(),
+                new MultiKeyMap(), new MultiKeyMap(), new MultiKeyMap() };
+        List<Atom> listReference = new ArrayList<>();
 
         for (Atom atom : atoms) {
             if (atom == null) {
                 continue;
             }
-            String name = atom.getFullName();
-            String[] atomNames = angleType.getAtomNames(atom.getGroup());
-            for (int k = 0; k < 4; k++) {
-                if (name.equals(atomNames[k])) {
-                    found.get(k).add(atom);
+            Group group = atom.getGroup();
+            assert group.getChainId().length() == 1;
+
+            String[] atomNames = angleType.getAtomNames(group);
+            for (int i = 0; i < 4; i++) {
+                if (atom.getFullName().equals(atomNames[i])) {
+                    if (i == 0) {
+                        listReference.add(atom);
+                    }
+                    char chain = group.getChainId().charAt(0);
+                    int residue = group.getResidueNumber().getSeqNum();
+                    mapChainResidue[i].put(chain, residue, atom);
                 }
             }
         }
 
-        List<Quadruplet> filtered = new ArrayList<>();
-        int size = found.get(0).size();
-        for (int j = 0; j < size; j++) {
-            Atom refAtom = found.get(0).get(j);
-            Group refGroup = refAtom.getGroup();
-            int refId = refGroup.getResidueNumber().getSeqNum();
-            String refChain = refGroup.getChainId();
+        int[] groupRule = angleType.getGroupRule();
+        List<Quadruplet> result = new ArrayList<>();
+        for (Atom atom : listReference) {
+            Group group = atom.getGroup();
+            char chain = group.getChainId().charAt(0);
+            int residue = group.getResidueNumber().getSeqNum();
 
-            List<Atom> quad = new ArrayList<>();
-            quad.add(refAtom);
-            for (int k = 1; k < 4; k++) {
-                for (Atom atom : found.get(k)) {
-                    Group group = atom.getGroup();
-                    int id = group.getResidueNumber().getSeqNum();
-                    String chain = group.getChainId();
-                    if (id - refId == groupRule[k] && refChain.equals(chain)) {
-                        quad.add(atom);
-                        break;
-                    }
+            List<Atom> listQuad = new ArrayList<>();
+            listQuad.add(atom);
+            for (int i = 1; i < 4; i++) {
+                Atom found = (Atom) mapChainResidue[i].get(chain, residue
+                        + groupRule[i]);
+                if (found != null) {
+                    listQuad.add(found);
                 }
             }
 
-            Atom[] array = quad.toArray(new Atom[quad.size()]);
-            if (quad.size() == 4) {
+            if (listQuad.size() == 4) {
+                Atom[] array = listQuad.toArray(new Atom[listQuad.size()]);
                 int[] indices = new int[4];
                 for (int k = 0; k < 4; k++) {
                     indices[k] = reverseMap.get(array[k]);
                 }
-                filtered.add(new Quadruplet(array, indices));
+                result.add(new Quadruplet(array, indices));
             } else {
-                DihedralAngles.LOGGER.debug("Quad not found, got only "
-                        + quad.size() + " atoms. Angle: "
+                DihedralAngles.LOGGER.debug("Quad not found, for angle: "
                         + angleType.getAngleName()
-                        + ". Residue of first atom: "
-                        + quad.get(0).getGroup().getResidueNumber()
-                        + ". Atoms: " + Arrays.toString(array));
+                        + ". Structure: "
+                        + StructureManager
+                                .getName(group.getChain().getParent())
+                        + ". Chain: " + chain + ". Residue: " + residue);
             }
         }
-        return filtered;
+
+        mapAtomsQuadruplets.put(hashCode, angleType, result);
+        return result;
     }
 
     /**
