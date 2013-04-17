@@ -147,6 +147,9 @@ public final class DihedralAngles {
         List<Atom> listReference = new ArrayList<>();
 
         for (Atom atom : atoms) {
+            if (atom == null) {
+                continue;
+            }
             Group group = atom.getGroup();
             assert group.getChainId().length() == 1;
 
