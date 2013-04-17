@@ -12,6 +12,8 @@ import org.biojava.bio.structure.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.cs.bioserver.helper.StructureManager;
+
 /**
  * A class to calculate and manage dihedral angles for given BioJava structure.
  * 
@@ -189,8 +191,11 @@ public final class DihedralAngles {
                 result.add(new Quadruplet(array, indices));
             } else {
                 DihedralAngles.LOGGER.debug("Quad not found, for angle: "
-                        + angleType.getAngleName() + ". Chain: " + chain
-                        + ". Residue: " + residue);
+                        + angleType.getAngleName()
+                        + ". Structure: "
+                        + StructureManager
+                                .getName(group.getChain().getParent())
+                        + ". Chain: " + chain + ". Residue: " + residue);
             }
         }
 
