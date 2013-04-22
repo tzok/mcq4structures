@@ -568,13 +568,13 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        final Structure[] structures = new Structure[2];
-        final File[] files = dialogChains.getFiles();
+        final Structure[] structures = dialogChains.getStructures();
         Chain[][] chains = dialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
             structures[i].setChains(Arrays.asList(chains[i]));
-            structures[i].setPDBCode(StructureManager.getName(files[i]));
+            structures[i].setPDBCode(StructureManager.getName(chains[i][0]
+                    .getParent()));
         }
 
         boolean isRNA = Helper.isNucleicAcid(structures[0]);
@@ -690,8 +690,7 @@ public class MainWindow extends JFrame {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final File[] files = dialogStructures.getFiles();
-                Structure[] structures = StructureManager.getStructures(files);
+                final Structure[] structures = dialogStructures.getStructures();
 
                 long start = System.currentTimeMillis();
                 final double[][] matrix = comparison.compare(structures,
@@ -708,7 +707,7 @@ public class MainWindow extends JFrame {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        String[] names = StructureManager.getNames(files);
+                        String[] names = StructureManager.getNames(structures);
                         TableModelGlobal model = new TableModelGlobal(names,
                                 matrix, comparison);
                         exportableResults = model;
@@ -778,7 +777,7 @@ public class MainWindow extends JFrame {
         if (dialogChains.showDialog() != DialogChains.OK) {
             return;
         }
-        File[] structures = dialogChains.getFiles();
+        Structure[] structures = dialogChains.getStructures();
         Chain[][] chains = dialogChains.getChains();
         for (int i = 0; i < 2; i++) {
             if (chains[i].length == 0) {
@@ -853,8 +852,8 @@ public class MainWindow extends JFrame {
         if (dialogStructures.showDialog() != DialogStructures.OK) {
             return;
         }
-        File[] files = dialogStructures.getFiles();
-        if (files == null || files.length < 2) {
+        Structure[] structures = dialogStructures.getStructures();
+        if (structures == null || structures.length < 2) {
             JOptionPane.showMessageDialog(MainWindow.this, "At "
                     + "least two structures must be selected to "
                     + "compute global distance", "Information",

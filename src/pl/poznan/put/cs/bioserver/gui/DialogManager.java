@@ -22,6 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import org.biojava.bio.structure.Structure;
+
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public final class DialogManager extends JDialog {
@@ -107,7 +109,8 @@ public final class DialogManager extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
-                File path = StructureManager.loadStructure(pdbId);
+                Structure[] models = StructureManager.loadStructure(pdbId);
+                File path = StructureManager.getFile(models[0]);
                 if (path != null) {
                     model.addElement(path);
                 } else {

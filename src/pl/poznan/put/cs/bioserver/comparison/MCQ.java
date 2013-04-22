@@ -87,7 +87,7 @@ public class MCQ extends GlobalComparison {
         List<Structure> list = new ArrayList<>();
         for (String arg : args) {
             try {
-                list.add(StructureManager.loadStructure(new File(arg)));
+                list.add(StructureManager.loadStructure(new File(arg))[0]);
             } catch (IOException e) {
                 System.out.println("ERROR");
                 e.printStackTrace();

@@ -8,7 +8,6 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +36,8 @@ final class DialogChains extends JDialog {
     private class PanelChains extends JPanel {
         private static final long serialVersionUID = 1L;
 
-        private DefaultComboBoxModel<File> model = new DefaultComboBoxModel<>();
-        private JComboBox<File> combo = new JComboBox<>(model);
+        private DefaultComboBoxModel<Structure> model = new DefaultComboBoxModel<>();
+        private JComboBox<Structure> combo = new JComboBox<>(model);
         private JPanel[] panels = new JPanel[] { new JPanel(), new JPanel() };
 
         public PanelChains() {
@@ -58,12 +57,13 @@ final class DialogChains extends JDialog {
             panel.add(panels[1]);
             add(new JScrollPane(panel), BorderLayout.CENTER);
 
-            final ListCellRenderer<? super File> renderer = combo.getRenderer();
-            combo.setRenderer(new ListCellRenderer<File>() {
+            final ListCellRenderer<? super Structure> renderer = combo
+                    .getRenderer();
+            combo.setRenderer(new ListCellRenderer<Structure>() {
                 @Override
                 public Component getListCellRendererComponent(
-                        JList<? extends File> list, File value, int index,
-                        boolean isSelected, boolean cellHasFocus) {
+                        JList<? extends Structure> list, Structure value,
+                        int index, boolean isSelected, boolean cellHasFocus) {
                     JLabel label = (JLabel) renderer
                             .getListCellRendererComponent(list, value, index,
                                     isSelected, cellHasFocus);
@@ -77,11 +77,7 @@ final class DialogChains extends JDialog {
             combo.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    File file = (File) combo.getSelectedItem();
-                    if (file == null) {
-                        return;
-                    }
-                    Structure structure = StructureManager.getStructure(file);
+                    Structure structure = (Structure) combo.getSelectedItem();
                     if (structure == null) {
                         return;
                     }
@@ -102,11 +98,7 @@ final class DialogChains extends JDialog {
         }
 
         public Chain[] getSelectedChains() {
-            File file = (File) combo.getSelectedItem();
-            if (file == null) {
-                return null;
-            }
-            Structure structure = StructureManager.getStructure(file);
+            Structure structure = (Structure) combo.getSelectedItem();
             if (structure == null) {
                 return null;
             }
@@ -145,7 +137,7 @@ final class DialogChains extends JDialog {
     }
 
     private int chosenOption;
-    private File[] files;
+    private Structure[] structures;
     private Chain[][] chains;
 
     private PanelChains[] panelsChains = new PanelChains[] { new PanelChains(),
@@ -180,10 +172,12 @@ final class DialogChains extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                files = new File[2];
-                files[0] = (File) panelsChains[0].combo.getSelectedItem();
-                files[1] = (File) panelsChains[1].combo.getSelectedItem();
-                if (files[0] == null || files[1] == null) {
+                structures = new Structure[2];
+                structures[0] = (Structure) panelsChains[0].combo
+                        .getSelectedItem();
+                structures[1] = (Structure) panelsChains[1].combo
+                        .getSelectedItem();
+                if (structures[0] == null || structures[1] == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();
                     return;
@@ -216,14 +210,14 @@ final class DialogChains extends JDialog {
         return chains;
     }
 
-    public File[] getFiles() {
-        return files;
+    public Structure[] getStructures() {
+        return structures;
     }
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 2; i++) {
-            builder.append(StructureManager.getName(files[i]));
+            builder.append(StructureManager.getName(structures[i]));
             builder.append('.');
             for (Chain chain : chains[i]) {
                 builder.append(chain.getChainID());
@@ -238,9 +232,9 @@ final class DialogChains extends JDialog {
     public int showDialog() {
         panelsChains[0].model.removeAllElements();
         panelsChains[1].model.removeAllElements();
-        for (File file : StructureManager.getAllStructures()) {
-            panelsChains[0].model.addElement(file);
-            panelsChains[1].model.addElement(file);
+        for (Structure structure : StructureManager.getAllStructures()) {
+            panelsChains[0].model.addElement(structure);
+            panelsChains[1].model.addElement(structure);
         }
 
         chosenOption = DialogChains.CANCEL;

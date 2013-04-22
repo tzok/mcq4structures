@@ -10,7 +10,6 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -317,8 +316,7 @@ final class DialogChainsMultiple extends JDialog {
 
     public int showDialog() {
         List<Chain> setManager = new ArrayList<>();
-        for (File file : StructureManager.getAllStructures()) {
-            Structure structure = StructureManager.getStructure(file);
+        for (Structure structure : StructureManager.getAllStructures()) {
             for (Chain chain : structure.getChains()) {
                 setManager.add(chain);
             }

@@ -13,7 +13,8 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
 public class BenchmarkReference {
     public static void main(String[] args) {
-        List<File> pdbs = list(new File("/home/tzok/pdb/puzzles/"));
+        List<File> pdbs = BenchmarkReference.list(new File(
+                "/home/tzok/pdb/puzzles/"));
         Structure[] structures = new Structure[pdbs.size()];
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {
@@ -34,7 +35,7 @@ public class BenchmarkReference {
         List<File> list = new ArrayList<>();
         for (File file : directory.listFiles()) {
             if (file.isDirectory()) {
-                list.addAll(list(file));
+                list.addAll(BenchmarkReference.list(file));
             } else {
                 if (file.getName().endsWith(".pdb")) {
                     list.add(file);

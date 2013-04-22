@@ -130,9 +130,9 @@ public final class DihedralAngles {
     public static synchronized List<Quadruplet> getQuadruplets(Atom[] atoms,
             AngleType angleType) {
         int hashCode = Arrays.hashCode(atoms);
-        if (mapAtomsQuadruplets.containsKey(hashCode, angleType)) {
-            return (List<Quadruplet>) mapAtomsQuadruplets.get(hashCode,
-                    angleType);
+        if (DihedralAngles.mapAtomsQuadruplets.containsKey(hashCode, angleType)) {
+            return (List<Quadruplet>) DihedralAngles.mapAtomsQuadruplets.get(
+                    hashCode, angleType);
         }
 
         if (!DihedralAngles.reverseMapCache.containsKey(hashCode)) {
@@ -200,7 +200,7 @@ public final class DihedralAngles {
             }
         }
 
-        mapAtomsQuadruplets.put(hashCode, angleType, result);
+        DihedralAngles.mapAtomsQuadruplets.put(hashCode, angleType, result);
         return result;
     }
 
