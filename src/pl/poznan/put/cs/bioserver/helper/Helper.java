@@ -321,11 +321,11 @@ public final class Helper {
         }
     }
 
-    private static boolean isAminoAcid(Group g) {
+    public static boolean isAminoAcid(Group g) {
         return g.getType().equals("amino") || g.hasAminoAtoms();
     }
 
-    private static boolean isNucleotide(Group g) {
+    public static boolean isNucleotide(Group g) {
         if (g.getType().equals("nucleotide")) {
             return true;
         }

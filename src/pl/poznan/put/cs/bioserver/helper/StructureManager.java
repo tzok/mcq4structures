@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
@@ -27,51 +28,45 @@ import org.slf4j.LoggerFactory;
 public final class StructureManager {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(StructureManager.class);
-    private static final Map<File, Structure> MAP_PATH_STRUCTURE = new TreeMap<>();
-    private static final Map<File, String> MAP_PATH_NAME = new TreeMap<>();
-    private static final Map<Structure, String> MAP_STRUCTURE_NAME = new HashMap<>();
+
+    private static Map<File, Structure[]> mapFileModels = new TreeMap<>();
+    private static Map<Structure, File> mapModelFile = new HashMap<>();
+    private static Map<Structure, String> mapModelName = new HashMap<>();
 
     private static PDBFileReader pdbReader = new PDBFileReader();
     private static MMCIFFileReader mmcifReader = new MMCIFFileReader();
 
-    public static SortedSet<File> getAllStructures() {
-        return new TreeSet<>(StructureManager.MAP_PATH_NAME.keySet());
+    public static SortedSet<Structure> getAllStructures() {
+        SortedSet<Structure> set = new TreeSet<>(new Comparator<Structure>() {
+            @Override
+            public int compare(Structure o1, Structure o2) {
+                String name1 = StructureManager.getName(o1);
+                String name2 = StructureManager.getName(o2);
+                return name1.compareTo(name2);
+            }
+        });
+        set.addAll(StructureManager.mapModelFile.keySet());
+        return set;
     }
 
-    public static String getName(File path) {
-        return StructureManager.MAP_PATH_NAME.get(path);
+    public static File getFile(Structure structure) {
+        return StructureManager.mapModelFile.get(structure);
+    }
+
+    public static Structure[] getModels(File file) {
+        return StructureManager.mapFileModels.get(file);
     }
 
     public static String getName(Structure structure) {
-        return StructureManager.MAP_STRUCTURE_NAME.get(structure);
-    }
-
-    public static String[] getNames(File[] files) {
-        String[] names = new String[files.length];
-        for (int i = 0; i < files.length; i++) {
-            names[i] = StructureManager.MAP_PATH_NAME.get(files[i]);
-        }
-        return names;
+        return StructureManager.mapModelName.get(structure);
     }
 
     public static String[] getNames(Structure[] structures) {
         String[] names = new String[structures.length];
         for (int i = 0; i < structures.length; i++) {
-            names[i] = StructureManager.MAP_STRUCTURE_NAME.get(structures[i]);
+            names[i] = StructureManager.mapModelName.get(structures[i]);
         }
         return names;
-    }
-
-    public static Structure getStructure(File file) {
-        return StructureManager.MAP_PATH_STRUCTURE.get(file);
-    }
-
-    public static Structure[] getStructures(File[] files) {
-        Structure[] structures = new Structure[files.length];
-        for (int i = 0; i < files.length; i++) {
-            structures[i] = StructureManager.MAP_PATH_STRUCTURE.get(files[i]);
-        }
-        return structures;
     }
 
     /**
@@ -81,9 +76,9 @@ public final class StructureManager {
      *            Path to the PDB file.
      * @return Structure object..
      */
-    public static Structure loadStructure(File file) throws IOException {
-        if (StructureManager.MAP_PATH_STRUCTURE.containsKey(file)) {
-            return StructureManager.MAP_PATH_STRUCTURE.get(file);
+    public static Structure[] loadStructure(File file) throws IOException {
+        if (StructureManager.mapFileModels.containsKey(file)) {
+            return StructureManager.mapFileModels.get(file);
         }
 
         try {
@@ -102,8 +97,7 @@ public final class StructureManager {
                 }
                 structure = StructureManager.pdbReader.getStructure(file);
             }
-            StructureManager.storeStructureInfo(file, structure);
-            return structure;
+            return StructureManager.storeStructureInfo(file, structure);
         } catch (IOException e) {
             String message = "Failed to load structure: " + file;
             StructureManager.LOGGER.error(message, e);
@@ -111,7 +105,7 @@ public final class StructureManager {
         }
     }
 
-    public static File loadStructure(String pdbId) {
+    public static Structure[] loadStructure(String pdbId) {
         StructureManager.pdbReader.setAutoFetch(true);
         Structure structure;
         try {
@@ -127,19 +121,16 @@ public final class StructureManager {
             return null;
         }
 
-        StructureManager.storeStructureInfo(pdbFile, structure);
-        return pdbFile;
+        return StructureManager.storeStructureInfo(pdbFile, structure);
     }
 
     public static void remove(File path) {
-        Structure s = StructureManager.getStructure(path);
-        StructureManager.MAP_PATH_NAME.remove(path);
-        StructureManager.MAP_PATH_STRUCTURE.remove(path);
-        StructureManager.MAP_STRUCTURE_NAME.remove(s);
-        assert StructureManager.MAP_PATH_NAME.size() == StructureManager.MAP_PATH_STRUCTURE
-                .size();
-        assert StructureManager.MAP_PATH_NAME.size() == StructureManager.MAP_STRUCTURE_NAME
-                .size();
+        Structure[] models = StructureManager.getModels(path);
+        for (Structure model : models) {
+            StructureManager.mapModelFile.remove(model);
+            StructureManager.mapModelName.remove(model);
+        }
+        StructureManager.mapFileModels.remove(path);
     }
 
     private static boolean isMmCif(File file) throws IOException {
@@ -189,7 +180,7 @@ public final class StructureManager {
         return false;
     }
 
-    private static void storeStructureInfo(File file, Structure structure) {
+    private static Structure[] storeStructureInfo(File file, Structure structure) {
         String name = structure.getPDBCode();
         if (name == null || name.trim().equals("")) {
             name = file.getName();
@@ -201,9 +192,27 @@ public final class StructureManager {
             structure.setPDBCode(name);
         }
 
-        StructureManager.MAP_PATH_STRUCTURE.put(file, structure);
-        StructureManager.MAP_PATH_NAME.put(file, name);
-        StructureManager.MAP_STRUCTURE_NAME.put(structure, name);
+        int count = structure.nrModels();
+        int order = 10;
+        int leading = 1;
+        while (order < count) {
+            leading++;
+            order *= 10;
+        }
+        String format = "%s.%0" + leading + "d";
+
+        Structure[] models = new Structure[count];
+        for (int i = 0; i < count; i++) {
+            Structure clone = structure.clone();
+            clone.setChains(structure.getModel(i));
+            models[i] = clone;
+
+            StructureManager.mapModelFile.put(clone, file);
+            StructureManager.mapModelName.put(clone,
+                    String.format(format, name, i + 1));
+        }
+        StructureManager.mapFileModels.put(file, models);
+        return models;
     }
 
     private StructureManager() {

@@ -10,7 +10,6 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +28,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -135,11 +135,18 @@ final class DialogChainsMultiple extends JDialog {
                     boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
+
                 boolean isRNA = Helper.isNucleicAcid(value);
+                int size = 0;
+                for (Group group : value.getAtomGroups()) {
+                    size += isRNA ? (Helper.isNucleotide(group) ? 1 : 0)
+                            : (Helper.isAminoAcid(group) ? 1 : 0);
+                }
+
                 String text = String.format("%s.%s (%s, %d %s)",
-                        StructureManager.getName(value.getParent()), value
-                                .getChainID(), isRNA ? "RNA" : "protein", value
-                                .getAtomGroups().size(), isRNA ? "nt" : "aa");
+                        StructureManager.getName(value.getParent()),
+                        value.getChainID(), isRNA ? "RNA" : "protein", size,
+                        isRNA ? "nt" : "aa");
                 label.setText(text);
                 label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                 return label;
@@ -317,8 +324,7 @@ final class DialogChainsMultiple extends JDialog {
 
     public int showDialog() {
         List<Chain> setManager = new ArrayList<>();
-        for (File file : StructureManager.getAllStructures()) {
-            Structure structure = StructureManager.getStructure(file);
+        for (Structure structure : StructureManager.getAllStructures()) {
             for (Chain chain : structure.getChains()) {
                 setManager.add(chain);
             }
