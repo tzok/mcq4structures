@@ -11,10 +11,12 @@ import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
+import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public class Externals {
-    public static void main(String[] args) throws ParserConfigurationException {
+    public static void main(String[] args) throws ParserConfigurationException,
+            IOException {
         List<File> pdbs = Externals.list(new File("/home/tzok/pdb/puzzles/"));
         Structure[] structures = new Structure[pdbs.size()];
         for (int i = 0; i < pdbs.size(); i++) {
@@ -32,8 +34,8 @@ public class Externals {
             labels[i++] = StructureManager.getName(structure);
         }
 
-        Matplotlib.hierarchicalClustering(new File("/tmp/clust.png"), result,
-                labels, "complete");
+        Matplotlib.hierarchicalClustering(new File("/tmp/clust.pdf"), result,
+                labels, Method.COMPLETE);
     }
 
     public static List<File> list(File directory) {

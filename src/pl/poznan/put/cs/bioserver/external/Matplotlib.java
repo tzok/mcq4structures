@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -12,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -21,8 +23,13 @@ public class Matplotlib {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(Matplotlib.class);
 
+    public enum Method {
+        SINGLE, COMPLETE, AVERAGE, WEIGHTED
+    }
+
     public static void hierarchicalClustering(File outfile, double[][] matrix,
-            String[] labels, String method) throws ParserConfigurationException {
+            String[] labels, Method method)
+            throws ParserConfigurationException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.newDocument();
@@ -35,7 +42,7 @@ public class Matplotlib {
         root.appendChild(element);
 
         element = document.createElement("method");
-        element.setTextContent(method);
+        element.setTextContent(method.name().toLowerCase());
         root.appendChild(element);
 
         element = document.createElement("labels");
@@ -73,10 +80,23 @@ public class Matplotlib {
             Runtime runtime = Runtime.getRuntime();
             Process process = runtime.exec(new String[] { "python",
                     file.getAbsolutePath() });
-            process.waitFor();
-        } catch (IOException | InterruptedException e) {
+            try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+
+            StringWriter writer = new StringWriter();
+            IOUtils.copy(process.getInputStream(), writer);
+            Matplotlib.LOGGER.debug("Standard output:\n" + writer.toString());
+
+            writer = new StringWriter();
+            IOUtils.copy(process.getErrorStream(), writer);
+            Matplotlib.LOGGER.debug("Standard error:\n" + writer.toString());
+        } catch (IOException e) {
             Matplotlib.LOGGER.error("XSLT transformation and external tool "
                     + "running failed", e);
+            throw e;
         } finally {
             if (file != null) {
                 file.delete();
