@@ -151,6 +151,10 @@ public class TableModelLocal extends AbstractTableModel implements
         return rowCount;
     }
 
+    public String[] getRowsNames() {
+        return rowsNames;
+    }
+
     @Override
     public Object getValueAt(int row, int column) {
         if (column == 0) {

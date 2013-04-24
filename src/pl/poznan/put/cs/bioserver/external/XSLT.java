@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
@@ -41,7 +42,8 @@ public class XSLT {
     public static String transform(Source stylesheet, Source xml) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            Result result = new StreamResult(stream);
+            Result result = new StreamResult(new OutputStreamWriter(stream,
+                    Charset.forName("UTF-8")));
 
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer(stylesheet);
