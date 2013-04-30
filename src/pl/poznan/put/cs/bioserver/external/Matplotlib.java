@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,10 +29,11 @@ public class Matplotlib {
     }
 
     public static void runXsltAndPython(URL resource, File fileScript,
-            File fileOutput, XMLSerializable data) throws IOException,
-            JAXBException, ParserConfigurationException {
+            File fileOutput, XMLSerializable data,
+            Map<String, Object> parameters) throws IOException, JAXBException,
+            ParserConfigurationException {
         String pythonCode = XSLT.transform(resource,
-                new DOMSource(data.toXML()));
+                new DOMSource(data.toXML()), parameters);
         Matplotlib.LOGGER.trace("Generated script:\n" + pythonCode);
 
         try (Writer writer = new FileWriterWithEncoding(fileScript,
@@ -46,10 +48,15 @@ public class Matplotlib {
 
         Executor executor = new DefaultExecutor();
         executor.execute(commandLine);
+    }
 
+    public static void runXsltAndPython(URL resource, File fileScript,
+            File fileOutput, XMLSerializable data) throws IOException,
+            JAXBException, ParserConfigurationException {
+        Matplotlib.runXsltAndPython(resource, fileScript, fileOutput, data,
+                null);
     }
 
     private Matplotlib() {
     }
-
 }

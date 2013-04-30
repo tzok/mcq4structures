@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
@@ -42,7 +44,8 @@ public class XSLT {
                 new OutputStreamWriter(out, "UTF-8")));
     }
 
-    public static String transform(Source stylesheet, Source xml) {
+    public static String transform(Source stylesheet, Source xml,
+            Map<String, Object> parameters) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             Result result = new StreamResult(new OutputStreamWriter(stream,
@@ -50,6 +53,11 @@ public class XSLT {
 
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer(stylesheet);
+            if (parameters != null) {
+                for (Entry<String, Object> entry : parameters.entrySet()) {
+                    transformer.setParameter(entry.getKey(), entry.getValue());
+                }
+            }
             transformer.transform(xml, result);
 
             return new String(stream.toString("UTF-8"));
@@ -60,9 +68,10 @@ public class XSLT {
         }
     }
 
-    public static String transform(URL resource, Source xml) throws IOException {
+    public static String transform(URL resource, Source xml,
+            Map<String, Object> parameters) throws IOException {
         try (InputStream stream = resource.openStream()) {
-            return transform(new StreamSource(stream), xml);
+            return transform(new StreamSource(stream), xml, parameters);
         }
     }
 

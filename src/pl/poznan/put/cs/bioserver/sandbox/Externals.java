@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.sandbox;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,8 @@ import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
-import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
+import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
@@ -48,9 +49,12 @@ public class Externals {
                 .newInstance(results);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
-        // Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-        // + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File(
-        // "/tmp/local.py"), new File("/tmp/local.png"), xmlResults);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("angles", "[ 'AVERAGE', 'ALPHA', 'PHI' ]");
+        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+                + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File(
+                "/tmp/local.py"), new File("/tmp/local.pdf"), xmlResults,
+                parameters);
 
         double[][] matrix = new MCQ().compare(structures, null);
         String[] labels = new String[pdbs.size()];
@@ -64,20 +68,19 @@ public class Externals {
                 .newInstance(global, Method.COMPLETE);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
-        // Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-        // + "put/cs/bioserver/external/MatplotlibHierarchical.xsl"),
-        // new File("/tmp/hierarchical.py"), new File(
-        // "/tmp/hierarchical.png"), xmlResults);
+        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+                + "put/cs/bioserver/external/MatplotlibHierarchical.xsl"),
+                new File("/tmp/hierarchical.py"), new File(
+                        "/tmp/hierarchical.pdf"), xmlResults);
 
-        Result clustering = Clusterer.clusterPAM(matrix, 20);
+        Result clustering = Clusterer.clusterPAM(matrix, 14);
         xmlResults = PartitionalClustering.newInstance(global, clustering);
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
                 + "put/cs/bioserver/external/MatplotlibPartitional.xsl"),
-                new File("/tmp/partitional.py"),
-                new File("/tmp/partitional.png"), xmlResults);
-
+                new File("/tmp/partitional.py"), new File(
+                        "/tmp/partitional.pdf"), xmlResults);
     }
 
     public static List<File> list(File directory) {

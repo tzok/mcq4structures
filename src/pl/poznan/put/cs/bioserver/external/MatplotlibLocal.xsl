@@ -3,6 +3,8 @@
     <xsl:output method="text" encoding="UTF-8"/>
     <xsl:strip-space elements="*"/>
 
+    <xsl:param name="angles"/>
+
     <xsl:template match="localComparisonResults">
         <xsl:text>import math&#10;</xsl:text>
         <xsl:text>import matplotlib.pyplot&#10;</xsl:text>
@@ -34,6 +36,10 @@
         <xsl:text>    y = </xsl:text><xsl:apply-templates select="deltas" mode="items"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    labels = </xsl:text><xsl:apply-templates select="deltas" mode="names"/><xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
+        <xsl:text>    angles = </xsl:text><xsl:value-of select="$angles"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    y = list(y[i] for i in range(len(y)) if labels[i] in angles)&#10;</xsl:text>
+        <xsl:text>    labels = list(labels[i] for i in range(len(labels)) if labels[i] in angles)&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
         <xsl:text>    rads = ['0', '&#960;/12', '&#x3c0;/6', 'π/4', 'π/3', '5π/12', 'π/2', '7π/12', '2π/3', '3π/4', '5π/6', '11π/12', 'π']&#10;</xsl:text>
         <xsl:text>    figure = matplotlib.pyplot.figure(figsize=(16, 9))&#10;</xsl:text>
         <xsl:text>    axes = figure.add_subplot(111)&#10;</xsl:text>
@@ -51,7 +57,7 @@
         <xsl:text>    &#10;</xsl:text>
         <xsl:text>    plots = []&#10;</xsl:text>
         <xsl:text>    for i in range(len(y)):&#10;</xsl:text>
-        <xsl:text>        matplotlib.pyplot.plot(y[i], c=TABLE[i])&#10;</xsl:text>
+        <xsl:text>        matplotlib.pyplot.plot(y[i], c=TABLE[i], lw=2)&#10;</xsl:text>
         <xsl:text>        plots.append(matplotlib.pyplot.Rectangle((0, 0), 1, 1, color=TABLE[i]))&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.legend(plots, labels)&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.savefig(sys.argv[1], dpi=500, bbox_inches='tight', transparent=True)&#10;</xsl:text>
