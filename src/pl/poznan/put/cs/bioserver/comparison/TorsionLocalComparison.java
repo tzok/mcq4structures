@@ -17,6 +17,8 @@ import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
+import pl.poznan.put.cs.bioserver.beans.Angle;
+import pl.poznan.put.cs.bioserver.beans.LocalComparisonResults;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
@@ -223,6 +225,28 @@ public class TorsionLocalComparison extends LocalComparison {
         mapNameToDiffs.put("AVERAGE",
                 TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs));
         return mapNameToDiffs;
+    }
+
+    public static LocalComparisonResults serialize(
+            Map<String, List<AngleDifference>> map, String[] ticks) {
+        LocalComparisonResults results = new LocalComparisonResults();
+        Angle[] angles = new Angle[map.size()];
+        int j = 0;
+        for (Entry<String, List<AngleDifference>> entry : map.entrySet()) {
+            List<AngleDifference> list = entry.getValue();
+            double[] deltas = new double[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                deltas[i] = list.get(i).getDifference();
+            }
+
+            angles[j] = new Angle();
+            angles[j].setName(entry.getKey());
+            angles[j].setDeltas(deltas);
+            j++;
+        }
+        results.setAngles(angles);
+        results.setTicks(ticks);
+        return results;
     }
 
     @Override

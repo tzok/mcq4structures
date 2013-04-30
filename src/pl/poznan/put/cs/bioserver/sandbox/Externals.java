@@ -6,20 +6,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.w3c.dom.Document;
 
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
+import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.gui.TableModelLocal;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 public class Externals {
     public static void main(String[] args) throws ParserConfigurationException,
-            IOException, StructureException {
+            IOException, StructureException, JAXBException,
+            TransformerException {
         List<File> pdbs = Externals.list(new File("/home/tzok/pdb/puzzles/"));
         Structure[] structures = new Structure[pdbs.size()];
         for (int i = 0; i < pdbs.size(); i++) {
@@ -34,6 +39,10 @@ public class Externals {
         Map<String, List<AngleDifference>> localResult = TorsionLocalComparison
                 .compare(structures[0], structures[1], false);
         TableModelLocal model = new TableModelLocal(localResult, angles, "");
+
+        Document xml = TorsionLocalComparison.serialize(localResult,
+                model.getRowsNames()).toXML();
+        XSLT.printDocument(xml, System.out);
 
         double[][] differences = new double[angles.length][];
         int counter = 0;

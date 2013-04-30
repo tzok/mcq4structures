@@ -1,0 +1,31 @@
+package pl.poznan.put.cs.bioserver.beans;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public class Angle extends XMLSerializable {
+    private static final long serialVersionUID = 3617330297291250022L;
+
+    String name;
+    double[] deltas;
+
+    public String getName() {
+        return name;
+    }
+
+    @XmlAttribute
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double[] getDeltas() {
+        return deltas;
+    }
+
+    @XmlElement
+    public void setDeltas(double[] deltas) {
+        this.deltas = deltas;
+    }
+}
