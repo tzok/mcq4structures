@@ -131,7 +131,6 @@ public class TableModelLocal extends AbstractTableModel implements
                 csvWriter.endRecord();
             }
         } catch (IOException e) {
-            // TODO
             e.printStackTrace();
         }
     }

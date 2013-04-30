@@ -2,9 +2,11 @@ package pl.poznan.put.cs.bioserver.external;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.charset.Charset;
 
 import javax.xml.transform.OutputKeys;
@@ -16,6 +18,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +57,12 @@ public class XSLT {
                 | TransformerFactoryConfigurationError | TransformerException e) {
             XSLT.LOGGER.error("Failed to transform data via XSLT processor", e);
             return null;
+        }
+    }
+
+    public static String transform(URL resource, Source xml) throws IOException {
+        try (InputStream stream = resource.openStream()) {
+            return transform(new StreamSource(stream), xml);
         }
     }
 

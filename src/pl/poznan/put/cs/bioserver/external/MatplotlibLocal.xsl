@@ -3,10 +3,11 @@
     <xsl:output method="text" encoding="UTF-8"/>
     <xsl:strip-space elements="*"/>
 
-    <xsl:template match="local">
+    <xsl:template match="localComparisonResults">
         <xsl:text>import math&#10;</xsl:text>
         <xsl:text>import matplotlib.pyplot&#10;</xsl:text>
         <xsl:text>import matplotlib.ticker&#10;</xsl:text>
+        <xsl:text>import sys&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>TABLE = (&#10;</xsl:text>
         <xsl:text>    (173/255,  35/255,  35/255),&#10;</xsl:text>
@@ -26,10 +27,12 @@
         <xsl:text>)&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>if __name__ == '__main__':&#10;</xsl:text>
-        <xsl:text>    outfile = '</xsl:text><xsl:value-of select="outfile"/><xsl:text>'&#10;</xsl:text>
-        <xsl:text>    x = [ </xsl:text><xsl:for-each select="residues/value"><xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]&#10;</xsl:text>
-        <xsl:text>    y = [ </xsl:text><xsl:for-each select="differences/array"><xsl:text>[ </xsl:text><xsl:for-each select="value"><xsl:value-of select="."/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]&#10;</xsl:text>
-        <xsl:text>    labels = [ </xsl:text><xsl:for-each select="labels/label"><xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]&#10;</xsl:text>
+        <xsl:text>    if len(sys.argv) != 2:&#10;</xsl:text>
+        <xsl:text>        print('Usage: python ' + sys.argv[0] + ' OUTFILE.(png|pdf|svg|eps)')&#10;</xsl:text>
+        <xsl:text>        exit(1)&#10;</xsl:text>
+        <xsl:text>    x = </xsl:text><xsl:apply-templates select="ticks"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    y = </xsl:text><xsl:apply-templates select="deltas" mode="items"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    labels = </xsl:text><xsl:apply-templates select="deltas" mode="names"/><xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>    rads = ['0', '&#960;/12', '&#x3c0;/6', 'π/4', 'π/3', '5π/12', 'π/2', '7π/12', '2π/3', '3π/4', '5π/6', '11π/12', 'π']&#10;</xsl:text>
         <xsl:text>    figure = matplotlib.pyplot.figure(figsize=(16, 9))&#10;</xsl:text>
@@ -51,6 +54,18 @@
         <xsl:text>        matplotlib.pyplot.plot(y[i], c=TABLE[i])&#10;</xsl:text>
         <xsl:text>        plots.append(matplotlib.pyplot.Rectangle((0, 0), 1, 1, color=TABLE[i]))&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.legend(plots, labels)&#10;</xsl:text>
-        <xsl:text>    matplotlib.pyplot.savefig(outfile, dpi=500, bbox_inches='tight', transparent=True)&#10;</xsl:text>
+        <xsl:text>    matplotlib.pyplot.savefig(sys.argv[1], dpi=500, bbox_inches='tight', transparent=True)&#10;</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="ticks">
+        <xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="deltas" mode="items">
+        <xsl:text>[ </xsl:text><xsl:for-each select="angle"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:value-of select="."/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="deltas" mode="names">
+        <xsl:text>[ </xsl:text><xsl:for-each select="angle"><xsl:text>'</xsl:text><xsl:value-of select="@name"/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
     </xsl:template>
 </xsl:stylesheet>
