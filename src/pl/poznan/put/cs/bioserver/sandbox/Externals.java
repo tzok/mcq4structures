@@ -46,28 +46,38 @@ public class Externals {
                 .compare(structures[0], structures[1], false);
         XMLSerializable xmlResults = LocalComparisonResults
                 .newInstance(results);
-        XSLT.printDocument(xmlResults.toXML(), System.out);
+        // XSLT.printDocument(xmlResults.toXML(), System.out);
 
-        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-                + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File(
-                "/tmp/local.py"), new File("/tmp/local.png"), xmlResults);
+        // Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+        // + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File(
+        // "/tmp/local.py"), new File("/tmp/local.png"), xmlResults);
 
         double[][] matrix = new MCQ().compare(structures, null);
         String[] labels = new String[pdbs.size()];
         for (int i = 0; i < structures.length; i++) {
             labels[i] = StructureManager.getName(structures[i]);
         }
-        xmlResults = GlobalComparisonResults.newInstance(matrix, labels);
+        GlobalComparisonResults global = GlobalComparisonResults.newInstance(
+                matrix, labels);
+
+        xmlResults = HierarchicalClustering
+                .newInstance(global, Method.COMPLETE);
+        // XSLT.printDocument(xmlResults.toXML(), System.out);
+
+        // Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+        // + "put/cs/bioserver/external/MatplotlibHierarchical.xsl"),
+        // new File("/tmp/hierarchical.py"), new File(
+        // "/tmp/hierarchical.png"), xmlResults);
+
+        Result clustering = Clusterer.clusterPAM(matrix, 20);
+        xmlResults = PartitionalClustering.newInstance(global, clustering);
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
-        XMLSerializable xmlResults2 = HierarchicalClustering.newInstance(
-                (GlobalComparisonResults) xmlResults, Method.COMPLETE);
-        XSLT.printDocument(xmlResults2.toXML(), System.out);
+        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+                + "put/cs/bioserver/external/MatplotlibPartitional.xsl"),
+                new File("/tmp/partitional.py"),
+                new File("/tmp/partitional.png"), xmlResults);
 
-        Result clustering = Clusterer.clusterPAM(matrix, 3);
-        xmlResults2 = PartitionalClustering.newInstance(
-                (GlobalComparisonResults) xmlResults, clustering);
-        XSLT.printDocument(xmlResults2.toXML(), System.out);
     }
 
     public static List<File> list(File directory) {

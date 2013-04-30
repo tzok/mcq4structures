@@ -90,6 +90,7 @@ public class PartitionalClustering extends XMLSerializable {
     }
 
     @XmlElementWrapper(name = "medoids")
+    @XmlElement(name = "item")
     public void setMedoids(Point[] medoids) {
         this.medoids = medoids;
     }

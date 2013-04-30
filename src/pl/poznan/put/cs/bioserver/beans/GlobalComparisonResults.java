@@ -23,8 +23,8 @@ public class GlobalComparisonResults extends XMLSerializable {
         return distanceMatrix;
     }
 
-    @XmlElementWrapper(name="row")
-    @XmlElement(name="column")
+    @XmlElementWrapper(name="distanceMatrix")
+    @XmlElement(name="row")
     public void setDistanceMatrix(double[][] distanceMatrix) {
         this.distanceMatrix = distanceMatrix;
     }
