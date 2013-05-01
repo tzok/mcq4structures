@@ -40,7 +40,10 @@
         <xsl:text>    y = list(y[i] for i in range(len(y)) if labels[i] in angles)&#10;</xsl:text>
         <xsl:text>    labels = list(labels[i] for i in range(len(labels)) if labels[i] in angles)&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    rads = ['0', '&#960;/12', '&#x3c0;/6', 'π/4', 'π/3', '5π/12', 'π/2', '7π/12', '2π/3', '3π/4', '5π/6', '11π/12', 'π']&#10;</xsl:text>
+        <xsl:text>    greek = { 'ALPHA' : r'$\alpha$', 'BETA' : r'$\beta$', 'GAMMA' : r'$\gamma$', 'DELTA' : r'$\delta$', 'EPSILON' : r'$\varepsilon$', 'ZETA' : r'$\zeta$', 'CHI' : r'$\chi$', 'TAU0' : r'$\tau_0$', 'TAU1' : r'$\tau_1$', 'TAU2' : r'$\tau_2$', 'TAU3' : r'$\tau_3$', 'TAU4' : r'$\tau_4$', 'P' : r'$P$', 'AVERAGE' : 'average', 'PHI' : r'$\phi$', 'PSI' : r'$\psi$', 'OMEGA' : r'$\omega$' }&#10;</xsl:text>
+        <xsl:text>    labels = list(greek[i] for i in labels)</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>    rads = ['0', r'$\frac{\pi}{12}$', r'$\frac{\pi}{6}$', r'$\frac{\pi}{4}$', r'$\frac{\pi}{3}$', r'$\frac{5\pi}{12}$', r'$\frac{\pi}{2}$', r'$\frac{7\pi}{12}$', r'$\frac{2\pi}{3}$', r'$\frac{3\pi}{4}$', r'$\frac{5\pi}{6}$', r'$\frac{11\pi}{12}$', r'$\pi$']&#10;</xsl:text>
         <xsl:text>    figure = matplotlib.pyplot.figure(figsize=(16, 9))&#10;</xsl:text>
         <xsl:text>    axes = figure.add_subplot(111)&#10;</xsl:text>
         <xsl:text>    axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(5))&#10;</xsl:text>
