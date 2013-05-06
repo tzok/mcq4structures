@@ -25,6 +25,6 @@
     </xsl:template>
 
     <xsl:template match="distanceMatrix">
-        <xsl:text>[ </xsl:text><xsl:for-each select="row"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:value-of select="."/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+        <xsl:text>[ </xsl:text><xsl:for-each select="row"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
     </xsl:template>
 </xsl:stylesheet>

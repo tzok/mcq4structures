@@ -71,7 +71,7 @@
     </xsl:template>
 
     <xsl:template match="deltas" mode="items">
-        <xsl:text>[ </xsl:text><xsl:for-each select="angle"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:value-of select="."/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+        <xsl:text>[ </xsl:text><xsl:for-each select="angle"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
     </xsl:template>
 
     <xsl:template match="deltas" mode="names">
