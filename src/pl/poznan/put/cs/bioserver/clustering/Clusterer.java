@@ -72,7 +72,7 @@ public final class Clusterer {
                     }
                 }
 
-                // minimizer == closes medoids
+                // minimizer == closest medoid
                 // i == current element
                 Set<Integer> set = clustering.get(minimizer);
                 set.add(i);
@@ -83,7 +83,7 @@ public final class Clusterer {
 
     /** Available hierarchical clustering types. */
     enum Type {
-        SINGLE, COMPLETE, AVERAGE;
+        COMPLETE, SINGLE, AVERAGE;
     }
 
     private static final Logger LOGGER = LoggerFactory

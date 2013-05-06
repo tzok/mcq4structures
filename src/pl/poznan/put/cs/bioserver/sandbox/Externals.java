@@ -50,7 +50,10 @@ public class Externals {
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("angles", "[ 'AVERAGE', 'ALPHA', 'PHI' ]");
+        parameters.put("angles", "[ 'ALPHA', 'BETA', 'GAMMA', 'DELTA', "
+                + "'EPSILON', 'ZETA', 'CHI', 'TAU0', 'TAU1', 'TAU2', 'TAU3', "
+                + "'TAU4', 'P', 'AVERAGE' ]");
+        parameters.put("angles", "[ 'AVERAGE' ]");
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
                 + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File(
                 "/tmp/local.py"), new File("/tmp/local.pdf"), xmlResults,
@@ -73,7 +76,7 @@ public class Externals {
                 new File("/tmp/hierarchical.py"), new File(
                         "/tmp/hierarchical.pdf"), xmlResults);
 
-        Result clustering = Clusterer.clusterPAM(matrix, 14);
+        Result clustering = Clusterer.clusterPAM(matrix, 3);
         xmlResults = PartitionalClustering.newInstance(global, clustering);
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
