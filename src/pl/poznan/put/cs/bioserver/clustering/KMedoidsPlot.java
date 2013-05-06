@@ -2,7 +2,9 @@ package pl.poznan.put.cs.bioserver.clustering;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -38,63 +40,55 @@ public class KMedoidsPlot extends JFrame {
      */
     public KMedoidsPlot(double[][] distance, String[] labels, int k,
             String method) {
-        int[] medoids = null;
+        Map<Integer, Set<Integer>> medoids = null;
         if (method.equals("PAM")) {
             if (k == 0) {
-                medoids = Clusterer.clusterPAM(distance).clusterAssignment();
+                medoids = Clusterer.clusterPAM(distance).getClusterAssignment();
             } else {
-                medoids = Clusterer.clusterPAM(distance, k).clusterAssignment();
+                medoids = Clusterer.clusterPAM(distance, k)
+                        .getClusterAssignment();
             }
         } else if (method.equals("PAMSIL")) {
             if (k == 0) {
-                medoids = Clusterer.clusterPAMSIL(distance).clusterAssignment();
+                medoids = Clusterer.clusterPAMSIL(distance)
+                        .getClusterAssignment();
             } else {
                 medoids = Clusterer.clusterPAMSIL(distance, k)
-                        .clusterAssignment();
+                        .getClusterAssignment();
             }
         } else {
             throw new UnsupportedOperationException("Clustering method "
                     + method + " not supported");
-        }
-        HashSet<Integer> medoidSet = new HashSet<>();
-        for (int m : medoids) {
-            medoidSet.add(m);
         }
 
         double[][] mds = MDS.multidimensionalScaling(distance, 2);
 
         StringBuilder dumper = new StringBuilder();
         DefaultXYDataset dataset = new DefaultXYDataset();
-        for (int currentMedoid : medoidSet) {
-            int count = 0;
-            for (int medoid : medoids) {
-                if (medoid == currentMedoid) {
-                    count++;
-                }
-            }
-            double[] x = new double[count];
-            double[] y = new double[count];
+        for (Entry<Integer, Set<Integer>> entry : medoids.entrySet()) {
             StringBuilder builder = new StringBuilder();
             builder.append("[ ");
-            int j = 0;
-            for (int i = 0; i < medoids.length; ++i) {
-                if (medoids[i] == currentMedoid) {
-                    builder.append(labels[i]);
-                    builder.append(", ");
-                    x[j] = mds[i][0];
-                    y[j] = mds[i][1];
-                    if (KMedoidsPlot.LOGGER.isTraceEnabled()) {
-                        dumper.append(labels[i]);
-                        dumper.append(' ');
-                        dumper.append(x[j]);
-                        dumper.append(' ');
-                        dumper.append(y[j]);
-                        dumper.append(' ');
-                        dumper.append(currentMedoid);
-                        dumper.append('\n');
-                    }
-                    j++;
+
+            Set<Integer> value = entry.getValue();
+            double[] x = new double[value.size()];
+            double[] y = new double[value.size()];
+            int i = 0;
+            for (int index : value) {
+                builder.append(labels[index]);
+                builder.append(", ");
+                x[i] = mds[index][0];
+                y[i] = mds[index][1];
+                if (KMedoidsPlot.LOGGER.isTraceEnabled()) {
+                    dumper.append(labels[index]);
+                    dumper.append(' ');
+                    dumper.append(x[i]);
+                    dumper.append(' ');
+                    dumper.append(y[i]);
+                    dumper.append(' ');
+                    dumper.append(entry.getKey());
+                    dumper.append('\n');
                 }
+                i++;
             }
             builder.append(" ]");
             dataset.addSeries(builder.toString(), new double[][] { x, y });

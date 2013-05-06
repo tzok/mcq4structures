@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -19,8 +20,16 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import pl.poznan.put.cs.bioserver.beans.GlobalComparisonResults;
+import pl.poznan.put.cs.bioserver.beans.HierarchicalClustering;
+import pl.poznan.put.cs.bioserver.beans.PartitionalClustering;
+import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
+import pl.poznan.put.cs.bioserver.clustering.Clusterer;
+import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
 import pl.poznan.put.cs.bioserver.clustering.HierarchicalPlot;
 import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
+import pl.poznan.put.cs.bioserver.external.Matplotlib;
+import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -36,7 +45,7 @@ public class DialogCluster extends JDialog {
         group.add(kmedoids);
 
         final JComboBox<String> linkage = new JComboBox<>(new String[] {
-                "Single", "Complete", "Average" });
+                "Complete", "Single", "Average" });
         final JComboBox<String> method = new JComboBox<>(new String[] { "PAM",
                 "PAMSIL" });
         method.setEnabled(false);
@@ -46,8 +55,9 @@ public class DialogCluster extends JDialog {
         kspinner.setModel(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
         kspinner.setEnabled(false);
 
-        JButton ok = new JButton("Ok");
-        JButton close = new JButton("Close");
+        JButton buttonExternal = new JButton("Via Matplotlib");
+        JButton buttonOk = new JButton("Ok");
+        JButton buttonClose = new JButton("Close");
 
         Container container = getContentPane();
         container.setLayout(new GridBagLayout());
@@ -78,13 +88,16 @@ public class DialogCluster extends JDialog {
         c.gridx = 3;
         container.add(kspinner, c);
 
-        c.gridx = 1;
+        c.gridx = 0;
         c.gridy = 2;
         c.gridwidth = 1;
-        container.add(ok, c);
+        container.add(buttonExternal, c);
+
+        c.gridx = 1;
+        container.add(buttonOk, c);
 
         c.gridx = 2;
-        container.add(close, c);
+        container.add(buttonClose, c);
 
         ActionListener radioActionListener = new ActionListener() {
             @Override
@@ -100,7 +113,52 @@ public class DialogCluster extends JDialog {
         kmedoids.addActionListener(radioActionListener);
         findBestK.addActionListener(radioActionListener);
 
-        ok.addActionListener(new ActionListener() {
+        buttonExternal.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                URL resource;
+                XMLSerializable xmlSerializable;
+                GlobalComparisonResults globalComparisonResults = GlobalComparisonResults
+                        .newInstance(comparisonResults, structureNames);
+                if (hierarchical.isSelected()) {
+                    resource = DialogCluster.class
+                            .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
+                    Method linkageMethod = (new Method[] { Method.COMPLETE,
+                            Method.SINGLE, Method.AVERAGE })[linkage
+                            .getSelectedIndex()];
+                    xmlSerializable = HierarchicalClustering.newInstance(
+                            globalComparisonResults, linkageMethod);
+                } else { // partitional.isSelected() == true
+                    resource = DialogCluster.class
+                            .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
+                    Result clustering;
+                    if (method.getSelectedItem().equals("PAM")) {
+                        if (findBestK.isSelected()) {
+                            clustering = Clusterer
+                                    .clusterPAM(comparisonResults);
+                        } else {
+                            clustering = Clusterer.clusterPAM(
+                                    comparisonResults,
+                                    (Integer) kspinner.getValue());
+                        }
+                    } else {
+                        if (findBestK.isSelected()) {
+                            clustering = Clusterer
+                                    .clusterPAMSIL(comparisonResults);
+                        } else {
+                            clustering = Clusterer.clusterPAMSIL(
+                                    comparisonResults,
+                                    (Integer) kspinner.getValue());
+                        }
+                    }
+                    xmlSerializable = PartitionalClustering.newInstance(
+                            globalComparisonResults, clustering);
+                }
+                Matplotlib.runXsltAndPython(resource, xmlSerializable);
+            }
+        });
+
+        buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFrame plot;
@@ -138,7 +196,7 @@ public class DialogCluster extends JDialog {
             }
         });
 
-        close.addActionListener(new ActionListener() {
+        buttonClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();

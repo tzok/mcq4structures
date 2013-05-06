@@ -234,4 +234,5 @@ public class TorsionLocalComparison extends LocalComparison {
             throw new IncomparableStructuresException(e);
         }
     }
+
 }

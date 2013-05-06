@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,11 +60,13 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
+import pl.poznan.put.cs.bioserver.beans.LocalComparisonResults;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
+import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -105,6 +108,7 @@ public class MainWindow extends JFrame {
     private JMenuItem itemSelectStructuresCompare;
     private JMenuItem itemComputeDistances;
     private JMenuItem itemVisualise;
+    private JMenuItem itemVisualiseHq;
     private JMenuItem itemCluster;
 
     private JRadioButtonMenuItem radioAlignSeqGlobal;
@@ -133,6 +137,8 @@ public class MainWindow extends JFrame {
 
     private CardLayout layoutCards;
     private JPanel panelCards;
+
+    private LocalComparisonResults localComparisonResults;
 
     public MainWindow() {
         super();
@@ -183,6 +189,8 @@ public class MainWindow extends JFrame {
         itemComputeDistances.setEnabled(false);
         itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
+        itemVisualiseHq = new JMenuItem("Visualise results (high-quality)");
+        itemVisualiseHq.setEnabled(false);
         itemCluster = new JMenuItem("Cluster results");
         itemCluster.setEnabled(false);
 
@@ -198,6 +206,7 @@ public class MainWindow extends JFrame {
         menu.addSeparator();
         menu.add(itemComputeDistances);
         menu.add(itemVisualise);
+        menu.add(itemVisualiseHq);
         menu.add(itemCluster);
         menuBar.add(menu);
 
@@ -385,6 +394,7 @@ public class MainWindow extends JFrame {
                 Object source = arg0.getSource();
                 itemSelectTorsion.setEnabled(source.equals(radioLocal));
                 itemVisualise.setEnabled(false);
+                itemVisualiseHq.setEnabled(false);
                 itemCluster.setEnabled(false);
 
                 boolean isGlobalNow = source.equals(radioGlobalMcq)
@@ -445,6 +455,13 @@ public class MainWindow extends JFrame {
                 Visualizable visualizable = (Visualizable) tableMatrix
                         .getModel();
                 visualizable.visualize();
+            }
+        });
+
+        itemVisualiseHq.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                visualiseLocalPython();
             }
         });
 
@@ -743,6 +760,7 @@ public class MainWindow extends JFrame {
             Map<String, List<AngleDifference>> result = TorsionLocalComparison
                     .compare(structures[0], structures[1], false);
             progressBar.setValue(1);
+            localComparisonResults = LocalComparisonResults.newInstance(result);
 
             TableModelLocal model = new TableModelLocal(result,
                     dialogAngles.getAngles(),
@@ -753,6 +771,7 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(true);
             itemSave.setText("Save results (CSV)");
             itemVisualise.setEnabled(true);
+            itemVisualiseHq.setEnabled(true);
             itemCluster.setEnabled(false);
 
             labelInfoMatrix.setText("<html>" + "Structures selected for local "
@@ -796,6 +815,7 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
+            itemVisualiseHq.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
@@ -809,6 +829,7 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
+            itemVisualiseHq.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
@@ -839,6 +860,7 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(false);
         itemComputeDistances.setEnabled(false);
         itemVisualise.setEnabled(false);
+        itemVisualiseHq.setEnabled(false);
         itemCluster.setEnabled(false);
         itemComputeAlign.setEnabled(true);
 
@@ -867,9 +889,29 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(false);
         itemComputeDistances.setEnabled(true);
         itemVisualise.setEnabled(false);
+        itemVisualiseHq.setEnabled(false);
         itemCluster.setEnabled(false);
 
         labelInfoMatrix.setText("Structures selected for global distance "
                 + "measure: " + dialogStructures.getSelectionDescription());
+    }
+
+    private void visualiseLocalPython() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[ ");
+        for (String angle : dialogAngles.getAngles()) {
+            builder.append("'");
+            builder.append(angle);
+            builder.append("', ");
+        }
+        builder.append(" ]");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("angles", builder.toString());
+
+        URL resource = MainWindow.class
+                .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibLocal.xsl");
+        Matplotlib.runXsltAndPython(resource, localComparisonResults,
+                parameters);
     }
 }

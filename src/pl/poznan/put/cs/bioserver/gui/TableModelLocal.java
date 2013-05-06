@@ -131,7 +131,6 @@ public class TableModelLocal extends AbstractTableModel implements
                 csvWriter.endRecord();
             }
         } catch (IOException e) {
-            // TODO
             e.printStackTrace();
         }
     }
@@ -149,6 +148,10 @@ public class TableModelLocal extends AbstractTableModel implements
     @Override
     public int getRowCount() {
         return rowCount;
+    }
+
+    public String[] getRowsNames() {
+        return rowsNames;
     }
 
     @Override

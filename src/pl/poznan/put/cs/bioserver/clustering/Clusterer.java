@@ -23,8 +23,8 @@ public final class Clusterer {
         double score(Map<Integer, Set<Integer>> clustering, double[][] matrix);
     }
 
-    protected static class Result {
-        private Set<Integer> medoids;
+    public static class Result {
+        public Set<Integer> medoids;
         private double[][] matrix;
         private double score;
 
@@ -34,25 +34,56 @@ public final class Clusterer {
             this.matrix = matrix.clone();
         }
 
-        public int[] clusterAssignment() {
-            Map<Integer, Set<Integer>> clustering = Clusterer.getClustering(
-                    medoids, matrix);
-            int[] result = new int[matrix.length];
+        public Result(ScoringFunction sf, Set<Integer> medoids,
+                double[][] matrix) {
+            this.medoids = medoids;
+            this.matrix = matrix;
+            this.score = sf.score(getClusterAssignment(), matrix);
+        }
 
-            int i = 0;
-            for (Entry<Integer, Set<Integer>> entry : clustering.entrySet()) {
-                for (int j : entry.getValue()) {
-                    result[j] = i;
-                }
-                i++;
+        public Map<Integer, Set<Integer>> getClusterAssignment() {
+            return Result.getClusterAssignments(medoids, matrix);
+        }
+
+        /**
+         * Assign every object to its closes medoid.
+         * 
+         * @param medoids
+         *            Indices of objects which are medoids.
+         * @param matrix
+         *            A distance matrix.
+         * @return A map of this form { medoid : set(objects) }
+         */
+        public static Map<Integer, Set<Integer>> getClusterAssignments(
+                Iterable<Integer> medoids, double[][] matrix) {
+            Map<Integer, Set<Integer>> clustering = new HashMap<>();
+            for (int i : medoids) {
+                clustering.put(i, new HashSet<Integer>());
             }
-            return result;
+
+            // for each element, find its closest medoids
+            for (int i = 0; i < matrix.length; i++) {
+                double minimum = Double.POSITIVE_INFINITY;
+                int minimizer = -1;
+                for (int j : medoids) {
+                    if (matrix[i][j] < minimum) {
+                        minimum = matrix[i][j];
+                        minimizer = j;
+                    }
+                }
+
+                // minimizer == closest medoid
+                // i == current element
+                Set<Integer> set = clustering.get(minimizer);
+                set.add(i);
+            }
+            return clustering;
         }
     }
 
     /** Available hierarchical clustering types. */
     enum Type {
-        SINGLE, COMPLETE, AVERAGE;
+        COMPLETE, SINGLE, AVERAGE;
     }
 
     private static final Logger LOGGER = LoggerFactory
@@ -81,27 +112,6 @@ public final class Clusterer {
 
     public static Result clusterPAMSIL(double[][] matrix) {
         return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL);
-    }
-
-    private static Map<Integer, Set<Integer>> getClustering(
-            Set<Integer> medoids, double[][] matrix) {
-        Map<Integer, Set<Integer>> clustering = new HashMap<>();
-        for (int i : medoids) {
-            clustering.put(i, new HashSet<Integer>());
-        }
-        for (int i = 0; i < matrix.length; i++) {
-            double minimum = Double.POSITIVE_INFINITY;
-            int minimizer = -1;
-            for (int j : medoids) {
-                if (matrix[i][j] < minimum) {
-                    minimum = matrix[i][j];
-                    minimizer = j;
-                }
-            }
-            Set<Integer> set = clustering.get(minimizer);
-            set.add(i);
-        }
-        return clustering;
     }
 
     private static Result kMedoids(double[][] matrix, ScoringFunction sf) {
@@ -235,20 +245,18 @@ public final class Clusterer {
 
     private static double scoreCluster(Set<Integer> medoids, double[][] matrix,
             ScoringFunction sf) {
-        Map<Integer, Set<Integer>> clustering = Clusterer.getClustering(
-                medoids, matrix);
-        return sf.score(clustering, matrix);
+        return sf.score(Result.getClusterAssignments(medoids, matrix), matrix);
     }
 
-    static Result clusterPAM(double[][] matrix) {
+    public static Result clusterPAM(double[][] matrix) {
         return Clusterer.kMedoids(matrix, Clusterer.scoringPAM);
     }
 
-    static Result clusterPAM(double[][] matrix, int k) {
+    public static Result clusterPAM(double[][] matrix, int k) {
         return Clusterer.kMedoids(matrix, Clusterer.scoringPAM, k);
     }
 
-    static Result clusterPAMSIL(double[][] matrix, int k) {
+    public static Result clusterPAMSIL(double[][] matrix, int k) {
         return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL, k);
     }
 
