@@ -7,7 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.ButtonGroup;
@@ -20,8 +19,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import pl.poznan.put.cs.bioserver.beans.GlobalComparisonResults;
 import pl.poznan.put.cs.bioserver.beans.HierarchicalClustering;
@@ -121,7 +118,6 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 URL resource;
                 XMLSerializable xmlSerializable;
-
                 GlobalComparisonResults globalComparisonResults = GlobalComparisonResults
                         .newInstance(comparisonResults, structureNames);
                 if (hierarchical.isSelected()) {
@@ -158,16 +154,7 @@ public class DialogCluster extends JDialog {
                     xmlSerializable = PartitionalClustering.newInstance(
                             globalComparisonResults, clustering);
                 }
-
-                try {
-                    Matplotlib.runXsltAndPython(resource, xmlSerializable);
-                } catch (IOException | JAXBException
-                        | ParserConfigurationException e) {
-                    JOptionPane.showMessageDialog(DialogCluster.this, "Failed "
-                            + "to invoke external tool to draw the plot with "
-                            + "Matplotlib\n\n" + e.getMessage(), "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+                Matplotlib.runXsltAndPython(resource, xmlSerializable);
             }
         });
 

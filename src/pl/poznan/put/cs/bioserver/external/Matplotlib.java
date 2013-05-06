@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -59,14 +60,12 @@ public class Matplotlib {
         executor.execute(commandLine);
     }
 
-    public static void runXsltAndPython(URL resource, XMLSerializable data)
-            throws IOException, JAXBException, ParserConfigurationException {
+    public static void runXsltAndPython(URL resource, XMLSerializable data) {
         Matplotlib.runXsltAndPython(resource, data, null);
     }
 
     public static void runXsltAndPython(URL resource, XMLSerializable data,
-            Map<String, Object> parameters) throws IOException, JAXBException,
-            ParserConfigurationException {
+            Map<String, Object> parameters) {
         File fileScript = null;
         File fileOutput = null;
 
@@ -93,8 +92,19 @@ public class Matplotlib {
         }
         fileOutput = chooser.getSelectedFile();
 
-        Matplotlib.runXsltAndPython(resource, fileScript, fileOutput, data,
-                parameters);
+        try {
+            Matplotlib.runXsltAndPython(resource, fileScript, fileOutput, data,
+                    parameters);
+            JOptionPane.showMessageDialog(null, "Successfully created the "
+                    + "image via Matplotlib", "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException | JAXBException | ParserConfigurationException e) {
+            Matplotlib.LOGGER.error("Failed to run Python with Matplotlib", e);
+            JOptionPane.showMessageDialog(null, "Failed "
+                    + "to invoke external tool to draw the plot with "
+                    + "Matplotlib\n\n" + e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private Matplotlib() {

@@ -13,7 +13,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -44,8 +43,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.biojava.bio.structure.Chain;
@@ -914,12 +911,7 @@ public class MainWindow extends JFrame {
 
         URL resource = MainWindow.class
                 .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibLocal.xsl");
-        try {
-            Matplotlib.runXsltAndPython(resource, localComparisonResults,
-                    parameters);
-        } catch (IOException | JAXBException | ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        Matplotlib.runXsltAndPython(resource, localComparisonResults,
+                parameters);
     }
 }
