@@ -73,6 +73,7 @@ public class Matplotlib {
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 "Python script", "py");
         chooser.setFileFilter(filter);
+        chooser.setSelectedFile(new File("script.py"));
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
             return;
         }
@@ -87,6 +88,16 @@ public class Matplotlib {
             chooser.addChoosableFileFilter(new FileNameExtensionFilter(pair[0],
                     pair[1]));
         }
+
+        String originalName = fileScript.getName();
+        String newExtension = ".png";
+        int lastDot = originalName.lastIndexOf(".");
+        if (lastDot != -1) {
+            originalName = originalName.substring(0, lastDot) + newExtension;
+        } else {
+            originalName = originalName + newExtension;
+        }
+        chooser.setSelectedFile(new File(originalName));
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
             return;
         }
