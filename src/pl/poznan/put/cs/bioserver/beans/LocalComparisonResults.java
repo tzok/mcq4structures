@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.biojava.bio.structure.ResidueNumber;
 
+import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 @XmlRootElement
@@ -20,6 +21,7 @@ public class LocalComparisonResults extends XMLSerializable {
 
     Angle[] angles;
     String[] ticks;
+    RGB[] colors;
 
     public static LocalComparisonResults newInstance(
             Map<String, List<AngleDifference>> comparison) {
@@ -53,6 +55,7 @@ public class LocalComparisonResults extends XMLSerializable {
         LocalComparisonResults results = new LocalComparisonResults();
         results.setAngles(angles);
         results.setTicks(ticks);
+        results.colors = Colors.toRGB();
         return results;
     }
 
@@ -74,5 +77,15 @@ public class LocalComparisonResults extends XMLSerializable {
     @XmlElement(name = "item")
     public void setTicks(String[] ticks) {
         this.ticks = ticks;
+    }
+
+    public RGB[] getColors() {
+        return colors;
+    }
+
+    @XmlElementWrapper(name = "colors")
+    @XmlElement(name = "item")
+    public void setColors(RGB[] colors) {
+        this.colors = colors;
     }
 }

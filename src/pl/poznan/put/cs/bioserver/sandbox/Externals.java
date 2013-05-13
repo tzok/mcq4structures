@@ -47,7 +47,7 @@ public class Externals {
                 .compare(structures[0], structures[1], false);
         XMLSerializable xmlResults = LocalComparisonResults
                 .newInstance(results);
-        // XSLT.printDocument(xmlResults.toXML(), System.out);
+        XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", "[ 'ALPHA', 'BETA', 'GAMMA', 'DELTA', "

@@ -27,6 +27,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
@@ -186,8 +187,10 @@ public class TableModelLocal extends AbstractTableModel implements
         }
 
         DefaultXYDataset dataset = new DefaultXYDataset();
+        DefaultXYItemRenderer renderer = new DefaultXYItemRenderer();
         for (int i = 0; i < y.length - 1; i++) {
             dataset.addSeries(columnNames[i + 1], new double[][] { x, y[i] });
+            renderer.setSeriesPaint(i, Colors.ALL[i + 1]);
         }
 
         NumberAxis xAxis = new TorsionAxis(rowsNames);
@@ -196,8 +199,7 @@ public class TableModelLocal extends AbstractTableModel implements
         yAxis.setAutoRange(false);
         yAxis.setRange(0, Math.PI);
         yAxis.setLabel("Distance [rad]");
-        XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
-                new DefaultXYItemRenderer());
+        XYPlot plot = new XYPlot(dataset, xAxis, yAxis, renderer);
 
         JFrame frame = new JFrame();
         frame.setLayout(new BorderLayout());

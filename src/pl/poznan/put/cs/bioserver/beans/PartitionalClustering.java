@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
+import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
 @XmlRootElement
@@ -19,6 +20,7 @@ public class PartitionalClustering extends XMLSerializable {
     Point[][] points;
     Point[] medoids;
     String[] labels;
+    RGB[] colors;
 
     public static PartitionalClustering newInstance(
             GlobalComparisonResults comparison, Result clustering) {
@@ -63,6 +65,7 @@ public class PartitionalClustering extends XMLSerializable {
         instance.labels = labels;
         instance.medoids = medoids;
         instance.points = points;
+        instance.colors = Colors.toRGB();
         return instance;
     }
 
@@ -103,5 +106,15 @@ public class PartitionalClustering extends XMLSerializable {
     @XmlElement(name = "item")
     public void setLabels(String[] labels) {
         this.labels = labels;
+    }
+
+    public RGB[] getColors() {
+        return colors;
+    }
+
+    @XmlElementWrapper(name = "colors")
+    @XmlElement(name = "item")
+    public void setColors(RGB[] colors) {
+        this.colors = colors;
     }
 }
