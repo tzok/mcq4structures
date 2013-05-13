@@ -2,6 +2,7 @@ package pl.poznan.put.cs.bioserver.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -43,6 +44,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.biojava.bio.structure.Chain;
@@ -68,6 +70,7 @@ import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
+import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
@@ -84,7 +87,7 @@ public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "CARD_MATRIX";
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
-    private static final Logger logger = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(MainWindow.class);
 
     private DialogStructures dialogStructures;
@@ -139,6 +142,9 @@ public class MainWindow extends JFrame {
     private JPanel panelCards;
 
     private LocalComparisonResults localComparisonResults;
+
+    private TableCellRenderer defaultRenderer;
+    private TableCellRenderer colorsRenderer;
 
     public MainWindow() {
         super();
@@ -336,6 +342,23 @@ public class MainWindow extends JFrame {
         Dimension size = toolkit.getScreenSize();
         setSize(size.width * 3 / 4, size.height * 3 / 4);
         setLocation(size.width / 8, size.height / 8);
+
+        /*
+         * Prepare cell renderer for JTable
+         */
+        defaultRenderer = tableMatrix.getDefaultRenderer(Object.class);
+        colorsRenderer = new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table,
+                    Object value, boolean isSelected, boolean hasFocus,
+                    int row, int column) {
+                Component component = defaultRenderer
+                        .getTableCellRendererComponent(table, value,
+                                isSelected, hasFocus, row, column);
+                component.setBackground(Colors.ALL[column]);
+                return component;
+            }
+        };
 
         /*
          * Set action listeners
@@ -718,7 +741,7 @@ public class MainWindow extends JFrame {
                                 progressBar.setValue((int) completed);
                             }
                         });
-                MainWindow.logger.debug("Structure comparison took "
+                MainWindow.LOGGER.debug("Structure comparison took "
                         + (System.currentTimeMillis() - start) + " ms");
 
                 SwingUtilities.invokeLater(new Runnable() {
@@ -728,6 +751,8 @@ public class MainWindow extends JFrame {
                         TableModelGlobal model = new TableModelGlobal(names,
                                 matrix, comparison);
                         exportableResults = model;
+                        tableMatrix.setDefaultRenderer(Object.class,
+                                defaultRenderer);
                         tableMatrix.setModel(model);
 
                         itemSave.setEnabled(true);
@@ -766,6 +791,7 @@ public class MainWindow extends JFrame {
                     dialogAngles.getAngles(),
                     dialogChains.getSelectionDescription());
             exportableResults = model;
+            tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
             tableMatrix.setModel(model);
 
             itemSave.setEnabled(true);
