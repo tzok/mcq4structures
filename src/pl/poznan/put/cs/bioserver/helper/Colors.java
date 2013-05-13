@@ -2,6 +2,8 @@ package pl.poznan.put.cs.bioserver.helper;
 
 import java.awt.Color;
 
+import pl.poznan.put.cs.bioserver.beans.RGB;
+
 public class Colors {
     public static final Color[] ALL = new Color[] { Color.WHITE,
             new Color(173, 35, 35), new Color(42, 75, 215),
@@ -31,4 +33,12 @@ public class Colors {
             new Color(173, 234, 234), new Color(92, 64, 51),
             new Color(79, 47, 79), new Color(204, 50, 153),
             new Color(153, 204, 50), };
+
+    public static RGB[] toRGB() {
+        RGB[] result = new RGB[ALL.length];
+        for (int i = 0; i < ALL.length; i++) {
+            result[i] = RGB.newInstance(ALL[i].getRGBColorComponents(null));
+        }
+        return result;
+    }
 }
