@@ -154,6 +154,10 @@ public final class DihedralAngles {
             assert group.getChainId().length() == 1;
 
             String[] atomNames = angleType.getAtomNames(group);
+            if (atomNames == null) {
+                continue;
+            }
+
             for (int i = 0; i < 4; i++) {
                 if (atom.getFullName().equals(atomNames[i])) {
                     if (i == 0) {
