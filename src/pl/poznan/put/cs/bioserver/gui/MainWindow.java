@@ -783,7 +783,8 @@ public class MainWindow extends JFrame {
             progressBar.setMaximum(1);
             progressBar.setValue(0);
             Map<String, List<AngleDifference>> result = TorsionLocalComparison
-                    .compare(structures[0], structures[1], false);
+                    .compare(structures[0], structures[1],
+                            dialogAngles.getAngles());
             progressBar.setValue(1);
             localComparisonResults = LocalComparisonResults.newInstance(result);
 

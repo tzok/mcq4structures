@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.ResidueNumber;
@@ -57,7 +59,7 @@ public class TorsionLocalComparison extends LocalComparison {
                 wasAligned = true;
             }
         }
-        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES,
+        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES, null,
                 wasAligned);
     }
 
@@ -153,16 +155,29 @@ public class TorsionLocalComparison extends LocalComparison {
     }
 
     private static List<AngleDifference> calcMcqPerResidue(
-            Map<ResidueNumber, List<AngleDifference>> mapResToDiffs) {
+            Map<ResidueNumber, List<AngleDifference>> mapResToDiffs,
+            AngleType[] angleTypes, String angleName) {
         List<AngleDifference> mcqAngles = new ArrayList<>();
         for (Entry<ResidueNumber, List<AngleDifference>> entry : mapResToDiffs
                 .entrySet()) {
             ResidueNumber residue = entry.getKey();
             List<AngleDifference> list = entry.getValue();
 
-            double mcq = MCQ.calculate(list);
+            Set<String> set = new HashSet<>();
+            for (AngleType type : angleTypes) {
+                set.add(type.getAngleName());
+            }
+
+            List<AngleDifference> filtered = new ArrayList<>();
+            for (AngleDifference difference : list) {
+                if (set.contains(difference.getAngleName())) {
+                    filtered.add(difference);
+                }
+            }
+
+            double mcq = MCQ.calculate(filtered);
             mcqAngles.add(new AngleDifference(residue, Double.NaN, Double.NaN,
-                    mcq, "AVERAGE"));
+                    mcq, angleName));
         }
         return mcqAngles;
     }
@@ -181,7 +196,7 @@ public class TorsionLocalComparison extends LocalComparison {
      *         it.
      */
     private static Map<String, List<AngleDifference>> compare(Atom[][] atoms,
-            AngleType[] angles, boolean wasAligned) {
+            AngleType[] angles, AngleType[] customAverage, boolean wasAligned) {
         Atom[][] equalized = Helper.equalize(atoms);
 
         List<AngleDifference> allDiffs = new ArrayList<>();
@@ -220,8 +235,13 @@ public class TorsionLocalComparison extends LocalComparison {
 
         mapNameToDiffs
                 .put("P", TorsionLocalComparison.calcAngleP(mapResToTaus));
-        mapNameToDiffs.put("AVERAGE",
-                TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs));
+        mapNameToDiffs.put("AVERAGE", TorsionLocalComparison.calcMcqPerResidue(
+                mapResToDiffs, MCQ.USED_ANGLES, "AVERAGE"));
+        if (customAverage != null) {
+            mapNameToDiffs.put("SELECTED",
+                    TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs,
+                            customAverage, "SELECTED"));
+        }
         return mapNameToDiffs;
     }
 
@@ -235,4 +255,24 @@ public class TorsionLocalComparison extends LocalComparison {
         }
     }
 
+    public static Map<String, List<AngleDifference>> compare(Structure s1,
+            Structure s2, String[] angles) throws StructureException {
+        boolean wasAligned = false;
+        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2, false);
+        if (atoms == null) {
+            atoms = Helper.getCommonAtomArray(s1, s2, true);
+            wasAligned = true;
+        }
+
+        List<AngleType> list = new ArrayList<>();
+        Set<String> setAngles = new HashSet<>(Arrays.asList(angles));
+        for (AngleType type : MCQ.USED_ANGLES) {
+            if (setAngles.contains(type.getAngleName())) {
+                list.add(type);
+            }
+        }
+
+        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES,
+                list.toArray(new AngleType[list.size()]), wasAligned);
+    }
 }

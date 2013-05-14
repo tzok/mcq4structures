@@ -22,16 +22,19 @@ final class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
     private static final String[] AMINO_NAMES = new String[] { "Φ (phi)",
             "Ψ (psi)", "Ω (omega)", "χ1 (chi1)", "χ2 (chi2)", "χ3 (chi3)",
-            "χ4 (chi4)", "χ5 (chi5)", "Average of all angles" };
+            "χ4 (chi4)", "χ5 (chi5)", "Average of selected angles",
+            "Average of all angles" };
     private static final String[] AMINO_CODES = new String[] { "PHI", "PSI",
-            "OMEGA", "CHI1", "CHI2", "CHI3", "CHI4", "CHI5", "AVERAGE" };
+            "OMEGA", "CHI1", "CHI2", "CHI3", "CHI4", "CHI5", "SELECTED",
+            "AVERAGE" };
     private static final String[] NUCLEIC_NAMES = new String[] { "α (alpha)",
             "β (beta)", "γ (gamma)", "δ (delta)", "ε (epsilon)", "ζ (zeta)",
             "χ (chi)", "τ0 (tau0)", "τ1 (tau1)", "τ2 (tau2)", "τ3 (tau3)",
-            "τ4 (tau4)", "P (sugar pucker)", "Average of all angles" };
+            "τ4 (tau4)", "P (sugar pucker)", "Average of selected angles",
+            "Average of all angles" };
     private static final String[] NUCLEIC_CODES = new String[] { "ALPHA",
             "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
-            "TAU2", "TAU3", "TAU4", "P", "AVERAGE" };
+            "TAU2", "TAU3", "TAU4", "P", "SELECTED", "AVERAGE" };
 
     private static DialogAngles instance;
 
