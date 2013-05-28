@@ -5,7 +5,7 @@
 
     <xsl:param name="angles"/>
 
-    <xsl:template match="localComparisonResults">
+    <xsl:template match="comparisonLocal">
         <xsl:text>import math&#10;</xsl:text>
         <xsl:text>import matplotlib.pyplot&#10;</xsl:text>
         <xsl:text>import matplotlib.ticker&#10;</xsl:text>

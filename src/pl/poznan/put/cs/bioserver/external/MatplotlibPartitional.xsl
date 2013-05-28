@@ -2,7 +2,7 @@
     <xsl:output method="text"/>
     <xsl:strip-space elements="*"/>
 
-    <xsl:template match="partitionalClustering">
+    <xsl:template match="clusteringPartitional">
         <xsl:text>import matplotlib.pyplot&#10;</xsl:text>
         <xsl:text>import textwrap&#10;</xsl:text>
         <xsl:text>import sys&#10;</xsl:text>

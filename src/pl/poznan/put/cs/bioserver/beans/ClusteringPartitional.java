@@ -8,22 +8,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import pl.poznan.put.cs.bioserver.beans.auxiliary.Point;
+import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
 @XmlRootElement
-public class PartitionalClustering extends XMLSerializable {
+public class ClusteringPartitional extends XMLSerializable {
     private static final long serialVersionUID = -7474446942015119359L;
 
-    GlobalComparisonResults comparison;
+    ComparisonGlobal comparison;
     Point[][] points;
     Point[] medoids;
     String[] labels;
     RGB[] colors;
 
-    public static PartitionalClustering newInstance(
-            GlobalComparisonResults comparison, Result clustering) {
+    public static ClusteringPartitional newInstance(
+            ComparisonGlobal comparison, Result clustering) {
         double[][] mds = MDS.multidimensionalScaling(
                 comparison.getDistanceMatrix(), 2);
         Map<Integer, Set<Integer>> clusters = clustering.getClusterAssignment();
@@ -32,8 +34,8 @@ public class PartitionalClustering extends XMLSerializable {
         int i = 0;
         for (int index : clusters.keySet()) {
             medoids[i] = new Point();
-            medoids[i].x = mds[index][0];
-            medoids[i].y = mds[index][1];
+            medoids[i].setX(mds[index][0]);
+            medoids[i].setY(mds[index][1]);
             i++;
         }
 
@@ -51,8 +53,8 @@ public class PartitionalClustering extends XMLSerializable {
                 builder.append(", ");
 
                 points[i][j] = new Point();
-                points[i][j].x = mds[index][0];
-                points[i][j].y = mds[index][1];
+                points[i][j].setX(mds[index][0]);
+                points[i][j].setY(mds[index][1]);
                 j++;
             }
             builder.delete(builder.length() - 2, builder.length());
@@ -60,7 +62,7 @@ public class PartitionalClustering extends XMLSerializable {
             i++;
         }
 
-        PartitionalClustering instance = new PartitionalClustering();
+        ClusteringPartitional instance = new ClusteringPartitional();
         instance.comparison = comparison;
         instance.labels = labels;
         instance.medoids = medoids;
@@ -69,12 +71,12 @@ public class PartitionalClustering extends XMLSerializable {
         return instance;
     }
 
-    public GlobalComparisonResults getComparison() {
+    public ComparisonGlobal getComparison() {
         return comparison;
     }
 
     @XmlElement
-    public void setComparison(GlobalComparisonResults comparison) {
+    public void setComparison(ComparisonGlobal comparison) {
         this.comparison = comparison;
     }
 

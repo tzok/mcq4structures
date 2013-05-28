@@ -5,15 +5,15 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class GlobalComparisonResults extends XMLSerializable {
+public class ComparisonGlobal extends XMLSerializable {
     private static final long serialVersionUID = 5900586846338327108L;
 
     double[][] distanceMatrix;
     String[] labels;
 
-    public static GlobalComparisonResults newInstance(
+    public static ComparisonGlobal newInstance(
             double[][] distanceMatrix, String[] labels) {
-        GlobalComparisonResults instance = new GlobalComparisonResults();
+        ComparisonGlobal instance = new ComparisonGlobal();
         instance.setDistanceMatrix(distanceMatrix);
         instance.setLabels(labels);
         return instance;

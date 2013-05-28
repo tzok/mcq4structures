@@ -20,9 +20,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import pl.poznan.put.cs.bioserver.beans.GlobalComparisonResults;
-import pl.poznan.put.cs.bioserver.beans.HierarchicalClustering;
-import pl.poznan.put.cs.bioserver.beans.PartitionalClustering;
+import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
+import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
+import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
@@ -118,7 +118,7 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 URL resource;
                 XMLSerializable xmlSerializable;
-                GlobalComparisonResults globalComparisonResults = GlobalComparisonResults
+                ComparisonGlobal globalComparisonResults = ComparisonGlobal
                         .newInstance(comparisonResults, structureNames);
                 if (hierarchical.isSelected()) {
                     resource = DialogCluster.class
@@ -126,7 +126,7 @@ public class DialogCluster extends JDialog {
                     Method linkageMethod = (new Method[] { Method.COMPLETE,
                             Method.SINGLE, Method.AVERAGE })[linkage
                             .getSelectedIndex()];
-                    xmlSerializable = HierarchicalClustering.newInstance(
+                    xmlSerializable = ClusteringHierarchical.newInstance(
                             globalComparisonResults, linkageMethod);
                 } else { // partitional.isSelected() == true
                     resource = DialogCluster.class
@@ -151,7 +151,7 @@ public class DialogCluster extends JDialog {
                                     (Integer) kspinner.getValue());
                         }
                     }
-                    xmlSerializable = PartitionalClustering.newInstance(
+                    xmlSerializable = ClusteringPartitional.newInstance(
                             globalComparisonResults, clustering);
                 }
                 Matplotlib.runXsltAndPython(resource, xmlSerializable);

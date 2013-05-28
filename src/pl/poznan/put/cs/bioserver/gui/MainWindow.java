@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
-import pl.poznan.put.cs.bioserver.beans.LocalComparisonResults;
+import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
@@ -141,7 +141,7 @@ public class MainWindow extends JFrame {
     private CardLayout layoutCards;
     private JPanel panelCards;
 
-    private LocalComparisonResults localComparisonResults;
+    private ComparisonLocal localComparisonResults;
 
     private TableCellRenderer defaultRenderer;
     private TableCellRenderer colorsRenderer;
@@ -786,7 +786,7 @@ public class MainWindow extends JFrame {
                     .compare(structures[0], structures[1],
                             dialogAngles.getAngles());
             progressBar.setValue(1);
-            localComparisonResults = LocalComparisonResults.newInstance(result);
+            localComparisonResults = ComparisonLocal.newInstance(result);
 
             TableModelLocal model = new TableModelLocal(result,
                     dialogAngles.getAngles(),

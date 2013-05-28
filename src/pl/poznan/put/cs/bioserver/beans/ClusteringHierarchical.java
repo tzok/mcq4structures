@@ -6,26 +6,26 @@ import javax.xml.bind.annotation.XmlRootElement;
 import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 
 @XmlRootElement
-public class HierarchicalClustering extends XMLSerializable {
+public class ClusteringHierarchical extends XMLSerializable {
     private static final long serialVersionUID = -933748828643803893L;
 
-    GlobalComparisonResults comparison;
+    ComparisonGlobal comparison;
     Method method;
 
-    public static HierarchicalClustering newInstance(
-            GlobalComparisonResults comparison, Method method) {
-        HierarchicalClustering instance = new HierarchicalClustering();
+    public static ClusteringHierarchical newInstance(
+            ComparisonGlobal comparison, Method method) {
+        ClusteringHierarchical instance = new ClusteringHierarchical();
         instance.setComparison(comparison);
         instance.setMethod(method);
         return instance;
     }
 
-    public GlobalComparisonResults getComparison() {
+    public ComparisonGlobal getComparison() {
         return comparison;
     }
 
     @XmlElement
-    public void setComparison(GlobalComparisonResults comparison) {
+    public void setComparison(ComparisonGlobal comparison) {
         this.comparison = comparison;
     }
 

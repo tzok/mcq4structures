@@ -2,7 +2,7 @@ package pl.poznan.put.cs.bioserver.helper;
 
 import java.awt.Color;
 
-import pl.poznan.put.cs.bioserver.beans.RGB;
+import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
 
 public class Colors {
     public static final Color[] ALL = new Color[] { Color.WHITE,

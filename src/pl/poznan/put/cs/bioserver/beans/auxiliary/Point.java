@@ -1,7 +1,9 @@
-package pl.poznan.put.cs.bioserver.beans;
+package pl.poznan.put.cs.bioserver.beans.auxiliary;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 
 @XmlRootElement
 public class Point extends XMLSerializable {

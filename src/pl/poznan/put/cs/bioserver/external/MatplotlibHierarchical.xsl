@@ -2,7 +2,7 @@
     <xsl:output method="text"/>
     <xsl:strip-space elements="*"/>
 
-    <xsl:template match="hierarchicalClustering">
+    <xsl:template match="clusteringHierarchical">
         <xsl:text>import matplotlib.pyplot&#10;</xsl:text>
         <xsl:text>import scipy.cluster.hierarchy&#10;</xsl:text>
         <xsl:text>import sys&#10;</xsl:text>
