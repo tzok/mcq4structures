@@ -13,9 +13,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,16 +50,13 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
-import org.biojava3.alignment.template.Profile;
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
 import org.jmol.api.JmolViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.cs.bioserver.alignment.AlignerSequence;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
+import pl.poznan.put.cs.bioserver.beans.AlignmentSequence;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
@@ -389,7 +384,17 @@ public class MainWindow extends JFrame {
                 chooser.setSelectedFile(exportableResults.suggestName());
                 int option = chooser.showSaveDialog(MainWindow.this);
                 if (option == JFileChooser.APPROVE_OPTION) {
-                    exportableResults.export(chooser.getSelectedFile());
+                    try {
+                        exportableResults.export(chooser.getSelectedFile());
+                        JOptionPane.showMessageDialog(MainWindow.this,
+                                "Successfully exported the results!",
+                                "Information", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (IOException exception) {
+                        String message = "Failed to export results, reason: "
+                                + exception.getMessage();
+                        JOptionPane.showMessageDialog(MainWindow.this, message,
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
@@ -526,75 +531,28 @@ public class MainWindow extends JFrame {
     }
 
     private void alignSequences() {
-        final Chain[] chains = dialogChainsMultiple.getChains();
-
         textAreaAlignSeq.setText("");
         layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
-        final String[] names = new String[chains.length];
-        for (int i = 0; i < chains.length; i++) {
-            Chain chain = chains[i];
-            names[i] = StructureManager.getName(chain.getParent()) + "."
-                    + chain.getChainID();
-        }
+        Chain[] chains = dialogChainsMultiple.getChains();
+        boolean isGlobal = radioAlignSeqGlobal.isSelected();
+        AlignmentSequence alignment = AlignmentSequence.newInstance(chains,
+                isGlobal);
 
-        StringBuilder builder = new StringBuilder();
-        builder.append(names[0]);
-        for (int i = 1; i < names.length; i++) {
-            builder.append(", ");
-            builder.append(names[i]);
-        }
-        final String description = builder.toString();
-
-        final boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        final Profile<Sequence<Compound>, Compound> alignment = AlignerSequence
-                .align(chains, isGlobal);
-
-        final String output = AlignerSequence
-                .toClustalFormat(alignment, chains);
-        textAreaAlignSeq.setText(output);
-
-        exportableResults = new Exportable() {
-            @Override
-            public File suggestName() {
-                StringBuilder filename = new StringBuilder();
-                filename.append(Helper.getExportPrefix());
-                filename.append(isGlobal ? "-GSA-" : "-LSA-");
-                filename.append(description.replace(", ", "-"));
-                filename.append(".txt");
-                return new File(filename.toString());
-            }
-
-            @Override
-            public void export(File file) {
-                try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
-                    writer.write(isGlobal ? "Global" : "Local");
-                    writer.write(" sequence alignment: ");
-                    writer.write(description);
-                    writer.write("\n\n");
-                    writer.write(output);
-                } catch (FileNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        };
-
+        exportableResults = alignment;
+        textAreaAlignSeq.setText(alignment.getAlignment());
         itemSave.setEnabled(true);
         itemSave.setText("Save results (TXT)");
 
         if (isGlobal) {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for global sequence alignment: "
-                    + description + "<br>"
+                    + alignment.getTitle() + "<br>"
                     + "Global sequence alignment results:" + "</html>");
         } else {
             labelInfoAlignSeq.setText("<html>"
                     + "Structures selected for local sequence alignment: "
-                    + description + "<br>"
+                    + alignment.getTitle() + "<br>"
                     + "Local sequence alignment results:" + "</html>");
         }
     }
