@@ -34,8 +34,8 @@ import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    public DialogCluster(final String[] structureNames,
-            final double[][] comparisonResults, final String plotTitlePrefix) {
+    public DialogCluster(final ComparisonGlobal comparisonGlobal,
+            final String plotTitlePrefix) {
         super();
 
         final JRadioButton hierarchical = new JRadioButton("hierarchical", true);
@@ -118,8 +118,6 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 URL resource;
                 XMLSerializable xmlSerializable;
-                ComparisonGlobal globalComparisonResults = ComparisonGlobal
-                        .newInstance(comparisonResults, structureNames);
                 if (hierarchical.isSelected()) {
                     resource = DialogCluster.class
                             .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
@@ -127,32 +125,32 @@ public class DialogCluster extends JDialog {
                             Method.SINGLE, Method.AVERAGE })[linkage
                             .getSelectedIndex()];
                     xmlSerializable = ClusteringHierarchical.newInstance(
-                            globalComparisonResults, linkageMethod);
+                            comparisonGlobal, linkageMethod);
                 } else { // partitional.isSelected() == true
                     resource = DialogCluster.class
                             .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
                     Result clustering;
+                    double[][] distanceMatrix = comparisonGlobal
+                            .getDistanceMatrix();
                     if (method.getSelectedItem().equals("PAM")) {
                         if (findBestK.isSelected()) {
-                            clustering = Clusterer
-                                    .clusterPAM(comparisonResults);
+                            clustering = Clusterer.clusterPAM(distanceMatrix);
                         } else {
-                            clustering = Clusterer.clusterPAM(
-                                    comparisonResults,
+                            clustering = Clusterer.clusterPAM(distanceMatrix,
                                     (Integer) kspinner.getValue());
                         }
                     } else {
                         if (findBestK.isSelected()) {
                             clustering = Clusterer
-                                    .clusterPAMSIL(comparisonResults);
+                                    .clusterPAMSIL(distanceMatrix);
                         } else {
                             clustering = Clusterer.clusterPAMSIL(
-                                    comparisonResults,
+                                    distanceMatrix,
                                     (Integer) kspinner.getValue());
                         }
                     }
                     xmlSerializable = ClusteringPartitional.newInstance(
-                            globalComparisonResults, clustering);
+                            comparisonGlobal, clustering);
                 }
                 Matplotlib.runXsltAndPython(resource, xmlSerializable);
             }
@@ -163,6 +161,9 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 JFrame plot;
                 String plotTitle = plotTitlePrefix;
+                double[][] comparisonResults = comparisonGlobal
+                        .getDistanceMatrix();
+                String[] structureNames = comparisonGlobal.getLabels();
                 if (hierarchical.isSelected()) {
                     plot = new HierarchicalPlot(comparisonResults,
                             structureNames, linkage.getSelectedIndex());

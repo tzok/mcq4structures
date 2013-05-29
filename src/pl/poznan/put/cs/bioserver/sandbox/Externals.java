@@ -65,7 +65,8 @@ public class Externals {
         for (int i = 0; i < structures.length; i++) {
             labels[i] = StructureManager.getName(structures[i]);
         }
-        ComparisonGlobal global = ComparisonGlobal.newInstance(matrix, labels);
+        ComparisonGlobal global = ComparisonGlobal.newInstance(matrix, labels,
+                "MCQ");
 
         xmlResults = ClusteringHierarchical
                 .newInstance(global, Method.COMPLETE);

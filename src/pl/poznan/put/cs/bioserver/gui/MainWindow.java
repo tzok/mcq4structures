@@ -57,12 +57,15 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.beans.AlignmentSequence;
+import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
+import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
+import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
@@ -90,6 +93,7 @@ public class MainWindow extends JFrame {
     private DialogAngles dialogAngles;
     private DialogManager dialogManager;
 
+    private Clusterable clusterable;
     private Exportable exportable;
     private Visualizable visualizable;
     private Thread threadAlignment;
@@ -492,7 +496,6 @@ public class MainWindow extends JFrame {
         itemCluster.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                Clusterable clusterable = (Clusterable) tableMatrix.getModel();
                 clusterable.cluster();
             }
         });
@@ -681,33 +684,37 @@ public class MainWindow extends JFrame {
             comparison = new RMSD();
         }
 
+        final ComparisonListener listener = new ComparisonListener() {
+            @Override
+            public void stateChanged(long all, long completed) {
+                progressBar.setMaximum((int) all);
+                progressBar.setValue((int) completed);
+            }
+        };
+
+        final Structure[] structures = dialogStructures.getStructures();
+        final String[] names = StructureManager.getNames(structures);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final Structure[] structures = dialogStructures.getStructures();
-
                 long start = System.currentTimeMillis();
-                final double[][] matrix = comparison.compare(structures,
-                        new ComparisonListener() {
-                            @Override
-                            public void stateChanged(long all, long completed) {
-                                progressBar.setMaximum((int) all);
-                                progressBar.setValue((int) completed);
-                            }
-                        });
+                double[][] matrix = comparison.compare(structures, listener);
+                final ComparisonGlobal comparisonGlobal = ComparisonGlobal
+                        .newInstance(matrix, names, comparison.toString());
                 MainWindow.LOGGER.debug("Structure comparison took "
                         + (System.currentTimeMillis() - start) + " ms");
 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        String[] names = StructureManager.getNames(structures);
-                        TableModelGlobal model = new TableModelGlobal(names,
-                                matrix, comparison);
-                        exportable = model;
+                        clusterable = comparisonGlobal;
+                        exportable = comparisonGlobal;
+                        visualizable = comparisonGlobal;
+
+                        tableMatrix.setModel(new TableModelGlobal(
+                                comparisonGlobal));
                         tableMatrix.setDefaultRenderer(Object.class,
                                 defaultRenderer);
-                        tableMatrix.setModel(model);
 
                         itemSave.setEnabled(true);
                         itemSave.setText("Save results (CSV)");
@@ -892,9 +899,10 @@ public class MainWindow extends JFrame {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", builder.toString());
 
-        // URL resource = MainWindow.class
-        // .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibLocal.xsl");
-        // FIXME: Matplotlib.runXsltAndPython(resource, comparisonLocal,
-        // parameters);
+        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
+                + "bioserver/external/MatplotlibLocal.xsl");
+        assert visualizable instanceof XMLSerializable;
+        Matplotlib.runXsltAndPython(resource, (XMLSerializable) visualizable,
+                parameters);
     }
 }
