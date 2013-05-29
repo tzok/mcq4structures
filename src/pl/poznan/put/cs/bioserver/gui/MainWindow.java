@@ -63,7 +63,6 @@ import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
-import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
@@ -91,7 +90,8 @@ public class MainWindow extends JFrame {
     private DialogAngles dialogAngles;
     private DialogManager dialogManager;
 
-    private Exportable exportableResults;
+    private Exportable exportable;
+    private Visualizable visualizable;
     private Thread threadAlignment;
 
     private JMenuItem itemOpen;
@@ -135,8 +135,6 @@ public class MainWindow extends JFrame {
 
     private CardLayout layoutCards;
     private JPanel panelCards;
-
-    private ComparisonLocal localComparisonResults;
 
     private TableCellRenderer defaultRenderer;
     private TableCellRenderer colorsRenderer;
@@ -381,11 +379,11 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser(PdbChooser
                         .getCurrentDirectory());
-                chooser.setSelectedFile(exportableResults.suggestName());
+                chooser.setSelectedFile(exportable.suggestName());
                 int option = chooser.showSaveDialog(MainWindow.this);
                 if (option == JFileChooser.APPROVE_OPTION) {
                     try {
-                        exportableResults.export(chooser.getSelectedFile());
+                        exportable.export(chooser.getSelectedFile());
                         JOptionPane.showMessageDialog(MainWindow.this,
                                 "Successfully exported the results!",
                                 "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -480,8 +478,6 @@ public class MainWindow extends JFrame {
         itemVisualise.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Visualizable visualizable = (Visualizable) tableMatrix
-                        .getModel();
                 visualizable.visualize();
             }
         });
@@ -539,7 +535,7 @@ public class MainWindow extends JFrame {
         AlignmentSequence alignment = AlignmentSequence.newInstance(chains,
                 isGlobal);
 
-        exportableResults = alignment;
+        exportable = alignment;
         textAreaAlignSeq.setText(alignment.getAlignment());
         itemSave.setEnabled(true);
         itemSave.setText("Save results (TXT)");
@@ -613,7 +609,7 @@ public class MainWindow extends JFrame {
                     output = AlignerStructure.align(structures[0],
                             structures[1],
                             dialogChains.getSelectionDescription());
-                    exportableResults = output;
+                    exportable = output;
                 } catch (StructureException e1) {
                     JOptionPane.showMessageDialog(MainWindow.this,
                             e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -708,7 +704,7 @@ public class MainWindow extends JFrame {
                         String[] names = StructureManager.getNames(structures);
                         TableModelGlobal model = new TableModelGlobal(names,
                                 matrix, comparison);
-                        exportableResults = model;
+                        exportable = model;
                         tableMatrix.setDefaultRenderer(Object.class,
                                 defaultRenderer);
                         tableMatrix.setModel(model);
@@ -731,42 +727,44 @@ public class MainWindow extends JFrame {
     }
 
     private void compareLocally() {
-        final Structure[] structures = new Structure[2];
+        Structure[] structures = new Structure[2];
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
             structures[i].setChains(Arrays.asList(dialogChains.getChains()[i]));
         }
 
+        progressBar.setMaximum(1);
+        progressBar.setValue(0);
+        Map<String, List<AngleDifference>> result;
         try {
-            progressBar.setMaximum(1);
-            progressBar.setValue(0);
-            Map<String, List<AngleDifference>> result = TorsionLocalComparison
-                    .compare(structures[0], structures[1],
-                            dialogAngles.getAngles());
-            progressBar.setValue(1);
-            localComparisonResults = ComparisonLocal.newInstance(result);
-
-            TableModelLocal model = new TableModelLocal(result,
-                    dialogAngles.getAngles(),
-                    dialogChains.getSelectionDescription());
-            exportableResults = model;
-            tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
-            tableMatrix.setModel(model);
-
-            itemSave.setEnabled(true);
-            itemSave.setText("Save results (CSV)");
-            itemVisualise.setEnabled(true);
-            itemVisualiseHq.setEnabled(true);
-            itemCluster.setEnabled(false);
-
-            labelInfoMatrix.setText("<html>" + "Structures selected for local "
-                    + "distance measure: "
-                    + dialogChains.getSelectionDescription() + "<br>"
-                    + "Local distance vector(s):" + "</html>");
-        } catch (StructureException e1) {
-            JOptionPane.showMessageDialog(MainWindow.this, e1.getMessage(),
+            result = TorsionLocalComparison.compare(structures[0],
+                    structures[1], dialogAngles.getAngles());
+        } catch (StructureException e) {
+            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+        progressBar.setValue(1);
+
+        ComparisonLocal comparisonLocal = ComparisonLocal.newInstance(result,
+                dialogChains.getStructures(), dialogAngles.getAngles());
+
+        exportable = comparisonLocal;
+        visualizable = comparisonLocal;
+
+        TableModelLocal model = new TableModelLocal(comparisonLocal);
+        tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
+        tableMatrix.setModel(model);
+
+        itemSave.setEnabled(true);
+        itemSave.setText("Save results (CSV)");
+        itemVisualise.setEnabled(true);
+        itemVisualiseHq.setEnabled(true);
+        itemCluster.setEnabled(false);
+
+        labelInfoMatrix.setText("<html>" + "Structures selected for local "
+                + "distance measure: " + dialogChains.getSelectionDescription()
+                + "<br>" + "Local distance vector(s):" + "</html>");
     }
 
     private ImageIcon loadIcon(String name) {
@@ -894,9 +892,9 @@ public class MainWindow extends JFrame {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", builder.toString());
 
-        URL resource = MainWindow.class
-                .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibLocal.xsl");
-        Matplotlib.runXsltAndPython(resource, localComparisonResults,
-                parameters);
+        // URL resource = MainWindow.class
+        // .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibLocal.xsl");
+        // FIXME: Matplotlib.runXsltAndPython(resource, comparisonLocal,
+        // parameters);
     }
 }

@@ -29,7 +29,7 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 public class MCQ extends GlobalComparison {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
 
-    static final AngleType[] USED_ANGLES;
+    public static final AngleType[] USED_ANGLES;
     static {
         AngleType[] array1 = NucleotideDihedral.getAngles();
         AngleType[] array2 = AminoAcidDihedral.getAngles();

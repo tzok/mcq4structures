@@ -11,11 +11,11 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTick;
 import org.jfree.ui.RectangleEdge;
 
-class TorsionAxis extends NumberAxis {
+public class TorsionAxis extends NumberAxis {
     private static final long serialVersionUID = 1L;
     private String[] ticksNames;
 
-    TorsionAxis(String[] ticksNames) {
+    public TorsionAxis(String[] ticksNames) {
         super();
         this.ticksNames = ticksNames.clone();
         setTickLabelFont(new Font(Font.DIALOG, Font.PLAIN, 8));

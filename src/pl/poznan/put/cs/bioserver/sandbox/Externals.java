@@ -42,7 +42,12 @@ public class Externals {
 
         Map<String, List<AngleDifference>> results = TorsionLocalComparison
                 .compare(structures[0], structures[1], false);
-        XMLSerializable xmlResults = ComparisonLocal.newInstance(results);
+        String[] angleNames = new String[MCQ.USED_ANGLES.length];
+        for (int i = 0; i < MCQ.USED_ANGLES.length; i++) {
+            angleNames[i] = MCQ.USED_ANGLES[i].getAngleName();
+        }
+        XMLSerializable xmlResults = ComparisonLocal.newInstance(results,
+                new Structure[] { structures[0], structures[1] }, angleNames);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
