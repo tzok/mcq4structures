@@ -558,9 +558,8 @@ public class MainWindow extends JFrame {
 
     private void alignStructures() {
         if (threadAlignment != null && threadAlignment.isAlive()) {
-            JOptionPane.showMessageDialog(null,
-                    "3D structure alignment computation has not "
-                            + "finished yet!", "Information",
+            JOptionPane.showMessageDialog(null, "3D structure alignment "
+                    + "computation has not finished yet!", "Information",
                     JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -582,8 +581,8 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        panelJmolLeft.executeCmd("restore state " + "state_init");
-        panelJmolRight.executeCmd("restore state " + "state_init");
+        panelJmolLeft.executeCmd("restore state state_init");
+        panelJmolRight.executeCmd("restore state state_init");
         layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
 
         labelAlignmentStatus.setText("Processing");
