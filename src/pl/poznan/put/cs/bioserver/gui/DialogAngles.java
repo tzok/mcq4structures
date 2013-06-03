@@ -18,19 +18,27 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import pl.poznan.put.cs.bioserver.helper.Constants;
+
 final class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
-    private static final String[] AMINO_NAMES = new String[] { "Φ (phi)",
-            "Ψ (psi)", "Ω (omega)", "χ1 (chi1)", "χ2 (chi2)", "χ3 (chi3)",
-            "χ4 (chi4)", "χ5 (chi5)", "Average of selected angles",
-            "Average of all angles" };
+    private static final String[] AMINO_NAMES = new String[] {
+            Constants.PHI + " (phi)", Constants.PSI + " (psi)",
+            Constants.OMEGA + " (omega)", Constants.CHI + "1 (chi1)",
+            Constants.CHI + "2 (chi2)", Constants.CHI + "3 (chi3)",
+            Constants.CHI + "4 (chi4)", Constants.CHI + "5 (chi5)",
+            "Average of selected angles", "Average of all angles" };
     private static final String[] AMINO_CODES = new String[] { "PHI", "PSI",
             "OMEGA", "CHI1", "CHI2", "CHI3", "CHI4", "CHI5", "SELECTED",
             "AVERAGE" };
-    private static final String[] NUCLEIC_NAMES = new String[] { "α (alpha)",
-            "β (beta)", "γ (gamma)", "δ (delta)", "ε (epsilon)", "ζ (zeta)",
-            "χ (chi)", "τ0 (tau0)", "τ1 (tau1)", "τ2 (tau2)", "τ3 (tau3)",
-            "τ4 (tau4)", "P (sugar pucker)", "Average of selected angles",
+    private static final String[] NUCLEIC_NAMES = new String[] {
+            Constants.ALPHA + " (alpha)", Constants.BETA + " (beta)",
+            Constants.GAMMA + " (gamma)", Constants.DELTA + " (delta)",
+            Constants.EPSILON + " (epsilon)", Constants.ZETA + " (zeta)",
+            Constants.CHI + " (chi)", Constants.TAU + "0 (tau0)",
+            Constants.TAU + "1 (tau1)", Constants.TAU + "2 (tau2)",
+            Constants.TAU + "3 (tau3)", Constants.TAU + "4 (tau4)",
+            "P (sugar pucker)", "Average of selected angles",
             "Average of all angles" };
     private static final String[] NUCLEIC_CODES = new String[] { "ALPHA",
             "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
