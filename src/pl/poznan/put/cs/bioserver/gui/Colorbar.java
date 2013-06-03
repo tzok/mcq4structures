@@ -3,10 +3,12 @@ package pl.poznan.put.cs.bioserver.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
+import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 
 public class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
@@ -24,22 +26,24 @@ public class Colorbar extends JPanel {
         red = Color.RGBtoHSB(255, 0, 0, null);
         min = 0;
         max = Math.PI;
-
-        Dimension dimension = new Dimension(local.getTicks().length * 32, 64);
-        setMinimumSize(dimension);
-        setPreferredSize(dimension);
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        Dimension size = getSize();
+        int width = size.width / local.getTicks().length;
+        int height = size.height;
+
+        Map<String, Angle> angles = local.getAngles();
+        Angle average = angles.get("AVERAGE");
         int i = 0;
-        for (double delta : local.getAngles().get("AVERAGE").getDeltas()) {
+        for (double delta : average.getDeltas()) {
             g.setColor(getColor(delta));
-            g.fillRect(i * 32, 0, 32, 64);
+            g.fillRect(i * width, 0, width, height - 1);
             g.setColor(Color.BLACK);
-            g.drawRect(i * 32, 0, 32, 64);
+            g.drawRect(i * width, 0, width, height - 1);
             i++;
         }
     }
