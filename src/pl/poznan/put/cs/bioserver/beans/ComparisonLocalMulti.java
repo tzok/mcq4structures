@@ -13,12 +13,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.StructureException;
 
-import com.csvreader.CsvWriter;
-
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
+import pl.poznan.put.cs.bioserver.gui.DialogColorbar;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
+
+import com.csvreader.CsvWriter;
 
 @XmlRootElement
 public class ComparisonLocalMulti extends XMLSerializable implements
@@ -54,8 +55,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
 
     @Override
     public void visualize() {
-        // TODO Auto-generated method stub
-
+        DialogColorbar dialogColorbar = new DialogColorbar(this);
+        dialogColorbar.setVisible(true);
     }
 
     @Override
