@@ -358,4 +358,16 @@ final class DialogChainsMultiple extends JDialog {
         setVisible(true);
         return chosenOption;
     }
+
+    public String getSelectionDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (Chain c : selectedChains) {
+            builder.append(StructureManager.getName(c.getParent()));
+            builder.append('.');
+            builder.append(c.getChainID());
+            builder.append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length());
+        return builder.toString();
+    }
 }

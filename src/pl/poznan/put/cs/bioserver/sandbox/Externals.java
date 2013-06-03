@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
@@ -21,11 +22,9 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
-import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
-import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 
 public class Externals {
     public static void main(String[] args) throws ParserConfigurationException,
@@ -40,14 +39,13 @@ public class Externals {
             }
         }
 
-        Map<String, List<AngleDifference>> results = TorsionLocalComparison
-                .compare(structures[0], structures[1], false);
-        String[] angleNames = new String[MCQ.USED_ANGLES.length];
-        for (int i = 0; i < MCQ.USED_ANGLES.length; i++) {
-            angleNames[i] = MCQ.USED_ANGLES[i].getAngleName();
-        }
-        XMLSerializable xmlResults = ComparisonLocal.newInstance(results,
-                new Structure[] { structures[0], structures[1] }, angleNames);
+        List<Chain> c1 = structures[0].getChains();
+        List<Chain> c2 = structures[1].getChains();
+        XMLSerializable xmlResults = ComparisonLocal.newInstance(
+                new Structure[] { structures[0], structures[1] },
+                new Chain[][] { c1.toArray(new Chain[c1.size()]),
+                        c2.toArray(new Chain[c2.size()]) },
+                MCQ.USED_ANGLES_NAMES);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();

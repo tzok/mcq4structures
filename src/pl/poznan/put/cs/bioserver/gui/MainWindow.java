@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
@@ -59,12 +58,12 @@ import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.beans.AlignmentSequence;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
+import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
-import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Colors;
@@ -72,7 +71,6 @@ import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
-import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
@@ -106,6 +104,7 @@ public class MainWindow extends JFrame {
     private JRadioButtonMenuItem radioGlobalMcq;
     private JRadioButtonMenuItem radioGlobalRmsd;
     private JRadioButtonMenuItem radioLocal;
+    private JRadioButtonMenuItem radioLocalMulti;
     private JMenuItem itemSelectTorsion;
     private JMenuItem itemSelectStructuresCompare;
     private JMenuItem itemComputeDistances;
@@ -178,11 +177,15 @@ public class MainWindow extends JFrame {
 
         radioGlobalMcq = new StayOpenRadioButtonMenuItem("Global MCQ", true);
         radioGlobalRmsd = new StayOpenRadioButtonMenuItem("Global RMSD", false);
-        radioLocal = new StayOpenRadioButtonMenuItem("Local distances", false);
+        radioLocal = new StayOpenRadioButtonMenuItem("Local distances (pair)",
+                false);
+        radioLocalMulti = new StayOpenRadioButtonMenuItem(
+                "Local distances (multiple)", false);
         ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
         group.add(radioGlobalRmsd);
         group.add(radioLocal);
+        group.add(radioLocalMulti);
 
         itemSelectTorsion = new JMenuItem("Select torsion angles");
         itemSelectTorsion.setEnabled(false);
@@ -203,6 +206,7 @@ public class MainWindow extends JFrame {
         menu.add(radioGlobalMcq);
         menu.add(radioGlobalRmsd);
         menu.add(radioLocal);
+        menu.add(radioLocalMulti);
         menu.addSeparator();
         menu.add(itemSelectTorsion);
         menu.add(itemSelectStructuresCompare);
@@ -422,7 +426,8 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 Object source = arg0.getSource();
-                itemSelectTorsion.setEnabled(source.equals(radioLocal));
+                itemSelectTorsion.setEnabled(source.equals(radioLocal)
+                        || source.equals(radioLocalMulti));
                 itemVisualise.setEnabled(false);
                 itemVisualiseHq.setEnabled(false);
                 itemCluster.setEnabled(false);
@@ -438,6 +443,7 @@ public class MainWindow extends JFrame {
         radioGlobalMcq.addActionListener(radioActionListener);
         radioGlobalRmsd.addActionListener(radioActionListener);
         radioLocal.addActionListener(radioActionListener);
+        radioLocalMulti.addActionListener(radioActionListener);
 
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
@@ -453,6 +459,8 @@ public class MainWindow extends JFrame {
                 if (source.equals(itemSelectStructuresCompare)) {
                     if (radioLocal.isSelected()) {
                         selectChains(source);
+                    } else if (radioLocalMulti.isSelected()) {
+                        selectChainsMultiple(source);
                     } else {
                         selectStructures();
                     }
@@ -460,7 +468,7 @@ public class MainWindow extends JFrame {
                     if (radioAlignStruc.isSelected()) {
                         selectChains(source);
                     } else {
-                        selectChainsMultiple();
+                        selectChainsMultiple(source);
                     }
                 }
             }
@@ -472,9 +480,11 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (radioGlobalMcq.isSelected() || radioGlobalRmsd.isSelected()) {
-                    compareGlobally();
-                } else {
-                    compareLocally();
+                    compareGlobal();
+                } else if (radioLocal.isSelected()) {
+                    compareLocalPair();
+                } else { // radioLocalMulti.isSelected() == true
+                    compareLocalMulti();
                 }
             }
         });
@@ -675,7 +685,7 @@ public class MainWindow extends JFrame {
         threadAlignment.start();
     }
 
-    private void compareGlobally() {
+    private void compareGlobal() {
         final GlobalComparison comparison;
         if (radioGlobalMcq.isSelected()) {
             comparison = new MCQ();
@@ -732,7 +742,7 @@ public class MainWindow extends JFrame {
         thread.start();
     }
 
-    private void compareLocally() {
+    private void compareLocalPair() {
         Structure[] structures = new Structure[2];
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
@@ -741,19 +751,17 @@ public class MainWindow extends JFrame {
 
         progressBar.setMaximum(1);
         progressBar.setValue(0);
-        Map<String, List<AngleDifference>> result;
+        ComparisonLocal comparisonLocal;
         try {
-            result = TorsionLocalComparison.compare(structures[0],
-                    structures[1], dialogAngles.getAngles());
+            comparisonLocal = ComparisonLocal.newInstance(
+                    dialogChains.getStructures(), dialogChains.getChains(),
+                    dialogAngles.getAngles());
         } catch (StructureException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         progressBar.setValue(1);
-
-        ComparisonLocal comparisonLocal = ComparisonLocal.newInstance(result,
-                dialogChains.getStructures(), dialogAngles.getAngles());
 
         exportable = comparisonLocal;
         visualizable = comparisonLocal;
@@ -771,6 +779,43 @@ public class MainWindow extends JFrame {
         labelInfoMatrix.setText("<html>" + "Structures selected for local "
                 + "distance measure: " + dialogChains.getSelectionDescription()
                 + "<br>" + "Local distance vector(s):" + "</html>");
+    }
+
+    private void compareLocalMulti() {
+        Chain[] chains = dialogChainsMultiple.getChains();
+        String[] names = new String[chains.length];
+        for (int i = 0; i < chains.length; i++) {
+            names[i] = StructureManager.getName(chains[i].getParent()) + "."
+                    + chains[i].getChainID();
+        }
+
+        String reference = (String) JOptionPane.showInputDialog(
+                MainWindow.this, "Select your reference structure",
+                "Reference structure", JOptionPane.INFORMATION_MESSAGE, null,
+                names, names[0]);
+        if (reference == null) {
+            return;
+        }
+
+        int index = 0;
+        while (true) {
+            if (names[index].equals(reference)) {
+                break;
+            }
+        }
+
+        progressBar.setMaximum(1);
+        progressBar.setValue(0);
+        try {
+            ComparisonLocalMulti localMulti = ComparisonLocalMulti.newInstance(
+                    chains, chains[index]);
+            System.out.println(localMulti);
+        } catch (StructureException e) {
+            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        progressBar.setValue(1);
     }
 
     private ImageIcon loadIcon(String name) {
@@ -827,8 +872,9 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void selectChainsMultiple() {
-        if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK) {
+    private void selectChainsMultiple(Object source) {
+        if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK
+                || dialogChainsMultiple.getChains().length == 0) {
             return;
         }
 
@@ -836,27 +882,43 @@ public class MainWindow extends JFrame {
         boolean isRNA = Helper.isNucleicAcid(chains[0]);
         for (Chain c : chains) {
             if (Helper.isNucleicAcid(c) != isRNA) {
-                JOptionPane.showMessageDialog(this, "Cannot align structures: "
-                        + "different molecular types", "Error",
+                JOptionPane.showMessageDialog(this, "Cannot align/compare "
+                        + "structures: different molecular types", "Error",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
 
-        textAreaAlignSeq.setText("");
-        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+        if (source.equals(itemSelectStructuresCompare)) {
+            tableMatrix.setModel(new DefaultTableModel());
+            layoutCards.show(panelCards, MainWindow.CARD_MATRIX);
 
-        itemSave.setEnabled(false);
-        itemComputeDistances.setEnabled(false);
-        itemVisualise.setEnabled(false);
-        itemVisualiseHq.setEnabled(false);
-        itemCluster.setEnabled(false);
-        itemComputeAlign.setEnabled(true);
+            itemSave.setEnabled(false);
+            itemComputeDistances.setEnabled(true);
+            itemVisualise.setEnabled(false);
+            itemVisualiseHq.setEnabled(false);
+            itemCluster.setEnabled(false);
+            itemComputeAlign.setEnabled(false);
 
-        labelInfoAlignSeq.setText("Structures selected for "
-                + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
-                + " sequence alignment: "
-                + dialogChains.getSelectionDescription());
+            labelInfoMatrix.setText("Structures selected for local distance "
+                    + "measure: "
+                    + dialogChainsMultiple.getSelectionDescription());
+        } else { // source.equals(itemSelectStructuresAlign)
+            textAreaAlignSeq.setText("");
+            layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+
+            itemSave.setEnabled(false);
+            itemComputeDistances.setEnabled(false);
+            itemVisualise.setEnabled(false);
+            itemVisualiseHq.setEnabled(false);
+            itemCluster.setEnabled(false);
+            itemComputeAlign.setEnabled(true);
+
+            labelInfoAlignSeq.setText("Structures selected for "
+                    + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
+                    + " sequence alignment: "
+                    + dialogChainsMultiple.getSelectionDescription());
+        }
     }
 
     private void selectStructures() {

@@ -30,6 +30,7 @@ public class MCQ extends GlobalComparison {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
 
     public static final AngleType[] USED_ANGLES;
+    public static final String[] USED_ANGLES_NAMES;
     static {
         AngleType[] array1 = NucleotideDihedral.getAngles();
         AngleType[] array2 = AminoAcidDihedral.getAngles();
@@ -37,6 +38,11 @@ public class MCQ extends GlobalComparison {
         System.arraycopy(array1, 0, MCQ.USED_ANGLES, 0, array1.length);
         System.arraycopy(array2, 0, MCQ.USED_ANGLES, array1.length,
                 array2.length);
+
+        USED_ANGLES_NAMES = new String[USED_ANGLES.length];
+        for (int i = 0; i < USED_ANGLES.length; i++) {
+            USED_ANGLES_NAMES[i] = USED_ANGLES[i].getAngleName();
+        }
     }
 
     /**

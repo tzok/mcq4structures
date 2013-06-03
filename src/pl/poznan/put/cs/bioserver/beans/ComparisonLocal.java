@@ -24,8 +24,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.math3.fraction.ProperFractionFormat;
+import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.StructureImpl;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -36,6 +39,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
+import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.gui.TorsionAxis;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
@@ -95,9 +99,45 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         this.title = title;
     }
 
-    public static ComparisonLocal newInstance(
-            Map<String, List<AngleDifference>> comparison,
-            Structure[] structures, String[] angleNames) {
+    public static ComparisonLocal newInstance(Chain c1, Chain c2,
+            String[] angleNames) throws StructureException {
+        Structure[] s = new Structure[] { new StructureImpl(c1),
+                new StructureImpl(c2) };
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(StructureManager.getName(c1.getParent()));
+        builder.append('.');
+        builder.append(c1.getChainID());
+        builder.append(", ");
+        builder.append(StructureManager.getName(c2.getParent()));
+        builder.append('.');
+        builder.append(c2.getChainID());
+        String title = builder.toString();
+
+        return newInstance(
+                TorsionLocalComparison.compare(s[0], s[1], angleNames), title,
+                angleNames);
+    }
+
+    public static ComparisonLocal newInstance(Structure[] structures,
+            Chain[][] chains, String[] angleNames) throws StructureException {
+        Structure[] s = new Structure[2];
+        for (int i = 0; i < 2; i++) {
+            s[i] = new StructureImpl();
+            s[i].setChains(Arrays.asList(chains[i]));
+        }
+
+        String[] names = StructureManager.getNames(structures);
+        String title = names[0] + ", " + names[1];
+
+        return newInstance(
+                TorsionLocalComparison.compare(s[0], s[1], angleNames), title,
+                angleNames);
+    }
+
+    private static ComparisonLocal newInstance(
+            Map<String, List<AngleDifference>> comparison, String title,
+            String[] angleNames) {
         Set<String> setAngles = new HashSet<>(Arrays.asList(angleNames));
 
         /*
@@ -166,9 +206,6 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                     residue.getSeqNum());
             i++;
         }
-
-        String[] names = StructureManager.getNames(structures);
-        String title = names[0] + ", " + names[1];
 
         ComparisonLocal result = new ComparisonLocal();
         result.setAngles(angles);
