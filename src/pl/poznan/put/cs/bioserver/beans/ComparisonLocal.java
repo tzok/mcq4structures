@@ -230,6 +230,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     public void export(File file) throws IOException {
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
+            csvWriter.write("");
             Angle[] angleArray = getAngleArray();
             for (Angle angle : angleArray) {
                 csvWriter.write(angle.getName());
