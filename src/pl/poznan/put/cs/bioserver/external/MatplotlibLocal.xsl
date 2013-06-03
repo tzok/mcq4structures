@@ -18,8 +18,8 @@
         <xsl:text>        print('Usage: python ' + sys.argv[0] + ' OUTFILE.(png|pdf|svg|eps)')&#10;</xsl:text>
         <xsl:text>        exit(1)&#10;</xsl:text>
         <xsl:text>    x = </xsl:text><xsl:apply-templates select="ticks"/><xsl:text>&#10;</xsl:text>
-        <xsl:text>    y = </xsl:text><xsl:apply-templates select="deltas" mode="items"/><xsl:text>&#10;</xsl:text>
-        <xsl:text>    labels = </xsl:text><xsl:apply-templates select="deltas" mode="names"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    y = </xsl:text><xsl:apply-templates select="angles" mode="items"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    labels = </xsl:text><xsl:apply-templates select="angles" mode="names"/><xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>    angles = </xsl:text><xsl:value-of select="$angles"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    y = list(y[i] for i in range(len(y)) if labels[i] in angles)&#10;</xsl:text>
@@ -55,12 +55,12 @@
         <xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
     </xsl:template>
 
-    <xsl:template match="deltas" mode="items">
-        <xsl:text>[ </xsl:text><xsl:for-each select="angle"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    <xsl:template match="angles" mode="items">
+        <xsl:text>[ </xsl:text><xsl:for-each select="entry/value"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
     </xsl:template>
 
-    <xsl:template match="deltas" mode="names">
-        <xsl:text>[ </xsl:text><xsl:for-each select="angle"><xsl:text>'</xsl:text><xsl:value-of select="@name"/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    <xsl:template match="angles" mode="names">
+        <xsl:text>[ </xsl:text><xsl:for-each select="entry"><xsl:text>'</xsl:text><xsl:value-of select="key"/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
     </xsl:template>
 
     <xsl:template match="colors">

@@ -11,6 +11,7 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -55,19 +56,27 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         Visualizable {
     private static final long serialVersionUID = 4652567875810044094L;
 
-    Angle[] angles;
+    Map<String, Angle> angles;
     String[] ticks;
     RGB[] colors;
     String title;
 
-    public Angle[] getAngles() {
+    public Map<String, Angle> getAngles() {
         return angles;
     }
 
-    @XmlElementWrapper(name = "deltas")
-    @XmlElement(name = "angle")
-    public void setAngles(Angle[] angles) {
+    public void setAngles(Map<String, Angle> angles) {
         this.angles = angles;
+    }
+
+    public Angle[] getAngleArray() {
+        Angle[] angleArray = new Angle[angles.size()];
+        int i = 0;
+        for (Entry<String, Angle> entry : angles.entrySet()) {
+            angleArray[i] = entry.getValue();
+            i++;
+        }
+        return angleArray;
     }
 
     public String[] getTicks() {
@@ -101,8 +110,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
             String[] angleNames) throws StructureException {
-        Structure[] s = new Structure[] { new StructureImpl(c1),
-                new StructureImpl(c2) };
+        Structure[] s = new Structure[] {
+                new StructureImpl((Chain) c1.clone()),
+                new StructureImpl((Chain) c2.clone()) };
 
         StringBuilder builder = new StringBuilder();
         builder.append(StructureManager.getName(c1.getParent()));
@@ -178,7 +188,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         /*
          * read map data into desired format
          */
-        Angle[] angles = new Angle[angleNames.length];
+        Map<String, Angle> angles = new LinkedHashMap<>();
         int i = 0;
         for (String angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
@@ -193,9 +203,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                 j++;
             }
 
-            angles[i] = new Angle();
-            angles[i].setName(angleName);
-            angles[i].setDeltas(deltas);
+            Angle angle = new Angle();
+            angle.setName(angleName);
+            angle.setDeltas(deltas);
+            angles.put(angleName, angle);
             i++;
         }
 
@@ -219,14 +230,15 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     public void export(File file) throws IOException {
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
-            for (Angle angle : angles) {
+            Angle[] angleArray = getAngleArray();
+            for (Angle angle : angleArray) {
                 csvWriter.write(angle.getName());
             }
             csvWriter.endRecord();
 
-            for (int i = 0; i < angles.length; i++) {
+            for (int i = 0; i < angles.size(); i++) {
                 csvWriter.write(ticks[i]);
-                double[] deltas = angles[i].getDeltas();
+                double[] deltas = angleArray[i].getDeltas();
                 for (int j = 0; j < deltas.length - 1; j++) {
                     csvWriter.write(Double.toString(deltas[j]));
                 }
@@ -251,18 +263,20 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             x[i] = i;
         }
 
-        double[][] y = new double[angles.length][];
-        for (int i = 0; i < angles.length; i++) {
+        Angle[] angleArray = getAngleArray();
+        double[][] y = new double[angleArray.length][];
+        for (int i = 0; i < angleArray.length; i++) {
             y[i] = new double[ticks.length];
             for (int j = 0; j < ticks.length; j++) {
-                y[i][j] = angles[i].getDeltas()[j];
+                y[i][j] = angleArray[i].getDeltas()[j];
             }
         }
 
         DefaultXYDataset dataset = new DefaultXYDataset();
         DefaultXYItemRenderer renderer = new DefaultXYItemRenderer();
         for (int i = 0; i < y.length; i++) {
-            dataset.addSeries(angles[i].getName(), new double[][] { x, y[i] });
+            dataset.addSeries(angleArray[i].getName(),
+                    new double[][] { x, y[i] });
             renderer.setSeriesPaint(i, Colors.ALL[i + 1]);
         }
 

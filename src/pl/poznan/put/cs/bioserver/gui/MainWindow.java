@@ -40,6 +40,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -797,25 +798,48 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        int index = 0;
-        while (true) {
+        int index;
+        for (index = 0; index < names.length; index++) {
             if (names[index].equals(reference)) {
                 break;
             }
         }
+        if (index >= names.length) {
+            // FIXME: handle this situation (it should never appear under normal
+            // circumstances)
+            return;
+        }
 
         progressBar.setMaximum(1);
         progressBar.setValue(0);
+        ComparisonLocalMulti localMulti;
         try {
-            ComparisonLocalMulti localMulti = ComparisonLocalMulti.newInstance(
-                    chains, chains[index]);
-            System.out.println(localMulti);
+            localMulti = ComparisonLocalMulti.newInstance(chains,
+                    chains[index], dialogAngles.getAngles());
         } catch (StructureException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         progressBar.setValue(1);
+
+        exportable = localMulti;
+        visualizable = localMulti;
+
+        AbstractTableModel model = new TableModelLocalMulti(localMulti);
+        tableMatrix.setDefaultRenderer(Object.class, defaultRenderer);
+        tableMatrix.setModel(model);
+
+        itemSave.setEnabled(true);
+        itemSave.setText("Save results (CSV)");
+        itemVisualise.setEnabled(true);
+        itemVisualiseHq.setEnabled(true);
+        itemCluster.setEnabled(false);
+
+        labelInfoMatrix.setText("<html>" + "Structures selected for local "
+                + "distance measure: "
+                + dialogChainsMultiple.getSelectionDescription() + "<br>"
+                + "Local distance vector(s):" + "</html>");
     }
 
     private ImageIcon loadIcon(String name) {
