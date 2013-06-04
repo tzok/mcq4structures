@@ -20,8 +20,7 @@ public final class MDS {
      *            Desired number of dimensions, K.
      * @return A matrix NxK, where for each row there are K coordinates.
      */
-    public static double[][] multidimensionalScaling(double[][] distance,
-            int dimensions) {
+    public static double[][] multidimensionalScaling(double[][] distance, int dimensions) {
         MDS.checkSymmetry(distance);
 
         /*
@@ -62,8 +61,7 @@ public final class MDS {
         for (int i = 0; i < distance.length; ++i) {
             b[i] = new double[distance.length];
             for (int j = 0; j < distance.length; ++j) {
-                b[i][j] = -0.5
-                        * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
+                b[i][j] = -0.5 * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
             }
         }
 

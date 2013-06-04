@@ -47,8 +47,7 @@ public abstract class GlobalComparison {
         private double value;
     }
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(GlobalComparison.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalComparison.class);
 
     /**
      * Compare two structures.
@@ -71,8 +70,7 @@ public abstract class GlobalComparison {
      *            An array of structures to be compared.
      * @return A distance matrix.
      */
-    public double[][] compare(final Structure[] structures,
-            final ComparisonListener listener) {
+    public double[][] compare(final Structure[] structures, final ComparisonListener listener) {
         /*
          * Create distance matrix, set diagonal to 0 and other values to NaN
          */
@@ -95,10 +93,8 @@ public abstract class GlobalComparison {
          * each calculation
          */
         int countThreads = Runtime.getRuntime().availableProcessors() * 2;
-        final ExecutorService threadPool = Executors
-                .newFixedThreadPool(countThreads);
-        ExecutorCompletionService<SingleResult> ecs = new ExecutorCompletionService<>(
-                threadPool);
+        final ExecutorService threadPool = Executors.newFixedThreadPool(countThreads);
+        ExecutorCompletionService<SingleResult> ecs = new ExecutorCompletionService<>(threadPool);
         for (int i = 0; i < structures.length; i++) {
             for (int j = i + 1; j < structures.length; j++) {
                 CompareCallable task = new CompareCallable(structures, i, j);
@@ -119,14 +115,12 @@ public abstract class GlobalComparison {
                     while (!threadPool.awaitTermination(1, TimeUnit.SECONDS)) {
                         if (listener != null) {
                             listener.stateChanged(all,
-                                    ((ThreadPoolExecutor) threadPool)
-                                            .getCompletedTaskCount());
+                                    ((ThreadPoolExecutor) threadPool).getCompletedTaskCount());
                         }
                     }
                     if (listener != null) {
                         listener.stateChanged(all,
-                                ((ThreadPoolExecutor) threadPool)
-                                        .getCompletedTaskCount());
+                                ((ThreadPoolExecutor) threadPool).getCompletedTaskCount());
                     }
                 } catch (InterruptedException e) {
                     threadPool.shutdownNow();
@@ -144,8 +138,7 @@ public abstract class GlobalComparison {
                 matrix[result.i][result.j] = result.value;
                 matrix[result.j][result.i] = result.value;
             } catch (InterruptedException | ExecutionException e) {
-                GlobalComparison.LOGGER.error(
-                        "Failed to compare a pair of structures", e);
+                GlobalComparison.LOGGER.error("Failed to compare a pair of structures", e);
             }
         }
         return matrix;

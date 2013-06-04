@@ -44,8 +44,8 @@ public class AngleDifference implements Comparable<AngleDifference> {
      * @param angleName
      *            The name of the angle.
      */
-    public AngleDifference(ResidueNumber residue, double angle1, double angle2,
-            double difference, String angleName) {
+    public AngleDifference(ResidueNumber residue, double angle1, double angle2, double difference,
+            String angleName) {
         this.angle1 = angle1;
         this.angle2 = angle2;
         this.difference = difference;
@@ -102,12 +102,10 @@ public class AngleDifference implements Comparable<AngleDifference> {
             return false;
         }
         AngleDifference other = (AngleDifference) obj;
-        if (Double.doubleToLongBits(angle1) != Double
-                .doubleToLongBits(other.angle1)) {
+        if (Double.doubleToLongBits(angle1) != Double.doubleToLongBits(other.angle1)) {
             return false;
         }
-        if (Double.doubleToLongBits(angle2) != Double
-                .doubleToLongBits(other.angle2)) {
+        if (Double.doubleToLongBits(angle2) != Double.doubleToLongBits(other.angle2)) {
             return false;
         }
         if (angleName == null) {
@@ -117,8 +115,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
         } else if (!angleName.equals(other.angleName)) {
             return false;
         }
-        if (Double.doubleToLongBits(difference) != Double
-                .doubleToLongBits(other.difference)) {
+        if (Double.doubleToLongBits(difference) != Double.doubleToLongBits(other.difference)) {
             return false;
         }
         if (residue == null) {
@@ -160,8 +157,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
         result = prime * result + (int) (temp ^ temp >>> 32);
         temp = Double.doubleToLongBits(angle2);
         result = prime * result + (int) (temp ^ temp >>> 32);
-        result = prime * result
-                + (angleName == null ? 0 : angleName.hashCode());
+        result = prime * result + (angleName == null ? 0 : angleName.hashCode());
         temp = Double.doubleToLongBits(difference);
         result = prime * result + (int) (temp ^ temp >>> 32);
         result = prime * result + (residue == null ? 0 : residue.hashCode());
@@ -171,8 +167,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
     @Override
     public String toString() {
         return String.format("Angle difference: delta(%.2f, %.2f) = %.2f",
-                AngleDifference.rad2deg(angle1),
-                AngleDifference.rad2deg(angle2),
+                AngleDifference.rad2deg(angle1), AngleDifference.rad2deg(angle2),
                 AngleDifference.rad2deg(difference));
     }
 }

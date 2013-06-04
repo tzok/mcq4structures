@@ -16,6 +16,7 @@ public class RGB extends XMLSerializable {
         instance.b = rgb[2];
         return instance;
     }
+
     float r;
     float g;
 

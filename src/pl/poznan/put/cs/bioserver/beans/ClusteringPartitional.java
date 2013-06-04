@@ -16,14 +16,11 @@ import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
 @XmlRootElement
-public class ClusteringPartitional extends XMLSerializable implements
-        Visualizable {
+public class ClusteringPartitional extends XMLSerializable implements Visualizable {
     private static final long serialVersionUID = -7474446942015119359L;
 
-    public static ClusteringPartitional newInstance(
-            ComparisonGlobal comparison, Result clustering) {
-        double[][] mds = MDS.multidimensionalScaling(
-                comparison.getDistanceMatrix(), 2);
+    public static ClusteringPartitional newInstance(ComparisonGlobal comparison, Result clustering) {
+        double[][] mds = MDS.multidimensionalScaling(comparison.getDistanceMatrix(), 2);
         Map<Integer, Set<Integer>> clusters = clustering.getClusterAssignment();
 
         Point[] medoids = new Point[clusters.size()];
@@ -66,6 +63,7 @@ public class ClusteringPartitional extends XMLSerializable implements
         instance.colors = Colors.toRGB();
         return instance;
     }
+
     ComparisonGlobal comparison;
     Point[][] points;
     Point[] medoids;

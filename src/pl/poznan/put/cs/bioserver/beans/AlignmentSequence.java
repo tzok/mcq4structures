@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,45 +27,40 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
 @XmlRootElement
 public class AlignmentSequence extends XMLSerializable implements Exportable {
     private static final long serialVersionUID = -819554091819458384L;
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AlignmentSequence.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlignmentSequence.class);
 
     // /////////////////////////////////////////////////////////////////////////
     // static "constructors"
-    public static AlignmentSequence newInstance(Chain[] chains, boolean isGlobal) {
-        Profile<Sequence<Compound>, Compound> profile = AlignerSequence.align(
-                chains, isGlobal);
+    public static AlignmentSequence newInstance(List<Chain> chains, boolean isGlobal) {
+        Profile<Sequence<Compound>, Compound> profile = AlignerSequence.align(chains, isGlobal);
         return AlignmentSequence.newInstance(profile, chains, isGlobal);
     }
-    public static AlignmentSequence newInstance(
-            Profile<Sequence<Compound>, Compound> profile, Chain[] chains,
-            boolean isGlobal) {
+
+    public static AlignmentSequence newInstance(Profile<Sequence<Compound>, Compound> profile,
+            List<Chain> chains, boolean isGlobal) {
         /*
          * get name of every structure and chain
          */
-        String[] names = new String[chains.length];
-        for (int i = 0; i < chains.length; i++) {
-            Chain chain = chains[i];
-            names[i] = StructureManager.getName(chain.getParent()) + "."
-                    + chain.getChainID();
+        List<String> names = new ArrayList<>();
+        for (Chain chain : chains) {
+            names.add(StructureManager.getName(chain.getParent()) + "." + chain.getChainID());
         }
 
         /*
-         * prepare a title (names separeted with comma)
+         * prepare a title (names separated with comma)
          */
         StringBuilder builder = new StringBuilder();
-        builder.append(names[0]);
-        for (int i = 1; i < names.length; i++) {
+        for (String name : names) {
+            builder.append(name);
             builder.append(", ");
-            builder.append(names[i]);
         }
+        builder.delete(builder.length() - 2, builder.length());
         String title = builder.toString();
 
         /*
          * convert every sequence into an array of characters
          */
-        List<AlignedSequence<Sequence<Compound>, Compound>> list = profile
-                .getAlignedSequences();
+        List<AlignedSequence<Sequence<Compound>, Compound>> list = profile.getAlignedSequences();
         char[][] sequences = new char[list.size()][];
         for (int i = 0; i < list.size(); i++) {
             sequences[i] = list.get(i).toString().toCharArray();
@@ -78,10 +74,9 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         for (int i = 0; i < sequences[0].length; i += 60) {
             char[][] copy = new char[list.size()][];
             for (int j = 0; j < list.size(); j++) {
-                copy[j] = Arrays.copyOfRange(sequences[j], i,
-                        Math.min(i + 60, sequences[j].length));
-                String name = names[j].substring(0,
-                        Math.min(names[j].length(), 11));
+                copy[j] = Arrays
+                        .copyOfRange(sequences[j], i, Math.min(i + 60, sequences[j].length));
+                String name = names.get(j).substring(0, Math.min(names.get(j).length(), 11));
                 builder.append(String.format("%-12s", name));
                 builder.append(copy[j]);
                 builder.append('\n');
@@ -109,10 +104,9 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         result.setTitle(title);
         return result;
     }
+
     boolean isGlobal;
-
     String alignment;
-
     String title;
 
     // /////////////////////////////////////////////////////////////////////////
@@ -126,8 +120,8 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
             writer.write("\n\n");
             writer.write(alignment);
         } catch (UnsupportedEncodingException e) {
-            AlignmentSequence.LOGGER.error(
-                    "Failed to export sequence alignment", e);
+            AlignmentSequence.LOGGER.error("Failed to export sequence alignment", e);
+            throw new IOException(e);
         }
     }
 

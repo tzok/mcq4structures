@@ -27,8 +27,7 @@ public class BenchmarkReference {
     }
 
     public static void main(String[] args) {
-        List<File> pdbs = BenchmarkReference.list(new File(
-                "/home/tzok/pdb/puzzles/"));
+        List<File> pdbs = BenchmarkReference.list(new File("/home/tzok/pdb/puzzles/"));
         Structure[] structures = new Structure[pdbs.size()];
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {

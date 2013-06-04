@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
@@ -29,19 +30,16 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 public class MCQ extends GlobalComparison {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
 
-    public static final AngleType[] USED_ANGLES;
-    public static final String[] USED_ANGLES_NAMES;
+    public static final List<AngleType> USED_ANGLES;
+    public static final List<String> USED_ANGLES_NAMES;
     static {
-        AngleType[] array1 = NucleotideDihedral.getAngles();
-        AngleType[] array2 = AminoAcidDihedral.getAngles();
-        USED_ANGLES = new AngleType[array1.length + array2.length];
-        System.arraycopy(array1, 0, MCQ.USED_ANGLES, 0, array1.length);
-        System.arraycopy(array2, 0, MCQ.USED_ANGLES, array1.length,
-                array2.length);
+        USED_ANGLES = new ArrayList<>();
+        MCQ.USED_ANGLES.addAll(NucleotideDihedral.getAngles());
+        MCQ.USED_ANGLES.addAll(AminoAcidDihedral.getAngles());
 
-        USED_ANGLES_NAMES = new String[MCQ.USED_ANGLES.length];
-        for (int i = 0; i < MCQ.USED_ANGLES.length; i++) {
-            MCQ.USED_ANGLES_NAMES[i] = MCQ.USED_ANGLES[i].getAngleName();
+        USED_ANGLES_NAMES = new ArrayList<>();
+        for (AngleType angleType : MCQ.USED_ANGLES) {
+            MCQ.USED_ANGLES_NAMES.add(angleType.getAngleName());
         }
     }
 
@@ -58,20 +56,20 @@ public class MCQ extends GlobalComparison {
      * @throws StructureException
      *             If the alignment was impossible to make.
      */
-    public static double compare(Structure s1, Structure s2, boolean alignFirst)
+    public static double compare(Structure left, Structure right, boolean alignFirst)
             throws StructureException {
         boolean wasAligned = alignFirst;
-        Atom[][] atoms;
+        Pair<List<Atom>, List<Atom>> atoms;
         if (alignFirst) {
-            atoms = AlignerStructure.align(s1, s2, "").getAtoms();
+            atoms = AlignerStructure.align(left, right, "").getAtoms();
         } else {
-            atoms = Helper.getCommonAtomArray(s1, s2, false);
+            atoms = Helper.getCommonAtomArray(left, right, false);
             if (atoms == null) {
-                atoms = Helper.getCommonAtomArray(s1, s2, true);
+                atoms = Helper.getCommonAtomArray(left, right, true);
                 wasAligned = true;
             }
         }
-        return MCQ.compare(atoms, wasAligned);
+        return MCQ.compare(atoms.getLeft(), atoms.getRight(), wasAligned);
     }
 
     /**
@@ -101,8 +99,7 @@ public class MCQ extends GlobalComparison {
         }
 
         MCQ mcq = new MCQ();
-        double[][] compare = mcq.compare(
-                list.toArray(new Structure[list.size()]), null);
+        double[][] compare = mcq.compare(list.toArray(new Structure[list.size()]), null);
         System.out.println("OK");
         for (int i = 0; i < compare.length; i++) {
             for (int j = i + 1; j < compare.length; j++) {
@@ -121,14 +118,14 @@ public class MCQ extends GlobalComparison {
      * @return Mean of Circular Quantities (MCQ) for differences between torsion
      *         angles defined upon the given atoms.
      */
-    private static double compare(Atom[][] atoms, boolean wasAligned) {
-        Atom[][] equalized = Helper.equalize(atoms);
+    private static double compare(List<Atom> left, List<Atom> right, boolean wasAligned) {
+        Pair<List<Atom>, List<Atom>> equalized = Helper.equalize(left, right);
 
         List<AngleDifference> allDiffs = new ArrayList<>();
         for (AngleType at : MCQ.USED_ANGLES) {
             List<AngleDifference> diffs;
-            diffs = DihedralAngles
-                    .calculateAngleDiff(equalized, at, wasAligned);
+            diffs = DihedralAngles.calculateAngleDiff(equalized.getLeft(), equalized.getRight(),
+                    at, wasAligned);
             allDiffs.addAll(diffs);
         }
         if (MCQ.LOGGER.isTraceEnabled()) {
@@ -174,8 +171,7 @@ public class MCQ extends GlobalComparison {
      * @return Mean of Circular Quantities (MCQ).
      */
     @Override
-    public double compare(Structure s1, Structure s2)
-            throws IncomparableStructuresException {
+    public double compare(Structure s1, Structure s2) throws IncomparableStructuresException {
         try {
             return MCQ.compare(s1, s2, false);
         } catch (StructureException e) {

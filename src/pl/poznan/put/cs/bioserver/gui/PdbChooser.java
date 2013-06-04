@@ -12,12 +12,12 @@ public final class PdbChooser {
     static {
         PdbChooser.chooser = new JFileChooser();
         PdbChooser.chooser.setFileFilter(new FileNameExtensionFilter(
-                "Supported formats (PDB, mmCIF)", new String[] { "pdb", "pdb1",
-                        "ent", "brk", "cif", "gz" }));
-        PdbChooser.chooser.addChoosableFileFilter(new FileNameExtensionFilter(
-                "PDB file format", "pdb", "pdb1", "ent", "brk", "gz"));
-        PdbChooser.chooser.addChoosableFileFilter(new FileNameExtensionFilter(
-                "mmCIF file format", "cif", "gz"));
+                "Supported formats (PDB, mmCIF)", new String[] { "pdb", "pdb1", "ent", "brk",
+                        "cif", "gz" }));
+        PdbChooser.chooser.addChoosableFileFilter(new FileNameExtensionFilter("PDB file format",
+                "pdb", "pdb1", "ent", "brk", "gz"));
+        PdbChooser.chooser.addChoosableFileFilter(new FileNameExtensionFilter("mmCIF file format",
+                "cif", "gz"));
         PdbChooser.chooser.setMultiSelectionEnabled(true);
     }
 

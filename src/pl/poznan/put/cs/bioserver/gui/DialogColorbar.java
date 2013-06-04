@@ -53,8 +53,7 @@ public class DialogColorbar extends JDialog {
         setTitle("Colorbar");
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        FontMetrics metrics = FontDesignMetrics.getMetrics(UIManager
-                .getFont("Label.font"));
+        FontMetrics metrics = FontDesignMetrics.getMetrics(UIManager.getFont("Label.font"));
         ComparisonLocal any = results.get(0);
         int n = any.getTicks().length;
 
@@ -80,8 +79,7 @@ public class DialogColorbar extends JDialog {
                     double lmin = Math.PI;
                     double lmax = 0;
                     for (ComparisonLocal local : results) {
-                        double[] deltas = local.getAngles().get("AVERAGE")
-                                .getDeltas();
+                        double[] deltas = local.getAngles().get("AVERAGE").getDeltas();
                         lmin = Math.min(lmin, StatUtils.min(deltas));
                         lmax = Math.max(lmax, StatUtils.max(deltas));
                     }

@@ -57,16 +57,13 @@ final class DialogChains extends JDialog {
             panel.add(panels[1]);
             add(new JScrollPane(panel), BorderLayout.CENTER);
 
-            final ListCellRenderer<? super Structure> renderer = combo
-                    .getRenderer();
+            final ListCellRenderer<? super Structure> renderer = combo.getRenderer();
             combo.setRenderer(new ListCellRenderer<Structure>() {
                 @Override
-                public Component getListCellRendererComponent(
-                        JList<? extends Structure> list, Structure value,
-                        int index, boolean isSelected, boolean cellHasFocus) {
-                    JLabel label = (JLabel) renderer
-                            .getListCellRendererComponent(list, value, index,
-                                    isSelected, cellHasFocus);
+                public Component getListCellRendererComponent(JList<? extends Structure> list,
+                        Structure value, int index, boolean isSelected, boolean cellHasFocus) {
+                    JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value,
+                            index, isSelected, cellHasFocus);
                     if (value != null) {
                         label.setText(StructureManager.getName(value));
                     }
@@ -106,15 +103,13 @@ final class DialogChains extends JDialog {
             List<Chain> list = new ArrayList<>();
             for (JPanel panel : panels) {
                 for (Component component : panel.getComponents()) {
-                    if (component instanceof JCheckBox
-                            && ((JCheckBox) component).isSelected()) {
+                    if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
                         String chainId = ((JCheckBox) component).getText();
                         try {
                             list.add(structure.getChainByPDB(chainId));
                         } catch (StructureException e) {
-                            JOptionPane.showMessageDialog(DialogChains.this,
-                                    e.getMessage(), "Error",
-                                    JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(DialogChains.this, e.getMessage(),
+                                    "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
@@ -140,8 +135,7 @@ final class DialogChains extends JDialog {
     private Structure[] structures;
     private Chain[][] chains;
 
-    private PanelChains[] panelsChains = new PanelChains[] { new PanelChains(),
-            new PanelChains() };
+    private PanelChains[] panelsChains = new PanelChains[] { new PanelChains(), new PanelChains() };
 
     private DialogChains(Frame owner) {
         super(owner, true);
@@ -173,10 +167,8 @@ final class DialogChains extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 structures = new Structure[2];
-                structures[0] = (Structure) panelsChains[0].combo
-                        .getSelectedItem();
-                structures[1] = (Structure) panelsChains[1].combo
-                        .getSelectedItem();
+                structures[0] = (Structure) panelsChains[0].combo.getSelectedItem();
+                structures[1] = (Structure) panelsChains[1].combo.getSelectedItem();
                 if (structures[0] == null || structures[1] == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();

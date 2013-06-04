@@ -23,8 +23,8 @@ public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
-                    StayOpenCheckBoxMenuItem.path = MenuSelectionManager
-                            .defaultManager().getSelectedPath();
+                    StayOpenCheckBoxMenuItem.path = MenuSelectionManager.defaultManager()
+                            .getSelectedPath();
                 }
             }
         });
@@ -88,7 +88,6 @@ public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
     @Override
     public void doClick(int pressTime) {
         super.doClick(pressTime);
-        MenuSelectionManager.defaultManager().setSelectedPath(
-                StayOpenCheckBoxMenuItem.path);
+        MenuSelectionManager.defaultManager().setSelectedPath(StayOpenCheckBoxMenuItem.path);
     }
 }

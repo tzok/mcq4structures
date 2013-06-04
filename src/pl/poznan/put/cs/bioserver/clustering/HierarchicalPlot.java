@@ -22,8 +22,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 public class HierarchicalPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private static String generateLabel(List<List<Integer>> ids, int[] pair,
-            String[] labels) {
+    private static String generateLabel(List<List<Integer>> ids, int[] pair, String[] labels) {
         List<Integer> a = ids.get(pair[0]);
         List<Integer> b = ids.get(pair[1]);
 
@@ -74,10 +73,8 @@ public class HierarchicalPlot extends JFrame {
             double[] b = clusters.get(mergedPair[1]);
             y = Math.max(a[1], b[1]) + mergedPair[2];
 
-            String label = HierarchicalPlot.generateLabel(ids, mergedPair,
-                    labels);
-            double[][] points = new double[][] { { a[0], a[0], b[0], b[0] },
-                    { a[1], y, y, b[1] } };
+            String label = HierarchicalPlot.generateLabel(ids, mergedPair, labels);
+            double[][] points = new double[][] { { a[0], a[0], b[0], b[0] }, { a[1], y, y, b[1] } };
             dataset.addSeries(label, points);
 
             a[0] = (a[0] + b[0]) / 2.0;
@@ -93,8 +90,7 @@ public class HierarchicalPlot extends JFrame {
         NumberAxis yAxis = new NumberAxis();
         yAxis.setTickLabelsVisible(false);
         yAxis.setTickMarksVisible(false);
-        XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
-                new XYLineAndShapeRenderer());
+        XYPlot plot = new XYPlot(dataset, xAxis, yAxis, new XYLineAndShapeRenderer());
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(false);
         chart = new JFreeChart(plot);

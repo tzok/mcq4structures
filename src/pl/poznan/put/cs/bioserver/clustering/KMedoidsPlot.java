@@ -25,8 +25,7 @@ import pl.poznan.put.cs.bioserver.visualisation.MDS;
  */
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(KMedoidsPlot.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KMedoidsPlot.class);
 
     /**
      * Create an instance of JFrame which shows a k-medoid plot.
@@ -38,27 +37,23 @@ public class KMedoidsPlot extends JFrame {
      * @param k
      *            Chosen k for k-medoids method.
      */
-    public KMedoidsPlot(double[][] distance, String[] labels, int k,
-            String method) {
+    public KMedoidsPlot(double[][] distance, String[] labels, int k, String method) {
         Map<Integer, Set<Integer>> medoids = null;
         if (method.equals("PAM")) {
             if (k == 0) {
                 medoids = Clusterer.clusterPAM(distance).getClusterAssignment();
             } else {
-                medoids = Clusterer.clusterPAM(distance, k)
-                        .getClusterAssignment();
+                medoids = Clusterer.clusterPAM(distance, k).getClusterAssignment();
             }
         } else if (method.equals("PAMSIL")) {
             if (k == 0) {
-                medoids = Clusterer.clusterPAMSIL(distance)
-                        .getClusterAssignment();
+                medoids = Clusterer.clusterPAMSIL(distance).getClusterAssignment();
             } else {
-                medoids = Clusterer.clusterPAMSIL(distance, k)
-                        .getClusterAssignment();
+                medoids = Clusterer.clusterPAMSIL(distance, k).getClusterAssignment();
             }
         } else {
-            throw new UnsupportedOperationException("Clustering method "
-                    + method + " not supported");
+            throw new UnsupportedOperationException("Clustering method " + method
+                    + " not supported");
         }
 
         double[][] mds = MDS.multidimensionalScaling(distance, 2);

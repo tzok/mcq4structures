@@ -26,8 +26,7 @@ public class BenchmarkTime {
     }
 
     public static void main(String[] args) {
-        List<File> pdbs = BenchmarkTime
-                .list(new File("/home/tzok/pdb/puzzles/"));
+        List<File> pdbs = BenchmarkTime.list(new File("/home/tzok/pdb/puzzles/"));
         pdbs.addAll(BenchmarkTime.list(new File("/home/tzok/pdb/puzzles/")));
         Structure[] structures = new Structure[pdbs.size()];
         PDBFileReader reader = new PDBFileReader();
@@ -42,8 +41,7 @@ public class BenchmarkTime {
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
             new MCQ().compare(structures, null);
-            System.out.println("Time: " + (System.currentTimeMillis() - start)
-                    + " ms");
+            System.out.println("Time: " + (System.currentTimeMillis() - start) + " ms");
         }
     }
 

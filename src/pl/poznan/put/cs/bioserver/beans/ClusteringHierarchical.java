@@ -7,17 +7,16 @@ import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 
 @XmlRootElement
-public class ClusteringHierarchical extends XMLSerializable implements
-        Visualizable {
+public class ClusteringHierarchical extends XMLSerializable implements Visualizable {
     private static final long serialVersionUID = -933748828643803893L;
 
-    public static ClusteringHierarchical newInstance(
-            ComparisonGlobal comparison, Method method) {
+    public static ClusteringHierarchical newInstance(ComparisonGlobal comparison, Method method) {
         ClusteringHierarchical instance = new ClusteringHierarchical();
         instance.setComparison(comparison);
         instance.setMethod(method);
         return instance;
     }
+
     ComparisonGlobal comparison;
 
     Method method;

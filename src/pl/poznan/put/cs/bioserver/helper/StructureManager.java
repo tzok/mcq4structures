@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class StructureManager {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(StructureManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StructureManager.class);
 
     private static Map<File, Structure[]> mapFileModels = new TreeMap<>();
     private static Map<Structure, File> mapModelFile = new HashMap<>();
@@ -136,16 +135,14 @@ public final class StructureManager {
     private static boolean isMmCif(File file) throws IOException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        new GZIPInputStream(stream), "UTF-8"))) {
                     String line = reader.readLine();
                     return line != null && line.startsWith("data_");
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line = reader.readLine();
                 return line != null && line.startsWith("data_");
             }
@@ -155,9 +152,8 @@ public final class StructureManager {
     private static boolean isPdb(File file) throws IOException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        new GZIPInputStream(stream), "UTF-8"))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (line.startsWith("ATOM")) {
@@ -167,8 +163,7 @@ public final class StructureManager {
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("ATOM")) {
@@ -208,8 +203,7 @@ public final class StructureManager {
             models[i] = clone;
 
             StructureManager.mapModelFile.put(clone, file);
-            StructureManager.mapModelName.put(clone,
-                    String.format(format, name, i + 1));
+            StructureManager.mapModelName.put(clone, String.format(format, name, i + 1));
         }
         StructureManager.mapFileModels.put(file, models);
         return models;

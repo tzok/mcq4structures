@@ -24,8 +24,8 @@ public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
-                    StayOpenRadioButtonMenuItem.path = MenuSelectionManager
-                            .defaultManager().getSelectedPath();
+                    StayOpenRadioButtonMenuItem.path = MenuSelectionManager.defaultManager()
+                            .getSelectedPath();
                 }
             }
         });
@@ -96,7 +96,6 @@ public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
     @Override
     public void doClick(int pressTime) {
         super.doClick(pressTime);
-        MenuSelectionManager.defaultManager().setSelectedPath(
-                StayOpenRadioButtonMenuItem.path);
+        MenuSelectionManager.defaultManager().setSelectedPath(StayOpenRadioButtonMenuItem.path);
     }
 }

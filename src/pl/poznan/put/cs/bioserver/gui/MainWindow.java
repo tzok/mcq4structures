@@ -15,7 +15,9 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -54,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
+import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput.StructuresAligned;
 import pl.poznan.put.cs.bioserver.beans.AlignmentSequence;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
@@ -79,8 +82,7 @@ public class MainWindow extends JFrame {
     private static final String CARD_MATRIX = "CARD_MATRIX";
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(MainWindow.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainWindow.class);
 
     private DialogStructures dialogStructures;
     private DialogChains dialogChains;
@@ -159,8 +161,7 @@ public class MainWindow extends JFrame {
         itemSave = new JMenuItem("Save results",
                 loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
         itemSave.setEnabled(false);
-        checkBoxManager = new StayOpenCheckBoxMenuItem(
-                "View structure manager", true);
+        checkBoxManager = new StayOpenCheckBoxMenuItem("View structure manager", true);
         itemExit = new JMenuItem("Exit");
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
@@ -174,10 +175,8 @@ public class MainWindow extends JFrame {
 
         radioGlobalMcq = new StayOpenRadioButtonMenuItem("Global MCQ", true);
         radioGlobalRmsd = new StayOpenRadioButtonMenuItem("Global RMSD", false);
-        radioLocal = new StayOpenRadioButtonMenuItem("Local distances (pair)",
-                false);
-        radioLocalMulti = new StayOpenRadioButtonMenuItem(
-                "Local distances (multiple)", false);
+        radioLocal = new StayOpenRadioButtonMenuItem("Local distances (pair)", false);
+        radioLocalMulti = new StayOpenRadioButtonMenuItem("Local distances (multiple)", false);
         ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
         group.add(radioGlobalRmsd);
@@ -186,8 +185,7 @@ public class MainWindow extends JFrame {
 
         itemSelectTorsion = new JMenuItem("Select torsion angles");
         itemSelectTorsion.setEnabled(false);
-        itemSelectStructuresCompare = new JMenuItem(
-                "Select structures to compare");
+        itemSelectStructuresCompare = new JMenuItem("Select structures to compare");
         itemComputeDistances = new JMenuItem("Compute distance(s)");
         itemComputeDistances.setEnabled(false);
         itemVisualise = new JMenuItem("Visualise results");
@@ -214,12 +212,9 @@ public class MainWindow extends JFrame {
         menu.add(itemCluster);
         menuBar.add(menu);
 
-        radioAlignSeqGlobal = new StayOpenRadioButtonMenuItem(
-                "Global sequence alignment", true);
-        radioAlignSeqLocal = new StayOpenRadioButtonMenuItem(
-                "Local sequence alignment", false);
-        radioAlignStruc = new StayOpenRadioButtonMenuItem(
-                "3D structure alignment", false);
+        radioAlignSeqGlobal = new StayOpenRadioButtonMenuItem("Global sequence alignment", true);
+        radioAlignSeqLocal = new StayOpenRadioButtonMenuItem("Local sequence alignment", false);
+        radioAlignStruc = new StayOpenRadioButtonMenuItem("3D structure alignment", false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignSeqGlobal);
         groupAlign.add(radioAlignSeqLocal);
@@ -265,8 +260,7 @@ public class MainWindow extends JFrame {
         panel = new JPanel(new BorderLayout());
         panel.add(labelInfoMatrix, BorderLayout.WEST);
         panelResultsMatrix.add(panel, BorderLayout.NORTH);
-        panelResultsMatrix.add(new JScrollPane(tableMatrix),
-                BorderLayout.CENTER);
+        panelResultsMatrix.add(new JScrollPane(tableMatrix), BorderLayout.CENTER);
         panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.add(new JLabel("Progress in computing:"));
@@ -286,8 +280,7 @@ public class MainWindow extends JFrame {
         panel = new JPanel(new BorderLayout());
         panel.add(labelInfoAlignSeq, BorderLayout.WEST);
         panelResultsAlignSeq.add(panel, BorderLayout.NORTH);
-        panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq),
-                BorderLayout.CENTER);
+        panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq), BorderLayout.CENTER);
 
         /*
          * Create panel with structure alignment
@@ -295,12 +288,10 @@ public class MainWindow extends JFrame {
         labelInfoAlignStruc = new JLabel();
         labelInfoAlignStruc.setBorder(new EmptyBorder(10, 10, 10, 0));
         JPanel panelInfoJmol = new JPanel(new GridLayout(1, 3));
-        panelInfoJmol.add(new JLabel("Whole structures (Jmol view)",
-                SwingConstants.CENTER));
+        panelInfoJmol.add(new JLabel("Whole structures (Jmol view)", SwingConstants.CENTER));
         labelAlignmentStatus = new JLabel("", SwingConstants.CENTER);
         panelInfoJmol.add(labelAlignmentStatus);
-        panelInfoJmol.add(new JLabel("Aligned fragments (Jmol view)",
-                SwingConstants.CENTER));
+        panelInfoJmol.add(new JLabel("Aligned fragments (Jmol view)", SwingConstants.CENTER));
         panelJmolLeft = new JmolPanel();
         panelJmolLeft.executeCmd("background lightgrey; save state state_init");
         panelJmolRight = new JmolPanel();
@@ -347,12 +338,10 @@ public class MainWindow extends JFrame {
         defaultRenderer = tableMatrix.getDefaultRenderer(Object.class);
         colorsRenderer = new TableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table,
-                    Object value, boolean isSelected, boolean hasFocus,
-                    int row, int column) {
-                Component component = defaultRenderer
-                        .getTableCellRendererComponent(table, value,
-                                isSelected, hasFocus, row, column);
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component component = defaultRenderer.getTableCellRendererComponent(table, value,
+                        isSelected, hasFocus, row, column);
                 component.setBackground(Colors.ALL[column]);
                 return component;
             }
@@ -382,21 +371,20 @@ public class MainWindow extends JFrame {
         itemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser(PdbChooser
-                        .getCurrentDirectory());
+                JFileChooser chooser = new JFileChooser(PdbChooser.getCurrentDirectory());
                 chooser.setSelectedFile(exportable.suggestName());
                 int option = chooser.showSaveDialog(MainWindow.this);
                 if (option == JFileChooser.APPROVE_OPTION) {
                     try {
                         exportable.export(chooser.getSelectedFile());
                         JOptionPane.showMessageDialog(MainWindow.this,
-                                "Successfully exported the results!",
-                                "Information", JOptionPane.INFORMATION_MESSAGE);
+                                "Successfully exported the results!", "Information",
+                                JOptionPane.INFORMATION_MESSAGE);
                     } catch (IOException exception) {
                         String message = "Failed to export results, reason: "
                                 + exception.getMessage();
-                        JOptionPane.showMessageDialog(MainWindow.this, message,
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(MainWindow.this, message, "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -412,8 +400,7 @@ public class MainWindow extends JFrame {
         itemExit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispatchEvent(new WindowEvent(MainWindow.this,
-                        WindowEvent.WINDOW_CLOSING));
+                dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
             }
         });
 
@@ -510,8 +497,7 @@ public class MainWindow extends JFrame {
         itemComputeAlign.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (radioAlignSeqGlobal.isSelected()
-                        || radioAlignSeqLocal.isSelected()) {
+                if (radioAlignSeqGlobal.isSelected() || radioAlignSeqLocal.isSelected()) {
                     alignSequences();
                 } else {
                     alignStructures();
@@ -540,10 +526,9 @@ public class MainWindow extends JFrame {
         textAreaAlignSeq.setText("");
         layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
-        Chain[] chains = dialogChainsMultiple.getChains();
+        List<Chain> chains = dialogChainsMultiple.getChains();
         boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        AlignmentSequence alignment = AlignmentSequence.newInstance(chains,
-                isGlobal);
+        AlignmentSequence alignment = AlignmentSequence.newInstance(chains, isGlobal);
 
         exportable = alignment;
         textAreaAlignSeq.setText(alignment.getAlignment());
@@ -552,14 +537,12 @@ public class MainWindow extends JFrame {
 
         if (isGlobal) {
             labelInfoAlignSeq.setText("<html>"
-                    + "Structures selected for global sequence alignment: "
-                    + alignment.getTitle() + "<br>"
-                    + "Global sequence alignment results:" + "</html>");
+                    + "Structures selected for global sequence alignment: " + alignment.getTitle()
+                    + "<br>" + "Global sequence alignment results:" + "</html>");
         } else {
             labelInfoAlignSeq.setText("<html>"
-                    + "Structures selected for local sequence alignment: "
-                    + alignment.getTitle() + "<br>"
-                    + "Local sequence alignment results:" + "</html>");
+                    + "Structures selected for local sequence alignment: " + alignment.getTitle()
+                    + "<br>" + "Local sequence alignment results:" + "</html>");
         }
     }
 
@@ -576,15 +559,13 @@ public class MainWindow extends JFrame {
         for (int i = 0; i < 2; i++) {
             structures[i] = new StructureImpl();
             structures[i].setChains(Arrays.asList(chains[i]));
-            structures[i].setPDBCode(StructureManager.getName(chains[i][0]
-                    .getParent()));
+            structures[i].setPDBCode(StructureManager.getName(chains[i][0].getParent()));
         }
 
         boolean isRNA = Helper.isNucleicAcid(structures[0]);
         if (isRNA != Helper.isNucleicAcid(structures[1])) {
             JOptionPane.showMessageDialog(this, "Cannot align structures: "
-                    + "different molecular types", "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    + "different molecular types", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -615,19 +596,17 @@ public class MainWindow extends JFrame {
                 try {
                     Helper.normalizeAtomNames(structures[0]);
                     Helper.normalizeAtomNames(structures[1]);
-                    output = AlignerStructure.align(structures[0],
-                            structures[1],
+                    output = AlignerStructure.align(structures[0], structures[1],
                             dialogChains.getSelectionDescription());
                     exportable = output;
                 } catch (StructureException e1) {
-                    JOptionPane.showMessageDialog(MainWindow.this,
-                            e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(MainWindow.this, e1.getMessage(), "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 } finally {
                     timer.stop();
 
                     SwingUtilities.invokeLater(new Runnable() {
-                        private static final String JMOL_SCRIPT = "frame 0.0; "
-                                + "cartoon only; "
+                        private static final String JMOL_SCRIPT = "frame 0.0; " + "cartoon only; "
                                 + "select model=1.1; color green; "
                                 + "select model=1.2; color red; ";
 
@@ -636,14 +615,14 @@ public class MainWindow extends JFrame {
                             if (output == null) {
                                 return;
                             }
-                            Structure[] aligned = output.getStructures();
+                            StructuresAligned aligned = output.getStructures();
 
                             StringBuilder builder = new StringBuilder();
                             builder.append("MODEL        1                                                                  \n");
-                            builder.append(aligned[0].toPDB());
+                            builder.append(aligned.wholeLeft.toPDB());
                             builder.append("ENDMDL                                                                          \n");
                             builder.append("MODEL        2                                                                  \n");
-                            builder.append(aligned[1].toPDB());
+                            builder.append(aligned.wholeRight.toPDB());
                             builder.append("ENDMDL                                                                          \n");
 
                             JmolViewer viewer = panelJmolLeft.getViewer();
@@ -652,10 +631,10 @@ public class MainWindow extends JFrame {
 
                             builder = new StringBuilder();
                             builder.append("MODEL        1                                                                  \n");
-                            builder.append(aligned[2].toPDB());
+                            builder.append(aligned.filteredLeft.toPDB());
                             builder.append("ENDMDL                                                                          \n");
                             builder.append("MODEL        2                                                                  \n");
-                            builder.append(aligned[3].toPDB());
+                            builder.append(aligned.filteredRight.toPDB());
                             builder.append("ENDMDL                                                                          \n");
 
                             viewer = panelJmolRight.getViewer();
@@ -665,14 +644,11 @@ public class MainWindow extends JFrame {
                             itemSave.setEnabled(true);
                             itemSave.setText("Save results (PDB)");
 
-                            labelAlignmentStatus
-                                    .setText("Computation finished");
+                            labelAlignmentStatus.setText("Computation finished");
                             labelInfoAlignStruc.setText("<html>"
                                     + "Structures selected for 3D structure alignment: "
-                                    + dialogChains.getSelectionDescription()
-                                    + "<br>"
-                                    + "3D structure alignment results:"
-                                    + "</html>");
+                                    + dialogChains.getSelectionDescription() + "<br>"
+                                    + "3D structure alignment results:" + "</html>");
                         }
                     });
 
@@ -705,8 +681,8 @@ public class MainWindow extends JFrame {
             public void run() {
                 long start = System.currentTimeMillis();
                 double[][] matrix = comparison.compare(structures, listener);
-                final ComparisonGlobal comparisonGlobal = ComparisonGlobal
-                        .newInstance(matrix, names, comparison.toString());
+                final ComparisonGlobal comparisonGlobal = ComparisonGlobal.newInstance(matrix,
+                        names, comparison.toString());
                 MainWindow.LOGGER.debug("Structure comparison took "
                         + (System.currentTimeMillis() - start) + " ms");
 
@@ -717,10 +693,8 @@ public class MainWindow extends JFrame {
                         exportable = comparisonGlobal;
                         visualizable = comparisonGlobal;
 
-                        tableMatrix.setModel(new TableModelGlobal(
-                                comparisonGlobal));
-                        tableMatrix.setDefaultRenderer(Object.class,
-                                defaultRenderer);
+                        tableMatrix.setModel(new TableModelGlobal(comparisonGlobal));
+                        tableMatrix.setDefaultRenderer(Object.class, defaultRenderer);
 
                         itemSave.setEnabled(true);
                         itemSave.setText("Save results (CSV)");
@@ -729,9 +703,9 @@ public class MainWindow extends JFrame {
 
                         labelInfoMatrix.setText("<html>"
                                 + "Structures selected for global distance measure: "
-                                + dialogStructures.getSelectionDescription()
-                                + "<br>" + "Global distance matrix ("
-                                + comparison.toString() + "):" + "</html>");
+                                + dialogStructures.getSelectionDescription() + "<br>"
+                                + "Global distance matrix (" + comparison.toString() + "):"
+                                + "</html>");
                     }
                 });
             }
@@ -740,28 +714,27 @@ public class MainWindow extends JFrame {
     }
 
     private void compareLocalMulti() {
-        Chain[] chains = dialogChainsMultiple.getChains();
-        String[] names = new String[chains.length];
-        for (int i = 0; i < chains.length; i++) {
-            names[i] = StructureManager.getName(chains[i].getParent()) + "."
-                    + chains[i].getChainID();
+        List<Chain> chains = dialogChainsMultiple.getChains();
+        List<String> names = new ArrayList<>();
+        for (Chain chain : chains) {
+            names.add(StructureManager.getName(chain.getParent()) + "." + chain.getChainID());
         }
 
-        String reference = (String) JOptionPane.showInputDialog(
-                MainWindow.this, "Select your reference structure",
-                "Reference structure", JOptionPane.INFORMATION_MESSAGE, null,
-                names, names[0]);
+        String reference = (String) JOptionPane.showInputDialog(MainWindow.this,
+                "Select your reference structure", "Reference structure",
+                JOptionPane.INFORMATION_MESSAGE, null, names.toArray(new String[names.size()]),
+                names.get(0));
         if (reference == null) {
             return;
         }
 
         int index;
-        for (index = 0; index < names.length; index++) {
-            if (names[index].equals(reference)) {
+        for (index = 0; index < names.size(); index++) {
+            if (names.get(index).equals(reference)) {
                 break;
             }
         }
-        if (index >= names.length) {
+        if (index >= names.size()) {
             // FIXME: handle this situation (it should never appear under normal
             // circumstances)
             return;
@@ -771,11 +744,11 @@ public class MainWindow extends JFrame {
         progressBar.setValue(0);
         ComparisonLocalMulti localMulti;
         try {
-            localMulti = ComparisonLocalMulti.newInstance(chains,
-                    chains[index], Arrays.asList(dialogAngles.getAngles()));
+            localMulti = ComparisonLocalMulti.newInstance(chains, chains.get(index),
+                    Arrays.asList(dialogAngles.getAngles()));
         } catch (StructureException e) {
-            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         progressBar.setValue(1);
@@ -793,8 +766,7 @@ public class MainWindow extends JFrame {
         itemVisualiseHq.setEnabled(true);
         itemCluster.setEnabled(false);
 
-        labelInfoMatrix.setText("<html>" + "Structures selected for local "
-                + "distance measure: "
+        labelInfoMatrix.setText("<html>" + "Structures selected for local " + "distance measure: "
                 + dialogChainsMultiple.getSelectionDescription() + "<br>"
                 + "Local distance vector(s):" + "</html>");
     }
@@ -810,12 +782,11 @@ public class MainWindow extends JFrame {
         progressBar.setValue(0);
         ComparisonLocal comparisonLocal;
         try {
-            comparisonLocal = ComparisonLocal.newInstance(
-                    dialogChains.getStructures(), dialogChains.getChains(),
-                    Arrays.asList(dialogAngles.getAngles()));
+            comparisonLocal = ComparisonLocal.newInstance(dialogChains.getStructures(),
+                    dialogChains.getChains(), Arrays.asList(dialogAngles.getAngles()));
         } catch (StructureException e) {
-            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         progressBar.setValue(1);
@@ -833,9 +804,9 @@ public class MainWindow extends JFrame {
         itemVisualiseHq.setEnabled(true);
         itemCluster.setEnabled(false);
 
-        labelInfoMatrix.setText("<html>" + "Structures selected for local "
-                + "distance measure: " + dialogChains.getSelectionDescription()
-                + "<br>" + "Local distance vector(s):" + "</html>");
+        labelInfoMatrix.setText("<html>" + "Structures selected for local " + "distance measure: "
+                + dialogChains.getSelectionDescription() + "<br>" + "Local distance vector(s):"
+                + "</html>");
     }
 
     private ImageIcon loadIcon(String name) {
@@ -856,8 +827,8 @@ public class MainWindow extends JFrame {
             if (chains[i].length == 0) {
                 String message = "No chains specified for structure: "
                         + StructureManager.getName(structures[i]);
-                JOptionPane.showMessageDialog(MainWindow.this, message,
-                        "Information", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(MainWindow.this, message, "Information",
+                        JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
         }
@@ -873,8 +844,8 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
-            labelInfoMatrix.setText("Structures selected for local distance "
-                    + "measure: " + dialogChains.getSelectionDescription());
+            labelInfoMatrix.setText("Structures selected for local distance " + "measure: "
+                    + dialogChains.getSelectionDescription());
         } else { // source.equals(itemSelectChainsAlignStruc)
             panelJmolLeft.executeCmd("restore state " + "state_init");
             panelJmolRight.executeCmd("restore state " + "state_init");
@@ -887,19 +858,19 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
-            labelInfoAlignStruc.setText("Structures selected for 3D structure "
-                    + "alignment: " + dialogChains.getSelectionDescription());
+            labelInfoAlignStruc.setText("Structures selected for 3D structure " + "alignment: "
+                    + dialogChains.getSelectionDescription());
         }
     }
 
     private void selectChainsMultiple(Object source) {
         if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK
-                || dialogChainsMultiple.getChains().length == 0) {
+                || dialogChainsMultiple.getChains().size() == 0) {
             return;
         }
 
-        Chain[] chains = dialogChainsMultiple.getChains();
-        boolean isRNA = Helper.isNucleicAcid(chains[0]);
+        List<Chain> chains = dialogChainsMultiple.getChains();
+        boolean isRNA = Helper.isNucleicAcid(chains.get(0));
         for (Chain c : chains) {
             if (Helper.isNucleicAcid(c) != isRNA) {
                 JOptionPane.showMessageDialog(this, "Cannot align/compare "
@@ -920,8 +891,7 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
-            labelInfoMatrix.setText("Structures selected for local distance "
-                    + "measure: "
+            labelInfoMatrix.setText("Structures selected for local distance " + "measure: "
                     + dialogChainsMultiple.getSelectionDescription());
         } else { // source.equals(itemSelectStructuresAlign)
             textAreaAlignSeq.setText("");
@@ -936,8 +906,7 @@ public class MainWindow extends JFrame {
 
             labelInfoAlignSeq.setText("Structures selected for "
                     + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
-                    + " sequence alignment: "
-                    + dialogChainsMultiple.getSelectionDescription());
+                    + " sequence alignment: " + dialogChainsMultiple.getSelectionDescription());
         }
     }
 
@@ -948,9 +917,8 @@ public class MainWindow extends JFrame {
         Structure[] structures = dialogStructures.getStructures();
         if (structures == null || structures.length < 2) {
             JOptionPane.showMessageDialog(MainWindow.this, "At "
-                    + "least two structures must be selected to "
-                    + "compute global distance", "Information",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    + "least two structures must be selected to " + "compute global distance",
+                    "Information", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
@@ -963,7 +931,7 @@ public class MainWindow extends JFrame {
         itemVisualiseHq.setEnabled(false);
         itemCluster.setEnabled(false);
 
-        labelInfoMatrix.setText("Structures selected for global distance "
-                + "measure: " + dialogStructures.getSelectionDescription());
+        labelInfoMatrix.setText("Structures selected for global distance " + "measure: "
+                + dialogStructures.getSelectionDescription());
     }
 }

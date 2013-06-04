@@ -27,13 +27,11 @@ import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import com.csvreader.CsvWriter;
 
 @XmlRootElement
-public class ComparisonLocalMulti extends XMLSerializable implements
-        Exportable, Visualizable {
+public class ComparisonLocalMulti extends XMLSerializable implements Exportable, Visualizable {
     private static final long serialVersionUID = -6549267536864184480L;
 
-    public static ComparisonLocalMulti newInstance(Chain[] chains,
-            Chain reference, Collection<String> angleNames)
-            throws StructureException {
+    public static ComparisonLocalMulti newInstance(List<Chain> chains, Chain reference,
+            Collection<String> angleNames) throws StructureException {
         List<ComparisonLocal> list = new ArrayList<>();
         for (Chain chain : chains) {
             if (reference.equals(chain)) {

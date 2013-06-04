@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.Chain;
@@ -29,11 +30,61 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
  * 
  */
 public class AlignmentOutput implements Exportable {
-    private Structure s1;
-    private Structure s2;
-    private Atom[][] atoms;
+    public class StructuresAligned {
+        public final Structure wholeLeft;
+        public final Structure wholeRight;
+        public final Structure filteredLeft;
+        public final Structure filteredRight;
+
+        public StructuresAligned(Structure wholeLeft, Structure wholeRight, Structure filteredLeft,
+                Structure filteredRight) {
+            this.wholeLeft = wholeLeft;
+            this.wholeRight = wholeRight;
+            this.filteredLeft = filteredLeft;
+            this.filteredRight = filteredRight;
+        }
+    }
+
+    private static Structure filterStructure(Structure structure, List<Atom> atoms) {
+        Map<String, Set<Integer>> map = new HashMap<>();
+        for (Atom a : atoms) {
+            Group g = a.getGroup();
+            Chain c = g.getChain();
+            String chainId = c.getChainID();
+            if (!map.containsKey(chainId)) {
+                map.put(chainId, new HashSet<Integer>());
+            }
+            Set<Integer> set = map.get(chainId);
+            set.add(g.getResidueNumber().getSeqNum());
+        }
+
+        Structure clone = structure.clone();
+        List<Chain> chains = clone.getChains();
+        for (int j = 0; j < chains.size(); j++) {
+            if (!map.keySet().contains(chains.get(j).getChainID())) {
+                chains.remove(j);
+            }
+        }
+
+        for (Chain c : chains) {
+            String chainId = c.getChainID();
+            List<Group> groups = c.getAtomGroups();
+            Set<Integer> set = map.get(chainId);
+            for (int j = 0; j < groups.size(); j++) {
+                if (!set.contains(groups.get(j).getResidueNumber().getSeqNum())) {
+                    groups.remove(j);
+                }
+            }
+        }
+        return clone;
+    }
     private AFPChain afpChain;
     private String description;
+    private Structure structureLeft;
+    private Structure structureRight;
+    private List<Atom> listAtomsLeft;
+
+    private List<Atom> listAtomsRight;
 
     /**
      * Create an instance which stores information about the computed alignment,
@@ -48,28 +99,26 @@ public class AlignmentOutput implements Exportable {
      * @param atoms
      *            Atoms that were used in the alignment process.
      */
-    AlignmentOutput(AFPChain afpChain, Structure s1, Structure s2,
-            Atom[][] atoms, String description) {
+    AlignmentOutput(AFPChain afpChain, Structure structureLeft, Structure structureRight,
+            List<Atom> listAtomsLeft, List<Atom> listAtomsRight, String description) {
         this.afpChain = afpChain;
-        this.s1 = s1;
-        this.s2 = s2;
-        this.atoms = atoms.clone();
+        this.structureLeft = structureLeft;
+        this.structureRight = structureRight;
+        this.listAtomsLeft = listAtomsLeft;
+        this.listAtomsRight = listAtomsRight;
         this.description = description;
     }
 
     @Override
-    public void export(File file) {
-        Structure[] structures = getStructures();
+    public void export(File file) throws IOException {
+        StructuresAligned aligned = getStructures();
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             writer.write("MODEL        1                                                                  \n");
-            writer.write(structures[0].toPDB());
+            writer.write(aligned.wholeLeft.toPDB());
             writer.write("ENDMDL                                                                          \n");
             writer.write("MODEL        2                                                                  \n");
-            writer.write(structures[1].toPDB());
+            writer.write(aligned.wholeRight.toPDB());
             writer.write("ENDMDL                                                                          \n");
-        } catch (IOException e) {
-            // TODO
-            e.printStackTrace();
         }
     }
 
@@ -82,19 +131,21 @@ public class AlignmentOutput implements Exportable {
      * 
      * @return Two arrays of atoms.
      */
-    public Atom[][] getAtoms() {
-        Atom[][] result = new Atom[2][];
+    public Pair<List<Atom>, List<Atom>> getAtoms() {
+        List<Atom> l = new ArrayList<>();
+        List<Atom> r = new ArrayList<>();
+
         int[][][] optAln = afpChain.getOptAln();
         for (int i = 0; i < 2; i++) {
-            List<Atom> list = new ArrayList<>();
             for (int[][] element : optAln) {
+                List<Atom> from = i == 0 ? listAtomsLeft : listAtomsRight;
+                List<Atom> to = i == 0 ? l : r;
                 for (int k = 0; k < element[i].length; k++) {
-                    list.add(atoms[i][k]);
+                    to.add(from.get(k));
                 }
             }
-            result[i] = list.toArray(new Atom[list.size()]);
         }
-        return result;
+        return Pair.of(l, r);
     }
 
     /**
@@ -104,56 +155,25 @@ public class AlignmentOutput implements Exportable {
      * 
      * @return Four structures.
      */
-    public Structure[] getStructures() {
-        Structure[] result = new Structure[4];
-        result[0] = s1.clone();
-        result[1] = s2.clone();
+    public StructuresAligned getStructures() {
+        Structure leftWhole = structureLeft.clone();
+        Structure rightWhole = structureRight.clone();
         Matrix matrix = afpChain.getBlockRotationMatrix()[0];
         try {
-            Calc.shift(result[0], Calc.invert(Calc.getCentroid(atoms[0])));
-            Calc.shift(result[1], Calc.invert(Calc.getCentroid(atoms[1])));
+            Atom c1 = Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft.size()]));
+            Atom c2 = Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight.size()]));
+            Calc.shift(leftWhole, Calc.invert(c1));
+            Calc.shift(rightWhole, Calc.invert(c2));
         } catch (StructureException e) {
             // TODO
             e.printStackTrace();
         }
-        Calc.rotate(result[1], matrix);
+        Calc.rotate(rightWhole, matrix);
 
-        Atom[][] aligned = getAtoms();
-        for (int i = 0; i < 2; i++) {
-            Map<String, Set<Integer>> map = new HashMap<>();
-            for (Atom a : aligned[i]) {
-                Group g = a.getGroup();
-                Chain c = g.getChain();
-                String chainId = c.getChainID();
-                if (!map.containsKey(chainId)) {
-                    map.put(chainId, new HashSet<Integer>());
-                }
-                Set<Integer> set = map.get(chainId);
-                set.add(g.getResidueNumber().getSeqNum());
-            }
-
-            Structure clone = result[i].clone();
-            List<Chain> chains = clone.getChains();
-            for (int j = 0; j < chains.size(); j++) {
-                if (!map.keySet().contains(chains.get(j).getChainID())) {
-                    chains.remove(j);
-                }
-            }
-
-            for (Chain c : chains) {
-                String chainId = c.getChainID();
-                List<Group> groups = c.getAtomGroups();
-                Set<Integer> set = map.get(chainId);
-                for (int j = 0; j < groups.size(); j++) {
-                    if (!set.contains(groups.get(j).getResidueNumber()
-                            .getSeqNum())) {
-                        groups.remove(j);
-                    }
-                }
-            }
-            result[i + 2] = clone;
-        }
-        return result;
+        Pair<List<Atom>, List<Atom>> aligned = getAtoms();
+        Structure leftFiltered = AlignmentOutput.filterStructure(leftWhole, aligned.getLeft());
+        Structure rightFiltered = AlignmentOutput.filterStructure(rightWhole, aligned.getRight());
+        return new StructuresAligned(leftWhole, rightWhole, leftFiltered, rightFiltered);
     }
 
     @Override

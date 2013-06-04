@@ -20,18 +20,19 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 import com.csvreader.CsvWriter;
 
 @XmlRootElement
-public class ComparisonGlobal extends XMLSerializable implements Clusterable,
-        Exportable, Visualizable {
+public class ComparisonGlobal extends XMLSerializable implements Clusterable, Exportable,
+        Visualizable {
     private static final long serialVersionUID = 5900586846338327108L;
 
-    public static ComparisonGlobal newInstance(double[][] distanceMatrix,
-            String[] labels, String method) {
+    public static ComparisonGlobal newInstance(double[][] distanceMatrix, String[] labels,
+            String method) {
         ComparisonGlobal instance = new ComparisonGlobal();
         instance.setDistanceMatrix(distanceMatrix);
         instance.setLabels(labels);
         instance.setMethod(method);
         return instance;
     }
+
     double[][] distanceMatrix;
     String[] labels;
 
@@ -43,8 +44,8 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
             for (double element : value) {
                 if (Double.isNaN(element)) {
                     JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "clustered. Some structures could not be "
-                            + "compared.", "Error", JOptionPane.ERROR_MESSAGE);
+                            + "clustered. Some structures could not be " + "compared.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -119,8 +120,8 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
             for (double element : value) {
                 if (Double.isNaN(element)) {
                     JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "visualized. Some structures could not be "
-                            + "compared.", "Error", JOptionPane.ERROR_MESSAGE);
+                            + "visualized. Some structures could not be " + "compared.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -129,14 +130,12 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
         double[][] mds = MDS.multidimensionalScaling(distanceMatrix, 2);
         if (mds == null) {
             JOptionPane.showMessageDialog(null, "Cannot visualise specified "
-                    + "structures in 2D space", "Warning",
-                    JOptionPane.WARNING_MESSAGE);
+                    + "structures in 2D space", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         MDSPlot plot = new MDSPlot(mds, labels);
-        plot.setTitle("MCQ4Structures: global distance diagram (" + method
-                + ")");
+        plot.setTitle("MCQ4Structures: global distance diagram (" + method + ")");
         plot.setVisible(true);
     }
 

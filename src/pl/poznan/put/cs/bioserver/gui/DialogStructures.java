@@ -55,22 +55,18 @@ final class DialogStructures extends JDialog {
 
         modelAll = new DefaultListModel<>();
         final JList<Structure> listAll = new JList<>(modelAll);
-        listAll.setBorder(BorderFactory
-                .createTitledBorder("Available structures"));
-        final ListCellRenderer<? super Structure> renderer = listAll
-                .getCellRenderer();
+        listAll.setBorder(BorderFactory.createTitledBorder("Available structures"));
+        final ListCellRenderer<? super Structure> renderer = listAll.getCellRenderer();
         modelSelected = new DefaultListModel<>();
         final JList<Structure> listSelected = new JList<>(modelSelected);
-        listSelected.setBorder(BorderFactory
-                .createTitledBorder("Selected structures"));
+        listSelected.setBorder(BorderFactory.createTitledBorder("Selected structures"));
 
         ListCellRenderer<Structure> pdbCellRenderer = new ListCellRenderer<Structure>() {
             @Override
-            public Component getListCellRendererComponent(
-                    JList<? extends Structure> list, Structure value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) renderer.getListCellRendererComponent(
-                        list, value, index, isSelected, cellHasFocus);
+            public Component getListCellRendererComponent(JList<? extends Structure> list,
+                    Structure value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index,
+                        isSelected, cellHasFocus);
                 label.setText(StructureManager.getName(value));
                 return label;
             }
@@ -142,8 +138,7 @@ final class DialogStructures extends JDialog {
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
-                ListSelectionModel source = (ListSelectionModel) arg0
-                        .getSource();
+                ListSelectionModel source = (ListSelectionModel) arg0.getSource();
                 if (source.equals(listAll.getSelectionModel())) {
                     buttonSelect.setEnabled(!listAll.isSelectionEmpty());
                 } else { // source.equals(listSelected)
@@ -151,10 +146,8 @@ final class DialogStructures extends JDialog {
                 }
             }
         };
-        listAll.getSelectionModel().addListSelectionListener(
-                listSelectionListener);
-        listSelected.getSelectionModel().addListSelectionListener(
-                listSelectionListener);
+        listAll.getSelectionModel().addListSelectionListener(listSelectionListener);
+        listSelected.getSelectionModel().addListSelectionListener(listSelectionListener);
 
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
@@ -196,8 +189,7 @@ final class DialogStructures extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<Structure> list = Collections.list(modelSelected
-                        .elements());
+                List<Structure> list = Collections.list(modelSelected.elements());
                 selectedStructures = list.toArray(new Structure[list.size()]);
 
                 chosenOption = DialogStructures.OK;
@@ -232,8 +224,7 @@ final class DialogStructures extends JDialog {
     public int showDialog() {
         SortedSet<Structure> setManager = StructureManager.getAllStructures();
         ArrayList<Structure> listLeft = Collections.list(modelAll.elements());
-        ArrayList<Structure> listRight = Collections.list(modelSelected
-                .elements());
+        ArrayList<Structure> listRight = Collections.list(modelSelected.elements());
 
         ArrayList<Structure> list = (ArrayList<Structure>) listLeft.clone();
         list.removeAll(setManager);

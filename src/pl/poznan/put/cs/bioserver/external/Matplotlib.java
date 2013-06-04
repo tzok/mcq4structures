@@ -28,26 +28,20 @@ public class Matplotlib {
         SINGLE, COMPLETE, AVERAGE, WEIGHTED
     }
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(Matplotlib.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Matplotlib.class);
 
-    public static void runXsltAndPython(URL resource, File fileScript,
-            File fileOutput, XMLSerializable data) throws IOException,
-            JAXBException, ParserConfigurationException {
-        Matplotlib.runXsltAndPython(resource, fileScript, fileOutput, data,
-                null);
+    public static void runXsltAndPython(URL resource, File fileScript, File fileOutput,
+            XMLSerializable data) throws IOException, JAXBException, ParserConfigurationException {
+        Matplotlib.runXsltAndPython(resource, fileScript, fileOutput, data, null);
     }
 
-    public static void runXsltAndPython(URL resource, File fileScript,
-            File fileOutput, XMLSerializable data,
-            Map<String, Object> parameters) throws IOException, JAXBException,
-            ParserConfigurationException {
-        String pythonCode = XSLT.transform(resource,
-                new DOMSource(data.toXML()), parameters);
+    public static void runXsltAndPython(URL resource, File fileScript, File fileOutput,
+            XMLSerializable data, Map<String, Object> parameters) throws IOException,
+            JAXBException, ParserConfigurationException {
+        String pythonCode = XSLT.transform(resource, new DOMSource(data.toXML()), parameters);
         Matplotlib.LOGGER.trace("Generated script:\n" + pythonCode);
 
-        try (Writer writer = new FileWriterWithEncoding(fileScript,
-                Charset.forName("UTF-8"))) {
+        try (Writer writer = new FileWriterWithEncoding(fileScript, Charset.forName("UTF-8"))) {
             writer.write(pythonCode);
         }
 
@@ -70,8 +64,7 @@ public class Matplotlib {
         File fileOutput = null;
 
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "Python script", "py");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Python script", "py");
         chooser.setFileFilter(filter);
         chooser.setSelectedFile(new File("script.py"));
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
@@ -79,14 +72,12 @@ public class Matplotlib {
         }
         fileScript = chooser.getSelectedFile();
 
-        chooser.setFileFilter(new FileNameExtensionFilter(
-                "Portable Network Graphics (PNG)", "png"));
+        chooser.setFileFilter(new FileNameExtensionFilter("Portable Network Graphics (PNG)", "png"));
         for (String[] pair : new String[][] {
                 new String[] { "Portable Document Format (PDF)", "pdf" },
                 new String[] { "Encapsulated Postscript (EPS)", "eps" },
                 new String[] { "Scalable Vector Graphics (SVG)", "svg" } }) {
-            chooser.addChoosableFileFilter(new FileNameExtensionFilter(pair[0],
-                    pair[1]));
+            chooser.addChoosableFileFilter(new FileNameExtensionFilter(pair[0], pair[1]));
         }
 
         String originalName = fileScript.getName();
@@ -104,17 +95,14 @@ public class Matplotlib {
         fileOutput = chooser.getSelectedFile();
 
         try {
-            Matplotlib.runXsltAndPython(resource, fileScript, fileOutput, data,
-                    parameters);
+            Matplotlib.runXsltAndPython(resource, fileScript, fileOutput, data, parameters);
             JOptionPane.showMessageDialog(null, "Successfully created the "
-                    + "image via Matplotlib", "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    + "image via Matplotlib", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException | JAXBException | ParserConfigurationException e) {
             Matplotlib.LOGGER.error("Failed to run Python with Matplotlib", e);
-            JOptionPane.showMessageDialog(null, "Failed "
-                    + "to invoke external tool to draw the plot with "
-                    + "Matplotlib\n\n" + e.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,
+                    "Failed " + "to invoke external tool to draw the plot with " + "Matplotlib\n\n"
+                            + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

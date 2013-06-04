@@ -40,13 +40,11 @@ public class MDSPlot extends JFrame {
          * sanity check
          */
         if (data.length != labels.length) {
-            throw new IllegalArgumentException(
-                    "Data row count and number of labels don't match!");
+            throw new IllegalArgumentException("Data row count and number of labels don't match!");
         }
         for (double[] element : data) {
             if (element.length != 2) {
-                throw new IllegalArgumentException(
-                        "Data must have dimensions 'n x 2'!");
+                throw new IllegalArgumentException("Data must have dimensions 'n x 2'!");
             }
         }
 
@@ -56,10 +54,8 @@ public class MDSPlot extends JFrame {
         DefaultXYDataset dataset = new DefaultXYDataset();
         StringWriter writer = new StringWriter();
         for (int i = 0; i < data.length; ++i) {
-            dataset.addSeries(labels[i], new double[][] { { data[i][0] },
-                    { data[i][1] } });
-            writer.append(String.format("%f %f %s%n", data[i][0], data[i][1],
-                    labels[i]));
+            dataset.addSeries(labels[i], new double[][] { { data[i][0] }, { data[i][1] } });
+            writer.append(String.format("%f %f %s%n", data[i][0], data[i][1], labels[i]));
         }
         MDSPlot.LOGGER.trace("Data to plot in gnuplot:\n" + writer.toString());
 

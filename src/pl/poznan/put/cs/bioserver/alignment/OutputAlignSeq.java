@@ -42,8 +42,7 @@ public class OutputAlignSeq implements Exportable, Serializable {
     private boolean isGlobal;
     private String description;
 
-    public OutputAlignSeq(
-            AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner,
+    public OutputAlignSeq(AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner,
             String description) {
         isGlobal = aligner instanceof NeedlemanWunsch<?, ?>;
         this.description = description;
@@ -73,23 +72,19 @@ public class OutputAlignSeq implements Exportable, Serializable {
         length = query.getLength();
 
         gaps = 0;
-        for (AlignedSequence<Sequence<Compound>, Compound> seq : pair
-                .getAlignedSequences()) {
+        for (AlignedSequence<Sequence<Compound>, Compound> seq : pair.getAlignedSequences()) {
             gaps += StringUtils.countMatches(seq.getSequenceAsString(), "-");
         }
     }
 
     @Override
-    public void export(File file) {
+    public void export(File file) throws IOException {
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             writer.write(isGlobal ? "Global" : "Local");
             writer.write(" sequence alignment: ");
             writer.write(description);
             writer.write("\n\n");
             writer.write(toString());
-        } catch (IOException e) {
-            // TODO
-            e.printStackTrace();
         }
     }
 
@@ -113,9 +108,8 @@ public class OutputAlignSeq implements Exportable, Serializable {
 
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("Score: %d (min: %d, max: %d)%n"
-                + "Similarity: %.0f%%%nGaps: %d/%d (%.0f%%)%n%n", score,
-                minScore, maxScore, 100.0 * similarity, gaps, length, 100.0
-                        * gaps / length));
+                + "Similarity: %.0f%%%nGaps: %d/%d (%.0f%%)%n%n", score, minScore, maxScore,
+                100.0 * similarity, gaps, length, 100.0 * gaps / length));
 
         for (int i = 0; i < charsQuery.length; i += 60) {
             builder.append(String.format("Query  %-5d", i + 1));
