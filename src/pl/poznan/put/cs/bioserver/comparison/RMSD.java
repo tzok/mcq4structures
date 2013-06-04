@@ -47,7 +47,7 @@ public class RMSD extends GlobalComparison {
         List<Structure> list = new ArrayList<>();
         for (String arg : args) {
             try {
-                list.add(StructureManager.loadStructure(new File(arg))[0]);
+                list.add(StructureManager.loadStructure(new File(arg)).get(0));
             } catch (IOException e) {
                 System.out.println("ERROR");
                 e.printStackTrace();
@@ -55,7 +55,7 @@ public class RMSD extends GlobalComparison {
         }
 
         RMSD rmsd = new RMSD();
-        double[][] compare = rmsd.compare(list.toArray(new Structure[list.size()]), null);
+        double[][] compare = rmsd.compare(list, null);
         System.out.println("OK");
         for (double[] element : compare) {
             System.out.println(Arrays.toString(element));

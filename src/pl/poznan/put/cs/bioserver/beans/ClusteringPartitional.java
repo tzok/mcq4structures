@@ -1,5 +1,7 @@
 package pl.poznan.put.cs.bioserver.beans;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -8,6 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Point;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
@@ -21,57 +24,59 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
 
     public static ClusteringPartitional newInstance(ComparisonGlobal comparison, Result clustering) {
         double[][] mds = MDS.multidimensionalScaling(comparison.getDistanceMatrix(), 2);
-        Map<Integer, Set<Integer>> clusters = clustering.getClusterAssignment();
+        Map<Integer, Set<Integer>> clusterMap = clustering.getClusterAssignment();
 
-        Point[] medoids = new Point[clusters.size()];
-        int i = 0;
-        for (int index : clusters.keySet()) {
-            medoids[i] = new Point();
-            medoids[i].setX(mds[index][0]);
-            medoids[i].setY(mds[index][1]);
-            i++;
+        List<Point> medoids = new ArrayList<>();
+        for (int index : clusterMap.keySet()) {
+            Point medoid = new Point();
+            medoid.setX(mds[index][0]);
+            medoid.setY(mds[index][1]);
+            medoids.add(medoid);
         }
 
-        Point[][] points = new Point[clusters.size()][];
-        String[] labels = new String[clusters.size()];
-        i = 0;
-        for (Entry<Integer, Set<Integer>> entry : clusters.entrySet()) {
-            points[i] = new Point[entry.getValue().size()];
+        List<Cluster> clusters = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        List<String> labelsAll = comparison.getLabels();
+        for (Entry<Integer, Set<Integer>> entry : clusterMap.entrySet()) {
+            List<Point> points = new ArrayList<>();
             StringBuilder builder = new StringBuilder();
-
-            int j = 0;
             for (int index : entry.getValue()) {
-                String[] labelsAll = comparison.getLabels();
-                builder.append(labelsAll[index]);
+                builder.append(labelsAll.get(index));
                 builder.append(", ");
 
-                points[i][j] = new Point();
-                points[i][j].setX(mds[index][0]);
-                points[i][j].setY(mds[index][1]);
-                j++;
+                Point point = new Point();
+                point.setX(mds[index][0]);
+                point.setY(mds[index][1]);
+                points.add(point);
             }
             builder.delete(builder.length() - 2, builder.length());
-            labels[i] = builder.toString();
-            i++;
+            labels.add(builder.toString());
+
+            Cluster cluster = new Cluster();
+            cluster.setPoints(points);
+            clusters.add(cluster);
         }
 
         ClusteringPartitional instance = new ClusteringPartitional();
         instance.comparison = comparison;
         instance.labels = labels;
         instance.medoids = medoids;
-        instance.points = points;
+        instance.clusters = clusters;
         instance.colors = Colors.toRGB();
         return instance;
     }
 
     ComparisonGlobal comparison;
-    Point[][] points;
-    Point[] medoids;
-    String[] labels;
+    List<Cluster> clusters;
+    List<Point> medoids;
+    List<String> labels;
+    List<RGB> colors;
 
-    RGB[] colors;
+    public List<Cluster> getClusters() {
+        return clusters;
+    }
 
-    public RGB[] getColors() {
+    public List<RGB> getColors() {
         return colors;
     }
 
@@ -79,21 +84,23 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         return comparison;
     }
 
-    public String[] getLabels() {
+    public List<String> getLabels() {
         return labels;
     }
 
-    public Point[] getMedoids() {
+    public List<Point> getMedoids() {
         return medoids;
     }
 
-    public Point[][] getPoints() {
-        return points;
+    @XmlElementWrapper(name = "cluster")
+    @XmlElement(name = "points")
+    public void setClusters(List<Cluster> clusters) {
+        this.clusters = clusters;
     }
 
     @XmlElementWrapper(name = "colors")
     @XmlElement(name = "item")
-    public void setColors(RGB[] colors) {
+    public void setColors(List<RGB> colors) {
         this.colors = colors;
     }
 
@@ -104,31 +111,24 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
 
     @XmlElementWrapper(name = "labels")
     @XmlElement(name = "item")
-    public void setLabels(String[] labels) {
+    public void setLabels(List<String> labels) {
         this.labels = labels;
     }
 
     @XmlElementWrapper(name = "medoids")
     @XmlElement(name = "item")
-    public void setMedoids(Point[] medoids) {
+    public void setMedoids(List<Point> medoids) {
         this.medoids = medoids;
-    }
-
-    @XmlElementWrapper(name = "cluster")
-    @XmlElement(name = "points")
-    public void setPoints(Point[][] points) {
-        this.points = points;
     }
 
     @Override
     public void visualize() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void visualizeHighQuality() {
         // TODO Auto-generated method stub
-
     }
+
 }

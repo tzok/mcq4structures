@@ -33,7 +33,7 @@ public class Colorbar extends JPanel {
         super.paintComponent(g);
 
         Dimension size = getSize();
-        int width = size.width / local.getTicks().length;
+        int width = size.width / local.getTicks().size();
         int height = size.height;
 
         Map<String, Angle> angles = local.getAngles();

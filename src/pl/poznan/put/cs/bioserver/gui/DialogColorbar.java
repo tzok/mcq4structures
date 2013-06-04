@@ -55,7 +55,7 @@ public class DialogColorbar extends JDialog {
 
         FontMetrics metrics = FontDesignMetrics.getMetrics(UIManager.getFont("Label.font"));
         ComparisonLocal any = results.get(0);
-        int n = any.getTicks().length;
+        int n = any.getTicks().size();
 
         int width = n * 8 + metrics.stringWidth(any.getTitle()) + 16;
         if (width >= screenSize.width) {

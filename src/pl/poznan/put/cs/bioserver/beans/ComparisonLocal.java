@@ -10,7 +10,7 @@ import java.net.URL;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,19 +79,17 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
                 title, angleNames);
     }
 
-    public static ComparisonLocal newInstance(Structure[] structures, Chain[][] chains,
-            Collection<String> angleNames) throws StructureException {
-        Structure[] s = new Structure[2];
-        for (int i = 0; i < 2; i++) {
-            s[i] = new StructureImpl();
-            s[i].setChains(Arrays.asList(chains[i]));
-        }
+    public static ComparisonLocal newInstance(Structure left, Structure right,
+            List<Chain> leftChains, List<Chain> rightChains, List<String> angleNames)
+            throws StructureException {
+        Structure l = new StructureImpl();
+        l.setChains(leftChains);
+        Structure r = new StructureImpl();
+        r.setChains(rightChains);
 
-        String[] names = StructureManager.getNames(structures);
-        String title = names[0] + ", " + names[1];
-
-        return ComparisonLocal.newInstance(TorsionLocalComparison.compare(s[0], s[1], angleNames),
-                title, angleNames);
+        String title = StructureManager.getName(left) + ", " + StructureManager.getName(right);
+        return ComparisonLocal.newInstance(TorsionLocalComparison.compare(l, r, angleNames), title,
+                angleNames);
     }
 
     private static ComparisonLocal newInstance(Map<String, List<AngleDifference>> comparison,
@@ -137,7 +135,6 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
          * read map data into desired format
          */
         Map<String, Angle> angles = new LinkedHashMap<>();
-        int i = 0;
         for (String angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
                 continue;
@@ -154,14 +151,11 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             angle.setName(angleName);
             angle.setDeltas(deltas);
             angles.put(angleName, angle);
-            i++;
         }
 
-        String[] ticks = new String[setResidue.size()];
-        i = 0;
+        List<String> ticks = new ArrayList<>();
         for (ResidueNumber residue : setResidue) {
-            ticks[i] = String.format("%s:%03d", residue.getChainId(), residue.getSeqNum());
-            i++;
+            ticks.add(String.format("%s:%03d", residue.getChainId(), residue.getSeqNum()));
         }
 
         ComparisonLocal result = new ComparisonLocal();
@@ -173,11 +167,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
     }
 
     Map<String, Angle> angles;
-
-    String[] ticks;
-
-    RGB[] colors;
-
+    List<String> ticks;
+    List<RGB> colors;
     String title;
 
     @Override
@@ -185,15 +176,15 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
             csvWriter.write("");
-            Angle[] angleArray = getAngleArray();
+            List<Angle> angleArray = getAnglesList();
             for (Angle angle : angleArray) {
                 csvWriter.write(angle.getName());
             }
             csvWriter.endRecord();
 
             for (int i = 0; i < angles.size(); i++) {
-                csvWriter.write(ticks[i]);
-                double[] deltas = angleArray[i].getDeltas();
+                csvWriter.write(ticks.get(i));
+                double[] deltas = angleArray.get(i).getDeltas();
                 for (int j = 0; j < deltas.length - 1; j++) {
                     csvWriter.write(Double.toString(deltas[j]));
                 }
@@ -202,25 +193,19 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         }
     }
 
-    public Angle[] getAngleArray() {
-        Angle[] angleArray = new Angle[angles.size()];
-        int i = 0;
-        for (Entry<String, Angle> entry : angles.entrySet()) {
-            angleArray[i] = entry.getValue();
-            i++;
-        }
-        return angleArray;
-    }
-
     public Map<String, Angle> getAngles() {
         return angles;
     }
 
-    public RGB[] getColors() {
+    public List<Angle> getAnglesList() {
+        return new ArrayList<>(angles.values());
+    }
+
+    public List<RGB> getColors() {
         return colors;
     }
 
-    public String[] getTicks() {
+    public List<String> getTicks() {
         return ticks;
     }
 
@@ -234,13 +219,13 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
 
     @XmlElementWrapper(name = "colors")
     @XmlElement(name = "item")
-    public void setColors(RGB[] colors) {
+    public void setColors(List<RGB> colors) {
         this.colors = colors;
     }
 
     @XmlElementWrapper(name = "ticks")
     @XmlElement(name = "item")
-    public void setTicks(String[] ticks) {
+    public void setTicks(List<String> ticks) {
         this.ticks = ticks;
     }
 
@@ -260,25 +245,25 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
 
     @Override
     public void visualize() {
-        double[] x = new double[ticks.length];
-        for (int i = 0; i < ticks.length; i++) {
+        double[] x = new double[ticks.size()];
+        for (int i = 0; i < ticks.size(); i++) {
             x[i] = i;
         }
 
-        Angle[] angleArray = getAngleArray();
-        double[][] y = new double[angleArray.length][];
-        for (int i = 0; i < angleArray.length; i++) {
-            y[i] = new double[ticks.length];
-            for (int j = 0; j < ticks.length; j++) {
-                y[i][j] = angleArray[i].getDeltas()[j];
+        List<Angle> angleArray = getAnglesList();
+        double[][] y = new double[angleArray.size()][];
+        for (int i = 0; i < angleArray.size(); i++) {
+            y[i] = new double[ticks.size()];
+            for (int j = 0; j < ticks.size(); j++) {
+                y[i][j] = angleArray.get(i).getDeltas()[j];
             }
         }
 
         DefaultXYDataset dataset = new DefaultXYDataset();
         DefaultXYItemRenderer renderer = new DefaultXYItemRenderer();
         for (int i = 0; i < y.length; i++) {
-            dataset.addSeries(angleArray[i].getName(), new double[][] { x, y[i] });
-            renderer.setSeriesPaint(i, Colors.ALL[i + 1]);
+            dataset.addSeries(angleArray.get(i).getName(), new double[][] { x, y[i] });
+            renderer.setSeriesPaint(i, Colors.ALL.get(i + 1));
         }
 
         NumberAxis xAxis = new TorsionAxis(ticks);

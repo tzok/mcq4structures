@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
     private static final long serialVersionUID = -6549267536864184480L;
 
     public static ComparisonLocalMulti newInstance(List<Chain> chains, Chain reference,
-            Collection<String> angleNames) throws StructureException {
+            List<String> angleNames) throws StructureException {
         List<ComparisonLocal> list = new ArrayList<>();
         for (Chain chain : chains) {
             if (reference.equals(chain)) {
@@ -68,9 +67,9 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
             csvWriter.endRecord();
 
             if (results.size() > 0) {
-                String[] ticks = results.get(0).getTicks();
-                for (int i = 0; i < ticks.length; i++) {
-                    csvWriter.write(ticks[i]);
+                List<String> ticks = results.get(0).getTicks();
+                for (int i = 0; i < ticks.size(); i++) {
+                    csvWriter.write(ticks.get(i));
                     for (int j = 0; j < results.size(); j++) {
                         csvWriter.write(Double.toString(deltas[j][i]));
                     }

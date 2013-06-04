@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
@@ -94,7 +95,7 @@ final class DialogChains extends JDialog {
             });
         }
 
-        public Chain[] getSelectedChains() {
+        public List<Chain> getSelectedChains() {
             Structure structure = (Structure) combo.getSelectedItem();
             if (structure == null) {
                 return null;
@@ -114,7 +115,7 @@ final class DialogChains extends JDialog {
                     }
                 }
             }
-            return list.toArray(new Chain[list.size()]);
+            return list;
         }
     }
 
@@ -132,10 +133,12 @@ final class DialogChains extends JDialog {
     }
 
     private int chosenOption;
-    private Structure[] structures;
-    private Chain[][] chains;
-
-    private PanelChains[] panelsChains = new PanelChains[] { new PanelChains(), new PanelChains() };
+    private Structure structureLeft;
+    private Structure structureRight;
+    private List<Chain> chainsLeft;
+    private List<Chain> chainsRight;
+    private PanelChains panelsChainsLeft = new PanelChains();
+    private PanelChains panelsChainsRight = new PanelChains();
 
     private DialogChains(Frame owner) {
         super(owner, true);
@@ -146,8 +149,8 @@ final class DialogChains extends JDialog {
         JButton buttonCancel = new JButton("Cancel");
 
         JPanel panel = new JPanel(new GridLayout(1, 2));
-        panel.add(panelsChains[0]);
-        panel.add(panelsChains[1]);
+        panel.add(panelsChainsLeft);
+        panel.add(panelsChainsRight);
         add(panel, BorderLayout.CENTER);
 
         panel = new JPanel();
@@ -166,19 +169,17 @@ final class DialogChains extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                structures = new Structure[2];
-                structures[0] = (Structure) panelsChains[0].combo.getSelectedItem();
-                structures[1] = (Structure) panelsChains[1].combo.getSelectedItem();
-                if (structures[0] == null || structures[1] == null) {
+                structureLeft = (Structure) panelsChainsLeft.combo.getSelectedItem();
+                structureRight = (Structure) panelsChainsRight.combo.getSelectedItem();
+                if (structureLeft == null || structureRight == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();
                     return;
                 }
 
-                chains = new Chain[2][];
-                chains[0] = panelsChains[0].getSelectedChains();
-                chains[1] = panelsChains[1].getSelectedChains();
-                if (chains[0] == null || chains[1] == null) {
+                chainsLeft = panelsChainsLeft.getSelectedChains();
+                chainsRight = panelsChainsRight.getSelectedChains();
+                if (chainsLeft == null || chainsRight == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();
                     return;
@@ -198,35 +199,36 @@ final class DialogChains extends JDialog {
         });
     }
 
-    public Chain[][] getChains() {
-        return chains;
+    public Pair<List<Chain>, List<Chain>> getChains() {
+        return Pair.of(chainsLeft, chainsRight);
     }
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 2; i++) {
-            builder.append(StructureManager.getName(structures[i]));
-            builder.append('.');
-            for (Chain chain : chains[i]) {
-                builder.append(chain.getChainID());
-            }
-            if (i == 0) {
-                builder.append(", ");
-            }
+        builder.append(StructureManager.getName(structureLeft));
+        builder.append('.');
+        for (Chain chain : chainsLeft) {
+            builder.append(chain.getChainID());
+        }
+        builder.append(", ");
+        builder.append(StructureManager.getName(structureRight));
+        builder.append('.');
+        for (Chain chain : chainsRight) {
+            builder.append(chain.getChainID());
         }
         return builder.toString();
     }
 
-    public Structure[] getStructures() {
-        return structures;
+    public Pair<Structure, Structure> getStructures() {
+        return Pair.of(structureLeft, structureRight);
     }
 
     public int showDialog() {
-        panelsChains[0].model.removeAllElements();
-        panelsChains[1].model.removeAllElements();
+        panelsChainsLeft.model.removeAllElements();
+        panelsChainsRight.model.removeAllElements();
         for (Structure structure : StructureManager.getAllStructures()) {
-            panelsChains[0].model.addElement(structure);
-            panelsChains[1].model.addElement(structure);
+            panelsChainsLeft.model.addElement(structure);
+            panelsChainsRight.model.addElement(structure);
         }
 
         chosenOption = DialogChains.CANCEL;

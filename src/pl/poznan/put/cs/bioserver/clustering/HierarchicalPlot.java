@@ -22,7 +22,8 @@ import org.jfree.data.xy.DefaultXYDataset;
 public class HierarchicalPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private static String generateLabel(List<List<Integer>> ids, int[] pair, String[] labels) {
+    private static String generateLabel(List<List<Integer>> ids, int[] pair,
+            List<String> structureNames) {
         List<Integer> a = ids.get(pair[0]);
         List<Integer> b = ids.get(pair[1]);
 
@@ -32,7 +33,7 @@ public class HierarchicalPlot extends JFrame {
         StringWriter writer = new StringWriter();
         writer.append("[ ");
         for (int i : a) {
-            writer.append(labels[i]);
+            writer.append(structureNames.get(i));
             writer.append(", ");
         }
         writer.append(" ]");
@@ -47,12 +48,12 @@ public class HierarchicalPlot extends JFrame {
      * 
      * @param distance
      *            A distance matrix, NxN.
-     * @param labels
+     * @param structureNames
      *            An array of labels, N.
      * @param linkage
      *            Linkage type @see Clusterer.Type;
      */
-    public HierarchicalPlot(double[][] distance, String[] labels, int linkage) {
+    public HierarchicalPlot(double[][] distance, List<String> structureNames, int linkage) {
         int[][] clustering = Clusterer.hierarchicalClustering(distance,
                 Clusterer.Type.values()[linkage]);
         List<Integer> allocation = Clusterer.getClusters().get(0);
@@ -73,7 +74,7 @@ public class HierarchicalPlot extends JFrame {
             double[] b = clusters.get(mergedPair[1]);
             y = Math.max(a[1], b[1]) + mergedPair[2];
 
-            String label = HierarchicalPlot.generateLabel(ids, mergedPair, labels);
+            String label = HierarchicalPlot.generateLabel(ids, mergedPair, structureNames);
             double[][] points = new double[][] { { a[0], a[0], b[0], b[0] }, { a[1], y, y, b[1] } };
             dataset.addSeries(label, points);
 
@@ -86,7 +87,7 @@ public class HierarchicalPlot extends JFrame {
         xAxis.setTickLabelsVisible(false);
         xAxis.setTickMarksVisible(false);
         xAxis.setAutoRange(false);
-        xAxis.setRange(-1, labels.length);
+        xAxis.setRange(-1, structureNames.size());
         NumberAxis yAxis = new NumberAxis();
         yAxis.setTickLabelsVisible(false);
         yAxis.setTickMarksVisible(false);

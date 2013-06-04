@@ -107,8 +107,8 @@ public final class DialogManager extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
-                Structure[] models = StructureManager.loadStructure(pdbId);
-                File path = StructureManager.getFile(models[0]);
+                List<Structure> models = StructureManager.loadStructure(pdbId);
+                File path = StructureManager.getFile(models.get(0));
                 if (path != null) {
                     model.addElement(path);
                 } else {

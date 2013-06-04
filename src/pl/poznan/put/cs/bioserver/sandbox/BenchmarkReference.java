@@ -28,11 +28,11 @@ public class BenchmarkReference {
 
     public static void main(String[] args) {
         List<File> pdbs = BenchmarkReference.list(new File("/home/tzok/pdb/puzzles/"));
-        Structure[] structures = new Structure[pdbs.size()];
+        List<Structure> structures = new ArrayList<>();
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {
             try {
-                structures[i] = reader.getStructure(pdbs.get(i));
+                structures.add(reader.getStructure(pdbs.get(i)));
             } catch (IOException e) {
                 e.printStackTrace();
             }

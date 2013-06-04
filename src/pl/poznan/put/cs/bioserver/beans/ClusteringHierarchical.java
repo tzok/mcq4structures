@@ -18,7 +18,6 @@ public class ClusteringHierarchical extends XMLSerializable implements Visualiza
     }
 
     ComparisonGlobal comparison;
-
     Method method;
 
     public ComparisonGlobal getComparison() {
@@ -42,12 +41,10 @@ public class ClusteringHierarchical extends XMLSerializable implements Visualiza
     @Override
     public void visualize() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void visualizeHighQuality() {
         // TODO Auto-generated method stub
-
     }
 }

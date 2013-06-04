@@ -13,11 +13,11 @@ import org.jfree.ui.RectangleEdge;
 
 public class TorsionAxis extends NumberAxis {
     private static final long serialVersionUID = 1L;
-    private String[] ticksNames;
+    private List<String> ticksNames;
 
-    public TorsionAxis(String[] ticksNames) {
+    public TorsionAxis(List<String> ticks) {
         super();
-        this.ticksNames = ticksNames.clone();
+        ticksNames = ticks;
         setTickLabelFont(new Font(Font.DIALOG, Font.PLAIN, 8));
     }
 
@@ -38,8 +38,8 @@ public class TorsionAxis extends NumberAxis {
         for (int i = 0; i < visibleIntegerTicks.size(); i++) {
             NumberTick nt = visibleIntegerTicks.get(i);
             int index = (int) nt.getValue();
-            if (index < ticksNames.length) {
-                result.add(new NumberTick(index, ticksNames[index], nt.getTextAnchor(), nt
+            if (index < ticksNames.size()) {
+                result.add(new NumberTick(index, ticksNames.get(index), nt.getTextAnchor(), nt
                         .getRotationAnchor(), Math.PI / 4));
             }
         }

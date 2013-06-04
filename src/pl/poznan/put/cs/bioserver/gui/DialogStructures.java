@@ -48,7 +48,7 @@ final class DialogStructures extends JDialog {
     private int chosenOption;
     private DefaultListModel<Structure> modelAll;
     private DefaultListModel<Structure> modelSelected;
-    private Structure[] selectedStructures;
+    private List<Structure> selectedStructures;
 
     private DialogStructures(Frame owner) {
         super(owner, true);
@@ -189,9 +189,7 @@ final class DialogStructures extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<Structure> list = Collections.list(modelSelected.elements());
-                selectedStructures = list.toArray(new Structure[list.size()]);
-
+                selectedStructures = Collections.list(modelSelected.elements());
                 chosenOption = DialogStructures.OK;
                 dispose();
             }
@@ -208,16 +206,14 @@ final class DialogStructures extends JDialog {
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < selectedStructures.length; i++) {
-            builder.append(StructureManager.getName(selectedStructures[i]));
-            if (i != selectedStructures.length - 1) {
-                builder.append(", ");
-            }
+        for (Structure s : selectedStructures) {
+            builder.append(StructureManager.getName(s));
         }
+        builder.delete(builder.length() - 2, builder.length());
         return builder.toString();
     }
 
-    public Structure[] getStructures() {
+    public List<Structure> getStructures() {
         return selectedStructures;
     }
 

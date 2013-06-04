@@ -91,7 +91,7 @@ public class MCQ extends GlobalComparison {
         List<Structure> list = new ArrayList<>();
         for (String arg : args) {
             try {
-                list.add(StructureManager.loadStructure(new File(arg))[0]);
+                list.add(StructureManager.loadStructure(new File(arg)).get(0));
             } catch (IOException e) {
                 System.out.println("ERROR");
                 e.printStackTrace();
@@ -99,7 +99,7 @@ public class MCQ extends GlobalComparison {
         }
 
         MCQ mcq = new MCQ();
-        double[][] compare = mcq.compare(list.toArray(new Structure[list.size()]), null);
+        double[][] compare = mcq.compare(list, null);
         System.out.println("OK");
         for (int i = 0; i < compare.length; i++) {
             for (int j = i + 1; j < compare.length; j++) {

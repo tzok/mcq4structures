@@ -28,11 +28,11 @@ public class BenchmarkTime {
     public static void main(String[] args) {
         List<File> pdbs = BenchmarkTime.list(new File("/home/tzok/pdb/puzzles/"));
         pdbs.addAll(BenchmarkTime.list(new File("/home/tzok/pdb/puzzles/")));
-        Structure[] structures = new Structure[pdbs.size()];
+        List<Structure> structures = new ArrayList<>();
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {
             try {
-                structures[i] = reader.getStructure(pdbs.get(i));
+                structures.add(reader.getStructure(pdbs.get(i)));
             } catch (IOException e) {
                 e.printStackTrace();
             }

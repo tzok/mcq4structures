@@ -78,6 +78,7 @@ public class AlignmentOutput implements Exportable {
         }
         return clone;
     }
+
     private AFPChain afpChain;
     private String description;
     private Structure structureLeft;

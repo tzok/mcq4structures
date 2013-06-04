@@ -47,10 +47,10 @@ public class Externals {
     public static void main(String[] args) throws ParserConfigurationException, IOException,
             StructureException, JAXBException, TransformerException {
         List<File> pdbs = Externals.list(new File("/home/tzok/pdb/puzzles/Challenge2/"));
-        Structure[] structures = new Structure[pdbs.size()];
+        List<Structure> structures = new ArrayList<>();
         for (int i = 0; i < pdbs.size(); i++) {
             try {
-                structures[i] = StructureManager.loadStructure(pdbs.get(i))[0];
+                structures.addAll(StructureManager.loadStructure(pdbs.get(i)));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -62,8 +62,8 @@ public class Externals {
         }
         ComparisonLocalMulti.newInstance(list, list.get(0), MCQ.USED_ANGLES_NAMES);
 
-        XMLSerializable xmlResults = ComparisonLocal.newInstance(structures[0].getChain(0),
-                structures[1].getChain(0), MCQ.USED_ANGLES_NAMES);
+        XMLSerializable xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0),
+                structures.get(1).getChain(0), MCQ.USED_ANGLES_NAMES);
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -78,9 +78,9 @@ public class Externals {
                 new File("/tmp/multi.pdf"), xmlResults, parameters);
 
         double[][] matrix = new MCQ().compare(structures, null);
-        String[] labels = new String[pdbs.size()];
-        for (int i = 0; i < structures.length; i++) {
-            labels[i] = StructureManager.getName(structures[i]);
+        List<String> labels = new ArrayList<>();
+        for (Structure s : structures) {
+            labels.add(StructureManager.getName(s));
         }
         ComparisonGlobal global = ComparisonGlobal.newInstance(matrix, labels, "MCQ");
 

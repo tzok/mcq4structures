@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.beans;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
@@ -24,7 +25,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         Visualizable {
     private static final long serialVersionUID = 5900586846338327108L;
 
-    public static ComparisonGlobal newInstance(double[][] distanceMatrix, String[] labels,
+    public static ComparisonGlobal newInstance(double[][] distanceMatrix, List<String> labels,
             String method) {
         ComparisonGlobal instance = new ComparisonGlobal();
         instance.setDistanceMatrix(distanceMatrix);
@@ -34,8 +35,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
     }
 
     double[][] distanceMatrix;
-    String[] labels;
-
+    List<String> labels;
     String method;
 
     @Override
@@ -67,7 +67,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
             csvWriter.endRecord();
 
             for (int i = 0; i < distanceMatrix.length; i++) {
-                csvWriter.write(labels[i]);
+                csvWriter.write(labels.get(i));
                 for (int j = 0; j < distanceMatrix[i].length; j++) {
                     csvWriter.write(Double.toString(distanceMatrix[i][j]));
                 }
@@ -80,7 +80,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         return distanceMatrix;
     }
 
-    public String[] getLabels() {
+    public List<String> getLabels() {
         return labels;
     }
 
@@ -96,7 +96,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
 
     @XmlElementWrapper(name = "labels")
     @XmlElement(name = "item")
-    public void setLabels(String[] labels) {
+    public void setLabels(List<String> labels) {
         this.labels = labels;
     }
 

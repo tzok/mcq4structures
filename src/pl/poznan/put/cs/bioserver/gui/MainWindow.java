@@ -45,6 +45,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
@@ -342,7 +343,7 @@ public class MainWindow extends JFrame {
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 Component component = defaultRenderer.getTableCellRendererComponent(table, value,
                         isSelected, hasFocus, row, column);
-                component.setBackground(Colors.ALL[column]);
+                component.setBackground(Colors.ALL.get(column));
                 return component;
             }
         };
@@ -554,20 +555,21 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        final Structure[] structures = dialogChains.getStructures();
-        Chain[][] chains = dialogChains.getChains();
-        for (int i = 0; i < 2; i++) {
-            structures[i] = new StructureImpl();
-            structures[i].setChains(Arrays.asList(chains[i]));
-            structures[i].setPDBCode(StructureManager.getName(chains[i][0].getParent()));
-        }
-
-        boolean isRNA = Helper.isNucleicAcid(structures[0]);
-        if (isRNA != Helper.isNucleicAcid(structures[1])) {
+        Pair<Structure, Structure> structures = dialogChains.getStructures();
+        boolean isRNA = Helper.isNucleicAcid(structures.getLeft());
+        if (isRNA != Helper.isNucleicAcid(structures.getRight())) {
             JOptionPane.showMessageDialog(this, "Cannot align structures: "
                     + "different molecular types", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
+        final Structure left = new StructureImpl();
+        left.setChains(chains.getLeft());
+        left.setPDBCode(StructureManager.getName(chains.getLeft().get(0).getParent()));
+        final Structure right = new StructureImpl();
+        right.setChains(chains.getRight());
+        right.setPDBCode(StructureManager.getName(chains.getRight().get(0).getParent()));
 
         panelJmolLeft.executeCmd("restore state state_init");
         panelJmolRight.executeCmd("restore state state_init");
@@ -594,9 +596,9 @@ public class MainWindow extends JFrame {
             @Override
             public void run() {
                 try {
-                    Helper.normalizeAtomNames(structures[0]);
-                    Helper.normalizeAtomNames(structures[1]);
-                    output = AlignerStructure.align(structures[0], structures[1],
+                    Helper.normalizeAtomNames(left);
+                    Helper.normalizeAtomNames(right);
+                    output = AlignerStructure.align(left, right,
                             dialogChains.getSelectionDescription());
                     exportable = output;
                 } catch (StructureException e1) {
@@ -674,8 +676,8 @@ public class MainWindow extends JFrame {
             }
         };
 
-        final Structure[] structures = dialogStructures.getStructures();
-        final String[] names = StructureManager.getNames(structures);
+        final List<Structure> structures = dialogStructures.getStructures();
+        final List<String> names = StructureManager.getNames(structures);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -772,18 +774,16 @@ public class MainWindow extends JFrame {
     }
 
     private void compareLocalPair() {
-        Structure[] structures = new Structure[2];
-        for (int i = 0; i < 2; i++) {
-            structures[i] = new StructureImpl();
-            structures[i].setChains(Arrays.asList(dialogChains.getChains()[i]));
-        }
+        Pair<Structure, Structure> structures = dialogChains.getStructures();
+        Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
 
         progressBar.setMaximum(1);
         progressBar.setValue(0);
         ComparisonLocal comparisonLocal;
         try {
-            comparisonLocal = ComparisonLocal.newInstance(dialogChains.getStructures(),
-                    dialogChains.getChains(), Arrays.asList(dialogAngles.getAngles()));
+            comparisonLocal = ComparisonLocal.newInstance(structures.getLeft(),
+                    structures.getRight(), chains.getLeft(), chains.getRight(),
+                    Arrays.asList(dialogAngles.getAngles()));
         } catch (StructureException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -821,16 +821,16 @@ public class MainWindow extends JFrame {
         if (dialogChains.showDialog() != DialogChains.OK) {
             return;
         }
-        Structure[] structures = dialogChains.getStructures();
-        Chain[][] chains = dialogChains.getChains();
-        for (int i = 0; i < 2; i++) {
-            if (chains[i].length == 0) {
-                String message = "No chains specified for structure: "
-                        + StructureManager.getName(structures[i]);
-                JOptionPane.showMessageDialog(MainWindow.this, message, "Information",
-                        JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
+
+        Pair<Structure, Structure> structures = dialogChains.getStructures();
+        Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
+        if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
+            String message = "No chains specified for structure: "
+                    + StructureManager.getName(structures.getLeft()) + " or "
+                    + StructureManager.getName(structures.getRight());
+            JOptionPane.showMessageDialog(MainWindow.this, message, "Information",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
         }
 
         if (source.equals(itemSelectStructuresCompare)) {
@@ -914,8 +914,8 @@ public class MainWindow extends JFrame {
         if (dialogStructures.showDialog() != DialogStructures.OK) {
             return;
         }
-        Structure[] structures = dialogStructures.getStructures();
-        if (structures == null || structures.length < 2) {
+        List<Structure> structures = dialogStructures.getStructures();
+        if (structures == null || structures.size() < 2) {
             JOptionPane.showMessageDialog(MainWindow.this, "At "
                     + "least two structures must be selected to " + "compute global distance",
                     "Information", JOptionPane.INFORMATION_MESSAGE);

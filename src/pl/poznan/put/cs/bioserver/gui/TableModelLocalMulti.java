@@ -23,8 +23,8 @@ public class TableModelLocalMulti extends AbstractTableModel {
         List<ComparisonLocal> results = localMulti.getResults();
         assert results.size() > 0;
 
-        String[] ticks = results.get(0).getTicks();
-        rowCount = ticks.length;
+        List<String> ticks = results.get(0).getTicks();
+        rowCount = ticks.size();
         columnCount = results.size() + 1;
 
         data = new Object[rowCount][columnCount];
@@ -33,7 +33,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
             if (i == 0) {
                 columns[0] = "Residue\\Structures";
                 for (int j = 0; j < rowCount; j++) {
-                    data[j][0] = ticks[j];
+                    data[j][0] = ticks.get(j);
                 }
                 continue;
             }
