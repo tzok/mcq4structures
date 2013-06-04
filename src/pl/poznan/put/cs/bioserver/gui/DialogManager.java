@@ -44,8 +44,7 @@ public final class DialogManager extends JDialog {
         super(parent);
 
         final JList<File> list = new JList<>(model);
-        list.setBorder(BorderFactory
-                .createTitledBorder("List of open structures"));
+        list.setBorder(BorderFactory.createTitledBorder("List of open structures"));
 
         JButton buttonOpen = new JButton("Open structure(s)");
         JButton buttonRemove = new JButton("Close selected structure(s)");
@@ -70,8 +69,7 @@ public final class DialogManager extends JDialog {
         add(panelFetch, BorderLayout.SOUTH);
         getRootPane().setDefaultButton(buttonFetch);
 
-        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId
-                .getPreferredSize().height));
+        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId.getPreferredSize().height));
 
         int width = 480;
         int height = 480;
@@ -109,15 +107,13 @@ public final class DialogManager extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
-                Structure[] models = StructureManager.loadStructure(pdbId);
-                File path = StructureManager.getFile(models[0]);
+                List<Structure> models = StructureManager.loadStructure(pdbId);
+                File path = StructureManager.getFile(models.get(0));
                 if (path != null) {
                     model.addElement(path);
                 } else {
-                    JOptionPane.showMessageDialog(DialogManager.this,
-                            "Failed to download " + pdbId
-                                    + " from the Protein Data Bank", "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(DialogManager.this, "Failed to download " + pdbId
+                            + " from the Protein Data Bank", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -133,9 +129,8 @@ public final class DialogManager extends JDialog {
                 model.addElement(file);
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(DialogManager.instance,
-                    e.getMessage(), "Error: " + e.getClass(),
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(DialogManager.instance, e.getMessage(),
+                    "Error: " + e.getClass(), JOptionPane.ERROR_MESSAGE);
         }
     }
 }

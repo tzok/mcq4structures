@@ -11,28 +11,6 @@ import org.biojava.bio.structure.io.PDBFileReader;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
 public class BenchmarkTime {
-    public static void main(String[] args) {
-        List<File> pdbs = BenchmarkTime
-                .list(new File("/home/tzok/pdb/puzzles/"));
-        pdbs.addAll(BenchmarkTime.list(new File("/home/tzok/pdb/puzzles/")));
-        Structure[] structures = new Structure[pdbs.size()];
-        PDBFileReader reader = new PDBFileReader();
-        for (int i = 0; i < pdbs.size(); i++) {
-            try {
-                structures[i] = reader.getStructure(pdbs.get(i));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (int i = 0; i < 5; i++) {
-            long start = System.currentTimeMillis();
-            new MCQ().compare(structures, null);
-            System.out.println("Time: " + (System.currentTimeMillis() - start)
-                    + " ms");
-        }
-    }
-
     public static List<File> list(File directory) {
         List<File> list = new ArrayList<>();
         for (File file : directory.listFiles()) {
@@ -45,6 +23,26 @@ public class BenchmarkTime {
             }
         }
         return list;
+    }
+
+    public static void main(String[] args) {
+        List<File> pdbs = BenchmarkTime.list(new File("/home/tzok/pdb/puzzles/"));
+        pdbs.addAll(BenchmarkTime.list(new File("/home/tzok/pdb/puzzles/")));
+        List<Structure> structures = new ArrayList<>();
+        PDBFileReader reader = new PDBFileReader();
+        for (int i = 0; i < pdbs.size(); i++) {
+            try {
+                structures.add(reader.getStructure(pdbs.get(i)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (int i = 0; i < 5; i++) {
+            long start = System.currentTimeMillis();
+            new MCQ().compare(structures, null);
+            System.out.println("Time: " + (System.currentTimeMillis() - start) + " ms");
+        }
     }
 
 }

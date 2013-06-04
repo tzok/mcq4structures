@@ -2,6 +2,8 @@ package pl.poznan.put.cs.bioserver.torsion;
 
 import org.biojava.bio.structure.Group;
 
+import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
+
 /**
  * A set of methods that every type of angle has to implement.
  * 
@@ -19,7 +21,7 @@ public interface AngleType {
      *            Residue containing this angle.
      * @return An array of Strings with names of atom, size 4.
      */
-    String[] getAtomNames(Group residue);
+    UniTypeQuadruplet<String> getAtomNames(Group residue);
 
     /**
      * A group rule is a 4-tuple of integers which represents relation between
@@ -27,5 +29,5 @@ public interface AngleType {
      * 
      * @return An array of integers, size 4.
      */
-    int[] getGroupRule();
+    UniTypeQuadruplet<Integer> getGroupRule();
 }

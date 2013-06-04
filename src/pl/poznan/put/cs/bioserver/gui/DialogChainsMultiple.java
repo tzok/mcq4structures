@@ -43,6 +43,14 @@ final class DialogChainsMultiple extends JDialog {
         private List<Chain> listRNAs = new ArrayList<>();
         private List<Chain> listProteins = new ArrayList<>();
 
+        public void addElement(Chain f) {
+            if (Helper.isNucleicAcid(f)) {
+                listRNAs.add(f);
+            } else {
+                listProteins.add(f);
+            }
+        }
+
         @Override
         public Chain getElementAt(int index) {
             if (isRNA) {
@@ -52,12 +60,6 @@ final class DialogChainsMultiple extends JDialog {
                 return listProteins.get(index - listRNAs.size());
             }
             return listProteins.get(index);
-        }
-
-        @Override
-        public int getSize() {
-            return (isRNA ? listRNAs.size() : 0)
-                    + (isProtein ? listProteins.size() : 0);
         }
 
         public ArrayList<Chain> getElements() {
@@ -78,19 +80,16 @@ final class DialogChainsMultiple extends JDialog {
             return list;
         }
 
+        @Override
+        public int getSize() {
+            return (isRNA ? listRNAs.size() : 0) + (isProtein ? listProteins.size() : 0);
+        }
+
         public void removeElement(Chain f) {
             if (listRNAs.contains(f)) {
                 listRNAs.remove(f);
             } else {
                 listProteins.remove(f);
-            }
-        }
-
-        public void addElement(Chain f) {
-            if (Helper.isNucleicAcid(f)) {
-                listRNAs.add(f);
-            } else {
-                listProteins.add(f);
             }
         }
     }
@@ -111,7 +110,7 @@ final class DialogChainsMultiple extends JDialog {
     private int chosenOption;
     private FilteredListModel modelAll;
     private FilteredListModel modelSelected;
-    private Chain[] selectedChains;
+    private List<Chain> selectedChains;
     private JList<Chain> listAll;
     private JList<Chain> listSelected;
 
@@ -123,29 +122,25 @@ final class DialogChainsMultiple extends JDialog {
         listAll.setBorder(BorderFactory.createTitledBorder("Available chains"));
         modelSelected = new FilteredListModel();
         listSelected = new JList<>(modelSelected);
-        listSelected.setBorder(BorderFactory
-                .createTitledBorder("Selected chains"));
+        listSelected.setBorder(BorderFactory.createTitledBorder("Selected chains"));
 
-        final ListCellRenderer<? super Chain> renderer = listAll
-                .getCellRenderer();
+        final ListCellRenderer<? super Chain> renderer = listAll.getCellRenderer();
         ListCellRenderer<Chain> pdbCellRenderer = new ListCellRenderer<Chain>() {
             @Override
-            public Component getListCellRendererComponent(
-                    JList<? extends Chain> list, Chain value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) renderer.getListCellRendererComponent(
-                        list, value, index, isSelected, cellHasFocus);
+            public Component getListCellRendererComponent(JList<? extends Chain> list, Chain value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index,
+                        isSelected, cellHasFocus);
 
                 boolean isRNA = Helper.isNucleicAcid(value);
                 int size = 0;
                 for (Group group : value.getAtomGroups()) {
-                    size += isRNA ? (Helper.isNucleotide(group) ? 1 : 0)
-                            : (Helper.isAminoAcid(group) ? 1 : 0);
+                    size += isRNA ? Helper.isNucleotide(group) ? 1 : 0
+                            : Helper.isAminoAcid(group) ? 1 : 0;
                 }
 
-                String text = String.format("%s.%s (%s, %d %s)",
-                        StructureManager.getName(value.getParent()),
-                        value.getChainID(), isRNA ? "RNA" : "protein", size,
+                String text = String.format("%s.%s (%s, %d %s)", StructureManager.getName(value
+                        .getParent()), value.getChainID(), isRNA ? "RNA" : "protein", size,
                         isRNA ? "nt" : "aa");
                 label.setText(text);
                 label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
@@ -227,8 +222,7 @@ final class DialogChainsMultiple extends JDialog {
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
-                ListSelectionModel source = (ListSelectionModel) arg0
-                        .getSource();
+                ListSelectionModel source = (ListSelectionModel) arg0.getSource();
                 if (source.equals(listAll.getSelectionModel())) {
                     buttonSelect.setEnabled(!listAll.isSelectionEmpty());
                 } else { // source.equals(listSelected)
@@ -236,10 +230,8 @@ final class DialogChainsMultiple extends JDialog {
                 }
             }
         };
-        listAll.getSelectionModel().addListSelectionListener(
-                listSelectionListener);
-        listSelected.getSelectionModel().addListSelectionListener(
-                listSelectionListener);
+        listAll.getSelectionModel().addListSelectionListener(listSelectionListener);
+        listSelected.getSelectionModel().addListSelectionListener(listSelectionListener);
 
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
@@ -284,9 +276,7 @@ final class DialogChainsMultiple extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<Chain> list = modelSelected.getSelectedElements();
-                selectedChains = list.toArray(new Chain[list.size()]);
-
+                selectedChains = modelSelected.getSelectedElements();
                 chosenOption = DialogChainsMultiple.OK;
                 dispose();
             }
@@ -318,8 +308,20 @@ final class DialogChainsMultiple extends JDialog {
         checkProtein.addActionListener(checkBoxListener);
     }
 
-    public Chain[] getChains() {
+    public List<Chain> getChains() {
         return selectedChains;
+    }
+
+    public String getSelectionDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (Chain c : selectedChains) {
+            builder.append(StructureManager.getName(c.getParent()));
+            builder.append('.');
+            builder.append(c.getChainID());
+            builder.append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length());
+        return builder.toString();
     }
 
     public int showDialog() {

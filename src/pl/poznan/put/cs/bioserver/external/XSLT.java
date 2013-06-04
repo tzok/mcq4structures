@@ -29,23 +29,21 @@ import org.w3c.dom.Document;
 public class XSLT {
     private static final Logger LOGGER = LoggerFactory.getLogger(XSLT.class);
 
-    public static void printDocument(Document doc, OutputStream out)
-            throws IOException, TransformerException {
+    public static void printDocument(Document doc, OutputStream out) throws IOException,
+            TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        transformer.setOutputProperty(
-                "{http://xml.apache.org/xslt}indent-amount", "4");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-        transformer.transform(new DOMSource(doc), new StreamResult(
-                new OutputStreamWriter(out, "UTF-8")));
+        transformer.transform(new DOMSource(doc), new StreamResult(new OutputStreamWriter(out,
+                "UTF-8")));
     }
 
-    public static String transform(Source stylesheet, Source xml,
-            Map<String, Object> parameters) {
+    public static String transform(Source stylesheet, Source xml, Map<String, Object> parameters) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             Result result = new StreamResult(new OutputStreamWriter(stream,
@@ -61,17 +59,17 @@ public class XSLT {
             transformer.transform(xml, result);
 
             return new String(stream.toString("UTF-8"));
-        } catch (UnsupportedEncodingException
-                | TransformerFactoryConfigurationError | TransformerException e) {
+        } catch (UnsupportedEncodingException | TransformerFactoryConfigurationError
+                | TransformerException e) {
             XSLT.LOGGER.error("Failed to transform data via XSLT processor", e);
             return null;
         }
     }
 
-    public static String transform(URL resource, Source xml,
-            Map<String, Object> parameters) throws IOException {
+    public static String transform(URL resource, Source xml, Map<String, Object> parameters)
+            throws IOException {
         try (InputStream stream = resource.openStream()) {
-            return transform(new StreamSource(stream), xml, parameters);
+            return XSLT.transform(new StreamSource(stream), xml, parameters);
         }
     }
 

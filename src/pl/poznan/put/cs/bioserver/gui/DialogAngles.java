@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -18,23 +19,27 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import pl.poznan.put.cs.bioserver.helper.Constants;
+
 final class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
-    private static final String[] AMINO_NAMES = new String[] { "Φ (phi)",
-            "Ψ (psi)", "Ω (omega)", "χ1 (chi1)", "χ2 (chi2)", "χ3 (chi3)",
-            "χ4 (chi4)", "χ5 (chi5)", "Average of selected angles",
-            "Average of all angles" };
-    private static final String[] AMINO_CODES = new String[] { "PHI", "PSI",
-            "OMEGA", "CHI1", "CHI2", "CHI3", "CHI4", "CHI5", "SELECTED",
-            "AVERAGE" };
-    private static final String[] NUCLEIC_NAMES = new String[] { "α (alpha)",
-            "β (beta)", "γ (gamma)", "δ (delta)", "ε (epsilon)", "ζ (zeta)",
-            "χ (chi)", "τ0 (tau0)", "τ1 (tau1)", "τ2 (tau2)", "τ3 (tau3)",
-            "τ4 (tau4)", "P (sugar pucker)", "Average of selected angles",
-            "Average of all angles" };
-    private static final String[] NUCLEIC_CODES = new String[] { "ALPHA",
-            "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1",
-            "TAU2", "TAU3", "TAU4", "P", "SELECTED", "AVERAGE" };
+    private static final List<String> AMINO_NAMES = Arrays.asList(new String[] {
+            Constants.PHI + " (phi)", Constants.PSI + " (psi)", Constants.OMEGA + " (omega)",
+            Constants.CHI + "1 (chi1)", Constants.CHI + "2 (chi2)", Constants.CHI + "3 (chi3)",
+            Constants.CHI + "4 (chi4)", Constants.CHI + "5 (chi5)", "Average of selected angles",
+            "Average of all angles" });
+    private static final List<String> AMINO_CODES = Arrays.asList(new String[] { "PHI", "PSI",
+            "OMEGA", "CHI1", "CHI2", "CHI3", "CHI4", "CHI5", "SELECTED", "AVERAGE" });
+    private static final List<String> NUCLEIC_NAMES = Arrays.asList(new String[] {
+            Constants.ALPHA + " (alpha)", Constants.BETA + " (beta)", Constants.GAMMA + " (gamma)",
+            Constants.DELTA + " (delta)", Constants.EPSILON + " (epsilon)",
+            Constants.ZETA + " (zeta)", Constants.CHI + " (chi)", Constants.TAU + "0 (tau0)",
+            Constants.TAU + "1 (tau1)", Constants.TAU + "2 (tau2)", Constants.TAU + "3 (tau3)",
+            Constants.TAU + "4 (tau4)", "P (sugar pucker)", "Average of selected angles",
+            "Average of all angles" });
+    private static final List<String> NUCLEIC_CODES = Arrays.asList(new String[] { "ALPHA", "BETA",
+            "GAMMA", "DELTA", "EPSILON", "ZETA", "CHI", "TAU0", "TAU1", "TAU2", "TAU3", "TAU4",
+            "P", "SELECTED", "AVERAGE" });
 
     private static DialogAngles instance;
 
@@ -49,18 +54,17 @@ final class DialogAngles extends JDialog {
         DialogAngles.instance.setVisible(true);
     }
 
-    private String[] selectedNames = new String[] { "AVERAGE" };
+    private List<String> selectedNames = Arrays.asList(new String[] { "AVERAGE" });
 
     private DialogAngles(Frame owner) {
         super(owner, true);
 
         JPanel panelAnglesAmino = new JPanel();
-        panelAnglesAmino.setLayout(new BoxLayout(panelAnglesAmino,
-                BoxLayout.Y_AXIS));
+        panelAnglesAmino.setLayout(new BoxLayout(panelAnglesAmino, BoxLayout.Y_AXIS));
 
-        final JCheckBox[] checksAmino = new JCheckBox[DialogAngles.AMINO_NAMES.length];
-        for (int i = 0; i < DialogAngles.AMINO_NAMES.length; i++) {
-            JCheckBox checkBox = new JCheckBox(DialogAngles.AMINO_NAMES[i]);
+        final JCheckBox[] checksAmino = new JCheckBox[DialogAngles.AMINO_NAMES.size()];
+        for (int i = 0; i < DialogAngles.AMINO_NAMES.size(); i++) {
+            JCheckBox checkBox = new JCheckBox(DialogAngles.AMINO_NAMES.get(i));
             checksAmino[i] = checkBox;
             panelAnglesAmino.add(checkBox);
         }
@@ -80,12 +84,11 @@ final class DialogAngles extends JDialog {
         panelAmino.setBorder(BorderFactory.createTitledBorder("Amino acids"));
 
         JPanel panelAnglesNucleic = new JPanel();
-        panelAnglesNucleic.setLayout(new BoxLayout(panelAnglesNucleic,
-                BoxLayout.Y_AXIS));
+        panelAnglesNucleic.setLayout(new BoxLayout(panelAnglesNucleic, BoxLayout.Y_AXIS));
 
-        final JCheckBox[] checksNucleic = new JCheckBox[DialogAngles.NUCLEIC_NAMES.length];
-        for (int i = 0; i < DialogAngles.NUCLEIC_NAMES.length; i++) {
-            JCheckBox checkBox = new JCheckBox(DialogAngles.NUCLEIC_NAMES[i]);
+        final JCheckBox[] checksNucleic = new JCheckBox[DialogAngles.NUCLEIC_NAMES.size()];
+        for (int i = 0; i < DialogAngles.NUCLEIC_NAMES.size(); i++) {
+            JCheckBox checkBox = new JCheckBox(DialogAngles.NUCLEIC_NAMES.get(i));
             checksNucleic[i] = checkBox;
             panelAnglesNucleic.add(checkBox);
         }
@@ -152,10 +155,10 @@ final class DialogAngles extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JCheckBox[][] checkBoxes = new JCheckBox[][] { checksAmino,
-                        checksNucleic };
-                String[][] codes = new String[][] { DialogAngles.AMINO_CODES,
-                        DialogAngles.NUCLEIC_CODES };
+                JCheckBox[][] checkBoxes = new JCheckBox[][] { checksAmino, checksNucleic };
+                String[][] codes = new String[][] {
+                        AMINO_CODES.toArray(new String[AMINO_CODES.size()]),
+                        NUCLEIC_CODES.toArray(new String[NUCLEIC_CODES.size()]) };
 
                 LinkedHashSet<String> set = new LinkedHashSet<>();
                 for (int i = 0; i < 2; i++) {
@@ -165,9 +168,7 @@ final class DialogAngles extends JDialog {
                         }
                     }
                 }
-                List<String> list = new ArrayList<>(set);
-                selectedNames = list.toArray(new String[list.size()]);
-
+                selectedNames = new ArrayList<>(set);
                 dispose();
             }
         });
@@ -185,7 +186,7 @@ final class DialogAngles extends JDialog {
         setTitle("MCQ4Structures: torsion angle(s) selection");
     }
 
-    public String[] getAngles() {
+    public List<String> getAngles() {
         return selectedNames;
     }
 }

@@ -23,18 +23,14 @@ public class PrintAngles {
         try {
             Structure structure = new PDBFileReader().getStructure(args[0]);
             Helper.normalizeAtomNames(structure);
-            List<Atom> atomArray = Helper.getAtomArray(structure,
-                    NucleotideDihedral.getUsedAtoms());
+            List<Atom> atomArray = Helper
+                    .getAtomArray(structure, NucleotideDihedral.getUsedAtoms());
             for (AngleType type : NucleotideDihedral.getAngles()) {
-                Atom[] atoms = atomArray.toArray(new Atom[atomArray.size()]);
-                for (Quadruplet quadruplet : DihedralAngles.getQuadruplets(
-                        atoms, type)) {
-                    double dihedral = DihedralAngles
-                            .calculateDihedral(quadruplet.getAtoms());
-                    System.out.println(type.getAngleName()
-                            + " "
-                            + quadruplet.getAtoms()[1].getGroup()
-                                    .getResidueNumber() + " " + dihedral);
+                for (Quadruplet quadruplet : DihedralAngles.getQuadruplets(atomArray, type)) {
+                    double dihedral = DihedralAngles.calculateDihedral(quadruplet.getAtoms());
+                    System.out.println(type.getAngleName() + " "
+                            + quadruplet.getAtoms().b.getGroup().getResidueNumber() + " "
+                            + dihedral);
                 }
             }
         } catch (IOException e) {

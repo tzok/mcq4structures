@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -20,9 +21,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
 import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
+import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
@@ -34,8 +35,7 @@ import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    public DialogCluster(final ComparisonGlobal comparisonGlobal,
-            final String plotTitlePrefix) {
+    public DialogCluster(final ComparisonGlobal comparisonGlobal, final String plotTitlePrefix) {
         super();
 
         final JRadioButton hierarchical = new JRadioButton("hierarchical", true);
@@ -44,10 +44,9 @@ public class DialogCluster extends JDialog {
         group.add(hierarchical);
         group.add(kmedoids);
 
-        final JComboBox<String> linkage = new JComboBox<>(new String[] {
-                "Complete", "Single", "Average" });
-        final JComboBox<String> method = new JComboBox<>(new String[] { "PAM",
-                "PAMSIL" });
+        final JComboBox<String> linkage = new JComboBox<>(new String[] { "Complete", "Single",
+                "Average" });
+        final JComboBox<String> method = new JComboBox<>(new String[] { "PAM", "PAMSIL" });
         method.setEnabled(false);
         final JCheckBox findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);
@@ -121,17 +120,15 @@ public class DialogCluster extends JDialog {
                 if (hierarchical.isSelected()) {
                     resource = DialogCluster.class
                             .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
-                    Method linkageMethod = (new Method[] { Method.COMPLETE,
-                            Method.SINGLE, Method.AVERAGE })[linkage
-                            .getSelectedIndex()];
-                    xmlSerializable = ClusteringHierarchical.newInstance(
-                            comparisonGlobal, linkageMethod);
+                    Method linkageMethod = new Method[] { Method.COMPLETE, Method.SINGLE,
+                            Method.AVERAGE }[linkage.getSelectedIndex()];
+                    xmlSerializable = ClusteringHierarchical.newInstance(comparisonGlobal,
+                            linkageMethod);
                 } else { // partitional.isSelected() == true
                     resource = DialogCluster.class
                             .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
                     Result clustering;
-                    double[][] distanceMatrix = comparisonGlobal
-                            .getDistanceMatrix();
+                    double[][] distanceMatrix = comparisonGlobal.getDistanceMatrix();
                     if (method.getSelectedItem().equals("PAM")) {
                         if (findBestK.isSelected()) {
                             clustering = Clusterer.clusterPAM(distanceMatrix);
@@ -141,16 +138,14 @@ public class DialogCluster extends JDialog {
                         }
                     } else {
                         if (findBestK.isSelected()) {
-                            clustering = Clusterer
-                                    .clusterPAMSIL(distanceMatrix);
+                            clustering = Clusterer.clusterPAMSIL(distanceMatrix);
                         } else {
-                            clustering = Clusterer.clusterPAMSIL(
-                                    distanceMatrix,
+                            clustering = Clusterer.clusterPAMSIL(distanceMatrix,
                                     (Integer) kspinner.getValue());
                         }
                     }
-                    xmlSerializable = ClusteringPartitional.newInstance(
-                            comparisonGlobal, clustering);
+                    xmlSerializable = ClusteringPartitional.newInstance(comparisonGlobal,
+                            clustering);
                 }
                 Matplotlib.runXsltAndPython(resource, xmlSerializable);
             }
@@ -161,12 +156,11 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 JFrame plot;
                 String plotTitle = plotTitlePrefix;
-                double[][] comparisonResults = comparisonGlobal
-                        .getDistanceMatrix();
-                String[] structureNames = comparisonGlobal.getLabels();
+                double[][] comparisonResults = comparisonGlobal.getDistanceMatrix();
+                List<String> structureNames = comparisonGlobal.getLabels();
                 if (hierarchical.isSelected()) {
-                    plot = new HierarchicalPlot(comparisonResults,
-                            structureNames, linkage.getSelectedIndex());
+                    plot = new HierarchicalPlot(comparisonResults, structureNames, linkage
+                            .getSelectedIndex());
                     plotTitle += "hierarchical clustering (";
                     plotTitle += linkage.getSelectedItem();
                     plotTitle += " linkage)";
@@ -179,13 +173,13 @@ public class DialogCluster extends JDialog {
                         if (k > comparisonResults.length) {
                             JOptionPane.showMessageDialog(null, "k parameter "
                                     + "(k-medoids) must be equal or less than "
-                                    + "the number of input structures",
-                                    "Error!", JOptionPane.ERROR_MESSAGE);
+                                    + "the number of input structures", "Error!",
+                                    JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                     }
-                    plot = new KMedoidsPlot(comparisonResults, structureNames,
-                            k, (String) method.getSelectedItem());
+                    plot = new KMedoidsPlot(comparisonResults, structureNames, k, (String) method
+                            .getSelectedItem());
                     plotTitle += "k-medoids (";
                     plotTitle += method.getSelectedItem();
                     plotTitle += ", k =";

@@ -32,8 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class DialogAbout extends JDialog {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(DialogAbout.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DialogAbout.class);
 
     public DialogAbout(Frame owner) {
         super(owner, true);
@@ -42,8 +41,7 @@ public class DialogAbout extends JDialog {
         editorPane.setContentType("text/html");
         editorPane.setEditable(false);
 
-        URL resource = getClass().getResource(
-                "/pl/poznan/put/cs/bioserver/gui/about.html");
+        URL resource = getClass().getResource("/pl/poznan/put/cs/bioserver/gui/about.html");
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
             editorPane.setCaretPosition(0);
@@ -56,8 +54,7 @@ public class DialogAbout extends JDialog {
         BufferedImage image = null;
         JLabel labelImage = new JLabel();
         try {
-            resource = getClass().getResource(
-                    "/pl/poznan/put/cs/bioserver/gui/rabit.png");
+            resource = getClass().getResource("/pl/poznan/put/cs/bioserver/gui/rabit.png");
             image = ImageIO.read(resource);
             labelImage = new JLabel(new ImageIcon(image));
         } catch (IOException e) {
@@ -96,8 +93,7 @@ public class DialogAbout extends JDialog {
                     try {
                         Desktop.getDesktop().browse(e.getURL().toURI());
                     } catch (IOException | URISyntaxException e1) {
-                        DialogAbout.LOGGER.error(
-                                "Failed to browse URL: " + e.getURL(), e1);
+                        DialogAbout.LOGGER.error("Failed to browse URL: " + e.getURL(), e1);
                     }
                 }
             }

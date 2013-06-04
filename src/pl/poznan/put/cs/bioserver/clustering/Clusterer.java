@@ -19,32 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class Clusterer {
-    private interface ScoringFunction {
-        double score(Map<Integer, Set<Integer>> clustering, double[][] matrix);
-    }
-
     public static class Result {
-        public Set<Integer> medoids;
-        private double[][] matrix;
-        private double score;
-
-        public Result(double score, Set<Integer> medoids, double[][] matrix) {
-            this.score = score;
-            this.medoids = medoids;
-            this.matrix = matrix.clone();
-        }
-
-        public Result(ScoringFunction sf, Set<Integer> medoids,
-                double[][] matrix) {
-            this.medoids = medoids;
-            this.matrix = matrix;
-            this.score = sf.score(getClusterAssignment(), matrix);
-        }
-
-        public Map<Integer, Set<Integer>> getClusterAssignment() {
-            return Result.getClusterAssignments(medoids, matrix);
-        }
-
         /**
          * Assign every object to its closes medoid.
          * 
@@ -54,8 +29,8 @@ public final class Clusterer {
          *            A distance matrix.
          * @return A map of this form { medoid : set(objects) }
          */
-        public static Map<Integer, Set<Integer>> getClusterAssignments(
-                Iterable<Integer> medoids, double[][] matrix) {
+        public static Map<Integer, Set<Integer>> getClusterAssignments(Iterable<Integer> medoids,
+                double[][] matrix) {
             Map<Integer, Set<Integer>> clustering = new HashMap<>();
             for (int i : medoids) {
                 clustering.put(i, new HashSet<Integer>());
@@ -79,6 +54,31 @@ public final class Clusterer {
             }
             return clustering;
         }
+
+        public Set<Integer> medoids;
+        private double[][] matrix;
+
+        private double score;
+
+        public Result(double score, Set<Integer> medoids, double[][] matrix) {
+            this.score = score;
+            this.medoids = medoids;
+            this.matrix = matrix.clone();
+        }
+
+        public Result(ScoringFunction sf, Set<Integer> medoids, double[][] matrix) {
+            this.medoids = medoids;
+            this.matrix = matrix;
+            score = sf.score(getClusterAssignment(), matrix);
+        }
+
+        public Map<Integer, Set<Integer>> getClusterAssignment() {
+            return Result.getClusterAssignments(medoids, matrix);
+        }
+    }
+
+    private interface ScoringFunction {
+        double score(Map<Integer, Set<Integer>> clustering, double[][] matrix);
     }
 
     /** Available hierarchical clustering types. */
@@ -86,21 +86,18 @@ public final class Clusterer {
         COMPLETE, SINGLE, AVERAGE;
     }
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(Clusterer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Clusterer.class);
 
     private static ScoringFunction scoringPAMSIL = new ScoringFunction() {
         @Override
-        public double score(Map<Integer, Set<Integer>> clustering,
-                double[][] matrix) {
+        public double score(Map<Integer, Set<Integer>> clustering, double[][] matrix) {
             return Clusterer.scoreBySilhouette(clustering, matrix);
         }
     };
 
     private static ScoringFunction scoringPAM = new ScoringFunction() {
         @Override
-        public double score(Map<Integer, Set<Integer>> clustering,
-                double[][] matrix) {
+        public double score(Map<Integer, Set<Integer>> clustering, double[][] matrix) {
             return Clusterer.scoreByDistance(clustering, matrix);
         }
     };
@@ -110,23 +107,33 @@ public final class Clusterer {
 
     private static final Random RANDOM = new Random();
 
+    public static Result clusterPAM(double[][] matrix) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM);
+    }
+
+    public static Result clusterPAM(double[][] matrix, int k) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM, k);
+    }
+
     public static Result clusterPAMSIL(double[][] matrix) {
         return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL);
+    }
+
+    public static Result clusterPAMSIL(double[][] matrix, int k) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL, k);
     }
 
     private static Result kMedoids(double[][] matrix, ScoringFunction sf) {
         Result overallBest = new Result(Double.NEGATIVE_INFINITY, null, matrix);
         for (int k = 2; k <= matrix.length; k++) {
             Result result = Clusterer.kMedoids(matrix, sf, k);
-            double score = Clusterer.scoreCluster(result.medoids, matrix,
-                    Clusterer.scoringPAMSIL);
+            double score = Clusterer.scoreCluster(result.medoids, matrix, Clusterer.scoringPAMSIL);
             if (score > overallBest.score) {
                 overallBest.score = score;
                 overallBest.medoids = result.medoids;
             }
         }
-        Clusterer.LOGGER.debug("Final score for clustering: "
-                + overallBest.score);
+        Clusterer.LOGGER.debug("Final score for clustering: " + overallBest.score);
         return overallBest;
     }
 
@@ -166,8 +173,7 @@ public final class Clusterer {
                         for (int m : medoids) {
                             swap.add(m == i ? j : m);
                         }
-                        double newScore = Clusterer.scoreCluster(swap, matrix,
-                                sf);
+                        double newScore = Clusterer.scoreCluster(swap, matrix, sf);
                         if (newScore > bestScore) {
                             bestScore = newScore;
                             bestMedoids = swap;
@@ -190,13 +196,11 @@ public final class Clusterer {
             }
         }
 
-        Clusterer.LOGGER.debug("Final score for clustering (k=" + k + "): "
-                + overallBestScore);
+        Clusterer.LOGGER.debug("Final score for clustering (k=" + k + "): " + overallBestScore);
         return new Result(overallBestScore, overallBestMedoids, matrix);
     }
 
-    private static double scoreByDistance(
-            Map<Integer, Set<Integer>> clustering, double[][] matrix) {
+    private static double scoreByDistance(Map<Integer, Set<Integer>> clustering, double[][] matrix) {
         double result = 0;
         for (Entry<Integer, Set<Integer>> entry : clustering.entrySet()) {
             int j = entry.getKey();
@@ -207,8 +211,7 @@ public final class Clusterer {
         return -result;
     }
 
-    private static double scoreBySilhouette(
-            Map<Integer, Set<Integer>> clustering, double[][] matrix) {
+    private static double scoreBySilhouette(Map<Integer, Set<Integer>> clustering, double[][] matrix) {
         double result = 0;
         for (Entry<Integer, Set<Integer>> e1 : clustering.entrySet()) {
             if (e1.getValue().size() == 1) {
@@ -243,21 +246,8 @@ public final class Clusterer {
         return result;
     }
 
-    private static double scoreCluster(Set<Integer> medoids, double[][] matrix,
-            ScoringFunction sf) {
+    private static double scoreCluster(Set<Integer> medoids, double[][] matrix, ScoringFunction sf) {
         return sf.score(Result.getClusterAssignments(medoids, matrix), matrix);
-    }
-
-    public static Result clusterPAM(double[][] matrix) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM);
-    }
-
-    public static Result clusterPAM(double[][] matrix, int k) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM, k);
-    }
-
-    public static Result clusterPAMSIL(double[][] matrix, int k) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL, k);
     }
 
     static List<List<Integer>> getClusters() {
@@ -275,8 +265,7 @@ public final class Clusterer {
      * @return An array of triplets in form (A, B, d(A, B)), where A and B are
      *         cluster IDs and d(A, B) is a scaled distance between them..
      */
-    static int[][] hierarchicalClustering(double[][] matrix,
-            Clusterer.Type linkage) {
+    static int[][] hierarchicalClustering(double[][] matrix, Clusterer.Type linkage) {
         /*
          * initialise clusters as single elements
          */
@@ -352,8 +341,7 @@ public final class Clusterer {
             c1.addAll(c2);
             Clusterer.clusters.remove(toMerge[1]);
 
-            result.add(new int[] { toMerge[0], toMerge[1],
-                    (int) (1000.0 * leastDiff) });
+            result.add(new int[] { toMerge[0], toMerge[1], (int) (1000.0 * leastDiff) });
         }
         return result.toArray(new int[result.size()][]);
     }

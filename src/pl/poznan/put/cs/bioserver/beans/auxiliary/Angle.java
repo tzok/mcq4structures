@@ -13,21 +13,21 @@ public class Angle extends XMLSerializable {
     String name;
     double[] deltas;
 
+    public double[] getDeltas() {
+        return deltas;
+    }
+
     public String getName() {
         return name;
+    }
+
+    @XmlElement(name = "item")
+    public void setDeltas(double[] deltas) {
+        this.deltas = deltas;
     }
 
     @XmlAttribute
     public void setName(String name) {
         this.name = name;
-    }
-
-    public double[] getDeltas() {
-        return deltas;
-    }
-
-    @XmlElement(name="item")
-    public void setDeltas(double[] deltas) {
-        this.deltas = deltas;
     }
 }

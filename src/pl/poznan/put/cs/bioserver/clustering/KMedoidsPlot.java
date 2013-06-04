@@ -2,6 +2,7 @@ package pl.poznan.put.cs.bioserver.clustering;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -25,40 +26,35 @@ import pl.poznan.put.cs.bioserver.visualisation.MDS;
  */
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(KMedoidsPlot.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KMedoidsPlot.class);
 
     /**
      * Create an instance of JFrame which shows a k-medoid plot.
      * 
      * @param distance
      *            A distance matrix, NxN.
-     * @param labels
+     * @param structureNames
      *            Labels for every entry, N.
      * @param k
      *            Chosen k for k-medoids method.
      */
-    public KMedoidsPlot(double[][] distance, String[] labels, int k,
-            String method) {
+    public KMedoidsPlot(double[][] distance, List<String> structureNames, int k, String method) {
         Map<Integer, Set<Integer>> medoids = null;
         if (method.equals("PAM")) {
             if (k == 0) {
                 medoids = Clusterer.clusterPAM(distance).getClusterAssignment();
             } else {
-                medoids = Clusterer.clusterPAM(distance, k)
-                        .getClusterAssignment();
+                medoids = Clusterer.clusterPAM(distance, k).getClusterAssignment();
             }
         } else if (method.equals("PAMSIL")) {
             if (k == 0) {
-                medoids = Clusterer.clusterPAMSIL(distance)
-                        .getClusterAssignment();
+                medoids = Clusterer.clusterPAMSIL(distance).getClusterAssignment();
             } else {
-                medoids = Clusterer.clusterPAMSIL(distance, k)
-                        .getClusterAssignment();
+                medoids = Clusterer.clusterPAMSIL(distance, k).getClusterAssignment();
             }
         } else {
-            throw new UnsupportedOperationException("Clustering method "
-                    + method + " not supported");
+            throw new UnsupportedOperationException("Clustering method " + method
+                    + " not supported");
         }
 
         double[][] mds = MDS.multidimensionalScaling(distance, 2);
@@ -74,12 +70,12 @@ public class KMedoidsPlot extends JFrame {
             double[] y = new double[value.size()];
             int i = 0;
             for (int index : value) {
-                builder.append(labels[index]);
+                builder.append(structureNames.get(index));
                 builder.append(", ");
                 x[i] = mds[index][0];
                 y[i] = mds[index][1];
                 if (KMedoidsPlot.LOGGER.isTraceEnabled()) {
-                    dumper.append(labels[index]);
+                    dumper.append(structureNames.get(index));
                     dumper.append(' ');
                     dumper.append(x[i]);
                     dumper.append(' ');

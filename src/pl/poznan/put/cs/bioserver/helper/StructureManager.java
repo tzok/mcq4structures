@@ -6,8 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -26,10 +28,9 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class StructureManager {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(StructureManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StructureManager.class);
 
-    private static Map<File, Structure[]> mapFileModels = new TreeMap<>();
+    private static Map<File, List<Structure>> mapFileModels = new TreeMap<>();
     private static Map<Structure, File> mapModelFile = new HashMap<>();
     private static Map<Structure, String> mapModelName = new HashMap<>();
 
@@ -53,7 +54,7 @@ public final class StructureManager {
         return StructureManager.mapModelFile.get(structure);
     }
 
-    public static Structure[] getModels(File file) {
+    public static List<Structure> getModels(File file) {
         return StructureManager.mapFileModels.get(file);
     }
 
@@ -61,12 +62,12 @@ public final class StructureManager {
         return StructureManager.mapModelName.get(structure);
     }
 
-    public static String[] getNames(Structure[] structures) {
-        String[] names = new String[structures.length];
-        for (int i = 0; i < structures.length; i++) {
-            names[i] = StructureManager.mapModelName.get(structures[i]);
+    public static List<String> getNames(List<Structure> structures) {
+        List<String> result = new ArrayList<>();
+        for (Structure s : structures) {
+            result.add(StructureManager.mapModelName.get(s));
         }
-        return names;
+        return result;
     }
 
     /**
@@ -76,7 +77,7 @@ public final class StructureManager {
      *            Path to the PDB file.
      * @return Structure object..
      */
-    public static Structure[] loadStructure(File file) throws IOException {
+    public static List<Structure> loadStructure(File file) throws IOException {
         if (StructureManager.mapFileModels.containsKey(file)) {
             return StructureManager.mapFileModels.get(file);
         }
@@ -105,7 +106,7 @@ public final class StructureManager {
         }
     }
 
-    public static Structure[] loadStructure(String pdbId) {
+    public static List<Structure> loadStructure(String pdbId) {
         StructureManager.pdbReader.setAutoFetch(true);
         Structure structure;
         try {
@@ -125,7 +126,7 @@ public final class StructureManager {
     }
 
     public static void remove(File path) {
-        Structure[] models = StructureManager.getModels(path);
+        List<Structure> models = StructureManager.getModels(path);
         for (Structure model : models) {
             StructureManager.mapModelFile.remove(model);
             StructureManager.mapModelName.remove(model);
@@ -136,16 +137,14 @@ public final class StructureManager {
     private static boolean isMmCif(File file) throws IOException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        new GZIPInputStream(stream), "UTF-8"))) {
                     String line = reader.readLine();
                     return line != null && line.startsWith("data_");
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line = reader.readLine();
                 return line != null && line.startsWith("data_");
             }
@@ -155,9 +154,8 @@ public final class StructureManager {
     private static boolean isPdb(File file) throws IOException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        new GZIPInputStream(stream), "UTF-8"))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (line.startsWith("ATOM")) {
@@ -167,8 +165,7 @@ public final class StructureManager {
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("ATOM")) {
@@ -180,7 +177,7 @@ public final class StructureManager {
         return false;
     }
 
-    private static Structure[] storeStructureInfo(File file, Structure structure) {
+    private static List<Structure> storeStructureInfo(File file, Structure structure) {
         String name = structure.getPDBCode();
         if (name == null || name.trim().equals("")) {
             name = file.getName();
@@ -201,15 +198,14 @@ public final class StructureManager {
         }
         String format = "%s.%0" + leading + "d";
 
-        Structure[] models = new Structure[count];
+        List<Structure> models = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             Structure clone = structure.clone();
             clone.setChains(structure.getModel(i));
-            models[i] = clone;
+            models.add(clone);
 
             StructureManager.mapModelFile.put(clone, file);
-            StructureManager.mapModelName.put(clone,
-                    String.format(format, name, i + 1));
+            StructureManager.mapModelName.put(clone, String.format(format, name, i + 1));
         }
         StructureManager.mapFileModels.put(file, models);
         return models;

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ChainImpl;
@@ -36,22 +37,19 @@ import difflib.Patch;
  */
 public final class Helper {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helper.class);
-    private static final String[] USED_ATOMS;
+    private static final List<String> USED_ATOMS;
     static {
-        String[] array1 = NucleotideDihedral.getUsedAtoms();
-        String[] array2 = AminoAcidDihedral.getUsedAtoms();
-        USED_ATOMS = new String[array1.length + array2.length];
-        System.arraycopy(array1, 0, Helper.USED_ATOMS, 0, array1.length);
-        System.arraycopy(array2, 0, Helper.USED_ATOMS, array1.length,
-                array2.length);
+        USED_ATOMS = new ArrayList<>();
+        Helper.USED_ATOMS.addAll(NucleotideDihedral.getUsedAtoms());
+        Helper.USED_ATOMS.addAll(AminoAcidDihedral.getUsedAtoms());
     }
 
     private static final Set<String> SET_NUCLEOTIDE_ATOMS;
     static {
         SET_NUCLEOTIDE_ATOMS = new HashSet<>();
-        for (String name : new String[] { " C1'", " C2 ", " C2'", " C3'",
-                " C4 ", " C4'", " C5 ", " C5'", " C6 ", " N1 ", " N3 ", " O2'",
-                " O3'", " O4'", " O5'", " OP1", " OP2", " P  " }) {
+        for (String name : new String[] { " C1'", " C2 ", " C2'", " C3'", " C4 ", " C4'", " C5 ",
+                " C5'", " C6 ", " N1 ", " N3 ", " O2'", " O3'", " O4'", " O5'", " OP1", " OP2",
+                " P  " }) {
             Helper.SET_NUCLEOTIDE_ATOMS.add(name);
         }
     }
@@ -62,35 +60,33 @@ public final class Helper {
      * Given two lists of atoms (possibly of different size), make them equal
      * with minimal number of changes (using difflib).
      * 
-     * @param atoms
+     * @param pairAtoms
      *            Two lists of atoms.
      * @return Two lists of atoms that have equal size and each i-th atom in
      *         list A corresponds to i-th atom in list B.
      */
-    public static Atom[][] equalize(Atom[][] atoms) {
-        List<String> l1 = new ArrayList<>();
-        List<String> l2 = new ArrayList<>();
-
-        for (Atom a : atoms[0]) {
-            l1.add(a.getFullName());
-        }
-        for (Atom a : atoms[1]) {
-            l2.add(a.getFullName());
-        }
+    public static Pair<List<Atom>, List<Atom>> equalize(List<Atom> left, List<Atom> right) {
         // start with the larger list (it's better to remove redundant atoms)
-        if (l1.size() > l2.size()) {
-            List<String> tmpStr = l1;
-            l1 = l2;
-            l2 = tmpStr;
-
-            Atom[] tmpAtom = atoms[0];
-            atoms[0] = atoms[1];
-            atoms[1] = tmpAtom;
+        if (left.size() < right.size()) {
+            List<Atom> tmp = left;
+            left = right;
+            right = tmp;
         }
 
-        List<Atom> list1 = new ArrayList<>(Arrays.asList(atoms[0]));
-        List<Atom> list2 = new ArrayList<>(Arrays.asList(atoms[1]));
-        Patch patch = DiffUtils.diff(l1, l2);
+        List<String> l = new ArrayList<>();
+        List<String> r = new ArrayList<>();
+
+        for (Atom a : left) {
+            l.add(a.getFullName());
+        }
+        for (Atom a : right) {
+            r.add(a.getFullName());
+        }
+
+        List<Atom> list1 = new ArrayList<>(left);
+        List<Atom> list2 = new ArrayList<>(right);
+
+        Patch patch = DiffUtils.diff(l, r);
         int cumulated1 = 0, cumulated2 = 0;
         for (Delta d : patch.getDeltas()) {
             int position = d.getOriginal().getPosition();
@@ -126,10 +122,8 @@ public final class Helper {
             }
         }
 
-        Atom[][] result = new Atom[][] { list1.toArray(new Atom[list1.size()]),
-                list2.toArray(new Atom[list2.size()]) };
-        Helper.sanityCheck(result);
-        return result;
+        Helper.sanityCheck(list1, list2);
+        return Pair.of(list1, list2);
     }
 
     /**
@@ -139,8 +133,7 @@ public final class Helper {
      * @param atomNames
      * @return
      */
-    public static List<Atom> getAtomArray(Structure structure,
-            String[] atomNames) {
+    public static List<Atom> getAtomArray(Structure structure, List<String> atomNames) {
         List<Atom> list = new ArrayList<>();
         for (Chain c : structure.getChains()) {
             list.addAll(Helper.getAtomArray(c.getAtomGroups(), atomNames));
@@ -161,16 +154,16 @@ public final class Helper {
      * @throws StructureException
      *             If there were problems with resolution of chain names.
      */
-    public static Atom[][] getCommonAtomArray(Structure s1, Structure s2,
+    public static Pair<List<Atom>, List<Atom>> getCommonAtomArray(Structure left, Structure right,
             boolean streamGroups) throws StructureException {
         if (streamGroups) {
-            List<Group> g1 = Helper.streamGroups(s1);
-            List<Group> g2 = Helper.streamGroups(s2);
+            List<Group> g1 = Helper.streamGroups(left);
+            List<Group> g2 = Helper.streamGroups(right);
             return Helper.getCommonAtomArray(g1, g2);
         }
 
-        List<Chain> c1 = s1.getChains();
-        List<Chain> c2 = s2.getChains();
+        List<Chain> c1 = left.getChains();
+        List<Chain> c2 = right.getChains();
         int size = c1.size();
         if (size == c2.size()) {
             String[] ids1 = new String[size];
@@ -183,22 +176,15 @@ public final class Helper {
             Arrays.sort(ids2);
 
             if (Arrays.equals(ids1, ids2)) {
-                Atom[][] result = new Atom[][] { new Atom[0], new Atom[0] };
-                for (int i = 0; i < size; i++) {
-                    String id = ids1[i];
-                    Atom[][] common = Helper.getCommonAtomArray(
-                            s1.getChainByPDB(id), s2.getChainByPDB(id));
-
-                    for (int j = 0; j < 2; j++) {
-                        Atom[] tmp = new Atom[common[j].length
-                                + result[j].length];
-                        System.arraycopy(result[j], 0, tmp, 0, result[j].length);
-                        System.arraycopy(common[j], 0, tmp, result[j].length,
-                                common[j].length);
-                        result[j] = tmp;
-                    }
+                List<Atom> resultLeft = new ArrayList<>();
+                List<Atom> resultRight = new ArrayList<>();
+                for (String id : ids1) {
+                    Pair<List<Atom>, List<Atom>> common = Helper.getCommonAtomArray(
+                            left.getChainByPDB(id), right.getChainByPDB(id));
+                    resultLeft.addAll(common.getLeft());
+                    resultRight.addAll(common.getRight());
                 }
-                return result;
+                return Pair.of(resultLeft, resultRight);
             }
         }
         // null means that it is impossible to get common atom array without
@@ -211,6 +197,10 @@ public final class Helper {
         return sdf.format(new Date());
     }
 
+    public static boolean isAminoAcid(Group g) {
+        return g.getType().equals("amino") || g.hasAminoAtoms();
+    }
+
     public static boolean isNucleicAcid(Chain c) {
         int amino = 0;
         int nucleotide = 0;
@@ -220,8 +210,7 @@ public final class Helper {
             } else if (Helper.isNucleotide(g)) {
                 nucleotide++;
             } else {
-                Helper.LOGGER.warn("Group is neither amino acid, nor "
-                        + "nucleotide: " + g);
+                Helper.LOGGER.warn("Group is neither amino acid, nor nucleotide: " + g);
             }
         }
         return nucleotide > amino;
@@ -233,6 +222,20 @@ public final class Helper {
             flag &= Helper.isNucleicAcid(c);
         }
         return flag;
+    }
+
+    public static boolean isNucleotide(Group g) {
+        if (g.getType().equals("nucleotide")) {
+            return true;
+        }
+
+        int count = 0;
+        for (Atom a : g.getAtoms()) {
+            if (Helper.SET_NUCLEOTIDE_ATOMS.contains(a.getFullName())) {
+                count++;
+            }
+        }
+        return count > Helper.SET_NUCLEOTIDE_ATOMS.size() / 2;
     }
 
     /**
@@ -256,8 +259,7 @@ public final class Helper {
      *            An array of names to be accepted.
      * @return A list of atoms.
      */
-    private static synchronized List<Atom> getAtomArray(List<Group> groups,
-            String[] atomNames) {
+    private static synchronized List<Atom> getAtomArray(List<Group> groups, List<String> atomNames) {
         if (!Helper.MAP_GROUPS_ATOMS.containsKey(groups, atomNames)) {
             List<Atom> list = new ArrayList<>();
             for (Group g : groups) {
@@ -289,54 +291,21 @@ public final class Helper {
      *            Second chain.
      * @return Two arrays of atoms.
      */
-    private static Atom[][] getCommonAtomArray(Chain c1, Chain c2) {
-        return Helper
-                .getCommonAtomArray(c1.getAtomGroups(), c2.getAtomGroups());
+    private static Pair<List<Atom>, List<Atom>> getCommonAtomArray(Chain left, Chain right) {
+        return Helper.getCommonAtomArray(left.getAtomGroups(), right.getAtomGroups());
     }
 
-    private static Atom[][] getCommonAtomArray(List<Group> g1, List<Group> g2) {
-        Helper.removeInsertedResidues(g1);
-        Helper.removeInsertedResidues(g2);
+    private static Pair<List<Atom>, List<Atom>> getCommonAtomArray(List<Group> left,
+            List<Group> right) {
+        Helper.removeInsertedResidues(left);
+        Helper.removeInsertedResidues(right);
 
-        Helper.normalizeAtomNames(g1);
-        Helper.normalizeAtomNames(g2);
+        Helper.normalizeAtomNames(left);
+        Helper.normalizeAtomNames(right);
 
-        Atom[][] result = new Atom[2][];
-        List<Atom> list = Helper.getAtomArray(g1, Helper.USED_ATOMS);
-        result[0] = list.toArray(new Atom[list.size()]);
-        list = Helper.getAtomArray(g2, Helper.USED_ATOMS);
-        result[1] = list.toArray(new Atom[list.size()]);
-        return result;
-    }
-
-    private static void removeInsertedResidues(List<Group> g) {
-        Iterator<Group> iterator = g.iterator();
-        while (iterator.hasNext()) {
-            Group group = iterator.next();
-            if (group.getResidueNumber().getInsCode() != null) {
-                Helper.LOGGER.warn("Temporarily removing an inserted residue: "
-                        + group);
-                iterator.remove();
-            }
-        }
-    }
-
-    public static boolean isAminoAcid(Group g) {
-        return g.getType().equals("amino") || g.hasAminoAtoms();
-    }
-
-    public static boolean isNucleotide(Group g) {
-        if (g.getType().equals("nucleotide")) {
-            return true;
-        }
-
-        int count = 0;
-        for (Atom a : g.getAtoms()) {
-            if (Helper.SET_NUCLEOTIDE_ATOMS.contains(a.getFullName())) {
-                count++;
-            }
-        }
-        return count > Helper.SET_NUCLEOTIDE_ATOMS.size() / 2;
+        List<Atom> leftAtoms = Helper.getAtomArray(left, Helper.USED_ATOMS);
+        List<Atom> rightAtoms = Helper.getAtomArray(right, Helper.USED_ATOMS);
+        return Pair.of(leftAtoms, rightAtoms);
     }
 
     /**
@@ -358,27 +327,34 @@ public final class Helper {
         }
     }
 
-    private static void sanityCheck(Atom[][] result) {
-        assert result[0].length == result[1].length;
-        for (int i = 0; i < result[0].length; i++) {
-            assert result[0][i] == null
-                    || result[0][i].getFullName().equals(
-                            result[1][i].getFullName());
+    private static void removeInsertedResidues(List<Group> g) {
+        Iterator<Group> iterator = g.iterator();
+        while (iterator.hasNext()) {
+            Group group = iterator.next();
+            if (group.getResidueNumber().getInsCode() != null) {
+                Helper.LOGGER.warn("Temporarily removing an inserted residue: " + group);
+                iterator.remove();
+            }
         }
     }
 
-    private static List<Group> streamGroups(Structure s)
-            throws StructureException {
+    private static void sanityCheck(List<Atom> left, List<Atom> right) {
+        assert left.size() == right.size();
+        for (int i = 0; i < left.size(); i++) {
+            assert left.get(i) == null
+                    || left.get(i).getFullName().equals(right.get(i).getFullName());
+        }
+    }
+
+    private static List<Group> streamGroups(Structure s) throws StructureException {
         List<String> idsList = new ArrayList<>();
         for (Chain c : s.getChains()) {
             idsList.add(c.getChainID());
         }
         String[] ids = idsList.toArray(new String[idsList.size()]);
-        Helper.LOGGER
-                .trace("Chain IDs before sorting: " + Arrays.toString(ids));
+        Helper.LOGGER.trace("Chain IDs before sorting: " + Arrays.toString(ids));
         Arrays.sort(ids);
-        Helper.LOGGER
-                .trace("Chain IDs after sorting:  " + Arrays.toString(ids));
+        Helper.LOGGER.trace("Chain IDs after sorting:  " + Arrays.toString(ids));
 
         List<Group> result = new ArrayList<>();
         for (String chainId : ids) {

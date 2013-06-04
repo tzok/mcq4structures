@@ -1,5 +1,8 @@
 package pl.poznan.put.cs.bioserver.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
@@ -8,32 +11,32 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 public class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private double[][] values;
-    private String[] columnNames;
-    private String[] rowsNames;
+    private ArrayList<String> columnNames;
+    private List<String> rowsNames;
 
     public TableModelLocal(ComparisonLocal comparisonLocal) {
         super();
 
         rowsNames = comparisonLocal.getTicks();
 
-        Angle[] angles = comparisonLocal.getAngles();
-        columnNames = new String[angles.length];
-        for (int i = 0; i < angles.length; i++) {
-            columnNames[i] = angles[i].getName();
+        List<Angle> angles = comparisonLocal.getAnglesList();
+        columnNames = new ArrayList<>();
+        for (Angle a : angles) {
+            columnNames.add(a.getName());
         }
 
-        values = new double[rowsNames.length][];
-        for (int i = 0; i < rowsNames.length; i++) {
-            values[i] = new double[angles.length];
-            for (int j = 0; j < angles.length; j++) {
-                values[i][j] = angles[j].getDeltas()[i];
+        values = new double[rowsNames.size()][];
+        for (int i = 0; i < rowsNames.size(); i++) {
+            values[i] = new double[angles.size()];
+            for (int j = 0; j < angles.size(); j++) {
+                values[i][j] = angles.get(j).getDeltas()[i];
             }
         }
     }
 
     @Override
     public int getColumnCount() {
-        return columnNames.length + 1;
+        return columnNames.size() + 1;
     }
 
     @Override
@@ -41,18 +44,18 @@ public class TableModelLocal extends AbstractTableModel {
         if (column == 0) {
             return "Residue\\Angles";
         }
-        return columnNames[column - 1];
+        return columnNames.get(column - 1);
     }
 
     @Override
     public int getRowCount() {
-        return rowsNames.length;
+        return rowsNames.size();
     }
 
     @Override
     public Object getValueAt(int row, int column) {
         if (column == 0) {
-            return rowsNames[row];
+            return rowsNames.get(row);
         }
         return values[row][column - 1];
     }

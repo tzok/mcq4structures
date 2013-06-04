@@ -16,13 +16,13 @@ public class Point extends XMLSerializable {
         return x;
     }
 
+    public double getY() {
+        return y;
+    }
+
     @XmlElement
     public void setX(double x) {
         this.x = x;
-    }
-
-    public double getY() {
-        return y;
     }
 
     @XmlElement

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.SVDSuperimposer;
@@ -22,7 +23,7 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
 /**
  * Implementation of RMSD global similarity measure.
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class RMSD extends GlobalComparison {
     private static final Logger LOGGER = LoggerFactory.getLogger(RMSD.class);
@@ -46,7 +47,7 @@ public class RMSD extends GlobalComparison {
         List<Structure> list = new ArrayList<>();
         for (String arg : args) {
             try {
-                list.add(StructureManager.loadStructure(new File(arg))[0]);
+                list.add(StructureManager.loadStructure(new File(arg)).get(0));
             } catch (IOException e) {
                 System.out.println("ERROR");
                 e.printStackTrace();
@@ -54,8 +55,7 @@ public class RMSD extends GlobalComparison {
         }
 
         RMSD rmsd = new RMSD();
-        double[][] compare = rmsd.compare(
-                list.toArray(new Structure[list.size()]), null);
+        double[][] compare = rmsd.compare(list, null);
         System.out.println("OK");
         for (double[] element : compare) {
             System.out.println(Arrays.toString(element));
@@ -73,10 +73,8 @@ public class RMSD extends GlobalComparison {
      * @return RMSD.
      */
     @Override
-    public double compare(Structure s1, Structure s2)
-            throws IncomparableStructuresException {
-        RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
-                + s2.getPDBCode());
+    public double compare(Structure s1, Structure s2) throws IncomparableStructuresException {
+        RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and " + s2.getPDBCode());
 
         if (Helper.isNucleicAcid(s1) != Helper.isNucleicAcid(s2)) {
             return Double.NaN;
@@ -84,22 +82,25 @@ public class RMSD extends GlobalComparison {
 
         try {
             Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
-            Atom[][] atoms = Helper.getCommonAtomArray(structures[0],
+            Pair<List<Atom>, List<Atom>> atoms = Helper.getCommonAtomArray(structures[0],
                     structures[1], false);
-            if (atoms == null || atoms[0].length != atoms[1].length) {
+            List<Atom> left = atoms.getLeft();
+            List<Atom> right = atoms.getRight();
+
+            if (left.size() != right.size()) {
                 RMSD.LOGGER.info("Atom sets have different sizes. Must use "
                         + "alignment before calculating RMSD");
-                AlignmentOutput output = AlignerStructure.align(structures[0],
-                        structures[1], "");
+                AlignmentOutput output = AlignerStructure.align(structures[0], structures[1], "");
                 return output.getAFPChain().getTotalRmsdOpt();
             }
+            RMSD.LOGGER.debug("Atom set size: " + left.size());
 
-            RMSD.LOGGER.debug("Atom set size: " + atoms[0].length);
-            SVDSuperimposer superimposer = new SVDSuperimposer(atoms[0],
-                    atoms[1]);
+            Atom[] leftArray = left.toArray(new Atom[left.size()]);
+            Atom[] rightArray = right.toArray(new Atom[right.size()]);
+            SVDSuperimposer superimposer = new SVDSuperimposer(leftArray, rightArray);
             Calc.rotate(structures[1], superimposer.getRotation());
             Calc.shift(structures[1], superimposer.getTranslation());
-            return SVDSuperimposer.getRMS(atoms[0], atoms[1]);
+            return SVDSuperimposer.getRMS(leftArray, rightArray);
         } catch (StructureException e) {
             RMSD.LOGGER.error("Failed to compare structures", e);
             throw new IncomparableStructuresException(e);
