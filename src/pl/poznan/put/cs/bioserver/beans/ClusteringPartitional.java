@@ -12,10 +12,12 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Point;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
 import pl.poznan.put.cs.bioserver.helper.Colors;
+import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
 @XmlRootElement
-public class ClusteringPartitional extends XMLSerializable {
+public class ClusteringPartitional extends XMLSerializable implements
+        Visualizable {
     private static final long serialVersionUID = -7474446942015119359L;
 
     ComparisonGlobal comparison;
@@ -118,5 +120,17 @@ public class ClusteringPartitional extends XMLSerializable {
     @XmlElement(name = "item")
     public void setColors(RGB[] colors) {
         this.colors = colors;
+    }
+
+    @Override
+    public void visualize() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visualizeHighQuality() {
+        // TODO Auto-generated method stub
+
     }
 }

@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -60,12 +58,10 @@ import pl.poznan.put.cs.bioserver.beans.AlignmentSequence;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
-import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.comparison.ComparisonListener;
 import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.RMSD;
-import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
@@ -500,7 +496,7 @@ public class MainWindow extends JFrame {
         itemVisualiseHq.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                visualiseLocalPython();
+                visualizable.visualizeHighQuality();
             }
         });
 
@@ -756,7 +752,7 @@ public class MainWindow extends JFrame {
         try {
             comparisonLocal = ComparisonLocal.newInstance(
                     dialogChains.getStructures(), dialogChains.getChains(),
-                    dialogAngles.getAngles());
+                    Arrays.asList(dialogAngles.getAngles()));
         } catch (StructureException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -815,7 +811,7 @@ public class MainWindow extends JFrame {
         ComparisonLocalMulti localMulti;
         try {
             localMulti = ComparisonLocalMulti.newInstance(chains,
-                    chains[index], dialogAngles.getAngles());
+                    chains[index], Arrays.asList(dialogAngles.getAngles()));
         } catch (StructureException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -969,25 +965,5 @@ public class MainWindow extends JFrame {
 
         labelInfoMatrix.setText("Structures selected for global distance "
                 + "measure: " + dialogStructures.getSelectionDescription());
-    }
-
-    private void visualiseLocalPython() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[ ");
-        for (String angle : dialogAngles.getAngles()) {
-            builder.append("'");
-            builder.append(angle);
-            builder.append("', ");
-        }
-        builder.append(" ]");
-
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("angles", builder.toString());
-
-        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
-                + "bioserver/external/MatplotlibLocal.xsl");
-        assert visualizable instanceof XMLSerializable;
-        Matplotlib.runXsltAndPython(resource, (XMLSerializable) visualizable,
-                parameters);
     }
 }

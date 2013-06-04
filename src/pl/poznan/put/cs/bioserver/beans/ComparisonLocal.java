@@ -6,10 +6,13 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +44,8 @@ import org.jfree.data.xy.DefaultXYDataset;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
+import pl.poznan.put.cs.bioserver.external.Matplotlib;
+import pl.poznan.put.cs.bioserver.gui.MainWindow;
 import pl.poznan.put.cs.bioserver.gui.TorsionAxis;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
@@ -109,7 +114,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     }
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
-            String[] angleNames) throws StructureException {
+            Collection<String> angleNames) throws StructureException {
         Structure[] s = new Structure[] {
                 new StructureImpl((Chain) c1.clone()),
                 new StructureImpl((Chain) c2.clone()) };
@@ -130,7 +135,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     }
 
     public static ComparisonLocal newInstance(Structure[] structures,
-            Chain[][] chains, String[] angleNames) throws StructureException {
+            Chain[][] chains, Collection<String> angleNames)
+            throws StructureException {
         Structure[] s = new Structure[2];
         for (int i = 0; i < 2; i++) {
             s[i] = new StructureImpl();
@@ -147,8 +153,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     private static ComparisonLocal newInstance(
             Map<String, List<AngleDifference>> comparison, String title,
-            String[] angleNames) {
-        Set<String> setAngles = new HashSet<>(Arrays.asList(angleNames));
+            Collection<String> angleNames) {
+        Set<String> setAngles = new HashSet<>(angleNames);
 
         /*
          * get a union of all sets of residues for every angle
@@ -327,5 +333,24 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         frame.setLocation(size.width / 6, size.height / 6);
         frame.setTitle("MCQ4Structures: local distance plot");
         frame.setVisible(true);
+    }
+
+    @Override
+    public void visualizeHighQuality() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[ ");
+        for (String angle : angles.keySet()) {
+            builder.append("'");
+            builder.append(angle);
+            builder.append("', ");
+        }
+        builder.append(" ]");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("angles", builder.toString());
+
+        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
+                + "bioserver/external/MatplotlibLocal.xsl");
+        Matplotlib.runXsltAndPython(resource, this, parameters);
     }
 }

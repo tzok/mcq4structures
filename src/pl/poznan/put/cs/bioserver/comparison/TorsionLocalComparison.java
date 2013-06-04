@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.comparison;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -27,7 +28,7 @@ import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 /**
  * Implementation of local dissimilarity measure based on torsion angles.
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz ��ok (tzok[at]cs.put.poznan.pl)
  */
 public class TorsionLocalComparison extends LocalComparison {
     private static final int TAU_COUNT = 5;
@@ -256,7 +257,7 @@ public class TorsionLocalComparison extends LocalComparison {
     }
 
     public static Map<String, List<AngleDifference>> compare(Structure s1,
-            Structure s2, String[] angles) throws StructureException {
+            Structure s2, Collection<String> angles) throws StructureException {
         boolean wasAligned = false;
         Atom[][] atoms = Helper.getCommonAtomArray(s1, s2, false);
         if (atoms == null) {
@@ -265,7 +266,7 @@ public class TorsionLocalComparison extends LocalComparison {
         }
 
         List<AngleType> list = new ArrayList<>();
-        Set<String> setAngles = new HashSet<>(Arrays.asList(angles));
+        Set<String> setAngles = new HashSet<>(angles);
         for (AngleType type : MCQ.USED_ANGLES) {
             if (setAngles.contains(type.getAngleName())) {
                 list.add(type);

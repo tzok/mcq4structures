@@ -139,4 +139,9 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
                 "MCQ4Structures: global distance (" + method + ") clusters by ");
         dialogClustering.setVisible(true);
     }
+
+    @Override
+    public void visualizeHighQuality() {
+        throw new UnsupportedOperationException("Method not implemented!");
+    }
 }

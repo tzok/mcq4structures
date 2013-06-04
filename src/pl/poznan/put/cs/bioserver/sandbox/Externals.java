@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.sandbox;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
@@ -18,6 +20,7 @@ import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
 import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
+import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
@@ -31,7 +34,8 @@ public class Externals {
     public static void main(String[] args) throws ParserConfigurationException,
             IOException, StructureException, JAXBException,
             TransformerException {
-        List<File> pdbs = Externals.list(new File("/home/tzok/pdb/puzzles/"));
+        List<File> pdbs = Externals.list(new File(
+                "/home/tzok/pdb/puzzles/Challenge2/"));
         Structure[] structures = new Structure[pdbs.size()];
         for (int i = 0; i < pdbs.size(); i++) {
             try {
@@ -41,9 +45,17 @@ public class Externals {
             }
         }
 
+        List<Chain> list = new ArrayList<>();
+        for (Structure s : structures) {
+            list.add(s.getChain(0));
+        }
+        Chain[] chains = list.toArray(new Chain[list.size()]);
+        ComparisonLocalMulti.newInstance(chains, chains[0],
+                Arrays.asList(MCQ.USED_ANGLES_NAMES));
+
         XMLSerializable xmlResults = ComparisonLocal.newInstance(
                 structures[0].getChain(0), structures[1].getChain(0),
-                MCQ.USED_ANGLES_NAMES);
+                Arrays.asList(MCQ.USED_ANGLES_NAMES));
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -54,6 +66,11 @@ public class Externals {
                 + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File(
                 "/tmp/local.py"), new File("/tmp/local.pdf"), xmlResults,
                 parameters);
+
+        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+                + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"),
+                new File("/tmp/multi.py"), new File("/tmp/multi.pdf"),
+                xmlResults, parameters);
 
         double[][] matrix = new MCQ().compare(structures, null);
         String[] labels = new String[pdbs.size()];

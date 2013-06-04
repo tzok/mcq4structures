@@ -3,7 +3,10 @@ package pl.poznan.put.cs.bioserver.beans;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +17,9 @@ import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
+import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.gui.DialogColorbar;
+import pl.poznan.put.cs.bioserver.gui.MainWindow;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
@@ -38,7 +43,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
     }
 
     public static ComparisonLocalMulti newInstance(Chain[] chains,
-            Chain reference, String[] angleNames) throws StructureException {
+            Chain reference, Collection<String> angleNames)
+            throws StructureException {
         List<ComparisonLocal> list = new ArrayList<>();
         for (int i = 0; i < chains.length; i++) {
             if (reference.equals(chains[i])) {
@@ -101,5 +107,18 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         }
         filename += ".csv";
         return new File(filename);
+    }
+
+    @Override
+    public void visualizeHighQuality() {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("cmap", "matplotlib.cm.RdYlGn");
+        parameters.put("interpolation", "none");
+        parameters.put("min", "0");
+        parameters.put("max", "3.1415");
+
+        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
+                + "bioserver/external/MatplotlibLocalMulti.xsl");
+        Matplotlib.runXsltAndPython(resource, results.get(0), parameters);
     }
 }

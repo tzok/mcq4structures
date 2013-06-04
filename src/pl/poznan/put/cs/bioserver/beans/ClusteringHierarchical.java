@@ -4,9 +4,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
+import pl.poznan.put.cs.bioserver.helper.Visualizable;
 
 @XmlRootElement
-public class ClusteringHierarchical extends XMLSerializable {
+public class ClusteringHierarchical extends XMLSerializable implements
+        Visualizable {
     private static final long serialVersionUID = -933748828643803893L;
 
     ComparisonGlobal comparison;
@@ -36,5 +38,17 @@ public class ClusteringHierarchical extends XMLSerializable {
     @XmlElement
     public void setMethod(Method method) {
         this.method = method;
+    }
+
+    @Override
+    public void visualize() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visualizeHighQuality() {
+        // TODO Auto-generated method stub
+
     }
 }
