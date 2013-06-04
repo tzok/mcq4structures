@@ -29,7 +29,7 @@ public class PrintAngles {
                 for (Quadruplet quadruplet : DihedralAngles.getQuadruplets(atomArray, type)) {
                     double dihedral = DihedralAngles.calculateDihedral(quadruplet.getAtoms());
                     System.out.println(type.getAngleName() + " "
-                            + quadruplet.getAtoms()[1].getGroup().getResidueNumber() + " "
+                            + quadruplet.getAtoms().b.getGroup().getResidueNumber() + " "
                             + dihedral);
                 }
             }

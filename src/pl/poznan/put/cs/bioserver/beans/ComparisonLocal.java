@@ -11,7 +11,6 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -60,7 +59,7 @@ import com.csvreader.CsvWriter;
 public class ComparisonLocal extends XMLSerializable implements Exportable, Visualizable {
     private static final long serialVersionUID = 4652567875810044094L;
 
-    public static ComparisonLocal newInstance(Chain c1, Chain c2, Collection<String> angleNames)
+    public static ComparisonLocal newInstance(Chain c1, Chain c2, List<String> angleNames)
             throws StructureException {
         Structure[] s = new Structure[] { new StructureImpl((Chain) c1.clone()),
                 new StructureImpl((Chain) c2.clone()) };
@@ -93,7 +92,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
     }
 
     private static ComparisonLocal newInstance(Map<String, List<AngleDifference>> comparison,
-            String title, Collection<String> angleNames) {
+            String title, List<String> angleNames) {
         Set<String> setAngles = new HashSet<>(angleNames);
 
         /*

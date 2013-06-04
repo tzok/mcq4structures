@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
+import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
 /**
  * A class to calculate and manage dihedral angles for given BioJava structure.
@@ -66,7 +67,8 @@ public final class DihedralAngles {
             }
 
             if (!found) {
-                AngleDifference diff = new AngleDifference(q1.getAtoms(), new Atom[4],
+                AngleDifference diff = new AngleDifference(q1.getAtoms(),
+                        new UniTypeQuadruplet<Atom>(null, null, null, null),
                         angleType.getAngleName());
                 differences.add(diff);
             }
@@ -81,8 +83,8 @@ public final class DihedralAngles {
      *            A 4-tuple of atoms.
      * @return Value of the tosion angle.
      */
-    public static double calculateDihedral(Atom[] atoms) {
-        return DihedralAngles.calculateDihedral(atoms[0], atoms[1], atoms[2], atoms[3]);
+    public static double calculateDihedral(UniTypeQuadruplet<Atom> atoms) {
+        return DihedralAngles.calculateDihedral(atoms.a, atoms.b, atoms.c, atoms.d);
     }
 
     /**
@@ -141,13 +143,13 @@ public final class DihedralAngles {
             Group group = atom.getGroup();
             assert group.getChainId().length() == 1;
 
-            String[] atomNames = angleType.getAtomNames(group);
+            UniTypeQuadruplet<String> atomNames = angleType.getAtomNames(group);
             if (atomNames == null) {
                 continue;
             }
 
             for (int i = 0; i < 4; i++) {
-                if (atom.getFullName().equals(atomNames[i])) {
+                if (atom.getFullName().equals(atomNames.get(i))) {
                     if (i == 0) {
                         listReference.add(atom);
                     }
@@ -158,7 +160,7 @@ public final class DihedralAngles {
             }
         }
 
-        int[] groupRule = angleType.getGroupRule();
+        UniTypeQuadruplet<Integer> groupRule = angleType.getGroupRule();
         List<Quadruplet> result = new ArrayList<>();
         for (Atom atom : listReference) {
             Group group = atom.getGroup();
@@ -168,19 +170,18 @@ public final class DihedralAngles {
             List<Atom> listQuad = new ArrayList<>();
             listQuad.add(atom);
             for (int i = 1; i < 4; i++) {
-                Atom found = (Atom) mapChainResidue[i].get(chain, residue + groupRule[i]);
+                Atom found = (Atom) mapChainResidue[i].get(chain, residue + groupRule.get(i));
                 if (found != null) {
                     listQuad.add(found);
                 }
             }
 
             if (listQuad.size() == 4) {
-                Atom[] array = listQuad.toArray(new Atom[listQuad.size()]);
-                int[] indices = new int[4];
-                for (int k = 0; k < 4; k++) {
-                    indices[k] = reverseMap.get(array[k]);
-                }
-                result.add(new Quadruplet(array, indices));
+                UniTypeQuadruplet<Atom> quadAtom = new UniTypeQuadruplet<>(listQuad);
+                UniTypeQuadruplet<Integer> quadIndex = new UniTypeQuadruplet<>(
+                        reverseMap.get(quadAtom.a), reverseMap.get(quadAtom.b),
+                        reverseMap.get(quadAtom.c), reverseMap.get(quadAtom.d));
+                result.add(new Quadruplet(quadAtom, quadIndex));
             } else {
                 DihedralAngles.LOGGER.debug("Quad not found, for angle: "
                         + angleType.getAngleName() + ". Structure: "

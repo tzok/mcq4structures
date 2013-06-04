@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -747,7 +746,7 @@ public class MainWindow extends JFrame {
         ComparisonLocalMulti localMulti;
         try {
             localMulti = ComparisonLocalMulti.newInstance(chains, chains.get(index),
-                    Arrays.asList(dialogAngles.getAngles()));
+                    dialogAngles.getAngles());
         } catch (StructureException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -783,7 +782,7 @@ public class MainWindow extends JFrame {
         try {
             comparisonLocal = ComparisonLocal.newInstance(structures.getLeft(),
                     structures.getRight(), chains.getLeft(), chains.getRight(),
-                    Arrays.asList(dialogAngles.getAngles()));
+                    dialogAngles.getAngles());
         } catch (StructureException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);

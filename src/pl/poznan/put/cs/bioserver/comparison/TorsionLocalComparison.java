@@ -3,7 +3,6 @@ package pl.poznan.put.cs.bioserver.comparison;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -66,7 +65,7 @@ public class TorsionLocalComparison extends LocalComparison {
     }
 
     public static Map<String, List<AngleDifference>> compare(Structure s1, Structure s2,
-            Collection<String> angles) throws StructureException {
+            List<String> angles) throws StructureException {
         boolean wasAligned = false;
         Pair<List<Atom>, List<Atom>> atoms = Helper.getCommonAtomArray(s1, s2, false);
         if (atoms == null) {

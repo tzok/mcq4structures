@@ -19,7 +19,6 @@ public class RGB extends XMLSerializable {
 
     float r;
     float g;
-
     float b;
 
     public float getB() {

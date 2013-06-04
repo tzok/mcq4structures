@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
 
     private int rowCount;
     private int columnCount;
-    private String[] columns;
+    private List<String> columns;
     private Object[][] data;
 
     public TableModelLocalMulti(ComparisonLocalMulti localMulti) {
@@ -28,10 +29,10 @@ public class TableModelLocalMulti extends AbstractTableModel {
         columnCount = results.size() + 1;
 
         data = new Object[rowCount][columnCount];
-        columns = new String[columnCount];
+        columns = new ArrayList<>();
         for (int i = 0; i < columnCount; i++) {
             if (i == 0) {
-                columns[0] = "Residue\\Structures";
+                columns.add("Residue\\Structures");
                 for (int j = 0; j < rowCount; j++) {
                     data[j][0] = ticks.get(j);
                 }
@@ -39,7 +40,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
             }
 
             ComparisonLocal comparisonLocal = results.get(i - 1);
-            columns[i] = comparisonLocal.getTitle();
+            columns.add(comparisonLocal.getTitle());
 
             Map<String, Angle> angles = comparisonLocal.getAngles();
             Angle angle = angles.get("AVERAGE");
@@ -59,7 +60,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
 
     @Override
     public String getColumnName(int column) {
-        return columns[column];
+        return columns.get(column);
     }
 
     @Override

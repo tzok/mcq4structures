@@ -3,6 +3,8 @@ package pl.poznan.put.cs.bioserver.torsion;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.ResidueNumber;
 
+import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
+
 /**
  * A class representing a difference between two torsion angles.
  * 
@@ -63,11 +65,11 @@ public class AngleDifference implements Comparable<AngleDifference> {
      * @param angleName
      *            The name of the angle.
      */
-    AngleDifference(Atom[] q1, Atom[] q2, String angleName) {
+    AngleDifference(UniTypeQuadruplet<Atom> q1, UniTypeQuadruplet<Atom> q2, String angleName) {
         angle1 = DihedralAngles.calculateDihedral(q1);
         angle2 = DihedralAngles.calculateDihedral(q2);
         difference = DihedralAngles.subtractDihedral(angle1, angle2);
-        residue = q1[1].getGroup().getResidueNumber();
+        residue = q1.b.getGroup().getResidueNumber();
         this.angleName = angleName;
     }
 

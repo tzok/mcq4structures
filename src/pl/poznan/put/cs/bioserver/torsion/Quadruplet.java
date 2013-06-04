@@ -1,8 +1,8 @@
 package pl.poznan.put.cs.bioserver.torsion;
 
-import java.util.Arrays;
-
 import org.biojava.bio.structure.Atom;
+
+import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
 /**
  * An ordered four of atoms representing one torsion angle.
@@ -10,8 +10,8 @@ import org.biojava.bio.structure.Atom;
  * @author tzok
  */
 public class Quadruplet {
-    private Atom[] array;
-    private int[] indices;
+    private UniTypeQuadruplet<Atom> atoms;
+    private UniTypeQuadruplet<Integer> indices;
 
     /**
      * Create an instance of quadruplet saving the four atoms information and
@@ -22,13 +22,13 @@ public class Quadruplet {
      * @param indices
      *            Indices of atoms in original list of atoms.
      */
-    Quadruplet(Atom[] array, int[] indices) {
-        this.array = array.clone();
-        this.indices = indices.clone();
+    Quadruplet(UniTypeQuadruplet<Atom> atoms, UniTypeQuadruplet<Integer> indices) {
+        this.atoms = atoms;
+        this.indices = indices;
     }
 
-    public Atom[] getAtoms() {
-        return array.clone();
+    public UniTypeQuadruplet<Atom> getAtoms() {
+        return atoms;
     }
 
     /**
@@ -44,10 +44,10 @@ public class Quadruplet {
      */
     boolean isCorresponding(Quadruplet q, boolean wasAligned) {
         if (wasAligned) {
-            return Arrays.equals(indices, q.indices);
+            return indices.equals(q.indices);
         }
-        int r1 = array[0].getGroup().getResidueNumber().getSeqNum();
-        int r2 = q.array[0].getGroup().getResidueNumber().getSeqNum();
+        int r1 = atoms.a.getGroup().getResidueNumber().getSeqNum();
+        int r2 = q.atoms.a.getGroup().getResidueNumber().getSeqNum();
         return r1 == r2;
     }
 }
