@@ -71,7 +71,7 @@ public class XSLT {
     public static String transform(URL resource, Source xml,
             Map<String, Object> parameters) throws IOException {
         try (InputStream stream = resource.openStream()) {
-            return transform(new StreamSource(stream), xml, parameters);
+            return XSLT.transform(new StreamSource(stream), xml, parameters);
         }
     }
 

@@ -739,45 +739,6 @@ public class MainWindow extends JFrame {
         thread.start();
     }
 
-    private void compareLocalPair() {
-        Structure[] structures = new Structure[2];
-        for (int i = 0; i < 2; i++) {
-            structures[i] = new StructureImpl();
-            structures[i].setChains(Arrays.asList(dialogChains.getChains()[i]));
-        }
-
-        progressBar.setMaximum(1);
-        progressBar.setValue(0);
-        ComparisonLocal comparisonLocal;
-        try {
-            comparisonLocal = ComparisonLocal.newInstance(
-                    dialogChains.getStructures(), dialogChains.getChains(),
-                    Arrays.asList(dialogAngles.getAngles()));
-        } catch (StructureException e) {
-            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        progressBar.setValue(1);
-
-        exportable = comparisonLocal;
-        visualizable = comparisonLocal;
-
-        TableModelLocal model = new TableModelLocal(comparisonLocal);
-        tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
-        tableMatrix.setModel(model);
-
-        itemSave.setEnabled(true);
-        itemSave.setText("Save results (CSV)");
-        itemVisualise.setEnabled(true);
-        itemVisualiseHq.setEnabled(true);
-        itemCluster.setEnabled(false);
-
-        labelInfoMatrix.setText("<html>" + "Structures selected for local "
-                + "distance measure: " + dialogChains.getSelectionDescription()
-                + "<br>" + "Local distance vector(s):" + "</html>");
-    }
-
     private void compareLocalMulti() {
         Chain[] chains = dialogChainsMultiple.getChains();
         String[] names = new String[chains.length];
@@ -836,6 +797,45 @@ public class MainWindow extends JFrame {
                 + "distance measure: "
                 + dialogChainsMultiple.getSelectionDescription() + "<br>"
                 + "Local distance vector(s):" + "</html>");
+    }
+
+    private void compareLocalPair() {
+        Structure[] structures = new Structure[2];
+        for (int i = 0; i < 2; i++) {
+            structures[i] = new StructureImpl();
+            structures[i].setChains(Arrays.asList(dialogChains.getChains()[i]));
+        }
+
+        progressBar.setMaximum(1);
+        progressBar.setValue(0);
+        ComparisonLocal comparisonLocal;
+        try {
+            comparisonLocal = ComparisonLocal.newInstance(
+                    dialogChains.getStructures(), dialogChains.getChains(),
+                    Arrays.asList(dialogAngles.getAngles()));
+        } catch (StructureException e) {
+            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        progressBar.setValue(1);
+
+        exportable = comparisonLocal;
+        visualizable = comparisonLocal;
+
+        TableModelLocal model = new TableModelLocal(comparisonLocal);
+        tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
+        tableMatrix.setModel(model);
+
+        itemSave.setEnabled(true);
+        itemSave.setText("Save results (CSV)");
+        itemVisualise.setEnabled(true);
+        itemVisualiseHq.setEnabled(true);
+        itemCluster.setEnabled(false);
+
+        labelInfoMatrix.setText("<html>" + "Structures selected for local "
+                + "distance measure: " + dialogChains.getSelectionDescription()
+                + "<br>" + "Local distance vector(s):" + "</html>");
     }
 
     private ImageIcon loadIcon(String name) {

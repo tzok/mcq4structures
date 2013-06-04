@@ -20,9 +20,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
 import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
+import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer;
 import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
@@ -121,8 +121,8 @@ public class DialogCluster extends JDialog {
                 if (hierarchical.isSelected()) {
                     resource = DialogCluster.class
                             .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
-                    Method linkageMethod = (new Method[] { Method.COMPLETE,
-                            Method.SINGLE, Method.AVERAGE })[linkage
+                    Method linkageMethod = new Method[] { Method.COMPLETE,
+                            Method.SINGLE, Method.AVERAGE }[linkage
                             .getSelectedIndex()];
                     xmlSerializable = ClusteringHierarchical.newInstance(
                             comparisonGlobal, linkageMethod);

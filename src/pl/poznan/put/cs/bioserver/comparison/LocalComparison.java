@@ -5,7 +5,7 @@ import org.biojava.bio.structure.Structure;
 /**
  * An abstraction for any local comparison measure.
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 abstract class LocalComparison {
     /**

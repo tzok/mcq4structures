@@ -31,27 +31,15 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         Exportable, Visualizable {
     private static final long serialVersionUID = -6549267536864184480L;
 
-    List<ComparisonLocal> results;
-
-    public List<ComparisonLocal> getResults() {
-        return results;
-    }
-
-    @XmlElement
-    public void setResults(List<ComparisonLocal> results) {
-        this.results = results;
-    }
-
     public static ComparisonLocalMulti newInstance(Chain[] chains,
             Chain reference, Collection<String> angleNames)
             throws StructureException {
         List<ComparisonLocal> list = new ArrayList<>();
-        for (int i = 0; i < chains.length; i++) {
-            if (reference.equals(chains[i])) {
+        for (Chain chain : chains) {
+            if (reference.equals(chain)) {
                 continue;
             }
-            list.add(ComparisonLocal.newInstance(reference, chains[i],
-                    angleNames));
+            list.add(ComparisonLocal.newInstance(reference, chain, angleNames));
         }
 
         ComparisonLocalMulti instance = new ComparisonLocalMulti();
@@ -59,11 +47,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         return instance;
     }
 
-    @Override
-    public void visualize() {
-        DialogColorbar dialogColorbar = new DialogColorbar(this);
-        dialogColorbar.setVisible(true);
-    }
+    List<ComparisonLocal> results;
 
     @Override
     public void export(File file) throws IOException {
@@ -98,6 +82,15 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         }
     }
 
+    public List<ComparisonLocal> getResults() {
+        return results;
+    }
+
+    @XmlElement
+    public void setResults(List<ComparisonLocal> results) {
+        this.results = results;
+    }
+
     @Override
     public File suggestName() {
         String filename = Helper.getExportPrefix();
@@ -107,6 +100,12 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         }
         filename += ".csv";
         return new File(filename);
+    }
+
+    @Override
+    public void visualize() {
+        DialogColorbar dialogColorbar = new DialogColorbar(this);
+        dialogColorbar.setVisible(true);
     }
 
     @Override

@@ -21,6 +21,10 @@ public final class PdbChooser {
         PdbChooser.chooser.setMultiSelectionEnabled(true);
     }
 
+    public static File getCurrentDirectory() {
+        return PdbChooser.chooser.getCurrentDirectory();
+    }
+
     public static File[] getSelectedFiles(Component parent) {
         int state = PdbChooser.chooser.showOpenDialog(parent);
         if (state == JFileChooser.APPROVE_OPTION) {
@@ -30,9 +34,5 @@ public final class PdbChooser {
     }
 
     private PdbChooser() {
-    }
-
-    public static File getCurrentDirectory() {
-        return PdbChooser.chooser.getCurrentDirectory();
     }
 }

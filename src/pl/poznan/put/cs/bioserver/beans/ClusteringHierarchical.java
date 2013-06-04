@@ -11,9 +11,6 @@ public class ClusteringHierarchical extends XMLSerializable implements
         Visualizable {
     private static final long serialVersionUID = -933748828643803893L;
 
-    ComparisonGlobal comparison;
-    Method method;
-
     public static ClusteringHierarchical newInstance(
             ComparisonGlobal comparison, Method method) {
         ClusteringHierarchical instance = new ClusteringHierarchical();
@@ -21,18 +18,21 @@ public class ClusteringHierarchical extends XMLSerializable implements
         instance.setMethod(method);
         return instance;
     }
+    ComparisonGlobal comparison;
+
+    Method method;
 
     public ComparisonGlobal getComparison() {
         return comparison;
     }
 
+    public Method getMethod() {
+        return method;
+    }
+
     @XmlElement
     public void setComparison(ComparisonGlobal comparison) {
         this.comparison = comparison;
-    }
-
-    public Method getMethod() {
-        return method;
     }
 
     @XmlElement

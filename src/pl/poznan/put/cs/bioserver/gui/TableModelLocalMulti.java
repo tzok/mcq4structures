@@ -44,7 +44,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
             Map<String, Angle> angles = comparisonLocal.getAngles();
             Angle angle = angles.get("AVERAGE");
             assert angle != null;
-            
+
             double[] deltas = angle.getDeltas();
             for (int j = 0; j < rowCount; j++) {
                 data[j][i] = deltas[j];

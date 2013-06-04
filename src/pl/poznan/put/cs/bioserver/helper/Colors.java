@@ -35,9 +35,10 @@ public class Colors {
             new Color(153, 204, 50), };
 
     public static RGB[] toRGB() {
-        RGB[] result = new RGB[ALL.length];
-        for (int i = 0; i < ALL.length; i++) {
-            result[i] = RGB.newInstance(ALL[i].getRGBColorComponents(null));
+        RGB[] result = new RGB[Colors.ALL.length];
+        for (int i = 0; i < Colors.ALL.length; i++) {
+            result[i] = RGB.newInstance(Colors.ALL[i]
+                    .getRGBColorComponents(null));
         }
         return result;
     }

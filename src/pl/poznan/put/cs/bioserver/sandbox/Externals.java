@@ -31,6 +31,20 @@ import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public class Externals {
+    public static List<File> list(File directory) {
+        List<File> list = new ArrayList<>();
+        for (File file : directory.listFiles()) {
+            if (file.isDirectory()) {
+                list.addAll(BenchmarkReference.list(file));
+            } else {
+                if (file.getName().endsWith(".pdb")) {
+                    list.add(file);
+                }
+            }
+        }
+        return list;
+    }
+
     public static void main(String[] args) throws ParserConfigurationException,
             IOException, StructureException, JAXBException,
             TransformerException {
@@ -97,19 +111,5 @@ public class Externals {
                 + "put/cs/bioserver/external/MatplotlibPartitional.xsl"),
                 new File("/tmp/partitional.py"), new File(
                         "/tmp/partitional.pdf"), xmlResults);
-    }
-
-    public static List<File> list(File directory) {
-        List<File> list = new ArrayList<>();
-        for (File file : directory.listFiles()) {
-            if (file.isDirectory()) {
-                list.addAll(BenchmarkReference.list(file));
-            } else {
-                if (file.getName().endsWith(".pdb")) {
-                    list.add(file);
-                }
-            }
-        }
-        return list;
     }
 }

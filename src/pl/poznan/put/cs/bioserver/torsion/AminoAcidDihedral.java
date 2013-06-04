@@ -9,7 +9,7 @@ import org.biojava.bio.structure.Group;
 /**
  * Dihedral angles for protein group (amino acid).
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public final class AminoAcidDihedral implements AngleType {
     /** All names of angles in the amino acid. */
@@ -97,191 +97,191 @@ public final class AminoAcidDihedral implements AngleType {
         AminoAcidDihedral.mapAngleToRules.put(AngleName.CHI5, new int[] { 0, 0,
                 0, 0 });
 
-        mapResidueAngleNameToAtoms = new MultiKeyMap();
+        AminoAcidDihedral.mapResidueAngleNameToAtoms = new MultiKeyMap();
         // alanine, ala, A (it has zero torsion angles in side chains)
         // arginine, arg, R
-        mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD });
-        mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD, AminoAcidDihedral.NE });
-        mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI4, new String[] {
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD,
-                AminoAcidDihedral.NE, AminoAcidDihedral.CZ });
-        mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI5, new String[] {
-                AminoAcidDihedral.CD, AminoAcidDihedral.NE,
-                AminoAcidDihedral.CZ, AminoAcidDihedral.NH1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD, AminoAcidDihedral.NE });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI4,
+                new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD,
+                        AminoAcidDihedral.NE, AminoAcidDihedral.CZ });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ARG", AngleName.CHI5,
+                new String[] { AminoAcidDihedral.CD, AminoAcidDihedral.NE,
+                        AminoAcidDihedral.CZ, AminoAcidDihedral.NH1 });
         // asparagine, asn, N
-        mapResidueAngleNameToAtoms.put("ASN", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("ASN", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.OD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ASN", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ASN", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.OD1 });
         // aspartic acid, asp, D
-        mapResidueAngleNameToAtoms.put("ASP", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("ASP", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.OD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ASP", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ASP", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.OD1 });
         // asparagine or aspartic acid, asx, B
-        mapResidueAngleNameToAtoms.put("ASX", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("ASX", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.OD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ASX", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ASX", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.OD1 });
         // cysteine, cys, C
-        mapResidueAngleNameToAtoms.put("CYS", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.SG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("CYS", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.SG });
         // glutamic acid, glu, E
-        mapResidueAngleNameToAtoms.put("GLU", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("GLU", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD });
-        mapResidueAngleNameToAtoms.put("GLU", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD, AminoAcidDihedral.OE1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLU", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLU", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLU", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD, AminoAcidDihedral.OE1 });
         // glutamine, gln, Q
-        mapResidueAngleNameToAtoms.put("GLN", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("GLN", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD });
-        mapResidueAngleNameToAtoms.put("GLN", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD, AminoAcidDihedral.OE1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLN", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLN", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLN", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD, AminoAcidDihedral.OE1 });
         // glutamine or glutamic acid, glx, Z
-        mapResidueAngleNameToAtoms.put("GLX", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("GLX", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD });
-        mapResidueAngleNameToAtoms.put("GLX", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD, AminoAcidDihedral.OE1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLX", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLX", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("GLX", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD, AminoAcidDihedral.OE1 });
         // glycine, gly, G (it has zero torsion angles in side chains)
         // histidine, his, H
-        mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.ND1 });
-        mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.ND1, AminoAcidDihedral.CE1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.ND1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.ND1, AminoAcidDihedral.CE1 });
         // isoleucine, ile, I
-        mapResidueAngleNameToAtoms.put("ILE", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG1 });
-        mapResidueAngleNameToAtoms.put("ILE", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG1, AminoAcidDihedral.CD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ILE", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ILE", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG1, AminoAcidDihedral.CD1 });
         // leucine, leu, L
-        mapResidueAngleNameToAtoms.put("LEU", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("LEU", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("LEU", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("LEU", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
         // lysine, lys, K
-        mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD });
-        mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD, AminoAcidDihedral.CE });
-        mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI4, new String[] {
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD,
-                AminoAcidDihedral.CE, AminoAcidDihedral.NZ });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD, AminoAcidDihedral.CE });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("LYS", AngleName.CHI4,
+                new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD,
+                        AminoAcidDihedral.CE, AminoAcidDihedral.NZ });
         // methionine, met, M
-        mapResidueAngleNameToAtoms.put("MET", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("MET", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.SD });
-        mapResidueAngleNameToAtoms.put("MET", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.SD, AminoAcidDihedral.CE });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("MET", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("MET", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.SD });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("MET", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.SD, AminoAcidDihedral.CE });
         // phenylalanine, phe, F
-        mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
-        mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD1, AminoAcidDihedral.CE1 });
-        mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI4, new String[] {
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
-                AminoAcidDihedral.CE1, AminoAcidDihedral.CZ });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD1, AminoAcidDihedral.CE1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI4,
+                new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
+                        AminoAcidDihedral.CE1, AminoAcidDihedral.CZ });
         // proline, pro, P
-        mapResidueAngleNameToAtoms.put("PRO", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("PRO", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PRO", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PRO", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD });
         // serine, ser, S
-        mapResidueAngleNameToAtoms.put("SER", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.OG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("SER", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.OG });
         // threonine, thr, T
-        mapResidueAngleNameToAtoms.put("THR", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.OG1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("THR", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.OG1 });
         // tryptophan, trp, W
-        mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
-        mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD1, AminoAcidDihedral.NE1 });
-        mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI4, new String[] {
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
-                AminoAcidDihedral.NE1, AminoAcidDihedral.CZ2 });
-        mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI5, new String[] {
-                AminoAcidDihedral.CD1, AminoAcidDihedral.NE1,
-                AminoAcidDihedral.CZ2, AminoAcidDihedral.CH2 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD1, AminoAcidDihedral.NE1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI4,
+                new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
+                        AminoAcidDihedral.NE1, AminoAcidDihedral.CZ2 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI5,
+                new String[] { AminoAcidDihedral.CD1, AminoAcidDihedral.NE1,
+                        AminoAcidDihedral.CZ2, AminoAcidDihedral.CH2 });
         // tyrosine, tyr, Y
-        mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG });
-        mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI2, new String[] {
-                AminoAcidDihedral.CA, AminoAcidDihedral.CB,
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
-        mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI3, new String[] {
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                AminoAcidDihedral.CD1, AminoAcidDihedral.CE1 });
-        mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI4, new String[] {
-                AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
-                AminoAcidDihedral.CE1, AminoAcidDihedral.CZ });
-        mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI5, new String[] {
-                AminoAcidDihedral.CD1, AminoAcidDihedral.CE1,
-                AminoAcidDihedral.CZ, AminoAcidDihedral.OH });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI2,
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                        AminoAcidDihedral.CG, AminoAcidDihedral.CD1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI3,
+                new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
+                        AminoAcidDihedral.CD1, AminoAcidDihedral.CE1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI4,
+                new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
+                        AminoAcidDihedral.CE1, AminoAcidDihedral.CZ });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI5,
+                new String[] { AminoAcidDihedral.CD1, AminoAcidDihedral.CE1,
+                        AminoAcidDihedral.CZ, AminoAcidDihedral.OH });
         // valine, val, V
-        mapResidueAngleNameToAtoms.put("VAL", AngleName.CHI1, new String[] {
-                AminoAcidDihedral.N, AminoAcidDihedral.CA,
-                AminoAcidDihedral.CB, AminoAcidDihedral.CG1 });
+        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("VAL", AngleName.CHI1,
+                new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CB, AminoAcidDihedral.CG1 });
     }
 
     public static AngleType[] getAngles() {

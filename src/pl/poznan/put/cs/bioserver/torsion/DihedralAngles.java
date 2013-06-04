@@ -17,7 +17,7 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
 /**
  * A class to calculate and manage dihedral angles for given BioJava structure.
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public final class DihedralAngles {
     private static final Logger LOGGER = LoggerFactory

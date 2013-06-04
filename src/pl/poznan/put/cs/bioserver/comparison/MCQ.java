@@ -24,7 +24,7 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  * Implementation of MCQ global similarity measure based on torsion angle
  * representation.
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class MCQ extends GlobalComparison {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
@@ -39,9 +39,9 @@ public class MCQ extends GlobalComparison {
         System.arraycopy(array2, 0, MCQ.USED_ANGLES, array1.length,
                 array2.length);
 
-        USED_ANGLES_NAMES = new String[USED_ANGLES.length];
-        for (int i = 0; i < USED_ANGLES.length; i++) {
-            USED_ANGLES_NAMES[i] = USED_ANGLES[i].getAngleName();
+        USED_ANGLES_NAMES = new String[MCQ.USED_ANGLES.length];
+        for (int i = 0; i < MCQ.USED_ANGLES.length; i++) {
+            MCQ.USED_ANGLES_NAMES[i] = MCQ.USED_ANGLES[i].getAngleName();
         }
     }
 

@@ -211,6 +211,10 @@ public final class Helper {
         return sdf.format(new Date());
     }
 
+    public static boolean isAminoAcid(Group g) {
+        return g.getType().equals("amino") || g.hasAminoAtoms();
+    }
+
     public static boolean isNucleicAcid(Chain c) {
         int amino = 0;
         int nucleotide = 0;
@@ -233,6 +237,20 @@ public final class Helper {
             flag &= Helper.isNucleicAcid(c);
         }
         return flag;
+    }
+
+    public static boolean isNucleotide(Group g) {
+        if (g.getType().equals("nucleotide")) {
+            return true;
+        }
+
+        int count = 0;
+        for (Atom a : g.getAtoms()) {
+            if (Helper.SET_NUCLEOTIDE_ATOMS.contains(a.getFullName())) {
+                count++;
+            }
+        }
+        return count > Helper.SET_NUCLEOTIDE_ATOMS.size() / 2;
     }
 
     /**
@@ -309,36 +327,6 @@ public final class Helper {
         return result;
     }
 
-    private static void removeInsertedResidues(List<Group> g) {
-        Iterator<Group> iterator = g.iterator();
-        while (iterator.hasNext()) {
-            Group group = iterator.next();
-            if (group.getResidueNumber().getInsCode() != null) {
-                Helper.LOGGER.warn("Temporarily removing an inserted residue: "
-                        + group);
-                iterator.remove();
-            }
-        }
-    }
-
-    public static boolean isAminoAcid(Group g) {
-        return g.getType().equals("amino") || g.hasAminoAtoms();
-    }
-
-    public static boolean isNucleotide(Group g) {
-        if (g.getType().equals("nucleotide")) {
-            return true;
-        }
-
-        int count = 0;
-        for (Atom a : g.getAtoms()) {
-            if (Helper.SET_NUCLEOTIDE_ATOMS.contains(a.getFullName())) {
-                count++;
-            }
-        }
-        return count > Helper.SET_NUCLEOTIDE_ATOMS.size() / 2;
-    }
-
     /**
      * Change all asterisks (*) in atom names into apostrophes (').
      * 
@@ -354,6 +342,18 @@ public final class Helper {
             for (Atom a : g.getAtoms()) {
                 a.setName(a.getName().replace('*', '\''));
                 a.setFullName(a.getFullName().replace('*', '\''));
+            }
+        }
+    }
+
+    private static void removeInsertedResidues(List<Group> g) {
+        Iterator<Group> iterator = g.iterator();
+        while (iterator.hasNext()) {
+            Group group = iterator.next();
+            if (group.getResidueNumber().getInsCode() != null) {
+                Helper.LOGGER.warn("Temporarily removing an inserted residue: "
+                        + group);
+                iterator.remove();
             }
         }
     }

@@ -22,7 +22,7 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
 /**
  * Implementation of RMSD global similarity measure.
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class RMSD extends GlobalComparison {
     private static final Logger LOGGER = LoggerFactory.getLogger(RMSD.class);

@@ -20,12 +20,6 @@ public class ClusteringPartitional extends XMLSerializable implements
         Visualizable {
     private static final long serialVersionUID = -7474446942015119359L;
 
-    ComparisonGlobal comparison;
-    Point[][] points;
-    Point[] medoids;
-    String[] labels;
-    RGB[] colors;
-
     public static ClusteringPartitional newInstance(
             ComparisonGlobal comparison, Result clustering) {
         double[][] mds = MDS.multidimensionalScaling(
@@ -72,38 +66,42 @@ public class ClusteringPartitional extends XMLSerializable implements
         instance.colors = Colors.toRGB();
         return instance;
     }
+    ComparisonGlobal comparison;
+    Point[][] points;
+    Point[] medoids;
+    String[] labels;
+
+    RGB[] colors;
+
+    public RGB[] getColors() {
+        return colors;
+    }
 
     public ComparisonGlobal getComparison() {
         return comparison;
     }
 
-    @XmlElement
-    public void setComparison(ComparisonGlobal comparison) {
-        this.comparison = comparison;
-    }
-
-    public Point[][] getPoints() {
-        return points;
-    }
-
-    @XmlElementWrapper(name = "cluster")
-    @XmlElement(name = "points")
-    public void setPoints(Point[][] points) {
-        this.points = points;
+    public String[] getLabels() {
+        return labels;
     }
 
     public Point[] getMedoids() {
         return medoids;
     }
 
-    @XmlElementWrapper(name = "medoids")
-    @XmlElement(name = "item")
-    public void setMedoids(Point[] medoids) {
-        this.medoids = medoids;
+    public Point[][] getPoints() {
+        return points;
     }
 
-    public String[] getLabels() {
-        return labels;
+    @XmlElementWrapper(name = "colors")
+    @XmlElement(name = "item")
+    public void setColors(RGB[] colors) {
+        this.colors = colors;
+    }
+
+    @XmlElement
+    public void setComparison(ComparisonGlobal comparison) {
+        this.comparison = comparison;
     }
 
     @XmlElementWrapper(name = "labels")
@@ -112,14 +110,16 @@ public class ClusteringPartitional extends XMLSerializable implements
         this.labels = labels;
     }
 
-    public RGB[] getColors() {
-        return colors;
+    @XmlElementWrapper(name = "medoids")
+    @XmlElement(name = "item")
+    public void setMedoids(Point[] medoids) {
+        this.medoids = medoids;
     }
 
-    @XmlElementWrapper(name = "colors")
-    @XmlElement(name = "item")
-    public void setColors(RGB[] colors) {
-        this.colors = colors;
+    @XmlElementWrapper(name = "cluster")
+    @XmlElement(name = "points")
+    public void setPoints(Point[][] points) {
+        this.points = points;
     }
 
     @Override

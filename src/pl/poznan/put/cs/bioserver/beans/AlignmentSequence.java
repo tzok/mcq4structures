@@ -29,37 +29,6 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AlignmentSequence.class);
 
-    boolean isGlobal;
-    String alignment;
-    String title;
-
-    public boolean isGlobal() {
-        return isGlobal;
-    }
-
-    @XmlElement
-    public void setGlobal(boolean isGlobal) {
-        this.isGlobal = isGlobal;
-    }
-
-    public String getAlignment() {
-        return alignment;
-    }
-
-    @XmlElement
-    public void setAlignment(String alignment) {
-        this.alignment = alignment;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    @XmlElement
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     // /////////////////////////////////////////////////////////////////////////
     // static "constructors"
     public static AlignmentSequence newInstance(Chain[] chains, boolean isGlobal) {
@@ -67,7 +36,6 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
                 chains, isGlobal);
         return AlignmentSequence.newInstance(profile, chains, isGlobal);
     }
-
     public static AlignmentSequence newInstance(
             Profile<Sequence<Compound>, Compound> profile, Chain[] chains,
             boolean isGlobal) {
@@ -141,6 +109,11 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         result.setTitle(title);
         return result;
     }
+    boolean isGlobal;
+
+    String alignment;
+
+    String title;
 
     // /////////////////////////////////////////////////////////////////////////
     // other methods, implementation of interfaces
@@ -156,6 +129,33 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
             AlignmentSequence.LOGGER.error(
                     "Failed to export sequence alignment", e);
         }
+    }
+
+    public String getAlignment() {
+        return alignment;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public boolean isGlobal() {
+        return isGlobal;
+    }
+
+    @XmlElement
+    public void setAlignment(String alignment) {
+        this.alignment = alignment;
+    }
+
+    @XmlElement
+    public void setGlobal(boolean isGlobal) {
+        this.isGlobal = isGlobal;
+    }
+
+    @XmlElement
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override

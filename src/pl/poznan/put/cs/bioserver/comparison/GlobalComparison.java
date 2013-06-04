@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An abstraction of all global comparison measures.
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public abstract class GlobalComparison {
     private class CompareCallable implements Callable<SingleResult> {

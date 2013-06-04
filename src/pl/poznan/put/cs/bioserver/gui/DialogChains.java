@@ -210,10 +210,6 @@ final class DialogChains extends JDialog {
         return chains;
     }
 
-    public Structure[] getStructures() {
-        return structures;
-    }
-
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 2; i++) {
@@ -227,6 +223,10 @@ final class DialogChains extends JDialog {
             }
         }
         return builder.toString();
+    }
+
+    public Structure[] getStructures() {
+        return structures;
     }
 
     public int showDialog() {

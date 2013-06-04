@@ -11,7 +11,7 @@ import org.biojava.bio.structure.Group;
 /**
  * Dihedral angles for nucleic acid group (nucleotide).
  * 
- * @author Tomasz Żok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public final class NucleotideDihedral implements AngleType {
     /** All names of angles in a nucleotide. */

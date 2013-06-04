@@ -214,10 +214,6 @@ final class DialogStructures extends JDialog {
         });
     }
 
-    public Structure[] getStructures() {
-        return selectedStructures;
-    }
-
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < selectedStructures.length; i++) {
@@ -227,6 +223,10 @@ final class DialogStructures extends JDialog {
             }
         }
         return builder.toString();
+    }
+
+    public Structure[] getStructures() {
+        return selectedStructures;
     }
 
     public int showDialog() {

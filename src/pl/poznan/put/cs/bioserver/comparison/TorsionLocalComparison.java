@@ -28,7 +28,7 @@ import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 /**
  * Implementation of local dissimilarity measure based on torsion angles.
  * 
- * @author Tomasz ��ok (tzok[at]cs.put.poznan.pl)
+ * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class TorsionLocalComparison extends LocalComparison {
     private static final int TAU_COUNT = 5;
@@ -62,6 +62,27 @@ public class TorsionLocalComparison extends LocalComparison {
         }
         return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES, null,
                 wasAligned);
+    }
+
+    public static Map<String, List<AngleDifference>> compare(Structure s1,
+            Structure s2, Collection<String> angles) throws StructureException {
+        boolean wasAligned = false;
+        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2, false);
+        if (atoms == null) {
+            atoms = Helper.getCommonAtomArray(s1, s2, true);
+            wasAligned = true;
+        }
+
+        List<AngleType> list = new ArrayList<>();
+        Set<String> setAngles = new HashSet<>(angles);
+        for (AngleType type : MCQ.USED_ANGLES) {
+            if (setAngles.contains(type.getAngleName())) {
+                list.add(type);
+            }
+        }
+
+        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES,
+                list.toArray(new AngleType[list.size()]), wasAligned);
     }
 
     /**
@@ -254,26 +275,5 @@ public class TorsionLocalComparison extends LocalComparison {
         } catch (StructureException e) {
             throw new IncomparableStructuresException(e);
         }
-    }
-
-    public static Map<String, List<AngleDifference>> compare(Structure s1,
-            Structure s2, Collection<String> angles) throws StructureException {
-        boolean wasAligned = false;
-        Atom[][] atoms = Helper.getCommonAtomArray(s1, s2, false);
-        if (atoms == null) {
-            atoms = Helper.getCommonAtomArray(s1, s2, true);
-            wasAligned = true;
-        }
-
-        List<AngleType> list = new ArrayList<>();
-        Set<String> setAngles = new HashSet<>(angles);
-        for (AngleType type : MCQ.USED_ANGLES) {
-            if (setAngles.contains(type.getAngleName())) {
-                list.add(type);
-            }
-        }
-
-        return TorsionLocalComparison.compare(atoms, MCQ.USED_ANGLES,
-                list.toArray(new AngleType[list.size()]), wasAligned);
     }
 }

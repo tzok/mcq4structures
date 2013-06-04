@@ -61,58 +61,6 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         Visualizable {
     private static final long serialVersionUID = 4652567875810044094L;
 
-    Map<String, Angle> angles;
-    String[] ticks;
-    RGB[] colors;
-    String title;
-
-    public Map<String, Angle> getAngles() {
-        return angles;
-    }
-
-    public void setAngles(Map<String, Angle> angles) {
-        this.angles = angles;
-    }
-
-    public Angle[] getAngleArray() {
-        Angle[] angleArray = new Angle[angles.size()];
-        int i = 0;
-        for (Entry<String, Angle> entry : angles.entrySet()) {
-            angleArray[i] = entry.getValue();
-            i++;
-        }
-        return angleArray;
-    }
-
-    public String[] getTicks() {
-        return ticks;
-    }
-
-    @XmlElementWrapper(name = "ticks")
-    @XmlElement(name = "item")
-    public void setTicks(String[] ticks) {
-        this.ticks = ticks;
-    }
-
-    public RGB[] getColors() {
-        return colors;
-    }
-
-    @XmlElementWrapper(name = "colors")
-    @XmlElement(name = "item")
-    public void setColors(RGB[] colors) {
-        this.colors = colors;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    @XmlElement
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
             Collection<String> angleNames) throws StructureException {
         Structure[] s = new Structure[] {
@@ -129,11 +77,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         builder.append(c2.getChainID());
         String title = builder.toString();
 
-        return newInstance(
+        return ComparisonLocal.newInstance(
                 TorsionLocalComparison.compare(s[0], s[1], angleNames), title,
                 angleNames);
     }
-
     public static ComparisonLocal newInstance(Structure[] structures,
             Chain[][] chains, Collection<String> angleNames)
             throws StructureException {
@@ -146,11 +93,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         String[] names = StructureManager.getNames(structures);
         String title = names[0] + ", " + names[1];
 
-        return newInstance(
+        return ComparisonLocal.newInstance(
                 TorsionLocalComparison.compare(s[0], s[1], angleNames), title,
                 angleNames);
     }
-
     private static ComparisonLocal newInstance(
             Map<String, List<AngleDifference>> comparison, String title,
             Collection<String> angleNames) {
@@ -231,6 +177,13 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         result.colors = Colors.toRGB();
         return result;
     }
+    Map<String, Angle> angles;
+
+    String[] ticks;
+
+    RGB[] colors;
+
+    String title;
 
     @Override
     public void export(File file) throws IOException {
@@ -252,6 +205,53 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                 csvWriter.endRecord();
             }
         }
+    }
+
+    public Angle[] getAngleArray() {
+        Angle[] angleArray = new Angle[angles.size()];
+        int i = 0;
+        for (Entry<String, Angle> entry : angles.entrySet()) {
+            angleArray[i] = entry.getValue();
+            i++;
+        }
+        return angleArray;
+    }
+
+    public Map<String, Angle> getAngles() {
+        return angles;
+    }
+
+    public RGB[] getColors() {
+        return colors;
+    }
+
+    public String[] getTicks() {
+        return ticks;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setAngles(Map<String, Angle> angles) {
+        this.angles = angles;
+    }
+
+    @XmlElementWrapper(name = "colors")
+    @XmlElement(name = "item")
+    public void setColors(RGB[] colors) {
+        this.colors = colors;
+    }
+
+    @XmlElementWrapper(name = "ticks")
+    @XmlElement(name = "item")
+    public void setTicks(String[] ticks) {
+        this.ticks = ticks;
+    }
+
+    @XmlElement
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override
@@ -299,17 +299,6 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Number parse(String source, ParsePosition parsePosition) {
-                return format.parse(source, parsePosition);
-            }
-
-            @Override
-            public StringBuffer format(long number, StringBuffer toAppendTo,
-                    FieldPosition pos) {
-                return format.format(number, toAppendTo, pos);
-            }
-
-            @Override
             public StringBuffer format(double number, StringBuffer toAppendTo,
                     FieldPosition pos) {
                 if (number == 0) {
@@ -319,6 +308,17 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                 }
                 return format.format(number / Math.PI, toAppendTo, pos).append(
                         " * \u03C0");
+            }
+
+            @Override
+            public StringBuffer format(long number, StringBuffer toAppendTo,
+                    FieldPosition pos) {
+                return format.format(number, toAppendTo, pos);
+            }
+
+            @Override
+            public Number parse(String source, ParsePosition parsePosition) {
+                return format.parse(source, parsePosition);
             }
         });
         XYPlot plot = new XYPlot(dataset, xAxis, yAxis, renderer);

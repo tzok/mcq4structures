@@ -19,32 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class Clusterer {
-    private interface ScoringFunction {
-        double score(Map<Integer, Set<Integer>> clustering, double[][] matrix);
-    }
-
     public static class Result {
-        public Set<Integer> medoids;
-        private double[][] matrix;
-        private double score;
-
-        public Result(double score, Set<Integer> medoids, double[][] matrix) {
-            this.score = score;
-            this.medoids = medoids;
-            this.matrix = matrix.clone();
-        }
-
-        public Result(ScoringFunction sf, Set<Integer> medoids,
-                double[][] matrix) {
-            this.medoids = medoids;
-            this.matrix = matrix;
-            this.score = sf.score(getClusterAssignment(), matrix);
-        }
-
-        public Map<Integer, Set<Integer>> getClusterAssignment() {
-            return Result.getClusterAssignments(medoids, matrix);
-        }
-
         /**
          * Assign every object to its closes medoid.
          * 
@@ -79,6 +54,31 @@ public final class Clusterer {
             }
             return clustering;
         }
+        public Set<Integer> medoids;
+        private double[][] matrix;
+
+        private double score;
+
+        public Result(double score, Set<Integer> medoids, double[][] matrix) {
+            this.score = score;
+            this.medoids = medoids;
+            this.matrix = matrix.clone();
+        }
+
+        public Result(ScoringFunction sf, Set<Integer> medoids,
+                double[][] matrix) {
+            this.medoids = medoids;
+            this.matrix = matrix;
+            score = sf.score(getClusterAssignment(), matrix);
+        }
+
+        public Map<Integer, Set<Integer>> getClusterAssignment() {
+            return Result.getClusterAssignments(medoids, matrix);
+        }
+    }
+
+    private interface ScoringFunction {
+        double score(Map<Integer, Set<Integer>> clustering, double[][] matrix);
     }
 
     /** Available hierarchical clustering types. */
@@ -110,8 +110,20 @@ public final class Clusterer {
 
     private static final Random RANDOM = new Random();
 
+    public static Result clusterPAM(double[][] matrix) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM);
+    }
+
+    public static Result clusterPAM(double[][] matrix, int k) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM, k);
+    }
+
     public static Result clusterPAMSIL(double[][] matrix) {
         return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL);
+    }
+
+    public static Result clusterPAMSIL(double[][] matrix, int k) {
+        return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL, k);
     }
 
     private static Result kMedoids(double[][] matrix, ScoringFunction sf) {
@@ -246,18 +258,6 @@ public final class Clusterer {
     private static double scoreCluster(Set<Integer> medoids, double[][] matrix,
             ScoringFunction sf) {
         return sf.score(Result.getClusterAssignments(medoids, matrix), matrix);
-    }
-
-    public static Result clusterPAM(double[][] matrix) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM);
-    }
-
-    public static Result clusterPAM(double[][] matrix, int k) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAM, k);
-    }
-
-    public static Result clusterPAMSIL(double[][] matrix, int k) {
-        return Clusterer.kMedoids(matrix, Clusterer.scoringPAMSIL, k);
     }
 
     static List<List<Integer>> getClusters() {

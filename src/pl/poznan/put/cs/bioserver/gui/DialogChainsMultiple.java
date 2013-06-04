@@ -43,6 +43,14 @@ final class DialogChainsMultiple extends JDialog {
         private List<Chain> listRNAs = new ArrayList<>();
         private List<Chain> listProteins = new ArrayList<>();
 
+        public void addElement(Chain f) {
+            if (Helper.isNucleicAcid(f)) {
+                listRNAs.add(f);
+            } else {
+                listProteins.add(f);
+            }
+        }
+
         @Override
         public Chain getElementAt(int index) {
             if (isRNA) {
@@ -52,12 +60,6 @@ final class DialogChainsMultiple extends JDialog {
                 return listProteins.get(index - listRNAs.size());
             }
             return listProteins.get(index);
-        }
-
-        @Override
-        public int getSize() {
-            return (isRNA ? listRNAs.size() : 0)
-                    + (isProtein ? listProteins.size() : 0);
         }
 
         public ArrayList<Chain> getElements() {
@@ -78,19 +80,17 @@ final class DialogChainsMultiple extends JDialog {
             return list;
         }
 
+        @Override
+        public int getSize() {
+            return (isRNA ? listRNAs.size() : 0)
+                    + (isProtein ? listProteins.size() : 0);
+        }
+
         public void removeElement(Chain f) {
             if (listRNAs.contains(f)) {
                 listRNAs.remove(f);
             } else {
                 listProteins.remove(f);
-            }
-        }
-
-        public void addElement(Chain f) {
-            if (Helper.isNucleicAcid(f)) {
-                listRNAs.add(f);
-            } else {
-                listProteins.add(f);
             }
         }
     }
@@ -139,8 +139,8 @@ final class DialogChainsMultiple extends JDialog {
                 boolean isRNA = Helper.isNucleicAcid(value);
                 int size = 0;
                 for (Group group : value.getAtomGroups()) {
-                    size += isRNA ? (Helper.isNucleotide(group) ? 1 : 0)
-                            : (Helper.isAminoAcid(group) ? 1 : 0);
+                    size += isRNA ? Helper.isNucleotide(group) ? 1 : 0 : Helper
+                            .isAminoAcid(group) ? 1 : 0;
                 }
 
                 String text = String.format("%s.%s (%s, %d %s)",
@@ -322,6 +322,18 @@ final class DialogChainsMultiple extends JDialog {
         return selectedChains;
     }
 
+    public String getSelectionDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (Chain c : selectedChains) {
+            builder.append(StructureManager.getName(c.getParent()));
+            builder.append('.');
+            builder.append(c.getChainID());
+            builder.append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length());
+        return builder.toString();
+    }
+
     public int showDialog() {
         List<Chain> setManager = new ArrayList<>();
         for (Structure structure : StructureManager.getAllStructures()) {
@@ -357,17 +369,5 @@ final class DialogChainsMultiple extends JDialog {
         chosenOption = DialogChainsMultiple.CANCEL;
         setVisible(true);
         return chosenOption;
-    }
-
-    public String getSelectionDescription() {
-        StringBuilder builder = new StringBuilder();
-        for (Chain c : selectedChains) {
-            builder.append(StructureManager.getName(c.getParent()));
-            builder.append('.');
-            builder.append(c.getChainID());
-            builder.append(", ");
-        }
-        builder.delete(builder.length() - 2, builder.length());
-        return builder.toString();
     }
 }

@@ -12,6 +12,20 @@ import org.biojava.bio.structure.io.PDBFileReader;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
 public class BenchmarkReference {
+    public static List<File> list(File directory) {
+        List<File> list = new ArrayList<>();
+        for (File file : directory.listFiles()) {
+            if (file.isDirectory()) {
+                list.addAll(BenchmarkReference.list(file));
+            } else {
+                if (file.getName().endsWith(".pdb")) {
+                    list.add(file);
+                }
+            }
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
         List<File> pdbs = BenchmarkReference.list(new File(
                 "/home/tzok/pdb/puzzles/"));
@@ -29,20 +43,6 @@ public class BenchmarkReference {
         for (double[] row : result) {
             System.out.println(Arrays.toString(row));
         }
-    }
-
-    public static List<File> list(File directory) {
-        List<File> list = new ArrayList<>();
-        for (File file : directory.listFiles()) {
-            if (file.isDirectory()) {
-                list.addAll(BenchmarkReference.list(file));
-            } else {
-                if (file.getName().endsWith(".pdb")) {
-                    list.add(file);
-                }
-            }
-        }
-        return list;
     }
 
 }

@@ -11,6 +11,20 @@ import org.biojava.bio.structure.io.PDBFileReader;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
 public class BenchmarkTime {
+    public static List<File> list(File directory) {
+        List<File> list = new ArrayList<>();
+        for (File file : directory.listFiles()) {
+            if (file.isDirectory()) {
+                list.addAll(BenchmarkTime.list(file));
+            } else {
+                if (file.getName().endsWith(".pdb")) {
+                    list.add(file);
+                }
+            }
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
         List<File> pdbs = BenchmarkTime
                 .list(new File("/home/tzok/pdb/puzzles/"));
@@ -31,20 +45,6 @@ public class BenchmarkTime {
             System.out.println("Time: " + (System.currentTimeMillis() - start)
                     + " ms");
         }
-    }
-
-    public static List<File> list(File directory) {
-        List<File> list = new ArrayList<>();
-        for (File file : directory.listFiles()) {
-            if (file.isDirectory()) {
-                list.addAll(BenchmarkTime.list(file));
-            } else {
-                if (file.getName().endsWith(".pdb")) {
-                    list.add(file);
-                }
-            }
-        }
-        return list;
     }
 
 }
