@@ -60,10 +60,16 @@ public class Externals {
         for (Structure s : structures) {
             list.add(s.getChain(0));
         }
-        ComparisonLocalMulti.newInstance(list, list.get(0), MCQ.USED_ANGLES_NAMES);
+        List<String> listNames = new ArrayList<>(MCQ.USED_ANGLES_NAMES);
+        listNames.add("AVERAGE");
+        XMLSerializable xmlResults = ComparisonLocalMulti.newInstance(list, list.get(0), listNames);
+        XSLT.printDocument(xmlResults.toXML(), System.out);
+        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+                + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"), new File("/tmp/multi.py"),
+                new File("/tmp/multi.pdf"), xmlResults, null);
 
-        XMLSerializable xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0),
-                structures.get(1).getChain(0), MCQ.USED_ANGLES_NAMES);
+        xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0), structures.get(1)
+                .getChain(0), MCQ.USED_ANGLES_NAMES);
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -72,10 +78,6 @@ public class Externals {
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
                 + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File("/tmp/local.py"),
                 new File("/tmp/local.pdf"), xmlResults, parameters);
-
-        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-                + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"), new File("/tmp/multi.py"),
-                new File("/tmp/multi.pdf"), xmlResults, parameters);
 
         double[][] matrix = new MCQ().compare(structures, null);
         List<String> labels = new ArrayList<>();

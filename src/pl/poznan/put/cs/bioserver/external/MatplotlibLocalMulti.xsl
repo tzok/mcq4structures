@@ -13,7 +13,12 @@
         <xsl:text>import matplotlib.cm&#10;</xsl:text>
         <xsl:text>import matplotlib.pyplot&#10;</xsl:text>
         <xsl:text>import numpy&#10;</xsl:text>
+        <xsl:text>import os&#10;</xsl:text>
+        <xsl:text>import os.path&#10;</xsl:text>
+        <xsl:text>import shutil&#10;</xsl:text>
+        <xsl:text>import subprocess&#10;</xsl:text>
         <xsl:text>import sys&#10;</xsl:text>
+        <xsl:text>import tempfile&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>if __name__ == '__main__':&#10;</xsl:text>
         <xsl:text>    if len(sys.argv) != 2:&#10;</xsl:text>
@@ -26,16 +31,57 @@
         <xsl:text>    kwargs['vmin'] = -</xsl:text><xsl:value-of select="$max"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    kwargs['vmax'] = </xsl:text><xsl:value-of select="$min"/><xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    x = [-1 * numpy.array(i) for i in </xsl:text><xsl:apply-templates select="comparisonLocal"/><xsl:text>]&#10;</xsl:text>
+        <xsl:text>    x = [-1 * numpy.array(i) for i in [ </xsl:text><xsl:apply-templates select="results/angles"/><xsl:text>] ]&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    image = matplotlib.pyplot.imshow([x, x, x], **kwargs)&#10;</xsl:text>
-        <xsl:text>    image.get_axes().set_xticks([])&#10;</xsl:text>
-        <xsl:text>    image.get_axes().set_yticks([])&#10;</xsl:text>
-        <xsl:text>    matplotlib.pyplot.savefig(sys.argv[1], dpi=500, bbox_inches='tight', transparent=True)&#10;</xsl:text>
-    </xsl:template>
-
-    <xsl:template match="comparisonLocal">
-        <xsl:text>[ </xsl:text><xsl:apply-templates select="angles"/><xsl:text> ], </xsl:text>
+        <xsl:text>    files = []&#10;</xsl:text>
+        <xsl:text>    for data in x:&#10;</xsl:text>
+        <xsl:text>        image = matplotlib.pyplot.imshow([data, data, data], **kwargs)&#10;</xsl:text>
+        <xsl:text>        image.get_axes().set_xticks([])&#10;</xsl:text>
+        <xsl:text>        image.get_axes().set_yticks([])&#10;</xsl:text>
+        <xsl:text>        tmp = tempfile.mktemp('.pdf')&#10;</xsl:text>
+        <xsl:text>        matplotlib.pyplot.savefig(tmp, dpi=500, bbox_inches='tight', transparent=True)&#10;</xsl:text>
+        <xsl:text>        files.append(tempfile.mktemp('.pdf'))&#10;</xsl:text>
+        <xsl:text>        subprocess.call(['pdfcrop', '--hires', tmp, files[-1]])&#10;</xsl:text>
+        <xsl:text>        os.remove(tmp)&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>    latex = tempfile.mktemp('.tex')&#10;</xsl:text>
+        <xsl:text>    with open(latex, 'w') as f:&#10;</xsl:text>
+        <xsl:text>        f.write(r'\documentclass[varwidth=true]{standalone}' + '\n')&#10;</xsl:text>
+        <xsl:text>        f.write(r'\usepackage{graphicx}' + '\n')&#10;</xsl:text>
+        <xsl:text>        f.write(r'\usepackage{setspace}' + '\n')&#10;</xsl:text>
+        <xsl:text>        f.write(r'\begin{document}' + '\n')&#10;</xsl:text>
+        <xsl:text>        f.write(r'\begin{spacing}{0.5}' + '\n')&#10;</xsl:text>
+        <xsl:text>        for tmp in files:&#10;</xsl:text>
+        <xsl:text>            f.write(r'    \includegraphics[width=\columnwidth]{' + tmp + r'}' + '\n')&#10;</xsl:text>
+        <xsl:text>        f.write(r'\end{spacing}' + '\n')&#10;</xsl:text>
+        <xsl:text>        f.write(r'\end{document}' + '\n')&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>    outputs = set()&#10;</xsl:text>
+        <xsl:text>    subprocess.call(['pdflatex', '-halt-on-error', '-recorder', '-output-directory', tempfile.gettempdir(), latex])&#10;</xsl:text>
+        <xsl:text>    with open(latex.replace('.tex', '.fls')) as f:&#10;</xsl:text>
+        <xsl:text>        for line in f:&#10;</xsl:text>
+        <xsl:text>            if line.startswith('OUTPUT'):&#10;</xsl:text>
+        <xsl:text>                for word in line.split():&#10;</xsl:text>
+        <xsl:text>                    outputs.add(word)&#10;</xsl:text>
+        <xsl:text>                    if '.pdf' in word:&#10;</xsl:text>
+        <xsl:text>                        document = word&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>    if sys.argv[1].endswith('.pdf'):&#10;</xsl:text>
+        <xsl:text>        shutil.copy(document, sys.argv[1])&#10;</xsl:text>
+        <xsl:text>    elif sys.argv[1].endswith('.eps'):&#10;</xsl:text>
+        <xsl:text>        subprocess.call(['pdftops', document, sys.argv[1]])&#10;</xsl:text>
+        <xsl:text>    elif sys.argv[1].endswith('.svg'):&#10;</xsl:text>
+        <xsl:text>        subprocess.call(['inkscape', '-z', '-f', document, sys.argv[1]])&#10;</xsl:text>
+        <xsl:text>    else:&#10;</xsl:text>
+        <xsl:text>        subprocess.call(['gs', '-q', '-dNOPAUSE', '-sDEVICE=png16m', '-sOutputFile=' + sys.argv[1], '-r500', document, '-c', 'quit'])&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>    for f in files:&#10;</xsl:text>
+        <xsl:text>        os.remove(f)&#10;</xsl:text>
+        <xsl:text>    for f in outputs:&#10;</xsl:text>
+        <xsl:text>        if os.path.exists(f):&#10;</xsl:text>
+        <xsl:text>            os.remove(f)&#10;</xsl:text>
+        <xsl:text>    os.remove(latex)&#10;</xsl:text>
+        <xsl:text>    os.remove(latex.replace('.tex', '.fls'))&#10;</xsl:text>
     </xsl:template>
 
     <xsl:template match="angles">
