@@ -82,9 +82,13 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             List<Chain> leftChains, List<Chain> rightChains, List<String> angleNames)
             throws StructureException {
         Structure l = new StructureImpl();
-        l.setChains(leftChains);
+        for (Chain c : leftChains) {
+            l.addChain((Chain) c.clone());
+        }
         Structure r = new StructureImpl();
-        r.setChains(rightChains);
+        for (Chain c : rightChains) {
+            r.addChain((Chain) c.clone());
+        }
 
         String title = StructureManager.getName(left) + ", " + StructureManager.getName(right);
         return ComparisonLocal.newInstance(TorsionLocalComparison.compare(l, r, angleNames), title,
