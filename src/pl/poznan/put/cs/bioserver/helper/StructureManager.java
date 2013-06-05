@@ -19,6 +19,7 @@ import java.util.zip.GZIPInputStream;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.MMCIFFileReader;
 import org.biojava.bio.structure.io.PDBFileReader;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,9 @@ public final class StructureManager {
     public static SortedSet<Structure> getAllStructures() {
         SortedSet<Structure> set = new TreeSet<>(new Comparator<Structure>() {
             @Override
-            public int compare(Structure o1, Structure o2) {
+            public int compare(@Nullable Structure o1, @Nullable Structure o2) {
+                assert o1 != null;
+                assert o2 != null;
                 String name1 = StructureManager.getName(o1);
                 String name2 = StructureManager.getName(o2);
                 return name1.compareTo(name2);
@@ -113,13 +116,13 @@ public final class StructureManager {
             structure = StructureManager.pdbReader.getStructureById(pdbId);
         } catch (IOException e) {
             StructureManager.LOGGER.error("Failed to fetch PDB id:" + pdbId, e);
-            return null;
+            return new ArrayList<>();
         }
 
         File pdbFile = new File(StructureManager.pdbReader.getPath());
         pdbFile = new File(pdbFile, "pdb" + pdbId.toLowerCase() + ".ent.gz");
         if (!pdbFile.exists()) {
-            return null;
+            return new ArrayList<>();
         }
 
         return StructureManager.storeStructureInfo(pdbFile, structure);

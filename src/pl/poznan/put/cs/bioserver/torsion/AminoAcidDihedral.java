@@ -309,9 +309,13 @@ public final class AminoAcidDihedral implements AngleType {
                 || angleName.equals(AngleName.PSI)) {
             return AminoAcidDihedral.mapAngleToAtoms.get(angleName);
         }
-        String pdbName = g.getPDBName();
-        return (UniTypeQuadruplet<String>) AminoAcidDihedral.mapResidueAngleNameToAtoms.get(
-                pdbName, angleName);
+
+        UniTypeQuadruplet<String> names = (UniTypeQuadruplet<String>) AminoAcidDihedral.mapResidueAngleNameToAtoms
+                .get(g.getPDBName(), angleName);
+        if (names == null) {
+            names = new UniTypeQuadruplet<>(null, null, null, null);
+        }
+        return names;
     }
 
     @Override

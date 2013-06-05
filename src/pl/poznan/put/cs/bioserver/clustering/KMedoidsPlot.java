@@ -19,6 +19,8 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.media.sound.InvalidDataException;
+
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
 /**
@@ -37,8 +39,12 @@ public class KMedoidsPlot extends JFrame {
      *            Labels for every entry, N.
      * @param k
      *            Chosen k for k-medoids method.
+     * @throws InvalidDataException
      */
-    public KMedoidsPlot(double[][] distance, List<String> structureNames, int k, String method) {
+    public KMedoidsPlot(double[][] distance, List<String> structureNames, int k, String method)
+            throws InvalidDataException {
+        double[][] mds = MDS.multidimensionalScaling(distance, 2);
+
         Map<Integer, Set<Integer>> medoids = null;
         if (method.equals("PAM")) {
             if (k == 0) {
@@ -56,8 +62,6 @@ public class KMedoidsPlot extends JFrame {
             throw new UnsupportedOperationException("Clustering method " + method
                     + " not supported");
         }
-
-        double[][] mds = MDS.multidimensionalScaling(distance, 2);
 
         StringBuilder dumper = new StringBuilder();
         DefaultXYDataset dataset = new DefaultXYDataset();

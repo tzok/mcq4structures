@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -50,6 +51,7 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jmol.api.JmolViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +71,7 @@ import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
@@ -156,10 +159,18 @@ public class MainWindow extends JFrame {
          */
         JMenuBar menuBar = new JMenuBar();
 
-        itemOpen = new JMenuItem("Open structure(s)",
-                loadIcon("/toolbarButtonGraphics/general/Open16.gif"));
-        itemSave = new JMenuItem("Save results",
-                loadIcon("/toolbarButtonGraphics/general/Save16.gif"));
+        URL resource = getClass().getResource("/toolbarButtonGraphics/general/Open16.gif");
+        if (resource != null) {
+            itemOpen = new JMenuItem("Open structure(s)", new ImageIcon(resource));
+        } else {
+            itemOpen = new JMenuItem("Open structure(s)");
+        }
+        resource = getClass().getResource("/toolbarButtonGraphics/general/Save16.gif");
+        if (resource != null) {
+            itemSave = new JMenuItem("Save results", new ImageIcon(resource));
+        } else {
+            itemSave = new JMenuItem("Save results");
+        }
         itemSave.setEnabled(false);
         checkBoxManager = new StayOpenCheckBoxMenuItem("View structure manager", true);
         itemExit = new JMenuItem("Exit");
@@ -338,8 +349,9 @@ public class MainWindow extends JFrame {
         defaultRenderer = tableMatrix.getDefaultRenderer(Object.class);
         colorsRenderer = new TableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(@Nullable JTable table,
+                    @Nullable Object value, boolean isSelected, boolean hasFocus, int row,
+                    int column) {
                 Component component = defaultRenderer.getTableCellRendererComponent(table, value,
                         isSelected, hasFocus, row, column);
                 component.setBackground(Colors.ALL.get(column));
@@ -352,7 +364,7 @@ public class MainWindow extends JFrame {
          */
         dialogManager.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
+            public void windowClosing(@Nullable WindowEvent e) {
                 super.windowClosing(e);
                 checkBoxManager.setSelected(false);
             }
@@ -360,7 +372,7 @@ public class MainWindow extends JFrame {
 
         itemOpen.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 File[] files = PdbChooser.getSelectedFiles(MainWindow.this);
                 for (File f : files) {
                     dialogManager.loadStructure(f);
@@ -370,7 +382,7 @@ public class MainWindow extends JFrame {
 
         itemSave.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 JFileChooser chooser = new JFileChooser(PdbChooser.getCurrentDirectory());
                 chooser.setSelectedFile(exportable.suggestName());
                 int option = chooser.showSaveDialog(MainWindow.this);
@@ -392,14 +404,14 @@ public class MainWindow extends JFrame {
 
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 dialogManager.setVisible(checkBoxManager.isSelected());
             }
         });
 
         itemExit.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
             }
         });
@@ -408,10 +420,11 @@ public class MainWindow extends JFrame {
             private boolean isGlobalPrevious = true;
 
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
+                assert arg0 != null;
+
                 Object source = arg0.getSource();
-                itemSelectTorsion.setEnabled(source.equals(radioLocal)
-                        || source.equals(radioLocalMulti));
+                itemSelectTorsion.setEnabled(source.equals(radioLocal));
                 itemVisualise.setEnabled(false);
                 itemVisualiseHq.setEnabled(false);
                 itemCluster.setEnabled(false);
@@ -431,14 +444,15 @@ public class MainWindow extends JFrame {
 
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 DialogAngles.selectAngles();
             }
         });
 
         ActionListener selectActionListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
+                assert e != null;
                 Object source = e.getSource();
                 if (source.equals(itemSelectStructuresCompare)) {
                     if (radioLocal.isSelected()) {
@@ -462,7 +476,7 @@ public class MainWindow extends JFrame {
 
         itemComputeDistances.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 if (radioGlobalMcq.isSelected() || radioGlobalRmsd.isSelected()) {
                     compareGlobal();
                 } else if (radioLocal.isSelected()) {
@@ -475,28 +489,28 @@ public class MainWindow extends JFrame {
 
         itemVisualise.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 visualizable.visualize();
             }
         });
 
         itemVisualiseHq.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 visualizable.visualizeHighQuality();
             }
         });
 
         itemCluster.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 clusterable.cluster();
             }
         });
 
         itemComputeAlign.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 if (radioAlignSeqGlobal.isSelected() || radioAlignSeqLocal.isSelected()) {
                     alignSequences();
                 } else {
@@ -507,7 +521,7 @@ public class MainWindow extends JFrame {
 
         itemGuide.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 DialogGuide dialog = new DialogGuide(MainWindow.this);
                 dialog.setVisible(true);
             }
@@ -515,7 +529,7 @@ public class MainWindow extends JFrame {
 
         itemAbout.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 DialogAbout dialog = new DialogAbout(MainWindow.this);
                 dialog.setVisible(true);
             }
@@ -577,7 +591,7 @@ public class MainWindow extends JFrame {
         labelAlignmentStatus.setText("Processing");
         final Timer timer = new Timer(100, new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 String text = labelAlignmentStatus.getText();
                 int count = StringUtils.countMatches(text, ".");
                 if (count < 5) {
@@ -746,8 +760,8 @@ public class MainWindow extends JFrame {
         ComparisonLocalMulti localMulti;
         try {
             localMulti = ComparisonLocalMulti.newInstance(chains, chains.get(index),
-                    dialogAngles.getAngles());
-        } catch (StructureException e) {
+                    Arrays.asList(new String[] { "AVERAGE" }));
+        } catch (StructureException | InvalidInputException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
             return;
@@ -806,14 +820,6 @@ public class MainWindow extends JFrame {
         labelInfoMatrix.setText("<html>" + "Structures selected for local " + "distance measure: "
                 + dialogChains.getSelectionDescription() + "<br>" + "Local distance vector(s):"
                 + "</html>");
-    }
-
-    private ImageIcon loadIcon(String name) {
-        URL resource = getClass().getResource(name);
-        if (resource == null) {
-            return null;
-        }
-        return new ImageIcon(resource);
     }
 
     private void selectChains(Object source) {
@@ -914,7 +920,7 @@ public class MainWindow extends JFrame {
             return;
         }
         List<Structure> structures = dialogStructures.getStructures();
-        if (structures == null || structures.size() < 2) {
+        if (structures.size() < 2) {
             JOptionPane.showMessageDialog(MainWindow.this, "At "
                     + "least two structures must be selected to " + "compute global distance",
                     "Information", JOptionPane.INFORMATION_MESSAGE);

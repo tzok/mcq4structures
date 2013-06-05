@@ -21,6 +21,7 @@ import pl.poznan.put.cs.bioserver.gui.DialogColorbar;
 import pl.poznan.put.cs.bioserver.gui.MainWindow;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 
 import com.csvreader.CsvWriter;
@@ -30,7 +31,21 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
     private static final long serialVersionUID = -6549267536864184480L;
 
     public static ComparisonLocalMulti newInstance(List<Chain> chains, Chain reference,
-            List<String> angleNames) throws StructureException {
+            List<String> angleNames) throws StructureException, InvalidInputException {
+        // sanity check
+        if (chains.size() < 2) {
+            throw new InvalidInputException("Incorrect/empty input data");
+        }
+
+        // sanity check
+        boolean isRNA = Helper.isNucleicAcid(reference);
+        int size = Helper.countResidues(reference, isRNA);
+        for (Chain chain : chains) {
+            if (Helper.countResidues(chain, isRNA) != size) {
+                throw new InvalidInputException("Chains have different sizes");
+            }
+        }
+
         List<ComparisonLocal> list = new ArrayList<>();
         for (Chain chain : chains) {
             if (reference.equals(chain)) {
@@ -107,6 +122,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
 
     @Override
     public void visualizeHighQuality() {
+        // TODO: use different parameters
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("cmap", "matplotlib.cm.RdYlGn");
         parameters.put("interpolation", "none");

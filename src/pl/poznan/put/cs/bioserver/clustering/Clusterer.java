@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public final class Clusterer {
 
         private double score;
 
-        public Result(double score, Set<Integer> medoids, double[][] matrix) {
+        public Result(double score, @Nullable Set<Integer> medoids, double[][] matrix) {
             this.score = score;
             this.medoids = medoids;
             this.matrix = matrix.clone();

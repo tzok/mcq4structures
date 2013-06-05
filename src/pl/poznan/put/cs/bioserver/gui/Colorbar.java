@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 
@@ -29,8 +31,9 @@ public class Colorbar extends JPanel {
     }
 
     @Override
-    public void paintComponent(Graphics g) {
+    public void paintComponent(@Nullable Graphics g) {
         super.paintComponent(g);
+        assert g != null;
 
         Dimension size = getSize();
         int width = size.width / local.getTicks().size();

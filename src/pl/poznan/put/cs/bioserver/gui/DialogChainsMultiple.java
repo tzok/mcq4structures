@@ -28,8 +28,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.Structure;
+import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
@@ -127,23 +127,23 @@ final class DialogChainsMultiple extends JDialog {
         final ListCellRenderer<? super Chain> renderer = listAll.getCellRenderer();
         ListCellRenderer<Chain> pdbCellRenderer = new ListCellRenderer<Chain>() {
             @Override
-            public Component getListCellRendererComponent(JList<? extends Chain> list, Chain value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(@Nullable JList<? extends Chain> list,
+                    @Nullable Chain value, int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index,
                         isSelected, cellHasFocus);
+                if (value != null) {
+                    boolean isRNA = Helper.isNucleicAcid(value);
+                    int size = Helper.countResidues(value, isRNA);
 
-                boolean isRNA = Helper.isNucleicAcid(value);
-                int size = 0;
-                for (Group group : value.getAtomGroups()) {
-                    size += isRNA ? Helper.isNucleotide(group) ? 1 : 0
-                            : Helper.isAminoAcid(group) ? 1 : 0;
+                    Structure parent = value.getParent();
+                    assert parent != null;
+                    String text = String.format("%s.%s (%s, %d %s)", StructureManager
+                            .getName(parent), value.getChainID(), isRNA ? "RNA" : "protein", size,
+                            isRNA ? "nt" : "aa");
+                    label.setText(text);
+                    label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                 }
-
-                String text = String.format("%s.%s (%s, %d %s)", StructureManager.getName(value
-                        .getParent()), value.getChainID(), isRNA ? "RNA" : "protein", size,
-                        isRNA ? "nt" : "aa");
-                label.setText(text);
-                label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
+                assert label != null;
                 return label;
             }
         };
@@ -221,12 +221,14 @@ final class DialogChainsMultiple extends JDialog {
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent arg0) {
-                ListSelectionModel source = (ListSelectionModel) arg0.getSource();
-                if (source.equals(listAll.getSelectionModel())) {
-                    buttonSelect.setEnabled(!listAll.isSelectionEmpty());
-                } else { // source.equals(listSelected)
-                    buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
+            public void valueChanged(@Nullable ListSelectionEvent arg0) {
+                if (arg0 != null) {
+                    ListSelectionModel source = (ListSelectionModel) arg0.getSource();
+                    if (source.equals(listAll.getSelectionModel())) {
+                        buttonSelect.setEnabled(!listAll.isSelectionEmpty());
+                    } else { // source.equals(listSelected)
+                        buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
+                    }
                 }
             }
         };
@@ -235,37 +237,40 @@ final class DialogChainsMultiple extends JDialog {
 
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 List<Chain> values;
                 boolean isSelect;
 
-                Object source = arg0.getSource();
-                if (source.equals(buttonSelect)) {
-                    values = listAll.getSelectedValuesList();
-                    isSelect = true;
-                } else if (source.equals(buttonSelectAll)) {
-                    values = modelAll.getElements();
-                    isSelect = true;
-                } else if (source.equals(buttonDeselect)) {
-                    values = listSelected.getSelectedValuesList();
-                    isSelect = false;
-                } else { // source.equals(buttonDeselectAll)
-                    values = modelSelected.getElements();
-                    isSelect = false;
-                }
-
-                for (Chain f : values) {
-                    if (isSelect) {
-                        modelAll.removeElement(f);
-                        modelSelected.addElement(f);
-                    } else {
-                        modelAll.addElement(f);
-                        modelSelected.removeElement(f);
+                if (arg0 != null) {
+                    Object source = arg0.getSource();
+                    if (source.equals(buttonSelect)) {
+                        values = listAll.getSelectedValuesList();
+                        isSelect = true;
+                    } else if (source.equals(buttonSelectAll)) {
+                        values = modelAll.getElements();
+                        isSelect = true;
+                    } else if (source.equals(buttonDeselect)) {
+                        values = listSelected.getSelectedValuesList();
+                        isSelect = false;
+                    } else { // source.equals(buttonDeselectAll)
+                        values = modelSelected.getElements();
+                        isSelect = false;
                     }
-                }
 
-                listAll.updateUI();
-                listSelected.updateUI();
+                    for (Chain f : values) {
+                        assert f != null;
+                        if (isSelect) {
+                            modelAll.removeElement(f);
+                            modelSelected.addElement(f);
+                        } else {
+                            modelAll.addElement(f);
+                            modelSelected.removeElement(f);
+                        }
+                    }
+
+                    listAll.updateUI();
+                    listSelected.updateUI();
+                }
             }
         };
         buttonSelect.addActionListener(actionListenerSelectDeselect);
@@ -275,7 +280,7 @@ final class DialogChainsMultiple extends JDialog {
 
         buttonOk.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 selectedChains = modelSelected.getSelectedElements();
                 chosenOption = DialogChainsMultiple.OK;
                 dispose();
@@ -284,7 +289,7 @@ final class DialogChainsMultiple extends JDialog {
 
         buttonCancel.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 chosenOption = DialogChainsMultiple.CANCEL;
                 dispose();
             }
@@ -292,7 +297,7 @@ final class DialogChainsMultiple extends JDialog {
 
         ActionListener checkBoxListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 boolean isRNA = checkRNA.isSelected();
                 boolean isProtein = checkProtein.isSelected();
                 modelAll.isRNA = isRNA;

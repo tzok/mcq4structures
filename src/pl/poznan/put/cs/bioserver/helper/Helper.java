@@ -18,6 +18,7 @@ import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,19 @@ public final class Helper {
     }
 
     private static final MultiKeyMap MAP_GROUPS_ATOMS = new MultiKeyMap();
+
+    public static int countResidues(Chain value, boolean isRNA) {
+        int size = 0;
+        for (Group group : value.getAtomGroups()) {
+            assert group != null;
+            if (isRNA) {
+                size += Helper.isNucleotide(group) ? 1 : 0;
+            } else {
+                size += Helper.isAminoAcid(group) ? 1 : 0;
+            }
+        }
+        return size;
+    }
 
     /**
      * Given two lists of atoms (possibly of different size), make them equal
@@ -154,6 +168,7 @@ public final class Helper {
      * @throws StructureException
      *             If there were problems with resolution of chain names.
      */
+    @Nullable
     public static Pair<List<Atom>, List<Atom>> getCommonAtomArray(Structure left, Structure right,
             boolean streamGroups) throws StructureException {
         if (streamGroups) {

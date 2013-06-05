@@ -3,6 +3,8 @@ package pl.poznan.put.cs.bioserver.visualisation;
 import org.biojava.bio.structure.jama.EigenvalueDecomposition;
 import org.biojava.bio.structure.jama.Matrix;
 
+import com.sun.media.sound.InvalidDataException;
+
 /**
  * A utility class implementing a Multidimensional Scaling method.
  * 
@@ -19,8 +21,10 @@ public final class MDS {
      * @param dimensions
      *            Desired number of dimensions, K.
      * @return A matrix NxK, where for each row there are K coordinates.
+     * @throws InvalidDataException
      */
-    public static double[][] multidimensionalScaling(double[][] distance, int dimensions) {
+    public static double[][] multidimensionalScaling(double[][] distance, int dimensions)
+            throws InvalidDataException {
         MDS.checkSymmetry(distance);
 
         /*
@@ -84,7 +88,7 @@ public final class MDS {
             }
             // if L[max][max] < 0, then it's impossible to visualise
             if (l[max][max] < 0) {
-                return null;
+                throw new InvalidDataException("Cannot visualize specified structures in 2D");
             }
             maxima[i] = max;
             l[max][max] = Double.NEGATIVE_INFINITY;

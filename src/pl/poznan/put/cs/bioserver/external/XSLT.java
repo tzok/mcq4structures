@@ -22,6 +22,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -43,7 +44,8 @@ public class XSLT {
                 "UTF-8")));
     }
 
-    public static String transform(Source stylesheet, Source xml, Map<String, Object> parameters) {
+    public static String transform(Source stylesheet, Source xml,
+            @Nullable Map<String, Object> parameters) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             Result result = new StreamResult(new OutputStreamWriter(stream,
@@ -62,12 +64,12 @@ public class XSLT {
         } catch (UnsupportedEncodingException | TransformerFactoryConfigurationError
                 | TransformerException e) {
             XSLT.LOGGER.error("Failed to transform data via XSLT processor", e);
-            return null;
+            return "";
         }
     }
 
-    public static String transform(URL resource, Source xml, Map<String, Object> parameters)
-            throws IOException {
+    public static String transform(URL resource, Source xml,
+            @Nullable Map<String, Object> parameters) throws IOException {
         try (InputStream stream = resource.openStream()) {
             return XSLT.transform(new StreamSource(stream), xml, parameters);
         }

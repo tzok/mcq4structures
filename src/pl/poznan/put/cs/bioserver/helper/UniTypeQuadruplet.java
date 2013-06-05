@@ -2,13 +2,15 @@ package pl.poznan.put.cs.bioserver.helper;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 public class UniTypeQuadruplet<T> {
     public final T a;
     public final T b;
     public final T c;
     public final T d;
 
-    public UniTypeQuadruplet(T a, T b, T c, T d) {
+    public UniTypeQuadruplet(@Nullable T a, @Nullable T b, @Nullable T c, @Nullable T d) {
         super();
         this.a = a;
         this.b = b;
@@ -34,6 +36,7 @@ public class UniTypeQuadruplet<T> {
         d = list.get(3);
     }
 
+    @Nullable
     public T get(int index) {
         assert index >= 0 && index <= 3;
 
@@ -67,7 +70,7 @@ public class UniTypeQuadruplet<T> {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

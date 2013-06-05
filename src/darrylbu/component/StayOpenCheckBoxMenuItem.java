@@ -8,6 +8,8 @@ import javax.swing.MenuSelectionManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * An extension of JCheckBoxMenuItem that doesn't close the menu when selected.
  * 
@@ -21,7 +23,7 @@ public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
         getModel().addChangeListener(new ChangeListener() {
 
             @Override
-            public void stateChanged(ChangeEvent e) {
+            public void stateChanged(@Nullable ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
                     StayOpenCheckBoxMenuItem.path = MenuSelectionManager.defaultManager()
                             .getSelectedPath();

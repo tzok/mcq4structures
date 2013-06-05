@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Group;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +102,8 @@ public final class DihedralAngles {
      *            Atom 4.
      * @return Dihedral angle between atoms 1-4.
      */
-    public static double calculateDihedralAcos(Atom a1, Atom a2, Atom a3, Atom a4) {
+    public static double calculateDihedralAcos(@Nullable Atom a1, @Nullable Atom a2,
+            @Nullable Atom a3, @Nullable Atom a4) {
         if (a1 == null || a2 == null || a3 == null || a4 == null) {
             return Double.NaN;
         }
@@ -144,9 +146,7 @@ public final class DihedralAngles {
             assert group.getChainId().length() == 1;
 
             UniTypeQuadruplet<String> atomNames = angleType.getAtomNames(group);
-            if (atomNames == null) {
-                continue;
-            }
+            assert atomNames != null : angleType.getAngleName();
 
             for (int i = 0; i < 4; i++) {
                 if (atom.getFullName().equals(atomNames.get(i))) {
@@ -170,9 +170,12 @@ public final class DihedralAngles {
             List<Atom> listQuad = new ArrayList<>();
             listQuad.add(atom);
             for (int i = 1; i < 4; i++) {
-                Atom found = (Atom) mapChainResidue[i].get(chain, residue + groupRule.get(i));
-                if (found != null) {
-                    listQuad.add(found);
+                Integer shift = groupRule.get(i);
+                if (shift != null) {
+                    Atom found = (Atom) mapChainResidue[i].get(chain, residue + shift);
+                    if (found != null) {
+                        listQuad.add(found);
+                    }
                 }
             }
 
@@ -233,7 +236,8 @@ public final class DihedralAngles {
      *            Atom 4.
      * @return Value of the torsion angle.
      */
-    private static double calculateDihedral(Atom a1, Atom a2, Atom a3, Atom a4) {
+    private static double calculateDihedral(@Nullable Atom a1, @Nullable Atom a2,
+            @Nullable Atom a3, @Nullable Atom a4) {
         return DihedralAngles.calculateDihedralAtan(a1, a2, a3, a4);
     }
 
@@ -250,7 +254,8 @@ public final class DihedralAngles {
      *            Atom 4.
      * @return Dihedral angle between atoms 1-4.
      */
-    private static double calculateDihedralAtan(Atom a1, Atom a2, Atom a3, Atom a4) {
+    private static double calculateDihedralAtan(@Nullable Atom a1, @Nullable Atom a2,
+            @Nullable Atom a3, @Nullable Atom a4) {
         if (a1 == null || a2 == null || a3 == null || a4 == null) {
             return Double.NaN;
         }
