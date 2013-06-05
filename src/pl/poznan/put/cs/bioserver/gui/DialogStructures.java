@@ -28,6 +28,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.biojava.bio.structure.Structure;
+import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
@@ -63,11 +64,15 @@ final class DialogStructures extends JDialog {
 
         ListCellRenderer<Structure> pdbCellRenderer = new ListCellRenderer<Structure>() {
             @Override
-            public Component getListCellRendererComponent(JList<? extends Structure> list,
-                    Structure value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(
+                    @Nullable JList<? extends Structure> list, @Nullable Structure value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index,
                         isSelected, cellHasFocus);
-                label.setText(StructureManager.getName(value));
+                if (value != null) {
+                    label.setText(StructureManager.getName(value));
+                }
+                assert label != null;
                 return label;
             }
         };
@@ -137,7 +142,8 @@ final class DialogStructures extends JDialog {
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent arg0) {
+            public void valueChanged(@Nullable ListSelectionEvent arg0) {
+                assert arg0 != null;
                 ListSelectionModel source = (ListSelectionModel) arg0.getSource();
                 if (source.equals(listAll.getSelectionModel())) {
                     buttonSelect.setEnabled(!listAll.isSelectionEmpty());
@@ -151,10 +157,11 @@ final class DialogStructures extends JDialog {
 
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 List<Structure> values;
                 boolean isSelect;
 
+                assert arg0 != null;
                 Object source = arg0.getSource();
                 if (source.equals(buttonSelect)) {
                     values = listAll.getSelectedValuesList();
@@ -188,7 +195,7 @@ final class DialogStructures extends JDialog {
 
         buttonOk.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 selectedStructures = Collections.list(modelSelected.elements());
                 chosenOption = DialogStructures.OK;
                 dispose();
@@ -197,7 +204,7 @@ final class DialogStructures extends JDialog {
 
         buttonCancel.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 chosenOption = DialogStructures.CANCEL;
                 dispose();
             }
@@ -207,10 +214,13 @@ final class DialogStructures extends JDialog {
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
         for (Structure s : selectedStructures) {
+            assert s != null;
             builder.append(StructureManager.getName(s));
         }
         builder.delete(builder.length() - 2, builder.length());
-        return builder.toString();
+        String result = builder.toString();
+        assert result != null;
+        return result;
     }
 
     public List<Structure> getStructures() {

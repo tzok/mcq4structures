@@ -21,6 +21,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.sun.media.sound.InvalidDataException;
+
 import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
 import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
@@ -100,7 +104,7 @@ public class DialogCluster extends JDialog {
 
         ActionListener radioActionListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 boolean isHierarchical = hierarchical.isSelected();
                 linkage.setEnabled(isHierarchical);
                 method.setEnabled(!isHierarchical);
@@ -114,7 +118,7 @@ public class DialogCluster extends JDialog {
 
         buttonExternal.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 URL resource;
                 XMLSerializable xmlSerializable;
                 if (hierarchical.isSelected()) {
@@ -144,8 +148,15 @@ public class DialogCluster extends JDialog {
                                     (Integer) kspinner.getValue());
                         }
                     }
-                    xmlSerializable = ClusteringPartitional.newInstance(comparisonGlobal,
-                            clustering);
+
+                    try {
+                        xmlSerializable = ClusteringPartitional.newInstance(comparisonGlobal,
+                                clustering);
+                    } catch (InvalidDataException e) {
+                        JOptionPane.showMessageDialog(DialogCluster.this, e.getMessage(),
+                                "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
                 }
                 Matplotlib.runXsltAndPython(resource, xmlSerializable);
             }
@@ -153,7 +164,7 @@ public class DialogCluster extends JDialog {
 
         buttonOk.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 JFrame plot;
                 String plotTitle = plotTitlePrefix;
                 double[][] comparisonResults = comparisonGlobal.getDistanceMatrix();
@@ -178,8 +189,16 @@ public class DialogCluster extends JDialog {
                             return;
                         }
                     }
-                    plot = new KMedoidsPlot(comparisonResults, structureNames, k, (String) method
-                            .getSelectedItem());
+
+                    try {
+                        plot = new KMedoidsPlot(comparisonResults, structureNames, k,
+                                (String) method.getSelectedItem());
+                    } catch (InvalidDataException e1) {
+                        JOptionPane.showMessageDialog(DialogCluster.this, e1.getMessage(),
+                                "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
                     plotTitle += "k-medoids (";
                     plotTitle += method.getSelectedItem();
                     plotTitle += ", k =";
@@ -193,7 +212,7 @@ public class DialogCluster extends JDialog {
 
         buttonClose.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 dispose();
             }
         });

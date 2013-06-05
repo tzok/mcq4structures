@@ -18,6 +18,7 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.io.output.FileWriterWithEncoding;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class Matplotlib {
     }
 
     public static void runXsltAndPython(URL resource, File fileScript, File fileOutput,
-            XMLSerializable data, Map<String, Object> parameters) throws IOException,
+            XMLSerializable data, @Nullable Map<String, Object> parameters) throws IOException,
             JAXBException, ParserConfigurationException {
         String pythonCode = XSLT.transform(resource, new DOMSource(data.toXML()), parameters);
         Matplotlib.LOGGER.trace("Generated script:\n" + pythonCode);
@@ -59,7 +60,7 @@ public class Matplotlib {
     }
 
     public static void runXsltAndPython(URL resource, XMLSerializable data,
-            Map<String, Object> parameters) {
+            @Nullable Map<String, Object> parameters) {
         File fileScript = null;
         File fileOutput = null;
 

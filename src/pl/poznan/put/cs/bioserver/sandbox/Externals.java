@@ -27,6 +27,7 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 import pl.poznan.put.cs.bioserver.external.XSLT;
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public class Externals {
@@ -62,11 +63,16 @@ public class Externals {
         }
         List<String> listNames = new ArrayList<>(MCQ.USED_ANGLES_NAMES);
         listNames.add("AVERAGE");
-        XMLSerializable xmlResults = ComparisonLocalMulti.newInstance(list, list.get(0), listNames);
-        XSLT.printDocument(xmlResults.toXML(), System.out);
-        Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-                + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"), new File("/tmp/multi.py"),
-                new File("/tmp/multi.pdf"), xmlResults, null);
+        XMLSerializable xmlResults;
+        try {
+            xmlResults = ComparisonLocalMulti.newInstance(list, list.get(0), listNames);
+            XSLT.printDocument(xmlResults.toXML(), System.out);
+            Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
+                    + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"), new File(
+                    "/tmp/multi.py"), new File("/tmp/multi.pdf"), xmlResults, null);
+        } catch (InvalidInputException e) {
+            e.printStackTrace();
+        }
 
         xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0), structures.get(1)
                 .getChain(0), MCQ.USED_ANGLES_NAMES);

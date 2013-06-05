@@ -32,6 +32,7 @@ import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -281,7 +282,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             private static final long serialVersionUID = 1L;
 
             @Override
-            public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {
+            public StringBuffer format(double number, @Nullable StringBuffer toAppendTo, @Nullable FieldPosition pos) {
+                assert toAppendTo != null;
+                
                 if (number == 0) {
                     return toAppendTo.append("0");
                 } else if (number == Math.PI) {
@@ -291,12 +294,12 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             }
 
             @Override
-            public StringBuffer format(long number, StringBuffer toAppendTo, FieldPosition pos) {
+            public StringBuffer format(long number, @Nullable StringBuffer toAppendTo, @Nullable FieldPosition pos) {
                 return format.format(number, toAppendTo, pos);
             }
 
             @Override
-            public Number parse(String source, ParsePosition parsePosition) {
+            public Number parse(@Nullable String source, @Nullable ParsePosition parsePosition) {
                 return format.parse(source, parsePosition);
             }
         });

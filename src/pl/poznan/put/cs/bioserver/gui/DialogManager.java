@@ -23,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import org.biojava.bio.structure.Structure;
+import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
@@ -84,7 +85,7 @@ public final class DialogManager extends JDialog {
 
         buttonOpen.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 File[] files = PdbChooser.getSelectedFiles(DialogManager.this);
                 for (File f : files) {
                     loadStructure(f);
@@ -94,7 +95,7 @@ public final class DialogManager extends JDialog {
 
         buttonRemove.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 List<File> selected = list.getSelectedValuesList();
                 for (File f : selected) {
                     StructureManager.remove(f);
@@ -105,11 +106,11 @@ public final class DialogManager extends JDialog {
 
         buttonFetch.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
                 List<Structure> models = StructureManager.loadStructure(pdbId);
-                File path = StructureManager.getFile(models.get(0));
-                if (path != null) {
+                if (models.size() > 0) {
+                    File path = StructureManager.getFile(models.get(0));
                     model.addElement(path);
                 } else {
                     JOptionPane.showMessageDialog(DialogManager.this, "Failed to download " + pdbId
@@ -125,7 +126,7 @@ public final class DialogManager extends JDialog {
 
     public void loadStructure(File file) {
         try {
-            if (StructureManager.loadStructure(file) != null) {
+            if (StructureManager.loadStructure(file).size() > 0) {
                 model.addElement(file);
             }
         } catch (IOException e) {

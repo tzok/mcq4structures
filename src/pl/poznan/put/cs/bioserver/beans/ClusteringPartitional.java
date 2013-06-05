@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.sun.media.sound.InvalidDataException;
+
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Point;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
@@ -22,7 +24,8 @@ import pl.poznan.put.cs.bioserver.visualisation.MDS;
 public class ClusteringPartitional extends XMLSerializable implements Visualizable {
     private static final long serialVersionUID = -7474446942015119359L;
 
-    public static ClusteringPartitional newInstance(ComparisonGlobal comparison, Result clustering) {
+    public static ClusteringPartitional newInstance(ComparisonGlobal comparison, Result clustering)
+            throws InvalidDataException {
         double[][] mds = MDS.multidimensionalScaling(comparison.getDistanceMatrix(), 2);
         Map<Integer, Set<Integer>> clusterMap = clustering.getClusterAssignment();
 

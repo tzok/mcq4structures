@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
@@ -61,8 +62,9 @@ final class DialogChains extends JDialog {
             final ListCellRenderer<? super Structure> renderer = combo.getRenderer();
             combo.setRenderer(new ListCellRenderer<Structure>() {
                 @Override
-                public Component getListCellRendererComponent(JList<? extends Structure> list,
-                        Structure value, int index, boolean isSelected, boolean cellHasFocus) {
+                public Component getListCellRendererComponent(
+                        @Nullable JList<? extends Structure> list, @Nullable Structure value,
+                        int index, boolean isSelected, boolean cellHasFocus) {
                     JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value,
                             index, isSelected, cellHasFocus);
                     if (value != null) {
@@ -74,7 +76,7 @@ final class DialogChains extends JDialog {
 
             combo.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(@Nullable ActionEvent e) {
                     Structure structure = (Structure) combo.getSelectedItem();
                     if (structure == null) {
                         return;
@@ -96,21 +98,19 @@ final class DialogChains extends JDialog {
         }
 
         public List<Chain> getSelectedChains() {
-            Structure structure = (Structure) combo.getSelectedItem();
-            if (structure == null) {
-                return null;
-            }
-
             List<Chain> list = new ArrayList<>();
-            for (JPanel panel : panels) {
-                for (Component component : panel.getComponents()) {
-                    if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
-                        String chainId = ((JCheckBox) component).getText();
-                        try {
-                            list.add(structure.getChainByPDB(chainId));
-                        } catch (StructureException e) {
-                            JOptionPane.showMessageDialog(DialogChains.this, e.getMessage(),
-                                    "Error", JOptionPane.ERROR_MESSAGE);
+            Structure structure = (Structure) combo.getSelectedItem();
+            if (structure != null) {
+                for (JPanel panel : panels) {
+                    for (Component component : panel.getComponents()) {
+                        if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
+                            String chainId = ((JCheckBox) component).getText();
+                            try {
+                                list.add(structure.getChainByPDB(chainId));
+                            } catch (StructureException e) {
+                                JOptionPane.showMessageDialog(DialogChains.this, e.getMessage(),
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+                            }
                         }
                     }
                 }
@@ -168,7 +168,7 @@ final class DialogChains extends JDialog {
 
         buttonOk.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 structureLeft = (Structure) panelsChainsLeft.combo.getSelectedItem();
                 structureRight = (Structure) panelsChainsRight.combo.getSelectedItem();
                 if (structureLeft == null || structureRight == null) {
@@ -192,7 +192,7 @@ final class DialogChains extends JDialog {
 
         buttonCancel.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 chosenOption = DialogChains.CANCEL;
                 dispose();
             }

@@ -69,6 +69,8 @@ public class MCQ extends GlobalComparison {
                 wasAligned = true;
             }
         }
+
+        assert atoms != null;
         return MCQ.compare(atoms.getLeft(), atoms.getRight(), wasAligned);
     }
 

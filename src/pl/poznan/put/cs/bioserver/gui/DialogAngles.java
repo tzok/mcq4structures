@@ -19,6 +19,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import pl.poznan.put.cs.bioserver.helper.Constants;
 
 final class DialogAngles extends JDialog {
@@ -123,10 +125,11 @@ final class DialogAngles extends JDialog {
 
         ActionListener actionListenerSelection = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(@Nullable ActionEvent arg0) {
                 JCheckBox[] checkBoxes;
                 boolean state;
 
+                assert arg0 != null;
                 Object source = arg0.getSource();
                 if (source.equals(buttonSelectAllAmino)) {
                     checkBoxes = checksAmino;
@@ -154,7 +157,7 @@ final class DialogAngles extends JDialog {
 
         buttonOk.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(@Nullable ActionEvent e) {
                 JCheckBox[][] checkBoxes = new JCheckBox[][] { checksAmino, checksNucleic };
                 String[][] codes = new String[][] {
                         AMINO_CODES.toArray(new String[AMINO_CODES.size()]),

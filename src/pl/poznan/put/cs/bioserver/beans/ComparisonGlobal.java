@@ -19,6 +19,7 @@ import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
 import com.csvreader.CsvWriter;
+import com.sun.media.sound.InvalidDataException;
 
 @XmlRootElement
 public class ComparisonGlobal extends XMLSerializable implements Clusterable, Exportable,
@@ -127,10 +128,12 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
             }
         }
 
-        double[][] mds = MDS.multidimensionalScaling(distanceMatrix, 2);
-        if (mds == null) {
-            JOptionPane.showMessageDialog(null, "Cannot visualise specified "
-                    + "structures in 2D space", "Warning", JOptionPane.WARNING_MESSAGE);
+        double[][] mds;
+        try {
+            mds = MDS.multidimensionalScaling(distanceMatrix, 2);
+        } catch (InvalidDataException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Warning",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 

@@ -18,6 +18,7 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.io.PDBFileReader;
+import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -60,6 +61,7 @@ public class TorsionLocalComparison extends LocalComparison {
                 wasAligned = true;
             }
         }
+        assert atoms != null;
         return TorsionLocalComparison.compare(atoms.getLeft(), atoms.getRight(), MCQ.USED_ANGLES,
                 null, wasAligned);
     }
@@ -81,6 +83,7 @@ public class TorsionLocalComparison extends LocalComparison {
             }
         }
 
+        assert atoms != null;
         return TorsionLocalComparison.compare(atoms.getLeft(), atoms.getRight(), MCQ.USED_ANGLES,
                 list, wasAligned);
     }
@@ -207,7 +210,7 @@ public class TorsionLocalComparison extends LocalComparison {
      *         it.
      */
     private static Map<String, List<AngleDifference>> compare(List<Atom> left, List<Atom> right,
-            List<AngleType> angles, List<AngleType> customAverage, boolean wasAligned) {
+            List<AngleType> angles, @Nullable List<AngleType> customAverage, boolean wasAligned) {
         Pair<List<Atom>, List<Atom>> equalized = Helper.equalize(left, right);
 
         List<AngleDifference> allDiffs = new ArrayList<>();
