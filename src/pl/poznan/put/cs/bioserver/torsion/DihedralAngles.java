@@ -146,6 +146,8 @@ public final class DihedralAngles {
             assert group.getChainId().length() == 1;
 
             UniTypeQuadruplet<String> atomNames = angleType.getAtomNames(group);
+            assert atomNames != null : angleType.getAngleName();
+
             for (int i = 0; i < 4; i++) {
                 if (atom.getFullName().equals(atomNames.get(i))) {
                     if (i == 0) {
