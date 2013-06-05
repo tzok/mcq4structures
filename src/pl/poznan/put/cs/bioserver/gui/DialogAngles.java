@@ -27,11 +27,11 @@ final class DialogAngles extends JDialog {
     private static final long serialVersionUID = 1L;
     private static final List<String> AMINO_NAMES = Arrays.asList(new String[] {
             Constants.PHI + " (phi)", Constants.PSI + " (psi)", Constants.OMEGA + " (omega)",
-            Constants.CHI + "1 (chi1)", Constants.CHI + "2 (chi2)", Constants.CHI + "3 (chi3)",
-            Constants.CHI + "4 (chi4)", Constants.CHI + "5 (chi5)", "Average of selected angles",
-            "Average of all angles" });
+            "C-" + Constants.ALPHA + " (C-alpha)", Constants.CHI + "1 (chi1)",
+            Constants.CHI + "2 (chi2)", Constants.CHI + "3 (chi3)", Constants.CHI + "4 (chi4)",
+            Constants.CHI + "5 (chi5)", "Average of selected angles", "Average of all angles" });
     private static final List<String> AMINO_CODES = Arrays.asList(new String[] { "PHI", "PSI",
-            "OMEGA", "CHI1", "CHI2", "CHI3", "CHI4", "CHI5", "SELECTED", "AVERAGE" });
+            "OMEGA", "CALPHA", "CHI1", "CHI2", "CHI3", "CHI4", "CHI5", "SELECTED", "AVERAGE" });
     private static final List<String> NUCLEIC_NAMES = Arrays.asList(new String[] {
             Constants.ALPHA + " (alpha)", Constants.BETA + " (beta)", Constants.GAMMA + " (gamma)",
             Constants.DELTA + " (delta)", Constants.EPSILON + " (epsilon)",

@@ -18,7 +18,7 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 public final class AminoAcidDihedral implements AngleType {
     /** All names of angles in the amino acid. */
     private enum AngleName {
-        PHI, PSI, OMEGA, CHI1, CHI2, CHI3, CHI4, CHI5
+        PHI, PSI, OMEGA, CALPHA, CHI1, CHI2, CHI3, CHI4, CHI5
     }
 
     private static final String C = " C  ";
@@ -27,41 +27,36 @@ public final class AminoAcidDihedral implements AngleType {
     private static final String CD = " CD ";
     private static final String CD1 = " CD1";
     private static final String CE = " CE ";
-    private static final String CE1 = " CE1";
     private static final String CG = " CG ";
     private static final String CG1 = " CG1";
-    private static final String CH2 = " CH2"; // ???
     private static final String CZ = " CZ ";
-    private static final String CZ2 = " CZ2"; // ???
     private static final String N = " N  ";
     private static final String ND1 = " ND1";
     private static final String NE = " NE ";
-    private static final String NE1 = " NE1";
     private static final String NH1 = " NH1";
     private static final String NZ = " NZ ";
     private static final String OD1 = " OD1";
     private static final String OE1 = " OE1";
     private static final String OG = " OG ";
     private static final String OG1 = " OG1";
-    private static final String OH = " OH "; // ???
     private static final String SD = " SD ";
     private static final String SG = " SG ";
 
-    private static List<String> atoms = Arrays.asList(new String[] { AminoAcidDihedral.C,
-            AminoAcidDihedral.CA, AminoAcidDihedral.CB, AminoAcidDihedral.CD,
-            AminoAcidDihedral.CD1, AminoAcidDihedral.CE, AminoAcidDihedral.CE1,
-            AminoAcidDihedral.CG, AminoAcidDihedral.CG1, AminoAcidDihedral.CH2,
-            AminoAcidDihedral.CZ, AminoAcidDihedral.CZ2, AminoAcidDihedral.N,
-            AminoAcidDihedral.ND1, AminoAcidDihedral.NE, AminoAcidDihedral.NE1,
-            AminoAcidDihedral.NH1, AminoAcidDihedral.NZ, AminoAcidDihedral.OD1,
-            AminoAcidDihedral.OE1, AminoAcidDihedral.OG, AminoAcidDihedral.OG1,
-            AminoAcidDihedral.OH, AminoAcidDihedral.SD, AminoAcidDihedral.SG });
+    private static List<String> atoms = Arrays
+            .asList(new String[] { AminoAcidDihedral.C, AminoAcidDihedral.CA, AminoAcidDihedral.CB,
+                    AminoAcidDihedral.CD, AminoAcidDihedral.CD1, AminoAcidDihedral.CE,
+                    AminoAcidDihedral.CG, AminoAcidDihedral.CG1, AminoAcidDihedral.CZ,
+                    AminoAcidDihedral.N, AminoAcidDihedral.ND1, AminoAcidDihedral.NE,
+                    AminoAcidDihedral.NH1, AminoAcidDihedral.NZ, AminoAcidDihedral.OD1,
+                    AminoAcidDihedral.OE1, AminoAcidDihedral.OG, AminoAcidDihedral.OG1,
+                    AminoAcidDihedral.SD, AminoAcidDihedral.SG });
 
     private static List<AngleType> angles = Arrays.asList(new AngleType[] {
             new AminoAcidDihedral(AngleName.PHI), new AminoAcidDihedral(AngleName.PSI),
-            new AminoAcidDihedral(AngleName.OMEGA), new AminoAcidDihedral(AngleName.CHI1),
-            new AminoAcidDihedral(AngleName.CHI2), new AminoAcidDihedral(AngleName.CHI3),
-            new AminoAcidDihedral(AngleName.CHI4), new AminoAcidDihedral(AngleName.CHI5) });
+            new AminoAcidDihedral(AngleName.OMEGA), new AminoAcidDihedral(AngleName.CALPHA),
+            new AminoAcidDihedral(AngleName.CHI1), new AminoAcidDihedral(AngleName.CHI2),
+            new AminoAcidDihedral(AngleName.CHI3), new AminoAcidDihedral(AngleName.CHI4),
+            new AminoAcidDihedral(AngleName.CHI5) });
 
     private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms;
     private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules;
@@ -78,6 +73,9 @@ public final class AminoAcidDihedral implements AngleType {
         AminoAcidDihedral.mapAngleToAtoms.put(AngleName.OMEGA, new UniTypeQuadruplet<>(
                 new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.C, AminoAcidDihedral.N,
                         AminoAcidDihedral.CA }));
+        AminoAcidDihedral.mapAngleToAtoms.put(AngleName.CALPHA, new UniTypeQuadruplet<>(
+                new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CA, AminoAcidDihedral.CA,
+                        AminoAcidDihedral.CA }));
 
         AminoAcidDihedral.mapAngleToRules = new HashMap<>();
         AminoAcidDihedral.mapAngleToRules.put(AngleName.PHI, new UniTypeQuadruplet<>(new Integer[] {
@@ -86,6 +84,9 @@ public final class AminoAcidDihedral implements AngleType {
                 0, 0, 0, 1 }));
         AminoAcidDihedral.mapAngleToRules.put(AngleName.OMEGA, new UniTypeQuadruplet<>(
                 new Integer[] { 0, 0, 1, 1 }));
+        AminoAcidDihedral.mapAngleToRules.put(AngleName.CALPHA, new UniTypeQuadruplet<>(
+                new Integer[] { 0, 1, 2, 3 }));
+
         AminoAcidDihedral.mapAngleToRules.put(AngleName.CHI1, new UniTypeQuadruplet<>(
                 new Integer[] { 0, 0, 0, 0 }));
         AminoAcidDihedral.mapAngleToRules.put(AngleName.CHI2, new UniTypeQuadruplet<>(
@@ -178,9 +179,6 @@ public final class AminoAcidDihedral implements AngleType {
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI2,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
                         AminoAcidDihedral.CG, AminoAcidDihedral.ND1 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("HIS", AngleName.CHI3,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                        AminoAcidDihedral.ND1, AminoAcidDihedral.CE1 }));
         // isoleucine, ile, I
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("ILE", AngleName.CHI1,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
@@ -225,12 +223,6 @@ public final class AminoAcidDihedral implements AngleType {
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI2,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
                         AminoAcidDihedral.CG, AminoAcidDihedral.CD1 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI3,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                        AminoAcidDihedral.CD1, AminoAcidDihedral.CE1 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PHE", AngleName.CHI4,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
-                        AminoAcidDihedral.CE1, AminoAcidDihedral.CZ }));
         // proline, pro, P
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("PRO", AngleName.CHI1,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
@@ -253,15 +245,6 @@ public final class AminoAcidDihedral implements AngleType {
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI2,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
                         AminoAcidDihedral.CG, AminoAcidDihedral.CD1 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI3,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                        AminoAcidDihedral.CD1, AminoAcidDihedral.NE1 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI4,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
-                        AminoAcidDihedral.NE1, AminoAcidDihedral.CZ2 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TRP", AngleName.CHI5,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CD1,
-                        AminoAcidDihedral.NE1, AminoAcidDihedral.CZ2, AminoAcidDihedral.CH2 }));
         // tyrosine, tyr, Y
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI1,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
@@ -269,15 +252,6 @@ public final class AminoAcidDihedral implements AngleType {
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI2,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CA, AminoAcidDihedral.CB,
                         AminoAcidDihedral.CG, AminoAcidDihedral.CD1 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI3,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CB, AminoAcidDihedral.CG,
-                        AminoAcidDihedral.CD1, AminoAcidDihedral.CE1 }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI4,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CG, AminoAcidDihedral.CD1,
-                        AminoAcidDihedral.CE1, AminoAcidDihedral.CZ }));
-        AminoAcidDihedral.mapResidueAngleNameToAtoms.put("TYR", AngleName.CHI5,
-                new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.CD1,
-                        AminoAcidDihedral.CE1, AminoAcidDihedral.CZ, AminoAcidDihedral.OH }));
         // valine, val, V
         AminoAcidDihedral.mapResidueAngleNameToAtoms.put("VAL", AngleName.CHI1,
                 new UniTypeQuadruplet<>(new String[] { AminoAcidDihedral.N, AminoAcidDihedral.CA,
@@ -306,7 +280,7 @@ public final class AminoAcidDihedral implements AngleType {
     @Override
     public UniTypeQuadruplet<String> getAtomNames(Group g) {
         if (angleName.equals(AngleName.OMEGA) || angleName.equals(AngleName.PHI)
-                || angleName.equals(AngleName.PSI)) {
+                || angleName.equals(AngleName.PSI) || angleName.equals(AngleName.CALPHA)) {
             return AminoAcidDihedral.mapAngleToAtoms.get(angleName);
         }
 
