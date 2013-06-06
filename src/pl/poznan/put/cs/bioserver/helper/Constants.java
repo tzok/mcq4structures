@@ -13,4 +13,6 @@ public class Constants {
     public static final String EPSILON = "\u03B5";
     public static final String ZETA = "\u03B6";
     public static final String TAU = "\u03C4";
+    public static final String THETA = "\u03B8";
+    public static final String ETA = "\u03B7";
 }

@@ -19,7 +19,7 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 public final class NucleotideDihedral implements AngleType {
     /** All names of angles in a nucleotide. */
     private enum AngleName {
-        ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, CHI, TAU0, TAU1, TAU2, TAU3, TAU4
+        ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, CHI, TAU0, TAU1, TAU2, TAU3, TAU4, THETA, ETA, THETA_PRIM, ETA_PRIM
     }
 
     private static final String C1P = " C1'";
@@ -28,27 +28,19 @@ public final class NucleotideDihedral implements AngleType {
     private static final String C3P = " C3'";
     private static final String C4 = " C4 ";
     private static final String C4P = " C4'";
-    private static final String C5 = " C5 ";
     private static final String C5P = " C5'";
-    private static final String C6 = " C6 ";
     private static final String N1 = " N1 ";
-    private static final String N3 = " N3 ";
     private static final String N9 = " N9 ";
-    private static final String O2P = " O2'";
     private static final String O3P = " O3'";
     private static final String O4P = " O4'";
     private static final String O5P = " O5'";
-    private static final String OP1 = " OP1";
-    private static final String OP2 = " OP2";
     private static final String P = " P  ";
 
     private static List<String> atoms = Arrays.asList(new String[] { NucleotideDihedral.C1P,
             NucleotideDihedral.C2, NucleotideDihedral.C2P, NucleotideDihedral.C3P,
-            NucleotideDihedral.C4, NucleotideDihedral.C4P, NucleotideDihedral.C5,
-            NucleotideDihedral.C5P, NucleotideDihedral.C6, NucleotideDihedral.N1,
-            NucleotideDihedral.N3, NucleotideDihedral.N9, NucleotideDihedral.O2P,
-            NucleotideDihedral.O3P, NucleotideDihedral.O4P, NucleotideDihedral.O5P,
-            NucleotideDihedral.OP1, NucleotideDihedral.OP2, NucleotideDihedral.P });
+            NucleotideDihedral.C4, NucleotideDihedral.C4P, NucleotideDihedral.C5P,
+            NucleotideDihedral.N1, NucleotideDihedral.N9, NucleotideDihedral.O3P,
+            NucleotideDihedral.O4P, NucleotideDihedral.O5P, NucleotideDihedral.P });
 
     private static List<AngleType> angles = Arrays.asList(new AngleType[] {
             new NucleotideDihedral(AngleName.ALPHA), new NucleotideDihedral(AngleName.BETA),
@@ -56,7 +48,10 @@ public final class NucleotideDihedral implements AngleType {
             new NucleotideDihedral(AngleName.EPSILON), new NucleotideDihedral(AngleName.ZETA),
             new NucleotideDihedral(AngleName.CHI), new NucleotideDihedral(AngleName.TAU0),
             new NucleotideDihedral(AngleName.TAU1), new NucleotideDihedral(AngleName.TAU2),
-            new NucleotideDihedral(AngleName.TAU3), new NucleotideDihedral(AngleName.TAU4) });
+            new NucleotideDihedral(AngleName.TAU3), new NucleotideDihedral(AngleName.TAU4),
+            new NucleotideDihedral(AngleName.ETA), new NucleotideDihedral(AngleName.THETA),
+            new NucleotideDihedral(AngleName.ETA_PRIM),
+            new NucleotideDihedral(AngleName.THETA_PRIM) });
 
     private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms;
     private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules;
@@ -101,6 +96,19 @@ public final class NucleotideDihedral implements AngleType {
                 new String[] { NucleotideDihedral.C3P, NucleotideDihedral.C4P,
                         NucleotideDihedral.O4P, NucleotideDihedral.C1P }));
 
+        NucleotideDihedral.mapAngleToAtoms.put(AngleName.ETA, new UniTypeQuadruplet<>(new String[] {
+                NucleotideDihedral.C4P, NucleotideDihedral.P, NucleotideDihedral.C4P,
+                NucleotideDihedral.P }));
+        NucleotideDihedral.mapAngleToAtoms.put(AngleName.THETA, new UniTypeQuadruplet<>(
+                new String[] { NucleotideDihedral.P, NucleotideDihedral.C4P, NucleotideDihedral.P,
+                        NucleotideDihedral.C4P }));
+        NucleotideDihedral.mapAngleToAtoms.put(AngleName.ETA_PRIM, new UniTypeQuadruplet<>(
+                new String[] { NucleotideDihedral.C1P, NucleotideDihedral.P,
+                        NucleotideDihedral.C1P, NucleotideDihedral.P }));
+        NucleotideDihedral.mapAngleToAtoms.put(AngleName.THETA_PRIM, new UniTypeQuadruplet<>(
+                new String[] { NucleotideDihedral.P, NucleotideDihedral.C1P, NucleotideDihedral.P,
+                        NucleotideDihedral.C1P }));
+
         NucleotideDihedral.mapAngleToRules = new HashMap<>();
         NucleotideDihedral.mapAngleToRules.put(AngleName.ALPHA, new UniTypeQuadruplet<>(
                 new Integer[] { 0, 1, 1, 1 }));
@@ -126,6 +134,14 @@ public final class NucleotideDihedral implements AngleType {
                 new Integer[] { 0, 0, 0, 0 }));
         NucleotideDihedral.mapAngleToRules.put(AngleName.TAU4, new UniTypeQuadruplet<>(
                 new Integer[] { 0, 0, 0, 0 }));
+        NucleotideDihedral.mapAngleToRules.put(AngleName.ETA, new UniTypeQuadruplet<>(
+                new Integer[] { 0, 1, 1, 2 }));
+        NucleotideDihedral.mapAngleToRules.put(AngleName.THETA, new UniTypeQuadruplet<>(
+                new Integer[] { 0, 0, 1, 1 }));
+        NucleotideDihedral.mapAngleToRules.put(AngleName.ETA_PRIM, new UniTypeQuadruplet<>(
+                new Integer[] { 0, 1, 1, 2 }));
+        NucleotideDihedral.mapAngleToRules.put(AngleName.THETA_PRIM, new UniTypeQuadruplet<>(
+                new Integer[] { 0, 0, 1, 1 }));
 
         NucleotideDihedral.setPyrimidines = new HashSet<>();
         NucleotideDihedral.setPyrimidines.addAll(Arrays.asList(new Character[] { 'C', 'U', 'Y' }));

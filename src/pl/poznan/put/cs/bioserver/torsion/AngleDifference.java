@@ -12,10 +12,6 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
  * @author tzok
  */
 public class AngleDifference implements Comparable<AngleDifference> {
-    private static double rad2deg(double rad) {
-        return rad * 180.0 / Math.PI;
-    }
-
     /** First angle value. */
     private double angle1;
     /** Second angle value. */
@@ -170,8 +166,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
 
     @Override
     public String toString() {
-        return String.format("Angle difference: delta(%.2f, %.2f) = %.2f",
-                AngleDifference.rad2deg(angle1), AngleDifference.rad2deg(angle2),
-                AngleDifference.rad2deg(difference));
+        return String.format("Angle difference: delta(%.2f, %.2f) = %.2f", Math.toDegrees(angle1),
+                Math.toDegrees(angle2), Math.toDegrees(difference));
     }
 }

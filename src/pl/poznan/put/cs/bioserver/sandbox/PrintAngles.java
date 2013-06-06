@@ -8,6 +8,7 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
@@ -27,10 +28,11 @@ public class PrintAngles {
                     .getAtomArray(structure, NucleotideDihedral.getUsedAtoms());
             for (AngleType type : NucleotideDihedral.getAngles()) {
                 for (Quadruplet quadruplet : DihedralAngles.getQuadruplets(atomArray, type)) {
-                    double dihedral = DihedralAngles.calculateDihedral(quadruplet.getAtoms());
+                    UniTypeQuadruplet<Atom> atoms = quadruplet.getAtoms();
+                    double dihedral = DihedralAngles.calculateDihedral(atoms);
                     System.out.println(type.getAngleName() + " "
-                            + quadruplet.getAtoms().b.getGroup().getResidueNumber() + " "
-                            + dihedral);
+                            + atoms.b.getGroup().getResidueNumber() + " " + dihedral + " "
+                            + Math.toDegrees(dihedral));
                 }
             }
         } catch (IOException e) {
