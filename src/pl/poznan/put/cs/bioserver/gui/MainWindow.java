@@ -490,7 +490,7 @@ public class MainWindow extends JFrame {
         itemVisualise.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent e) {
-                visualizable.visualize();
+                visualizable.visualize3D();
             }
         });
 

@@ -133,4 +133,10 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
                 + "bioserver/external/MatplotlibLocalMulti.xsl");
         Matplotlib.runXsltAndPython(resource, results.get(0), parameters);
     }
+
+    @Override
+    public void visualize3D() {
+        // TODO Auto-generated method stub
+        
+    }
 }

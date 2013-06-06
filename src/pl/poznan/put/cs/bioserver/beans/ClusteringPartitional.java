@@ -134,4 +134,10 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public void visualize3D() {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

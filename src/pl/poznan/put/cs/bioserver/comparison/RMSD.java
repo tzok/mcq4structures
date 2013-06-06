@@ -85,6 +85,9 @@ public class RMSD extends GlobalComparison {
             Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
             Pair<List<Atom>, List<Atom>> atoms = Helper.getCommonAtomArray(structures[0],
                     structures[1], false);
+            if (atoms == null) {
+                atoms = Helper.getCommonAtomArray(structures[0], structures[1], true);
+            }
             assert atoms != null;
 
             List<Atom> left = atoms.getLeft();

@@ -335,4 +335,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
                 + "bioserver/external/MatplotlibLocal.xsl");
         Matplotlib.runXsltAndPython(resource, this, parameters);
     }
+
+    @Override
+    public void visualize3D() {
+        // TODO Auto-generated method stub
+        
+    }
 }

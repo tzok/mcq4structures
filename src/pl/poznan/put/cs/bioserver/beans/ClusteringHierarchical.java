@@ -47,4 +47,10 @@ public class ClusteringHierarchical extends XMLSerializable implements Visualiza
     public void visualizeHighQuality() {
         // TODO Auto-generated method stub
     }
+
+    @Override
+    public void visualize3D() {
+        // TODO Auto-generated method stub
+        
+    }
 }
