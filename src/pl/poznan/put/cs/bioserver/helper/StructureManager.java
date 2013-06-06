@@ -186,6 +186,40 @@ public final class StructureManager {
         return false;
     }
 
+    private static List<Structure> storeStructureInfo(File file, Structure structure) {
+        String name = structure.getPDBCode();
+        if (name == null || name.trim().equals("")) {
+            name = file.getName();
+            if (name.endsWith(".pdb") || name.endsWith(".cif")) {
+                name = name.substring(0, name.length() - 4);
+            } else if (name.endsWith(".pdb.gz") || name.endsWith(".cif.gz")) {
+                name = name.substring(0, name.length() - 7);
+            }
+            structure.setPDBCode(name);
+        }
+
+        int count = structure.nrModels();
+        int order = 10;
+        int leading = 1;
+        while (order < count) {
+            leading++;
+            order *= 10;
+        }
+        String format = "%s.%0" + leading + "d";
+
+        List<Structure> models = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Structure clone = structure.clone();
+            clone.setChains(structure.getModel(i));
+            models.add(clone);
+
+            StructureManager.mapModelFile.put(clone, file);
+            StructureManager.mapModelName.put(clone, String.format(format, name, i + 1));
+        }
+        StructureManager.mapFileModels.put(file, models);
+        return models;
+    }
+
     private static void validate(BufferedReader reader) throws IOException, InvalidInputException {
         try {
             char lastChain = 0;
@@ -234,40 +268,6 @@ public final class StructureManager {
         } catch (Throwable e) {
             throw new InvalidInputException(e);
         }
-    }
-
-    private static List<Structure> storeStructureInfo(File file, Structure structure) {
-        String name = structure.getPDBCode();
-        if (name == null || name.trim().equals("")) {
-            name = file.getName();
-            if (name.endsWith(".pdb") || name.endsWith(".cif")) {
-                name = name.substring(0, name.length() - 4);
-            } else if (name.endsWith(".pdb.gz") || name.endsWith(".cif.gz")) {
-                name = name.substring(0, name.length() - 7);
-            }
-            structure.setPDBCode(name);
-        }
-
-        int count = structure.nrModels();
-        int order = 10;
-        int leading = 1;
-        while (order < count) {
-            leading++;
-            order *= 10;
-        }
-        String format = "%s.%0" + leading + "d";
-
-        List<Structure> models = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Structure clone = structure.clone();
-            clone.setChains(structure.getModel(i));
-            models.add(clone);
-
-            StructureManager.mapModelFile.put(clone, file);
-            StructureManager.mapModelName.put(clone, String.format(format, name, i + 1));
-        }
-        StructureManager.mapFileModels.put(file, models);
-        return models;
     }
 
     private StructureManager() {

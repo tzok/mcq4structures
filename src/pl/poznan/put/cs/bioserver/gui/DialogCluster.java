@@ -7,15 +7,12 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
-import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
@@ -23,43 +20,52 @@ import javax.swing.SpinnerNumberModel;
 
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.sun.media.sound.InvalidDataException;
-
 import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
 import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
-import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
-import pl.poznan.put.cs.bioserver.clustering.Clusterer;
-import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
-import pl.poznan.put.cs.bioserver.clustering.HierarchicalPlot;
-import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
-import pl.poznan.put.cs.bioserver.external.Matplotlib;
-import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
+import pl.poznan.put.cs.bioserver.clustering.ClustererHierarchical.Linkage;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.ScoringFunction;
+import pl.poznan.put.cs.bioserver.helper.Visualizable;
+
+import com.sun.media.sound.InvalidDataException;
 
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    public DialogCluster(final ComparisonGlobal comparisonGlobal, final String plotTitlePrefix) {
+    private ComparisonGlobal comparisonGlobal;
+    private JRadioButton hierarchical;
+    private JComboBox<Linkage> linkage;
+    private JComboBox<ScoringFunction> scoringFunction;
+    private JCheckBox findBestK;
+    private JSpinner kspinner;
+    private JButton buttonVisualize;
+    private JButton buttonVisualizeHighQuality;
+    private JButton buttonVisualize3D;
+
+    public DialogCluster(ComparisonGlobal comparisonGlobal) {
         super();
 
-        final JRadioButton hierarchical = new JRadioButton("hierarchical", true);
+        this.comparisonGlobal = comparisonGlobal;
+
+        hierarchical = new JRadioButton("hierarchical", true);
         JRadioButton kmedoids = new JRadioButton("k-medoids", false);
         ButtonGroup group = new ButtonGroup();
         group.add(hierarchical);
         group.add(kmedoids);
 
-        final JComboBox<String> linkage = new JComboBox<>(new String[] { "Complete", "Single",
-                "Average" });
-        final JComboBox<String> method = new JComboBox<>(new String[] { "PAM", "PAMSIL" });
-        method.setEnabled(false);
-        final JCheckBox findBestK = new JCheckBox("Find best k?", true);
+        linkage = new JComboBox<>(Linkage.values());
+        scoringFunction = new JComboBox<>(ClustererKMedoids.SCORING_FUNCTIONS);
+        scoringFunction.setEnabled(false);
+        findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);
-        final JSpinner kspinner = new JSpinner();
+        kspinner = new JSpinner();
         kspinner.setModel(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
         kspinner.setEnabled(false);
 
-        JButton buttonExternal = new JButton("Via Matplotlib");
-        JButton buttonOk = new JButton("Ok");
+        buttonVisualize = new JButton("Visualize");
+        buttonVisualizeHighQuality = new JButton("Visualize (high quality)");
+        buttonVisualize3D = new JButton("Visualize in 3D");
         JButton buttonClose = new JButton("Close");
 
         Container container = getContentPane();
@@ -83,7 +89,7 @@ public class DialogCluster extends JDialog {
         container.add(kmedoids, c);
 
         c.gridx = 1;
-        container.add(method, c);
+        container.add(scoringFunction, c);
 
         c.gridx = 2;
         container.add(findBestK, c);
@@ -94,12 +100,12 @@ public class DialogCluster extends JDialog {
         c.gridx = 0;
         c.gridy = 2;
         c.gridwidth = 1;
-        container.add(buttonExternal, c);
-
+        container.add(buttonVisualize, c);
         c.gridx = 1;
-        container.add(buttonOk, c);
-
+        container.add(buttonVisualizeHighQuality, c);
         c.gridx = 2;
+        container.add(buttonVisualize3D, c);
+        c.gridx = 3;
         container.add(buttonClose, c);
 
         ActionListener radioActionListener = new ActionListener() {
@@ -107,7 +113,7 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(@Nullable ActionEvent arg0) {
                 boolean isHierarchical = hierarchical.isSelected();
                 linkage.setEnabled(isHierarchical);
-                method.setEnabled(!isHierarchical);
+                scoringFunction.setEnabled(!isHierarchical);
                 findBestK.setEnabled(!isHierarchical);
                 kspinner.setEnabled(!isHierarchical && !findBestK.isSelected());
             }
@@ -116,99 +122,30 @@ public class DialogCluster extends JDialog {
         kmedoids.addActionListener(radioActionListener);
         findBestK.addActionListener(radioActionListener);
 
-        buttonExternal.addActionListener(new ActionListener() {
+        ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
-                URL resource;
-                XMLSerializable xmlSerializable;
-                if (hierarchical.isSelected()) {
-                    resource = DialogCluster.class
-                            .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
-                    Method linkageMethod = new Method[] { Method.COMPLETE, Method.SINGLE,
-                            Method.AVERAGE }[linkage.getSelectedIndex()];
-                    xmlSerializable = ClusteringHierarchical.newInstance(comparisonGlobal,
-                            linkageMethod);
-                } else { // partitional.isSelected() == true
-                    resource = DialogCluster.class
-                            .getResource("/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
-                    Result clustering;
-                    double[][] distanceMatrix = comparisonGlobal.getDistanceMatrix();
-                    if (method.getSelectedItem().equals("PAM")) {
-                        if (findBestK.isSelected()) {
-                            clustering = Clusterer.clusterPAM(distanceMatrix);
-                        } else {
-                            clustering = Clusterer.clusterPAM(distanceMatrix,
-                                    (Integer) kspinner.getValue());
-                        }
-                    } else {
-                        if (findBestK.isSelected()) {
-                            clustering = Clusterer.clusterPAMSIL(distanceMatrix);
-                        } else {
-                            clustering = Clusterer.clusterPAMSIL(distanceMatrix,
-                                    (Integer) kspinner.getValue());
-                        }
-                    }
+                assert arg0 != null;
 
-                    try {
-                        xmlSerializable = ClusteringPartitional.newInstance(comparisonGlobal,
-                                clustering);
-                    } catch (InvalidDataException e) {
-                        JOptionPane.showMessageDialog(DialogCluster.this, e.getMessage(),
-                                "Warning", JOptionPane.WARNING_MESSAGE);
-                        return;
+                try {
+                    Object source = arg0.getSource();
+                    Visualizable visualizable = getVisualizable();
+                    if (source.equals(buttonVisualize)) {
+                        visualizable.visualize();
+                    } else if (source.equals(buttonVisualizeHighQuality)) {
+                        visualizable.visualizeHighQuality();
+                    } else { // source.equals(buttonVisualize3D)
+                        visualizable.visualize3D();
                     }
+                } catch (InvalidDataException e) {
+                    JOptionPane.showMessageDialog(DialogCluster.this, e.getMessage(), "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
-                Matplotlib.runXsltAndPython(resource, xmlSerializable);
             }
-        });
-
-        buttonOk.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
-                JFrame plot;
-                String plotTitle = plotTitlePrefix;
-                double[][] comparisonResults = comparisonGlobal.getDistanceMatrix();
-                List<String> structureNames = comparisonGlobal.getLabels();
-                if (hierarchical.isSelected()) {
-                    plot = new HierarchicalPlot(comparisonResults, structureNames, linkage
-                            .getSelectedIndex());
-                    plotTitle += "hierarchical clustering (";
-                    plotTitle += linkage.getSelectedItem();
-                    plotTitle += " linkage)";
-                } else {
-                    int k;
-                    if (findBestK.isSelected()) {
-                        k = 0;
-                    } else {
-                        k = (Integer) kspinner.getValue();
-                        if (k > comparisonResults.length) {
-                            JOptionPane.showMessageDialog(null, "k parameter "
-                                    + "(k-medoids) must be equal or less than "
-                                    + "the number of input structures", "Error!",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                    }
-
-                    try {
-                        plot = new KMedoidsPlot(comparisonResults, structureNames, k,
-                                (String) method.getSelectedItem());
-                    } catch (InvalidDataException e1) {
-                        JOptionPane.showMessageDialog(DialogCluster.this, e1.getMessage(),
-                                "Warning", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-
-                    plotTitle += "k-medoids (";
-                    plotTitle += method.getSelectedItem();
-                    plotTitle += ", k =";
-                    plotTitle += k == 0 ? "auto" : Integer.toString(k);
-                    plotTitle += ")";
-                }
-                plot.setTitle(plotTitle);
-                plot.setVisible(true);
-            }
-        });
+        };
+        buttonVisualize.addActionListener(listener);
+        buttonVisualizeHighQuality.addActionListener(listener);
+        buttonVisualize3D.addActionListener(listener);
 
         buttonClose.addActionListener(new ActionListener() {
             @Override
@@ -228,5 +165,18 @@ public class DialogCluster extends JDialog {
         setLocation(x / 2, y / 2);
 
         setTitle("MCQ4Structures: clustering method");
+    }
+
+    private Visualizable getVisualizable() throws InvalidDataException {
+        Visualizable visualizable;
+        if (hierarchical.isSelected()) {
+            visualizable = ClusteringHierarchical.newInstance(comparisonGlobal,
+                    (Linkage) linkage.getSelectedItem());
+        } else {
+            Integer k = (Integer) (findBestK.isSelected() ? null : kspinner.getValue());
+            visualizable = ClusteringPartitional.newInstance(comparisonGlobal,
+                    (ScoringFunction) scoringFunction.getSelectedItem(), k);
+        }
+        return visualizable;
     }
 }

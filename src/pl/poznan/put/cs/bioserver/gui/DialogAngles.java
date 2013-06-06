@@ -163,8 +163,9 @@ final class DialogAngles extends JDialog {
             public void actionPerformed(@Nullable ActionEvent e) {
                 JCheckBox[][] checkBoxes = new JCheckBox[][] { checksAmino, checksNucleic };
                 String[][] codes = new String[][] {
-                        AMINO_CODES.toArray(new String[AMINO_CODES.size()]),
-                        NUCLEIC_CODES.toArray(new String[NUCLEIC_CODES.size()]) };
+                        DialogAngles.AMINO_CODES.toArray(new String[DialogAngles.AMINO_CODES.size()]),
+                        DialogAngles.NUCLEIC_CODES.toArray(new String[DialogAngles.NUCLEIC_CODES
+                                .size()]) };
 
                 LinkedHashSet<String> set = new LinkedHashSet<>();
                 for (int i = 0; i < 2; i++) {

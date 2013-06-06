@@ -121,6 +121,12 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
     }
 
     @Override
+    public void visualize3D() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     public void visualizeHighQuality() {
         // TODO: use different parameters
         Map<String, Object> parameters = new HashMap<>();
@@ -132,11 +138,5 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
         URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
                 + "bioserver/external/MatplotlibLocalMulti.xsl");
         Matplotlib.runXsltAndPython(resource, results.get(0), parameters);
-    }
-
-    @Override
-    public void visualize3D() {
-        // TODO Auto-generated method stub
-        
     }
 }

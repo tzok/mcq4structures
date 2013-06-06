@@ -10,6 +10,15 @@ public class UniTypeQuadruplet<T> {
     public final T c;
     public final T d;
 
+    public UniTypeQuadruplet(List<T> list) {
+        super();
+        assert list.size() == 4;
+        a = list.get(0);
+        b = list.get(1);
+        c = list.get(2);
+        d = list.get(3);
+    }
+
     public UniTypeQuadruplet(@Nullable T a, @Nullable T b, @Nullable T c, @Nullable T d) {
         super();
         this.a = a;
@@ -27,13 +36,48 @@ public class UniTypeQuadruplet<T> {
         d = array[3];
     }
 
-    public UniTypeQuadruplet(List<T> list) {
-        super();
-        assert list.size() == 4;
-        a = list.get(0);
-        b = list.get(1);
-        c = list.get(2);
-        d = list.get(3);
+    @SuppressWarnings("rawtypes")
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        UniTypeQuadruplet other = (UniTypeQuadruplet) obj;
+        if (a == null) {
+            if (other.a != null) {
+                return false;
+            }
+        } else if (!a.equals(other.a)) {
+            return false;
+        }
+        if (b == null) {
+            if (other.b != null) {
+                return false;
+            }
+        } else if (!b.equals(other.b)) {
+            return false;
+        }
+        if (c == null) {
+            if (other.c != null) {
+                return false;
+            }
+        } else if (!c.equals(other.c)) {
+            return false;
+        }
+        if (d == null) {
+            if (other.d != null) {
+                return false;
+            }
+        } else if (!d.equals(other.d)) {
+            return false;
+        }
+        return true;
     }
 
     @Nullable
@@ -61,43 +105,10 @@ public class UniTypeQuadruplet<T> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((a == null) ? 0 : a.hashCode());
-        result = prime * result + ((b == null) ? 0 : b.hashCode());
-        result = prime * result + ((c == null) ? 0 : c.hashCode());
-        result = prime * result + ((d == null) ? 0 : d.hashCode());
+        result = prime * result + (a == null ? 0 : a.hashCode());
+        result = prime * result + (b == null ? 0 : b.hashCode());
+        result = prime * result + (c == null ? 0 : c.hashCode());
+        result = prime * result + (d == null ? 0 : d.hashCode());
         return result;
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        UniTypeQuadruplet other = (UniTypeQuadruplet) obj;
-        if (a == null) {
-            if (other.a != null)
-                return false;
-        } else if (!a.equals(other.a))
-            return false;
-        if (b == null) {
-            if (other.b != null)
-                return false;
-        } else if (!b.equals(other.b))
-            return false;
-        if (c == null) {
-            if (other.c != null)
-                return false;
-        } else if (!c.equals(other.c))
-            return false;
-        if (d == null) {
-            if (other.d != null)
-                return false;
-        } else if (!d.equals(other.d))
-            return false;
-        return true;
     }
 }

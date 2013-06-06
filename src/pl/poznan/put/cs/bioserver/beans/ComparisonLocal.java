@@ -282,9 +282,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             private static final long serialVersionUID = 1L;
 
             @Override
-            public StringBuffer format(double number, @Nullable StringBuffer toAppendTo, @Nullable FieldPosition pos) {
+            public StringBuffer format(double number, @Nullable StringBuffer toAppendTo,
+                    @Nullable FieldPosition pos) {
                 assert toAppendTo != null;
-                
+
                 if (number == 0) {
                     return toAppendTo.append("0");
                 } else if (number == Math.PI) {
@@ -294,7 +295,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             }
 
             @Override
-            public StringBuffer format(long number, @Nullable StringBuffer toAppendTo, @Nullable FieldPosition pos) {
+            public StringBuffer format(long number, @Nullable StringBuffer toAppendTo,
+                    @Nullable FieldPosition pos) {
                 return format.format(number, toAppendTo, pos);
             }
 
@@ -318,7 +320,14 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
     }
 
     @Override
+    public void visualize3D() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
     public void visualizeHighQuality() {
+        // FIXME
         StringBuilder builder = new StringBuilder();
         builder.append("[ ");
         for (String angle : angles.keySet()) {
@@ -334,11 +343,5 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
                 + "bioserver/external/MatplotlibLocal.xsl");
         Matplotlib.runXsltAndPython(resource, this, parameters);
-    }
-
-    @Override
-    public void visualize3D() {
-        // TODO Auto-generated method stub
-        
     }
 }

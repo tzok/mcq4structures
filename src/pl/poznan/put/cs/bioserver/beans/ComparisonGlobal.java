@@ -52,16 +52,15 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         for (double[] value : distanceMatrix) {
             for (double element : value) {
                 if (Double.isNaN(element)) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "clustered. Some structures could not be " + "compared.", "Error",
+                    JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some "
+                            + "structures could not be compared.", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
         }
 
-        DialogCluster dialogClustering = new DialogCluster(this,
-                "MCQ4Structures: global distance (" + method + ") clusters by ");
+        DialogCluster dialogClustering = new DialogCluster(this);
         dialogClustering.setVisible(true);
     }
 
@@ -151,11 +150,6 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
     }
 
     @Override
-    public void visualizeHighQuality() {
-        throw new UnsupportedOperationException("Method not implemented!");
-    }
-
-    @Override
     public void visualize3D() {
         double[][] mds;
         try {
@@ -186,5 +180,10 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
             graph.add(sphere);
         }
         ChartLauncher.openChart(chart);
+    }
+
+    @Override
+    public void visualizeHighQuality() {
+        throw new UnsupportedOperationException("Method not implemented!");
     }
 }

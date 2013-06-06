@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.beans;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,24 +11,34 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sun.media.sound.InvalidDataException;
+import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Point;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
-import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.Result;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.ScoringFunction;
+import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
+import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
+
+import com.sun.media.sound.InvalidDataException;
 
 @XmlRootElement
 public class ClusteringPartitional extends XMLSerializable implements Visualizable {
     private static final long serialVersionUID = -7474446942015119359L;
 
-    public static ClusteringPartitional newInstance(ComparisonGlobal comparison, Result clustering)
-            throws InvalidDataException {
-        double[][] mds = MDS.multidimensionalScaling(comparison.getDistanceMatrix(), 2);
-        Map<Integer, Set<Integer>> clusterMap = clustering.getClusterAssignment();
+    public static ClusteringPartitional newInstance(ComparisonGlobal comparison,
+            ScoringFunction scoringFunction, @Nullable Integer k) throws InvalidDataException {
+        double[][] distanceMatrix = comparison.getDistanceMatrix();
+        double[][] mds = MDS.multidimensionalScaling(distanceMatrix, 2);
+
+        Result clustering = ClustererKMedoids.kMedoids(distanceMatrix, scoringFunction, k);
+        Map<Integer, Set<Integer>> clusterMap = ClustererKMedoids.getClusterAssignments(
+                clustering.medoids, distanceMatrix);
 
         List<Point> medoids = new ArrayList<>();
         for (int index : clusterMap.keySet()) {
@@ -48,6 +59,7 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
                 builder.append(", ");
 
                 Point point = new Point();
+                point.setLabel(labelsAll.get(index));
                 point.setX(mds[index][0]);
                 point.setY(mds[index][1]);
                 points.add(point);
@@ -65,6 +77,7 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         instance.labels = labels;
         instance.medoids = medoids;
         instance.clusters = clusters;
+        instance.scoringFunction = scoringFunction.toString();
         instance.colors = Colors.toRGB();
         return instance;
     }
@@ -74,6 +87,7 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
     List<Point> medoids;
     List<String> labels;
     List<RGB> colors;
+    String scoringFunction;
 
     public List<Cluster> getClusters() {
         return clusters;
@@ -93,6 +107,10 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
 
     public List<Point> getMedoids() {
         return medoids;
+    }
+
+    public String getScoringFunction() {
+        return scoringFunction;
     }
 
     @XmlElementWrapper(name = "cluster")
@@ -124,20 +142,27 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         this.medoids = medoids;
     }
 
-    @Override
-    public void visualize() {
-        // TODO Auto-generated method stub
+    @XmlElement
+    public void setScoringFunction(String method) {
+        scoringFunction = method;
     }
 
     @Override
-    public void visualizeHighQuality() {
-        // TODO Auto-generated method stub
+    public void visualize() {
+        KMedoidsPlot plot = new KMedoidsPlot(this);
+        plot.setVisible(true);
     }
 
     @Override
     public void visualize3D() {
         // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
+    @Override
+    public void visualizeHighQuality() {
+        URL resource = getClass().getResource(
+                "/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
+        Matplotlib.runXsltAndPython(resource, this);
+    }
 }

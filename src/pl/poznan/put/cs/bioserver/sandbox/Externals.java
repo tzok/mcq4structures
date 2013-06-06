@@ -21,11 +21,10 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
-import pl.poznan.put.cs.bioserver.clustering.Clusterer;
-import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
+import pl.poznan.put.cs.bioserver.clustering.ClustererHierarchical.Linkage;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
-import pl.poznan.put.cs.bioserver.external.Matplotlib.Method;
 import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
@@ -92,15 +91,14 @@ public class Externals {
         }
         ComparisonGlobal global = ComparisonGlobal.newInstance(matrix, labels, "MCQ");
 
-        xmlResults = ClusteringHierarchical.newInstance(global, Method.COMPLETE);
+        xmlResults = ClusteringHierarchical.newInstance(global, Linkage.Complete);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
                 + "put/cs/bioserver/external/MatplotlibHierarchical.xsl"), new File(
                 "/tmp/hierarchical.py"), new File("/tmp/hierarchical.pdf"), xmlResults);
 
-        Result clustering = Clusterer.clusterPAM(matrix, 3);
-        xmlResults = ClusteringPartitional.newInstance(global, clustering);
+        xmlResults = ClusteringPartitional.newInstance(global, ClustererKMedoids.scoringPAM, null);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"

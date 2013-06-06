@@ -11,6 +11,11 @@ public class Point extends XMLSerializable {
 
     double x;
     double y;
+    String label;
+
+    public String getLabel() {
+        return label;
+    }
 
     public double getX() {
         return x;
@@ -18,6 +23,11 @@ public class Point extends XMLSerializable {
 
     public double getY() {
         return y;
+    }
+
+    @XmlElement
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     @XmlElement

@@ -25,10 +25,6 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 
 public class Matplotlib {
-    public enum Method {
-        SINGLE, COMPLETE, AVERAGE, WEIGHTED
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Matplotlib.class);
 
     public static void runXsltAndPython(URL resource, File fileScript, File fileOutput,
