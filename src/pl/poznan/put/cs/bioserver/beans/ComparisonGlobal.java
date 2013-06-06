@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.beans;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -13,8 +14,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
 import org.jzy3d.colors.Color;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.maths.Coord3d;
-import org.jzy3d.plot3d.primitives.Sphere;
+import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.scene.Graph;
 
@@ -151,36 +155,23 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
 
     @Override
     public void visualize3D() {
-        double[][] mds;
-        try {
-            mds = MDS.multidimensionalScaling(distanceMatrix, 3);
-        } catch (InvalidDataException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        double min = Double.POSITIVE_INFINITY;
-        double max = Double.NEGATIVE_INFINITY;
-        for (double[] point : mds) {
-            for (double coord : point) {
-                if (coord < min) {
-                    min = coord;
-                }
-                if (coord > max) {
-                    max = coord;
-                }
+        List<Coord3d> coordinates = new ArrayList<>();
+        for (int i = 0; i < distanceMatrix.length; i++) {
+            for (int j = 0; j < distanceMatrix.length; j++) {
+                coordinates.add(new Coord3d(i, j, distanceMatrix[i][j]));
             }
         }
+        Shape surface = Builder.buildDelaunay(coordinates);
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
+                surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1,
+                        .5f)));
+        surface.setFaceDisplayed(true);
+        surface.setWireframeDisplayed(false);
+        surface.setWireframeColor(Color.BLACK);
 
         Chart chart = new Chart(Quality.Nicest);
         Graph graph = chart.getScene().getGraph();
-        for (double[] point : mds) {
-            Color color = Color.random();
-            Sphere sphere = new Sphere(new Coord3d(point[0], point[1], point[2]),
-                    (float) ((max - min) / distanceMatrix.length), 15, color);
-            sphere.setWireframeColor(color.negative());
-            graph.add(sphere);
-        }
+        graph.add(surface);
         ChartLauncher.openChart(chart);
     }
 
