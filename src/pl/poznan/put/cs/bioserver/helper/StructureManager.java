@@ -79,8 +79,10 @@ public final class StructureManager {
      * @param path
      *            Path to the PDB file.
      * @return Structure object..
+     * @throws InvalidInputException
      */
-    public static List<Structure> loadStructure(File file) throws IOException {
+    public static List<Structure> loadStructure(File file) throws IOException,
+            InvalidInputException {
         if (StructureManager.mapFileModels.containsKey(file)) {
             return StructureManager.mapFileModels.get(file);
         }
@@ -154,7 +156,7 @@ public final class StructureManager {
         }
     }
 
-    private static boolean isPdb(File file) throws IOException {
+    private static boolean isPdb(File file) throws IOException, InvalidInputException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -162,6 +164,7 @@ public final class StructureManager {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (line.startsWith("ATOM")) {
+                            StructureManager.validate(reader);
                             return true;
                         }
                     }
@@ -172,12 +175,65 @@ public final class StructureManager {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("ATOM")) {
+                        StructureManager.validate(reader);
                         return true;
                     }
                 }
             }
+        } catch (InvalidInputException e) {
+            throw new InvalidInputException(e.getMessage() + " (file: " + file + ")", e);
         }
         return false;
+    }
+
+    private static void validate(BufferedReader reader) throws IOException, InvalidInputException {
+        try {
+            char lastChain = 0;
+            int lastResidue = 0;
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("TER")) {
+                    lastChain = 0;
+                    lastResidue = 0;
+                    continue;
+                }
+
+                if (line.startsWith("ATOM") || line.startsWith("HETATM")) {
+                    boolean found = false;
+                    String residueName = line.substring(17, 20);
+                    for (String ignored : new String[] { "HOH", " MG", " MN" }) {
+                        if (residueName.equals(ignored)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        continue;
+                    }
+
+                    char chain = line.charAt(21);
+                    if (lastChain != 0 && lastChain != chain) {
+                        lastResidue = 0;
+                    }
+
+                    int residue = Integer.valueOf(line.substring(22, 26).trim());
+                    if (lastResidue != 0 && residue - lastResidue != 0
+                            && residue - lastResidue != 1) {
+                        String message = "Residues in the PDB file are not numbered sequentially, "
+                                + "lastResidue = " + lastResidue + ", residue = " + residue;
+                        StructureManager.LOGGER.error(message);
+                        throw new InvalidInputException(message);
+                    }
+
+                    lastChain = chain;
+                    lastResidue = residue;
+                }
+            }
+        } catch (IOException | InvalidInputException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new InvalidInputException(e);
+        }
     }
 
     private static List<Structure> storeStructureInfo(File file, Structure structure) {

@@ -25,6 +25,7 @@ import javax.swing.JTextField;
 import org.biojava.bio.structure.Structure;
 import org.eclipse.jdt.annotation.Nullable;
 
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public final class DialogManager extends JDialog {
@@ -129,7 +130,7 @@ public final class DialogManager extends JDialog {
             if (StructureManager.loadStructure(file).size() > 0) {
                 model.addElement(file);
             }
-        } catch (IOException e) {
+        } catch (IOException | InvalidInputException e) {
             JOptionPane.showMessageDialog(DialogManager.instance, e.getMessage(),
                     "Error: " + e.getClass(), JOptionPane.ERROR_MESSAGE);
         }

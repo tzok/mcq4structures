@@ -52,7 +52,7 @@ public class Externals {
         for (int i = 0; i < pdbs.size(); i++) {
             try {
                 structures.addAll(StructureManager.loadStructure(pdbs.get(i)));
-            } catch (IOException e) {
+            } catch (IOException | InvalidInputException e) {
                 e.printStackTrace();
             }
         }

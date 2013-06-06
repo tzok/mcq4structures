@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.alignment.AlignmentOutput;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 /**
@@ -48,7 +49,7 @@ public class RMSD extends GlobalComparison {
         for (String arg : args) {
             try {
                 list.add(StructureManager.loadStructure(new File(arg)).get(0));
-            } catch (IOException e) {
+            } catch (IOException | InvalidInputException e) {
                 System.out.println("ERROR");
                 e.printStackTrace();
             }
