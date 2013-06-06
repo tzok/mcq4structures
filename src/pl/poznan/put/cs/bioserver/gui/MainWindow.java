@@ -111,7 +111,8 @@ public class MainWindow extends JFrame {
     private JMenuItem itemSelectStructuresCompare;
     private JMenuItem itemComputeDistances;
     private JMenuItem itemVisualise;
-    private JMenuItem itemVisualiseHq;
+    private JMenuItem itemVisualiseHighQuality;
+    private JMenuItem itemVisualise3D;
     private JMenuItem itemCluster;
 
     private JRadioButtonMenuItem radioAlignSeqGlobal;
@@ -201,8 +202,10 @@ public class MainWindow extends JFrame {
         itemComputeDistances.setEnabled(false);
         itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
-        itemVisualiseHq = new JMenuItem("Visualise results (high-quality)");
-        itemVisualiseHq.setEnabled(false);
+        itemVisualiseHighQuality = new JMenuItem("Visualise results (high-quality)");
+        itemVisualiseHighQuality.setEnabled(false);
+        itemVisualise3D = new JMenuItem("Visualise results in 3D");
+        itemVisualise3D.setEnabled(false);
         itemCluster = new JMenuItem("Cluster results");
         itemCluster.setEnabled(false);
 
@@ -219,7 +222,8 @@ public class MainWindow extends JFrame {
         menu.addSeparator();
         menu.add(itemComputeDistances);
         menu.add(itemVisualise);
-        menu.add(itemVisualiseHq);
+        menu.add(itemVisualiseHighQuality);
+        menu.add(itemVisualise3D);
         menu.add(itemCluster);
         menuBar.add(menu);
 
@@ -426,7 +430,8 @@ public class MainWindow extends JFrame {
                 Object source = arg0.getSource();
                 itemSelectTorsion.setEnabled(source.equals(radioLocal));
                 itemVisualise.setEnabled(false);
-                itemVisualiseHq.setEnabled(false);
+                itemVisualiseHighQuality.setEnabled(false);
+                itemVisualise3D.setEnabled(false);
                 itemCluster.setEnabled(false);
 
                 boolean isGlobalNow = source.equals(radioGlobalMcq)
@@ -494,10 +499,17 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemVisualiseHq.addActionListener(new ActionListener() {
+        itemVisualiseHighQuality.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
                 visualizable.visualizeHighQuality();
+            }
+        });
+
+        itemVisualise3D.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(@Nullable ActionEvent e) {
+                visualizable.visualize3D();
             }
         });
 
@@ -630,7 +642,14 @@ public class MainWindow extends JFrame {
                             if (output == null) {
                                 return;
                             }
-                            StructuresAligned aligned = output.getStructures();
+                            StructuresAligned aligned;
+                            try {
+                                aligned = output.getStructures();
+                            } catch (StructureException e) {
+                                JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
 
                             StringBuilder builder = new StringBuilder();
                             builder.append("MODEL        1                                                                  \n");
@@ -714,6 +733,7 @@ public class MainWindow extends JFrame {
                         itemSave.setEnabled(true);
                         itemSave.setText("Save results (CSV)");
                         itemVisualise.setEnabled(true);
+                        itemVisualise3D.setEnabled(true);
                         itemCluster.setEnabled(true);
 
                         labelInfoMatrix.setText("<html>"
@@ -749,11 +769,7 @@ public class MainWindow extends JFrame {
                 break;
             }
         }
-        if (index >= names.size()) {
-            // FIXME: handle this situation (it should never appear under normal
-            // circumstances)
-            return;
-        }
+        assert index < names.size();
 
         progressBar.setMaximum(1);
         progressBar.setValue(0);
@@ -778,10 +794,11 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");
         itemVisualise.setEnabled(true);
-        itemVisualiseHq.setEnabled(true);
+        itemVisualiseHighQuality.setEnabled(true);
+        itemVisualise3D.setEnabled(true);
         itemCluster.setEnabled(false);
 
-        labelInfoMatrix.setText("<html>" + "Structures selected for local " + "distance measure: "
+        labelInfoMatrix.setText("<html>" + "Structures selected for local distance measure: "
                 + dialogChainsMultiple.getSelectionDescription() + "<br>"
                 + "Local distance vector(s):" + "</html>");
     }
@@ -814,7 +831,8 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");
         itemVisualise.setEnabled(true);
-        itemVisualiseHq.setEnabled(true);
+        itemVisualiseHighQuality.setEnabled(true);
+        itemVisualise3D.setEnabled(true);
         itemCluster.setEnabled(false);
 
         labelInfoMatrix.setText("<html>" + "Structures selected for local " + "distance measure: "
@@ -845,7 +863,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
@@ -859,7 +878,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
@@ -892,7 +912,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
@@ -905,7 +926,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
@@ -933,7 +955,8 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(false);
         itemComputeDistances.setEnabled(true);
         itemVisualise.setEnabled(false);
-        itemVisualiseHq.setEnabled(false);
+        itemVisualiseHighQuality.setEnabled(false);
+        itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 
         labelInfoMatrix.setText("Structures selected for global distance " + "measure: "

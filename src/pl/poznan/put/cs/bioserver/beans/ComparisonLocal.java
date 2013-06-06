@@ -327,7 +327,6 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
 
     @Override
     public void visualizeHighQuality() {
-        // FIXME
         StringBuilder builder = new StringBuilder();
         builder.append("[ ");
         for (String angle : angles.keySet()) {

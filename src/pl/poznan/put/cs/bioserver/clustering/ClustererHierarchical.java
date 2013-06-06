@@ -118,8 +118,8 @@ public class ClustererHierarchical {
                         delta /= count;
                         break;
                     default:
-                        // TODO: fill the default case
-                        break;
+                        throw new RuntimeException("Unknown type of linkage for hierarchical "
+                                + "clustering: " + linkage);
                     }
 
                     if (delta < leastDiff) {

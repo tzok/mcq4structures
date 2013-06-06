@@ -67,8 +67,7 @@ public class ClusteringHierarchical extends XMLSerializable implements Visualiza
 
     @Override
     public void visualize3D() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Not implemented yet");
+        throw new UnsupportedOperationException("Method not implemented!");
     }
 
     @Override

@@ -66,6 +66,7 @@ public class DialogCluster extends JDialog {
         buttonVisualize = new JButton("Visualize");
         buttonVisualizeHighQuality = new JButton("Visualize (high quality)");
         buttonVisualize3D = new JButton("Visualize in 3D");
+        buttonVisualize3D.setEnabled(false);
         JButton buttonClose = new JButton("Close");
 
         Container container = getContentPane();
@@ -116,6 +117,7 @@ public class DialogCluster extends JDialog {
                 scoringFunction.setEnabled(!isHierarchical);
                 findBestK.setEnabled(!isHierarchical);
                 kspinner.setEnabled(!isHierarchical && !findBestK.isSelected());
+                buttonVisualize3D.setEnabled(!isHierarchical);
             }
         };
         hierarchical.addActionListener(radioActionListener);

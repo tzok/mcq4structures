@@ -172,11 +172,13 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
             }
         }
 
-        Chart chart = new Chart(Quality.Advanced);
+        Chart chart = new Chart(Quality.Nicest);
         Graph graph = chart.getScene().getGraph();
         for (double[] point : mds) {
+            Color color = Color.random();
             Sphere sphere = new Sphere(new Coord3d(point[0], point[1], point[2]),
-                    (float) ((max - min) / 10.0), 10, Color.random());
+                    (float) ((max - min) / distanceMatrix.length), 15, color);
+            sphere.setWireframeColor(color.negative());
             graph.add(sphere);
         }
         ChartLauncher.openChart(chart);
