@@ -14,6 +14,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.StructureException;
+import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.ChartLauncher;
+import org.jzy3d.colors.Color;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
+import org.jzy3d.plot3d.rendering.scene.Graph;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
@@ -122,8 +132,28 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
 
     @Override
     public void visualize3D() {
-        // TODO Auto-generated method stub
+        List<Coord3d> coordinates = new ArrayList<>();
+        int i = 0;
+        for (ComparisonLocal local : results) {
+            double[] deltas = local.getAngles().get("AVERAGE").getDeltas();
+            for (int j = 0; j < deltas.length; j++) {
+                coordinates.add(new Coord3d(i, j, deltas[j]));
+            }
+            i++;
+        }
 
+        Shape surface = Builder.buildDelaunay(coordinates);
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
+                surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1,
+                        .5f)));
+        surface.setFaceDisplayed(true);
+        surface.setWireframeDisplayed(false);
+        surface.setWireframeColor(Color.BLACK);
+
+        Chart chart = new Chart(Quality.Nicest);
+        Graph graph = chart.getScene().getGraph();
+        graph.add(surface);
+        ChartLauncher.openChart(chart);
     }
 
     @Override
