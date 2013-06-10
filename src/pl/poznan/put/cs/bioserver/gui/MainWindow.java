@@ -423,7 +423,7 @@ public class MainWindow extends JFrame {
         });
 
         ActionListener radioActionListener = new ActionListener() {
-            private boolean isGlobalPrevious = true;
+            private Object sourcePrev = radioGlobalMcq;
 
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
@@ -436,10 +436,14 @@ public class MainWindow extends JFrame {
                 itemVisualise3D.setEnabled(false);
                 itemCluster.setEnabled(false);
 
-                boolean isGlobalNow = source.equals(radioGlobalMcq)
+                boolean globalCurr = source.equals(radioGlobalMcq)
                         || source.equals(radioGlobalRmsd);
-                itemComputeDistances.setEnabled(isGlobalNow && isGlobalNow == isGlobalPrevious);
-                isGlobalPrevious = isGlobalNow;
+                boolean globalPrev = sourcePrev.equals(radioGlobalMcq)
+                        || sourcePrev.equals(radioGlobalRmsd);
+                if (!globalCurr || !globalPrev) {
+                    itemComputeDistances.setEnabled(false);
+                }
+                sourcePrev = source;
             }
         };
         radioGlobalMcq.addActionListener(radioActionListener);
@@ -520,6 +524,26 @@ public class MainWindow extends JFrame {
             }
         });
 
+        ActionListener radioAlignListener = new ActionListener() {
+            private boolean isSequencePrevious = true;
+
+            @Override
+            public void actionPerformed(@Nullable ActionEvent arg0) {
+                assert arg0 != null;
+
+                Object source = arg0.getSource();
+                boolean isSequenceNow = source.equals(radioAlignSeqGlobal)
+                        || source.equals(radioAlignSeqLocal);
+                if (isSequenceNow != isSequencePrevious) {
+                    itemComputeAlign.setEnabled(false);
+                }
+                isSequencePrevious = isSequenceNow;
+            }
+        };
+        radioAlignSeqGlobal.addActionListener(radioActionListener);
+        radioAlignSeqLocal.addActionListener(radioAlignListener);
+        radioAlignStruc.addActionListener(radioAlignListener);
+
         itemComputeAlign.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent e) {
@@ -574,17 +598,16 @@ public class MainWindow extends JFrame {
 
     private void alignStructures() {
         if (threadAlignment != null && threadAlignment.isAlive()) {
-            JOptionPane.showMessageDialog(null, "3D structure alignment "
-                    + "computation has not finished yet!", "Information",
-                    JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "3D structure alignment computation has not "
+                    + "finished yet!", "Information", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         Pair<Structure, Structure> structures = dialogChains.getStructures();
         boolean isRNA = Helper.isNucleicAcid(structures.getLeft());
         if (isRNA != Helper.isNucleicAcid(structures.getRight())) {
-            JOptionPane.showMessageDialog(this, "Cannot align structures: "
-                    + "different molecular types", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Cannot align structures: different molecular "
+                    + "types", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
