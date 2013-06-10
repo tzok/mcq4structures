@@ -268,6 +268,9 @@ final class DialogChainsMultiple extends JDialog {
                         }
                     }
 
+                    listAll.clearSelection();
+                    listSelected.clearSelection();
+
                     listAll.updateUI();
                     listSelected.updateUI();
                 }
