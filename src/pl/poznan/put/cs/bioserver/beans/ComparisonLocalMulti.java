@@ -115,13 +115,13 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
 
     @Override
     public File suggestName() {
-        String filename = Helper.getExportPrefix();
-        filename += "-Local-Distance-Multi-";
+        StringBuilder builder = new StringBuilder(Helper.getExportPrefix());
+        builder.append("-Local-Distance-Multi-");
         for (ComparisonLocal local : results) {
-            filename += local.getTitle().split(", ")[1];
+            builder.append(local.getTitle().split(", ")[1]);
         }
-        filename += ".csv";
-        return new File(filename);
+        builder.append(".csv");
+        return new File(builder.toString());
     }
 
     @Override

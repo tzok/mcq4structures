@@ -55,7 +55,7 @@ public class DialogCluster extends JDialog {
         group.add(kmedoids);
 
         linkage = new JComboBox<>(Linkage.values());
-        scoringFunction = new JComboBox<>(ClustererKMedoids.SCORING_FUNCTIONS);
+        scoringFunction = new JComboBox<>(ClustererKMedoids.getScoringFunctions());
         scoringFunction.setEnabled(false);
         findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);

@@ -41,6 +41,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -142,7 +143,6 @@ public class MainWindow extends JFrame {
     private CardLayout layoutCards;
     private JPanel panelCards;
 
-    private TableCellRenderer defaultRenderer;
     private TableCellRenderer colorsRenderer;
 
     public MainWindow() {
@@ -350,8 +350,10 @@ public class MainWindow extends JFrame {
         /*
          * Prepare cell renderer for JTable
          */
-        defaultRenderer = tableMatrix.getDefaultRenderer(Object.class);
-        colorsRenderer = new TableCellRenderer() {
+        final TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
+        colorsRenderer = new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = -7868307163707467345L;
+
             @Override
             public Component getTableCellRendererComponent(@Nullable JTable table,
                     @Nullable Object value, boolean isSelected, boolean hasFocus, int row,
@@ -436,9 +438,7 @@ public class MainWindow extends JFrame {
 
                 boolean isGlobalNow = source.equals(radioGlobalMcq)
                         || source.equals(radioGlobalRmsd);
-                if (isGlobalNow != isGlobalPrevious) {
-                    itemComputeDistances.setEnabled(false);
-                }
+                itemComputeDistances.setEnabled(isGlobalNow && isGlobalNow == isGlobalPrevious);
                 isGlobalPrevious = isGlobalNow;
             }
         };
@@ -728,7 +728,8 @@ public class MainWindow extends JFrame {
                         visualizable = comparisonGlobal;
 
                         tableMatrix.setModel(new TableModelGlobal(comparisonGlobal));
-                        tableMatrix.setDefaultRenderer(Object.class, defaultRenderer);
+                        tableMatrix
+                                .setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
 
                         itemSave.setEnabled(true);
                         itemSave.setText("Save results (CSV)");
@@ -788,7 +789,7 @@ public class MainWindow extends JFrame {
         visualizable = localMulti;
 
         AbstractTableModel model = new TableModelLocalMulti(localMulti);
-        tableMatrix.setDefaultRenderer(Object.class, defaultRenderer);
+        tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
         tableMatrix.setModel(model);
 
         itemSave.setEnabled(true);

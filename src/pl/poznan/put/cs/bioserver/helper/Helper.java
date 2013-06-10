@@ -277,7 +277,6 @@ public final class Helper {
 
                 for (String name : atomNames) {
                     try {
-                        // Atom atom = getAtom(g, name);
                         Atom atom = g.getAtom(name);
                         list.add(atom);
                     } catch (StructureException e) {

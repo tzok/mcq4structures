@@ -130,7 +130,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
          * fill a "map[angle, residue] = angle" with values (NaN if missing)
          */
         MultiKeyMap mapAngleResidueDelta = new MultiKeyMap();
-        for (String angleName : comparison.keySet()) {
+        for (Entry<String, List<AngleDifference>> entry : comparison.entrySet()) {
+            String angleName = entry.getKey();
             if (!setAngles.contains(angleName)) {
                 continue;
             }
@@ -138,7 +139,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             for (ResidueNumber residue : setResidue) {
                 mapAngleResidueDelta.put(angleName, residue, Double.NaN);
             }
-            for (AngleDifference delta : comparison.get(angleName)) {
+            for (AngleDifference delta : entry.getValue()) {
                 ResidueNumber residue = delta.getResidue();
                 double difference = delta.getDifference();
                 mapAngleResidueDelta.put(angleName, residue, difference);

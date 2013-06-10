@@ -1,6 +1,6 @@
 package pl.poznan.put.cs.bioserver.helper;
 
-public class Constants {
+public final class Constants {
     public static final String PHI = "\u03D5";
     public static final String PSI = "\u03C8";
     public static final String OMEGA = "\u03C9";
@@ -15,4 +15,7 @@ public class Constants {
     public static final String TAU = "\u03C4";
     public static final String THETA = "\u03B8";
     public static final String ETA = "\u03B7";
+
+    private Constants() {
+    }
 }

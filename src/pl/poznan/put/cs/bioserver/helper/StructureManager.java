@@ -220,7 +220,7 @@ public final class StructureManager {
         return models;
     }
 
-    private static void validate(BufferedReader reader) throws IOException, InvalidInputException {
+    private static void validate(BufferedReader reader) throws InvalidInputException {
         try {
             char lastChain = 0;
             int lastResidue = 0;
@@ -263,9 +263,7 @@ public final class StructureManager {
                     lastResidue = residue;
                 }
             }
-        } catch (IOException | InvalidInputException e) {
-            throw e;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new InvalidInputException(e);
         }
     }

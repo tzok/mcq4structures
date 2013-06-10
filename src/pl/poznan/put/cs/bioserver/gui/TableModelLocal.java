@@ -11,7 +11,7 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 public class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private double[][] values;
-    private ArrayList<String> columnNames;
+    private List<String> columnNames;
     private List<String> rowsNames;
 
     public TableModelLocal(ComparisonLocal comparisonLocal) {

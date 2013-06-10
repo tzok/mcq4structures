@@ -51,46 +51,12 @@ public class HierarchicalPlot extends JFrame {
         DefaultXYDataset dataset = new DefaultXYDataset();
         List<String> labels = clustering.getComparison().getLabels();
         for (Cluster cluster : clustering.getClustering()) {
-            // assert cluster.left.x != cluster.right.x : cluster;
-
             String label = HierarchicalPlot.generateLabel(cluster.items, labels);
             double[] x = new double[] { cluster.left.x, cluster.left.x, cluster.right.x,
                     cluster.right.x };
             double[] y = new double[] { cluster.left.y, cluster.y, cluster.y, cluster.right.y };
             dataset.addSeries(label, new double[][] { x, y });
         }
-
-        // int[][] clustering =
-        // ClustererKMedoids.hierarchicalClustering(distance,
-        // ClustererKMedoids.Linkage.values()[linkage]);
-        // List<Integer> allocation = ClustererKMedoids.getClusters().get(0);
-        //
-        // List<double[]> clusters = new ArrayList<>();
-        // List<List<Integer>> ids = new ArrayList<>();
-        // for (int i = 0; i < distance.length; ++i) {
-        // clusters.add(new double[] { allocation.indexOf(i), 0 });
-        // List<Integer> vector = new ArrayList<>();
-        // vector.add(i);
-        // ids.add(vector);
-        // }
-        //
-        // DefaultXYDataset dataset = new DefaultXYDataset();
-        // double y = 0.0;
-        // for (int[] mergedPair : clustering) {
-        // double[] a = clusters.get(mergedPair[0]);
-        // double[] b = clusters.get(mergedPair[1]);
-        // y = Math.max(a[1], b[1]) + mergedPair[2];
-        //
-        // String label = HierarchicalPlot.generateLabel(ids, mergedPair,
-        // structureNames);
-        // double[][] points = new double[][] { { a[0], a[0], b[0], b[0] }, {
-        // a[1], y, y, b[1] } };
-        // dataset.addSeries(label, points);
-        //
-        // a[0] = (a[0] + b[0]) / 2.0;
-        // a[1] = y;
-        // clusters.remove(mergedPair[1]);
-        // }
 
         NumberAxis xAxis = new NumberAxis();
         xAxis.setTickLabelsVisible(false);

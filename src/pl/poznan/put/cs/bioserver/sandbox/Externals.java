@@ -98,7 +98,7 @@ public class Externals {
                 + "put/cs/bioserver/external/MatplotlibHierarchical.xsl"), new File(
                 "/tmp/hierarchical.py"), new File("/tmp/hierarchical.pdf"), xmlResults);
 
-        xmlResults = ClusteringPartitional.newInstance(global, ClustererKMedoids.scoringPAM, null);
+        xmlResults = ClusteringPartitional.newInstance(global, ClustererKMedoids.PAM, null);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"

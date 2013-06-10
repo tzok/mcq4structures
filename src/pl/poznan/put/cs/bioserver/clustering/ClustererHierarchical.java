@@ -1,10 +1,13 @@
 package pl.poznan.put.cs.bioserver.clustering;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClustererHierarchical {
-    public static class Cluster {
+public final class ClustererHierarchical {
+    public static class Cluster implements Serializable {
+        private static final long serialVersionUID = -6276493161058681710L;
+
         public final List<Integer> items;
         public final double x;
         public final double y;
@@ -141,5 +144,8 @@ public class ClustererHierarchical {
             clusters.add(merged);
         }
         return result;
+    }
+
+    private ClustererHierarchical() {
     }
 }

@@ -30,7 +30,7 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
  * 
  */
 public class AlignmentOutput implements Exportable {
-    public class StructuresAligned {
+    public static class StructuresAligned {
         public final Structure wholeLeft;
         public final Structure wholeRight;
         public final Structure filteredLeft;

@@ -14,7 +14,7 @@ public class Angle extends XMLSerializable {
     double[] deltas;
 
     public double[] getDeltas() {
-        return deltas;
+        return deltas.clone();
     }
 
     public String getName() {
@@ -23,7 +23,7 @@ public class Angle extends XMLSerializable {
 
     @XmlElement(name = "item")
     public void setDeltas(double[] deltas) {
-        this.deltas = deltas;
+        this.deltas = deltas.clone();
     }
 
     @XmlAttribute

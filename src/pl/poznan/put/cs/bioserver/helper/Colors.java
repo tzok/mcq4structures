@@ -7,7 +7,7 @@ import java.util.List;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
 
-public class Colors {
+public final class Colors {
     public static final List<Color> ALL = Arrays.asList(new Color[] { Color.WHITE,
             new Color(173, 35, 35), new Color(42, 75, 215), new Color(29, 105, 20),
             new Color(129, 74, 25), new Color(129, 38, 192), new Color(160, 160, 160),
@@ -34,5 +34,8 @@ public class Colors {
             result.add(RGB.newInstance(c.getRGBColorComponents(null)));
         }
         return result;
+    }
+
+    private Colors() {
     }
 }

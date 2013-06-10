@@ -33,7 +33,7 @@ public final class ClustererKMedoids {
         double score(Set<Integer> medoids, double[][] matrix);
     }
 
-    public static ScoringFunction scoringPAMSIL = new ScoringFunction() {
+    public static final ScoringFunction PAMSIL = new ScoringFunction() {
         @Override
         public double score(Set<Integer> medoids, double[][] matrix) {
             Map<Integer, Set<Integer>> assignments = ClustererKMedoids.getClusterAssignments(
@@ -47,7 +47,7 @@ public final class ClustererKMedoids {
         }
     };
 
-    public static ScoringFunction scoringPAM = new ScoringFunction() {
+    public static final ScoringFunction PAM = new ScoringFunction() {
         @Override
         public double score(Set<Integer> medoids, double[][] matrix) {
             Map<Integer, Set<Integer>> assignments = ClustererKMedoids.getClusterAssignments(
@@ -61,8 +61,6 @@ public final class ClustererKMedoids {
         }
     };
 
-    public static final ScoringFunction[] SCORING_FUNCTIONS = new ScoringFunction[] {
-            ClustererKMedoids.scoringPAM, ClustererKMedoids.scoringPAMSIL };
     private static final Logger LOGGER = LoggerFactory.getLogger(ClustererKMedoids.class);
     private static final Random RANDOM = new Random();
 
@@ -101,13 +99,17 @@ public final class ClustererKMedoids {
         return clustering;
     }
 
+    public static ScoringFunction[] getScoringFunctions() {
+        return new ScoringFunction[] { ClustererKMedoids.PAM, ClustererKMedoids.PAMSIL };
+    }
+
     public static Result kMedoids(double[][] matrix, ScoringFunction sf, @Nullable Integer k) {
         // in this mode, search for best 'k'
         if (k == null) {
             Result overallBest = null;
             for (int i = 2; i <= matrix.length; i++) {
                 Result result = ClustererKMedoids.kMedoids(matrix, sf, i);
-                double score = ClustererKMedoids.scoringPAMSIL.score(result.medoids, matrix);
+                double score = ClustererKMedoids.PAMSIL.score(result.medoids, matrix);
                 if (overallBest == null || score > overallBest.score) {
                     overallBest = result;
                     overallBest.score = score;

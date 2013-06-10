@@ -89,7 +89,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
     }
 
     public double[][] getDistanceMatrix() {
-        return distanceMatrix;
+        return distanceMatrix.clone();
     }
 
     public List<String> getLabels() {
@@ -103,7 +103,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
     @XmlElementWrapper(name = "distanceMatrix")
     @XmlElement(name = "row")
     public void setDistanceMatrix(double[][] distanceMatrix) {
-        this.distanceMatrix = distanceMatrix;
+        this.distanceMatrix = distanceMatrix.clone();
     }
 
     @XmlElementWrapper(name = "labels")
