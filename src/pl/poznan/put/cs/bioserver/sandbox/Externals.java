@@ -1,7 +1,9 @@
 package pl.poznan.put.cs.bioserver.sandbox;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +67,9 @@ public class Externals {
         XMLSerializable xmlResults;
         try {
             xmlResults = ComparisonLocalMulti.newInstance(list, list.get(0), listNames);
-            XSLT.printDocument(xmlResults.toXML(), System.out);
+            try (OutputStream stream = new FileOutputStream("/tmp/multi.xml")) {
+                XSLT.printDocument(xmlResults.toXML(), stream);
+            }
             Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
                     + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"), new File(
                     "/tmp/multi.py"), new File("/tmp/multi.pdf"), xmlResults, null);
@@ -75,7 +79,7 @@ public class Externals {
 
         xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0), structures.get(1)
                 .getChain(0), MCQ.USED_ANGLES_NAMES);
-        XSLT.printDocument(xmlResults.toXML(), System.out);
+        // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", "[ 'ALPHA', 'BETA', 'GAMMA', 'DELTA', "

@@ -167,6 +167,6 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
 
         URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
                 + "bioserver/external/MatplotlibLocalMulti.xsl");
-        Matplotlib.runXsltAndPython(resource, results.get(0), parameters);
+        Matplotlib.runXsltAndPython(resource, this, parameters);
     }
 }

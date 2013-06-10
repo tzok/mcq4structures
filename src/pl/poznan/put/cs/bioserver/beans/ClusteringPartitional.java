@@ -137,8 +137,6 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         return scoringFunction;
     }
 
-    @XmlElementWrapper(name = "cluster")
-    @XmlElement(name = "points")
     public void setClusters(List<Cluster> clusters) {
         this.clusters = clusters;
     }

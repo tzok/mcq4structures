@@ -25,7 +25,7 @@
         <xsl:text>    y = list(y[i] for i in range(len(y)) if labels[i] in angles)&#10;</xsl:text>
         <xsl:text>    labels = list(labels[i] for i in range(len(labels)) if labels[i] in angles)&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    greek = { 'ALPHA' : r'$\alpha$', 'BETA' : r'$\beta$', 'GAMMA' : r'$\gamma$', 'DELTA' : r'$\delta$', 'EPSILON' : r'$\varepsilon$', 'ZETA' : r'$\zeta$', 'CHI' : r'$\chi$', 'TAU0' : r'$\tau_0$', 'TAU1' : r'$\tau_1$', 'TAU2' : r'$\tau_2$', 'TAU3' : r'$\tau_3$', 'TAU4' : r'$\tau_4$', 'P' : r'$P$', 'AVERAGE' : 'average', 'PHI' : r'$\phi$', 'PSI' : r'$\psi$', 'OMEGA' : r'$\omega$', 'CHI1' : r'$\chi_1$', 'CHI2' : r'$\chi_2$', 'CHI3' : r'$\chi_3$', 'CHI4' : r'$\chi_4$', 'CHI5' : r'$\chi_5$' }&#10;</xsl:text>
+        <xsl:text>    greek = { 'ALPHA' : r'$\alpha$', 'BETA' : r'$\beta$', 'GAMMA' : r'$\gamma$', 'DELTA' : r'$\delta$', 'EPSILON' : r'$\varepsilon$', 'ZETA' : r'$\zeta$', 'CHI' : r'$\chi$', 'TAU0' : r'$\tau_0$', 'TAU1' : r'$\tau_1$', 'TAU2' : r'$\tau_2$', 'TAU3' : r'$\tau_3$', 'TAU4' : r'$\tau_4$', 'P' : r'$P$', 'SELECTED' : 'selected', 'AVERAGE' : 'average', 'PHI' : r'$\phi$', 'PSI' : r'$\psi$', 'OMEGA' : r'$\omega$', 'CHI1' : r'$\chi_1$', 'CHI2' : r'$\chi_2$', 'CHI3' : r'$\chi_3$', 'CHI4' : r'$\chi_4$', 'CHI5' : r'$\chi_5$', 'ETA' : r'$\eta$', 'THETA' : r'$\theta$', 'ETA_PRIM' : r"$\eta'$", 'THETA_PRIM' : r"$\theta'$", 'CALPHA' : r'C-$\alpha$' }&#10;</xsl:text>
         <xsl:text>    labels = list(greek[i] for i in labels)</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>    rads = ['0', r'$\frac{\pi}{12}$', r'$\frac{\pi}{6}$', r'$\frac{\pi}{4}$', r'$\frac{\pi}{3}$', r'$\frac{5\pi}{12}$', r'$\frac{\pi}{2}$', r'$\frac{7\pi}{12}$', r'$\frac{2\pi}{3}$', r'$\frac{3\pi}{4}$', r'$\frac{5\pi}{6}$', r'$\frac{11\pi}{12}$', r'$\pi$']&#10;</xsl:text>
@@ -45,7 +45,8 @@
         <xsl:text>    &#10;</xsl:text>
         <xsl:text>    plots = []&#10;</xsl:text>
         <xsl:text>    for i in range(len(y)):&#10;</xsl:text>
-        <xsl:text>        matplotlib.pyplot.plot(y[i], c=COLORS[i + 1], lw=2)&#10;</xsl:text>
+        <xsl:text>        color = '#{:02x}{:02x}{:02x}'.format(int(255 * COLORS[i+1][0]), int(255 * COLORS[i+1][1]), int(255 * COLORS[i+1][2]))&#10;</xsl:text>
+        <xsl:text>        matplotlib.pyplot.plot(y[i], c=color, lw=2)&#10;</xsl:text>
         <xsl:text>        plots.append(matplotlib.pyplot.Rectangle((0, 0), 1, 1, color=COLORS[i + 1]))&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.legend(plots, labels)&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.savefig(sys.argv[1], dpi=500, bbox_inches='tight', transparent=True)&#10;</xsl:text>

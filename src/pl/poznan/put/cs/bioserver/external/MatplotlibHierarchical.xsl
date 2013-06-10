@@ -11,7 +11,7 @@
         <xsl:text>    if len(sys.argv) != 2:&#10;</xsl:text>
         <xsl:text>        print('Usage: python ' + sys.argv[0] + ' OUTFILE.(png|pdf|svg|eps)')&#10;</xsl:text>
         <xsl:text>        exit(1)&#10;</xsl:text>
-        <xsl:text>    method = '</xsl:text><xsl:value-of select="method"/><xsl:text>'.lower()&#10;</xsl:text>
+        <xsl:text>    method = '</xsl:text><xsl:value-of select="linkage"/><xsl:text>'.lower()&#10;</xsl:text>
         <xsl:text>    data = </xsl:text><xsl:apply-templates select="comparison/distanceMatrix"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    labels = </xsl:text><xsl:apply-templates select="comparison/labels"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.figure(figsize=(16, 9))&#10;</xsl:text>
