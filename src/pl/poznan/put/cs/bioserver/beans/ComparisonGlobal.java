@@ -19,6 +19,9 @@ import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.StaticTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.scene.Graph;
 
@@ -172,6 +175,21 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         Chart chart = new Chart(Quality.Nicest);
         Graph graph = chart.getScene().getGraph();
         graph.add(surface);
+
+        TickLabelMap map = new TickLabelMap();
+        float[] values = new float[labels.size()];
+        for (int i = 0; i < labels.size(); i++) {
+            values[i] = i;
+            map.register(i, labels.get(i));
+        }
+
+        IAxeLayout axeLayout = chart.getAxeLayout();
+        axeLayout.setXTickProvider(new StaticTickProvider(values));
+        axeLayout.setXTickRenderer(map);
+        axeLayout.setYTickProvider(new StaticTickProvider(values));
+        axeLayout.setYTickRenderer(map);
+        axeLayout.setZAxeLabel(method.equals("MCQ") ? "Distance [rad]" : "Distance [\u212B]");
+
         ChartLauncher.openChart(chart);
     }
 
