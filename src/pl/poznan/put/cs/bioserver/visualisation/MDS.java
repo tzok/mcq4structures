@@ -5,8 +5,6 @@ import org.biojava.bio.structure.jama.Matrix;
 
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 
-import com.sun.media.sound.InvalidDataException;
-
 /**
  * A utility class implementing a Multidimensional Scaling method.
  * 
@@ -23,7 +21,6 @@ public final class MDS {
      * @param dimensions
      *            Desired number of dimensions, K.
      * @return A matrix NxK, where for each row there are K coordinates.
-     * @throws InvalidDataException
      */
     public static double[][] multidimensionalScaling(double[][] distance, int dimensions)
             throws InvalidInputException {
