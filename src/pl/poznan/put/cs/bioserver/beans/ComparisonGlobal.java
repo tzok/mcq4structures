@@ -3,7 +3,6 @@ package pl.poznan.put.cs.bioserver.beans;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -16,14 +15,15 @@ import org.jzy3d.chart.ChartLauncher;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
-import org.jzy3d.maths.Coord3d;
+import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.Mapper;
+import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
-import org.jzy3d.plot3d.primitives.axes.layout.providers.StaticTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
-import org.jzy3d.plot3d.rendering.scene.Graph;
 
 import pl.poznan.put.cs.bioserver.gui.DialogCluster;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
@@ -158,35 +158,39 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
 
     @Override
     public void visualize3D() {
-        List<Coord3d> coordinates = new ArrayList<>();
-        for (int i = 0; i < distanceMatrix.length; i++) {
-            for (int j = 0; j < distanceMatrix.length; j++) {
-                coordinates.add(new Coord3d(i, j, distanceMatrix[i][j]));
-            }
-        }
-        Shape surface = Builder.buildDelaunay(coordinates);
+        final int max = distanceMatrix.length;
+
+        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(0, max - 1), max),
+                new Mapper() {
+                    @Override
+                    public double f(double x, double y) {
+                        int i = (int) Math.round(x);
+                        int j = (int) Math.round(y);
+
+                        i = Math.max(Math.min(i, max - 1), 0);
+                        j = Math.max(Math.min(j, max - 1), 0);
+                        return distanceMatrix[i][j];
+                    }
+                });
+
         surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
                 surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1,
                         .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(false);
-        surface.setWireframeColor(Color.BLACK);
 
         Chart chart = new Chart(Quality.Nicest);
-        Graph graph = chart.getScene().getGraph();
-        graph.add(surface);
+        chart.getScene().getGraph().add(surface);
 
         TickLabelMap map = new TickLabelMap();
-        float[] values = new float[labels.size()];
         for (int i = 0; i < labels.size(); i++) {
-            values[i] = i;
             map.register(i, labels.get(i));
         }
 
         IAxeLayout axeLayout = chart.getAxeLayout();
-        axeLayout.setXTickProvider(new StaticTickProvider(values));
+        axeLayout.setXTickProvider(new RegularTickProvider(labels.size()));
         axeLayout.setXTickRenderer(map);
-        axeLayout.setYTickProvider(new StaticTickProvider(values));
+        axeLayout.setYTickProvider(new RegularTickProvider(labels.size()));
         axeLayout.setYTickRenderer(map);
         axeLayout.setZAxeLabel(method.equals("MCQ") ? "Distance [rad]" : "Distance [\u212B]");
 

@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -45,11 +46,16 @@ import org.jzy3d.chart.ChartLauncher;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
-import org.jzy3d.maths.Coord3d;
+import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.Mapper;
+import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.SmartTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
-import org.jzy3d.plot3d.rendering.scene.Graph;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
@@ -149,7 +155,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         /*
          * read map data into desired format
          */
-        Map<String, Angle> angles = new LinkedHashMap<>();
+        LinkedHashMap<String, Angle> angles = new LinkedHashMap<>();
         for (String angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
                 continue;
@@ -181,7 +187,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return result;
     }
 
-    Map<String, Angle> angles;
+    LinkedHashMap<String, Angle> angles;
     List<String> ticks;
     List<RGB> colors;
     String title;
@@ -191,7 +197,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
             csvWriter.write("");
-            List<Angle> angleArray = getAnglesList();
+            List<Angle> angleArray = getAngleList();
             for (Angle angle : angleArray) {
                 csvWriter.write(angle.getName());
             }
@@ -212,7 +218,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return angles;
     }
 
-    public List<Angle> getAnglesList() {
+    public List<Angle> getAngleList() {
         return new ArrayList<>(angles.values());
     }
 
@@ -228,7 +234,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return title;
     }
 
-    public void setAngles(Map<String, Angle> angles) {
+    public void setAngles(LinkedHashMap<String, Angle> angles) {
         this.angles = angles;
     }
 
@@ -265,7 +271,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             x[i] = i;
         }
 
-        List<Angle> angleArray = getAnglesList();
+        List<Angle> angleArray = getAngleList();
         double[][] y = new double[angleArray.size()][];
         for (int i = 0; i < angleArray.size(); i++) {
             y[i] = new double[ticks.size()];
@@ -332,27 +338,53 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
 
     @Override
     public void visualize3D() {
-        List<Coord3d> coordinates = new ArrayList<>();
-        int i = 0;
-        for (Entry<String, Angle> entry : angles.entrySet()) {
-            double[] deltas = entry.getValue().getDeltas();
-            for (int j = 0; j < deltas.length; j++) {
-                coordinates.add(new Coord3d(i, j, deltas[j]));
-            }
-            i++;
+        final List<Angle> angleList = getAngleList();
+        final int maxX = angleList.size();
+        final int maxY = ticks.size();
+
+        if (maxX <= 1) {
+            JOptionPane.showMessageDialog(null, "3D plot requires a comparison based on at least "
+                    + "two angles", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
-        Shape surface = Builder.buildDelaunay(coordinates);
-        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
-                surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1,
-                        .5f)));
+        TickLabelMap mapX = new TickLabelMap();
+        for (int i = 0; i < angleList.size(); i++) {
+            mapX.register(i, angleList.get(i).getName());
+        }
+        TickLabelMap mapY = new TickLabelMap();
+        for (int i = 0; i < maxY; i++) {
+            mapY.register(i, ticks.get(i));
+        }
+
+        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(0, maxX - 1), maxX,
+                new Range(0, maxY), maxY - 1), new Mapper() {
+            @Override
+            public double f(double x, double y) {
+                int i = (int) Math.round(x);
+                int j = (int) Math.round(y);
+
+                i = Math.max(Math.min(i, maxX - 1), 0);
+                j = Math.max(Math.min(j, maxY - 1), 0);
+                return angleList.get(i).getDeltas()[j];
+            }
+        });
+
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0, (float) Math.PI,
+                new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(false);
-        surface.setWireframeColor(Color.BLACK);
 
         Chart chart = new Chart(Quality.Nicest);
-        Graph graph = chart.getScene().getGraph();
-        graph.add(surface);
+        chart.getScene().getGraph().add(surface);
+
+        IAxeLayout axeLayout = chart.getAxeLayout();
+        axeLayout.setXTickProvider(new RegularTickProvider(maxX));
+        axeLayout.setXTickRenderer(mapX);
+        axeLayout.setYTickProvider(new SmartTickProvider(maxY));
+        axeLayout.setYTickRenderer(mapY);
+        axeLayout.setZAxeLabel("Distance [rad]");
+
         ChartLauncher.openChart(chart);
     }
 

@@ -19,7 +19,7 @@ public class TableModelLocal extends AbstractTableModel {
 
         rowsNames = comparisonLocal.getTicks();
 
-        List<Angle> angles = comparisonLocal.getAnglesList();
+        List<Angle> angles = comparisonLocal.getAngleList();
         columnNames = new ArrayList<>();
         for (Angle a : angles) {
             columnNames.add(a.getName());
