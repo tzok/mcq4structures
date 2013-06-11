@@ -6,8 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 
-import com.sun.xml.internal.txw2.annotation.XmlElement;
-
 @XmlRootElement
 public class Cluster extends XMLSerializable {
     private static final long serialVersionUID = 4584994465498507561L;

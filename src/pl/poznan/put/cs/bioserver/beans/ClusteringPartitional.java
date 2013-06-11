@@ -35,8 +35,6 @@ import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
-import com.sun.media.sound.InvalidDataException;
-
 @XmlRootElement
 public class ClusteringPartitional extends XMLSerializable implements Visualizable {
     private static final long serialVersionUID = -7474446942015119359L;

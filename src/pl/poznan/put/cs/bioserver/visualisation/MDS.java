@@ -3,8 +3,6 @@ package pl.poznan.put.cs.bioserver.visualisation;
 import org.biojava.bio.structure.jama.EigenvalueDecomposition;
 import org.biojava.bio.structure.jama.Matrix;
 
-import com.sun.media.sound.InvalidDataException;
-
 /**
  * A utility class implementing a Multidimensional Scaling method.
  * 

@@ -28,8 +28,6 @@ import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids;
 import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.ScoringFunction;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 
-import com.sun.media.sound.InvalidDataException;
-
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 

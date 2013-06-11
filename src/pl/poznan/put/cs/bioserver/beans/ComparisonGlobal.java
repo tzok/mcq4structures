@@ -34,7 +34,6 @@ import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 
 import com.csvreader.CsvWriter;
-import com.sun.media.sound.InvalidDataException;
 
 @XmlRootElement
 public class ComparisonGlobal extends XMLSerializable implements Clusterable, Exportable,
