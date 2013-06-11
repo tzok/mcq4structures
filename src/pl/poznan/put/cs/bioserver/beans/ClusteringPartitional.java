@@ -19,6 +19,7 @@ import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.Sphere;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.scene.Graph;
+import org.jzy3d.plot3d.text.drawable.DrawableTextBitmap;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster3D;
@@ -194,15 +195,25 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
 
         Chart chart = new Chart(Quality.Nicest);
         Graph graph = chart.getScene().getGraph();
-        for (Cluster3D cluster : clusters3D) {
-            Color color = Color.random();
+        for (int i = 0; i < clusters3D.size(); i++) {
+            Cluster3D cluster = clusters3D.get(i);
+            java.awt.Color c = Colors.ALL.get(i + 1);
+            Color color = new Color(c.getRed(), c.getGreen(), c.getBlue());
+            boolean isLabeled = false;
             for (Point3D point : cluster.getPoints()) {
-                Sphere sphere = new Sphere(new Coord3d(point.getX(), point.getY(), point.getZ()),
-                        (float) ((max - min) / comparison.labels.size()), 15, color);
-                sphere.setWireframeColor(color.negative());
+                Coord3d center = new Coord3d(point.getX(), point.getY(), point.getZ());
+                float radius = (float) ((max - min) / comparison.labels.size());
+                Sphere sphere = new Sphere(center, radius, 15, color);
+                sphere.setWireframeColor(Color.BLACK);
                 graph.add(sphere);
+                if (!isLabeled) {
+                    graph.add(new DrawableTextBitmap(labels.get(i), center.add(radius, radius,
+                            radius), color));
+                    isLabeled = true;
+                }
             }
         }
+
         ChartLauncher.openChart(chart);
     }
 
