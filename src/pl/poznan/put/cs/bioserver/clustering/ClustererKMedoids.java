@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public final class ClustererKMedoids {
     }
 
     public interface ScoringFunction {
-        double score(Set<Integer> medoids, double[][] matrix);
+        double score(@SuppressWarnings("null") @NonNull Set<Integer> medoids, double[][] matrix);
     }
 
     public static final ScoringFunction PAMSIL = new ScoringFunction() {
