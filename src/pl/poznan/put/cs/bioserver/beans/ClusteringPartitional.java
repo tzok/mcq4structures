@@ -32,6 +32,7 @@ import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.ScoringFunction;
 import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Colors;
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 
@@ -40,7 +41,7 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
     private static final long serialVersionUID = -7474446942015119359L;
 
     public static ClusteringPartitional newInstance(ComparisonGlobal comparison,
-            ScoringFunction scoringFunction, @Nullable Integer k) throws InvalidDataException {
+            ScoringFunction scoringFunction, @Nullable Integer k) throws InvalidInputException {
         double[][] distanceMatrix = comparison.getDistanceMatrix();
         double[][] mds2D = MDS.multidimensionalScaling(distanceMatrix, 2);
         double[][] mds3D = MDS.multidimensionalScaling(distanceMatrix, 3);

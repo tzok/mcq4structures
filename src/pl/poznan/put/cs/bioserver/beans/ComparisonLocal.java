@@ -214,12 +214,12 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         }
     }
 
-    public Map<String, Angle> getAngles() {
-        return angles;
-    }
-
     public List<Angle> getAngleList() {
         return new ArrayList<>(angles.values());
+    }
+
+    public Map<String, Angle> getAngles() {
+        return angles;
     }
 
     public List<RGB> getColors() {

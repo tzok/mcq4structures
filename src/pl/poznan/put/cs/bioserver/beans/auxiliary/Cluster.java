@@ -2,6 +2,7 @@ package pl.poznan.put.cs.bioserver.beans.auxiliary;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;

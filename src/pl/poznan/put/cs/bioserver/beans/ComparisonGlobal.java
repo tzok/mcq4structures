@@ -29,6 +29,7 @@ import pl.poznan.put.cs.bioserver.gui.DialogCluster;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
@@ -144,7 +145,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         double[][] mds;
         try {
             mds = MDS.multidimensionalScaling(distanceMatrix, 2);
-        } catch (InvalidDataException e) {
+        } catch (InvalidInputException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Warning",
                     JOptionPane.WARNING_MESSAGE);
             return;

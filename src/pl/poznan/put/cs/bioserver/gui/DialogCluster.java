@@ -26,6 +26,7 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.clustering.ClustererHierarchical.Linkage;
 import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids;
 import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.ScoringFunction;
+import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 
 public class DialogCluster extends JDialog {
@@ -137,7 +138,7 @@ public class DialogCluster extends JDialog {
                     } else { // source.equals(buttonVisualize3D)
                         visualizable.visualize3D();
                     }
-                } catch (InvalidDataException e) {
+                } catch (InvalidInputException e) {
                     JOptionPane.showMessageDialog(DialogCluster.this, e.getMessage(), "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
@@ -167,7 +168,7 @@ public class DialogCluster extends JDialog {
         setTitle("MCQ4Structures: clustering method");
     }
 
-    private Visualizable getVisualizable() throws InvalidDataException {
+    private Visualizable getVisualizable() throws InvalidInputException {
         Visualizable visualizable;
         if (hierarchical.isSelected()) {
             visualizable = ClusteringHierarchical.newInstance(comparisonGlobal,

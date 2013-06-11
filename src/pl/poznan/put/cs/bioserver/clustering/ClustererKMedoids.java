@@ -31,7 +31,8 @@ public final class ClustererKMedoids {
     }
 
     public interface ScoringFunction {
-        double score(@SuppressWarnings("null") @NonNull Set<Integer> medoids, double[][] matrix);
+        double score(@SuppressWarnings("null") @NonNull Set<Integer> medoids,
+                @SuppressWarnings("null") @NonNull double[][] matrix);
     }
 
     public static final ScoringFunction PAMSIL = new ScoringFunction() {

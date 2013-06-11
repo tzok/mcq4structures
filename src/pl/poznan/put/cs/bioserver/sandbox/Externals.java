@@ -47,7 +47,7 @@ public class Externals {
     }
 
     public static void main(String[] args) throws ParserConfigurationException, IOException,
-            StructureException, JAXBException, TransformerException {
+            StructureException, JAXBException, TransformerException, InvalidInputException {
         List<File> pdbs = Externals.list(new File("/home/tzok/pdb/puzzles/Challenge2/"));
         List<Structure> structures = new ArrayList<>();
         for (int i = 0; i < pdbs.size(); i++) {
