@@ -24,11 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 
-public class Matplotlib {
-    public enum Method {
-        SINGLE, COMPLETE, AVERAGE, WEIGHTED
-    }
-
+public final class Matplotlib {
     private static final Logger LOGGER = LoggerFactory.getLogger(Matplotlib.class);
 
     public static void runXsltAndPython(URL resource, File fileScript, File fileOutput,
@@ -83,7 +79,7 @@ public class Matplotlib {
 
         String originalName = fileScript.getName();
         String newExtension = ".png";
-        int lastDot = originalName.lastIndexOf(".");
+        int lastDot = originalName.lastIndexOf('.');
         if (lastDot != -1) {
             originalName = originalName.substring(0, lastDot) + newExtension;
         } else {

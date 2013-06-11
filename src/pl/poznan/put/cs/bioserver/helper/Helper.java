@@ -140,13 +140,6 @@ public final class Helper {
         return Pair.of(list1, list2);
     }
 
-    /**
-     * TODO
-     * 
-     * @param structure
-     * @param atomNames
-     * @return
-     */
     public static List<Atom> getAtomArray(Structure structure, List<String> atomNames) {
         List<Atom> list = new ArrayList<>();
         for (Chain c : structure.getChains()) {
@@ -284,7 +277,6 @@ public final class Helper {
 
                 for (String name : atomNames) {
                     try {
-                        // Atom atom = getAtom(g, name);
                         Atom atom = g.getAtom(name);
                         list.add(atom);
                     } catch (StructureException e) {

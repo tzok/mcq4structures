@@ -55,7 +55,7 @@ public final class AlignerSequence {
     private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {
         try (InputStreamReader reader = new InputStreamReader(
                 AlignerSequence.class.getResourceAsStream("/pl/poznan/put/cs/"
-                        + "bioserver/alignment/NUC44.txt"))) {
+                        + "bioserver/alignment/NUC44.txt"), "UTF-8")) {
             return new SimpleSubstitutionMatrix<>(RNACompoundSet.getRNACompoundSet(), reader,
                     "NUC44");
         } catch (IOException e) {

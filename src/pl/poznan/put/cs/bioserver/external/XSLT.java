@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-public class XSLT {
+public final class XSLT {
     private static final Logger LOGGER = LoggerFactory.getLogger(XSLT.class);
 
     public static void printDocument(Document doc, OutputStream out) throws IOException,
@@ -60,7 +60,7 @@ public class XSLT {
             }
             transformer.transform(xml, result);
 
-            return new String(stream.toString("UTF-8"));
+            return stream.toString("UTF-8");
         } catch (UnsupportedEncodingException | TransformerFactoryConfigurationError
                 | TransformerException e) {
             XSLT.LOGGER.error("Failed to transform data via XSLT processor", e);

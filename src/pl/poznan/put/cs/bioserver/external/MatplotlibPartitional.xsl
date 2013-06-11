@@ -13,8 +13,8 @@
         <xsl:text>    if len(sys.argv) != 2:&#10;</xsl:text>
         <xsl:text>        print('Usage: python ' + sys.argv[0] + ' OUTFILE.(png|pdf|svg|eps)')&#10;</xsl:text>
         <xsl:text>        exit(1)&#10;</xsl:text>
-        <xsl:text>    x = </xsl:text><xsl:apply-templates select="cluster" mode="x"/><xsl:text>&#10;</xsl:text>
-        <xsl:text>    y = </xsl:text><xsl:apply-templates select="cluster" mode="y"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    x = [ </xsl:text><xsl:apply-templates select="clusters" mode="x"/><xsl:text> ]&#10;</xsl:text>
+        <xsl:text>    y = [ </xsl:text><xsl:apply-templates select="clusters" mode="y"/><xsl:text> ]&#10;</xsl:text>
         <xsl:text>    mx = </xsl:text><xsl:apply-templates select="medoids" mode="x"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    my = </xsl:text><xsl:apply-templates select="medoids" mode="y"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    labels = </xsl:text><xsl:apply-templates select="labels"/><xsl:text>&#10;</xsl:text>
@@ -22,7 +22,8 @@
         <xsl:text>    plots = []&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.figure(figsize=(16, 9))&#10;</xsl:text>
         <xsl:text>    for i in range(len(x)):&#10;</xsl:text>
-        <xsl:text>        plots.append(matplotlib.pyplot.scatter(x[i], y[i], 100, c=COLORS[i + 1]))&#10;</xsl:text>
+        <xsl:text>        color = '#{:02x}{:02x}{:02x}'.format(int(255 * COLORS[i+1][0]), int(255 * COLORS[i+1][1]), int(255 * COLORS[i+1][2]))&#10;</xsl:text>
+        <xsl:text>        plots.append(matplotlib.pyplot.scatter(x[i], y[i], 100, c=color))&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.scatter(mx, my, 200, 'k',    'x', lw=2)&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.scatter(mx, my, 200, 'none', 'o', lw=2)&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.legend(plots, labels, bbox_to_anchor=(1 + 1/128, 1), loc=2, borderaxespad=0)&#10;</xsl:text>
@@ -36,11 +37,11 @@
         <xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:value-of select="y"/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
     </xsl:template>
 
-    <xsl:template match="cluster" mode="x">
-        <xsl:text>[ </xsl:text><xsl:for-each select="points"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:value-of select="x"/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    <xsl:template match="clusters" mode="x">
+        <xsl:text>[ </xsl:text><xsl:for-each select="points"><xsl:value-of select="x"/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text>
     </xsl:template>
-    <xsl:template match="cluster" mode="y">
-        <xsl:text>[ </xsl:text><xsl:for-each select="points"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:value-of select="y"/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    <xsl:template match="clusters" mode="y">
+        <xsl:text>[ </xsl:text><xsl:for-each select="points"><xsl:value-of select="y"/><xsl:text>, </xsl:text></xsl:for-each><xsl:text> ], </xsl:text>
     </xsl:template>
 
     <xsl:template match="labels">

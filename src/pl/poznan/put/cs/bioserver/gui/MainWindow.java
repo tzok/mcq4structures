@@ -41,6 +41,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -111,7 +112,8 @@ public class MainWindow extends JFrame {
     private JMenuItem itemSelectStructuresCompare;
     private JMenuItem itemComputeDistances;
     private JMenuItem itemVisualise;
-    private JMenuItem itemVisualiseHq;
+    private JMenuItem itemVisualiseHighQuality;
+    private JMenuItem itemVisualise3D;
     private JMenuItem itemCluster;
 
     private JRadioButtonMenuItem radioAlignSeqGlobal;
@@ -141,7 +143,6 @@ public class MainWindow extends JFrame {
     private CardLayout layoutCards;
     private JPanel panelCards;
 
-    private TableCellRenderer defaultRenderer;
     private TableCellRenderer colorsRenderer;
 
     public MainWindow() {
@@ -201,8 +202,10 @@ public class MainWindow extends JFrame {
         itemComputeDistances.setEnabled(false);
         itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
-        itemVisualiseHq = new JMenuItem("Visualise results (high-quality)");
-        itemVisualiseHq.setEnabled(false);
+        itemVisualiseHighQuality = new JMenuItem("Visualise results (high-quality)");
+        itemVisualiseHighQuality.setEnabled(false);
+        itemVisualise3D = new JMenuItem("Visualise results in 3D");
+        itemVisualise3D.setEnabled(false);
         itemCluster = new JMenuItem("Cluster results");
         itemCluster.setEnabled(false);
 
@@ -219,7 +222,8 @@ public class MainWindow extends JFrame {
         menu.addSeparator();
         menu.add(itemComputeDistances);
         menu.add(itemVisualise);
-        menu.add(itemVisualiseHq);
+        menu.add(itemVisualiseHighQuality);
+        menu.add(itemVisualise3D);
         menu.add(itemCluster);
         menuBar.add(menu);
 
@@ -346,8 +350,10 @@ public class MainWindow extends JFrame {
         /*
          * Prepare cell renderer for JTable
          */
-        defaultRenderer = tableMatrix.getDefaultRenderer(Object.class);
-        colorsRenderer = new TableCellRenderer() {
+        final TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
+        colorsRenderer = new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = -7868307163707467345L;
+
             @Override
             public Component getTableCellRendererComponent(@Nullable JTable table,
                     @Nullable Object value, boolean isSelected, boolean hasFocus, int row,
@@ -417,7 +423,7 @@ public class MainWindow extends JFrame {
         });
 
         ActionListener radioActionListener = new ActionListener() {
-            private boolean isGlobalPrevious = true;
+            private Object sourcePrev = radioGlobalMcq;
 
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
@@ -426,15 +432,18 @@ public class MainWindow extends JFrame {
                 Object source = arg0.getSource();
                 itemSelectTorsion.setEnabled(source.equals(radioLocal));
                 itemVisualise.setEnabled(false);
-                itemVisualiseHq.setEnabled(false);
+                itemVisualiseHighQuality.setEnabled(false);
+                itemVisualise3D.setEnabled(false);
                 itemCluster.setEnabled(false);
 
-                boolean isGlobalNow = source.equals(radioGlobalMcq)
+                boolean globalCurr = source.equals(radioGlobalMcq)
                         || source.equals(radioGlobalRmsd);
-                if (isGlobalNow != isGlobalPrevious) {
+                boolean globalPrev = sourcePrev.equals(radioGlobalMcq)
+                        || sourcePrev.equals(radioGlobalRmsd);
+                if (!globalCurr || !globalPrev) {
                     itemComputeDistances.setEnabled(false);
                 }
-                isGlobalPrevious = isGlobalNow;
+                sourcePrev = source;
             }
         };
         radioGlobalMcq.addActionListener(radioActionListener);
@@ -494,10 +503,17 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemVisualiseHq.addActionListener(new ActionListener() {
+        itemVisualiseHighQuality.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
                 visualizable.visualizeHighQuality();
+            }
+        });
+
+        itemVisualise3D.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(@Nullable ActionEvent e) {
+                visualizable.visualize3D();
             }
         });
 
@@ -507,6 +523,26 @@ public class MainWindow extends JFrame {
                 clusterable.cluster();
             }
         });
+
+        ActionListener radioAlignListener = new ActionListener() {
+            private boolean isSequencePrevious = true;
+
+            @Override
+            public void actionPerformed(@Nullable ActionEvent arg0) {
+                assert arg0 != null;
+
+                Object source = arg0.getSource();
+                boolean isSequenceNow = source.equals(radioAlignSeqGlobal)
+                        || source.equals(radioAlignSeqLocal);
+                if (isSequenceNow != isSequencePrevious) {
+                    itemComputeAlign.setEnabled(false);
+                }
+                isSequencePrevious = isSequenceNow;
+            }
+        };
+        radioAlignSeqGlobal.addActionListener(radioActionListener);
+        radioAlignSeqLocal.addActionListener(radioAlignListener);
+        radioAlignStruc.addActionListener(radioAlignListener);
 
         itemComputeAlign.addActionListener(new ActionListener() {
             @Override
@@ -562,17 +598,16 @@ public class MainWindow extends JFrame {
 
     private void alignStructures() {
         if (threadAlignment != null && threadAlignment.isAlive()) {
-            JOptionPane.showMessageDialog(null, "3D structure alignment "
-                    + "computation has not finished yet!", "Information",
-                    JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "3D structure alignment computation has not "
+                    + "finished yet!", "Information", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         Pair<Structure, Structure> structures = dialogChains.getStructures();
         boolean isRNA = Helper.isNucleicAcid(structures.getLeft());
         if (isRNA != Helper.isNucleicAcid(structures.getRight())) {
-            JOptionPane.showMessageDialog(this, "Cannot align structures: "
-                    + "different molecular types", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Cannot align structures: different molecular "
+                    + "types", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -630,7 +665,14 @@ public class MainWindow extends JFrame {
                             if (output == null) {
                                 return;
                             }
-                            StructuresAligned aligned = output.getStructures();
+                            StructuresAligned aligned;
+                            try {
+                                aligned = output.getStructures();
+                            } catch (StructureException e) {
+                                JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
 
                             StringBuilder builder = new StringBuilder();
                             builder.append("MODEL        1                                                                  \n");
@@ -709,11 +751,13 @@ public class MainWindow extends JFrame {
                         visualizable = comparisonGlobal;
 
                         tableMatrix.setModel(new TableModelGlobal(comparisonGlobal));
-                        tableMatrix.setDefaultRenderer(Object.class, defaultRenderer);
+                        tableMatrix
+                                .setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
 
                         itemSave.setEnabled(true);
                         itemSave.setText("Save results (CSV)");
                         itemVisualise.setEnabled(true);
+                        itemVisualise3D.setEnabled(true);
                         itemCluster.setEnabled(true);
 
                         labelInfoMatrix.setText("<html>"
@@ -749,11 +793,7 @@ public class MainWindow extends JFrame {
                 break;
             }
         }
-        if (index >= names.size()) {
-            // FIXME: handle this situation (it should never appear under normal
-            // circumstances)
-            return;
-        }
+        assert index < names.size();
 
         progressBar.setMaximum(1);
         progressBar.setValue(0);
@@ -772,16 +812,17 @@ public class MainWindow extends JFrame {
         visualizable = localMulti;
 
         AbstractTableModel model = new TableModelLocalMulti(localMulti);
-        tableMatrix.setDefaultRenderer(Object.class, defaultRenderer);
+        tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
         tableMatrix.setModel(model);
 
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");
         itemVisualise.setEnabled(true);
-        itemVisualiseHq.setEnabled(true);
+        itemVisualiseHighQuality.setEnabled(true);
+        itemVisualise3D.setEnabled(true);
         itemCluster.setEnabled(false);
 
-        labelInfoMatrix.setText("<html>" + "Structures selected for local " + "distance measure: "
+        labelInfoMatrix.setText("<html>" + "Structures selected for local distance measure: "
                 + dialogChainsMultiple.getSelectionDescription() + "<br>"
                 + "Local distance vector(s):" + "</html>");
     }
@@ -814,7 +855,8 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");
         itemVisualise.setEnabled(true);
-        itemVisualiseHq.setEnabled(true);
+        itemVisualiseHighQuality.setEnabled(true);
+        itemVisualise3D.setEnabled(true);
         itemCluster.setEnabled(false);
 
         labelInfoMatrix.setText("<html>" + "Structures selected for local " + "distance measure: "
@@ -845,7 +887,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
@@ -859,7 +902,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
@@ -892,7 +936,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
@@ -905,7 +950,8 @@ public class MainWindow extends JFrame {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
-            itemVisualiseHq.setEnabled(false);
+            itemVisualiseHighQuality.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
@@ -933,7 +979,8 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(false);
         itemComputeDistances.setEnabled(true);
         itemVisualise.setEnabled(false);
-        itemVisualiseHq.setEnabled(false);
+        itemVisualiseHighQuality.setEnabled(false);
+        itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 
         labelInfoMatrix.setText("Structures selected for global distance " + "measure: "

@@ -35,7 +35,7 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 final class DialogChainsMultiple extends JDialog {
-    private class FilteredListModel extends AbstractListModel<Chain> {
+    private static class FilteredListModel extends AbstractListModel<Chain> {
         private static final long serialVersionUID = 1L;
 
         private boolean isRNA = true;
@@ -267,6 +267,9 @@ final class DialogChainsMultiple extends JDialog {
                             modelSelected.removeElement(f);
                         }
                     }
+
+                    listAll.clearSelection();
+                    listSelected.clearSelection();
 
                     listAll.updateUI();
                     listSelected.updateUI();

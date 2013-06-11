@@ -11,7 +11,7 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 public class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private double[][] values;
-    private ArrayList<String> columnNames;
+    private List<String> columnNames;
     private List<String> rowsNames;
 
     public TableModelLocal(ComparisonLocal comparisonLocal) {
@@ -19,7 +19,7 @@ public class TableModelLocal extends AbstractTableModel {
 
         rowsNames = comparisonLocal.getTicks();
 
-        List<Angle> angles = comparisonLocal.getAnglesList();
+        List<Angle> angles = comparisonLocal.getAngleList();
         columnNames = new ArrayList<>();
         for (Angle a : angles) {
             columnNames.add(a.getName());

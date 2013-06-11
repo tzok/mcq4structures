@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.beans;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,47 +11,78 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sun.media.sound.InvalidDataException;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.ChartLauncher;
+import org.jzy3d.colors.Color;
+import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.primitives.Sphere;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
+import org.jzy3d.plot3d.rendering.scene.Graph;
+import org.jzy3d.plot3d.text.drawable.DrawableTextBitmap;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster;
+import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster3D;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Point;
+import pl.poznan.put.cs.bioserver.beans.auxiliary.Point3D;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
-import pl.poznan.put.cs.bioserver.clustering.Clusterer.Result;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.Result;
+import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids.ScoringFunction;
+import pl.poznan.put.cs.bioserver.clustering.KMedoidsPlot;
+import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Colors;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
+
+import com.sun.media.sound.InvalidDataException;
 
 @XmlRootElement
 public class ClusteringPartitional extends XMLSerializable implements Visualizable {
     private static final long serialVersionUID = -7474446942015119359L;
 
-    public static ClusteringPartitional newInstance(ComparisonGlobal comparison, Result clustering)
-            throws InvalidDataException {
-        double[][] mds = MDS.multidimensionalScaling(comparison.getDistanceMatrix(), 2);
-        Map<Integer, Set<Integer>> clusterMap = clustering.getClusterAssignment();
+    public static ClusteringPartitional newInstance(ComparisonGlobal comparison,
+            ScoringFunction scoringFunction, @Nullable Integer k) throws InvalidDataException {
+        double[][] distanceMatrix = comparison.getDistanceMatrix();
+        double[][] mds2D = MDS.multidimensionalScaling(distanceMatrix, 2);
+        double[][] mds3D = MDS.multidimensionalScaling(distanceMatrix, 3);
+
+        Result clustering = ClustererKMedoids.kMedoids(distanceMatrix, scoringFunction, k);
+        Map<Integer, Set<Integer>> clusterMap = ClustererKMedoids.getClusterAssignments(
+                clustering.medoids, distanceMatrix);
 
         List<Point> medoids = new ArrayList<>();
         for (int index : clusterMap.keySet()) {
             Point medoid = new Point();
-            medoid.setX(mds[index][0]);
-            medoid.setY(mds[index][1]);
+            medoid.setX(mds2D[index][0]);
+            medoid.setY(mds2D[index][1]);
             medoids.add(medoid);
         }
 
         List<Cluster> clusters = new ArrayList<>();
+        List<Cluster3D> clusters3D = new ArrayList<>();
         List<String> labels = new ArrayList<>();
         List<String> labelsAll = comparison.getLabels();
         for (Entry<Integer, Set<Integer>> entry : clusterMap.entrySet()) {
             List<Point> points = new ArrayList<>();
+            List<Point3D> points3D = new ArrayList<>();
             StringBuilder builder = new StringBuilder();
             for (int index : entry.getValue()) {
                 builder.append(labelsAll.get(index));
                 builder.append(", ");
 
                 Point point = new Point();
-                point.setX(mds[index][0]);
-                point.setY(mds[index][1]);
+                point.setLabel(labelsAll.get(index));
+                point.setX(mds2D[index][0]);
+                point.setY(mds2D[index][1]);
                 points.add(point);
+
+                Point3D point3D = new Point3D();
+                point3D.setLabel(labelsAll.get(index));
+                point3D.setX(mds3D[index][0]);
+                point3D.setY(mds3D[index][1]);
+                point3D.setZ(mds3D[index][2]);
+                points3D.add(point3D);
             }
             builder.delete(builder.length() - 2, builder.length());
             labels.add(builder.toString());
@@ -58,6 +90,9 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
             Cluster cluster = new Cluster();
             cluster.setPoints(points);
             clusters.add(cluster);
+            Cluster3D cluster3D = new Cluster3D();
+            cluster3D.setPoints(points3D);
+            clusters3D.add(cluster3D);
         }
 
         ClusteringPartitional instance = new ClusteringPartitional();
@@ -65,15 +100,19 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         instance.labels = labels;
         instance.medoids = medoids;
         instance.clusters = clusters;
+        instance.clusters3D = clusters3D;
+        instance.scoringFunction = scoringFunction.toString();
         instance.colors = Colors.toRGB();
         return instance;
     }
 
     ComparisonGlobal comparison;
     List<Cluster> clusters;
+    List<Cluster3D> clusters3D;
     List<Point> medoids;
     List<String> labels;
     List<RGB> colors;
+    String scoringFunction;
 
     public List<Cluster> getClusters() {
         return clusters;
@@ -95,8 +134,10 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         return medoids;
     }
 
-    @XmlElementWrapper(name = "cluster")
-    @XmlElement(name = "points")
+    public String getScoringFunction() {
+        return scoringFunction;
+    }
+
     public void setClusters(List<Cluster> clusters) {
         this.clusters = clusters;
     }
@@ -124,14 +165,62 @@ public class ClusteringPartitional extends XMLSerializable implements Visualizab
         this.medoids = medoids;
     }
 
+    @XmlElement
+    public void setScoringFunction(String method) {
+        scoringFunction = method;
+    }
+
     @Override
     public void visualize() {
-        // TODO Auto-generated method stub
+        KMedoidsPlot plot = new KMedoidsPlot(this);
+        plot.setVisible(true);
+    }
+
+    @Override
+    public void visualize3D() {
+        double min = Double.POSITIVE_INFINITY;
+        double max = Double.NEGATIVE_INFINITY;
+        for (Cluster3D cluster : clusters3D) {
+            for (Point3D point : cluster.getPoints()) {
+                double lmin = Math.min(Math.min(point.getX(), point.getY()), point.getY());
+                double lmax = Math.min(Math.min(point.getX(), point.getY()), point.getY());
+                if (lmin < min) {
+                    min = lmin;
+                }
+                if (lmax > max) {
+                    max = lmax;
+                }
+            }
+        }
+
+        Chart chart = new Chart(Quality.Nicest);
+        Graph graph = chart.getScene().getGraph();
+        for (int i = 0; i < clusters3D.size(); i++) {
+            Cluster3D cluster = clusters3D.get(i);
+            java.awt.Color c = Colors.ALL.get(i + 1);
+            Color color = new Color(c.getRed(), c.getGreen(), c.getBlue());
+            boolean isLabeled = false;
+            for (Point3D point : cluster.getPoints()) {
+                Coord3d center = new Coord3d(point.getX(), point.getY(), point.getZ());
+                float radius = (float) ((max - min) / comparison.labels.size());
+                Sphere sphere = new Sphere(center, radius, 15, color);
+                sphere.setWireframeColor(Color.BLACK);
+                graph.add(sphere);
+                if (!isLabeled) {
+                    graph.add(new DrawableTextBitmap(labels.get(i), center.add(radius, radius,
+                            radius), color));
+                    isLabeled = true;
+                }
+            }
+        }
+
+        ChartLauncher.openChart(chart);
     }
 
     @Override
     public void visualizeHighQuality() {
-        // TODO Auto-generated method stub
+        URL resource = getClass().getResource(
+                "/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
+        Matplotlib.runXsltAndPython(resource, this);
     }
-
 }

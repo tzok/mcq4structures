@@ -30,7 +30,7 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
  * 
  */
 public class AlignmentOutput implements Exportable {
-    public class StructuresAligned {
+    public static class StructuresAligned {
         public final Structure wholeLeft;
         public final Structure wholeRight;
         public final Structure filteredLeft;
@@ -112,14 +112,16 @@ public class AlignmentOutput implements Exportable {
 
     @Override
     public void export(File file) throws IOException {
-        StructuresAligned aligned = getStructures();
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+            StructuresAligned aligned = getStructures();
             writer.write("MODEL        1                                                                  \n");
             writer.write(aligned.wholeLeft.toPDB());
             writer.write("ENDMDL                                                                          \n");
             writer.write("MODEL        2                                                                  \n");
             writer.write(aligned.wholeRight.toPDB());
             writer.write("ENDMDL                                                                          \n");
+        } catch (StructureException e) {
+            throw new IOException(e);
         }
     }
 
@@ -155,20 +157,16 @@ public class AlignmentOutput implements Exportable {
      * only residues that were aligned.
      * 
      * @return Four structures.
+     * @throws StructureException
      */
-    public StructuresAligned getStructures() {
+    public StructuresAligned getStructures() throws StructureException {
         Structure leftWhole = structureLeft.clone();
         Structure rightWhole = structureRight.clone();
         Matrix matrix = afpChain.getBlockRotationMatrix()[0];
-        try {
-            Atom c1 = Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft.size()]));
-            Atom c2 = Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight.size()]));
-            Calc.shift(leftWhole, Calc.invert(c1));
-            Calc.shift(rightWhole, Calc.invert(c2));
-        } catch (StructureException e) {
-            // TODO
-            e.printStackTrace();
-        }
+        Atom c1 = Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft.size()]));
+        Atom c2 = Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight.size()]));
+        Calc.shift(leftWhole, Calc.invert(c1));
+        Calc.shift(rightWhole, Calc.invert(c2));
         Calc.rotate(rightWhole, matrix);
 
         Pair<List<Atom>, List<Atom>> aligned = getAtoms();

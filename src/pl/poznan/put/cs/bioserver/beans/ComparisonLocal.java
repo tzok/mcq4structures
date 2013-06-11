@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -40,6 +41,21 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.ChartLauncher;
+import org.jzy3d.colors.Color;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.maths.Range;
+import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.Mapper;
+import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
+import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.SmartTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
@@ -120,7 +136,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
          * fill a "map[angle, residue] = angle" with values (NaN if missing)
          */
         MultiKeyMap mapAngleResidueDelta = new MultiKeyMap();
-        for (String angleName : comparison.keySet()) {
+        for (Entry<String, List<AngleDifference>> entry : comparison.entrySet()) {
+            String angleName = entry.getKey();
             if (!setAngles.contains(angleName)) {
                 continue;
             }
@@ -128,7 +145,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             for (ResidueNumber residue : setResidue) {
                 mapAngleResidueDelta.put(angleName, residue, Double.NaN);
             }
-            for (AngleDifference delta : comparison.get(angleName)) {
+            for (AngleDifference delta : entry.getValue()) {
                 ResidueNumber residue = delta.getResidue();
                 double difference = delta.getDifference();
                 mapAngleResidueDelta.put(angleName, residue, difference);
@@ -138,7 +155,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         /*
          * read map data into desired format
          */
-        Map<String, Angle> angles = new LinkedHashMap<>();
+        LinkedHashMap<String, Angle> angles = new LinkedHashMap<>();
         for (String angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
                 continue;
@@ -170,7 +187,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return result;
     }
 
-    Map<String, Angle> angles;
+    LinkedHashMap<String, Angle> angles;
     List<String> ticks;
     List<RGB> colors;
     String title;
@@ -180,7 +197,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
             csvWriter.write("");
-            List<Angle> angleArray = getAnglesList();
+            List<Angle> angleArray = getAngleList();
             for (Angle angle : angleArray) {
                 csvWriter.write(angle.getName());
             }
@@ -201,7 +218,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return angles;
     }
 
-    public List<Angle> getAnglesList() {
+    public List<Angle> getAngleList() {
         return new ArrayList<>(angles.values());
     }
 
@@ -217,7 +234,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return title;
     }
 
-    public void setAngles(Map<String, Angle> angles) {
+    public void setAngles(LinkedHashMap<String, Angle> angles) {
         this.angles = angles;
     }
 
@@ -254,7 +271,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             x[i] = i;
         }
 
-        List<Angle> angleArray = getAnglesList();
+        List<Angle> angleArray = getAngleList();
         double[][] y = new double[angleArray.size()][];
         for (int i = 0; i < angleArray.size(); i++) {
             y[i] = new double[ticks.size()];
@@ -282,9 +299,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             private static final long serialVersionUID = 1L;
 
             @Override
-            public StringBuffer format(double number, @Nullable StringBuffer toAppendTo, @Nullable FieldPosition pos) {
+            public StringBuffer format(double number, @Nullable StringBuffer toAppendTo,
+                    @Nullable FieldPosition pos) {
                 assert toAppendTo != null;
-                
+
                 if (number == 0) {
                     return toAppendTo.append("0");
                 } else if (number == Math.PI) {
@@ -294,7 +312,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             }
 
             @Override
-            public StringBuffer format(long number, @Nullable StringBuffer toAppendTo, @Nullable FieldPosition pos) {
+            public StringBuffer format(long number, @Nullable StringBuffer toAppendTo,
+                    @Nullable FieldPosition pos) {
                 return format.format(number, toAppendTo, pos);
             }
 
@@ -315,6 +334,58 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         frame.setLocation(size.width / 6, size.height / 6);
         frame.setTitle("MCQ4Structures: local distance plot");
         frame.setVisible(true);
+    }
+
+    @Override
+    public void visualize3D() {
+        final List<Angle> angleList = getAngleList();
+        final int maxX = angleList.size();
+        final int maxY = ticks.size();
+
+        if (maxX <= 1) {
+            JOptionPane.showMessageDialog(null, "3D plot requires a comparison based on at least "
+                    + "two angles", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        TickLabelMap mapX = new TickLabelMap();
+        for (int i = 0; i < angleList.size(); i++) {
+            mapX.register(i, angleList.get(i).getName());
+        }
+        TickLabelMap mapY = new TickLabelMap();
+        for (int i = 0; i < maxY; i++) {
+            mapY.register(i, ticks.get(i));
+        }
+
+        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(0, maxX - 1), maxX,
+                new Range(0, maxY), maxY - 1), new Mapper() {
+            @Override
+            public double f(double x, double y) {
+                int i = (int) Math.round(x);
+                int j = (int) Math.round(y);
+
+                i = Math.max(Math.min(i, maxX - 1), 0);
+                j = Math.max(Math.min(j, maxY - 1), 0);
+                return angleList.get(i).getDeltas()[j];
+            }
+        });
+
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0, (float) Math.PI,
+                new Color(1, 1, 1, .5f)));
+        surface.setFaceDisplayed(true);
+        surface.setWireframeDisplayed(false);
+
+        Chart chart = new Chart(Quality.Nicest);
+        chart.getScene().getGraph().add(surface);
+
+        IAxeLayout axeLayout = chart.getAxeLayout();
+        axeLayout.setXTickProvider(new RegularTickProvider(maxX));
+        axeLayout.setXTickRenderer(mapX);
+        axeLayout.setYTickProvider(new SmartTickProvider(maxY));
+        axeLayout.setYTickRenderer(mapY);
+        axeLayout.setZAxeLabel("Distance [rad]");
+
+        ChartLauncher.openChart(chart);
     }
 
     @Override

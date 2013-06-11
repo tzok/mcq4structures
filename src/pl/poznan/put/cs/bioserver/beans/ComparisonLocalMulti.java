@@ -9,11 +9,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.StructureException;
+import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.ChartLauncher;
+import org.jzy3d.colors.Color;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.maths.Range;
+import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.Mapper;
+import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
+import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.SmartTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
@@ -105,19 +121,69 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
 
     @Override
     public File suggestName() {
-        String filename = Helper.getExportPrefix();
-        filename += "-Local-Distance-Multi-";
+        StringBuilder builder = new StringBuilder(Helper.getExportPrefix());
+        builder.append("-Local-Distance-Multi-");
         for (ComparisonLocal local : results) {
-            filename += local.getTitle().split(", ")[1];
+            builder.append(local.getTitle().split(", ")[1]);
         }
-        filename += ".csv";
-        return new File(filename);
+        builder.append(".csv");
+        return new File(builder.toString());
     }
 
     @Override
     public void visualize() {
         DialogColorbar dialogColorbar = new DialogColorbar(this);
         dialogColorbar.setVisible(true);
+    }
+
+    @Override
+    public void visualize3D() {
+        final int maxX = results.size();
+        if (maxX <= 1) {
+            JOptionPane.showMessageDialog(null, "3D plot requires a comparison based on at least "
+                    + "two structures", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        ComparisonLocal reference = results.get(0);
+        final int maxY = reference.ticks.size();
+
+        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(0, maxX - 1), maxX,
+                new Range(0, maxY - 1), maxY), new Mapper() {
+            @Override
+            public double f(double x, double y) {
+                int i = (int) Math.round(x);
+                int j = (int) Math.round(y);
+
+                i = Math.max(Math.min(i, maxX - 1), 0);
+                j = Math.max(Math.min(j, maxY - 1), 0);
+                return results.get(i).angles.get("AVERAGE").getDeltas()[j];
+            }
+        });
+
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0, (float) Math.PI,
+                new Color(1, 1, 1, .5f)));
+        surface.setFaceDisplayed(true);
+        surface.setWireframeDisplayed(false);
+
+        TickLabelMap mapX = new TickLabelMap();
+        for (int i = 0; i < maxX; i++) {
+            mapX.register(i, results.get(i).title);
+        }
+        TickLabelMap mapY = new TickLabelMap();
+        for (int i = 0; i < maxY; i++) {
+            mapY.register(i, reference.ticks.get(i));
+        }
+
+        Chart chart = new Chart(Quality.Nicest);
+        chart.getScene().getGraph().add(surface);
+
+        IAxeLayout axeLayout = chart.getAxeLayout();
+        axeLayout.setXTickProvider(new RegularTickProvider(maxX));
+        axeLayout.setXTickRenderer(mapX);
+        axeLayout.setYTickProvider(new SmartTickProvider(maxY));
+        axeLayout.setYTickRenderer(mapY);
+
+        ChartLauncher.openChart(chart);
     }
 
     @Override
@@ -131,6 +197,6 @@ public class ComparisonLocalMulti extends XMLSerializable implements Exportable,
 
         URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
                 + "bioserver/external/MatplotlibLocalMulti.xsl");
-        Matplotlib.runXsltAndPython(resource, results.get(0), parameters);
+        Matplotlib.runXsltAndPython(resource, this, parameters);
     }
 }

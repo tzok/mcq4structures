@@ -2,10 +2,6 @@ package pl.poznan.put.cs.bioserver.clustering;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -16,84 +12,37 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.sun.media.sound.InvalidDataException;
-
-import pl.poznan.put.cs.bioserver.visualisation.MDS;
+import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
+import pl.poznan.put.cs.bioserver.beans.auxiliary.Cluster;
+import pl.poznan.put.cs.bioserver.beans.auxiliary.Point;
 
 /**
  * Plot of k-medoids clustering.
  */
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(KMedoidsPlot.class);
 
-    /**
-     * Create an instance of JFrame which shows a k-medoid plot.
-     * 
-     * @param distance
-     *            A distance matrix, NxN.
-     * @param structureNames
-     *            Labels for every entry, N.
-     * @param k
-     *            Chosen k for k-medoids method.
-     * @throws InvalidDataException
-     */
-    public KMedoidsPlot(double[][] distance, List<String> structureNames, int k, String method)
-            throws InvalidDataException {
-        double[][] mds = MDS.multidimensionalScaling(distance, 2);
-
-        Map<Integer, Set<Integer>> medoids = null;
-        if (method.equals("PAM")) {
-            if (k == 0) {
-                medoids = Clusterer.clusterPAM(distance).getClusterAssignment();
-            } else {
-                medoids = Clusterer.clusterPAM(distance, k).getClusterAssignment();
-            }
-        } else if (method.equals("PAMSIL")) {
-            if (k == 0) {
-                medoids = Clusterer.clusterPAMSIL(distance).getClusterAssignment();
-            } else {
-                medoids = Clusterer.clusterPAMSIL(distance, k).getClusterAssignment();
-            }
-        } else {
-            throw new UnsupportedOperationException("Clustering method " + method
-                    + " not supported");
-        }
-
-        StringBuilder dumper = new StringBuilder();
+    public KMedoidsPlot(ClusteringPartitional clustering) {
         DefaultXYDataset dataset = new DefaultXYDataset();
-        for (Entry<Integer, Set<Integer>> entry : medoids.entrySet()) {
+        for (Cluster cluster : clustering.getClusters()) {
             StringBuilder builder = new StringBuilder();
             builder.append("[ ");
 
-            Set<Integer> value = entry.getValue();
-            double[] x = new double[value.size()];
-            double[] y = new double[value.size()];
+            int size = cluster.getPoints().size();
+            double[] x = new double[size];
+            double[] y = new double[size];
             int i = 0;
-            for (int index : value) {
-                builder.append(structureNames.get(index));
+            for (Point point : cluster.getPoints()) {
+                builder.append(point.getLabel());
                 builder.append(", ");
-                x[i] = mds[index][0];
-                y[i] = mds[index][1];
-                if (KMedoidsPlot.LOGGER.isTraceEnabled()) {
-                    dumper.append(structureNames.get(index));
-                    dumper.append(' ');
-                    dumper.append(x[i]);
-                    dumper.append(' ');
-                    dumper.append(y[i]);
-                    dumper.append(' ');
-                    dumper.append(entry.getKey());
-                    dumper.append('\n');
-                }
+                x[i] = point.getX();
+                y[i] = point.getY();
                 i++;
             }
             builder.append(" ]");
             dataset.addSeries(builder.toString(), new double[][] { x, y });
         }
-        KMedoidsPlot.LOGGER.trace(dumper.toString());
 
         NumberAxis xAxis = new NumberAxis();
         xAxis.setTickLabelsVisible(false);
@@ -114,5 +63,15 @@ public class KMedoidsPlot extends JFrame {
         Dimension size = toolkit.getScreenSize();
         setSize(size.width / 2, size.height / 2);
         setLocation(size.width / 4, size.height / 4);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("MCQ4Structures: global distance (");
+        builder.append(clustering.getComparison().getMethod());
+        builder.append(") clusters by k-medoids (");
+        builder.append(clustering.getScoringFunction());
+        builder.append(", k = ");
+        builder.append(clustering.getMedoids().size());
+        builder.append(')');
+        setTitle(builder.toString());
     }
 }

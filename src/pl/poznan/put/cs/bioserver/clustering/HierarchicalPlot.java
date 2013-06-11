@@ -2,8 +2,6 @@ package pl.poznan.put.cs.bioserver.clustering;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -16,29 +14,25 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
+import pl.poznan.put.cs.bioserver.clustering.ClustererHierarchical.Cluster;
+
 /**
  * Plot of dendrogram representing hierarchical clustering.
  */
 public class HierarchicalPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private static String generateLabel(List<List<Integer>> ids, int[] pair,
-            List<String> structureNames) {
-        List<Integer> a = ids.get(pair[0]);
-        List<Integer> b = ids.get(pair[1]);
-
-        a.addAll(b);
-        ids.remove(pair[1]);
-
-        StringWriter writer = new StringWriter();
-        writer.append("[ ");
-        for (int i : a) {
-            writer.append(structureNames.get(i));
-            writer.append(", ");
+    private static String generateLabel(List<Integer> items, List<String> labels) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[ ");
+        for (int i : items) {
+            builder.append(labels.get(i));
+            builder.append(", ");
         }
-        writer.append(" ]");
-
-        return writer.toString();
+        builder.delete(builder.length() - 2, builder.length());
+        builder.append(" ]");
+        return builder.toString();
     }
 
     private JFreeChart chart;
@@ -53,41 +47,22 @@ public class HierarchicalPlot extends JFrame {
      * @param linkage
      *            Linkage type @see Clusterer.Type;
      */
-    public HierarchicalPlot(double[][] distance, List<String> structureNames, int linkage) {
-        int[][] clustering = Clusterer.hierarchicalClustering(distance,
-                Clusterer.Type.values()[linkage]);
-        List<Integer> allocation = Clusterer.getClusters().get(0);
-
-        List<double[]> clusters = new ArrayList<>();
-        List<List<Integer>> ids = new ArrayList<>();
-        for (int i = 0; i < distance.length; ++i) {
-            clusters.add(new double[] { allocation.indexOf(i), 0 });
-            List<Integer> vector = new ArrayList<>();
-            vector.add(i);
-            ids.add(vector);
-        }
-
+    public HierarchicalPlot(ClusteringHierarchical clustering) {
         DefaultXYDataset dataset = new DefaultXYDataset();
-        double y = 0.0;
-        for (int[] mergedPair : clustering) {
-            double[] a = clusters.get(mergedPair[0]);
-            double[] b = clusters.get(mergedPair[1]);
-            y = Math.max(a[1], b[1]) + mergedPair[2];
-
-            String label = HierarchicalPlot.generateLabel(ids, mergedPair, structureNames);
-            double[][] points = new double[][] { { a[0], a[0], b[0], b[0] }, { a[1], y, y, b[1] } };
-            dataset.addSeries(label, points);
-
-            a[0] = (a[0] + b[0]) / 2.0;
-            a[1] = y;
-            clusters.remove(mergedPair[1]);
+        List<String> labels = clustering.getComparison().getLabels();
+        for (Cluster cluster : clustering.getClustering()) {
+            String label = HierarchicalPlot.generateLabel(cluster.items, labels);
+            double[] x = new double[] { cluster.left.x, cluster.left.x, cluster.right.x,
+                    cluster.right.x };
+            double[] y = new double[] { cluster.left.y, cluster.y, cluster.y, cluster.right.y };
+            dataset.addSeries(label, new double[][] { x, y });
         }
 
         NumberAxis xAxis = new NumberAxis();
         xAxis.setTickLabelsVisible(false);
         xAxis.setTickMarksVisible(false);
         xAxis.setAutoRange(false);
-        xAxis.setRange(-1, structureNames.size());
+        xAxis.setRange(-1, clustering.getComparison().getLabels().size());
         NumberAxis yAxis = new NumberAxis();
         yAxis.setTickLabelsVisible(false);
         yAxis.setTickMarksVisible(false);

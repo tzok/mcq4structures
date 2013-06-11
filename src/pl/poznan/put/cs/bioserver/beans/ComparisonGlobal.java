@@ -10,6 +10,21 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.ChartLauncher;
+import org.jzy3d.colors.Color;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.maths.Range;
+import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.Mapper;
+import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
+import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
+
 import pl.poznan.put.cs.bioserver.gui.DialogCluster;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
@@ -44,16 +59,15 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         for (double[] value : distanceMatrix) {
             for (double element : value) {
                 if (Double.isNaN(element)) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "clustered. Some structures could not be " + "compared.", "Error",
+                    JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some "
+                            + "structures could not be compared.", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
         }
 
-        DialogCluster dialogClustering = new DialogCluster(this,
-                "MCQ4Structures: global distance (" + method + ") clusters by ");
+        DialogCluster dialogClustering = new DialogCluster(this);
         dialogClustering.setVisible(true);
     }
 
@@ -78,7 +92,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
     }
 
     public double[][] getDistanceMatrix() {
-        return distanceMatrix;
+        return distanceMatrix.clone();
     }
 
     public List<String> getLabels() {
@@ -92,7 +106,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
     @XmlElementWrapper(name = "distanceMatrix")
     @XmlElement(name = "row")
     public void setDistanceMatrix(double[][] distanceMatrix) {
-        this.distanceMatrix = distanceMatrix;
+        this.distanceMatrix = distanceMatrix.clone();
     }
 
     @XmlElementWrapper(name = "labels")
@@ -120,8 +134,8 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         for (double[] value : distanceMatrix) {
             for (double element : value) {
                 if (Double.isNaN(element)) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "visualized. Some structures could not be " + "compared.", "Error",
+                    JOptionPane.showMessageDialog(null, "Results cannot be visualized. Some "
+                            + "structures could not be compared.", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -140,6 +154,47 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         MDSPlot plot = new MDSPlot(mds, labels);
         plot.setTitle("MCQ4Structures: global distance diagram (" + method + ")");
         plot.setVisible(true);
+    }
+
+    @Override
+    public void visualize3D() {
+        final int max = distanceMatrix.length;
+
+        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(0, max - 1), max),
+                new Mapper() {
+                    @Override
+                    public double f(double x, double y) {
+                        int i = (int) Math.round(x);
+                        int j = (int) Math.round(y);
+
+                        i = Math.max(Math.min(i, max - 1), 0);
+                        j = Math.max(Math.min(j, max - 1), 0);
+                        return distanceMatrix[i][j];
+                    }
+                });
+
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
+                surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1,
+                        .5f)));
+        surface.setFaceDisplayed(true);
+        surface.setWireframeDisplayed(false);
+
+        Chart chart = new Chart(Quality.Nicest);
+        chart.getScene().getGraph().add(surface);
+
+        TickLabelMap map = new TickLabelMap();
+        for (int i = 0; i < labels.size(); i++) {
+            map.register(i, labels.get(i));
+        }
+
+        IAxeLayout axeLayout = chart.getAxeLayout();
+        axeLayout.setXTickProvider(new RegularTickProvider(labels.size()));
+        axeLayout.setXTickRenderer(map);
+        axeLayout.setYTickProvider(new RegularTickProvider(labels.size()));
+        axeLayout.setYTickRenderer(map);
+        axeLayout.setZAxeLabel(method.equals("MCQ") ? "Distance [rad]" : "Distance [\u212B]");
+
+        ChartLauncher.openChart(chart);
     }
 
     @Override
