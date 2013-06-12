@@ -155,7 +155,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         /*
          * read map data into desired format
          */
-        LinkedHashMap<String, Angle> angles = new LinkedHashMap<>();
+        Map<String, Angle> angles = new LinkedHashMap<>();
         for (String angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
                 continue;
@@ -187,7 +187,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return result;
     }
 
-    LinkedHashMap<String, Angle> angles;
+    Map<String, Angle> angles;
     List<String> ticks;
     List<RGB> colors;
     String title;
@@ -234,7 +234,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         return title;
     }
 
-    public void setAngles(LinkedHashMap<String, Angle> angles) {
+    public void setAngles(Map<String, Angle> angles) {
         this.angles = angles;
     }
 

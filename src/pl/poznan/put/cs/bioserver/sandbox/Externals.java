@@ -79,7 +79,7 @@ public class Externals {
 
         xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0), structures.get(1)
                 .getChain(0), MCQ.USED_ANGLES_NAMES);
-        // XSLT.printDocument(xmlResults.toXML(), System.out);
+         XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", "[ 'ALPHA', 'BETA', 'GAMMA', 'DELTA', "
