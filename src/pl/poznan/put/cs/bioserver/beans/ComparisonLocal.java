@@ -75,6 +75,8 @@ import com.csvreader.CsvWriter;
 @XmlRootElement
 public class ComparisonLocal extends XMLSerializable implements Exportable,
         Visualizable {
+    private static final String UNICODE_DEGREE = "\u00B0";
+    private static final String UNICODE_PI = "\u03C0";
     private static final long serialVersionUID = 4652567875810044094L;
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
@@ -298,9 +300,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         }
 
         NumberAxis xAxis = new TorsionAxis(ticks);
-        xAxis.setLabel("Residue");
+        xAxis.setLabel("ResID");
         NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Distance [rad]");
+        yAxis.setLabel("Angular distance");
         yAxis.setRange(0, Math.PI);
         yAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
 
@@ -317,10 +319,18 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                 if (number == 0) {
                     return toAppendTo.append("0");
                 } else if (number == Math.PI) {
-                    return toAppendTo.append("\u03C0");
+                    toAppendTo.append(ComparisonLocal.UNICODE_PI);
+                    toAppendTo.append(" = 180");
+                    toAppendTo.append(ComparisonLocal.UNICODE_DEGREE);
+                    return toAppendTo;
                 }
-                return format.format(number / Math.PI, toAppendTo, pos).append(
-                        " * \u03C0");
+                format.format(number / Math.PI, toAppendTo, pos);
+                toAppendTo.append(" * ");
+                toAppendTo.append(ComparisonLocal.UNICODE_PI);
+                toAppendTo.append(" = ");
+                toAppendTo.append(Math.round(Math.toDegrees(number)));
+                toAppendTo.append(ComparisonLocal.UNICODE_DEGREE);
+                return toAppendTo;
             }
 
             @Override
