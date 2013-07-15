@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.gui;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -8,6 +9,7 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 
 public class TableModelGlobal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
+    private DecimalFormat format;
     private String measure;
     private List<String> names;
     private double[][] values;
@@ -17,6 +19,7 @@ public class TableModelGlobal extends AbstractTableModel {
         names = comparisonGlobal.getLabels();
         values = comparisonGlobal.getDistanceMatrix();
         measure = comparisonGlobal.getMethod();
+        format = new DecimalFormat("0.000");
     }
 
     @Override
@@ -45,6 +48,6 @@ public class TableModelGlobal extends AbstractTableModel {
         if (column == 0) {
             return names.get(row);
         }
-        return values[row][column - 1];
+        return format.format(values[row][column - 1]);
     }
 }

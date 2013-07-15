@@ -75,9 +75,9 @@ import com.csvreader.CsvWriter;
 @XmlRootElement
 public class ComparisonLocal extends XMLSerializable implements Exportable,
         Visualizable {
+    private static final long serialVersionUID = 4652567875810044094L;
     private static final String UNICODE_DEGREE = "\u00B0";
     private static final String UNICODE_PI = "\u03C0";
-    private static final long serialVersionUID = 4652567875810044094L;
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
             List<String> angleNames) throws StructureException {

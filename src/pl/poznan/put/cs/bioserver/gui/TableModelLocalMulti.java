@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.gui;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
     private int columnCount;
     private List<String> columns;
     private Object[][] data;
+    private DecimalFormat format;
     private int rowCount;
 
     public TableModelLocalMulti(ComparisonLocalMulti localMulti) {
@@ -51,6 +53,8 @@ public class TableModelLocalMulti extends AbstractTableModel {
                 data[j][i] = deltas[j];
             }
         }
+
+        format = new DecimalFormat("0.000");
     }
 
     @Override
@@ -70,6 +74,9 @@ public class TableModelLocalMulti extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int column) {
-        return data[row][column];
+        if (column == 0) {
+            return data[row][column];
+        }
+        return format.format(data[row][column]);
     }
 }

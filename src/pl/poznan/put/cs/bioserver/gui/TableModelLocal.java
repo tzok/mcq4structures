@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.gui;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 public class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private List<String> columnNames;
+    private DecimalFormat format;
     private List<String> rowsNames;
     private double[][] values;
 
@@ -32,6 +34,8 @@ public class TableModelLocal extends AbstractTableModel {
                 values[i][j] = angles.get(j).getDeltas()[i];
             }
         }
+
+        format = new DecimalFormat("0.000");
     }
 
     @Override
@@ -57,6 +61,6 @@ public class TableModelLocal extends AbstractTableModel {
         if (column == 0) {
             return rowsNames.get(row);
         }
-        return values[row][column - 1];
+        return format.format(values[row][column - 1]);
     }
 }
