@@ -16,8 +16,8 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Darryl
  */
 public class StayOpenMenuItem extends JMenuItem {
-    private static final long serialVersionUID = 1L;
     private static MenuElement[] path;
+    private static final long serialVersionUID = 1L;
 
     {
         getModel().addChangeListener(new ChangeListener() {
@@ -25,7 +25,9 @@ public class StayOpenMenuItem extends JMenuItem {
             @Override
             public void stateChanged(@Nullable ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
-                    StayOpenMenuItem.path = MenuSelectionManager.defaultManager().getSelectedPath();
+                    StayOpenMenuItem.path =
+                            MenuSelectionManager.defaultManager()
+                                    .getSelectedPath();
                 }
             }
         });
@@ -82,6 +84,7 @@ public class StayOpenMenuItem extends JMenuItem {
     @Override
     public void doClick(int pressTime) {
         super.doClick(pressTime);
-        MenuSelectionManager.defaultManager().setSelectedPath(StayOpenMenuItem.path);
+        MenuSelectionManager.defaultManager().setSelectedPath(
+                StayOpenMenuItem.path);
     }
 }

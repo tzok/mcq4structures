@@ -10,9 +10,9 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 
 public class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
-    private double[][] values;
     private List<String> columnNames;
     private List<String> rowsNames;
+    private double[][] values;
 
     public TableModelLocal(ComparisonLocal comparisonLocal) {
         super();

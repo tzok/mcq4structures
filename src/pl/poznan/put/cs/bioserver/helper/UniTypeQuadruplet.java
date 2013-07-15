@@ -19,7 +19,8 @@ public class UniTypeQuadruplet<T> {
         d = list.get(3);
     }
 
-    public UniTypeQuadruplet(@Nullable T a, @Nullable T b, @Nullable T c, @Nullable T d) {
+    public UniTypeQuadruplet(@Nullable T a, @Nullable T b, @Nullable T c,
+            @Nullable T d) {
         super();
         this.a = a;
         this.b = b;

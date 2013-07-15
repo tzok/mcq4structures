@@ -9,10 +9,10 @@ public final class ClustererHierarchical {
         private static final long serialVersionUID = -6276493161058681710L;
 
         public final List<Integer> items;
-        public final double x;
-        public final double y;
         public Cluster left;
         public Cluster right;
+        public final double x;
+        public final double y;
 
         public Cluster(Cluster left, Cluster right, double distance) {
             super();
@@ -62,10 +62,11 @@ public final class ClustererHierarchical {
 
     /** Available hierarchical clustering types. */
     public enum Linkage {
-        Complete, Single, Average;
+        Average, Complete, Single;
     }
 
-    public static List<Cluster> hierarchicalClustering(double[][] matrix, Linkage linkage) {
+    public static List<Cluster> hierarchicalClustering(double[][] matrix,
+            Linkage linkage) {
         /*
          * initialise clusters as single elements
          */
@@ -121,8 +122,9 @@ public final class ClustererHierarchical {
                         delta /= count;
                         break;
                     default:
-                        throw new RuntimeException("Unknown type of linkage for hierarchical "
-                                + "clustering: " + linkage);
+                        throw new RuntimeException(
+                                "Unknown type of linkage for hierarchical "
+                                        + "clustering: " + linkage);
                     }
 
                     if (delta < leastDiff) {

@@ -31,13 +31,13 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
  */
 public class AlignmentOutput implements Exportable {
     public static class StructuresAligned {
-        public final Structure wholeLeft;
-        public final Structure wholeRight;
         public final Structure filteredLeft;
         public final Structure filteredRight;
+        public final Structure wholeLeft;
+        public final Structure wholeRight;
 
-        public StructuresAligned(Structure wholeLeft, Structure wholeRight, Structure filteredLeft,
-                Structure filteredRight) {
+        public StructuresAligned(Structure wholeLeft, Structure wholeRight,
+                Structure filteredLeft, Structure filteredRight) {
             this.wholeLeft = wholeLeft;
             this.wholeRight = wholeRight;
             this.filteredLeft = filteredLeft;
@@ -45,7 +45,8 @@ public class AlignmentOutput implements Exportable {
         }
     }
 
-    private static Structure filterStructure(Structure structure, List<Atom> atoms) {
+    private static Structure filterStructure(Structure structure,
+            List<Atom> atoms) {
         Map<String, Set<Integer>> map = new HashMap<>();
         for (Atom a : atoms) {
             Group g = a.getGroup();
@@ -81,11 +82,11 @@ public class AlignmentOutput implements Exportable {
 
     private AFPChain afpChain;
     private String description;
-    private Structure structureLeft;
-    private Structure structureRight;
     private List<Atom> listAtomsLeft;
-
     private List<Atom> listAtomsRight;
+    private Structure structureLeft;
+
+    private Structure structureRight;
 
     /**
      * Create an instance which stores information about the computed alignment,
@@ -100,8 +101,9 @@ public class AlignmentOutput implements Exportable {
      * @param atoms
      *            Atoms that were used in the alignment process.
      */
-    AlignmentOutput(AFPChain afpChain, Structure structureLeft, Structure structureRight,
-            List<Atom> listAtomsLeft, List<Atom> listAtomsRight, String description) {
+    AlignmentOutput(AFPChain afpChain, Structure structureLeft,
+            Structure structureRight, List<Atom> listAtomsLeft,
+            List<Atom> listAtomsRight, String description) {
         this.afpChain = afpChain;
         this.structureLeft = structureLeft;
         this.structureRight = structureRight;
@@ -163,16 +165,23 @@ public class AlignmentOutput implements Exportable {
         Structure leftWhole = structureLeft.clone();
         Structure rightWhole = structureRight.clone();
         Matrix matrix = afpChain.getBlockRotationMatrix()[0];
-        Atom c1 = Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft.size()]));
-        Atom c2 = Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight.size()]));
+        Atom c1 =
+                Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft
+                        .size()]));
+        Atom c2 =
+                Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight
+                        .size()]));
         Calc.shift(leftWhole, Calc.invert(c1));
         Calc.shift(rightWhole, Calc.invert(c2));
         Calc.rotate(rightWhole, matrix);
 
         Pair<List<Atom>, List<Atom>> aligned = getAtoms();
-        Structure leftFiltered = AlignmentOutput.filterStructure(leftWhole, aligned.getLeft());
-        Structure rightFiltered = AlignmentOutput.filterStructure(rightWhole, aligned.getRight());
-        return new StructuresAligned(leftWhole, rightWhole, leftFiltered, rightFiltered);
+        Structure leftFiltered =
+                AlignmentOutput.filterStructure(leftWhole, aligned.getLeft());
+        Structure rightFiltered =
+                AlignmentOutput.filterStructure(rightWhole, aligned.getRight());
+        return new StructuresAligned(leftWhole, rightWhole, leftFiltered,
+                rightFiltered);
     }
 
     @Override

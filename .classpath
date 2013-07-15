@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="lib/JmolData.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.0.7.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.7.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/commons-io.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
@@ -36,5 +35,6 @@
 	<classpathentry kind="lib" path="lib/swt.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-linux-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/jogl-all-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -14,11 +14,11 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 
 public class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
-    private ComparisonLocal local;
     private float[] green;
+    private ComparisonLocal local;
     private float[] red;
-    double min;
     double max;
+    double min;
 
     public Colorbar(ComparisonLocal local) {
         super();
@@ -58,7 +58,8 @@ public class Colorbar extends JPanel {
     }
 
     private Color getColor(double delta) {
-        double hue = (delta - min) / (max - min) * (red[0] - green[0]) + green[0];
+        double hue =
+                (delta - min) / (max - min) * (red[0] - green[0]) + green[0];
         return Color.getHSBColor((float) hue, 0.75f, 0.75f);
     }
 }

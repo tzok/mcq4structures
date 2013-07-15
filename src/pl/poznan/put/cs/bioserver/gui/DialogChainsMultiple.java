@@ -38,10 +38,10 @@ final class DialogChainsMultiple extends JDialog {
     private static class FilteredListModel extends AbstractListModel<Chain> {
         private static final long serialVersionUID = 1L;
 
-        private boolean isRNA = true;
         private boolean isProtein = true;
-        private List<Chain> listRNAs = new ArrayList<>();
+        private boolean isRNA = true;
         private List<Chain> listProteins = new ArrayList<>();
+        private List<Chain> listRNAs = new ArrayList<>();
 
         public void addElement(Chain f) {
             if (Helper.isNucleicAcid(f)) {
@@ -82,7 +82,8 @@ final class DialogChainsMultiple extends JDialog {
 
         @Override
         public int getSize() {
-            return (isRNA ? listRNAs.size() : 0) + (isProtein ? listProteins.size() : 0);
+            return (isRNA ? listRNAs.size() : 0)
+                    + (isProtein ? listProteins.size() : 0);
         }
 
         public void removeElement(Chain f) {
@@ -96,9 +97,9 @@ final class DialogChainsMultiple extends JDialog {
 
     public static final int CANCEL = 0;
     public static final int OK = 1;
-    private static final long serialVersionUID = 1L;
-
     private static DialogChainsMultiple instance;
+
+    private static final long serialVersionUID = 1L;
 
     public static DialogChainsMultiple getInstance(Frame owner) {
         if (DialogChainsMultiple.instance == null) {
@@ -108,11 +109,11 @@ final class DialogChainsMultiple extends JDialog {
     }
 
     private int chosenOption;
+    private JList<Chain> listAll;
+    private JList<Chain> listSelected;
     private FilteredListModel modelAll;
     private FilteredListModel modelSelected;
     private List<Chain> selectedChains;
-    private JList<Chain> listAll;
-    private JList<Chain> listSelected;
 
     private DialogChainsMultiple(Frame owner) {
         super(owner, true);
@@ -122,31 +123,42 @@ final class DialogChainsMultiple extends JDialog {
         listAll.setBorder(BorderFactory.createTitledBorder("Available chains"));
         modelSelected = new FilteredListModel();
         listSelected = new JList<>(modelSelected);
-        listSelected.setBorder(BorderFactory.createTitledBorder("Selected chains"));
+        listSelected.setBorder(BorderFactory
+                .createTitledBorder("Selected chains"));
 
-        final ListCellRenderer<? super Chain> renderer = listAll.getCellRenderer();
-        ListCellRenderer<Chain> pdbCellRenderer = new ListCellRenderer<Chain>() {
-            @Override
-            public Component getListCellRendererComponent(@Nullable JList<? extends Chain> list,
-                    @Nullable Chain value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index,
-                        isSelected, cellHasFocus);
-                if (value != null) {
-                    boolean isRNA = Helper.isNucleicAcid(value);
-                    int size = Helper.countResidues(value, isRNA);
+        final ListCellRenderer<? super Chain> renderer =
+                listAll.getCellRenderer();
+        ListCellRenderer<Chain> pdbCellRenderer =
+                new ListCellRenderer<Chain>() {
+                    @Override
+                    public Component getListCellRendererComponent(
+                            @Nullable JList<? extends Chain> list,
+                            @Nullable Chain value, int index,
+                            boolean isSelected, boolean cellHasFocus) {
+                        JLabel label =
+                                (JLabel) renderer.getListCellRendererComponent(
+                                        list, value, index, isSelected,
+                                        cellHasFocus);
+                        if (value != null) {
+                            boolean isRNA = Helper.isNucleicAcid(value);
+                            int size = Helper.countResidues(value, isRNA);
 
-                    Structure parent = value.getParent();
-                    assert parent != null;
-                    String text = String.format("%s.%s (%s, %d %s)", StructureManager
-                            .getName(parent), value.getChainID(), isRNA ? "RNA" : "protein", size,
-                            isRNA ? "nt" : "aa");
-                    label.setText(text);
-                    label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
-                }
-                assert label != null;
-                return label;
-            }
-        };
+                            Structure parent = value.getParent();
+                            assert parent != null;
+                            String text =
+                                    String.format("%s.%s (%s, %d %s)",
+                                            StructureManager.getName(parent),
+                                            value.getChainID(), isRNA ? "RNA"
+                                                    : "protein", size,
+                                            isRNA ? "nt" : "aa");
+                            label.setText(text);
+                            label.setBackground(isRNA ? Color.CYAN
+                                    : Color.YELLOW);
+                        }
+                        assert label != null;
+                        return label;
+                    }
+                };
         listAll.setCellRenderer(pdbCellRenderer);
         listSelected.setCellRenderer(pdbCellRenderer);
 
@@ -219,21 +231,27 @@ final class DialogChainsMultiple extends JDialog {
 
         setTitle("MCQ4Structures: multiple chain selection");
 
-        ListSelectionListener listSelectionListener = new ListSelectionListener() {
-            @Override
-            public void valueChanged(@Nullable ListSelectionEvent arg0) {
-                if (arg0 != null) {
-                    ListSelectionModel source = (ListSelectionModel) arg0.getSource();
-                    if (source.equals(listAll.getSelectionModel())) {
-                        buttonSelect.setEnabled(!listAll.isSelectionEmpty());
-                    } else { // source.equals(listSelected)
-                        buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
+        ListSelectionListener listSelectionListener =
+                new ListSelectionListener() {
+                    @Override
+                    public void valueChanged(@Nullable ListSelectionEvent arg0) {
+                        if (arg0 != null) {
+                            ListSelectionModel source =
+                                    (ListSelectionModel) arg0.getSource();
+                            if (source.equals(listAll.getSelectionModel())) {
+                                buttonSelect.setEnabled(!listAll
+                                        .isSelectionEmpty());
+                            } else { // source.equals(listSelected)
+                                buttonDeselect.setEnabled(!listSelected
+                                        .isSelectionEmpty());
+                            }
+                        }
                     }
-                }
-            }
-        };
-        listAll.getSelectionModel().addListSelectionListener(listSelectionListener);
-        listSelected.getSelectionModel().addListSelectionListener(listSelectionListener);
+                };
+        listAll.getSelectionModel().addListSelectionListener(
+                listSelectionListener);
+        listSelected.getSelectionModel().addListSelectionListener(
+                listSelectionListener);
 
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override

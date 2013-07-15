@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,29 +30,14 @@ public final class ClustererKMedoids {
     }
 
     public interface ScoringFunction {
-        double score(@SuppressWarnings("null") @NonNull Set<Integer> medoids,
-                @SuppressWarnings("null") @NonNull double[][] matrix);
+        double score(Set<Integer> medoids, double[][] matrix);
     }
-
-    public static final ScoringFunction PAMSIL = new ScoringFunction() {
-        @Override
-        public double score(Set<Integer> medoids, double[][] matrix) {
-            Map<Integer, Set<Integer>> assignments = ClustererKMedoids.getClusterAssignments(
-                    medoids, matrix);
-            return ClustererKMedoids.scoreBySilhouette(assignments, matrix);
-        }
-
-        @Override
-        public String toString() {
-            return "PAMSIL";
-        }
-    };
 
     public static final ScoringFunction PAM = new ScoringFunction() {
         @Override
         public double score(Set<Integer> medoids, double[][] matrix) {
-            Map<Integer, Set<Integer>> assignments = ClustererKMedoids.getClusterAssignments(
-                    medoids, matrix);
+            Map<Integer, Set<Integer>> assignments =
+                    ClustererKMedoids.getClusterAssignments(medoids, matrix);
             return ClustererKMedoids.scoreByDistance(assignments, matrix);
         }
 
@@ -63,7 +47,22 @@ public final class ClustererKMedoids {
         }
     };
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClustererKMedoids.class);
+    public static final ScoringFunction PAMSIL = new ScoringFunction() {
+        @Override
+        public double score(Set<Integer> medoids, double[][] matrix) {
+            Map<Integer, Set<Integer>> assignments =
+                    ClustererKMedoids.getClusterAssignments(medoids, matrix);
+            return ClustererKMedoids.scoreBySilhouette(assignments, matrix);
+        }
+
+        @Override
+        public String toString() {
+            return "PAMSIL";
+        }
+    };
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(ClustererKMedoids.class);
     private static final Random RANDOM = new Random();
 
     /**
@@ -75,8 +74,8 @@ public final class ClustererKMedoids {
      *            A distance matrix.
      * @return A map of this form { medoid : set(objects) }
      */
-    public static Map<Integer, Set<Integer>> getClusterAssignments(Set<Integer> medoids,
-            double[][] matrix) {
+    public static Map<Integer, Set<Integer>> getClusterAssignments(
+            Set<Integer> medoids, double[][] matrix) {
         Map<Integer, Set<Integer>> clustering = new HashMap<>();
         for (int i : medoids) {
             clustering.put(i, new HashSet<Integer>());
@@ -102,23 +101,27 @@ public final class ClustererKMedoids {
     }
 
     public static ScoringFunction[] getScoringFunctions() {
-        return new ScoringFunction[] { ClustererKMedoids.PAM, ClustererKMedoids.PAMSIL };
+        return new ScoringFunction[] { ClustererKMedoids.PAM,
+                ClustererKMedoids.PAMSIL };
     }
 
-    public static Result kMedoids(double[][] matrix, ScoringFunction sf, @Nullable Integer k) {
+    public static Result kMedoids(double[][] matrix, ScoringFunction sf,
+            @Nullable Integer k) {
         // in this mode, search for best 'k'
         if (k == null) {
             Result overallBest = null;
             for (int i = 2; i <= matrix.length; i++) {
                 Result result = ClustererKMedoids.kMedoids(matrix, sf, i);
-                double score = ClustererKMedoids.PAMSIL.score(result.medoids, matrix);
+                double score =
+                        ClustererKMedoids.PAMSIL.score(result.medoids, matrix);
                 if (overallBest == null || score > overallBest.score) {
                     overallBest = result;
                     overallBest.score = score;
                 }
             }
             assert overallBest != null;
-            ClustererKMedoids.LOGGER.debug("Final score for clustering: " + overallBest.score);
+            ClustererKMedoids.LOGGER.debug("Final score for clustering: "
+                    + overallBest.score);
             return overallBest;
         }
 
@@ -180,12 +183,13 @@ public final class ClustererKMedoids {
         }
 
         assert overallBestMedoids != null;
-        ClustererKMedoids.LOGGER.debug("Final score for clustering (k=" + k + "): "
-                + overallBestScore);
+        ClustererKMedoids.LOGGER.debug("Final score for clustering (k=" + k
+                + "): " + overallBestScore);
         return new Result(overallBestMedoids, overallBestScore);
     }
 
-    private static double scoreByDistance(Map<Integer, Set<Integer>> clustering, double[][] matrix) {
+    private static double scoreByDistance(
+            Map<Integer, Set<Integer>> clustering, double[][] matrix) {
         double result = 0;
         for (Entry<Integer, Set<Integer>> entry : clustering.entrySet()) {
             int j = entry.getKey();
@@ -196,7 +200,8 @@ public final class ClustererKMedoids {
         return -result;
     }
 
-    private static double scoreBySilhouette(Map<Integer, Set<Integer>> clustering, double[][] matrix) {
+    private static double scoreBySilhouette(
+            Map<Integer, Set<Integer>> clustering, double[][] matrix) {
         double result = 0;
         for (Entry<Integer, Set<Integer>> e1 : clustering.entrySet()) {
             if (e1.getValue().size() == 1) {

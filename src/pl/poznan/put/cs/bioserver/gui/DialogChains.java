@@ -38,7 +38,8 @@ final class DialogChains extends JDialog {
     private class PanelChains extends JPanel {
         private static final long serialVersionUID = 1L;
 
-        private DefaultComboBoxModel<Structure> model = new DefaultComboBoxModel<>();
+        private DefaultComboBoxModel<Structure> model =
+                new DefaultComboBoxModel<>();
         private JComboBox<Structure> combo = new JComboBox<>(model);
         private JPanel[] panels = new JPanel[] { new JPanel(), new JPanel() };
 
@@ -59,14 +60,18 @@ final class DialogChains extends JDialog {
             panel.add(panels[1]);
             add(new JScrollPane(panel), BorderLayout.CENTER);
 
-            final ListCellRenderer<? super Structure> renderer = combo.getRenderer();
+            final ListCellRenderer<? super Structure> renderer =
+                    combo.getRenderer();
             combo.setRenderer(new ListCellRenderer<Structure>() {
                 @Override
                 public Component getListCellRendererComponent(
-                        @Nullable JList<? extends Structure> list, @Nullable Structure value,
-                        int index, boolean isSelected, boolean cellHasFocus) {
-                    JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value,
-                            index, isSelected, cellHasFocus);
+                        @Nullable JList<? extends Structure> list,
+                        @Nullable Structure value, int index,
+                        boolean isSelected, boolean cellHasFocus) {
+                    JLabel label =
+                            (JLabel) renderer.getListCellRendererComponent(
+                                    list, value, index, isSelected,
+                                    cellHasFocus);
                     if (value != null) {
                         label.setText(StructureManager.getName(value));
                     }
@@ -103,12 +108,14 @@ final class DialogChains extends JDialog {
             if (structure != null) {
                 for (JPanel panel : panels) {
                     for (Component component : panel.getComponents()) {
-                        if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
+                        if (component instanceof JCheckBox
+                                && ((JCheckBox) component).isSelected()) {
                             String chainId = ((JCheckBox) component).getText();
                             try {
                                 list.add(structure.getChainByPDB(chainId));
                             } catch (StructureException e) {
-                                JOptionPane.showMessageDialog(DialogChains.this, e.getMessage(),
+                                JOptionPane.showMessageDialog(
+                                        DialogChains.this, e.getMessage(),
                                         "Error", JOptionPane.ERROR_MESSAGE);
                             }
                         }
@@ -119,11 +126,11 @@ final class DialogChains extends JDialog {
         }
     }
 
-    private static final long serialVersionUID = 1L;
     public static final int CANCEL = 0;
     public static final int OK = 1;
-
     private static DialogChains instance;
+
+    private static final long serialVersionUID = 1L;
 
     public static DialogChains getInstance(Frame owner) {
         if (DialogChains.instance == null) {
@@ -132,13 +139,13 @@ final class DialogChains extends JDialog {
         return DialogChains.instance;
     }
 
-    private int chosenOption;
-    private Structure structureLeft;
-    private Structure structureRight;
     private List<Chain> chainsLeft;
     private List<Chain> chainsRight;
+    private int chosenOption;
     private PanelChains panelsChainsLeft = new PanelChains();
     private PanelChains panelsChainsRight = new PanelChains();
+    private Structure structureLeft;
+    private Structure structureRight;
 
     private DialogChains(Frame owner) {
         super(owner, true);
@@ -169,8 +176,10 @@ final class DialogChains extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
-                structureLeft = (Structure) panelsChainsLeft.combo.getSelectedItem();
-                structureRight = (Structure) panelsChainsRight.combo.getSelectedItem();
+                structureLeft =
+                        (Structure) panelsChainsLeft.combo.getSelectedItem();
+                structureRight =
+                        (Structure) panelsChainsRight.combo.getSelectedItem();
                 if (structureLeft == null || structureRight == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();

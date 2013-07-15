@@ -14,12 +14,15 @@ import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 
 @XmlRootElement
-public class ClusteringHierarchical extends XMLSerializable implements Visualizable {
+public class ClusteringHierarchical extends XMLSerializable implements
+        Visualizable {
     private static final long serialVersionUID = -933748828643803893L;
 
-    public static ClusteringHierarchical newInstance(ComparisonGlobal comparison, Linkage linkage) {
-        List<Cluster> result = ClustererHierarchical.hierarchicalClustering(
-                comparison.getDistanceMatrix(), linkage);
+    public static ClusteringHierarchical newInstance(
+            ComparisonGlobal comparison, Linkage linkage) {
+        List<Cluster> result =
+                ClustererHierarchical.hierarchicalClustering(
+                        comparison.getDistanceMatrix(), linkage);
 
         ClusteringHierarchical instance = new ClusteringHierarchical();
         instance.setComparison(comparison);
@@ -28,9 +31,9 @@ public class ClusteringHierarchical extends XMLSerializable implements Visualiza
         return instance;
     }
 
+    List<Cluster> clustering;
     ComparisonGlobal comparison;
     Linkage linkage;
-    List<Cluster> clustering;
 
     public List<Cluster> getClustering() {
         return clustering;
@@ -72,8 +75,10 @@ public class ClusteringHierarchical extends XMLSerializable implements Visualiza
 
     @Override
     public void visualizeHighQuality() {
-        URL resource = getClass().getResource(
-                "/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
+        URL resource =
+                getClass()
+                        .getResource(
+                                "/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
         Matplotlib.runXsltAndPython(resource, this);
     }
 }

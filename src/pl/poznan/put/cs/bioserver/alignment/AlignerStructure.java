@@ -27,8 +27,9 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
  * @author tzok
  */
 public final class AlignerStructure {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlignerStructure.class);
     private static Map<AlignmentInput, AlignmentOutput> cache = new HashMap<>();
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(AlignerStructure.class);
 
     /**
      * Align structurally two structures.
@@ -42,8 +43,8 @@ public final class AlignerStructure {
      * @throws StructureException
      *             If there were problems during alignment computation.
      */
-    public static AlignmentOutput align(Structure left, Structure right, String description)
-            throws StructureException {
+    public static AlignmentOutput align(Structure left, Structure right,
+            String description) throws StructureException {
         /*
          * Check if alignment was made before
          */
@@ -55,18 +56,23 @@ public final class AlignerStructure {
 
         Set<Atom> changedAtoms = new HashSet<>();
         List<Atom> listLeft = AlignerStructure.changePToCA(left, changedAtoms);
-        List<Atom> listRight = AlignerStructure.changePToCA(right, changedAtoms);
+        List<Atom> listRight =
+                AlignerStructure.changePToCA(right, changedAtoms);
 
         StructureAlignment alignment = new CeMain();
         CeParameters parameters = new CeParameters();
         while (true) {
-            AFPChain align = alignment.align(listLeft.toArray(new Atom[listLeft.size()]),
-                    listRight.toArray(new Atom[listRight.size()]), parameters);
+            AFPChain align =
+                    alignment.align(
+                            listLeft.toArray(new Atom[listLeft.size()]),
+                            listRight.toArray(new Atom[listRight.size()]),
+                            parameters);
             if (align.getBlockRotationMatrix().length == 0) {
                 int winSize = parameters.getWinSize();
                 winSize--;
                 if (winSize <= 0) {
-                    throw new StructureException("Could not find structure alignment");
+                    throw new StructureException(
+                            "Could not find structure alignment");
                 }
                 parameters.setWinSize(winSize);
                 continue;
@@ -76,15 +82,19 @@ public final class AlignerStructure {
                 atom.setName("P");
                 atom.setFullName(" P  ");
             }
-            AlignmentOutput result = new AlignmentOutput(align, left, right, listLeft, listRight,
-                    description);
+            AlignmentOutput result =
+                    new AlignmentOutput(align, left, right, listLeft,
+                            listRight, description);
             AlignerStructure.cache.put(input, result);
             return result;
         }
     }
 
-    private static List<Atom> changePToCA(Structure structure, Set<Atom> changedAtoms) {
-        List<Atom> list = Helper.getAtomArray(structure, Arrays.asList(new String[] { "P", "CA" }));
+    private static List<Atom> changePToCA(Structure structure,
+            Set<Atom> changedAtoms) {
+        List<Atom> list =
+                Helper.getAtomArray(structure,
+                        Arrays.asList(new String[] { "P", "CA" }));
         assert list.size() != 0 : "There are no P or CA atoms in: "
                 + StructureManager.getName(structure);
 

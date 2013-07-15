@@ -17,8 +17,8 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Darryl
  */
 public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
-    private static final long serialVersionUID = 1L;
     private static MenuElement[] path;
+    private static final long serialVersionUID = 1L;
 
     {
         getModel().addChangeListener(new ChangeListener() {
@@ -26,8 +26,9 @@ public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
             @Override
             public void stateChanged(@Nullable ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
-                    StayOpenRadioButtonMenuItem.path = MenuSelectionManager.defaultManager()
-                            .getSelectedPath();
+                    StayOpenRadioButtonMenuItem.path =
+                            MenuSelectionManager.defaultManager()
+                                    .getSelectedPath();
                 }
             }
         });
@@ -98,6 +99,7 @@ public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
     @Override
     public void doClick(int pressTime) {
         super.doClick(pressTime);
-        MenuSelectionManager.defaultManager().setSelectedPath(StayOpenRadioButtonMenuItem.path);
+        MenuSelectionManager.defaultManager().setSelectedPath(
+                StayOpenRadioButtonMenuItem.path);
     }
 }

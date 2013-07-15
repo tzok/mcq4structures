@@ -8,9 +8,9 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 
 public class TableModelGlobal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
+    private String measure;
     private List<String> names;
     private double[][] values;
-    private String measure;
 
     public TableModelGlobal(ComparisonGlobal comparisonGlobal) {
         super();

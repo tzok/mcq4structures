@@ -46,9 +46,11 @@ public class Externals {
         return list;
     }
 
-    public static void main(String[] args) throws ParserConfigurationException, IOException,
-            StructureException, JAXBException, TransformerException, InvalidInputException {
-        List<File> pdbs = Externals.list(new File("/home/tzok/pdb/puzzles/Challenge2/"));
+    public static void main(String[] args) throws ParserConfigurationException,
+            IOException, StructureException, JAXBException,
+            TransformerException, InvalidInputException {
+        List<File> pdbs =
+                Externals.list(new File("/home/tzok/pdb/puzzles/Challenge2/"));
         List<Structure> structures = new ArrayList<>();
         for (int i = 0; i < pdbs.size(); i++) {
             try {
@@ -66,47 +68,62 @@ public class Externals {
         listNames.add("AVERAGE");
         XMLSerializable xmlResults;
         try {
-            xmlResults = ComparisonLocalMulti.newInstance(list, list.get(0), listNames);
+            xmlResults =
+                    ComparisonLocalMulti.newInstance(list, list.get(0),
+                            listNames);
             try (OutputStream stream = new FileOutputStream("/tmp/multi.xml")) {
                 XSLT.printDocument(xmlResults.toXML(), stream);
             }
-            Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-                    + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"), new File(
-                    "/tmp/multi.py"), new File("/tmp/multi.pdf"), xmlResults, null);
+            Matplotlib
+                    .runXsltAndPython(
+                            Externals.class
+                                    .getResource("/pl/poznan/"
+                                            + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"),
+                            new File("/tmp/multi.py"), new File(
+                                    "/tmp/multi.pdf"), xmlResults, null);
         } catch (InvalidInputException e) {
             e.printStackTrace();
         }
 
-        xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0), structures.get(1)
-                .getChain(0), MCQ.USED_ANGLES_NAMES);
-         XSLT.printDocument(xmlResults.toXML(), System.out);
+        xmlResults =
+                ComparisonLocal.newInstance(structures.get(0).getChain(0),
+                        structures.get(1).getChain(0), MCQ.USED_ANGLES_NAMES);
+        XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", "[ 'ALPHA', 'BETA', 'GAMMA', 'DELTA', "
-                + "'EPSILON', 'ZETA', 'CHI', 'TAU0', 'TAU1', 'TAU2', 'TAU3', " + "'TAU4' ]");
+                + "'EPSILON', 'ZETA', 'CHI', 'TAU0', 'TAU1', 'TAU2', 'TAU3', "
+                + "'TAU4' ]");
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-                + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File("/tmp/local.py"),
-                new File("/tmp/local.pdf"), xmlResults, parameters);
+                + "put/cs/bioserver/external/MatplotlibLocal.xsl"), new File(
+                "/tmp/local.py"), new File("/tmp/local.pdf"), xmlResults,
+                parameters);
 
         double[][] matrix = new MCQ().compare(structures, null);
         List<String> labels = new ArrayList<>();
         for (Structure s : structures) {
             labels.add(StructureManager.getName(s));
         }
-        ComparisonGlobal global = ComparisonGlobal.newInstance(matrix, labels, "MCQ");
+        ComparisonGlobal global =
+                ComparisonGlobal.newInstance(matrix, labels, "MCQ");
 
-        xmlResults = ClusteringHierarchical.newInstance(global, Linkage.Complete);
+        xmlResults =
+                ClusteringHierarchical.newInstance(global, Linkage.Complete);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-                + "put/cs/bioserver/external/MatplotlibHierarchical.xsl"), new File(
-                "/tmp/hierarchical.py"), new File("/tmp/hierarchical.pdf"), xmlResults);
+                + "put/cs/bioserver/external/MatplotlibHierarchical.xsl"),
+                new File("/tmp/hierarchical.py"), new File(
+                        "/tmp/hierarchical.pdf"), xmlResults);
 
-        xmlResults = ClusteringPartitional.newInstance(global, ClustererKMedoids.PAM, null);
+        xmlResults =
+                ClusteringPartitional.newInstance(global,
+                        ClustererKMedoids.PAM, null);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
-                + "put/cs/bioserver/external/MatplotlibPartitional.xsl"), new File(
-                "/tmp/partitional.py"), new File("/tmp/partitional.pdf"), xmlResults);
+                + "put/cs/bioserver/external/MatplotlibPartitional.xsl"),
+                new File("/tmp/partitional.py"), new File(
+                        "/tmp/partitional.pdf"), xmlResults);
     }
 }

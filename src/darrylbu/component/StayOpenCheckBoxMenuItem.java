@@ -16,8 +16,8 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Darryl
  */
 public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
-    private static final long serialVersionUID = 1L;
     private static MenuElement[] path;
+    private static final long serialVersionUID = 1L;
 
     {
         getModel().addChangeListener(new ChangeListener() {
@@ -25,8 +25,9 @@ public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
             @Override
             public void stateChanged(@Nullable ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
-                    StayOpenCheckBoxMenuItem.path = MenuSelectionManager.defaultManager()
-                            .getSelectedPath();
+                    StayOpenCheckBoxMenuItem.path =
+                            MenuSelectionManager.defaultManager()
+                                    .getSelectedPath();
                 }
             }
         });
@@ -90,6 +91,7 @@ public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
     @Override
     public void doClick(int pressTime) {
         super.doClick(pressTime);
-        MenuSelectionManager.defaultManager().setSelectedPath(StayOpenCheckBoxMenuItem.path);
+        MenuSelectionManager.defaultManager().setSelectedPath(
+                StayOpenCheckBoxMenuItem.path);
     }
 }

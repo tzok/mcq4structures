@@ -73,13 +73,15 @@ import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
 import com.csvreader.CsvWriter;
 
 @XmlRootElement
-public class ComparisonLocal extends XMLSerializable implements Exportable, Visualizable {
+public class ComparisonLocal extends XMLSerializable implements Exportable,
+        Visualizable {
     private static final long serialVersionUID = 4652567875810044094L;
 
-    public static ComparisonLocal newInstance(Chain c1, Chain c2, List<String> angleNames)
-            throws StructureException {
-        Structure[] s = new Structure[] { new StructureImpl((Chain) c1.clone()),
-                new StructureImpl((Chain) c2.clone()) };
+    public static ComparisonLocal newInstance(Chain c1, Chain c2,
+            List<String> angleNames) throws StructureException {
+        Structure[] s =
+                new Structure[] { new StructureImpl((Chain) c1.clone()),
+                        new StructureImpl((Chain) c2.clone()) };
 
         StringBuilder builder = new StringBuilder();
         builder.append(StructureManager.getName(c1.getParent()));
@@ -91,13 +93,14 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         builder.append(c2.getChainID());
         String title = builder.toString();
 
-        return ComparisonLocal.newInstance(TorsionLocalComparison.compare(s[0], s[1], angleNames),
-                title, angleNames);
+        return ComparisonLocal.newInstance(
+                TorsionLocalComparison.compare(s[0], s[1], angleNames), title,
+                angleNames);
     }
 
     public static ComparisonLocal newInstance(Structure left, Structure right,
-            List<Chain> leftChains, List<Chain> rightChains, List<String> angleNames)
-            throws StructureException {
+            List<Chain> leftChains, List<Chain> rightChains,
+            List<String> angleNames) throws StructureException {
         Structure l = new StructureImpl();
         for (Chain c : leftChains) {
             l.addChain((Chain) c.clone());
@@ -107,13 +110,17 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             r.addChain((Chain) c.clone());
         }
 
-        String title = StructureManager.getName(left) + ", " + StructureManager.getName(right);
-        return ComparisonLocal.newInstance(TorsionLocalComparison.compare(l, r, angleNames), title,
+        String title =
+                StructureManager.getName(left) + ", "
+                        + StructureManager.getName(right);
+        return ComparisonLocal.newInstance(
+                TorsionLocalComparison.compare(l, r, angleNames), title,
                 angleNames);
     }
 
-    private static ComparisonLocal newInstance(Map<String, List<AngleDifference>> comparison,
-            String title, List<String> angleNames) {
+    private static ComparisonLocal newInstance(
+            Map<String, List<AngleDifference>> comparison, String title,
+            List<String> angleNames) {
         Set<String> setAngles = new HashSet<>(angleNames);
 
         /*
@@ -164,7 +171,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             double[] deltas = new double[setResidue.size()];
             int j = 0;
             for (ResidueNumber residue : setResidue) {
-                deltas[j] = (double) mapAngleResidueDelta.get(angleName, residue);
+                deltas[j] =
+                        (double) mapAngleResidueDelta.get(angleName, residue);
                 j++;
             }
 
@@ -176,7 +184,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
 
         List<String> ticks = new ArrayList<>();
         for (ResidueNumber residue : setResidue) {
-            ticks.add(String.format("%s:%03d", residue.getChainId(), residue.getSeqNum()));
+            ticks.add(String.format("%s:%03d", residue.getChainId(),
+                    residue.getSeqNum()));
         }
 
         ComparisonLocal result = new ComparisonLocal();
@@ -188,8 +197,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
     }
 
     Map<String, Angle> angles;
-    List<String> ticks;
     List<RGB> colors;
+    List<String> ticks;
     String title;
 
     @Override
@@ -283,7 +292,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         DefaultXYDataset dataset = new DefaultXYDataset();
         DefaultXYItemRenderer renderer = new DefaultXYItemRenderer();
         for (int i = 0; i < y.length; i++) {
-            dataset.addSeries(angleArray.get(i).getName(), new double[][] { x, y[i] });
+            dataset.addSeries(angleArray.get(i).getName(), new double[][] { x,
+                    y[i] });
             renderer.setSeriesPaint(i, Colors.ALL.get(i + 1));
         }
 
@@ -299,7 +309,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             private static final long serialVersionUID = 1L;
 
             @Override
-            public StringBuffer format(double number, @Nullable StringBuffer toAppendTo,
+            public StringBuffer format(double number,
+                    @Nullable StringBuffer toAppendTo,
                     @Nullable FieldPosition pos) {
                 assert toAppendTo != null;
 
@@ -308,17 +319,20 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
                 } else if (number == Math.PI) {
                     return toAppendTo.append("\u03C0");
                 }
-                return format.format(number / Math.PI, toAppendTo, pos).append(" * \u03C0");
+                return format.format(number / Math.PI, toAppendTo, pos).append(
+                        " * \u03C0");
             }
 
             @Override
-            public StringBuffer format(long number, @Nullable StringBuffer toAppendTo,
+            public StringBuffer format(long number,
+                    @Nullable StringBuffer toAppendTo,
                     @Nullable FieldPosition pos) {
                 return format.format(number, toAppendTo, pos);
             }
 
             @Override
-            public Number parse(@Nullable String source, @Nullable ParsePosition parsePosition) {
+            public Number parse(@Nullable String source,
+                    @Nullable ParsePosition parsePosition) {
                 return format.parse(source, parsePosition);
             }
         });
@@ -343,8 +357,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         final int maxY = ticks.size();
 
         if (maxX <= 1) {
-            JOptionPane.showMessageDialog(null, "3D plot requires a comparison based on at least "
-                    + "two angles", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null,
+                    "3D plot requires a comparison based on at least "
+                            + "two angles", "Warning",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -357,21 +373,23 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
             mapY.register(i, ticks.get(i));
         }
 
-        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(0, maxX - 1), maxX,
-                new Range(0, maxY), maxY - 1), new Mapper() {
-            @Override
-            public double f(double x, double y) {
-                int i = (int) Math.round(x);
-                int j = (int) Math.round(y);
+        Shape surface =
+                Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
+                        maxX - 1), maxX, new Range(0, maxY), maxY - 1),
+                        new Mapper() {
+                            @Override
+                            public double f(double x, double y) {
+                                int i = (int) Math.round(x);
+                                int j = (int) Math.round(y);
 
-                i = Math.max(Math.min(i, maxX - 1), 0);
-                j = Math.max(Math.min(j, maxY - 1), 0);
-                return angleList.get(i).getDeltas()[j];
-            }
-        });
+                                i = Math.max(Math.min(i, maxX - 1), 0);
+                                j = Math.max(Math.min(j, maxY - 1), 0);
+                                return angleList.get(i).getDeltas()[j];
+                            }
+                        });
 
-        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0, (float) Math.PI,
-                new Color(1, 1, 1, .5f)));
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0,
+                (float) Math.PI, new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(false);
 
@@ -402,8 +420,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable, Visu
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", builder.toString());
 
-        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
-                + "bioserver/external/MatplotlibLocal.xsl");
+        URL resource =
+                MainWindow.class.getResource("/pl/poznan/put/cs/"
+                        + "bioserver/external/MatplotlibLocal.xsl");
         Matplotlib.runXsltAndPython(resource, this, parameters);
     }
 }

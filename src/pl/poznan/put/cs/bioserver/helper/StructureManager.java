@@ -29,14 +29,15 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class StructureManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StructureManager.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(StructureManager.class);
 
     private static Map<File, List<Structure>> mapFileModels = new TreeMap<>();
     private static Map<Structure, File> mapModelFile = new HashMap<>();
     private static Map<Structure, String> mapModelName = new HashMap<>();
 
-    private static PDBFileReader pdbReader = new PDBFileReader();
     private static MMCIFFileReader mmcifReader = new MMCIFFileReader();
+    private static PDBFileReader pdbReader = new PDBFileReader();
 
     public static SortedSet<Structure> getAllStructures() {
         SortedSet<Structure> set = new TreeSet<>(new Comparator<Structure>() {
@@ -142,25 +143,29 @@ public final class StructureManager {
     private static boolean isMmCif(File file) throws IOException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        new GZIPInputStream(stream), "UTF-8"))) {
+                try (BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(
+                                new GZIPInputStream(stream), "UTF-8"))) {
                     String line = reader.readLine();
                     return line != null && line.startsWith("data_");
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line = reader.readLine();
                 return line != null && line.startsWith("data_");
             }
         }
     }
 
-    private static boolean isPdb(File file) throws IOException, InvalidInputException {
+    private static boolean isPdb(File file) throws IOException,
+            InvalidInputException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        new GZIPInputStream(stream), "UTF-8"))) {
+                try (BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(
+                                new GZIPInputStream(stream), "UTF-8"))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (line.startsWith("ATOM")) {
@@ -171,7 +176,8 @@ public final class StructureManager {
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("ATOM")) {
@@ -181,12 +187,14 @@ public final class StructureManager {
                 }
             }
         } catch (InvalidInputException e) {
-            throw new InvalidInputException(e.getMessage() + " (file: " + file + ")", e);
+            throw new InvalidInputException(e.getMessage() + " (file: " + file
+                    + ")", e);
         }
         return false;
     }
 
-    private static List<Structure> storeStructureInfo(File file, Structure structure) {
+    private static List<Structure> storeStructureInfo(File file,
+            Structure structure) {
         String name = structure.getPDBCode();
         if (name == null || name.trim().equals("")) {
             name = file.getName();
@@ -214,13 +222,15 @@ public final class StructureManager {
             models.add(clone);
 
             StructureManager.mapModelFile.put(clone, file);
-            StructureManager.mapModelName.put(clone, String.format(format, name, i + 1));
+            StructureManager.mapModelName.put(clone,
+                    String.format(format, name, i + 1));
         }
         StructureManager.mapFileModels.put(file, models);
         return models;
     }
 
-    private static void validate(BufferedReader reader) throws InvalidInputException {
+    private static void validate(BufferedReader reader)
+            throws InvalidInputException {
         try {
             char lastChain = 0;
             int lastResidue = 0;
@@ -250,11 +260,14 @@ public final class StructureManager {
                         lastResidue = 0;
                     }
 
-                    int residue = Integer.valueOf(line.substring(22, 26).trim());
+                    int residue =
+                            Integer.valueOf(line.substring(22, 26).trim());
                     if (lastResidue != 0 && residue - lastResidue != 0
                             && residue - lastResidue != 1) {
-                        String message = "Residues in the PDB file are not numbered sequentially, "
-                                + "lastResidue = " + lastResidue + ", residue = " + residue;
+                        String message =
+                                "Residues in the PDB file are not numbered sequentially, "
+                                        + "lastResidue = " + lastResidue
+                                        + ", residue = " + residue;
                         StructureManager.LOGGER.error(message);
                         throw new InvalidInputException(message);
                     }

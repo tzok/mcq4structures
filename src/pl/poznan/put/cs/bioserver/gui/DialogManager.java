@@ -29,9 +29,9 @@ import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 public final class DialogManager extends JDialog {
-    private static final long serialVersionUID = 1L;
-
     private static DialogManager instance;
+
+    private static final long serialVersionUID = 1L;
 
     public static DialogManager getInstance(Frame owner) {
         if (DialogManager.instance == null) {
@@ -46,7 +46,8 @@ public final class DialogManager extends JDialog {
         super(parent);
 
         final JList<File> list = new JList<>(model);
-        list.setBorder(BorderFactory.createTitledBorder("List of open structures"));
+        list.setBorder(BorderFactory
+                .createTitledBorder("List of open structures"));
 
         JButton buttonOpen = new JButton("Open structure(s)");
         JButton buttonRemove = new JButton("Close selected structure(s)");
@@ -71,7 +72,8 @@ public final class DialogManager extends JDialog {
         add(panelFetch, BorderLayout.SOUTH);
         getRootPane().setDefaultButton(buttonFetch);
 
-        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId.getPreferredSize().height));
+        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId
+                .getPreferredSize().height));
 
         int width = 480;
         int height = 480;
@@ -114,8 +116,10 @@ public final class DialogManager extends JDialog {
                     File path = StructureManager.getFile(models.get(0));
                     model.addElement(path);
                 } else {
-                    JOptionPane.showMessageDialog(DialogManager.this, "Failed to download " + pdbId
-                            + " from the Protein Data Bank", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(DialogManager.this,
+                            "Failed to download " + pdbId
+                                    + " from the Protein Data Bank", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -131,8 +135,9 @@ public final class DialogManager extends JDialog {
                 model.addElement(file);
             }
         } catch (IOException | InvalidInputException e) {
-            JOptionPane.showMessageDialog(DialogManager.instance, e.getMessage(),
-                    "Error: " + e.getClass(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(DialogManager.instance,
+                    e.getMessage(), "Error: " + e.getClass(),
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

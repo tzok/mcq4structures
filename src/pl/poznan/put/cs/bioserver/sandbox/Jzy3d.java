@@ -21,7 +21,9 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
 public class Jzy3d {
     public static void main(String[] args) {
-        List<File> pdbs = BenchmarkReference.list(new File("/home/tzok/pdb/puzzles/Challenge1/"));
+        List<File> pdbs =
+                BenchmarkReference.list(new File(
+                        "/home/tzok/pdb/puzzles/Challenge1/"));
         List<Structure> structures = new ArrayList<>();
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {
@@ -59,9 +61,9 @@ public class Jzy3d {
         // Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(range,
         // steps, range, steps),
         // mapper);
-        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
-                surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1,
-                        .5f)));
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), surface
+                .getBounds().getZmin(), surface.getBounds().getZmax(),
+                new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(false);
         surface.setWireframeColor(Color.BLACK);

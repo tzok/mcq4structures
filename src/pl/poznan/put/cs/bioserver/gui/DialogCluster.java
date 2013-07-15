@@ -32,15 +32,15 @@ import pl.poznan.put.cs.bioserver.helper.Visualizable;
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
+    private JButton buttonVisualize;
+    private JButton buttonVisualize3D;
+    private JButton buttonVisualizeHighQuality;
     private ComparisonGlobal comparisonGlobal;
+    private JCheckBox findBestK;
     private JRadioButton hierarchical;
+    private JSpinner kspinner;
     private JComboBox<Linkage> linkage;
     private JComboBox<ScoringFunction> scoringFunction;
-    private JCheckBox findBestK;
-    private JSpinner kspinner;
-    private JButton buttonVisualize;
-    private JButton buttonVisualizeHighQuality;
-    private JButton buttonVisualize3D;
 
     public DialogCluster(ComparisonGlobal comparisonGlobal) {
         super();
@@ -54,7 +54,8 @@ public class DialogCluster extends JDialog {
         group.add(kmedoids);
 
         linkage = new JComboBox<>(Linkage.values());
-        scoringFunction = new JComboBox<>(ClustererKMedoids.getScoringFunctions());
+        scoringFunction =
+                new JComboBox<>(ClustererKMedoids.getScoringFunctions());
         scoringFunction.setEnabled(false);
         findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);
@@ -139,8 +140,8 @@ public class DialogCluster extends JDialog {
                         visualizable.visualize3D();
                     }
                 } catch (InvalidInputException e) {
-                    JOptionPane.showMessageDialog(DialogCluster.this, e.getMessage(), "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(DialogCluster.this,
+                            e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -171,12 +172,18 @@ public class DialogCluster extends JDialog {
     private Visualizable getVisualizable() throws InvalidInputException {
         Visualizable visualizable;
         if (hierarchical.isSelected()) {
-            visualizable = ClusteringHierarchical.newInstance(comparisonGlobal,
-                    (Linkage) linkage.getSelectedItem());
+            visualizable =
+                    ClusteringHierarchical.newInstance(comparisonGlobal,
+                            (Linkage) linkage.getSelectedItem());
         } else {
-            Integer k = (Integer) (findBestK.isSelected() ? null : kspinner.getValue());
-            visualizable = ClusteringPartitional.newInstance(comparisonGlobal,
-                    (ScoringFunction) scoringFunction.getSelectedItem(), k);
+            Integer k =
+                    (Integer) (findBestK.isSelected() ? null : kspinner
+                            .getValue());
+            visualizable =
+                    ClusteringPartitional
+                            .newInstance(comparisonGlobal,
+                                    (ScoringFunction) scoringFunction
+                                            .getSelectedItem(), k);
         }
         return visualizable;
     }

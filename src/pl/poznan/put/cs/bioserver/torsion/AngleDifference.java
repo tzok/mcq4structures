@@ -16,6 +16,8 @@ public class AngleDifference implements Comparable<AngleDifference> {
     private double angle1;
     /** Second angle value. */
     private double angle2;
+    /** Name of the angle. */
+    private String angleName;
     /** Difference between angles. */
     private double difference;
     /**
@@ -23,8 +25,6 @@ public class AngleDifference implements Comparable<AngleDifference> {
      * first angle).
      */
     private ResidueNumber residue;
-    /** Name of the angle. */
-    private String angleName;
 
     /**
      * Construct an instance of angle difference which is not necessarily
@@ -43,8 +43,8 @@ public class AngleDifference implements Comparable<AngleDifference> {
      * @param angleName
      *            The name of the angle.
      */
-    public AngleDifference(ResidueNumber residue, double angle1, double angle2, double difference,
-            String angleName) {
+    public AngleDifference(ResidueNumber residue, double angle1, double angle2,
+            double difference, String angleName) {
         this.angle1 = angle1;
         this.angle2 = angle2;
         this.difference = difference;
@@ -62,7 +62,8 @@ public class AngleDifference implements Comparable<AngleDifference> {
      * @param angleName
      *            The name of the angle.
      */
-    AngleDifference(UniTypeQuadruplet<Atom> q1, UniTypeQuadruplet<Atom> q2, String angleName) {
+    AngleDifference(UniTypeQuadruplet<Atom> q1, UniTypeQuadruplet<Atom> q2,
+            String angleName) {
         angle1 = DihedralAngles.calculateDihedral(q1);
         angle2 = DihedralAngles.calculateDihedral(q2);
         difference = DihedralAngles.subtractDihedral(angle1, angle2);
@@ -102,10 +103,12 @@ public class AngleDifference implements Comparable<AngleDifference> {
             return false;
         }
         AngleDifference other = (AngleDifference) obj;
-        if (Double.doubleToLongBits(angle1) != Double.doubleToLongBits(other.angle1)) {
+        if (Double.doubleToLongBits(angle1) != Double
+                .doubleToLongBits(other.angle1)) {
             return false;
         }
-        if (Double.doubleToLongBits(angle2) != Double.doubleToLongBits(other.angle2)) {
+        if (Double.doubleToLongBits(angle2) != Double
+                .doubleToLongBits(other.angle2)) {
             return false;
         }
         if (angleName == null) {
@@ -115,7 +118,8 @@ public class AngleDifference implements Comparable<AngleDifference> {
         } else if (!angleName.equals(other.angleName)) {
             return false;
         }
-        if (Double.doubleToLongBits(difference) != Double.doubleToLongBits(other.difference)) {
+        if (Double.doubleToLongBits(difference) != Double
+                .doubleToLongBits(other.difference)) {
             return false;
         }
         if (residue == null) {
@@ -157,7 +161,8 @@ public class AngleDifference implements Comparable<AngleDifference> {
         result = prime * result + (int) (temp ^ temp >>> 32);
         temp = Double.doubleToLongBits(angle2);
         result = prime * result + (int) (temp ^ temp >>> 32);
-        result = prime * result + (angleName == null ? 0 : angleName.hashCode());
+        result =
+                prime * result + (angleName == null ? 0 : angleName.hashCode());
         temp = Double.doubleToLongBits(difference);
         result = prime * result + (int) (temp ^ temp >>> 32);
         result = prime * result + (residue == null ? 0 : residue.hashCode());
@@ -166,7 +171,8 @@ public class AngleDifference implements Comparable<AngleDifference> {
 
     @Override
     public String toString() {
-        return String.format("Angle difference: delta(%.2f, %.2f) = %.2f", Math.toDegrees(angle1),
-                Math.toDegrees(angle2), Math.toDegrees(difference));
+        return String.format("Angle difference: delta(%.2f, %.2f) = %.2f",
+                Math.toDegrees(angle1), Math.toDegrees(angle2),
+                Math.toDegrees(difference));
     }
 }

@@ -22,9 +22,12 @@ public class MSA {
     public static void main(String[] args) throws IOException, Exception {
         List<ProteinSequence> sequences = new ArrayList<>();
         for (String id : new String[] { "Q21691", "Q21495", "O48771" }) {
-            URL uniprotFasta = new URL(String.format("http://www.uniprot.org/uniprot/%s.fasta", id));
-            ProteinSequence seq = FastaReaderHelper.readFastaProteinSequence(
-                    uniprotFasta.openStream()).get(id);
+            URL uniprotFasta =
+                    new URL(String.format(
+                            "http://www.uniprot.org/uniprot/%s.fasta", id));
+            ProteinSequence seq =
+                    FastaReaderHelper.readFastaProteinSequence(
+                            uniprotFasta.openStream()).get(id);
             sequences.add(seq);
         }
 
@@ -37,16 +40,20 @@ public class MSA {
         System.out.println(Alignments.getMultipleSequenceAlignment(list));
 
         SubstitutionMatrix<NucleotideCompound> matrix;
-        try (InputStreamReader reader = new InputStreamReader(
-                MSA.class.getResourceAsStream("/pl/poznan/put/cs/bioserver/alignment/NUC44.txt"))) {
-            matrix = new SimpleSubstitutionMatrix<>(RNACompoundSet.getRNACompoundSet(), reader,
-                    "NUC44");
+        try (InputStreamReader reader =
+                new InputStreamReader(
+                        MSA.class
+                                .getResourceAsStream("/pl/poznan/put/cs/bioserver/alignment/NUC44.txt"))) {
+            matrix =
+                    new SimpleSubstitutionMatrix<>(
+                            RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
         }
 
         list.clear();
         list.add(new RNASequence("GAACCUUGGA"));
         list.add(new RNASequence("AUUGGUAGAGAUGAUGAGAUCCCA"));
         list.add(new RNASequence("AUUUCGCGCUACGC"));
-        System.out.println(Alignments.getMultipleSequenceAlignment(list, matrix));
+        System.out.println(Alignments
+                .getMultipleSequenceAlignment(list, matrix));
     }
 }

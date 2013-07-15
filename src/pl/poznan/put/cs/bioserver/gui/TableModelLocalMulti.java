@@ -13,10 +13,10 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 public class TableModelLocalMulti extends AbstractTableModel {
     private static final long serialVersionUID = 49429840783357538L;
 
-    private int rowCount;
     private int columnCount;
     private List<String> columns;
     private Object[][] data;
+    private int rowCount;
 
     public TableModelLocalMulti(ComparisonLocalMulti localMulti) {
         super();

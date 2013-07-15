@@ -26,24 +26,29 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 @XmlRootElement
 public class AlignmentSequence extends XMLSerializable implements Exportable {
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(AlignmentSequence.class);
     private static final long serialVersionUID = -819554091819458384L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlignmentSequence.class);
 
     // /////////////////////////////////////////////////////////////////////////
     // static "constructors"
-    public static AlignmentSequence newInstance(List<Chain> chains, boolean isGlobal) {
-        Profile<Sequence<Compound>, Compound> profile = AlignerSequence.align(chains, isGlobal);
+    public static AlignmentSequence newInstance(List<Chain> chains,
+            boolean isGlobal) {
+        Profile<Sequence<Compound>, Compound> profile =
+                AlignerSequence.align(chains, isGlobal);
         return AlignmentSequence.newInstance(profile, chains, isGlobal);
     }
 
-    public static AlignmentSequence newInstance(Profile<Sequence<Compound>, Compound> profile,
-            List<Chain> chains, boolean isGlobal) {
+    public static AlignmentSequence newInstance(
+            Profile<Sequence<Compound>, Compound> profile, List<Chain> chains,
+            boolean isGlobal) {
         /*
          * get name of every structure and chain
          */
         List<String> names = new ArrayList<>();
         for (Chain chain : chains) {
-            names.add(StructureManager.getName(chain.getParent()) + "." + chain.getChainID());
+            names.add(StructureManager.getName(chain.getParent()) + "."
+                    + chain.getChainID());
         }
 
         /*
@@ -60,7 +65,8 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         /*
          * convert every sequence into an array of characters
          */
-        List<AlignedSequence<Sequence<Compound>, Compound>> list = profile.getAlignedSequences();
+        List<AlignedSequence<Sequence<Compound>, Compound>> list =
+                profile.getAlignedSequences();
         char[][] sequences = new char[list.size()][];
         for (int i = 0; i < list.size(); i++) {
             sequences[i] = list.get(i).toString().toCharArray();
@@ -74,9 +80,12 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         for (int i = 0; i < sequences[0].length; i += 60) {
             char[][] copy = new char[list.size()][];
             for (int j = 0; j < list.size(); j++) {
-                copy[j] = Arrays
-                        .copyOfRange(sequences[j], i, Math.min(i + 60, sequences[j].length));
-                String name = names.get(j).substring(0, Math.min(names.get(j).length(), 11));
+                copy[j] =
+                        Arrays.copyOfRange(sequences[j], i,
+                                Math.min(i + 60, sequences[j].length));
+                String name =
+                        names.get(j).substring(0,
+                                Math.min(names.get(j).length(), 11));
                 builder.append(String.format("%-12s", name));
                 builder.append(copy[j]);
                 builder.append('\n');
@@ -105,8 +114,8 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         return result;
     }
 
-    boolean isGlobal;
     String alignment;
+    boolean isGlobal;
     String title;
 
     // /////////////////////////////////////////////////////////////////////////
@@ -120,7 +129,8 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
             writer.write("\n\n");
             writer.write(alignment);
         } catch (UnsupportedEncodingException e) {
-            AlignmentSequence.LOGGER.error("Failed to export sequence alignment", e);
+            AlignmentSequence.LOGGER.error(
+                    "Failed to export sequence alignment", e);
             throw new IOException(e);
         }
     }

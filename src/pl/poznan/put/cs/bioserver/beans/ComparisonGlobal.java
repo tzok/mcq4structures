@@ -37,12 +37,12 @@ import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
 import com.csvreader.CsvWriter;
 
 @XmlRootElement
-public class ComparisonGlobal extends XMLSerializable implements Clusterable, Exportable,
-        Visualizable {
+public class ComparisonGlobal extends XMLSerializable implements Clusterable,
+        Exportable, Visualizable {
     private static final long serialVersionUID = 5900586846338327108L;
 
-    public static ComparisonGlobal newInstance(double[][] distanceMatrix, List<String> labels,
-            String method) {
+    public static ComparisonGlobal newInstance(double[][] distanceMatrix,
+            List<String> labels, String method) {
         ComparisonGlobal instance = new ComparisonGlobal();
         instance.setDistanceMatrix(distanceMatrix);
         instance.setLabels(labels);
@@ -59,9 +59,10 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         for (double[] value : distanceMatrix) {
             for (double element : value) {
                 if (Double.isNaN(element)) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some "
-                            + "structures could not be compared.", "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null,
+                            "Results cannot be clustered. Some "
+                                    + "structures could not be compared.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -134,9 +135,10 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         for (double[] value : distanceMatrix) {
             for (double element : value) {
                 if (Double.isNaN(element)) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be visualized. Some "
-                            + "structures could not be compared.", "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null,
+                            "Results cannot be visualized. Some "
+                                    + "structures could not be compared.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -152,7 +154,8 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         }
 
         MDSPlot plot = new MDSPlot(mds, labels);
-        plot.setTitle("MCQ4Structures: global distance diagram (" + method + ")");
+        plot.setTitle("MCQ4Structures: global distance diagram (" + method
+                + ")");
         plot.setVisible(true);
     }
 
@@ -160,8 +163,9 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
     public void visualize3D() {
         final int max = distanceMatrix.length;
 
-        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(0, max - 1), max),
-                new Mapper() {
+        Shape surface =
+                Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
+                        max - 1), max), new Mapper() {
                     @Override
                     public double f(double x, double y) {
                         int i = (int) Math.round(x);
@@ -173,9 +177,9 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
                     }
                 });
 
-        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
-                surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1,
-                        .5f)));
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), surface
+                .getBounds().getZmin(), surface.getBounds().getZmax(),
+                new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(false);
 
@@ -192,7 +196,8 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable, Ex
         axeLayout.setXTickRenderer(map);
         axeLayout.setYTickProvider(new RegularTickProvider(labels.size()));
         axeLayout.setYTickRenderer(map);
-        axeLayout.setZAxeLabel(method.equals("MCQ") ? "Distance [rad]" : "Distance [\u212B]");
+        axeLayout.setZAxeLabel(method.equals("MCQ") ? "Distance [rad]"
+                : "Distance [\u212B]");
 
         ChartLauncher.openChart(chart);
     }

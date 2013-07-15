@@ -74,8 +74,10 @@ public class RMSD extends GlobalComparison {
      * @return RMSD.
      */
     @Override
-    public double compare(Structure s1, Structure s2) throws IncomparableStructuresException {
-        RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and " + s2.getPDBCode());
+    public double compare(Structure s1, Structure s2)
+            throws IncomparableStructuresException {
+        RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
+                + s2.getPDBCode());
 
         if (Helper.isNucleicAcid(s1) != Helper.isNucleicAcid(s2)) {
             return Double.NaN;
@@ -83,10 +85,13 @@ public class RMSD extends GlobalComparison {
 
         try {
             Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
-            Pair<List<Atom>, List<Atom>> atoms = Helper.getCommonAtomArray(structures[0],
-                    structures[1], false);
+            Pair<List<Atom>, List<Atom>> atoms =
+                    Helper.getCommonAtomArray(structures[0], structures[1],
+                            false);
             if (atoms == null) {
-                atoms = Helper.getCommonAtomArray(structures[0], structures[1], true);
+                atoms =
+                        Helper.getCommonAtomArray(structures[0], structures[1],
+                                true);
             }
             assert atoms != null;
 
@@ -96,14 +101,17 @@ public class RMSD extends GlobalComparison {
             if (left.size() != right.size()) {
                 RMSD.LOGGER.info("Atom sets have different sizes. Must use "
                         + "alignment before calculating RMSD");
-                AlignmentOutput output = AlignerStructure.align(structures[0], structures[1], "");
+                AlignmentOutput output =
+                        AlignerStructure
+                                .align(structures[0], structures[1], "");
                 return output.getAFPChain().getTotalRmsdOpt();
             }
             RMSD.LOGGER.debug("Atom set size: " + left.size());
 
             Atom[] leftArray = left.toArray(new Atom[left.size()]);
             Atom[] rightArray = right.toArray(new Atom[right.size()]);
-            SVDSuperimposer superimposer = new SVDSuperimposer(leftArray, rightArray);
+            SVDSuperimposer superimposer =
+                    new SVDSuperimposer(leftArray, rightArray);
             Calc.rotate(structures[1], superimposer.getRotation());
             Calc.shift(structures[1], superimposer.getTranslation());
             return SVDSuperimposer.getRMS(leftArray, rightArray);

@@ -23,8 +23,9 @@ public class TorsionAxis extends NumberAxis {
     }
 
     @Override
-    public List refreshTicks(@Nullable Graphics2D g2, @Nullable AxisState state,
-            @Nullable Rectangle2D dataArea, @Nullable RectangleEdge edge) {
+    public List refreshTicks(@Nullable Graphics2D g2,
+            @Nullable AxisState state, @Nullable Rectangle2D dataArea,
+            @Nullable RectangleEdge edge) {
         List<NumberTick> ticks = super.refreshTicks(g2, state, dataArea, edge);
 
         List<NumberTick> visibleIntegerTicks = new ArrayList<>();
@@ -40,8 +41,8 @@ public class TorsionAxis extends NumberAxis {
             NumberTick nt = visibleIntegerTicks.get(i);
             int index = (int) nt.getValue();
             if (index < ticksNames.size()) {
-                result.add(new NumberTick(index, ticksNames.get(index), nt.getTextAnchor(), nt
-                        .getRotationAnchor(), Math.PI / 4));
+                result.add(new NumberTick(index, ticksNames.get(index), nt
+                        .getTextAnchor(), nt.getRotationAnchor(), Math.PI / 4));
             }
         }
         return result;

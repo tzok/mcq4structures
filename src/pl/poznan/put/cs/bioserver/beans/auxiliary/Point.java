@@ -9,9 +9,9 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 public class Point extends XMLSerializable {
     private static final long serialVersionUID = 4083165745852207116L;
 
+    String label;
     double x;
     double y;
-    String label;
 
     public String getLabel() {
         return label;

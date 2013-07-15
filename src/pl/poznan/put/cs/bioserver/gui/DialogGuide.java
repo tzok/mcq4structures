@@ -20,8 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class DialogGuide extends JDialog {
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(DialogGuide.class);
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DialogGuide.class);
 
     DialogGuide(Frame owner) {
         super(owner, true);
@@ -30,7 +31,9 @@ class DialogGuide extends JDialog {
         editorPane.setContentType("text/html");
         editorPane.setEditable(false);
 
-        URL resource = getClass().getResource("/pl/poznan/put/cs/bioserver/gui/guide.html");
+        URL resource =
+                getClass().getResource(
+                        "/pl/poznan/put/cs/bioserver/gui/guide.html");
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
             editorPane.setCaretPosition(0);

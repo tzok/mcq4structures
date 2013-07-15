@@ -27,19 +27,20 @@ public class OutputAlignSeq implements Exportable {
         builder.append('\n');
     }
 
-    private String consensus;
-    private AlignedSequence<Sequence<Compound>, Compound> query;
-    private AlignedSequence<Sequence<Compound>, Compound> target;
-    public int score;
-    public int minScore;
-    public int maxScore;
-    public double similarity;
     public int gaps;
     public int length;
-    private boolean isGlobal;
+    public int maxScore;
+    public int minScore;
+    public int score;
+    public double similarity;
+    private String consensus;
     private String description;
+    private boolean isGlobal;
+    private AlignedSequence<Sequence<Compound>, Compound> query;
+    private AlignedSequence<Sequence<Compound>, Compound> target;
 
-    public OutputAlignSeq(AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner,
+    public OutputAlignSeq(
+            AbstractPairwiseSequenceAligner<Sequence<Compound>, Compound> aligner,
             String description) {
         isGlobal = aligner instanceof NeedlemanWunsch<?, ?>;
         this.description = description;
@@ -69,7 +70,8 @@ public class OutputAlignSeq implements Exportable {
         length = query.getLength();
 
         gaps = 0;
-        for (AlignedSequence<Sequence<Compound>, Compound> seq : pair.getAlignedSequences()) {
+        for (AlignedSequence<Sequence<Compound>, Compound> seq : pair
+                .getAlignedSequences()) {
             gaps += StringUtils.countMatches(seq.getSequenceAsString(), "-");
         }
     }
@@ -105,8 +107,9 @@ public class OutputAlignSeq implements Exportable {
 
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("Score: %d (min: %d, max: %d)%n"
-                + "Similarity: %.0f%%%nGaps: %d/%d (%.0f%%)%n%n", score, minScore, maxScore,
-                100.0 * similarity, gaps, length, 100.0 * gaps / length));
+                + "Similarity: %.0f%%%nGaps: %d/%d (%.0f%%)%n%n", score,
+                minScore, maxScore, 100.0 * similarity, gaps, length, 100.0
+                        * gaps / length));
 
         for (int i = 0; i < charsQuery.length; i += 60) {
             builder.append(String.format("Query  %-5d", i + 1));
