@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,28 +35,29 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
     // static "constructors"
     public static AlignmentSequence newInstance(List<Chain> chains,
             boolean isGlobal) {
-        Profile<Sequence<Compound>, Compound> profile =
-                AlignerSequence.align(chains, isGlobal);
-        return AlignmentSequence.newInstance(profile, chains, isGlobal);
+        return AlignerSequence.align(chains, isGlobal);
     }
 
     public static AlignmentSequence newInstance(
-            Profile<Sequence<Compound>, Compound> profile, List<Chain> chains,
+            Profile<Sequence<Compound>, Compound> profile,
+            Map<Sequence<Compound>, Chain> map, List<Chain> chains,
             boolean isGlobal) {
         /*
          * get name of every structure and chain
          */
-        List<String> names = new ArrayList<>();
+        Map<Chain, String> mapChainToName = new HashMap<>();
         for (Chain chain : chains) {
-            names.add(StructureManager.getName(chain.getParent()) + "."
-                    + chain.getChainID());
+            String name =
+                    StructureManager.getName(chain.getParent()) + "."
+                            + chain.getChainID();
+            mapChainToName.put(chain, name);
         }
 
         /*
          * prepare a title (names separated with comma)
          */
         StringBuilder builder = new StringBuilder();
-        for (String name : names) {
+        for (String name : mapChainToName.values()) {
             builder.append(name);
             builder.append(", ");
         }
@@ -83,9 +85,14 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
                 copy[j] =
                         Arrays.copyOfRange(sequences[j], i,
                                 Math.min(i + 60, sequences[j].length));
-                String name =
-                        names.get(j).substring(0,
-                                Math.min(names.get(j).length(), 11));
+
+                AlignedSequence<Sequence<Compound>, Compound> alignedSequence =
+                        list.get(j);
+                Sequence<Compound> sequence =
+                        alignedSequence.getOriginalSequence();
+                Chain chain = map.get(sequence);
+                String name = mapChainToName.get(chain);
+                name = name.substring(0, Math.min(name.length(), 11));
                 builder.append(String.format("%-12s", name));
                 builder.append(copy[j]);
                 builder.append('\n');

@@ -3,7 +3,9 @@ package pl.poznan.put.cs.bioserver.alignment;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Group;
@@ -11,7 +13,6 @@ import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.Alignments.PairwiseSequenceScorerType;
 import org.biojava3.alignment.SimpleSubstitutionMatrix;
 import org.biojava3.alignment.SubstitutionMatrixHelper;
-import org.biojava3.alignment.template.Profile;
 import org.biojava3.alignment.template.SubstitutionMatrix;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.RNASequence;
@@ -22,6 +23,7 @@ import org.biojava3.core.sequence.template.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.cs.bioserver.beans.AlignmentSequence;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 
 /**
@@ -35,11 +37,14 @@ public final class AlignerSequence {
             .getLogger(AlignerSequence.class);
 
     @SuppressWarnings("unchecked")
-    public static Profile<Sequence<Compound>, Compound> align(
-            List<Chain> chains, boolean isGlobal) {
+    public static AlignmentSequence align(List<Chain> chains, boolean isGlobal) {
         List<Sequence<Compound>> sequences = new ArrayList<>();
+        Map<Sequence<Compound>, Chain> map = new HashMap<>();
         for (Chain c : chains) {
-            sequences.add((Sequence<Compound>) AlignerSequence.getSequence(c));
+            Sequence<Compound> sequence =
+                    (Sequence<Compound>) AlignerSequence.getSequence(c);
+            sequences.add(sequence);
+            map.put(sequence, c);
         }
 
         SubstitutionMatrix<? extends Compound> matrix =
@@ -48,7 +53,9 @@ public final class AlignerSequence {
                 isGlobal ? PairwiseSequenceScorerType.GLOBAL
                         : PairwiseSequenceScorerType.LOCAL;
 
-        return Alignments.getMultipleSequenceAlignment(sequences, matrix, type);
+        return AlignmentSequence.newInstance(Alignments
+                .getMultipleSequenceAlignment(sequences, matrix, type), map,
+                chains, isGlobal);
     }
 
     private static SubstitutionMatrix<? extends Compound> getProteinSubsitutionMatrix() {
