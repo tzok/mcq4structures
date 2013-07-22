@@ -39,7 +39,7 @@
         <xsl:text>    matplotlib.pyplot.yticks([i*math.pi/12.0 for i in range(13)], ['{} = {}°'.format(rads[i], i*15) for i in range(13)])&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.ylim(0, math.pi)&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    matplotlib.pyplot.xlabel('Residue')&#10;</xsl:text>
+        <xsl:text>    matplotlib.pyplot.xlabel('ResID')&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.ylabel('Difference')&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.grid()&#10;</xsl:text>
         <xsl:text>    &#10;</xsl:text>

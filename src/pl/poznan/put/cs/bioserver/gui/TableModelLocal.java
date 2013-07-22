@@ -46,7 +46,7 @@ public class TableModelLocal extends AbstractTableModel {
     @Override
     public String getColumnName(int column) {
         if (column == 0) {
-            return "Residue\\Angles";
+            return "ResID\\Angles";
         }
         return columnNames.get(column - 1);
     }

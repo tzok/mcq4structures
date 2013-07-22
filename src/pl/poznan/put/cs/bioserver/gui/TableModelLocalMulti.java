@@ -34,7 +34,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
         columns = new ArrayList<>();
         for (int i = 0; i < columnCount; i++) {
             if (i == 0) {
-                columns.add("Residue\\Structures");
+                columns.add("ResID\\Structures");
                 for (int j = 0; j < rowCount; j++) {
                     data[j][0] = ticks.get(j);
                 }
