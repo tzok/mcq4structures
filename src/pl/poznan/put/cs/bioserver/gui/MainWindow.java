@@ -968,8 +968,14 @@ public class MainWindow extends JFrame {
     }
 
     private void selectChainsMultiple(Object source) {
-        if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK
-                || dialogChainsMultiple.getChains().size() == 0) {
+        if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK) {
+            return;
+        }
+
+        if (dialogChainsMultiple.getChains().size() < 2) {
+            JOptionPane.showMessageDialog(this,
+                    "You have to select at least two chains", "Warning",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
