@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
+import pl.poznan.put.cs.bioserver.helper.Constants;
 
 public class TableModelGlobal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
@@ -19,7 +20,7 @@ public class TableModelGlobal extends AbstractTableModel {
         names = comparisonGlobal.getLabels();
         values = comparisonGlobal.getDistanceMatrix();
         measure = comparisonGlobal.getMethod();
-        format = new DecimalFormat("0.000");
+        format = new DecimalFormat("0.000 = 0.000" + Constants.UNICODE_DEGREE);
     }
 
     @Override

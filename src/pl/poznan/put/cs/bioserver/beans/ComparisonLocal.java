@@ -64,6 +64,7 @@ import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.gui.MainWindow;
 import pl.poznan.put.cs.bioserver.gui.TorsionAxis;
 import pl.poznan.put.cs.bioserver.helper.Colors;
+import pl.poznan.put.cs.bioserver.helper.Constants;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
@@ -76,8 +77,6 @@ import com.csvreader.CsvWriter;
 public class ComparisonLocal extends XMLSerializable implements Exportable,
         Visualizable {
     private static final long serialVersionUID = 4652567875810044094L;
-    private static final String UNICODE_DEGREE = "\u00B0";
-    private static final String UNICODE_PI = "\u03C0";
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
             List<String> angleNames) throws StructureException {
@@ -319,17 +318,17 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                 if (number == 0) {
                     return toAppendTo.append("0");
                 } else if (number == Math.PI) {
-                    toAppendTo.append(ComparisonLocal.UNICODE_PI);
+                    toAppendTo.append(Constants.UNICODE_PI);
                     toAppendTo.append(" = 180");
-                    toAppendTo.append(ComparisonLocal.UNICODE_DEGREE);
+                    toAppendTo.append(Constants.UNICODE_DEGREE);
                     return toAppendTo;
                 }
                 format.format(number / Math.PI, toAppendTo, pos);
                 toAppendTo.append(" * ");
-                toAppendTo.append(ComparisonLocal.UNICODE_PI);
+                toAppendTo.append(Constants.UNICODE_PI);
                 toAppendTo.append(" = ");
                 toAppendTo.append(Math.round(Math.toDegrees(number)));
-                toAppendTo.append(ComparisonLocal.UNICODE_DEGREE);
+                toAppendTo.append(Constants.UNICODE_DEGREE);
                 return toAppendTo;
             }
 

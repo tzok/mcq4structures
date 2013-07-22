@@ -28,11 +28,11 @@ final class DialogAngles extends JDialog {
             "PHI", "PSI", "OMEGA", "CALPHA", "CHI1", "CHI2", "CHI3", "CHI4",
             "CHI5", "SELECTED", "AVERAGE" });
     private static final List<String> AMINO_NAMES = Arrays.asList(new String[] {
-            Constants.PHI + " (phi)", Constants.PSI + " (psi)",
-            Constants.OMEGA + " (omega)",
-            "C-" + Constants.ALPHA + " (C-alpha)", Constants.CHI + "1 (chi1)",
-            Constants.CHI + "2 (chi2)", Constants.CHI + "3 (chi3)",
-            Constants.CHI + "4 (chi4)", Constants.CHI + "5 (chi5)",
+            Constants.UNICODE_PHI + " (phi)", Constants.UNICODE_PSI + " (psi)",
+            Constants.UNICODE_OMEGA + " (omega)",
+            "C-" + Constants.UNICODE_ALPHA + " (C-alpha)", Constants.UNICODE_CHI + "1 (chi1)",
+            Constants.UNICODE_CHI + "2 (chi2)", Constants.UNICODE_CHI + "3 (chi3)",
+            Constants.UNICODE_CHI + "4 (chi4)", Constants.UNICODE_CHI + "5 (chi5)",
             "Average of selected angles", "Average of all angles" });
     private static DialogAngles instance;
     private static final List<String> NUCLEIC_CODES = Arrays
@@ -41,16 +41,16 @@ final class DialogAngles extends JDialog {
                     "TAU4", "P", "ETA", "THETA", "ETA_PRIM", "THETA_PRIM",
                     "SELECTED", "AVERAGE" });
     private static final List<String> NUCLEIC_NAMES = Arrays
-            .asList(new String[] { Constants.ALPHA + " (alpha)",
-                    Constants.BETA + " (beta)", Constants.GAMMA + " (gamma)",
-                    Constants.DELTA + " (delta)",
-                    Constants.EPSILON + " (epsilon)",
-                    Constants.ZETA + " (zeta)", Constants.CHI + " (chi)",
-                    Constants.TAU + "0 (tau0)", Constants.TAU + "1 (tau1)",
-                    Constants.TAU + "2 (tau2)", Constants.TAU + "3 (tau3)",
-                    Constants.TAU + "4 (tau4)", "P (sugar pucker)",
-                    Constants.ETA + " (eta)", Constants.THETA + " (theta)",
-                    Constants.ETA + "' (eta')", Constants.THETA + "' (theta')",
+            .asList(new String[] { Constants.UNICODE_ALPHA + " (alpha)",
+                    Constants.UNICODE_BETA + " (beta)", Constants.UNICODE_GAMMA + " (gamma)",
+                    Constants.UNICODE_DELTA + " (delta)",
+                    Constants.UNICODE_EPSILON + " (epsilon)",
+                    Constants.UNICODE_ZETA + " (zeta)", Constants.UNICODE_CHI + " (chi)",
+                    Constants.UNICODE_TAU + "0 (tau0)", Constants.UNICODE_TAU + "1 (tau1)",
+                    Constants.UNICODE_TAU + "2 (tau2)", Constants.UNICODE_TAU + "3 (tau3)",
+                    Constants.UNICODE_TAU + "4 (tau4)", "P (sugar pucker)",
+                    Constants.UNICODE_ETA + " (eta)", Constants.UNICODE_THETA + " (theta)",
+                    Constants.UNICODE_ETA + "' (eta')", Constants.UNICODE_THETA + "' (theta')",
                     "Average of selected angles", "Average of all angles" });
 
     private static final long serialVersionUID = 1L;
