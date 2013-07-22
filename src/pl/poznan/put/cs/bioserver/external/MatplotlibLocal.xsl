@@ -40,7 +40,7 @@
         <xsl:text>    matplotlib.pyplot.ylim(0, math.pi)&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.xlabel('ResID')&#10;</xsl:text>
-        <xsl:text>    matplotlib.pyplot.ylabel('Difference')&#10;</xsl:text>
+        <xsl:text>    matplotlib.pyplot.ylabel('Angular distance')&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.grid()&#10;</xsl:text>
         <xsl:text>    &#10;</xsl:text>
         <xsl:text>    plots = []&#10;</xsl:text>

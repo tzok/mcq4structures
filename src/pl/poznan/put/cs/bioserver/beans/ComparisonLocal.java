@@ -411,7 +411,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         axeLayout.setXTickRenderer(mapX);
         axeLayout.setYTickProvider(new SmartTickProvider(maxY));
         axeLayout.setYTickRenderer(mapY);
-        axeLayout.setZAxeLabel("Distance [rad]");
+        axeLayout.setZAxeLabel("Angular distance");
 
         ChartLauncher.openChart(chart);
     }

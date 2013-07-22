@@ -134,7 +134,7 @@ public class MCQ extends GlobalComparison {
             allDiffs.addAll(diffs);
         }
         if (MCQ.LOGGER.isTraceEnabled()) {
-            StringBuilder builder = new StringBuilder("All differences:\n");
+            StringBuilder builder = new StringBuilder("All angular distances:\n");
             for (AngleDifference ad : allDiffs) {
                 builder.append(ad);
                 builder.append('\n');

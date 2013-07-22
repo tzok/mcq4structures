@@ -196,7 +196,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
         axeLayout.setXTickRenderer(map);
         axeLayout.setYTickProvider(new RegularTickProvider(labels.size()));
         axeLayout.setYTickRenderer(map);
-        axeLayout.setZAxeLabel(method.equals("MCQ") ? "Distance [rad]"
+        axeLayout.setZAxeLabel(method.equals("MCQ") ? "Angular distance"
                 : "Distance [\u212B]");
 
         ChartLauncher.openChart(chart);
