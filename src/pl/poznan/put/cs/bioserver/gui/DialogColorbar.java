@@ -27,6 +27,7 @@ public class DialogColorbar extends JDialog {
 
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
+        c.gridy = 0;
 
         final List<Colorbar> list = new ArrayList<>();
         final List<ComparisonLocal> results = localMulti.getResults();
