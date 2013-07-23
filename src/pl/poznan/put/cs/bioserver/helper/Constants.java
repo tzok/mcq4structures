@@ -11,6 +11,7 @@ public final class Constants {
     public static final String UNICODE_GAMMA = "\u03B3";
     public static final String UNICODE_OMEGA = "\u03C9";
     public static final String UNICODE_PHI = "\u03D5";
+    public static final String UNICODE_PI = "\u03C0";
     public static final String UNICODE_PSI = "\u03C8";
     public static final String UNICODE_TAU = "\u03C4";
     public static final String UNICODE_THETA = "\u03B8";

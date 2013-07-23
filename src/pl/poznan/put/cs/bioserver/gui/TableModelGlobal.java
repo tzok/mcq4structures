@@ -20,7 +20,7 @@ public class TableModelGlobal extends AbstractTableModel {
         names = comparisonGlobal.getLabels();
         values = comparisonGlobal.getDistanceMatrix();
         measure = comparisonGlobal.getMethod();
-        format = new DecimalFormat("0.000 = 0.000" + Constants.UNICODE_DEGREE);
+        format = new DecimalFormat("0.000");
     }
 
     @Override
@@ -49,6 +49,10 @@ public class TableModelGlobal extends AbstractTableModel {
         if (column == 0) {
             return names.get(row);
         }
-        return format.format(values[row][column - 1]);
+        double value = values[row][column - 1];
+        if ("RMSD".equals(measure)) {
+            return format.format(value);
+        }
+        return format.format(Math.toDegrees(value)) + Constants.UNICODE_DEGREE;
     }
 }

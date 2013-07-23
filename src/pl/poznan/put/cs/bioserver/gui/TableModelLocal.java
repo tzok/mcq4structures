@@ -8,6 +8,7 @@ import javax.swing.table.AbstractTableModel;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
+import pl.poznan.put.cs.bioserver.helper.Constants;
 
 public class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
@@ -61,6 +62,12 @@ public class TableModelLocal extends AbstractTableModel {
         if (column == 0) {
             return rowsNames.get(row);
         }
-        return format.format(values[row][column - 1]);
+
+        double value = values[row][column - 1];
+        if (Double.isNaN(value)) {
+            return "-";
+        }
+
+        return format.format(Math.toDegrees(value)) + Constants.UNICODE_DEGREE;
     }
 }
