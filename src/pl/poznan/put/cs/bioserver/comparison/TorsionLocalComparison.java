@@ -22,7 +22,10 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.alignment.AlignerStructure;
 import pl.poznan.put.cs.bioserver.helper.Helper;
+import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AngleAverageSelected;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+import pl.poznan.put.cs.bioserver.torsion.AnglePseudophasePucker;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import pl.poznan.put.cs.bioserver.torsion.DihedralAngles;
 
@@ -48,7 +51,7 @@ public class TorsionLocalComparison extends LocalComparison {
      * @throws StructureException
      *             If the alignment was impossible to be computed.
      */
-    public static Map<String, List<AngleDifference>> compare(Structure s1,
+    public static Map<AngleType, List<AngleDifference>> compare(Structure s1,
             Structure s2, boolean alignFirst) throws StructureException {
         boolean wasAligned = alignFirst;
         Pair<List<Atom>, List<Atom>> atoms;
@@ -66,8 +69,8 @@ public class TorsionLocalComparison extends LocalComparison {
                 atoms.getRight(), MCQ.USED_ANGLES, null, wasAligned);
     }
 
-    public static Map<String, List<AngleDifference>> compare(Structure s1,
-            Structure s2, List<String> angles) throws StructureException {
+    public static Map<AngleType, List<AngleDifference>> compare(Structure s1,
+            Structure s2, List<AngleType> angles) throws StructureException {
         boolean wasAligned = false;
         Pair<List<Atom>, List<Atom>> atoms =
                 Helper.getCommonAtomArray(s1, s2, false);
@@ -75,18 +78,10 @@ public class TorsionLocalComparison extends LocalComparison {
             atoms = Helper.getCommonAtomArray(s1, s2, true);
             wasAligned = true;
         }
-
-        List<AngleType> list = new ArrayList<>();
-        Set<String> setAngles = new HashSet<>(angles);
-        for (AngleType type : MCQ.USED_ANGLES) {
-            if (setAngles.contains(type.getAngleName())) {
-                list.add(type);
-            }
-        }
-
         assert atoms != null;
+
         return TorsionLocalComparison.compare(atoms.getLeft(),
-                atoms.getRight(), MCQ.USED_ANGLES, list, wasAligned);
+                atoms.getRight(), MCQ.USED_ANGLES, angles, wasAligned);
     }
 
     /**
@@ -111,7 +106,7 @@ public class TorsionLocalComparison extends LocalComparison {
                             reader.getStructure(args[1]) };
             TorsionLocalComparison comparison = new TorsionLocalComparison();
 
-            Map<String, List<AngleDifference>> result;
+            Map<AngleType, List<AngleDifference>> result;
             if (args.length == 5) {
                 result =
                         TorsionLocalComparison.compare(
@@ -121,14 +116,11 @@ public class TorsionLocalComparison extends LocalComparison {
                                         .getChainByPDB(args[4])), false);
             } else {
                 result =
-                        (Map<String, List<AngleDifference>>) comparison
+                        (Map<AngleType, List<AngleDifference>>) comparison
                                 .compare(structures[0], structures[1]);
             }
 
-            String angleName = "AVERAGE";
-            if (args.length == 3 || args.length == 5) {
-                angleName = args[2];
-            }
+            AngleType angleName = AngleAverageAll.getInstance();
             List<AngleDifference> list = result.get(angleName);
             AngleDifference[] array =
                     list.toArray(new AngleDifference[list.size()]);
@@ -163,7 +155,8 @@ public class TorsionLocalComparison extends LocalComparison {
 
             if (flag) {
                 pAngles.add(new AngleDifference(residue, Double.NaN,
-                        Double.NaN, Double.NaN, "P"));
+                        Double.NaN, Double.NaN, AnglePseudophasePucker
+                                .getInstance()));
             } else {
                 double y1 =
                         taus[1].getAngleFirst() + taus[4].getAngleFirst()
@@ -181,7 +174,7 @@ public class TorsionLocalComparison extends LocalComparison {
 
                 double tauDiff = DihedralAngles.subtractDihedral(tau1, tau2);
                 pAngles.add(new AngleDifference(residue, tau1, tau2, tauDiff,
-                        "P"));
+                        AnglePseudophasePucker.getInstance()));
             }
         }
         return pAngles;
@@ -189,21 +182,20 @@ public class TorsionLocalComparison extends LocalComparison {
 
     private static List<AngleDifference> calcMcqPerResidue(
             Map<ResidueNumber, List<AngleDifference>> mapResToDiffs,
-            List<AngleType> angleTypes, String angleName) {
+            List<AngleType> angleTypes, AngleType angleName) {
         List<AngleDifference> mcqAngles = new ArrayList<>();
         for (Entry<ResidueNumber, List<AngleDifference>> entry : mapResToDiffs
                 .entrySet()) {
             ResidueNumber residue = entry.getKey();
             List<AngleDifference> list = entry.getValue();
 
-            Set<String> set = new HashSet<>();
-            for (AngleType type : angleTypes) {
-                set.add(type.getAngleName());
-            }
+            Set<AngleType> set = new HashSet<>(angleTypes);
+            set.remove(AngleAverageAll.getInstance());
+            set.remove(AngleAverageSelected.getInstance());
 
             List<AngleDifference> filtered = new ArrayList<>();
             for (AngleDifference difference : list) {
-                if (set.contains(difference.getAngleName())) {
+                if (set.contains(difference.getAngleType())) {
                     filtered.add(difference);
                 }
             }
@@ -228,8 +220,8 @@ public class TorsionLocalComparison extends LocalComparison {
      * @return A map of name of angle to the list of differences defined upon
      *         it.
      */
-    private static Map<String, List<AngleDifference>> compare(List<Atom> left,
-            List<Atom> right, List<AngleType> angles,
+    private static Map<AngleType, List<AngleDifference>> compare(
+            List<Atom> left, List<Atom> right, List<AngleType> angles,
             @Nullable List<AngleType> customAverage, boolean wasAligned) {
         Pair<List<Atom>, List<Atom>> equalized = Helper.equalize(left, right);
 
@@ -242,11 +234,11 @@ public class TorsionLocalComparison extends LocalComparison {
         Map<ResidueNumber, List<AngleDifference>> mapResToDiffs =
                 new HashMap<>();
         Map<ResidueNumber, AngleDifference[]> mapResToTaus = new HashMap<>();
-        Map<String, List<AngleDifference>> mapNameToDiffs =
+        Map<AngleType, List<AngleDifference>> mapNameToDiffs =
                 new LinkedHashMap<>();
         for (AngleDifference diff : allDiffs) {
             ResidueNumber residue = diff.getResidue();
-            String angleName = diff.getAngleName();
+            AngleType angleName = diff.getAngleType();
 
             if (!mapResToDiffs.containsKey(residue)) {
                 mapResToDiffs.put(residue, new ArrayList<AngleDifference>());
@@ -256,9 +248,9 @@ public class TorsionLocalComparison extends LocalComparison {
             List<AngleDifference> list = mapResToDiffs.get(residue);
             list.add(diff);
 
-            if (angleName.startsWith("TAU")) {
+            if (angleName.getAngleName().startsWith("TAU")) {
                 AngleDifference[] taus = mapResToTaus.get(residue);
-                int which = angleName.charAt(3) - '0';
+                int which = angleName.getAngleName().charAt(3) - '0';
                 taus[which] = diff;
             }
 
@@ -269,14 +261,15 @@ public class TorsionLocalComparison extends LocalComparison {
             list.add(diff);
         }
 
-        mapNameToDiffs
-                .put("P", TorsionLocalComparison.calcAngleP(mapResToTaus));
-        mapNameToDiffs.put("AVERAGE", TorsionLocalComparison.calcMcqPerResidue(
-                mapResToDiffs, MCQ.USED_ANGLES, "AVERAGE"));
+        mapNameToDiffs.put(AnglePseudophasePucker.getInstance(),
+                TorsionLocalComparison.calcAngleP(mapResToTaus));
+        mapNameToDiffs.put(AngleAverageAll.getInstance(),
+                TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs,
+                        MCQ.USED_ANGLES, AngleAverageAll.getInstance()));
         if (customAverage != null) {
-            mapNameToDiffs.put("SELECTED",
+            mapNameToDiffs.put(AngleAverageSelected.getInstance(),
                     TorsionLocalComparison.calcMcqPerResidue(mapResToDiffs,
-                            customAverage, "SELECTED"));
+                            customAverage, AngleAverageSelected.getInstance()));
         }
         return mapNameToDiffs;
     }

@@ -70,6 +70,7 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.torsion.AngleDifference;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 import com.csvreader.CsvWriter;
 
@@ -79,7 +80,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     private static final long serialVersionUID = 4652567875810044094L;
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
-            List<String> angleNames) throws StructureException {
+            List<AngleType> angleNames) throws StructureException {
         Structure[] s =
                 new Structure[] { new StructureImpl((Chain) c1.clone()),
                         new StructureImpl((Chain) c2.clone()) };
@@ -101,7 +102,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     public static ComparisonLocal newInstance(Structure left, Structure right,
             List<Chain> leftChains, List<Chain> rightChains,
-            List<String> angleNames) throws StructureException {
+            List<AngleType> list) throws StructureException {
         Structure l = new StructureImpl();
         for (Chain c : leftChains) {
             l.addChain((Chain) c.clone());
@@ -115,21 +116,21 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                 StructureManager.getName(left) + ", "
                         + StructureManager.getName(right);
         return ComparisonLocal.newInstance(
-                TorsionLocalComparison.compare(l, r, angleNames), title,
-                angleNames);
+                TorsionLocalComparison.compare(l, r, list), title, list);
     }
 
     private static ComparisonLocal newInstance(
-            Map<String, List<AngleDifference>> comparison, String title,
-            List<String> angleNames) {
-        Set<String> setAngles = new HashSet<>(angleNames);
+            Map<AngleType, List<AngleDifference>> comparison, String title,
+            List<AngleType> angleNames) {
+        Set<AngleType> setAngles = new HashSet<>(angleNames);
 
         /*
          * get a union of all sets of residues for every angle
          */
         Set<ResidueNumber> setResidue = new TreeSet<>();
-        for (Entry<String, List<AngleDifference>> entry : comparison.entrySet()) {
-            String angleName = entry.getKey();
+        for (Entry<AngleType, List<AngleDifference>> entry : comparison
+                .entrySet()) {
+            AngleType angleName = entry.getKey();
             if (!setAngles.contains(angleName)) {
                 continue;
             }
@@ -144,8 +145,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
          * fill a "map[angle, residue] = angle" with values (NaN if missing)
          */
         MultiKeyMap mapAngleResidueDelta = new MultiKeyMap();
-        for (Entry<String, List<AngleDifference>> entry : comparison.entrySet()) {
-            String angleName = entry.getKey();
+        for (Entry<AngleType, List<AngleDifference>> entry : comparison
+                .entrySet()) {
+            AngleType angleName = entry.getKey();
             if (!setAngles.contains(angleName)) {
                 continue;
             }
@@ -164,7 +166,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
          * read map data into desired format
          */
         Map<String, Angle> angles = new LinkedHashMap<>();
-        for (String angleName : comparison.keySet()) {
+        for (AngleType angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
                 continue;
             }
@@ -178,9 +180,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             }
 
             Angle angle = new Angle();
-            angle.setName(angleName);
+            angle.setName(angleName.getAngleName());
             angle.setDeltas(deltas);
-            angles.put(angleName, angle);
+            angles.put(angleName.getAngleName(), angle);
         }
 
         List<String> ticks = new ArrayList<>();

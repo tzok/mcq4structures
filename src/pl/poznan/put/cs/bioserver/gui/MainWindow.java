@@ -75,6 +75,8 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
+import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
@@ -850,7 +852,8 @@ public class MainWindow extends JFrame {
         try {
             localMulti =
                     ComparisonLocalMulti.newInstance(chains, chains.get(index),
-                            Arrays.asList(new String[] { "AVERAGE" }));
+                            Arrays.asList(new AngleType[] { AngleAverageAll
+                                    .getInstance() }));
         } catch (StructureException | InvalidInputException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);

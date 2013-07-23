@@ -30,6 +30,8 @@ import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
+import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 public class Externals {
     public static List<File> list(File directory) {
@@ -64,8 +66,8 @@ public class Externals {
         for (Structure s : structures) {
             list.add(s.getChain(0));
         }
-        List<String> listNames = new ArrayList<>(MCQ.USED_ANGLES_NAMES);
-        listNames.add("AVERAGE");
+        List<AngleType> listNames = new ArrayList<>(MCQ.USED_ANGLES);
+        listNames.add(AngleAverageAll.getInstance());
         XMLSerializable xmlResults;
         try {
             xmlResults =
@@ -87,7 +89,7 @@ public class Externals {
 
         xmlResults =
                 ComparisonLocal.newInstance(structures.get(0).getChain(0),
-                        structures.get(1).getChain(0), MCQ.USED_ANGLES_NAMES);
+                        structures.get(1).getChain(0), MCQ.USED_ANGLES);
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();

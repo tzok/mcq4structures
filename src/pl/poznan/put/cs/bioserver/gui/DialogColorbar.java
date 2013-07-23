@@ -18,6 +18,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
+import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
 
 public class DialogColorbar extends JDialog {
     private static final long serialVersionUID = 2659329749184089277L;
@@ -69,7 +70,9 @@ public class DialogColorbar extends JDialog {
                     double lmax = 0;
                     for (ComparisonLocal local : results) {
                         double[] deltas =
-                                local.getAngles().get("AVERAGE").getDeltas();
+                                local.getAngles()
+                                        .get(AngleAverageAll.getInstance()
+                                                .getAngleName()).getDeltas();
                         lmin = Math.min(lmin, StatUtils.min(deltas));
                         lmax = Math.max(lmax, StatUtils.max(deltas));
                     }

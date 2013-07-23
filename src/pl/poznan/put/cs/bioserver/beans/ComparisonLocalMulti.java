@@ -39,6 +39,8 @@ import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
+import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 import com.csvreader.CsvWriter;
 
@@ -48,7 +50,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements
     private static final long serialVersionUID = -6549267536864184480L;
 
     public static ComparisonLocalMulti newInstance(List<Chain> chains,
-            Chain reference, List<String> angleNames)
+            Chain reference, List<AngleType> angleNames)
             throws StructureException, InvalidInputException {
         // sanity check
         if (chains.size() < 2) {
@@ -85,7 +87,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         for (int i = 0; i < results.size(); i++) {
             ComparisonLocal comparisonLocal = results.get(i);
             Map<String, Angle> angles = comparisonLocal.getAngles();
-            Angle average = angles.get("AVERAGE");
+            Angle average =
+                    angles.get(AngleAverageAll.getInstance().getAngleName());
             assert average != null;
             deltas[i] = average.getDeltas();
         }
@@ -162,8 +165,9 @@ public class ComparisonLocalMulti extends XMLSerializable implements
 
                                 i = Math.max(Math.min(i, maxX - 1), 0);
                                 j = Math.max(Math.min(j, maxY - 1), 0);
-                                return results.get(i).angles.get("AVERAGE")
-                                        .getDeltas()[j];
+                                return results.get(i).angles.get(
+                                        AngleAverageAll.getInstance()
+                                                .getAngleName()).getDeltas()[j];
                             }
                         });
 

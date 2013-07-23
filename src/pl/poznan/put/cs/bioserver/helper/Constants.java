@@ -1,6 +1,8 @@
 package pl.poznan.put.cs.bioserver.helper;
 
 public final class Constants {
+    public static final String ANGLE_AVERAGE_ALL = "AVG_ALL";
+
     public static final String UNICODE_ALPHA = "\u03B1";
     public static final String UNICODE_BETA = "\u03B2";
     public static final String UNICODE_CHI = "\u03C7";

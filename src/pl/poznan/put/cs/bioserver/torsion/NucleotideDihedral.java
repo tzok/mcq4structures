@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.biojava.bio.structure.Group;
 
+import pl.poznan.put.cs.bioserver.helper.Constants;
 import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
 /**
@@ -38,22 +39,38 @@ public final class NucleotideDihedral implements AngleType {
     }
 
     private static List<AngleType> angles = Arrays.asList(new AngleType[] {
-            new NucleotideDihedral(AngleName.ALPHA),
-            new NucleotideDihedral(AngleName.BETA),
-            new NucleotideDihedral(AngleName.GAMMA),
-            new NucleotideDihedral(AngleName.DELTA),
-            new NucleotideDihedral(AngleName.EPSILON),
-            new NucleotideDihedral(AngleName.ZETA),
-            new NucleotideDihedral(AngleName.CHI),
-            new NucleotideDihedral(AngleName.TAU0),
-            new NucleotideDihedral(AngleName.TAU1),
-            new NucleotideDihedral(AngleName.TAU2),
-            new NucleotideDihedral(AngleName.TAU3),
-            new NucleotideDihedral(AngleName.TAU4),
-            new NucleotideDihedral(AngleName.ETA),
-            new NucleotideDihedral(AngleName.THETA),
-            new NucleotideDihedral(AngleName.ETA_PRIM),
-            new NucleotideDihedral(AngleName.THETA_PRIM) });
+            new NucleotideDihedral(AngleName.ALPHA, Constants.UNICODE_ALPHA
+                    + " (alpha)"),
+            new NucleotideDihedral(AngleName.BETA, Constants.UNICODE_BETA
+                    + " (beta)"),
+            new NucleotideDihedral(AngleName.GAMMA, Constants.UNICODE_GAMMA
+                    + " (gamma)"),
+            new NucleotideDihedral(AngleName.DELTA, Constants.UNICODE_DELTA
+                    + " (delta)"),
+            new NucleotideDihedral(AngleName.EPSILON, Constants.UNICODE_EPSILON
+                    + " (epsilon)"),
+            new NucleotideDihedral(AngleName.ZETA, Constants.UNICODE_ZETA
+                    + " (zeta)"),
+            new NucleotideDihedral(AngleName.CHI, Constants.UNICODE_CHI
+                    + " (chi)"),
+            new NucleotideDihedral(AngleName.TAU0, Constants.UNICODE_TAU
+                    + "0 (tau0)"),
+            new NucleotideDihedral(AngleName.TAU1, Constants.UNICODE_TAU
+                    + "1 (tau1)"),
+            new NucleotideDihedral(AngleName.TAU2, Constants.UNICODE_TAU
+                    + "2 (tau2)"),
+            new NucleotideDihedral(AngleName.TAU3, Constants.UNICODE_TAU
+                    + "3 (tau3)"),
+            new NucleotideDihedral(AngleName.TAU4, Constants.UNICODE_TAU
+                    + "4 (tau4)"),
+            new NucleotideDihedral(AngleName.ETA, Constants.UNICODE_ETA
+                    + " (eta)"),
+            new NucleotideDihedral(AngleName.THETA, Constants.UNICODE_THETA
+                    + " (theta)"),
+            new NucleotideDihedral(AngleName.ETA_PRIM, Constants.UNICODE_ETA
+                    + "' (eta')"),
+            new NucleotideDihedral(AngleName.THETA_PRIM,
+                    Constants.UNICODE_THETA + "' (theta')") });
     private static List<String> atoms = Arrays.asList(new String[] {
             NucleotideDihedral.C1P, NucleotideDihedral.C2,
             NucleotideDihedral.C2P, NucleotideDihedral.C3P,
@@ -198,9 +215,16 @@ public final class NucleotideDihedral implements AngleType {
     }
 
     private AngleName angleName;
+    private String displayName;
 
-    private NucleotideDihedral(AngleName angleName) {
+    private NucleotideDihedral(AngleName angleName, String displayName) {
         this.angleName = angleName;
+        this.displayName = displayName;
+    }
+
+    @Override
+    public String getAngleDisplayName() {
+        return displayName;
     }
 
     @Override

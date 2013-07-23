@@ -11,6 +11,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
+import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
 
 public class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
@@ -40,7 +41,8 @@ public class Colorbar extends JPanel {
         int height = size.height;
 
         Map<String, Angle> angles = local.getAngles();
-        Angle average = angles.get("AVERAGE");
+        Angle average =
+                angles.get(AngleAverageAll.getInstance().getAngleName());
         int i = 0;
         for (double delta : average.getDeltas()) {
             g.setColor(getColor(delta));

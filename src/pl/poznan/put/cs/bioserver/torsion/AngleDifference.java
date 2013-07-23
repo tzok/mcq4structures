@@ -17,7 +17,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
     /** Second angle value. */
     private double angle2;
     /** Name of the angle. */
-    private String angleName;
+    private AngleType angleName;
     /** Difference between angles. */
     private double difference;
     /**
@@ -44,7 +44,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
      *            The name of the angle.
      */
     public AngleDifference(ResidueNumber residue, double angle1, double angle2,
-            double difference, String angleName) {
+            double difference, AngleType angleName) {
         this.angle1 = angle1;
         this.angle2 = angle2;
         this.difference = difference;
@@ -63,7 +63,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
      *            The name of the angle.
      */
     AngleDifference(UniTypeQuadruplet<Atom> q1, UniTypeQuadruplet<Atom> q2,
-            String angleName) {
+            AngleType angleName) {
         angle1 = DihedralAngles.calculateDihedral(q1);
         angle2 = DihedralAngles.calculateDihedral(q2);
         difference = DihedralAngles.subtractDihedral(angle1, angle2);
@@ -136,12 +136,12 @@ public class AngleDifference implements Comparable<AngleDifference> {
         return angle1;
     }
 
-    public String getAngleName() {
-        return angleName;
-    }
-
     public double getAngleSecond() {
         return angle2;
+    }
+
+    public AngleType getAngleType() {
+        return angleName;
     }
 
     public double getDifference() {

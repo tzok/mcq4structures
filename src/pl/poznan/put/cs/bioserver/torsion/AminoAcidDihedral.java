@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.biojava.bio.structure.Group;
 
+import pl.poznan.put.cs.bioserver.helper.Constants;
 import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
 /**
@@ -22,15 +23,24 @@ public final class AminoAcidDihedral implements AngleType {
     }
 
     private static List<AngleType> angles = Arrays.asList(new AngleType[] {
-            new AminoAcidDihedral(AngleName.PHI),
-            new AminoAcidDihedral(AngleName.PSI),
-            new AminoAcidDihedral(AngleName.OMEGA),
-            new AminoAcidDihedral(AngleName.CALPHA),
-            new AminoAcidDihedral(AngleName.CHI1),
-            new AminoAcidDihedral(AngleName.CHI2),
-            new AminoAcidDihedral(AngleName.CHI3),
-            new AminoAcidDihedral(AngleName.CHI4),
-            new AminoAcidDihedral(AngleName.CHI5) });
+            new AminoAcidDihedral(AngleName.PHI, Constants.UNICODE_PHI
+                    + " (phi)"),
+            new AminoAcidDihedral(AngleName.PSI, Constants.UNICODE_PSI
+                    + " (psi)"),
+            new AminoAcidDihedral(AngleName.OMEGA, Constants.UNICODE_OMEGA
+                    + " (omega)"),
+            new AminoAcidDihedral(AngleName.CALPHA, "C-"
+                    + Constants.UNICODE_ALPHA + " (C-alpha)"),
+            new AminoAcidDihedral(AngleName.CHI1, Constants.UNICODE_CHI
+                    + "1 (chi1)"),
+            new AminoAcidDihedral(AngleName.CHI2, Constants.UNICODE_CHI
+                    + "2 (chi2)"),
+            new AminoAcidDihedral(AngleName.CHI3, Constants.UNICODE_CHI
+                    + "3 (chi3)"),
+            new AminoAcidDihedral(AngleName.CHI4, Constants.UNICODE_CHI
+                    + "4 (chi4)"),
+            new AminoAcidDihedral(AngleName.CHI5, Constants.UNICODE_CHI
+                    + "5 (chi5)") });
     private static List<String> atoms = Arrays.asList(new String[] {
             AminoAcidDihedral.C, AminoAcidDihedral.CA, AminoAcidDihedral.CB,
             AminoAcidDihedral.CD, AminoAcidDihedral.CD1, AminoAcidDihedral.CE,
@@ -320,9 +330,16 @@ public final class AminoAcidDihedral implements AngleType {
     }
 
     private AngleName angleName;
+    private String displayName;
 
-    private AminoAcidDihedral(AngleName angleName) {
+    private AminoAcidDihedral(AngleName angleName, String displayName) {
         this.angleName = angleName;
+        this.displayName = displayName;
+    }
+
+    @Override
+    public String getAngleDisplayName() {
+        return displayName;
     }
 
     @Override

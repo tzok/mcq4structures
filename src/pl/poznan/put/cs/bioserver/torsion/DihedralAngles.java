@@ -66,7 +66,7 @@ public final class DihedralAngles {
                 if (q1.isCorresponding(q2, wasAligned)) {
                     AngleDifference diff =
                             new AngleDifference(q1.getAtoms(), q2.getAtoms(),
-                                    angleType.getAngleName());
+                                    angleType);
                     differences.add(diff);
                     found = true;
                     break;
@@ -77,7 +77,7 @@ public final class DihedralAngles {
                 AngleDifference diff =
                         new AngleDifference(q1.getAtoms(),
                                 new UniTypeQuadruplet<Atom>(null, null, null,
-                                        null), angleType.getAngleName());
+                                        null), angleType);
                 differences.add(diff);
             }
         }

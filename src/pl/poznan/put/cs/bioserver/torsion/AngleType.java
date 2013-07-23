@@ -10,6 +10,15 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
  * @author tzok
  */
 public interface AngleType {
+    /**
+     * Return the string that will be displayed on the dialog with angle
+     * selection
+     * 
+     * @return the string that will be displayed on the dialog with angle
+     *         selection
+     */
+    String getAngleDisplayName();
+
     String getAngleName();
 
     /**
