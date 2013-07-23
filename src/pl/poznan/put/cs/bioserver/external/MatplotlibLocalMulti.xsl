@@ -85,6 +85,6 @@
     </xsl:template>
 
     <xsl:template match="angles">
-        <xsl:for-each select="entry/value[@name='AVERAGE']"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each>
+        <xsl:for-each select="entry/value[@name='AVG_ALL']"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each>
     </xsl:template>
 </xsl:stylesheet>
