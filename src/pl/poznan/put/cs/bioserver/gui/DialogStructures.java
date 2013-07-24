@@ -226,9 +226,14 @@ final class DialogStructures extends JDialog {
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
+        int i = 0;
         for (Structure s : selectedStructures) {
             assert s != null;
+            builder.append("<span style=\"color: "
+                    + (i % 2 == 0 ? "blue" : "green") + "\">");
             builder.append(StructureManager.getName(s));
+            builder.append("</span>, ");
+            i++;
         }
         builder.delete(builder.length() - 2, builder.length());
         String result = builder.toString();

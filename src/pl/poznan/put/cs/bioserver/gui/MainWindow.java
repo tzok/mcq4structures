@@ -36,9 +36,11 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -119,9 +121,9 @@ public class MainWindow extends JFrame {
     private JMenuItem itemVisualiseHighQuality;
     private JLabel labelAlignmentStatus;
 
-    private JLabel labelInfoAlignSeq;
-    private JLabel labelInfoAlignStruc;
-    private JLabel labelInfoMatrix;
+    private JTextPane labelInfoAlignSeq;
+    private JTextPane labelInfoAlignStruc;
+    private JTextPane labelInfoMatrix;
     private CardLayout layoutCards;
     private JPanel panelCards;
 
@@ -284,15 +286,19 @@ public class MainWindow extends JFrame {
          * Create panel with global comparison results
          */
         JPanel panel;
-        labelInfoMatrix = new JLabel();
+        labelInfoMatrix = new JTextPane();
         labelInfoMatrix.setBorder(new EmptyBorder(10, 10, 10, 0));
+        labelInfoMatrix.setContentType("text/html");
+        labelInfoMatrix.setEditable(false);
+        labelInfoMatrix.setFont(UIManager.getFont("Label.font"));
+        labelInfoMatrix.setOpaque(false);
         tableMatrix = new JTable();
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
 
         panelResultsMatrix = new JPanel(new BorderLayout());
         panel = new JPanel(new BorderLayout());
-        panel.add(labelInfoMatrix, BorderLayout.WEST);
+        panel.add(labelInfoMatrix, BorderLayout.CENTER);
         panelResultsMatrix.add(panel, BorderLayout.NORTH);
         panelResultsMatrix.add(new JScrollPane(tableMatrix),
                 BorderLayout.CENTER);
@@ -305,15 +311,19 @@ public class MainWindow extends JFrame {
         /*
          * Create panel with sequence alignment
          */
-        labelInfoAlignSeq = new JLabel();
+        labelInfoAlignSeq = new JTextPane();
         labelInfoAlignSeq.setBorder(new EmptyBorder(10, 10, 10, 0));
+        labelInfoAlignSeq.setContentType("text/html");
+        labelInfoAlignSeq.setEditable(false);
+        labelInfoAlignSeq.setFont(UIManager.getFont("Label.font"));
+        labelInfoAlignSeq.setOpaque(false);
         textAreaAlignSeq = new JTextArea();
         textAreaAlignSeq.setEditable(false);
         textAreaAlignSeq.setFont(new Font("Monospaced", Font.PLAIN, 20));
 
         panelResultsAlignSeq = new JPanel(new BorderLayout());
         panel = new JPanel(new BorderLayout());
-        panel.add(labelInfoAlignSeq, BorderLayout.WEST);
+        panel.add(labelInfoAlignSeq, BorderLayout.CENTER);
         panelResultsAlignSeq.add(panel, BorderLayout.NORTH);
         panelResultsAlignSeq.add(new JScrollPane(textAreaAlignSeq),
                 BorderLayout.CENTER);
@@ -321,8 +331,12 @@ public class MainWindow extends JFrame {
         /*
          * Create panel with structure alignment
          */
-        labelInfoAlignStruc = new JLabel();
+        labelInfoAlignStruc = new JTextPane();
         labelInfoAlignStruc.setBorder(new EmptyBorder(10, 10, 10, 0));
+        labelInfoAlignStruc.setContentType("text/html");
+        labelInfoAlignStruc.setEditable(false);
+        labelInfoAlignStruc.setFont(UIManager.getFont("Label.font"));
+        labelInfoAlignStruc.setOpaque(false);
         JPanel panelInfoJmol = new JPanel(new GridLayout(1, 3));
         panelInfoJmol.add(new JLabel("Whole structures (Jmol view)",
                 SwingConstants.CENTER));
@@ -950,8 +964,10 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
-            labelInfoMatrix.setText("Structures selected for local distance "
-                    + "measure: " + dialogChains.getSelectionDescription());
+            labelInfoMatrix
+                    .setText("<html>Structures selected for local distance measure: "
+                            + dialogChains.getSelectionDescription()
+                            + "</html>");
         } else { // source.equals(itemSelectChainsAlignStruc)
             panelJmolLeft.executeCmd("restore state " + "state_init");
             panelJmolRight.executeCmd("restore state " + "state_init");
@@ -965,8 +981,10 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
-            labelInfoAlignStruc.setText("Structures selected for 3D structure "
-                    + "alignment: " + dialogChains.getSelectionDescription());
+            labelInfoAlignStruc
+                    .setText("<html>Structures selected for 3D structure alignment: "
+                            + dialogChains.getSelectionDescription()
+                            + "</html>");
         }
     }
 
@@ -1005,9 +1023,10 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
 
-            labelInfoMatrix.setText("Structures selected for local distance "
-                    + "measure: "
-                    + dialogChainsMultiple.getSelectionDescription());
+            labelInfoMatrix
+                    .setText("<html>Structures selected for local distance measure: "
+                            + dialogChainsMultiple.getSelectionDescription()
+                            + "</html>");
         } else { // source.equals(itemSelectStructuresAlign)
             textAreaAlignSeq.setText("");
             layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
@@ -1020,10 +1039,11 @@ public class MainWindow extends JFrame {
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
 
-            labelInfoAlignSeq.setText("Structures selected for "
+            labelInfoAlignSeq.setText("<html>Structures selected for "
                     + (radioAlignSeqGlobal.isSelected() ? "global" : "local")
                     + " sequence alignment: "
-                    + dialogChainsMultiple.getSelectionDescription());
+                    + dialogChainsMultiple.getSelectionDescription()
+                    + "</html>");
         }
     }
 
@@ -1050,7 +1070,10 @@ public class MainWindow extends JFrame {
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 
-        labelInfoMatrix.setText("Structures selected for global distance "
-                + "measure: " + dialogStructures.getSelectionDescription());
+        labelInfoMatrix
+                .setText("<html>Structures selected for global distance "
+                        + "measure: "
+                        + dialogStructures.getSelectionDescription()
+                        + "</html>");
     }
 }

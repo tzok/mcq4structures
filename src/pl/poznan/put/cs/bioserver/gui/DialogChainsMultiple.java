@@ -340,11 +340,15 @@ final class DialogChainsMultiple extends JDialog {
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
+        int i = 0;
         for (Chain c : selectedChains) {
+            builder.append("<span style=\"color: "
+                    + (i % 2 == 0 ? "blue" : "green") + "\">");
             builder.append(StructureManager.getName(c.getParent()));
             builder.append('.');
             builder.append(c.getChainID());
-            builder.append(", ");
+            builder.append("</span>, ");
+            i++;
         }
         builder.delete(builder.length() - 2, builder.length());
         return builder.toString();

@@ -214,17 +214,19 @@ final class DialogChains extends JDialog {
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
+        builder.append("<span style=\"color: blue\">");
         builder.append(StructureManager.getName(structureLeft));
         builder.append('.');
         for (Chain chain : chainsLeft) {
             builder.append(chain.getChainID());
         }
-        builder.append(", ");
+        builder.append("</span>, <span style=\"color: green\">");
         builder.append(StructureManager.getName(structureRight));
         builder.append('.');
         for (Chain chain : chainsRight) {
             builder.append(chain.getChainID());
         }
+        builder.append("</span>");
         return builder.toString();
     }
 
