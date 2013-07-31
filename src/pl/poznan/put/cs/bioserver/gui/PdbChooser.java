@@ -6,7 +6,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public final class PdbChooser {
+final class PdbChooser {
     private static JFileChooser chooser;
 
     static {
@@ -21,11 +21,11 @@ public final class PdbChooser {
         PdbChooser.chooser.setMultiSelectionEnabled(true);
     }
 
-    public static File getCurrentDirectory() {
+    static File getCurrentDirectory() {
         return PdbChooser.chooser.getCurrentDirectory();
     }
 
-    public static File[] getSelectedFiles(Component parent) {
+    static File[] getSelectedFiles(Component parent) {
         int state = PdbChooser.chooser.showOpenDialog(parent);
         if (state == JFileChooser.APPROVE_OPTION) {
             return PdbChooser.chooser.getSelectedFiles();

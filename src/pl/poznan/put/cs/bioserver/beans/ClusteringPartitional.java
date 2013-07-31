@@ -109,13 +109,13 @@ public class ClusteringPartitional extends XMLSerializable implements
         return instance;
     }
 
-    List<Cluster> clusters;
-    List<Cluster3D> clusters3D;
-    List<RGB> colors;
-    ComparisonGlobal comparison;
-    List<String> labels;
-    List<Point> medoids;
-    String scoringFunction;
+    private List<Cluster> clusters;
+    private List<Cluster3D> clusters3D;
+    private List<RGB> colors;
+    private ComparisonGlobal comparison;
+    private List<String> labels;
+    private List<Point> medoids;
+    private String scoringFunction;
 
     public List<Cluster> getClusters() {
         return clusters;
@@ -210,7 +210,7 @@ public class ClusteringPartitional extends XMLSerializable implements
             for (Point3D point : cluster.getPoints()) {
                 Coord3d center =
                         new Coord3d(point.getX(), point.getY(), point.getZ());
-                float radius = (float) ((max - min) / comparison.labels.size());
+                float radius = (float) ((max - min) / comparison.getLabels().size());
                 Sphere sphere = new Sphere(center, radius, 15, color);
                 sphere.setWireframeColor(Color.BLACK);
                 graph.add(sphere);

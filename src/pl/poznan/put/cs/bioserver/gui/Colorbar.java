@@ -13,15 +13,15 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
 
-public class Colorbar extends JPanel {
+class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
     private float[] green;
     private ComparisonLocal local;
     private float[] red;
-    double max;
-    double min;
+    private double max;
+    private double min;
 
-    public Colorbar(ComparisonLocal local) {
+    Colorbar(ComparisonLocal local) {
         super();
         this.local = local;
 
@@ -53,7 +53,7 @@ public class Colorbar extends JPanel {
         }
     }
 
-    public void setMinMax(double min, double max) {
+    void setMinMax(double min, double max) {
         this.min = min;
         this.max = max;
         repaint();

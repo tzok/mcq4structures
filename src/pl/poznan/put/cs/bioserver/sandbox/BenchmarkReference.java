@@ -11,8 +11,8 @@ import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
-public class BenchmarkReference {
-    public static List<File> list(File directory) {
+class BenchmarkReference {
+    static List<File> list(File directory) {
         List<File> list = new ArrayList<>();
         for (File file : directory.listFiles()) {
             if (file.isDirectory()) {

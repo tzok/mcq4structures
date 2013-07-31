@@ -11,7 +11,7 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 public class Cluster extends XMLSerializable {
     private static final long serialVersionUID = 4584994465498507561L;
 
-    List<Point> points;
+    private List<Point> points;
 
     public List<Point> getPoints() {
         return points;

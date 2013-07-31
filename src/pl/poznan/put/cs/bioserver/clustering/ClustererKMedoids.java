@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 public final class ClustererKMedoids {
     public static class Result {
         public Set<Integer> medoids;
-        public double score;
+        private double score;
 
-        public Result(Set<Integer> medoids, double score) {
+        private Result(Set<Integer> medoids, double score) {
             super();
             this.medoids = medoids;
             this.score = score;

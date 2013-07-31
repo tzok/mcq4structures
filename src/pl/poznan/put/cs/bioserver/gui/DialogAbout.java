@@ -31,12 +31,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DialogAbout extends JDialog {
+class DialogAbout extends JDialog {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DialogAbout.class);
     private static final long serialVersionUID = 1L;
 
-    public DialogAbout(Frame owner) {
+    DialogAbout(Frame owner) {
         super(owner, true);
 
         JEditorPane editorPane = new JEditorPane();

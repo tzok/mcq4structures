@@ -121,9 +121,9 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         return result;
     }
 
-    String alignment;
-    boolean isGlobal;
-    String title;
+    private String alignment;
+    private boolean isGlobal;
+    private String title;
 
     // /////////////////////////////////////////////////////////////////////////
     // other methods, implementation of interfaces

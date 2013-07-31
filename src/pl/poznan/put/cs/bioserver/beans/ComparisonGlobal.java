@@ -50,9 +50,9 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
         return instance;
     }
 
-    double[][] distanceMatrix;
-    List<String> labels;
-    String method;
+    private double[][] distanceMatrix;
+    private List<String> labels;
+    private String method;
 
     @Override
     public void cluster() {

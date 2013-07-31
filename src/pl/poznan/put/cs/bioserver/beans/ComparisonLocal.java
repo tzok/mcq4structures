@@ -200,7 +200,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     }
 
     Map<String, Angle> angles;
-    List<RGB> colors;
+    private List<RGB> colors;
     List<String> ticks;
     String title;
 

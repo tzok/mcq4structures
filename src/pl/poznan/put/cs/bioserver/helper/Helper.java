@@ -209,7 +209,7 @@ public final class Helper {
         return sdf.format(new Date());
     }
 
-    public static boolean isAminoAcid(Group g) {
+    private static boolean isAminoAcid(Group g) {
         return g.getType().equals("amino") || g.hasAminoAtoms();
     }
 
@@ -238,7 +238,7 @@ public final class Helper {
         return flag;
     }
 
-    public static boolean isNucleotide(Group g) {
+    private static boolean isNucleotide(Group g) {
         if (g.getType().equals("nucleotide")) {
             return true;
         }

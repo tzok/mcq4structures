@@ -8,13 +8,13 @@ public final class ClustererHierarchical {
     public static class Cluster implements Serializable {
         private static final long serialVersionUID = -6276493161058681710L;
 
-        public final List<Integer> items;
-        public Cluster left;
-        public Cluster right;
-        public final double x;
-        public final double y;
+        final List<Integer> items;
+        Cluster left;
+        Cluster right;
+        final double x;
+        final double y;
 
-        public Cluster(Cluster left, Cluster right, double distance) {
+        private Cluster(Cluster left, Cluster right, double distance) {
             super();
             items = new ArrayList<>();
             items.addAll(left.items);
@@ -25,7 +25,7 @@ public final class ClustererHierarchical {
             this.right = right;
         }
 
-        public Cluster(List<Integer> items, double x, double y) {
+        private Cluster(List<Integer> items, double x, double y) {
             super();
             this.items = items;
             this.x = x;

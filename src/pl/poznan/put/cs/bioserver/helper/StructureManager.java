@@ -58,7 +58,7 @@ public final class StructureManager {
         return StructureManager.mapModelFile.get(structure);
     }
 
-    public static List<Structure> getModels(File file) {
+    private static List<Structure> getModels(File file) {
         return StructureManager.mapFileModels.get(file);
     }
 

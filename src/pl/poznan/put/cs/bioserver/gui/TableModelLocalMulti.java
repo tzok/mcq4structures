@@ -13,7 +13,7 @@ import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.helper.Constants;
 import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
 
-public class TableModelLocalMulti extends AbstractTableModel {
+class TableModelLocalMulti extends AbstractTableModel {
     private static final long serialVersionUID = 49429840783357538L;
 
     private int columnCount;
@@ -22,7 +22,7 @@ public class TableModelLocalMulti extends AbstractTableModel {
     private DecimalFormat format;
     private int rowCount;
 
-    public TableModelLocalMulti(ComparisonLocalMulti localMulti) {
+    TableModelLocalMulti(ComparisonLocalMulti localMulti) {
         super();
 
         List<ComparisonLocal> results = localMulti.getResults();

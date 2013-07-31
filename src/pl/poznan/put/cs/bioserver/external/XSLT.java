@@ -45,7 +45,7 @@ public final class XSLT {
                 new OutputStreamWriter(out, "UTF-8")));
     }
 
-    public static String transform(Source stylesheet, Source xml,
+    private static String transform(Source stylesheet, Source xml,
             @Nullable Map<String, Object> parameters) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -70,7 +70,7 @@ public final class XSLT {
         }
     }
 
-    public static String transform(URL resource, Source xml,
+    static String transform(URL resource, Source xml,
             @Nullable Map<String, Object> parameters) throws IOException {
         try (InputStream stream = resource.openStream()) {
             return XSLT.transform(new StreamSource(stream), xml, parameters);

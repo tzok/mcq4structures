@@ -11,7 +11,7 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 public class Cluster3D extends XMLSerializable {
     private static final long serialVersionUID = -3603148262237249360L;
 
-    List<Point3D> points;
+    private List<Point3D> points;
 
     public List<Point3D> getPoints() {
         return points;

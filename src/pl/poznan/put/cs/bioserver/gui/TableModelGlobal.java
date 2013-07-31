@@ -8,14 +8,14 @@ import javax.swing.table.AbstractTableModel;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.helper.Constants;
 
-public class TableModelGlobal extends AbstractTableModel {
+class TableModelGlobal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private DecimalFormat format;
     private String measure;
     private List<String> names;
     private double[][] values;
 
-    public TableModelGlobal(ComparisonGlobal comparisonGlobal) {
+    TableModelGlobal(ComparisonGlobal comparisonGlobal) {
         super();
         names = comparisonGlobal.getLabels();
         values = comparisonGlobal.getDistanceMatrix();

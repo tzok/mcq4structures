@@ -7,10 +7,10 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 public class Point3D extends XMLSerializable {
     private static final long serialVersionUID = -5367548449382891738L;
 
-    String label;
-    double x;
-    double y;
-    double z;
+    private String label;
+    private double x;
+    private double y;
+    private double z;
 
     public String getLabel() {
         return label;

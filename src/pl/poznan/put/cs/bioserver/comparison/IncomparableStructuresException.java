@@ -5,7 +5,7 @@ package pl.poznan.put.cs.bioserver.comparison;
  * 
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
-public class IncomparableStructuresException extends Exception {
+class IncomparableStructuresException extends Exception {
     private static final long serialVersionUID = 1L;
 
     IncomparableStructuresException(Throwable cause) {

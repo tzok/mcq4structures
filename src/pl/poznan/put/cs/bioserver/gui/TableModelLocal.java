@@ -10,14 +10,14 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.helper.Constants;
 
-public class TableModelLocal extends AbstractTableModel {
+class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private List<String> columnNames;
     private DecimalFormat format;
     private List<String> rowsNames;
     private double[][] values;
 
-    public TableModelLocal(ComparisonLocal comparisonLocal) {
+    TableModelLocal(ComparisonLocal comparisonLocal) {
         super();
 
         rowsNames = comparisonLocal.getTicks();

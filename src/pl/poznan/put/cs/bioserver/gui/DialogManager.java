@@ -28,12 +28,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
-public final class DialogManager extends JDialog {
+final class DialogManager extends JDialog {
     private static DialogManager instance;
 
     private static final long serialVersionUID = 1L;
 
-    public static DialogManager getInstance(Frame owner) {
+    static DialogManager getInstance(Frame owner) {
         if (DialogManager.instance == null) {
             DialogManager.instance = new DialogManager(owner);
         }
@@ -129,7 +129,7 @@ public final class DialogManager extends JDialog {
         return model.elements();
     }
 
-    public void loadStructure(File file) {
+    void loadStructure(File file) {
         try {
             if (StructureManager.loadStructure(file).size() > 0) {
                 model.addElement(file);

@@ -51,7 +51,7 @@ public class TorsionLocalComparison extends LocalComparison {
      * @throws StructureException
      *             If the alignment was impossible to be computed.
      */
-    public static Map<AngleType, List<AngleDifference>> compare(Structure s1,
+    private static Map<AngleType, List<AngleDifference>> compare(Structure s1,
             Structure s2, boolean alignFirst) throws StructureException {
         boolean wasAligned = alignFirst;
         Pair<List<Atom>, List<Atom>> atoms;

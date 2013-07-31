@@ -31,9 +31,9 @@ public class ClusteringHierarchical extends XMLSerializable implements
         return instance;
     }
 
-    List<Cluster> clustering;
-    ComparisonGlobal comparison;
-    Linkage linkage;
+    private List<Cluster> clustering;
+    private ComparisonGlobal comparison;
+    private Linkage linkage;
 
     public List<Cluster> getClustering() {
         return clustering;

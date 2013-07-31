@@ -31,7 +31,7 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 public class MCQ extends GlobalComparison {
     public static final List<AngleType> USED_ANGLES;
 
-    public static final List<String> USED_ANGLES_NAMES;
+    private static final List<String> USED_ANGLES_NAMES;
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
     static {
         USED_ANGLES = new ArrayList<>();
@@ -57,7 +57,7 @@ public class MCQ extends GlobalComparison {
      * @throws StructureException
      *             If the alignment was impossible to make.
      */
-    public static double compare(Structure left, Structure right,
+    private static double compare(Structure left, Structure right,
             boolean alignFirst) throws StructureException {
         boolean wasAligned = alignFirst;
         Pair<List<Atom>, List<Atom>> atoms;
