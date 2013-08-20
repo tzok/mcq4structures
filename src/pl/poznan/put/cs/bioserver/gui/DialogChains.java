@@ -29,7 +29,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
-import org.biojava.bio.structure.StructureImpl;
 import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -39,10 +38,9 @@ final class DialogChains extends JDialog {
     private class PanelChains extends JPanel {
         private static final long serialVersionUID = 1L;
 
-        private DefaultComboBoxModel<Structure> model =
-                new DefaultComboBoxModel<>();
-        private JComboBox<Structure> combo = new JComboBox<>(model);
-        private JPanel[] panels = new JPanel[] { new JPanel(), new JPanel() };
+        DefaultComboBoxModel<Structure> model = new DefaultComboBoxModel<>();
+        JComboBox<Structure> combo = new JComboBox<>(model);
+        JPanel[] panels = new JPanel[] { new JPanel(), new JPanel() };
 
         public PanelChains() {
             super(new BorderLayout());
@@ -143,13 +141,16 @@ final class DialogChains extends JDialog {
         return inst;
     }
 
-    private List<Chain> chainsLeft = new ArrayList<>();
-    private List<Chain> chainsRight = new ArrayList<>();
-    private int chosenOption;
-    private PanelChains panelsChainsLeft = new PanelChains();
-    private PanelChains panelsChainsRight = new PanelChains();
-    private Structure structureLeft = new StructureImpl();
-    private Structure structureRight = new StructureImpl();
+    List<Chain> chainsLeft = new ArrayList<>();
+    List<Chain> chainsRight = new ArrayList<>();
+    int chosenOption;
+    PanelChains panelsChainsLeft = new PanelChains();
+    PanelChains panelsChainsRight = new PanelChains();
+
+    @Nullable
+    Structure structureLeft;
+    @Nullable
+    Structure structureRight;
 
     private DialogChains(Frame owner) {
         super(owner, true);
@@ -192,7 +193,7 @@ final class DialogChains extends JDialog {
 
                 chainsLeft = panelsChainsLeft.getSelectedChains();
                 chainsRight = panelsChainsRight.getSelectedChains();
-                if (chainsLeft == null || chainsRight == null) {
+                if (chainsLeft.size() == 0 || chainsRight.size() == 0) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();
                     return;
@@ -217,15 +218,21 @@ final class DialogChains extends JDialog {
     }
 
     public String getSelectionDescription() {
+        Structure left = structureLeft;
+        Structure right = structureRight;
+        if (left == null || right == null) {
+            return "";
+        }
+
         StringBuilder builder = new StringBuilder();
         builder.append("<span style=\"color: blue\">");
-        builder.append(StructureManager.getName(structureLeft));
+        builder.append(StructureManager.getName(left));
         builder.append('.');
         for (Chain chain : chainsLeft) {
             builder.append(chain.getChainID());
         }
         builder.append("</span>, <span style=\"color: green\">");
-        builder.append(StructureManager.getName(structureRight));
+        builder.append(StructureManager.getName(right));
         builder.append('.');
         for (Chain chain : chainsRight) {
             builder.append(chain.getChainID());

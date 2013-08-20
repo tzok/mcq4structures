@@ -116,7 +116,7 @@ public class UniTypeQuadruplet<T> {
         T b1 = b;
         T c1 = c;
         T d1 = d;
-        
+
         final int prime = 31;
         int result = 1;
         result = prime * result + (a1 == null ? 0 : a1.hashCode());

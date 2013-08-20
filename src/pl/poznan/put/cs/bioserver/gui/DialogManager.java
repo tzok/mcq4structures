@@ -43,7 +43,7 @@ final class DialogManager extends JDialog {
         return inst;
     }
 
-    private DefaultListModel<File> model = new DefaultListModel<>();
+    DefaultListModel<File> model = new DefaultListModel<>();
 
     private DialogManager(Frame parent) {
         super(parent);

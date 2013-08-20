@@ -79,7 +79,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         return instance;
     }
 
-    private List<ComparisonLocal> results = new ArrayList<>();
+    List<ComparisonLocal> results = new ArrayList<>();
 
     @Override
     public void export(File file) throws IOException {

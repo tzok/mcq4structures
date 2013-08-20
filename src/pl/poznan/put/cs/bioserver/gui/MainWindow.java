@@ -87,70 +87,69 @@ public class MainWindow extends JFrame {
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
 
     private static final String CARD_MATRIX = "CARD_MATRIX";
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(MainWindow.class);
     private static final long serialVersionUID = 1L;
     private static final String TITLE = "MCQ4Structures: computing similarity "
             + "of 3D RNA / protein structures";
+    static final Logger LOGGER = LoggerFactory.getLogger(MainWindow.class);
 
-    private JCheckBoxMenuItem checkBoxManager;
-    private TableCellRenderer colorsRenderer;
-    private DialogAngles dialogAngles;
-    private DialogChains dialogChains;
+    JCheckBoxMenuItem checkBoxManager;
+    TableCellRenderer colorsRenderer;
+    DialogAngles dialogAngles;
+    DialogChains dialogChains;
 
-    private DialogChainsMultiple dialogChainsMultiple;
-    private DialogManager dialogManager;
-    private DialogStructures dialogStructures;
+    DialogChainsMultiple dialogChainsMultiple;
+    DialogManager dialogManager;
+    DialogStructures dialogStructures;
 
-    private JMenuItem itemAbout;
-    private JMenuItem itemCluster;
-    private JMenuItem itemComputeAlign;
-    private JMenuItem itemComputeDistances;
+    JMenuItem itemAbout;
+    JMenuItem itemCluster;
+    JMenuItem itemComputeAlign;
+    JMenuItem itemComputeDistances;
 
-    private JMenuItem itemExit;
-    private JMenuItem itemGuide;
-    private JMenuItem itemOpen;
-    private JMenuItem itemSave;
-    private JMenuItem itemSelectStructuresAlign;
-    private JMenuItem itemSelectStructuresCompare;
-    private JMenuItem itemSelectTorsion;
-    private JMenuItem itemVisualise;
-    private JMenuItem itemVisualise3D;
-    private JMenuItem itemVisualiseHighQuality;
-    private JLabel labelAlignmentStatus;
+    JMenuItem itemExit;
+    JMenuItem itemGuide;
+    JMenuItem itemOpen;
+    JMenuItem itemSave;
+    JMenuItem itemSelectStructuresAlign;
+    JMenuItem itemSelectStructuresCompare;
+    JMenuItem itemSelectTorsion;
+    JMenuItem itemVisualise;
+    JMenuItem itemVisualise3D;
+    JMenuItem itemVisualiseHighQuality;
+    JLabel labelAlignmentStatus;
 
-    private JTextPane labelInfoAlignSeq;
-    private JTextPane labelInfoAlignStruc;
-    private JTextPane labelInfoMatrix;
-    private CardLayout layoutCards;
-    private JPanel panelCards;
+    JTextPane labelInfoAlignSeq;
+    JTextPane labelInfoAlignStruc;
+    JTextPane labelInfoMatrix;
+    CardLayout layoutCards;
+    JPanel panelCards;
 
-    private JmolPanel panelJmolLeft;
-    private JmolPanel panelJmolRight;
+    JmolPanel panelJmolLeft;
+    JmolPanel panelJmolRight;
 
-    private JPanel panelResultsAlignSeq;
-    private JPanel panelResultsAlignStruc;
-    private JPanel panelResultsMatrix;
-    private JProgressBar progressBar;
+    JPanel panelResultsAlignSeq;
+    JPanel panelResultsAlignStruc;
+    JPanel panelResultsMatrix;
+    JProgressBar progressBar;
 
-    private JRadioButtonMenuItem radioAlignSeqGlobal;
-    private JRadioButtonMenuItem radioAlignSeqLocal;
-    private JRadioButtonMenuItem radioAlignStruc;
+    JRadioButtonMenuItem radioAlignSeqGlobal;
+    JRadioButtonMenuItem radioAlignSeqLocal;
+    JRadioButtonMenuItem radioAlignStruc;
 
-    private JRadioButtonMenuItem radioGlobalMcq;
-    private JRadioButtonMenuItem radioGlobalRmsd;
-    private JRadioButtonMenuItem radioLocal;
-    private JRadioButtonMenuItem radioLocalMulti;
-    private JTable tableMatrix;
+    JRadioButtonMenuItem radioGlobalMcq;
+    JRadioButtonMenuItem radioGlobalRmsd;
+    JRadioButtonMenuItem radioLocal;
+    JRadioButtonMenuItem radioLocalMulti;
+    JTable tableMatrix;
 
-    private JTextArea textAreaAlignSeq;
+    JTextArea textAreaAlignSeq;
     @Nullable
-    private Thread threadAlignment;
+    Thread threadAlignment;
 
     @Nullable
-    private Clusterable clusterable;
+    Clusterable clusterable;
     @Nullable
-    private Exportable exportable;
+    Exportable exportable;
     @Nullable
     Visualizable visualizable;
 
@@ -640,7 +639,7 @@ public class MainWindow extends JFrame {
         });
     }
 
-    private void alignSequences() {
+    void alignSequences() {
         textAreaAlignSeq.setText("");
         layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
@@ -667,7 +666,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void alignStructures() {
+    void alignStructures() {
         if (threadAlignment != null && threadAlignment.isAlive()) {
             JOptionPane.showMessageDialog(null,
                     "3D structure alignment computation has not "
@@ -716,7 +715,7 @@ public class MainWindow extends JFrame {
 
         threadAlignment = new Thread(new Runnable() {
             @Nullable
-            private AlignmentOutput output;
+            AlignmentOutput output;
 
             @Override
             public void run() {
@@ -799,7 +798,7 @@ public class MainWindow extends JFrame {
         threadAlignment.start();
     }
 
-    private void compareGlobal() {
+    void compareGlobal() {
         final GlobalComparison comparison;
         if (radioGlobalMcq.isSelected()) {
             comparison = new MCQ();
@@ -858,7 +857,7 @@ public class MainWindow extends JFrame {
         thread.start();
     }
 
-    private void compareLocalMulti() {
+    void compareLocalMulti() {
         List<Chain> chains = dialogChainsMultiple.getChains();
         List<String> names = new ArrayList<>();
         for (Chain chain : chains) {
@@ -920,7 +919,7 @@ public class MainWindow extends JFrame {
                 + "Local distance vector(s):" + "</html>");
     }
 
-    private void compareLocalPair() {
+    void compareLocalPair() {
         Pair<Structure, Structure> structures = dialogChains.getStructures();
         Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
 
@@ -958,7 +957,7 @@ public class MainWindow extends JFrame {
                 + "<br>" + "Local distance vector(s):" + "</html>");
     }
 
-    private void selectChains(Object source) {
+    void selectChains(Object source) {
         if (dialogChains.showDialog() != DialogChains.OK) {
             return;
         }
@@ -1012,7 +1011,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void selectChainsMultiple(Object source) {
+    void selectChainsMultiple(Object source) {
         if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK) {
             return;
         }
@@ -1071,7 +1070,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void selectStructures() {
+    void selectStructures() {
         if (dialogStructures.showDialog() != DialogStructures.OK) {
             return;
         }

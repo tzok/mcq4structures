@@ -32,9 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class DialogAbout extends JDialog {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(DialogAbout.class);
     private static final long serialVersionUID = 1L;
+    static final Logger LOGGER = LoggerFactory.getLogger(DialogAbout.class);
 
     DialogAbout(Frame owner) {
         super(owner, true);

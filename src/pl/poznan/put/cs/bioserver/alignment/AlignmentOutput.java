@@ -36,7 +36,7 @@ public class AlignmentOutput implements Exportable {
         public final Structure wholeLeft;
         public final Structure wholeRight;
 
-        private StructuresAligned(Structure wholeLeft, Structure wholeRight,
+        StructuresAligned(Structure wholeLeft, Structure wholeRight,
                 Structure filteredLeft, Structure filteredRight) {
             this.wholeLeft = wholeLeft;
             this.wholeRight = wholeRight;

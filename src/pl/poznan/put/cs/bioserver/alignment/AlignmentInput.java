@@ -19,9 +19,6 @@ class AlignmentInput {
 
     @Override
     public String toString() {
-        if (left == null || right == null) {
-            return "AlignmentInput: structures not provided";
-        }
         StringBuilder builder = new StringBuilder();
         builder.append("AlignmentInput:\n");
         builder.append(left);

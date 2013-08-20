@@ -32,15 +32,15 @@ import pl.poznan.put.cs.bioserver.helper.Visualizable;
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    private JButton buttonVisualize;
-    private JButton buttonVisualize3D;
-    private JButton buttonVisualizeHighQuality;
-    private ComparisonGlobal comparisonGlobal;
-    private JCheckBox findBestK;
-    private JRadioButton hierarchical;
-    private JSpinner kspinner;
-    private JComboBox<Linkage> linkage;
-    private JComboBox<ScoringFunction> scoringFunction;
+    JButton buttonVisualize;
+    JButton buttonVisualize3D;
+    JButton buttonVisualizeHighQuality;
+    ComparisonGlobal comparisonGlobal;
+    JCheckBox findBestK;
+    JRadioButton hierarchical;
+    JSpinner kspinner;
+    JComboBox<Linkage> linkage;
+    JComboBox<ScoringFunction> scoringFunction;
 
     public DialogCluster(ComparisonGlobal comparisonGlobal) {
         super();
@@ -169,7 +169,7 @@ public class DialogCluster extends JDialog {
         setTitle("MCQ4Structures: clustering method");
     }
 
-    private Visualizable getVisualizable() throws InvalidInputException {
+    Visualizable getVisualizable() throws InvalidInputException {
         Visualizable visualizable;
         if (hierarchical.isSelected()) {
             visualizable =

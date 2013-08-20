@@ -119,22 +119,14 @@ public class AngleDifference implements Comparable<AngleDifference> {
                 .doubleToLongBits(other.angle2)) {
             return false;
         }
-        if (angleName == null) {
-            if (other.angleName != null) {
-                return false;
-            }
-        } else if (!angleName.equals(other.angleName)) {
+        if (!angleName.equals(other.angleName)) {
             return false;
         }
         if (Double.doubleToLongBits(difference) != Double
                 .doubleToLongBits(other.difference)) {
             return false;
         }
-        if (residue == null) {
-            if (other.residue != null) {
-                return false;
-            }
-        } else if (!residue.equals(other.residue)) {
+        if (!residue.equals(other.residue)) {
             return false;
         }
         return true;
@@ -169,11 +161,10 @@ public class AngleDifference implements Comparable<AngleDifference> {
         result = prime * result + (int) (temp ^ temp >>> 32);
         temp = Double.doubleToLongBits(angle2);
         result = prime * result + (int) (temp ^ temp >>> 32);
-        result =
-                prime * result + (angleName == null ? 0 : angleName.hashCode());
+        result = prime * result + angleName.hashCode();
         temp = Double.doubleToLongBits(difference);
         result = prime * result + (int) (temp ^ temp >>> 32);
-        result = prime * result + (residue == null ? 0 : residue.hashCode());
+        result = prime * result + residue.hashCode();
         return result;
     }
 

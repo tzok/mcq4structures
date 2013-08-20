@@ -46,9 +46,9 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
         return new ComparisonGlobal(distanceMatrix, labels, method);
     }
 
-    private double[][] distanceMatrix;
-    private List<String> labels;
-    private String method;
+    double[][] distanceMatrix;
+    List<String> labels;
+    String method;
 
     private ComparisonGlobal(double[][] distanceMatrix, List<String> labels,
             String method) {

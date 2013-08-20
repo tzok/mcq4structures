@@ -41,7 +41,7 @@ public final class AminoAcidDihedral implements AngleType {
                     + "4 (chi4)"),
             new AminoAcidDihedral(AngleName.CHI5, Constants.UNICODE_CHI
                     + "5 (chi5)") });
-    
+
     private static List<String> atoms = Arrays.asList(new String[] {
             AminoAcidDihedral.C, AminoAcidDihedral.CA, AminoAcidDihedral.CB,
             AminoAcidDihedral.CD, AminoAcidDihedral.CD1, AminoAcidDihedral.CE,
@@ -50,7 +50,7 @@ public final class AminoAcidDihedral implements AngleType {
             AminoAcidDihedral.NH1, AminoAcidDihedral.NZ, AminoAcidDihedral.OD1,
             AminoAcidDihedral.OE1, AminoAcidDihedral.OG, AminoAcidDihedral.OG1,
             AminoAcidDihedral.SD, AminoAcidDihedral.SG });
-    
+
     private static final String C = " C  ";
     private static final String CA = " CA ";
     private static final String CB = " CB ";
@@ -72,8 +72,10 @@ public final class AminoAcidDihedral implements AngleType {
     private static final String SD = " SD ";
     private static final String SG = " SG ";
 
-    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms = new HashMap<>();
-    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules = new HashMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms =
+            new HashMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules =
+            new HashMap<>();
     private static MultiKeyMap mapResidueAngleNameToAtoms = new MultiKeyMap();
 
     static {

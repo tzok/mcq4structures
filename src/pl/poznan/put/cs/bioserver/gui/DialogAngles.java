@@ -50,8 +50,8 @@ final class DialogAngles extends JDialog {
         }
     }
 
-    private HashMap<String, AngleType> mapNameToAngle;
-    private List<AngleType> selectedNames = Arrays
+    HashMap<String, AngleType> mapNameToAngle;
+    List<AngleType> selectedNames = Arrays
             .asList(new AngleType[] { AngleAverageAll.getInstance() });
 
     private DialogAngles(Frame owner) {

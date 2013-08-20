@@ -38,10 +38,13 @@ final class DialogChainsMultiple extends JDialog {
     private static class FilteredListModel extends AbstractListModel<Chain> {
         private static final long serialVersionUID = 1L;
 
-        private boolean isProtein = true;
-        private boolean isRNA = true;
-        private List<Chain> listProteins = new ArrayList<>();
-        private List<Chain> listRNAs = new ArrayList<>();
+        boolean isProtein = true;
+        boolean isRNA = true;
+        List<Chain> listProteins = new ArrayList<>();
+        List<Chain> listRNAs = new ArrayList<>();
+
+        public FilteredListModel() {
+        }
 
         public void addElement(Chain f) {
             if (Helper.isNucleicAcid(f)) {
@@ -111,12 +114,12 @@ final class DialogChainsMultiple extends JDialog {
         return inst;
     }
 
-    private int chosenOption;
-    private FilteredListModel modelAll = new FilteredListModel();
-    private FilteredListModel modelSelected = new FilteredListModel();
-    private JList<Chain> listAll = new JList<>(modelAll);
-    private JList<Chain> listSelected = new JList<>(modelSelected);
-    private List<Chain> selectedChains = new ArrayList<>();
+    int chosenOption;
+    FilteredListModel modelAll = new FilteredListModel();
+    FilteredListModel modelSelected = new FilteredListModel();
+    JList<Chain> listAll = new JList<>(modelAll);
+    JList<Chain> listSelected = new JList<>(modelSelected);
+    List<Chain> selectedChains = new ArrayList<>();
 
     private DialogChainsMultiple(Frame owner) {
         super(owner, true);

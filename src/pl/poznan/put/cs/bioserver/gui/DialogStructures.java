@@ -49,10 +49,10 @@ final class DialogStructures extends JDialog {
         return inst;
     }
 
-    private int chosenOption;
-    private DefaultListModel<Structure> modelAll = new DefaultListModel<>();
-    private DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
-    private List<Structure> selectedStructures = new ArrayList<>();
+    int chosenOption;
+    DefaultListModel<Structure> modelAll = new DefaultListModel<>();
+    DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
+    List<Structure> selectedStructures = new ArrayList<>();
 
     private DialogStructures(Frame owner) {
         super(owner, true);

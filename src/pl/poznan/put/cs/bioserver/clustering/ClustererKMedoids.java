@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 public final class ClustererKMedoids {
     public static class Result {
         public Set<Integer> medoids;
-        private double score;
+        double score;
 
-        private Result(Set<Integer> medoids, double score) {
+        Result(Set<Integer> medoids, double score) {
             super();
             this.medoids = medoids;
             this.score = score;
@@ -188,8 +188,8 @@ public final class ClustererKMedoids {
         return new Result(overallBestMedoids, overallBestScore);
     }
 
-    private static double scoreByDistance(
-            Map<Integer, Set<Integer>> clustering, double[][] matrix) {
+    static double scoreByDistance(Map<Integer, Set<Integer>> clustering,
+            double[][] matrix) {
         double result = 0;
         for (Entry<Integer, Set<Integer>> entry : clustering.entrySet()) {
             int j = entry.getKey();
@@ -200,8 +200,8 @@ public final class ClustererKMedoids {
         return -result;
     }
 
-    private static double scoreBySilhouette(
-            Map<Integer, Set<Integer>> clustering, double[][] matrix) {
+    static double scoreBySilhouette(Map<Integer, Set<Integer>> clustering,
+            double[][] matrix) {
         double result = 0;
         for (Entry<Integer, Set<Integer>> e1 : clustering.entrySet()) {
             if (e1.getValue().size() == 1) {

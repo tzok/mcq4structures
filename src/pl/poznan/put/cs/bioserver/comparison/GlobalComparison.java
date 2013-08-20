@@ -35,18 +35,20 @@ public abstract class GlobalComparison {
 
         @Override
         public SingleResult call() throws Exception {
-            SingleResult result = new SingleResult();
-            result.i = i;
-            result.j = j;
-            result.value = compare(s1, s2);
-            return result;
+            return new SingleResult(i, j, compare(s1, s2));
         }
     }
 
     private static class SingleResult {
-        private int i;
-        private int j;
-        private double value;
+        int i;
+        int j;
+        double value;
+
+        public SingleResult(int i, int j, double value) {
+            this.i = i;
+            this.j = j;
+            this.value = value;
+        }
     }
 
     private static final Logger LOGGER = LoggerFactory

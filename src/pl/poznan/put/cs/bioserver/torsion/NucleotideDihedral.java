@@ -71,7 +71,7 @@ public final class NucleotideDihedral implements AngleType {
                     + "' (eta')"),
             new NucleotideDihedral(AngleName.THETA_PRIM,
                     Constants.UNICODE_THETA + "' (theta')") });
-    
+
     private static List<String> atoms = Arrays.asList(new String[] {
             NucleotideDihedral.C1P, NucleotideDihedral.C2,
             NucleotideDihedral.C2P, NucleotideDihedral.C3P,
@@ -80,7 +80,7 @@ public final class NucleotideDihedral implements AngleType {
             NucleotideDihedral.N9, NucleotideDihedral.O3P,
             NucleotideDihedral.O4P, NucleotideDihedral.O5P,
             NucleotideDihedral.P });
-    
+
     private static final String C1P = " C1'";
     private static final String C2 = " C2 ";
     private static final String C2P = " C2'";
@@ -95,10 +95,12 @@ public final class NucleotideDihedral implements AngleType {
     private static final String O5P = " O5'";
     private static final String P = " P  ";
 
-    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms = new HashMap<>();
-    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules = new HashMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms =
+            new HashMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules =
+            new HashMap<>();
     private static Set<Character> setPyrimidines = new HashSet<>();
-    
+
     static {
         NucleotideDihedral.mapAngleToAtoms.put(AngleName.ALPHA,
                 new UniTypeQuadruplet<>(new String[] { NucleotideDihedral.O3P,
