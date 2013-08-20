@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
+import org.biojava.bio.structure.StructureImpl;
 import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
@@ -128,24 +129,27 @@ final class DialogChains extends JDialog {
 
     public static final int CANCEL = 0;
     public static final int OK = 1;
+    @Nullable
     private static DialogChains instance;
 
     private static final long serialVersionUID = 1L;
 
-    public static DialogChains getInstance(Frame owner) {
-        if (DialogChains.instance == null) {
-            DialogChains.instance = new DialogChains(owner);
+    public static synchronized DialogChains getInstance(Frame owner) {
+        DialogChains inst = DialogChains.instance;
+        if (inst == null) {
+            inst = new DialogChains(owner);
         }
-        return DialogChains.instance;
+        DialogChains.instance = inst;
+        return inst;
     }
 
-    private List<Chain> chainsLeft;
-    private List<Chain> chainsRight;
+    private List<Chain> chainsLeft = new ArrayList<>();
+    private List<Chain> chainsRight = new ArrayList<>();
     private int chosenOption;
     private PanelChains panelsChainsLeft = new PanelChains();
     private PanelChains panelsChainsRight = new PanelChains();
-    private Structure structureLeft;
-    private Structure structureRight;
+    private Structure structureLeft = new StructureImpl();
+    private Structure structureRight = new StructureImpl();
 
     private DialogChains(Frame owner) {
         super(owner, true);

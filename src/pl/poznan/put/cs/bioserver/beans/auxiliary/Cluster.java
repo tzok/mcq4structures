@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.beans.auxiliary;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -11,7 +12,7 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 public class Cluster extends XMLSerializable {
     private static final long serialVersionUID = 4584994465498507561L;
 
-    private List<Point> points;
+    private List<Point> points = new ArrayList<>();
 
     public List<Point> getPoints() {
         return points;

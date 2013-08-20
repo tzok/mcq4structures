@@ -17,7 +17,8 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Darryl
  */
 public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
-    private static MenuElement[] path;
+    @Nullable
+    static MenuElement[] path;
     private static final long serialVersionUID = 1L;
 
     {

@@ -46,8 +46,13 @@ public class Quadruplet {
         if (wasAligned) {
             return indices.equals(q.indices);
         }
-        int r1 = atoms.a.getGroup().getResidueNumber().getSeqNum();
-        int r2 = q.atoms.a.getGroup().getResidueNumber().getSeqNum();
+        Atom a1 = atoms.a;
+        Atom a2 = q.atoms.a;
+        if (a1 == null || a2 == null) {
+            return false;
+        }
+        int r1 = a1.getGroup().getResidueNumber().getSeqNum();
+        int r2 = a2.getGroup().getResidueNumber().getSeqNum();
         return r1 == r2;
     }
 }

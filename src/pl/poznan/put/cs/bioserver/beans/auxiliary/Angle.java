@@ -10,8 +10,8 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 public class Angle extends XMLSerializable {
     private static final long serialVersionUID = 3617330297291250022L;
 
-    private double[] deltas;
-    private String name;
+    private double[] deltas = new double[0];
+    private String name = "";
 
     public double[] getDeltas() {
         return deltas.clone();

@@ -5,12 +5,9 @@ import org.biojava.bio.structure.Group;
 import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
 public class AnglePseudophasePucker implements AngleType {
-    private static AnglePseudophasePucker instance;
+    private static AnglePseudophasePucker instance = new AnglePseudophasePucker();
 
     public static AnglePseudophasePucker getInstance() {
-        if (AnglePseudophasePucker.instance == null) {
-            AnglePseudophasePucker.instance = new AnglePseudophasePucker();
-        }
         return AnglePseudophasePucker.instance;
     }
 

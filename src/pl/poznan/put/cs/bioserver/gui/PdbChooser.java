@@ -7,10 +7,9 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 final class PdbChooser {
-    private static JFileChooser chooser;
+    private static JFileChooser chooser = new JFileChooser();
 
     static {
-        PdbChooser.chooser = new JFileChooser();
         PdbChooser.chooser.setFileFilter(new FileNameExtensionFilter(
                 "Supported formats (PDB, mmCIF)", new String[] { "pdb", "pdb1",
                         "ent", "brk", "cif", "gz" }));

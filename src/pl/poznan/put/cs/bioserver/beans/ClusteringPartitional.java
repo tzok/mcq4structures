@@ -98,15 +98,8 @@ public class ClusteringPartitional extends XMLSerializable implements
             clusters3D.add(cluster3D);
         }
 
-        ClusteringPartitional instance = new ClusteringPartitional();
-        instance.comparison = comparison;
-        instance.labels = labels;
-        instance.medoids = medoids;
-        instance.clusters = clusters;
-        instance.clusters3D = clusters3D;
-        instance.scoringFunction = scoringFunction.toString();
-        instance.colors = Colors.toRGB();
-        return instance;
+        return new ClusteringPartitional(clusters, clusters3D, Colors.toRGB(),
+                comparison, labels, medoids, scoringFunction.toString());
     }
 
     private List<Cluster> clusters;
@@ -116,6 +109,20 @@ public class ClusteringPartitional extends XMLSerializable implements
     private List<String> labels;
     private List<Point> medoids;
     private String scoringFunction;
+
+    private ClusteringPartitional(List<Cluster> clusters,
+            List<Cluster3D> clusters3d, List<RGB> colors,
+            ComparisonGlobal comparison, List<String> labels,
+            List<Point> medoids, String scoringFunction) {
+        super();
+        this.clusters = clusters;
+        clusters3D = clusters3d;
+        this.colors = colors;
+        this.comparison = comparison;
+        this.labels = labels;
+        this.medoids = medoids;
+        this.scoringFunction = scoringFunction;
+    }
 
     public List<Cluster> getClusters() {
         return clusters;
@@ -210,7 +217,8 @@ public class ClusteringPartitional extends XMLSerializable implements
             for (Point3D point : cluster.getPoints()) {
                 Coord3d center =
                         new Coord3d(point.getX(), point.getY(), point.getZ());
-                float radius = (float) ((max - min) / comparison.getLabels().size());
+                float radius =
+                        (float) ((max - min) / comparison.getLabels().size());
                 Sphere sphere = new Sphere(center, radius, 15, color);
                 sphere.setWireframeColor(Color.BLACK);
                 graph.add(sphere);

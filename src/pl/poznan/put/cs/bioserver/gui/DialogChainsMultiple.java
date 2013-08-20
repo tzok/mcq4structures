@@ -97,31 +97,32 @@ final class DialogChainsMultiple extends JDialog {
 
     public static final int CANCEL = 0;
     public static final int OK = 1;
+    @Nullable
     private static DialogChainsMultiple instance;
 
     private static final long serialVersionUID = 1L;
 
     public static DialogChainsMultiple getInstance(Frame owner) {
-        if (DialogChainsMultiple.instance == null) {
-            DialogChainsMultiple.instance = new DialogChainsMultiple(owner);
+        DialogChainsMultiple inst = DialogChainsMultiple.instance;
+        if (inst == null) {
+            inst = new DialogChainsMultiple(owner);
         }
-        return DialogChainsMultiple.instance;
+        DialogChainsMultiple.instance = inst;
+        return inst;
     }
 
     private int chosenOption;
-    private JList<Chain> listAll;
-    private JList<Chain> listSelected;
-    private FilteredListModel modelAll;
-    private FilteredListModel modelSelected;
-    private List<Chain> selectedChains;
+    private FilteredListModel modelAll = new FilteredListModel();
+    private FilteredListModel modelSelected = new FilteredListModel();
+    private JList<Chain> listAll = new JList<>(modelAll);
+    private JList<Chain> listSelected = new JList<>(modelSelected);
+    private List<Chain> selectedChains = new ArrayList<>();
 
     private DialogChainsMultiple(Frame owner) {
         super(owner, true);
 
-        modelAll = new FilteredListModel();
         listAll = new JList<>(modelAll);
         listAll.setBorder(BorderFactory.createTitledBorder("Available chains"));
-        modelSelected = new FilteredListModel();
         listSelected = new JList<>(modelSelected);
         listSelected.setBorder(BorderFactory
                 .createTitledBorder("Selected chains"));

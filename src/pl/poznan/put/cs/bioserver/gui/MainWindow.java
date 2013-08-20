@@ -94,7 +94,6 @@ public class MainWindow extends JFrame {
             + "of 3D RNA / protein structures";
 
     private JCheckBoxMenuItem checkBoxManager;
-    private Clusterable clusterable;
     private TableCellRenderer colorsRenderer;
     private DialogAngles dialogAngles;
     private DialogChains dialogChains;
@@ -102,7 +101,6 @@ public class MainWindow extends JFrame {
     private DialogChainsMultiple dialogChainsMultiple;
     private DialogManager dialogManager;
     private DialogStructures dialogStructures;
-    private Exportable exportable;
 
     private JMenuItem itemAbout;
     private JMenuItem itemCluster;
@@ -146,9 +144,15 @@ public class MainWindow extends JFrame {
     private JTable tableMatrix;
 
     private JTextArea textAreaAlignSeq;
+    @Nullable
     private Thread threadAlignment;
 
-    private Visualizable visualizable;
+    @Nullable
+    private Clusterable clusterable;
+    @Nullable
+    private Exportable exportable;
+    @Nullable
+    Visualizable visualizable;
 
     public MainWindow() {
         super();
@@ -428,22 +432,28 @@ public class MainWindow extends JFrame {
         itemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent e) {
-                JFileChooser chooser =
-                        new JFileChooser(PdbChooser.getCurrentDirectory());
-                chooser.setSelectedFile(exportable.suggestName());
-                int option = chooser.showSaveDialog(MainWindow.this);
-                if (option == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        exportable.export(chooser.getSelectedFile());
-                        JOptionPane.showMessageDialog(MainWindow.this,
-                                "Successfully exported the results!",
-                                "Information", JOptionPane.INFORMATION_MESSAGE);
-                    } catch (IOException exception) {
-                        String message =
-                                "Failed to export results, reason: "
-                                        + exception.getMessage();
-                        JOptionPane.showMessageDialog(MainWindow.this, message,
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                Exportable exportableLocal = exportable;
+                if (exportableLocal != null) {
+                    JFileChooser chooser =
+                            new JFileChooser(PdbChooser.getCurrentDirectory());
+                    chooser.setSelectedFile(exportableLocal.suggestName());
+                    int option = chooser.showSaveDialog(MainWindow.this);
+                    if (option == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            exportableLocal.export(chooser.getSelectedFile());
+                            JOptionPane.showMessageDialog(MainWindow.this,
+                                    "Successfully exported the results!",
+                                    "Information",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        } catch (IOException exception) {
+                            String message =
+                                    "Failed to export results, reason: "
+                                            + exception.getMessage();
+                            JOptionPane
+                                    .showMessageDialog(MainWindow.this,
+                                            message, "Error",
+                                            JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             }
@@ -543,28 +553,40 @@ public class MainWindow extends JFrame {
         itemVisualise.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent e) {
-                visualizable.visualize();
+                final Visualizable visualizable2 = visualizable;
+                if (visualizable2 != null) {
+                    visualizable2.visualize();
+                }
             }
         });
 
         itemVisualiseHighQuality.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
-                visualizable.visualizeHighQuality();
+                final Visualizable visualizable2 = visualizable;
+                if (visualizable2 != null) {
+                    visualizable2.visualizeHighQuality();
+                }
             }
         });
 
         itemVisualise3D.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent e) {
-                visualizable.visualize3D();
+                final Visualizable visualizable2 = visualizable;
+                if (visualizable2 != null) {
+                    visualizable2.visualize3D();
+                }
             }
         });
 
         itemCluster.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(@Nullable ActionEvent arg0) {
-                clusterable.cluster();
+                final Clusterable clusterable2 = clusterable;
+                if (clusterable2 != null) {
+                    clusterable2.cluster();
+                }
             }
         });
 
@@ -693,6 +715,7 @@ public class MainWindow extends JFrame {
         timer.start();
 
         threadAlignment = new Thread(new Runnable() {
+            @Nullable
             private AlignmentOutput output;
 
             @Override
@@ -718,12 +741,13 @@ public class MainWindow extends JFrame {
 
                         @Override
                         public void run() {
-                            if (output == null) {
+                            AlignmentOutput outputLocal = output;
+                            if (outputLocal == null) {
                                 return;
                             }
                             StructuresAligned aligned;
                             try {
-                                aligned = output.getStructures();
+                                aligned = outputLocal.getStructures();
                             } catch (StructureException e) {
                                 JOptionPane.showMessageDialog(MainWindow.this,
                                         e.getMessage(), "Error",

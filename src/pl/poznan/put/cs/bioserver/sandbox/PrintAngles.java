@@ -32,9 +32,11 @@ public class PrintAngles {
                         atomArray, type)) {
                     UniTypeQuadruplet<Atom> atoms = quadruplet.getAtoms();
                     double dihedral = DihedralAngles.calculateDihedral(atoms);
+                    Atom b1 = atoms.b;
+                    assert b1 != null;
                     System.out.println(type.getAngleName() + " "
-                            + atoms.b.getGroup().getResidueNumber() + " "
-                            + dihedral + " " + Math.toDegrees(dihedral));
+                            + b1.getGroup().getResidueNumber() + " " + dihedral
+                            + " " + Math.toDegrees(dihedral));
                 }
             }
         } catch (IOException e) {

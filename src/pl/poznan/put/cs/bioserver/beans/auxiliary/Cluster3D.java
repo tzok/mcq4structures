@@ -1,5 +1,6 @@
 package pl.poznan.put.cs.bioserver.beans.auxiliary;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -11,7 +12,7 @@ import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 public class Cluster3D extends XMLSerializable {
     private static final long serialVersionUID = -3603148262237249360L;
 
-    private List<Point3D> points;
+    private List<Point3D> points = new ArrayList<>();
 
     public List<Point3D> getPoints() {
         return points;

@@ -30,18 +30,24 @@ import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
 final class DialogAngles extends JDialog {
+    @Nullable
     private static DialogAngles instance;
     private static final long serialVersionUID = 1L;
 
     public static DialogAngles getInstance(Frame owner) {
-        if (DialogAngles.instance == null) {
-            DialogAngles.instance = new DialogAngles(owner);
+        DialogAngles inst = DialogAngles.instance;
+        if (inst == null) {
+            inst = new DialogAngles(owner);
         }
-        return DialogAngles.instance;
+        DialogAngles.instance = inst;
+        return inst;
     }
 
     public static void selectAngles() {
-        DialogAngles.instance.setVisible(true);
+        DialogAngles inst = DialogAngles.instance;
+        if (inst != null) {
+            inst.setVisible(true);
+        }
     }
 
     private HashMap<String, AngleType> mapNameToAngle;

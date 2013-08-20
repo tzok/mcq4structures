@@ -23,17 +23,20 @@ public class ClusteringHierarchical extends XMLSerializable implements
         List<Cluster> result =
                 ClustererHierarchical.hierarchicalClustering(
                         comparison.getDistanceMatrix(), linkage);
-
-        ClusteringHierarchical instance = new ClusteringHierarchical();
-        instance.setComparison(comparison);
-        instance.setLinkage(linkage);
-        instance.setClustering(result);
-        return instance;
+        return new ClusteringHierarchical(result, comparison, linkage);
     }
 
     private List<Cluster> clustering;
     private ComparisonGlobal comparison;
     private Linkage linkage;
+
+    private ClusteringHierarchical(List<Cluster> clustering,
+            ComparisonGlobal comparison, Linkage linkage) {
+        super();
+        this.clustering = clustering;
+        this.comparison = comparison;
+        this.linkage = linkage;
+    }
 
     public List<Cluster> getClustering() {
         return clustering;

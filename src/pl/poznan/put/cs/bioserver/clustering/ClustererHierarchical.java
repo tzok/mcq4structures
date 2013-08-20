@@ -14,7 +14,7 @@ public final class ClustererHierarchical {
         final double x;
         final double y;
 
-        private Cluster(Cluster left, Cluster right, double distance) {
+        Cluster(Cluster left, Cluster right, double distance) {
             super();
             items = new ArrayList<>();
             items.addAll(left.items);
@@ -25,11 +25,13 @@ public final class ClustererHierarchical {
             this.right = right;
         }
 
-        private Cluster(List<Integer> items, double x, double y) {
+        Cluster(List<Integer> items, double x, double y) {
             super();
             this.items = items;
             this.x = x;
             this.y = y;
+            left = new Cluster(new ArrayList<Integer>(), -1, -1);
+            right = new Cluster(new ArrayList<Integer>(), -1, -1);
         }
 
         @Override
@@ -48,14 +50,10 @@ public final class ClustererHierarchical {
             builder.append("y = ");
             builder.append(y);
             builder.append('\n');
-            if (left != null) {
-                builder.append("left:\n");
-                builder.append(left.toString());
-            }
-            if (right != null) {
-                builder.append("right:\n");
-                builder.append(right.toString());
-            }
+            builder.append("left:\n");
+            builder.append(left.toString());
+            builder.append("right:\n");
+            builder.append(right.toString());
             return builder.toString();
         }
     }

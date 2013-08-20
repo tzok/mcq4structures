@@ -43,16 +43,20 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
 
     public static ComparisonGlobal newInstance(double[][] distanceMatrix,
             List<String> labels, String method) {
-        ComparisonGlobal instance = new ComparisonGlobal();
-        instance.setDistanceMatrix(distanceMatrix);
-        instance.setLabels(labels);
-        instance.setMethod(method);
-        return instance;
+        return new ComparisonGlobal(distanceMatrix, labels, method);
     }
 
     private double[][] distanceMatrix;
     private List<String> labels;
     private String method;
+
+    private ComparisonGlobal(double[][] distanceMatrix, List<String> labels,
+            String method) {
+        super();
+        this.distanceMatrix = distanceMatrix;
+        this.labels = labels;
+        this.method = method;
+    }
 
     @Override
     public void cluster() {

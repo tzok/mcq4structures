@@ -190,19 +190,22 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             ticks.add(String.format("%s:%03d", residue.getChainId(),
                     residue.getSeqNum()));
         }
-
-        ComparisonLocal result = new ComparisonLocal();
-        result.setAngles(angles);
-        result.setTicks(ticks);
-        result.setTitle(title);
-        result.colors = Colors.toRGB();
-        return result;
+        return new ComparisonLocal(angles, Colors.toRGB(), ticks, title);
     }
 
     Map<String, Angle> angles;
     private List<RGB> colors;
     List<String> ticks;
     String title;
+
+    private ComparisonLocal(Map<String, Angle> angles, List<RGB> colors,
+            List<String> ticks, String title) {
+        super();
+        this.angles = angles;
+        this.colors = colors;
+        this.ticks = ticks;
+        this.title = title;
+    }
 
     @Override
     public void export(File file) throws IOException {

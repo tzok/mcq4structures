@@ -114,16 +114,19 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         /*
          * construct a final object
          */
-        AlignmentSequence result = new AlignmentSequence();
-        result.setAlignment(builder.toString());
-        result.setGlobal(isGlobal);
-        result.setTitle(title);
-        return result;
+        return new AlignmentSequence(builder.toString(), isGlobal, title);
     }
 
     private String alignment;
     private boolean isGlobal;
     private String title;
+
+    private AlignmentSequence(String alignment, boolean isGlobal, String title) {
+        super();
+        this.alignment = alignment;
+        this.isGlobal = isGlobal;
+        this.title = title;
+    }
 
     // /////////////////////////////////////////////////////////////////////////
     // other methods, implementation of interfaces

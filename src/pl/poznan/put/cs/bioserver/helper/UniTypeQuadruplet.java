@@ -5,9 +5,13 @@ import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class UniTypeQuadruplet<T> {
+    @Nullable
     public final T a;
+    @Nullable
     public final T b;
+    @Nullable
     public final T c;
+    @Nullable
     public final T d;
 
     public UniTypeQuadruplet(List<T> list) {
@@ -49,33 +53,37 @@ public class UniTypeQuadruplet<T> {
         if (getClass() != obj.getClass()) {
             return false;
         }
+        T a1 = a;
+        T b1 = b;
+        T c1 = c;
+        T d1 = d;
         UniTypeQuadruplet other = (UniTypeQuadruplet) obj;
-        if (a == null) {
+        if (a1 == null) {
             if (other.a != null) {
                 return false;
             }
-        } else if (!a.equals(other.a)) {
+        } else if (!a1.equals(other.a)) {
             return false;
         }
-        if (b == null) {
+        if (b1 == null) {
             if (other.b != null) {
                 return false;
             }
-        } else if (!b.equals(other.b)) {
+        } else if (!b1.equals(other.b)) {
             return false;
         }
-        if (c == null) {
+        if (c1 == null) {
             if (other.c != null) {
                 return false;
             }
-        } else if (!c.equals(other.c)) {
+        } else if (!c1.equals(other.c)) {
             return false;
         }
-        if (d == null) {
+        if (d1 == null) {
             if (other.d != null) {
                 return false;
             }
-        } else if (!d.equals(other.d)) {
+        } else if (!d1.equals(other.d)) {
             return false;
         }
         return true;
@@ -104,12 +112,17 @@ public class UniTypeQuadruplet<T> {
 
     @Override
     public int hashCode() {
+        T a1 = a;
+        T b1 = b;
+        T c1 = c;
+        T d1 = d;
+        
         final int prime = 31;
         int result = 1;
-        result = prime * result + (a == null ? 0 : a.hashCode());
-        result = prime * result + (b == null ? 0 : b.hashCode());
-        result = prime * result + (c == null ? 0 : c.hashCode());
-        result = prime * result + (d == null ? 0 : d.hashCode());
+        result = prime * result + (a1 == null ? 0 : a1.hashCode());
+        result = prime * result + (b1 == null ? 0 : b1.hashCode());
+        result = prime * result + (c1 == null ? 0 : c1.hashCode());
+        result = prime * result + (d1 == null ? 0 : d1.hashCode());
         return result;
     }
 }

@@ -29,15 +29,18 @@ import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 final class DialogManager extends JDialog {
+    @Nullable
     private static DialogManager instance;
 
     private static final long serialVersionUID = 1L;
 
     static DialogManager getInstance(Frame owner) {
-        if (DialogManager.instance == null) {
-            DialogManager.instance = new DialogManager(owner);
+        DialogManager inst = DialogManager.instance;
+        if (inst == null) {
+            inst = new DialogManager(owner);
         }
-        return DialogManager.instance;
+        DialogManager.instance = inst;
+        return inst;
     }
 
     private DefaultListModel<File> model = new DefaultListModel<>();

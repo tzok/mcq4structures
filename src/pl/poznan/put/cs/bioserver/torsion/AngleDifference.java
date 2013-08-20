@@ -67,7 +67,15 @@ public class AngleDifference implements Comparable<AngleDifference> {
         angle1 = DihedralAngles.calculateDihedral(q1);
         angle2 = DihedralAngles.calculateDihedral(q2);
         difference = DihedralAngles.subtractDihedral(angle1, angle2);
-        residue = q1.b.getGroup().getResidueNumber();
+        Atom b1 = q1.b;
+        Atom b2 = q2.b;
+        if (b1 != null) {
+            residue = b1.getGroup().getResidueNumber();
+        } else if (b2 != null) {
+            residue = b2.getGroup().getResidueNumber();
+        } else {
+            residue = new ResidueNumber();
+        }
         this.angleName = angleName;
     }
 

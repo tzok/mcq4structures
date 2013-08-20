@@ -35,21 +35,24 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
 final class DialogStructures extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
+    @Nullable
     private static DialogStructures instance;
 
     private static final long serialVersionUID = 1L;
 
     public static DialogStructures getInstance(Frame owner) {
-        if (DialogStructures.instance == null) {
-            DialogStructures.instance = new DialogStructures(owner);
+        DialogStructures inst = DialogStructures.instance;
+        if (inst == null) {
+            inst = new DialogStructures(owner);
         }
-        return DialogStructures.instance;
+        DialogStructures.instance = inst;
+        return inst;
     }
 
     private int chosenOption;
-    private DefaultListModel<Structure> modelAll;
-    private DefaultListModel<Structure> modelSelected;
-    private List<Structure> selectedStructures;
+    private DefaultListModel<Structure> modelAll = new DefaultListModel<>();
+    private DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
+    private List<Structure> selectedStructures = new ArrayList<>();
 
     private DialogStructures(Frame owner) {
         super(owner, true);

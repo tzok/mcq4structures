@@ -16,7 +16,8 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Darryl
  */
 public class StayOpenMenuItem extends JMenuItem {
-    private static MenuElement[] path;
+    @Nullable
+    static MenuElement[] path;
     private static final long serialVersionUID = 1L;
 
     {
