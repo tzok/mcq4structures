@@ -166,6 +166,19 @@ public class MCQ extends GlobalComparison {
         return Math.atan2(sines / counter, cosines / counter);
     }
 
+    // TODO: Refactor!
+    public static double calculate(List<Double> values) {
+        int counter = 0;
+        double sines = 0.0;
+        double cosines = 0.0;
+        for (double v : values) {
+            sines += Math.sin(v);
+            cosines += Math.cos(v);
+            counter++;
+        }
+        return Math.atan2(sines / counter, cosines / counter);
+    }
+
     /**
      * Compare two given structures. By default, do not try to align based on
      * atoms.

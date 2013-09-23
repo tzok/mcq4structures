@@ -1,12 +1,24 @@
 package pl.poznan.put.cs.bioserver.clustering;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.apache.commons.collections15.buffer.PriorityBuffer;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +30,24 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class ClustererKMedoids {
+    public static class ClusterCallable implements Callable<Result> {
+        private double[][] matrix;
+        private ScoringFunction sf;
+        private int k;
+
+        public ClusterCallable(double[][] matrix, ScoringFunction sf, int k) {
+            this.matrix = matrix.clone();
+            this.sf = sf;
+            this.k = k;
+        }
+
+        @Override
+        public Result call() throws Exception {
+            return ClustererKMedoids.kMedoids(matrix, sf, k);
+        }
+
+    }
+
     public static class Result {
         public Set<Integer> medoids;
         double score;
@@ -33,12 +63,46 @@ public final class ClustererKMedoids {
         double score(Set<Integer> medoids, double[][] matrix);
     }
 
+    private static class MatrixComparator implements Comparator<Integer> {
+        private int index;
+        private double[][] matrix;
+
+        public MatrixComparator(int index, double[][] matrix) {
+            super();
+            this.index = index;
+            this.matrix = matrix;
+        }
+
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            return Double.compare(matrix[index][o1], matrix[index][o2]);
+        }
+
+    }
+
     public static final ScoringFunction PAM = new ScoringFunction() {
         @Override
         public double score(Set<Integer> medoids, double[][] matrix) {
-            Map<Integer, Set<Integer>> assignments =
-                    ClustererKMedoids.getClusterAssignments(medoids, matrix);
-            return ClustererKMedoids.scoreByDistance(assignments, matrix);
+            List<PriorityBuffer<Integer>> asHeaps =
+                    ClustererKMedoids.matrixAsHeaps(matrix);
+            double result = 0;
+
+            for (int i = 0; i < matrix.length; i++) {
+                PriorityBuffer<Integer> heap = asHeaps.get(i);
+                Iterator<Integer> iterator = heap.iterator();
+                while (iterator.hasNext()) {
+                    Integer closest = iterator.next();
+                    if (medoids.contains(closest)) {
+                        result += matrix[closest][i];
+                        break;
+                    }
+                }
+            }
+            return -result;
+            //
+            // Map<Integer, Set<Integer>> assignments =
+            // ClustererKMedoids.getClusterAssignments(medoids, matrix);
+            // return ClustererKMedoids.scoreByDistance(assignments, matrix);
         }
 
         @Override
@@ -61,12 +125,16 @@ public final class ClustererKMedoids {
         }
     };
 
+    @SuppressWarnings("null")
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ClustererKMedoids.class);
     private static final Random RANDOM = new Random();
 
+    @Nullable
+    private static List<PriorityBuffer<Integer>> heaps;
+
     /**
-     * Assign every object to its closes medoid.
+     * Assign every object to its closest medoid.
      * 
      * @param medoids
      *            Indices of objects which are medoids.
@@ -75,28 +143,27 @@ public final class ClustererKMedoids {
      * @return A map of this form { medoid : set(objects) }
      */
     public static Map<Integer, Set<Integer>> getClusterAssignments(
-            Set<Integer> medoids, double[][] matrix) {
+            Set<Integer> medoids, final double[][] matrix) {
         Map<Integer, Set<Integer>> clustering = new HashMap<>();
         for (int i : medoids) {
             clustering.put(i, new HashSet<Integer>());
         }
 
-        // for each element, find its closest medoids
+        List<PriorityBuffer<Integer>> binaryHeaps =
+                ClustererKMedoids.matrixAsHeaps(matrix);
+
         for (int i = 0; i < matrix.length; i++) {
-            double minimum = Double.POSITIVE_INFINITY;
-            int minimizer = -1;
-            for (int j : medoids) {
-                if (matrix[i][j] < minimum) {
-                    minimum = matrix[i][j];
-                    minimizer = j;
+            PriorityBuffer<Integer> heap = binaryHeaps.get(i);
+            Iterator<Integer> iterator = heap.iterator();
+            while (iterator.hasNext()) {
+                Integer closest = iterator.next();
+                if (medoids.contains(closest)) {
+                    clustering.get(closest).add(i);
+                    break;
                 }
             }
-
-            // minimizer == closest medoid
-            // i == current element
-            Set<Integer> set = clustering.get(minimizer);
-            set.add(i);
         }
+
         return clustering;
     }
 
@@ -109,39 +176,14 @@ public final class ClustererKMedoids {
             @Nullable Integer k) {
         // in this mode, search for best 'k'
         if (k == null) {
-            Result overallBest = null;
-            for (int i = 2; i <= matrix.length; i++) {
-                Result result = ClustererKMedoids.kMedoids(matrix, sf, i);
-                double score =
-                        ClustererKMedoids.PAMSIL.score(result.medoids, matrix);
-                if (overallBest == null || score > overallBest.score) {
-                    overallBest = result;
-                    overallBest.score = score;
-                }
-            }
-            assert overallBest != null;
-            ClustererKMedoids.LOGGER.debug("Final score for clustering: "
-                    + overallBest.score);
-            return overallBest;
+            return ClustererKMedoids.parallelScan(matrix, sf);
         }
 
         double overallBestScore = Double.NEGATIVE_INFINITY;
         Set<Integer> overallBestMedoids = null;
-        for (int trial = 0; trial < 10; trial++) {
-            int[] options = new int[matrix.length];
-            for (int i = 0; i < matrix.length; i++) {
-                options[i] = i;
-            }
-            for (int i = 0; i < matrix.length; i++) {
-                int j = ClustererKMedoids.RANDOM.nextInt(matrix.length);
-                int tmp = options[i];
-                options[i] = options[j];
-                options[j] = tmp;
-            }
-            Set<Integer> medoids = new HashSet<>();
-            for (int i = 0; i < k; i++) {
-                medoids.add(options[i]);
-            }
+        for (int trial = 0; trial < 1; trial++) {
+            Set<Integer> medoids =
+                    ClustererKMedoids.initializeMedoids(matrix, k);
 
             double score = sf.score(medoids, matrix);
             while (true) {
@@ -183,9 +225,124 @@ public final class ClustererKMedoids {
         }
 
         assert overallBestMedoids != null;
-        ClustererKMedoids.LOGGER.debug("Final score for clustering (k=" + k
-                + "): " + overallBestScore);
+
+        DecimalFormat format = new DecimalFormat("0.000");
+        ClustererKMedoids.LOGGER.debug("Final score for clustering (k="
+                + k
+                + "): PAM="
+                + format.format(overallBestScore)
+                + " PAMSIL="
+                + format.format(ClustererKMedoids.PAMSIL.score(
+                        overallBestMedoids, matrix)));
         return new Result(overallBestMedoids, overallBestScore);
+    }
+
+    // http://en.wikipedia.org/wiki/K-means%2B%2B#Initialization_algorithm
+    private static Set<Integer> initializeMedoids(double[][] matrix, int k) {
+        Set<Integer> setMedoids = new HashSet<>();
+        setMedoids.add(RANDOM.nextInt(matrix.length));
+
+        List<PriorityBuffer<Integer>> listHeaps =
+                ClustererKMedoids.matrixAsHeaps(matrix);
+
+        for (int i = 0; i < k; i++) {
+            LinkedHashMap<Integer, Double> mapElementNearest =
+                    new LinkedHashMap<>();
+            double total = 0;
+
+            for (int j = 0; j < matrix.length; j++) {
+                if (setMedoids.contains(j)) {
+                    continue;
+                }
+
+                Iterator<Integer> iterator = listHeaps.get(j).iterator();
+                while (iterator.hasNext()) {
+                    Integer nearest = iterator.next();
+                    if (setMedoids.contains(nearest)) {
+                        double distance = matrix[j][nearest];
+                        total = total + distance * distance;
+                        mapElementNearest.put(j, total);
+                        break;
+                    }
+                }
+            }
+
+            Set<Integer> setCandidates = new HashSet<>();
+            for (int j = 0; j < matrix.length; j++) {
+                setCandidates.add(j);
+            }
+            setCandidates.removeAll(setMedoids);
+
+            double randomToken = ClustererKMedoids.RANDOM.nextDouble() * total;
+            for (Entry<Integer, Double> entry : mapElementNearest.entrySet()) {
+                if (randomToken < entry.getValue()) {
+                    setMedoids.add(entry.getKey());
+                    break;
+                }
+            }
+        }
+
+        return setMedoids;
+    }
+
+    private static Result parallelScan(double[][] matrix, ScoringFunction sf) {
+        int countThreads = Runtime.getRuntime().availableProcessors() * 2;
+        ExecutorService threadPool = Executors.newFixedThreadPool(countThreads);
+        ExecutorCompletionService<Result> ecs =
+                new ExecutorCompletionService<>(threadPool);
+
+        for (int i = 2; i <= matrix.length; i++) {
+            ClusterCallable task = new ClusterCallable(matrix, sf, i);
+            ecs.submit(task);
+        }
+        threadPool.shutdown();
+
+        Result overallBest = null;
+        for (int i = 2; i <= matrix.length; i++) {
+            Result result;
+            try {
+                result = ecs.take().get();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                continue;
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                continue;
+            }
+
+            double score =
+                    ClustererKMedoids.PAMSIL.score(result.medoids, matrix);
+            if (overallBest == null || score > overallBest.score) {
+                overallBest = result;
+                overallBest.score = score;
+            }
+        }
+
+        assert overallBest != null;
+        ClustererKMedoids.LOGGER.debug("Final score for clustering: "
+                + overallBest.score);
+        return overallBest;
+    }
+
+    synchronized static List<PriorityBuffer<Integer>> matrixAsHeaps(
+            final double[][] matrix) {
+        if (ClustererKMedoids.heaps == null) {
+            List<PriorityBuffer<Integer>> list = new ArrayList<>();
+            for (int i = 0; i < matrix.length; i++) {
+                PriorityBuffer<Integer> heap =
+                        new PriorityBuffer<>(true, new MatrixComparator(i,
+                                matrix));
+                for (int j = 0; j < matrix.length; j++) {
+                    heap.add(j);
+                }
+                list.add(heap);
+            }
+            ClustererKMedoids.heaps = list;
+        }
+        assert ClustererKMedoids.heaps != null;
+        return ClustererKMedoids.heaps;
     }
 
     static double scoreByDistance(Map<Integer, Set<Integer>> clustering,

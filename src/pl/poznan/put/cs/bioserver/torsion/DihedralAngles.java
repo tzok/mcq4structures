@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections15.map.MultiKeyMap;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Group;
 import org.eclipse.jdt.annotation.Nullable;
@@ -23,7 +23,8 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 public final class DihedralAngles {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DihedralAngles.class);
-    private static MultiKeyMap mapAtomsQuadruplets = new MultiKeyMap();
+    private static MultiKeyMap<Object, List<Quadruplet>> mapAtomsQuadruplets =
+            new MultiKeyMap<>();
     private static Map<List<Atom>, Map<Atom, Integer>> reverseMapCache =
             new HashMap<>();
 
@@ -135,8 +136,7 @@ public final class DihedralAngles {
     public static synchronized List<Quadruplet> getQuadruplets(
             List<Atom> atoms, AngleType angleType) {
         if (DihedralAngles.mapAtomsQuadruplets.containsKey(atoms, angleType)) {
-            return (List<Quadruplet>) DihedralAngles.mapAtomsQuadruplets.get(
-                    atoms, angleType);
+            return DihedralAngles.mapAtomsQuadruplets.get(atoms, angleType);
         }
 
         if (!DihedralAngles.reverseMapCache.containsKey(atoms)) {

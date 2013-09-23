@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections15.map.MultiKeyMap;
 import org.apache.commons.math3.fraction.ProperFractionFormat;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;
@@ -144,7 +144,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         /*
          * fill a "map[angle, residue] = angle" with values (NaN if missing)
          */
-        MultiKeyMap mapAngleResidueDelta = new MultiKeyMap();
+        MultiKeyMap<Object, Double> mapAngleResidueDelta = new MultiKeyMap<>();
         for (Entry<AngleType, List<AngleDifference>> entry : comparison
                 .entrySet()) {
             AngleType angleName = entry.getKey();
@@ -174,8 +174,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             double[] deltas = new double[setResidue.size()];
             int j = 0;
             for (ResidueNumber residue : setResidue) {
-                deltas[j] =
-                        (double) mapAngleResidueDelta.get(angleName, residue);
+                deltas[j] = mapAngleResidueDelta.get(angleName, residue);
                 j++;
             }
 

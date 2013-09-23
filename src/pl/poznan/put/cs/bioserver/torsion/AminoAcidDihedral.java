@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections15.map.MultiKeyMap;
 import org.biojava.bio.structure.Group;
 
 import pl.poznan.put.cs.bioserver.helper.Constants;
@@ -76,7 +76,8 @@ public final class AminoAcidDihedral implements AngleType {
             new HashMap<>();
     private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules =
             new HashMap<>();
-    private static MultiKeyMap mapResidueAngleNameToAtoms = new MultiKeyMap();
+    private static MultiKeyMap<Object, UniTypeQuadruplet<String>> mapResidueAngleNameToAtoms =
+            new MultiKeyMap<>();
 
     static {
         AminoAcidDihedral.mapAngleToAtoms.put(AngleName.PHI,
@@ -356,8 +357,8 @@ public final class AminoAcidDihedral implements AngleType {
         }
 
         UniTypeQuadruplet<String> names =
-                (UniTypeQuadruplet<String>) AminoAcidDihedral.mapResidueAngleNameToAtoms
-                        .get(g.getPDBName(), angleName);
+                AminoAcidDihedral.mapResidueAngleNameToAtoms.get(
+                        g.getPDBName(), angleName);
         if (names == null) {
             names = new UniTypeQuadruplet<>(null, null, null, null);
         }

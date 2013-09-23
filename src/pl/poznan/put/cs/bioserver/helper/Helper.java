@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.collections15.map.MultiKeyMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Chain;
@@ -38,7 +38,8 @@ import difflib.Patch;
  */
 public final class Helper {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helper.class);
-    private static final MultiKeyMap MAP_GROUPS_ATOMS = new MultiKeyMap();
+    private static final MultiKeyMap<Object, List<Atom>> MAP_GROUPS_ATOMS =
+            new MultiKeyMap<>();
     private static final Set<String> SET_NUCLEOTIDE_ATOMS;
 
     private static final List<String> USED_ATOMS;
@@ -293,7 +294,7 @@ public final class Helper {
             }
             Helper.MAP_GROUPS_ATOMS.put(groups, atomNames, list);
         }
-        return (List<Atom>) Helper.MAP_GROUPS_ATOMS.get(groups, atomNames);
+        return Helper.MAP_GROUPS_ATOMS.get(groups, atomNames);
     }
 
     /**
