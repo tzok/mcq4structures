@@ -245,7 +245,7 @@ public final class ClustererKMedoids {
         List<PriorityBuffer<Integer>> listHeaps =
                 ClustererKMedoids.matrixAsHeaps(matrix);
 
-        for (int i = 0; i < k; i++) {
+        for (int i = 1; i < k; i++) {
             LinkedHashMap<Integer, Double> mapElementNearest =
                     new LinkedHashMap<>();
             double total = 0;
@@ -387,6 +387,8 @@ public final class ClustererKMedoids {
                         bj = bjk;
                     }
                 }
+                ClustererKMedoids.LOGGER.trace("medoid=" + e1.getKey()
+                        + " element=" + j + " self=" + aj + " other=" + bj);
                 result += (bj - aj) / Math.max(aj, bj);
             }
         }

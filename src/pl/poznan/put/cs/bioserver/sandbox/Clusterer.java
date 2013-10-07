@@ -1,6 +1,7 @@
 package pl.poznan.put.cs.bioserver.sandbox;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,18 +54,18 @@ public class Clusterer {
             }
         }
 
-        // DecimalFormat format = new DecimalFormat("0.00");
-        // for (int i = 0; i < values.size(); i++) {
-        // for (int j = 0; j < values.size(); j++) {
-        // System.out.print(format.format(matrix[i][j]));
-        // System.out.print('\t');
-        // }
-        // System.out.println();
-        // }
-        // System.out.println();
+        DecimalFormat format = new DecimalFormat("0.00");
+        for (int i = 0; i < values.size(); i++) {
+            for (int j = 0; j < values.size(); j++) {
+                System.out.print(format.format(matrix[i][j]));
+                System.out.print('\t');
+            }
+            System.out.println();
+        }
+        System.out.println();
 
         Result kMedoids =
-                ClustererKMedoids.kMedoids(matrix, ClustererKMedoids.PAM, null);
+                ClustererKMedoids.kMedoids(matrix, ClustererKMedoids.PAM, 4);
         Map<Integer, Set<Integer>> clusters =
                 ClustererKMedoids.getClusterAssignments(kMedoids.medoids,
                         matrix);
