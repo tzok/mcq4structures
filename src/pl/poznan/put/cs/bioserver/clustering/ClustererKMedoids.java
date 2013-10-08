@@ -125,7 +125,6 @@ public final class ClustererKMedoids {
         }
     };
 
-    @SuppressWarnings("null")
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ClustererKMedoids.class);
     private static final Random RANDOM = new Random();
