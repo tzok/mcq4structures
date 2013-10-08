@@ -8,15 +8,12 @@ import javax.swing.MenuSelectionManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
  * An extension of JMenuItem that doesn't close the menu when selected.
  * 
  * @author Darryl
  */
 public class StayOpenMenuItem extends JMenuItem {
-    @Nullable
     static MenuElement[] path;
     private static final long serialVersionUID = 1L;
 
@@ -24,7 +21,7 @@ public class StayOpenMenuItem extends JMenuItem {
         getModel().addChangeListener(new ChangeListener() {
 
             @Override
-            public void stateChanged(@Nullable ChangeEvent e) {
+            public void stateChanged(ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
                     StayOpenMenuItem.path =
                             MenuSelectionManager.defaultManager()

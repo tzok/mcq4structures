@@ -27,7 +27,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +91,7 @@ class DialogAbout extends JDialog {
 
         editorPane.addHyperlinkListener(new HyperlinkListener() {
             @Override
-            public void hyperlinkUpdate(@Nullable HyperlinkEvent e) {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
                 if (e == null) {
                     return;
                 }
@@ -111,7 +110,7 @@ class DialogAbout extends JDialog {
 
         buttonClose.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 dispose();
             }
         });

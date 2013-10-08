@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.collections15.buffer.PriorityBuffer;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +128,6 @@ public final class ClustererKMedoids {
             .getLogger(ClustererKMedoids.class);
     private static final Random RANDOM = new Random();
 
-    @Nullable
     private static List<PriorityBuffer<Integer>> heaps;
 
     /**
@@ -172,7 +170,7 @@ public final class ClustererKMedoids {
     }
 
     public static Result kMedoids(double[][] matrix, ScoringFunction sf,
-            @Nullable Integer k) {
+            Integer k) {
         // in this mode, search for best 'k'
         if (k == null) {
             return ClustererKMedoids.parallelScan(matrix, sf);

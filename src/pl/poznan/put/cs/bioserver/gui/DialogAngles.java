@@ -20,8 +20,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
 import pl.poznan.put.cs.bioserver.torsion.AngleAverageSelected;
@@ -30,7 +28,6 @@ import pl.poznan.put.cs.bioserver.torsion.AngleType;
 import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 
 final class DialogAngles extends JDialog {
-    @Nullable
     private static DialogAngles instance;
     private static final long serialVersionUID = 1L;
 
@@ -136,7 +133,7 @@ final class DialogAngles extends JDialog {
 
         ActionListener actionListenerSelection = new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 JPanel panel;
                 boolean state;
 
@@ -170,7 +167,7 @@ final class DialogAngles extends JDialog {
 
         buttonOk.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 selectedNames = new ArrayList<>();
                 for (JPanel panel : new JPanel[] { panelAnglesAmino,
                         panelAnglesNucleic }) {

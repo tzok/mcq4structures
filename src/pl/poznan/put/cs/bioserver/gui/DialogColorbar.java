@@ -14,7 +14,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 
 import org.apache.commons.math3.stat.StatUtils;
-import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
@@ -61,7 +60,7 @@ public class DialogColorbar extends JDialog {
 
         checkRelative.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 double min = 0;
                 double max = Math.PI;
 

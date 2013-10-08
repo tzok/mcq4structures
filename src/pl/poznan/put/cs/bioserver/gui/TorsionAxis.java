@@ -6,7 +6,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.jfree.chart.axis.AxisState;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTick;
@@ -23,9 +22,8 @@ public class TorsionAxis extends NumberAxis {
     }
 
     @Override
-    public List refreshTicks(@Nullable Graphics2D g2,
-            @Nullable AxisState state, @Nullable Rectangle2D dataArea,
-            @Nullable RectangleEdge edge) {
+    public List refreshTicks(Graphics2D g2, AxisState state,
+            Rectangle2D dataArea, RectangleEdge edge) {
         List<NumberTick> ticks = super.refreshTicks(g2, state, dataArea, edge);
 
         List<NumberTick> visibleIntegerTicks = new ArrayList<>();

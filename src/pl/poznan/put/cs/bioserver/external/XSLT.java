@@ -22,7 +22,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -46,7 +45,7 @@ public final class XSLT {
     }
 
     private static String transform(Source stylesheet, Source xml,
-            @Nullable Map<String, Object> parameters) {
+            Map<String, Object> parameters) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             Result result =
@@ -71,7 +70,7 @@ public final class XSLT {
     }
 
     static String transform(URL resource, Source xml,
-            @Nullable Map<String, Object> parameters) throws IOException {
+            Map<String, Object> parameters) throws IOException {
         try (InputStream stream = resource.openStream()) {
             return XSLT.transform(new StreamSource(stream), xml, parameters);
         }

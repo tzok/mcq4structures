@@ -19,7 +19,6 @@ import java.util.zip.GZIPInputStream;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.MMCIFFileReader;
 import org.biojava.bio.structure.io.PDBFileReader;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ public final class StructureManager {
     public static SortedSet<Structure> getAllStructures() {
         SortedSet<Structure> set = new TreeSet<>(new Comparator<Structure>() {
             @Override
-            public int compare(@Nullable Structure o1, @Nullable Structure o2) {
+            public int compare(Structure o1, Structure o2) {
                 assert o1 != null;
                 assert o2 != null;
                 String name1 = StructureManager.getName(o1);

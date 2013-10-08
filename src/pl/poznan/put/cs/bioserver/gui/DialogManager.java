@@ -23,13 +23,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import org.biojava.bio.structure.Structure;
-import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 
 final class DialogManager extends JDialog {
-    @Nullable
     private static DialogManager instance;
 
     private static final long serialVersionUID = 1L;
@@ -91,7 +89,7 @@ final class DialogManager extends JDialog {
 
         buttonOpen.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 File[] files = PdbChooser.getSelectedFiles(DialogManager.this);
                 for (File f : files) {
                     loadStructure(f);
@@ -101,7 +99,7 @@ final class DialogManager extends JDialog {
 
         buttonRemove.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 List<File> selected = list.getSelectedValuesList();
                 for (File f : selected) {
                     StructureManager.remove(f);
@@ -112,7 +110,7 @@ final class DialogManager extends JDialog {
 
         buttonFetch.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
                 List<Structure> models = StructureManager.loadStructure(pdbId);
                 if (models.size() > 0) {

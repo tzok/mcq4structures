@@ -10,7 +10,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.biojava.bio.structure.Structure;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,7 @@ public abstract class GlobalComparison {
      * @return A distance matrix.
      */
     public double[][] compare(final List<Structure> structures,
-            @Nullable final ComparisonListener listener) {
+            final ComparisonListener listener) {
         /*
          * Create distance matrix, set diagonal to 0 and other values to NaN
          */

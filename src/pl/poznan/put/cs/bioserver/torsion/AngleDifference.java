@@ -2,7 +2,6 @@ package pl.poznan.put.cs.bioserver.torsion;
 
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.ResidueNumber;
-import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
@@ -84,7 +83,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
      * and residue number.
      */
     @Override
-    public int compareTo(@Nullable AngleDifference diff) {
+    public int compareTo(AngleDifference diff) {
         assert diff != null;
         if (equals(diff)) {
             return 0;
@@ -100,7 +99,7 @@ public class AngleDifference implements Comparable<AngleDifference> {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }

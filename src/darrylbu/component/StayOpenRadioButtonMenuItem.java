@@ -8,8 +8,6 @@ import javax.swing.MenuSelectionManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
  * An extension of JRadioButtonMenuItem that doesn't close the menu when
  * selected.
@@ -17,7 +15,6 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Darryl
  */
 public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
-    @Nullable
     static MenuElement[] path;
     private static final long serialVersionUID = 1L;
 
@@ -25,7 +22,7 @@ public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
         getModel().addChangeListener(new ChangeListener() {
 
             @Override
-            public void stateChanged(@Nullable ChangeEvent e) {
+            public void stateChanged(ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
                     StayOpenRadioButtonMenuItem.path =
                             MenuSelectionManager.defaultManager()

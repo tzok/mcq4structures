@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
 import org.jzy3d.colors.Color;
@@ -43,7 +42,7 @@ public class ClusteringPartitional extends XMLSerializable implements
 
     public static ClusteringPartitional newInstance(
             ComparisonGlobal comparison, ScoringFunction scoringFunction,
-            @Nullable Integer k) throws InvalidInputException {
+            Integer k) throws InvalidInputException {
         double[][] distanceMatrix = comparison.getDistanceMatrix();
         double[][] mds2D = MDS.multidimensionalScaling(distanceMatrix, 2);
         double[][] mds3D = MDS.multidimensionalScaling(distanceMatrix, 3);

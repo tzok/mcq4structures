@@ -33,7 +33,6 @@ import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -314,9 +313,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             private static final long serialVersionUID = 1L;
 
             @Override
-            public StringBuffer format(double number,
-                    @Nullable StringBuffer toAppendTo,
-                    @Nullable FieldPosition pos) {
+            public StringBuffer format(double number, StringBuffer toAppendTo,
+                    FieldPosition pos) {
                 assert toAppendTo != null;
 
                 if (number == 0) {
@@ -337,15 +335,13 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             }
 
             @Override
-            public StringBuffer format(long number,
-                    @Nullable StringBuffer toAppendTo,
-                    @Nullable FieldPosition pos) {
+            public StringBuffer format(long number, StringBuffer toAppendTo,
+                    FieldPosition pos) {
                 return format.format(number, toAppendTo, pos);
             }
 
             @Override
-            public Number parse(@Nullable String source,
-                    @Nullable ParsePosition parsePosition) {
+            public Number parse(String source, ParsePosition parsePosition) {
                 return format.parse(source, parsePosition);
             }
         });

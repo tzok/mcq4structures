@@ -29,7 +29,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
-import org.eclipse.jdt.annotation.Nullable;
 
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
@@ -64,9 +63,8 @@ final class DialogChains extends JDialog {
             combo.setRenderer(new ListCellRenderer<Structure>() {
                 @Override
                 public Component getListCellRendererComponent(
-                        @Nullable JList<? extends Structure> list,
-                        @Nullable Structure value, int index,
-                        boolean isSelected, boolean cellHasFocus) {
+                        JList<? extends Structure> list, Structure value,
+                        int index, boolean isSelected, boolean cellHasFocus) {
                     JLabel label =
                             (JLabel) renderer.getListCellRendererComponent(
                                     list, value, index, isSelected,
@@ -80,7 +78,7 @@ final class DialogChains extends JDialog {
 
             combo.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(@Nullable ActionEvent e) {
+                public void actionPerformed(ActionEvent e) {
                     Structure structure = (Structure) combo.getSelectedItem();
                     if (structure == null) {
                         return;
@@ -127,7 +125,6 @@ final class DialogChains extends JDialog {
 
     public static final int CANCEL = 0;
     public static final int OK = 1;
-    @Nullable
     private static DialogChains instance;
 
     private static final long serialVersionUID = 1L;
@@ -147,9 +144,7 @@ final class DialogChains extends JDialog {
     PanelChains panelsChainsLeft = new PanelChains();
     PanelChains panelsChainsRight = new PanelChains();
 
-    @Nullable
     Structure structureLeft;
-    @Nullable
     Structure structureRight;
 
     private DialogChains(Frame owner) {
@@ -180,7 +175,7 @@ final class DialogChains extends JDialog {
 
         buttonOk.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 structureLeft =
                         (Structure) panelsChainsLeft.combo.getSelectedItem();
                 structureRight =
@@ -206,7 +201,7 @@ final class DialogChains extends JDialog {
 
         buttonCancel.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 chosenOption = DialogChains.CANCEL;
                 dispose();
             }

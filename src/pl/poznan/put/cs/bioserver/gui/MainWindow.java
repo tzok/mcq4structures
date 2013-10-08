@@ -54,7 +54,6 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.StructureImpl;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jmol.api.JmolViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,14 +142,10 @@ public class MainWindow extends JFrame {
     JTable tableMatrix;
 
     JTextArea textAreaAlignSeq;
-    @Nullable
     Thread threadAlignment;
 
-    @Nullable
     Clusterable clusterable;
-    @Nullable
     Exportable exportable;
-    @Nullable
     Visualizable visualizable;
 
     public MainWindow() {
@@ -396,9 +391,9 @@ public class MainWindow extends JFrame {
             private static final long serialVersionUID = -7868307163707467345L;
 
             @Override
-            public Component getTableCellRendererComponent(
-                    @Nullable JTable table, @Nullable Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(JTable table,
+                    Object value, boolean isSelected, boolean hasFocus,
+                    int row, int column) {
                 Component component =
                         defaultRenderer.getTableCellRendererComponent(table,
                                 value, isSelected, hasFocus, row, column);
@@ -412,7 +407,7 @@ public class MainWindow extends JFrame {
          */
         dialogManager.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(@Nullable WindowEvent e) {
+            public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 checkBoxManager.setSelected(false);
             }
@@ -420,7 +415,7 @@ public class MainWindow extends JFrame {
 
         itemOpen.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 File[] files = PdbChooser.getSelectedFiles(MainWindow.this);
                 for (File f : files) {
                     dialogManager.loadStructure(f);
@@ -430,7 +425,7 @@ public class MainWindow extends JFrame {
 
         itemSave.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 Exportable exportableLocal = exportable;
                 if (exportableLocal != null) {
                     JFileChooser chooser =
@@ -460,14 +455,14 @@ public class MainWindow extends JFrame {
 
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 dialogManager.setVisible(checkBoxManager.isSelected());
             }
         });
 
         itemExit.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 dispatchEvent(new WindowEvent(MainWindow.this,
                         WindowEvent.WINDOW_CLOSING));
             }
@@ -477,7 +472,7 @@ public class MainWindow extends JFrame {
             private Object sourcePrev = radioGlobalMcq;
 
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 assert arg0 != null;
 
                 Object source = arg0.getSource();
@@ -506,14 +501,14 @@ public class MainWindow extends JFrame {
 
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 DialogAngles.selectAngles();
             }
         });
 
         ActionListener selectActionListener = new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 assert e != null;
                 Object source = e.getSource();
                 if (source.equals(itemSelectStructuresCompare)) {
@@ -538,7 +533,7 @@ public class MainWindow extends JFrame {
 
         itemComputeDistances.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 if (radioGlobalMcq.isSelected() || radioGlobalRmsd.isSelected()) {
                     compareGlobal();
                 } else if (radioLocal.isSelected()) {
@@ -551,7 +546,7 @@ public class MainWindow extends JFrame {
 
         itemVisualise.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 final Visualizable visualizable2 = visualizable;
                 if (visualizable2 != null) {
                     visualizable2.visualize();
@@ -561,7 +556,7 @@ public class MainWindow extends JFrame {
 
         itemVisualiseHighQuality.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 final Visualizable visualizable2 = visualizable;
                 if (visualizable2 != null) {
                     visualizable2.visualizeHighQuality();
@@ -571,7 +566,7 @@ public class MainWindow extends JFrame {
 
         itemVisualise3D.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 final Visualizable visualizable2 = visualizable;
                 if (visualizable2 != null) {
                     visualizable2.visualize3D();
@@ -581,7 +576,7 @@ public class MainWindow extends JFrame {
 
         itemCluster.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 final Clusterable clusterable2 = clusterable;
                 if (clusterable2 != null) {
                     clusterable2.cluster();
@@ -593,7 +588,7 @@ public class MainWindow extends JFrame {
             private boolean isSequencePrevious = true;
 
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 assert arg0 != null;
 
                 Object source = arg0.getSource();
@@ -612,7 +607,7 @@ public class MainWindow extends JFrame {
 
         itemComputeAlign.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 if (radioAlignSeqGlobal.isSelected()
                         || radioAlignSeqLocal.isSelected()) {
                     alignSequences();
@@ -624,7 +619,7 @@ public class MainWindow extends JFrame {
 
         itemGuide.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 DialogGuide dialog = new DialogGuide(MainWindow.this);
                 dialog.setVisible(true);
             }
@@ -632,7 +627,7 @@ public class MainWindow extends JFrame {
 
         itemAbout.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 DialogAbout dialog = new DialogAbout(MainWindow.this);
                 dialog.setVisible(true);
             }
@@ -701,7 +696,7 @@ public class MainWindow extends JFrame {
         labelAlignmentStatus.setText("Processing");
         final Timer timer = new Timer(100, new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 String text = labelAlignmentStatus.getText();
                 int count = StringUtils.countMatches(text, ".");
                 if (count < 5) {
@@ -714,7 +709,6 @@ public class MainWindow extends JFrame {
         timer.start();
 
         threadAlignment = new Thread(new Runnable() {
-            @Nullable
             AlignmentOutput output;
 
             @Override

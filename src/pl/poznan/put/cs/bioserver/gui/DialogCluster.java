@@ -18,8 +18,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
 import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
 import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
@@ -111,7 +109,7 @@ public class DialogCluster extends JDialog {
 
         ActionListener radioActionListener = new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 boolean isHierarchical = hierarchical.isSelected();
                 linkage.setEnabled(isHierarchical);
                 scoringFunction.setEnabled(!isHierarchical);
@@ -126,7 +124,7 @@ public class DialogCluster extends JDialog {
 
         ActionListener listener = new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 assert arg0 != null;
 
                 try {
@@ -151,7 +149,7 @@ public class DialogCluster extends JDialog {
 
         buttonClose.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(@Nullable ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 dispose();
             }
         });
