@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Group;
 import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.Alignments.PairwiseSequenceScorerType;
 import org.biojava3.alignment.SimpleSubstitutionMatrix;
@@ -86,29 +85,9 @@ public final class AlignerSequence {
         if (sequence.getLength() != 0) {
             return sequence;
         }
-        /*
-         * Iterate over the structure and prepare a sequence string in FASTA
-         * format
-         */
         AlignerSequence.logger.debug("Failed to parse SEQRES from PDB file. "
                 + "Will attempt to get sequence manually");
-        StringBuilder builder = new StringBuilder();
-        List<Group> list = new ArrayList<>();
-        for (Group g : chain.getAtomGroups()) {
-            String type = g.getType();
-            if (type.equals("nucleotide") || type.equals("amino")
-                    || g.hasAminoAtoms() || g.hasAtom("P")) {
-                String fasta = g.getChemComp().getOne_letter_code();
-                if (fasta.equals("?")) {
-                    fasta = g.getPDBName();
-                    fasta = fasta.substring(fasta.length() - 1, fasta.length());
-                }
-                builder.append(fasta);
-                list.add(g);
-            }
-        }
-        String seqString = builder.toString();
-        AlignerSequence.logger.trace("Parsed sequence: " + seqString);
+        String seqString = Helper.getSequenceFasta(chain);
         /*
          * Create a Sequence object in correct type
          */

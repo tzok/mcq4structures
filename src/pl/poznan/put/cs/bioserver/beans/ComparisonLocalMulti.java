@@ -74,12 +74,18 @@ public class ComparisonLocalMulti extends XMLSerializable implements
             list.add(ComparisonLocal.newInstance(reference, chain, angleNames));
         }
 
-        ComparisonLocalMulti instance = new ComparisonLocalMulti();
-        instance.setResults(list);
-        return instance;
+        return new ComparisonLocalMulti(list,
+                Helper.getSequenceFasta(reference));
     }
 
     List<ComparisonLocal> results = new ArrayList<>();
+    String referenceSequence;
+
+    private ComparisonLocalMulti(List<ComparisonLocal> results,
+            String referenceSequence) {
+        this.results = results;
+        this.referenceSequence = referenceSequence;
+    }
 
     @Override
     public void export(File file) throws IOException {
@@ -115,8 +121,17 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         }
     }
 
+    public String getReferenceSequence() {
+        return referenceSequence;
+    }
+
     public List<ComparisonLocal> getResults() {
         return results;
+    }
+
+    @XmlElement
+    public void setReferenceSequence(String referenceSequence) {
+        this.referenceSequence = referenceSequence;
     }
 
     @XmlElement

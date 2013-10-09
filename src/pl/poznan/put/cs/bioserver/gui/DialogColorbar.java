@@ -3,6 +3,7 @@ package pl.poznan.put.cs.bioserver.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.apache.commons.math3.stat.StatUtils;
 
@@ -47,8 +49,19 @@ public class DialogColorbar extends JDialog {
             c.gridy++;
         }
 
+        ColorbarTicks colorbarTicks =
+                new ColorbarTicks(localMulti.getReferenceSequence());
+        c.gridx = 0;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.fill = GridBagConstraints.BOTH;
+        add(colorbarTicks, c);
+
         final JCheckBox checkRelative = new JCheckBox("Relative");
-        c.gridx = 1;
+        c.gridx++;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.fill = GridBagConstraints.NONE;
         add(checkRelative, c);
 
         setTitle("Colorbar");

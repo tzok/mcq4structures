@@ -208,6 +208,31 @@ public final class Helper {
         return sdf.format(new Date());
     }
 
+    public static String getSequenceFasta(Chain chain) {
+        /*
+         * Iterate over the structure and prepare a sequence string in FASTA
+         * format
+         */
+        StringBuilder builder = new StringBuilder();
+        List<Group> list = new ArrayList<>();
+        for (Group g : chain.getAtomGroups()) {
+            String type = g.getType();
+            if (type.equals("nucleotide") || type.equals("amino")
+                    || g.hasAminoAtoms() || g.hasAtom("P")) {
+                String fasta = g.getChemComp().getOne_letter_code();
+                if (fasta.equals("?")) {
+                    fasta = g.getPDBName();
+                    fasta = fasta.substring(fasta.length() - 1, fasta.length());
+                }
+                builder.append(fasta);
+                list.add(g);
+            }
+        }
+        String seqString = builder.toString();
+        Helper.LOGGER.trace("Parsed sequence: " + seqString);
+        return seqString;
+    }
+
     private static boolean isAminoAcid(Group g) {
         return g.getType().equals("amino") || g.hasAminoAtoms();
     }
