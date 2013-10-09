@@ -178,7 +178,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             }
 
             Angle angle = new Angle();
-            angle.setName(angleName.getAngleName());
+            angle.setName(angleName.getAngleDisplayName());
             angle.setDeltas(deltas);
             angles.put(angleName.getAngleName(), angle);
         }

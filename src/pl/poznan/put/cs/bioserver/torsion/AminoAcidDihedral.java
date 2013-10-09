@@ -24,13 +24,17 @@ public final class AminoAcidDihedral implements AngleType {
 
     private static List<AngleType> angles = Arrays.asList(new AngleType[] {
             new AminoAcidDihedral(AngleName.PHI, Constants.UNICODE_PHI
-                    + " (phi)"),
+                    + " (phi) C'-N-C" + Constants.UNICODE_ALPHA + "-C'"),
             new AminoAcidDihedral(AngleName.PSI, Constants.UNICODE_PSI
-                    + " (psi)"),
+                    + " (psi) N-C" + Constants.UNICODE_ALPHA + "-C'-N"),
             new AminoAcidDihedral(AngleName.OMEGA, Constants.UNICODE_OMEGA
-                    + " (omega)"),
+                    + " (omega) C" + Constants.UNICODE_ALPHA + "-C'-N-C"
+                    + Constants.UNICODE_ALPHA),
             new AminoAcidDihedral(AngleName.CALPHA, "C-"
-                    + Constants.UNICODE_ALPHA + " (C-alpha)"),
+                    + Constants.UNICODE_ALPHA + " (C-alpha) C"
+                    + Constants.UNICODE_ALPHA + "-C" + Constants.UNICODE_ALPHA
+                    + "-C" + Constants.UNICODE_ALPHA + "-C"
+                    + Constants.UNICODE_ALPHA),
             new AminoAcidDihedral(AngleName.CHI1, Constants.UNICODE_CHI
                     + "1 (chi1)"),
             new AminoAcidDihedral(AngleName.CHI2, Constants.UNICODE_CHI

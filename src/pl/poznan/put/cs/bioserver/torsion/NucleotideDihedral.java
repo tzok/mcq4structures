@@ -40,37 +40,37 @@ public final class NucleotideDihedral implements AngleType {
 
     private static List<AngleType> angles = Arrays.asList(new AngleType[] {
             new NucleotideDihedral(AngleName.ALPHA, Constants.UNICODE_ALPHA
-                    + " (alpha)"),
+                    + " (alpha) O3'-P-O5'-C5'"),
             new NucleotideDihedral(AngleName.BETA, Constants.UNICODE_BETA
-                    + " (beta)"),
+                    + " (beta) P-O5'-C5'-C4'"),
             new NucleotideDihedral(AngleName.GAMMA, Constants.UNICODE_GAMMA
-                    + " (gamma)"),
+                    + " (gamma) O5'-C5'-C4'-C3'"),
             new NucleotideDihedral(AngleName.DELTA, Constants.UNICODE_DELTA
-                    + " (delta)"),
+                    + " (delta) C5'-C4'-C3'-O3'"),
             new NucleotideDihedral(AngleName.EPSILON, Constants.UNICODE_EPSILON
-                    + " (epsilon)"),
+                    + " (epsilon) C4'-C3'-O3'-P"),
             new NucleotideDihedral(AngleName.ZETA, Constants.UNICODE_ZETA
-                    + " (zeta)"),
+                    + " (zeta) C3'-O3'-P-O5'"),
             new NucleotideDihedral(AngleName.CHI, Constants.UNICODE_CHI
-                    + " (chi)"),
+                    + " (chi) O4'-C1'-(N1-C2)|(N9-C4)"),
             new NucleotideDihedral(AngleName.TAU0, Constants.UNICODE_TAU
-                    + "0 (tau0)"),
+                    + "0 (tau0) C4'-O4'-C1'-C2'"),
             new NucleotideDihedral(AngleName.TAU1, Constants.UNICODE_TAU
-                    + "1 (tau1)"),
+                    + "1 (tau1) O4'-C1'-C2'-C3'"),
             new NucleotideDihedral(AngleName.TAU2, Constants.UNICODE_TAU
-                    + "2 (tau2)"),
+                    + "2 (tau2) C1'-C2'-C3'-C4'"),
             new NucleotideDihedral(AngleName.TAU3, Constants.UNICODE_TAU
-                    + "3 (tau3)"),
+                    + "3 (tau3) C2'-C3'-C4'-O4'"),
             new NucleotideDihedral(AngleName.TAU4, Constants.UNICODE_TAU
-                    + "4 (tau4)"),
+                    + "4 (tau4) C3'-C4'-O4'-C1'"),
             new NucleotideDihedral(AngleName.ETA, Constants.UNICODE_ETA
-                    + " (eta)"),
+                    + " (eta) C4'-P-C4'-P"),
             new NucleotideDihedral(AngleName.THETA, Constants.UNICODE_THETA
-                    + " (theta)"),
+                    + " (theta) P-C4'-P-C4'"),
             new NucleotideDihedral(AngleName.ETA_PRIM, Constants.UNICODE_ETA
-                    + "' (eta')"),
+                    + "' (eta') C1'-P-C1'-P"),
             new NucleotideDihedral(AngleName.THETA_PRIM,
-                    Constants.UNICODE_THETA + "' (theta')") });
+                    Constants.UNICODE_THETA + "' (theta') C1'-P-C1'-P") });
 
     private static List<String> atoms = Arrays.asList(new String[] {
             NucleotideDihedral.C1P, NucleotideDihedral.C2,
