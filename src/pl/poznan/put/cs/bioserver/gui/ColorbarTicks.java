@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class ColorbarTicks extends JPanel {
@@ -13,6 +14,9 @@ public class ColorbarTicks extends JPanel {
     ColorbarTicks(String sequence) {
         super();
         this.sequence = sequence;
+
+        Dimension size = new JLabel(sequence).getPreferredSize();
+        setPreferredSize(size);
     }
 
     @Override
