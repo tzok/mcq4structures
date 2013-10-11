@@ -17,7 +17,7 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
  * 
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
-public final class NucleotideDihedral implements AngleType {
+public final class NucleotideDihedral extends AbstractAngleType {
     /** All names of angles in a nucleotide. */
     private enum AngleName {
         ALPHA,

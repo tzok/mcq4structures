@@ -9,19 +9,22 @@ import javax.swing.JPanel;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
-import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
-    private float[] green;
     private ComparisonLocal local;
+    private AngleType angleType;
+
+    private float[] green;
     private float[] red;
     private double max;
     private double min;
 
-    Colorbar(ComparisonLocal local) {
+    Colorbar(ComparisonLocal local, AngleType angleType) {
         super();
         this.local = local;
+        this.angleType = angleType;
 
         green = Color.RGBtoHSB(0, 255, 0, null);
         red = Color.RGBtoHSB(255, 0, 0, null);
@@ -38,9 +41,8 @@ class Colorbar extends JPanel {
         int width = size.width / local.getTicks().size();
         int height = size.height;
 
-        Map<String, Angle> angles = local.getAngles();
-        Angle average =
-                angles.get(AngleAverageAll.getInstance().getAngleName());
+        Map<AngleType, Angle> angles = local.getAngles();
+        Angle average = angles.get(angleType);
         int i = 0;
         for (double delta : average.getDeltas()) {
             g.setColor(getColor(delta));

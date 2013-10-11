@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,6 @@ import pl.poznan.put.cs.bioserver.helper.Exportable;
 import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
-import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 import com.csvreader.CsvWriter;
@@ -52,8 +52,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
     private static final long serialVersionUID = -6549267536864184480L;
 
     public static ComparisonLocalMulti newInstance(List<Chain> chains,
-            Chain reference, List<AngleType> angleNames)
-            throws StructureException, InvalidInputException {
+            Chain reference, AngleType angleType) throws StructureException,
+            InvalidInputException {
         // sanity check
         if (chains.size() < 2) {
             throw new InvalidInputException("Incorrect/empty input data");
@@ -73,20 +73,50 @@ public class ComparisonLocalMulti extends XMLSerializable implements
             if (reference.equals(chain)) {
                 continue;
             }
-            list.add(ComparisonLocal.newInstance(reference, chain, angleNames));
+            list.add(ComparisonLocal.newInstance(reference, chain,
+                    Arrays.asList(new AngleType[] { angleType })));
         }
 
-        return new ComparisonLocalMulti(list,
+        return new ComparisonLocalMulti(list, angleType,
                 Helper.getSequenceFasta(reference));
     }
 
     List<ComparisonLocal> results = new ArrayList<>();
+    AngleType angleType;
     Pair<String, List<ResidueNumber>> referenceSequence;
 
     private ComparisonLocalMulti(List<ComparisonLocal> results,
-            Pair<String, List<ResidueNumber>> sequence) {
+            AngleType angleType, Pair<String, List<ResidueNumber>> sequence) {
         this.results = results;
+        this.angleType = angleType;
         this.referenceSequence = sequence;
+    }
+
+    public List<ComparisonLocal> getResults() {
+        return results;
+    }
+
+    @XmlElement
+    public void setResults(List<ComparisonLocal> results) {
+        this.results = results;
+    }
+
+    public AngleType getAngleType() {
+        return angleType;
+    }
+
+    public void setAngleType(AngleType angleType) {
+        this.angleType = angleType;
+    }
+
+    public Pair<String, List<ResidueNumber>> getReferenceSequence() {
+        return referenceSequence;
+    }
+
+    @XmlElement
+    public void setReferenceSequence(
+            Pair<String, List<ResidueNumber>> referenceSequence) {
+        this.referenceSequence = referenceSequence;
     }
 
     @Override
@@ -94,9 +124,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         double[][] deltas = new double[results.size()][];
         for (int i = 0; i < results.size(); i++) {
             ComparisonLocal comparisonLocal = results.get(i);
-            Map<String, Angle> angles = comparisonLocal.getAngles();
-            Angle average =
-                    angles.get(AngleAverageAll.getInstance().getAngleName());
+            Map<AngleType, Angle> angles = comparisonLocal.getAngles();
+            Angle average = angles.get(angleType);
             assert average != null;
             deltas[i] = average.getDeltas();
         }
@@ -121,25 +150,6 @@ public class ComparisonLocalMulti extends XMLSerializable implements
                 }
             }
         }
-    }
-
-    public Pair<String, List<ResidueNumber>> getReferenceSequence() {
-        return referenceSequence;
-    }
-
-    public List<ComparisonLocal> getResults() {
-        return results;
-    }
-
-    @XmlElement
-    public void setReferenceSequence(
-            Pair<String, List<ResidueNumber>> referenceSequence) {
-        this.referenceSequence = referenceSequence;
-    }
-
-    @XmlElement
-    public void setResults(List<ComparisonLocal> results) {
-        this.results = results;
     }
 
     @Override
@@ -183,9 +193,9 @@ public class ComparisonLocalMulti extends XMLSerializable implements
 
                                 i = Math.max(Math.min(i, maxX - 1), 0);
                                 j = Math.max(Math.min(j, maxY - 1), 0);
+                                // FIXME
                                 return results.get(i).angles.get(
-                                        AngleAverageAll.getInstance()
-                                                .getAngleName()).getDeltas()[j];
+                                        angleType.getAngleName()).getDeltas()[j];
                             }
                         });
 

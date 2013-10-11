@@ -31,7 +31,6 @@ import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
-import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 public class Externals {
     public static List<File> list(File directory) {
@@ -66,13 +65,11 @@ public class Externals {
         for (Structure s : structures) {
             list.add(s.getChain(0));
         }
-        List<AngleType> listNames = new ArrayList<>(MCQ.USED_ANGLES);
-        listNames.add(AngleAverageAll.getInstance());
         XMLSerializable xmlResults;
         try {
             xmlResults =
                     ComparisonLocalMulti.newInstance(list, list.get(0),
-                            listNames);
+                            AngleAverageAll.getInstance());
             try (OutputStream stream = new FileOutputStream("/tmp/multi.xml")) {
                 XSLT.printDocument(xmlResults.toXML(), stream);
             }

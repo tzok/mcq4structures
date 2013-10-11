@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -76,8 +75,12 @@ import pl.poznan.put.cs.bioserver.helper.Helper;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
+import pl.poznan.put.cs.bioserver.helper.wrappers.WrapperChain;
+import pl.poznan.put.cs.bioserver.torsion.AminoAcidDihedral;
 import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AnglePseudophasePucker;
 import pl.poznan.put.cs.bioserver.torsion.AngleType;
+import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
@@ -853,38 +856,45 @@ public class MainWindow extends JFrame {
 
     void compareLocalMulti() {
         List<Chain> chains = dialogChainsMultiple.getChains();
-        List<String> names = new ArrayList<>();
+        List<WrapperChain> wrapped = new ArrayList<>();
         for (Chain chain : chains) {
-            names.add(StructureManager.getName(chain.getParent()) + "."
-                    + chain.getChainID());
+            wrapped.add(new WrapperChain(chain));
         }
 
-        String reference =
-                (String) JOptionPane.showInputDialog(MainWindow.this,
+        WrapperChain reference =
+                (WrapperChain) JOptionPane.showInputDialog(MainWindow.this,
                         "Select your reference structure",
                         "Reference structure", JOptionPane.INFORMATION_MESSAGE,
-                        null, names.toArray(new String[names.size()]),
-                        names.get(0));
+                        null,
+                        wrapped.toArray(new WrapperChain[wrapped.size()]),
+                        wrapped.get(0));
         if (reference == null) {
             return;
         }
 
-        int index;
-        for (index = 0; index < names.size(); index++) {
-            if (names.get(index).equals(reference)) {
-                break;
-            }
+        List<AngleType> angles = new ArrayList<>();
+        angles.add(AngleAverageAll.getInstance());
+        angles.addAll(NucleotideDihedral.getAngles());
+        angles.add(AnglePseudophasePucker.getInstance());
+        angles.addAll(AminoAcidDihedral.getAngles());
+
+        AngleType angleType =
+                (AngleType) JOptionPane.showInputDialog(MainWindow.this,
+                        "Select torsion angle", "Torsion angle",
+                        JOptionPane.INFORMATION_MESSAGE, null,
+                        angles.toArray(new AngleType[angles.size()]),
+                        AngleAverageAll.getInstance());
+        if (angleType == null) {
+            return;
         }
-        assert index < names.size();
 
         progressBar.setMaximum(1);
         progressBar.setValue(0);
         ComparisonLocalMulti localMulti;
         try {
             localMulti =
-                    ComparisonLocalMulti.newInstance(chains, chains.get(index),
-                            Arrays.asList(new AngleType[] { AngleAverageAll
-                                    .getInstance() }));
+                    ComparisonLocalMulti.newInstance(chains,
+                            reference.getChain(), angleType);
         } catch (StructureException | InvalidInputException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -895,7 +905,8 @@ public class MainWindow extends JFrame {
         exportable = localMulti;
         visualizable = localMulti;
 
-        AbstractTableModel model = new TableModelLocalMulti(localMulti);
+        AbstractTableModel model =
+                new TableModelLocalMulti(localMulti, angleType);
         tableMatrix.setDefaultRenderer(Object.class,
                 new DefaultTableCellRenderer());
         tableMatrix.setModel(model);

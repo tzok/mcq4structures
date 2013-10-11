@@ -11,7 +11,7 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.helper.Constants;
-import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 class TableModelLocalMulti extends AbstractTableModel {
     private static final long serialVersionUID = 49429840783357538L;
@@ -22,7 +22,7 @@ class TableModelLocalMulti extends AbstractTableModel {
     private DecimalFormat format;
     private int rowCount;
 
-    TableModelLocalMulti(ComparisonLocalMulti localMulti) {
+    TableModelLocalMulti(ComparisonLocalMulti localMulti, AngleType angleType) {
         super();
 
         List<ComparisonLocal> results = localMulti.getResults();
@@ -46,9 +46,8 @@ class TableModelLocalMulti extends AbstractTableModel {
             ComparisonLocal comparisonLocal = results.get(i - 1);
             columns.add(comparisonLocal.getTitle());
 
-            Map<String, Angle> angles = comparisonLocal.getAngles();
-            Angle angle =
-                    angles.get(AngleAverageAll.getInstance().getAngleName());
+            Map<AngleType, Angle> angles = comparisonLocal.getAngles();
+            Angle angle = angles.get(angleType);
             assert angle != null;
 
             double[] deltas = angle.getDeltas();

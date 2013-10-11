@@ -4,7 +4,7 @@ import org.biojava.bio.structure.Group;
 
 import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
-public class AngleAverageAll implements AngleType {
+public class AngleAverageAll extends AbstractAngleType {
     private static AngleAverageAll instance = new AngleAverageAll();
 
     public static AngleAverageAll getInstance() {

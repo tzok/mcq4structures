@@ -22,7 +22,7 @@ import org.apache.commons.math3.stat.StatUtils;
 
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
-import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 public class DialogColorbar extends JDialog {
     private static final long serialVersionUID = 2659329749184089277L;
@@ -32,10 +32,12 @@ public class DialogColorbar extends JDialog {
     JTextField editMax = new JTextField("180", 8);
     List<Colorbar> listColorbars = new ArrayList<>();
     List<ComparisonLocal> listResults;
+    AngleType angleType;
 
     public DialogColorbar(ComparisonLocalMulti localMulti) {
         super();
         listResults = localMulti.getResults();
+        angleType = localMulti.getAngleType();
 
         setTitle("Colorbar");
         setLayout(new GridBagLayout());
@@ -63,7 +65,7 @@ public class DialogColorbar extends JDialog {
         add(new ColorbarTicks(localMulti.getReferenceSequence()), c);
 
         for (ComparisonLocal local : listResults) {
-            Colorbar colorbar = new Colorbar(local);
+            Colorbar colorbar = new Colorbar(local, localMulti.getAngleType());
             listColorbars.add(colorbar);
 
             c.gridx = 0;
@@ -117,9 +119,7 @@ public class DialogColorbar extends JDialog {
                     double lmax = 0;
                     for (ComparisonLocal local : listResults) {
                         double[] deltas =
-                                local.getAngles()
-                                        .get(AngleAverageAll.getInstance()
-                                                .getAngleName()).getDeltas();
+                                local.getAngles().get(angleType).getDeltas();
                         lmin = Math.min(lmin, StatUtils.min(deltas));
                         lmax = Math.max(lmax, StatUtils.max(deltas));
                     }

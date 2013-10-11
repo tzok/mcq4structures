@@ -164,7 +164,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         /*
          * read map data into desired format
          */
-        Map<String, Angle> angles = new LinkedHashMap<>();
+        Map<AngleType, Angle> angles = new LinkedHashMap<>();
         for (AngleType angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
                 continue;
@@ -180,7 +180,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             Angle angle = new Angle();
             angle.setName(angleName.getAngleDisplayName());
             angle.setDeltas(deltas);
-            angles.put(angleName.getAngleName(), angle);
+            angles.put(angleName, angle);
         }
 
         List<String> ticks = new ArrayList<>();
@@ -191,12 +191,12 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         return new ComparisonLocal(angles, Colors.toRGB(), ticks, title);
     }
 
-    Map<String, Angle> angles;
+    Map<AngleType, Angle> angles;
     private List<RGB> colors;
     List<String> ticks;
     String title;
 
-    private ComparisonLocal(Map<String, Angle> angles, List<RGB> colors,
+    private ComparisonLocal(Map<AngleType, Angle> angles, List<RGB> colors,
             List<String> ticks, String title) {
         super();
         this.angles = angles;
@@ -231,7 +231,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         return new ArrayList<>(angles.values());
     }
 
-    public Map<String, Angle> getAngles() {
+    public Map<AngleType, Angle> getAngles() {
         return angles;
     }
 
@@ -247,7 +247,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         return title;
     }
 
-    public void setAngles(Map<String, Angle> angles) {
+    public void setAngles(Map<AngleType, Angle> angles) {
         this.angles = angles;
     }
 
@@ -419,9 +419,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     public void visualizeHighQuality() {
         StringBuilder builder = new StringBuilder();
         builder.append("[ ");
-        for (String angle : angles.keySet()) {
+        for (AngleType angle : angles.keySet()) {
             builder.append("'");
-            builder.append(angle);
+            builder.append(angle.getAngleDisplayName());
             builder.append("', ");
         }
         builder.append(" ]");
