@@ -208,13 +208,14 @@ public final class Helper {
         return sdf.format(new Date());
     }
 
-    public static String getSequenceFasta(Chain chain) {
+    public static Pair<String, List<ResidueNumber>> getSequenceFasta(Chain chain) {
         /*
          * Iterate over the structure and prepare a sequence string in FASTA
          * format
          */
         StringBuilder builder = new StringBuilder();
-        List<Group> list = new ArrayList<>();
+        List<ResidueNumber> resids = new ArrayList<>();
+
         for (Group g : chain.getAtomGroups()) {
             String type = g.getType();
             if (type.equals("nucleotide") || type.equals("amino")
@@ -225,12 +226,12 @@ public final class Helper {
                     fasta = fasta.substring(fasta.length() - 1, fasta.length());
                 }
                 builder.append(fasta);
-                list.add(g);
+                resids.add(g.getResidueNumber());
             }
         }
         String seqString = builder.toString();
         Helper.LOGGER.trace("Parsed sequence: " + seqString);
-        return seqString;
+        return Pair.of(seqString, resids);
     }
 
     private static boolean isAminoAcid(Group g) {

@@ -13,7 +13,9 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.StructureException;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
@@ -79,12 +81,12 @@ public class ComparisonLocalMulti extends XMLSerializable implements
     }
 
     List<ComparisonLocal> results = new ArrayList<>();
-    String referenceSequence;
+    Pair<String, List<ResidueNumber>> referenceSequence;
 
     private ComparisonLocalMulti(List<ComparisonLocal> results,
-            String referenceSequence) {
+            Pair<String, List<ResidueNumber>> sequence) {
         this.results = results;
-        this.referenceSequence = referenceSequence;
+        this.referenceSequence = sequence;
     }
 
     @Override
@@ -121,7 +123,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         }
     }
 
-    public String getReferenceSequence() {
+    public Pair<String, List<ResidueNumber>> getReferenceSequence() {
         return referenceSequence;
     }
 
@@ -130,7 +132,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
     }
 
     @XmlElement
-    public void setReferenceSequence(String referenceSequence) {
+    public void setReferenceSequence(
+            Pair<String, List<ResidueNumber>> referenceSequence) {
         this.referenceSequence = referenceSequence;
     }
 

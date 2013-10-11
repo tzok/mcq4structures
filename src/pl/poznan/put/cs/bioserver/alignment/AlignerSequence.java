@@ -87,7 +87,7 @@ public final class AlignerSequence {
         }
         AlignerSequence.logger.debug("Failed to parse SEQRES from PDB file. "
                 + "Will attempt to get sequence manually");
-        String seqString = Helper.getSequenceFasta(chain);
+        String seqString = Helper.getSequenceFasta(chain).getLeft();
         /*
          * Create a Sequence object in correct type
          */
