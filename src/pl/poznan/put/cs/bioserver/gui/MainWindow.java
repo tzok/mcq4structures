@@ -874,9 +874,12 @@ public class MainWindow extends JFrame {
 
         List<AngleType> angles = new ArrayList<>();
         angles.add(AngleAverageAll.getInstance());
-        angles.addAll(NucleotideDihedral.getAngles());
-        angles.add(AnglePseudophasePucker.getInstance());
-        angles.addAll(AminoAcidDihedral.getAngles());
+        if (Helper.isNucleicAcid(chains.get(0))) {
+            angles.addAll(NucleotideDihedral.getAngles());
+            angles.add(AnglePseudophasePucker.getInstance());
+        } else {
+            angles.addAll(AminoAcidDihedral.getAngles());
+        }
 
         AngleType angleType =
                 (AngleType) JOptionPane.showInputDialog(MainWindow.this,
