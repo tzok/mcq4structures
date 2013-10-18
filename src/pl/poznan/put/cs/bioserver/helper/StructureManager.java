@@ -231,13 +231,13 @@ public final class StructureManager {
     private static void validate(BufferedReader reader)
             throws InvalidInputException {
         try {
-            char lastChain = 0;
-            int lastResidue = 0;
+            Character lastChain = null;
+            Integer lastResidue = null;
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.startsWith("TER")) {
-                    lastChain = 0;
-                    lastResidue = 0;
+                if (line.startsWith("TER") || line.startsWith("ENDMDL")) {
+                    lastChain = null;
+                    lastResidue = null;
                     continue;
                 }
 
@@ -255,13 +255,13 @@ public final class StructureManager {
                     }
 
                     char chain = line.charAt(21);
-                    if (lastChain != 0 && lastChain != chain) {
-                        lastResidue = 0;
+                    if (lastChain != null && lastChain != chain) {
+                        lastResidue = null;
                     }
 
                     int residue =
                             Integer.valueOf(line.substring(22, 26).trim());
-                    if (lastResidue != 0 && residue - lastResidue != 0
+                    if (lastResidue != null && residue - lastResidue != 0
                             && residue - lastResidue != 1) {
                         String message =
                                 "Residues in the PDB file are not numbered sequentially, "
