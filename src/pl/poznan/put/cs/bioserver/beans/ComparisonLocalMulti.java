@@ -35,6 +35,7 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
+import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.gui.DialogColorbar;
 import pl.poznan.put.cs.bioserver.gui.MainWindow;
@@ -81,9 +82,12 @@ public class ComparisonLocalMulti extends XMLSerializable implements
                 Helper.getSequenceFasta(reference));
     }
 
-    List<ComparisonLocal> results = new ArrayList<>();
-    AngleType angleType;
-    Pair<String, List<ResidueNumber>> referenceSequence;
+    private List<ComparisonLocal> results = new ArrayList<>();
+    private AngleType angleType;
+    private Pair<String, List<ResidueNumber>> referenceSequence;
+
+    public ComparisonLocalMulti() {
+    }
 
     private ComparisonLocalMulti(List<ComparisonLocal> results,
             AngleType angleType, Pair<String, List<ResidueNumber>> sequence) {
@@ -105,8 +109,20 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         return angleType;
     }
 
-    public void setAngleType(AngleType angleType) {
-        this.angleType = angleType;
+    public String getAngleName() {
+        return angleType.getAngleName();
+    }
+
+    @XmlElement
+    public void setAngleName(String angleName) {
+        for (AngleType at : MCQ.USED_ANGLES) {
+            if (at.getAngleName().equals(angleName)) {
+                angleType = at;
+                return;
+            }
+        }
+
+        angleType = null;
     }
 
     public Pair<String, List<ResidueNumber>> getReferenceSequence() {
@@ -180,7 +196,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements
             return;
         }
         ComparisonLocal reference = results.get(0);
-        final int maxY = reference.ticks.size();
+        final int maxY = reference.getTicks().size();
 
         Shape surface =
                 Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
@@ -194,8 +210,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
                                 i = Math.max(Math.min(i, maxX - 1), 0);
                                 j = Math.max(Math.min(j, maxY - 1), 0);
                                 // FIXME
-                                return results.get(i).angles.get(
-                                        angleType.getAngleName()).getDeltas()[j];
+                                return getResults().get(i).getAngles()
+                                        .get(getAngleName()).getDeltas()[j];
                             }
                         });
 
@@ -206,11 +222,11 @@ public class ComparisonLocalMulti extends XMLSerializable implements
 
         TickLabelMap mapX = new TickLabelMap();
         for (int i = 0; i < maxX; i++) {
-            mapX.register(i, results.get(i).title);
+            mapX.register(i, results.get(i).getTitle());
         }
         TickLabelMap mapY = new TickLabelMap();
         for (int i = 0; i < maxY; i++) {
-            mapY.register(i, reference.ticks.get(i));
+            mapY.register(i, reference.getTicks().get(i));
         }
 
         Chart chart = new Chart(Quality.Nicest);

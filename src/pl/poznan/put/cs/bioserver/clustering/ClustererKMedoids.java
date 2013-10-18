@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class ClustererKMedoids {
+    public static final String NAME_PAM = "PAM";
+    public static final String NAME_PAMSIL = "PAMSIL";
+
     public static class ClusterCallable implements Callable<Result> {
         private double[][] matrix;
         private ScoringFunction sf;
@@ -98,15 +101,11 @@ public final class ClustererKMedoids {
                 }
             }
             return -result;
-            //
-            // Map<Integer, Set<Integer>> assignments =
-            // ClustererKMedoids.getClusterAssignments(medoids, matrix);
-            // return ClustererKMedoids.scoreByDistance(assignments, matrix);
         }
 
         @Override
         public String toString() {
-            return "PAM";
+            return NAME_PAM;
         }
     };
 
@@ -120,7 +119,7 @@ public final class ClustererKMedoids {
 
         @Override
         public String toString() {
-            return "PAMSIL";
+            return NAME_PAMSIL;
         }
     };
 

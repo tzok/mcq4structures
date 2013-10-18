@@ -98,13 +98,14 @@ public class Externals {
                 "/tmp/local.py"), new File("/tmp/local.pdf"), xmlResults,
                 parameters);
 
-        double[][] matrix = new MCQ().compare(structures, null);
+        MCQ mcq = new MCQ();
+        double[][] matrix = mcq.compare(structures, null);
         List<String> labels = new ArrayList<>();
         for (Structure s : structures) {
             labels.add(StructureManager.getName(s));
         }
         ComparisonGlobal global =
-                ComparisonGlobal.newInstance(matrix, labels, "MCQ");
+                ComparisonGlobal.newInstance(matrix, labels, mcq);
 
         xmlResults =
                 ClusteringHierarchical.newInstance(global, Linkage.Complete);

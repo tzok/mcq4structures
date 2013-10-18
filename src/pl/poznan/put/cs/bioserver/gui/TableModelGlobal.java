@@ -19,7 +19,7 @@ class TableModelGlobal extends AbstractTableModel {
         super();
         names = comparisonGlobal.getLabels();
         values = comparisonGlobal.getDistanceMatrix();
-        measure = comparisonGlobal.getMethod();
+        measure = comparisonGlobal.getMethodName().toString();
         format = new DecimalFormat("0.000");
     }
 

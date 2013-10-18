@@ -66,7 +66,7 @@ public class KMedoidsPlot extends JFrame {
 
         StringBuilder builder = new StringBuilder();
         builder.append("MCQ4Structures: global distance (");
-        builder.append(clustering.getComparison().getMethod());
+        builder.append(clustering.getComparison().getMethodName());
         builder.append(") clusters by k-medoids (");
         builder.append(clustering.getScoringFunction());
         builder.append(", k = ");

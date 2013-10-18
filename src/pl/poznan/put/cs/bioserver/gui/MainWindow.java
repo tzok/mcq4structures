@@ -819,8 +819,7 @@ public class MainWindow extends JFrame {
                 long start = System.currentTimeMillis();
                 double[][] matrix = comparison.compare(structures, listener);
                 final ComparisonGlobal comparisonGlobal =
-                        ComparisonGlobal.newInstance(matrix, names,
-                                comparison.toString());
+                        ComparisonGlobal.newInstance(matrix, names, comparison);
                 MainWindow.LOGGER.debug("Structure comparison took "
                         + (System.currentTimeMillis() - start) + " ms");
 

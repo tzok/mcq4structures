@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jzy3d.chart.Chart;
@@ -53,9 +52,11 @@ public class ClusteringPartitional extends XMLSerializable implements
                 ClustererKMedoids.getClusterAssignments(clustering.medoids,
                         distanceMatrix);
 
+        List<String> labelsAll = comparison.getLabels();
         List<Point> medoids = new ArrayList<>();
         for (int index : clusterMap.keySet()) {
             Point medoid = new Point();
+            medoid.setLabel(labelsAll.get(index));
             medoid.setX(mds2D[index][0]);
             medoid.setY(mds2D[index][1]);
             medoids.add(medoid);
@@ -64,7 +65,6 @@ public class ClusteringPartitional extends XMLSerializable implements
         List<Cluster> clusters = new ArrayList<>();
         List<Cluster3D> clusters3D = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        List<String> labelsAll = comparison.getLabels();
         for (Entry<Integer, Set<Integer>> entry : clusterMap.entrySet()) {
             List<Point> points = new ArrayList<>();
             List<Point3D> points3D = new ArrayList<>();
@@ -98,24 +98,27 @@ public class ClusteringPartitional extends XMLSerializable implements
         }
 
         return new ClusteringPartitional(clusters, clusters3D, Colors.toRGB(),
-                comparison, labels, medoids, scoringFunction.toString());
+                comparison, labels, medoids, scoringFunction);
     }
 
     private List<Cluster> clusters;
-    private List<Cluster3D> clusters3D;
+    private List<Cluster3D> clusters3d;
     private List<RGB> colors;
     private ComparisonGlobal comparison;
     private List<String> labels;
     private List<Point> medoids;
-    private String scoringFunction;
+    private ScoringFunction scoringFunction;
+
+    public ClusteringPartitional() {
+    }
 
     private ClusteringPartitional(List<Cluster> clusters,
             List<Cluster3D> clusters3d, List<RGB> colors,
             ComparisonGlobal comparison, List<String> labels,
-            List<Point> medoids, String scoringFunction) {
+            List<Point> medoids, ScoringFunction scoringFunction) {
         super();
         this.clusters = clusters;
-        clusters3D = clusters3d;
+        this.clusters3d = clusters3d;
         this.colors = colors;
         this.comparison = comparison;
         this.labels = labels;
@@ -127,34 +130,22 @@ public class ClusteringPartitional extends XMLSerializable implements
         return clusters;
     }
 
-    public List<RGB> getColors() {
-        return colors;
-    }
-
-    public ComparisonGlobal getComparison() {
-        return comparison;
-    }
-
-    public List<String> getLabels() {
-        return labels;
-    }
-
-    public List<Point> getMedoids() {
-        return medoids;
-    }
-
-    public String getScoringFunction() {
-        return scoringFunction;
-    }
-
+    @XmlElement
     public void setClusters(List<Cluster> clusters) {
         this.clusters = clusters;
     }
 
-    @XmlElementWrapper(name = "colors")
-    @XmlElement(name = "item")
+    public List<RGB> getColors() {
+        return colors;
+    }
+
+    @XmlElement
     public void setColors(List<RGB> colors) {
         this.colors = colors;
+    }
+
+    public ComparisonGlobal getComparison() {
+        return comparison;
     }
 
     @XmlElement
@@ -162,21 +153,44 @@ public class ClusteringPartitional extends XMLSerializable implements
         this.comparison = comparison;
     }
 
-    @XmlElementWrapper(name = "labels")
-    @XmlElement(name = "item")
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    @XmlElement
     public void setLabels(List<String> labels) {
         this.labels = labels;
     }
 
-    @XmlElementWrapper(name = "medoids")
-    @XmlElement(name = "item")
+    public List<Point> getMedoids() {
+        return medoids;
+    }
+
+    @XmlElement
     public void setMedoids(List<Point> medoids) {
         this.medoids = medoids;
     }
 
+    public ScoringFunction getScoringFunction() {
+        return scoringFunction;
+    }
+
+    public String getScoringFunctionName() {
+        return scoringFunction.toString();
+    }
+
     @XmlElement
-    public void setScoringFunction(String method) {
-        scoringFunction = method;
+    public void setScoringFunctionName(String name) {
+        switch (name) {
+        case ClustererKMedoids.NAME_PAM:
+            scoringFunction = ClustererKMedoids.PAM;
+            break;
+        case ClustererKMedoids.NAME_PAMSIL:
+            scoringFunction = ClustererKMedoids.PAMSIL;
+            break;
+        default:
+            scoringFunction = null;
+        }
     }
 
     @Override
@@ -189,7 +203,7 @@ public class ClusteringPartitional extends XMLSerializable implements
     public void visualize3D() {
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
-        for (Cluster3D cluster : clusters3D) {
+        for (Cluster3D cluster : clusters3d) {
             for (Point3D point : cluster.getPoints()) {
                 double lmin =
                         Math.min(Math.min(point.getX(), point.getY()),
@@ -208,8 +222,8 @@ public class ClusteringPartitional extends XMLSerializable implements
 
         Chart chart = new Chart(Quality.Nicest);
         Graph graph = chart.getScene().getGraph();
-        for (int i = 0; i < clusters3D.size(); i++) {
-            Cluster3D cluster = clusters3D.get(i);
+        for (int i = 0; i < clusters3d.size(); i++) {
+            Cluster3D cluster = clusters3d.get(i);
             java.awt.Color c = Colors.ALL.get(i + 1);
             Color color = new Color(c.getRed(), c.getGreen(), c.getBlue());
             boolean isLabeled = false;

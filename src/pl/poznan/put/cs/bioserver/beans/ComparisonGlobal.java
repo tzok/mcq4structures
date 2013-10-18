@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jzy3d.chart.Chart;
@@ -25,6 +24,9 @@ import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
+import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
+import pl.poznan.put.cs.bioserver.comparison.MCQ;
+import pl.poznan.put.cs.bioserver.comparison.RMSD;
 import pl.poznan.put.cs.bioserver.gui.DialogCluster;
 import pl.poznan.put.cs.bioserver.helper.Clusterable;
 import pl.poznan.put.cs.bioserver.helper.Exportable;
@@ -42,16 +44,19 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
     private static final long serialVersionUID = 5900586846338327108L;
 
     public static ComparisonGlobal newInstance(double[][] distanceMatrix,
-            List<String> labels, String method) {
+            List<String> labels, GlobalComparison method) {
         return new ComparisonGlobal(distanceMatrix, labels, method);
     }
 
-    double[][] distanceMatrix;
-    List<String> labels;
-    String method;
+    private double[][] distanceMatrix;
+    private List<String> labels;
+    private GlobalComparison method;
+
+    public ComparisonGlobal() {
+    }
 
     private ComparisonGlobal(double[][] distanceMatrix, List<String> labels,
-            String method) {
+            GlobalComparison method) {
         super();
         this.distanceMatrix = distanceMatrix;
         this.labels = labels;
@@ -100,29 +105,36 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
         return distanceMatrix.clone();
     }
 
-    public List<String> getLabels() {
-        return labels;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    @XmlElementWrapper(name = "distanceMatrix")
-    @XmlElement(name = "row")
+    @XmlElement
     public void setDistanceMatrix(double[][] distanceMatrix) {
         this.distanceMatrix = distanceMatrix.clone();
     }
 
-    @XmlElementWrapper(name = "labels")
-    @XmlElement(name = "item")
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    @XmlElement
     public void setLabels(List<String> labels) {
         this.labels = labels;
     }
 
+    public String getMethodName() {
+        return method.toString();
+    }
+
     @XmlElement
-    public void setMethod(String method) {
-        this.method = method;
+    public void setMethodName(String methodName) {
+        switch (methodName) {
+        case MCQ.NAME:
+            method = new MCQ();
+            break;
+        case RMSD.NAME:
+            method = new RMSD();
+            break;
+        default:
+            method = null;
+        }
     }
 
     @Override
@@ -177,7 +189,7 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
 
                         i = Math.max(Math.min(i, max - 1), 0);
                         j = Math.max(Math.min(j, max - 1), 0);
-                        return distanceMatrix[i][j];
+                        return getDistanceMatrix()[i][j];
                     }
                 });
 

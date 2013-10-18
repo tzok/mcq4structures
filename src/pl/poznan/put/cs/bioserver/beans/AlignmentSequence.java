@@ -121,6 +121,9 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
     private boolean isGlobal;
     private String title;
 
+    public AlignmentSequence() {
+    }
+
     private AlignmentSequence(String alignment, boolean isGlobal, String title) {
         super();
         this.alignment = alignment;

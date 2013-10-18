@@ -30,6 +30,9 @@ public class ClusteringHierarchical extends XMLSerializable implements
     private ComparisonGlobal comparison;
     private Linkage linkage;
 
+    public ClusteringHierarchical() {
+    }
+
     private ClusteringHierarchical(List<Cluster> clustering,
             ComparisonGlobal comparison, Linkage linkage) {
         super();
@@ -42,22 +45,22 @@ public class ClusteringHierarchical extends XMLSerializable implements
         return clustering;
     }
 
-    public ComparisonGlobal getComparison() {
-        return comparison;
-    }
-
-    public Linkage getLinkage() {
-        return linkage;
-    }
-
     @XmlElement
     public void setClustering(List<Cluster> clustering) {
         this.clustering = clustering;
     }
 
+    public ComparisonGlobal getComparison() {
+        return comparison;
+    }
+
     @XmlElement
     public void setComparison(ComparisonGlobal comparison) {
         this.comparison = comparison;
+    }
+
+    public Linkage getLinkage() {
+        return linkage;
     }
 
     @XmlElement

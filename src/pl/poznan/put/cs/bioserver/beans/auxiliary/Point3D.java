@@ -1,9 +1,11 @@
 package pl.poznan.put.cs.bioserver.beans.auxiliary;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
 
+@XmlRootElement
 public class Point3D extends XMLSerializable {
     private static final long serialVersionUID = -5367548449382891738L;
 

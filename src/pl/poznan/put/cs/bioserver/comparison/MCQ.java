@@ -29,10 +29,12 @@ import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class MCQ extends GlobalComparison {
+    public static final String NAME = "MCQ";
     public static final List<AngleType> USED_ANGLES;
 
     private static final List<String> USED_ANGLES_NAMES;
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
+
     static {
         USED_ANGLES = new ArrayList<>();
         MCQ.USED_ANGLES.addAll(NucleotideDihedral.getAngles());
@@ -202,6 +204,6 @@ public class MCQ extends GlobalComparison {
 
     @Override
     public String toString() {
-        return "MCQ";
+        return MCQ.NAME;
     }
 }

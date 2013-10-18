@@ -23,7 +23,6 @@ import java.util.TreeSet;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.collections15.map.MultiKeyMap;
@@ -58,6 +57,7 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import pl.poznan.put.cs.bioserver.beans.auxiliary.Angle;
 import pl.poznan.put.cs.bioserver.beans.auxiliary.RGB;
+import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.comparison.TorsionLocalComparison;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.gui.MainWindow;
@@ -191,10 +191,13 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         return new ComparisonLocal(angles, Colors.toRGB(), ticks, title);
     }
 
-    Map<AngleType, Angle> angles;
+    private Map<AngleType, Angle> angles;
     private List<RGB> colors;
-    List<String> ticks;
-    String title;
+    private List<String> ticks;
+    private String title;
+
+    public ComparisonLocal() {
+    }
 
     private ComparisonLocal(Map<AngleType, Angle> angles, List<RGB> colors,
             List<String> ticks, String title) {
@@ -210,7 +213,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
             csvWriter.write("");
-            List<Angle> angleArray = getAngleList();
+            List<Angle> angleArray = new ArrayList<>(getAngles().values());
             for (Angle angle : angleArray) {
                 csvWriter.write(angle.getName());
             }
@@ -227,40 +230,53 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         }
     }
 
-    public List<Angle> getAngleList() {
-        return new ArrayList<>(angles.values());
-    }
-
     public Map<AngleType, Angle> getAngles() {
         return angles;
+    }
+
+    public Map<String, Angle> getAnglesNames() {
+        Map<String, Angle> map = new LinkedHashMap<>();
+        for (Entry<AngleType, Angle> entry : angles.entrySet()) {
+            map.put(entry.getKey().getAngleName(), entry.getValue());
+        }
+        return map;
+    }
+
+    @XmlElement
+    public void setAnglesNames(Map<String, Angle> map) {
+        Map<AngleType, Angle> result = new LinkedHashMap<>();
+        for (Entry<String, Angle> entry : map.entrySet()) {
+            for (AngleType at : MCQ.USED_ANGLES) {
+                if (at.getAngleName().equals(entry.getKey())) {
+                    result.put(at, entry.getValue());
+                    break;
+                }
+            }
+        }
+
+        angles = result;
     }
 
     public List<RGB> getColors() {
         return colors;
     }
 
-    public List<String> getTicks() {
-        return ticks;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setAngles(Map<AngleType, Angle> angles) {
-        this.angles = angles;
-    }
-
-    @XmlElementWrapper(name = "colors")
-    @XmlElement(name = "item")
+    @XmlElement
     public void setColors(List<RGB> colors) {
         this.colors = colors;
     }
 
-    @XmlElementWrapper(name = "ticks")
-    @XmlElement(name = "item")
+    public List<String> getTicks() {
+        return ticks;
+    }
+
+    @XmlElement
     public void setTicks(List<String> ticks) {
         this.ticks = ticks;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     @XmlElement
@@ -284,7 +300,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             x[i] = i;
         }
 
-        List<Angle> angleArray = getAngleList();
+        List<Angle> angleArray = new ArrayList<>(getAngles().values());
         double[][] y = new double[angleArray.size()][];
         for (int i = 0; i < angleArray.size(); i++) {
             y[i] = new double[ticks.size()];
@@ -361,7 +377,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     @Override
     public void visualize3D() {
-        final List<Angle> angleList = getAngleList();
+        final List<Angle> angleList = new ArrayList<>(getAngles().values());
         final int maxX = angleList.size();
         final int maxY = ticks.size();
 

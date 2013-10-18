@@ -27,6 +27,8 @@ import pl.poznan.put.cs.bioserver.helper.StructureManager;
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class RMSD extends GlobalComparison {
+    public static final String NAME = "RMSD";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RMSD.class);
 
     /**
@@ -123,6 +125,6 @@ public class RMSD extends GlobalComparison {
 
     @Override
     public String toString() {
-        return "RMSD";
+        return RMSD.NAME;
     }
 }

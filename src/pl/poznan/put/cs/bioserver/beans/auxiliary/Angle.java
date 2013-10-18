@@ -21,7 +21,7 @@ public class Angle extends XMLSerializable {
         return name;
     }
 
-    @XmlElement(name = "item")
+    @XmlElement
     public void setDeltas(double[] deltas) {
         this.deltas = deltas.clone();
     }
