@@ -30,8 +30,6 @@ public final class ClustererHierarchical {
             this.items = items;
             this.x = x;
             this.y = y;
-            left = new Cluster(new ArrayList<Integer>(), -1, -1);
-            right = new Cluster(new ArrayList<Integer>(), -1, -1);
         }
 
         @Override
@@ -50,10 +48,14 @@ public final class ClustererHierarchical {
             builder.append("y = ");
             builder.append(y);
             builder.append('\n');
-            builder.append("left:\n");
-            builder.append(left.toString());
-            builder.append("right:\n");
-            builder.append(right.toString());
+            if (left != null) {
+                builder.append("left:\n");
+                builder.append(left.toString());
+            }
+            if (right != null) {
+                builder.append("right:\n");
+                builder.append(right.toString());
+            }
             return builder.toString();
         }
     }
