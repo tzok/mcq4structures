@@ -33,7 +33,8 @@ import pl.poznan.put.cs.bioserver.external.XSLT;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.StructureManager;
 import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
-import pl.poznan.put.cs.bioserver.torsion.NucleotideDihedral;
+import pl.poznan.put.cs.bioserver.torsion.AnglePseudophasePucker;
+import pl.poznan.put.cs.bioserver.torsion.AngleType;
 
 public class TestXmlSerializable {
     private static final File TMPDIR = new File(
@@ -153,9 +154,12 @@ public class TestXmlSerializable {
         Chain c1 = StructureManager.loadStructure("1EHZ").get(0).getChain(0);
         Chain c2 = StructureManager.loadStructure("1EVV").get(0).getChain(0);
 
+        List<AngleType> usedAngles = new ArrayList<>(MCQ.USED_ANGLES);
+        usedAngles.add(AngleAverageAll.getInstance());
+        usedAngles.add(AnglePseudophasePucker.getInstance());
+
         XMLSerializable xmlSerializable =
-                ComparisonLocal.newInstance(c1, c2,
-                        NucleotideDihedral.getAngles());
+                ComparisonLocal.newInstance(c1, c2, usedAngles);
         TestXmlSerializable.storeXml(xmlSerializable);
     }
 

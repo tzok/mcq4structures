@@ -11,21 +11,21 @@
         <xsl:text>import matplotlib.ticker&#10;</xsl:text>
         <xsl:text>import sys&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>COLORS = </xsl:text><xsl:apply-templates select="colors"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>COLORS = [ </xsl:text><xsl:apply-templates select="colors"/><xsl:text> ]&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>if __name__ == '__main__':&#10;</xsl:text>
         <xsl:text>    if len(sys.argv) != 2:&#10;</xsl:text>
         <xsl:text>        print('Usage: python ' + sys.argv[0] + ' OUTFILE.(png|pdf|svg|eps)')&#10;</xsl:text>
         <xsl:text>        exit(1)&#10;</xsl:text>
-        <xsl:text>    x = </xsl:text><xsl:apply-templates select="ticks"/><xsl:text>&#10;</xsl:text>
-        <xsl:text>    y = </xsl:text><xsl:apply-templates select="angles" mode="items"/><xsl:text>&#10;</xsl:text>
-        <xsl:text>    labels = </xsl:text><xsl:apply-templates select="angles" mode="names"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    x = [ </xsl:text><xsl:apply-templates select="ticks"/><xsl:text> ]&#10;</xsl:text>
+        <xsl:text>    y = [ </xsl:text><xsl:apply-templates select="anglesNames" mode="items"/><xsl:text> ]&#10;</xsl:text>
+        <xsl:text>    labels = [ </xsl:text><xsl:apply-templates select="anglesNames" mode="names"/><xsl:text> ]&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    angles = </xsl:text><xsl:value-of select="$angles"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    angles = [ </xsl:text><xsl:value-of select="$angles"/><xsl:text> ]&#10;</xsl:text>
         <xsl:text>    y = list(y[i] for i in range(len(y)) if labels[i] in angles)&#10;</xsl:text>
         <xsl:text>    labels = list(labels[i] for i in range(len(labels)) if labels[i] in angles)&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    greek = { 'ALPHA' : r'$\alpha$', 'BETA' : r'$\beta$', 'GAMMA' : r'$\gamma$', 'DELTA' : r'$\delta$', 'EPSILON' : r'$\varepsilon$', 'ZETA' : r'$\zeta$', 'CHI' : r'$\chi$', 'TAU0' : r'$\tau_0$', 'TAU1' : r'$\tau_1$', 'TAU2' : r'$\tau_2$', 'TAU3' : r'$\tau_3$', 'TAU4' : r'$\tau_4$', 'P' : r'$P$', 'AVG_SELECTED' : 'selected', 'AVG_ALL' : 'average', 'PHI' : r'$\phi$', 'PSI' : r'$\psi$', 'OMEGA' : r'$\omega$', 'CHI1' : r'$\chi_1$', 'CHI2' : r'$\chi_2$', 'CHI3' : r'$\chi_3$', 'CHI4' : r'$\chi_4$', 'CHI5' : r'$\chi_5$', 'ETA' : r'$\eta$', 'THETA' : r'$\theta$', 'ETA_PRIM' : r"$\eta'$", 'THETA_PRIM' : r"$\theta'$", 'CALPHA' : r'C-$\alpha$' }&#10;</xsl:text>
+        <xsl:text>    greek = { 'ALPHA' : r"$\alpha$ (alpha) O3'-P-O5'-C5'", 'BETA' : r"$\beta$ (beta) P-O5'-C5'-C4'", 'GAMMA' : r"$\gamma$ (gamma) O5'-C5'-C4'-C3'", 'DELTA' : r"$\delta$ (delta) C5'-C4'-C3'-O3'", 'EPSILON' : r"$\varepsilon$ (epsilon) C4'-C3'-O3'-P", 'ZETA' : r"$\zeta$ (zeta) C3'-O3'-P-O5'", 'CHI' : r"$\chi$ (chi) O4'-C1'-(N1-C2)|(N9-C4)", 'TAU0' : r"$\tau_0$ (tau0) C4'-O4'-C1'-C2'", 'TAU1' : r"$\tau_1$ (tau1) O4'-C1'-C2'-C3'", 'TAU2' : r"$\tau_2$ (tau2) C1'-C2'-C3'-C4'", 'TAU3' : r"$\tau_3$ (tau3) C2'-C3'-C4'-O4'", 'TAU4' : r"$\tau_4$ (tau4) C3'-C4'-O4'-C1'", 'P' : r"$P$ (sugar pucker)", 'AVG_SELECTED' : 'selected', 'AVG_ALL' : 'average', 'PHI' : r"$\phi$ (phi) C'-N-Ca-C'", 'PSI' : r"$\psi$ (psi) N-Ca-C'-N", 'OMEGA' : r"$\omega$ (omega) Ca-C'-N-Ca", 'CHI1' : r'$\chi_1$ (chi1)', 'CHI2' : r'$\chi_2$ (chi2)', 'CHI3' : r'$\chi_3$ (chi3)', 'CHI4' : r'$\chi_4$ (chi4)', 'CHI5' : r'$\chi_5$ (chi5)', 'ETA' : r"$\eta$ (eta) C4'-P-C4'-P", 'THETA' : r"$\theta$ (theta) P-C4'-P-C4'", 'ETA_PRIM' : r"$\eta'$ (eta') C1'-P-C1'-P", 'THETA_PRIM' : r"$\theta'$ (theta') C1'-P-C1'-P", 'CALPHA' : r"C-$\alpha$ (C-alpha) Ca-Ca-Ca-Ca" }&#10;</xsl:text>
         <xsl:text>    labels = list(greek[i] for i in labels)</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>    rads = ['0', r'$\frac{\pi}{12}$', r'$\frac{\pi}{6}$', r'$\frac{\pi}{4}$', r'$\frac{\pi}{3}$', r'$\frac{5\pi}{12}$', r'$\frac{\pi}{2}$', r'$\frac{7\pi}{12}$', r'$\frac{2\pi}{3}$', r'$\frac{3\pi}{4}$', r'$\frac{5\pi}{6}$', r'$\frac{11\pi}{12}$', r'$\pi$']&#10;</xsl:text>
@@ -53,18 +53,18 @@
     </xsl:template>
 
     <xsl:template match="ticks">
-        <xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+        <xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text>
     </xsl:template>
 
-    <xsl:template match="angles" mode="items">
-        <xsl:text>[ </xsl:text><xsl:for-each select="entry/value"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    <xsl:template match="anglesNames" mode="items">
+        <xsl:for-each select="entry/value"><xsl:text>[ </xsl:text><xsl:for-each select="deltas"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each>
     </xsl:template>
 
-    <xsl:template match="angles" mode="names">
-        <xsl:text>[ </xsl:text><xsl:for-each select="entry"><xsl:text>'</xsl:text><xsl:value-of select="key"/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+    <xsl:template match="anglesNames" mode="names">
+        <xsl:for-each select="entry"><xsl:text>'</xsl:text><xsl:value-of select="key"/><xsl:text>', </xsl:text></xsl:for-each>
     </xsl:template>
 
     <xsl:template match="colors">
-        <xsl:text>( </xsl:text><xsl:for-each select="item"><xsl:text>(</xsl:text><xsl:value-of select="r"/><xsl:text>, </xsl:text><xsl:value-of select="g"/><xsl:text>, </xsl:text><xsl:value-of select="b"/><xsl:text>), </xsl:text></xsl:for-each><xsl:text>)</xsl:text>
+        <xsl:text>(</xsl:text><xsl:value-of select="r"/><xsl:text>, </xsl:text><xsl:value-of select="g"/><xsl:text>, </xsl:text><xsl:value-of select="b"/><xsl:text>), </xsl:text>
     </xsl:template>
 </xsl:stylesheet>

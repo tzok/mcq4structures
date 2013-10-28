@@ -125,6 +125,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         angleType = null;
     }
 
+    // FIXME: Pair<L,R> class is not serialized into XML (not needed at the
+    // moment, but still...)
     public Pair<String, List<ResidueNumber>> getReferenceSequence() {
         return referenceSequence;
     }

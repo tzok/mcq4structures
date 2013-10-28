@@ -7,6 +7,7 @@
     <xsl:param name="interpolation" select="'none'"/>
     <xsl:param name="min" select="'0'"/>
     <xsl:param name="max" select="'3.1415'"/>
+    <xsl:param name="angle" select="'AVG_ALL'"/>
 
     <xsl:template match="comparisonLocalMulti">
         <xsl:text>import math&#10;</xsl:text>
@@ -31,7 +32,7 @@
         <xsl:text>    kwargs['vmin'] = -</xsl:text><xsl:value-of select="$max"/><xsl:text>&#10;</xsl:text>
         <xsl:text>    kwargs['vmax'] = </xsl:text><xsl:value-of select="$min"/><xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>    x = [-1 * numpy.array(i) for i in [ </xsl:text><xsl:apply-templates select="results/angles"/><xsl:text>] ]&#10;</xsl:text>
+        <xsl:text>    x = [-1 * numpy.array(i) for i in [ </xsl:text><xsl:apply-templates select="results/anglesNames"/><xsl:text>] ]&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>    files = []&#10;</xsl:text>
         <xsl:text>    for data in x:&#10;</xsl:text>
@@ -84,7 +85,7 @@
         <xsl:text>    os.remove(latex.replace('.tex', '.fls'))&#10;</xsl:text>
     </xsl:template>
 
-    <xsl:template match="angles">
-        <xsl:for-each select="entry/value[@name='AVG_ALL']"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each>
+    <xsl:template match="anglesNames">
+        <xsl:for-each select="entry[key=$angle]/value"><xsl:text>[ </xsl:text><xsl:for-each select="deltas"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each>
     </xsl:template>
 </xsl:stylesheet>

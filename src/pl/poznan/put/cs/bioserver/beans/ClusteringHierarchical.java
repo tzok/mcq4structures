@@ -41,6 +41,8 @@ public class ClusteringHierarchical extends XMLSerializable implements
         this.linkage = linkage;
     }
 
+    // FIXME: Cluster class is not serialized into XML (not needed at the
+    // moment, but still...)
     public List<Cluster> getClustering() {
         return clustering;
     }

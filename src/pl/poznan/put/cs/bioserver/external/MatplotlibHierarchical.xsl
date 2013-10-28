@@ -12,8 +12,8 @@
         <xsl:text>        print('Usage: python ' + sys.argv[0] + ' OUTFILE.(png|pdf|svg|eps)')&#10;</xsl:text>
         <xsl:text>        exit(1)&#10;</xsl:text>
         <xsl:text>    method = '</xsl:text><xsl:value-of select="linkage"/><xsl:text>'.lower()&#10;</xsl:text>
-        <xsl:text>    data = </xsl:text><xsl:apply-templates select="comparison/distanceMatrix"/><xsl:text>&#10;</xsl:text>
-        <xsl:text>    labels = </xsl:text><xsl:apply-templates select="comparison/labels"/><xsl:text>&#10;</xsl:text>
+        <xsl:text>    data = [ </xsl:text><xsl:apply-templates select="comparison/distanceMatrix"/><xsl:text> ]&#10;</xsl:text>
+        <xsl:text>    labels = [ </xsl:text><xsl:apply-templates select="comparison/labels"/><xsl:text> ]&#10;</xsl:text>
         <xsl:text>    matplotlib.pyplot.figure(figsize=(16, 9))&#10;</xsl:text>
         <xsl:text>    linkage = scipy.cluster.hierarchy.linkage(data, method=method)&#10;</xsl:text>
         <xsl:text>    scipy.cluster.hierarchy.dendrogram(linkage, orientation='right', labels=labels)&#10;</xsl:text>
@@ -21,10 +21,10 @@
     </xsl:template>
 
     <xsl:template match="labels">
-        <xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+        <xsl:text>'</xsl:text><xsl:value-of select="."/><xsl:text>', </xsl:text>
     </xsl:template>
 
     <xsl:template match="distanceMatrix">
-        <xsl:text>[ </xsl:text><xsl:for-each select="row"><xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text></xsl:for-each><xsl:text> ]</xsl:text>
+        <xsl:text>[ </xsl:text><xsl:for-each select="item"><xsl:text>float('</xsl:text><xsl:value-of select="."/><xsl:text>'), </xsl:text></xsl:for-each><xsl:text> ], </xsl:text>
     </xsl:template>
 </xsl:stylesheet>
