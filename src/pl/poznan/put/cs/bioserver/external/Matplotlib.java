@@ -38,13 +38,12 @@ public final class Matplotlib {
             File fileOutput, XMLSerializable data,
             Map<String, Object> parameters) throws IOException, JAXBException,
             ParserConfigurationException {
-        String pythonCode =
-                XSLT.transform(resource, new DOMSource(data.toXML()),
-                        parameters);
+        String pythonCode = XSLT.transform(resource,
+                new DOMSource(data.toXML()), parameters);
         Matplotlib.LOGGER.trace("Generated script:\n" + pythonCode);
 
-        try (Writer writer =
-                new FileWriterWithEncoding(fileScript, Charset.forName("UTF-8"))) {
+        try (Writer writer = new FileWriterWithEncoding(fileScript,
+                Charset.forName("UTF-8"))) {
             writer.write(pythonCode);
         }
 
@@ -67,8 +66,8 @@ public final class Matplotlib {
         File fileOutput = null;
 
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter =
-                new FileNameExtensionFilter("Python script", "py");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "Python script", "py");
         chooser.setFileFilter(filter);
         chooser.setSelectedFile(new File("script.py"));
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {

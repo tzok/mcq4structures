@@ -52,8 +52,8 @@ public class DialogCluster extends JDialog {
         group.add(kmedoids);
 
         linkage = new JComboBox<>(Linkage.values());
-        scoringFunction =
-                new JComboBox<>(ClustererKMedoids.getScoringFunctions());
+        scoringFunction = new JComboBox<>(
+                ClustererKMedoids.getScoringFunctions());
         scoringFunction.setEnabled(false);
         findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);
@@ -170,18 +170,13 @@ public class DialogCluster extends JDialog {
     Visualizable getVisualizable() throws InvalidInputException {
         Visualizable visualizable;
         if (hierarchical.isSelected()) {
-            visualizable =
-                    ClusteringHierarchical.newInstance(comparisonGlobal,
-                            (Linkage) linkage.getSelectedItem());
+            visualizable = ClusteringHierarchical.newInstance(comparisonGlobal,
+                    (Linkage) linkage.getSelectedItem());
         } else {
-            Integer k =
-                    (Integer) (findBestK.isSelected() ? null : kspinner
-                            .getValue());
-            visualizable =
-                    ClusteringPartitional
-                            .newInstance(comparisonGlobal,
-                                    (ScoringFunction) scoringFunction
-                                            .getSelectedItem(), k);
+            Integer k = (Integer) (findBestK.isSelected() ? null : kspinner
+                    .getValue());
+            visualizable = ClusteringPartitional.newInstance(comparisonGlobal,
+                    (ScoringFunction) scoringFunction.getSelectedItem(), k);
         }
         return visualizable;
     }

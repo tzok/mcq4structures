@@ -165,21 +165,19 @@ public class AlignmentOutput implements Exportable {
         Structure leftWhole = structureLeft.clone();
         Structure rightWhole = structureRight.clone();
         Matrix matrix = afpChain.getBlockRotationMatrix()[0];
-        Atom c1 =
-                Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft
-                        .size()]));
-        Atom c2 =
-                Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight
-                        .size()]));
+        Atom c1 = Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft
+                .size()]));
+        Atom c2 = Calc.getCentroid(listAtomsRight
+                .toArray(new Atom[listAtomsRight.size()]));
         Calc.shift(leftWhole, Calc.invert(c1));
         Calc.shift(rightWhole, Calc.invert(c2));
         Calc.rotate(rightWhole, matrix);
 
         Pair<List<Atom>, List<Atom>> aligned = getAtoms();
-        Structure leftFiltered =
-                AlignmentOutput.filterStructure(leftWhole, aligned.getLeft());
-        Structure rightFiltered =
-                AlignmentOutput.filterStructure(rightWhole, aligned.getRight());
+        Structure leftFiltered = AlignmentOutput.filterStructure(leftWhole,
+                aligned.getLeft());
+        Structure rightFiltered = AlignmentOutput.filterStructure(rightWhole,
+                aligned.getRight());
         return new StructuresAligned(leftWhole, rightWhole, leftFiltered,
                 rightFiltered);
     }

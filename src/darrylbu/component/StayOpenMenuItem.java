@@ -23,9 +23,8 @@ public class StayOpenMenuItem extends JMenuItem {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
-                    StayOpenMenuItem.path =
-                            MenuSelectionManager.defaultManager()
-                                    .getSelectedPath();
+                    StayOpenMenuItem.path = MenuSelectionManager
+                            .defaultManager().getSelectedPath();
                 }
             }
         });

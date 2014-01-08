@@ -37,8 +37,7 @@ import difflib.Patch;
  */
 public final class Helper {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helper.class);
-    private static final MultiKeyMap<Object, List<Atom>> MAP_GROUPS_ATOMS =
-            new MultiKeyMap<>();
+    private static final MultiKeyMap<Object, List<Atom>> MAP_GROUPS_ATOMS = new MultiKeyMap<>();
     private static final Set<String> SET_NUCLEOTIDE_ATOMS;
 
     private static final List<String> USED_ATOMS;
@@ -189,8 +188,8 @@ public final class Helper {
                 List<Atom> resultLeft = new ArrayList<>();
                 List<Atom> resultRight = new ArrayList<>();
                 for (String id : ids1) {
-                    Pair<List<Atom>, List<Atom>> common =
-                            Helper.getCommonAtomArray(left.getChainByPDB(id),
+                    Pair<List<Atom>, List<Atom>> common = Helper
+                            .getCommonAtomArray(left.getChainByPDB(id),
                                     right.getChainByPDB(id));
                     resultLeft.addAll(common.getLeft());
                     resultRight.addAll(common.getRight());

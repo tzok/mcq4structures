@@ -85,8 +85,8 @@ public final class ClustererKMedoids {
     public static final ScoringFunction PAM = new ScoringFunction() {
         @Override
         public double score(Set<Integer> medoids, double[][] matrix) {
-            List<PriorityBuffer<Integer>> asHeaps =
-                    ClustererKMedoids.matrixAsHeaps(matrix);
+            List<PriorityBuffer<Integer>> asHeaps = ClustererKMedoids
+                    .matrixAsHeaps(matrix);
             double result = 0;
 
             for (int i = 0; i < matrix.length; i++) {
@@ -105,21 +105,21 @@ public final class ClustererKMedoids {
 
         @Override
         public String toString() {
-            return NAME_PAM;
+            return ClustererKMedoids.NAME_PAM;
         }
     };
 
     public static final ScoringFunction PAMSIL = new ScoringFunction() {
         @Override
         public double score(Set<Integer> medoids, double[][] matrix) {
-            Map<Integer, Set<Integer>> assignments =
-                    ClustererKMedoids.getClusterAssignments(medoids, matrix);
+            Map<Integer, Set<Integer>> assignments = ClustererKMedoids
+                    .getClusterAssignments(medoids, matrix);
             return ClustererKMedoids.scoreBySilhouette(assignments, matrix);
         }
 
         @Override
         public String toString() {
-            return NAME_PAMSIL;
+            return ClustererKMedoids.NAME_PAMSIL;
         }
     };
 
@@ -145,8 +145,8 @@ public final class ClustererKMedoids {
             clustering.put(i, new HashSet<Integer>());
         }
 
-        List<PriorityBuffer<Integer>> binaryHeaps =
-                ClustererKMedoids.matrixAsHeaps(matrix);
+        List<PriorityBuffer<Integer>> binaryHeaps = ClustererKMedoids
+                .matrixAsHeaps(matrix);
 
         for (int i = 0; i < matrix.length; i++) {
             PriorityBuffer<Integer> heap = binaryHeaps.get(i);
@@ -178,8 +178,8 @@ public final class ClustererKMedoids {
         double overallBestScore = Double.NEGATIVE_INFINITY;
         Set<Integer> overallBestMedoids = null;
         for (int trial = 0; trial < 1; trial++) {
-            Set<Integer> medoids =
-                    ClustererKMedoids.initializeMedoids(matrix, k);
+            Set<Integer> medoids = ClustererKMedoids.initializeMedoids(matrix,
+                    k);
 
             double score = sf.score(medoids, matrix);
             while (true) {
@@ -236,14 +236,13 @@ public final class ClustererKMedoids {
     // http://en.wikipedia.org/wiki/K-means%2B%2B#Initialization_algorithm
     private static Set<Integer> initializeMedoids(double[][] matrix, int k) {
         Set<Integer> setMedoids = new HashSet<>();
-        setMedoids.add(RANDOM.nextInt(matrix.length));
+        setMedoids.add(ClustererKMedoids.RANDOM.nextInt(matrix.length));
 
-        List<PriorityBuffer<Integer>> listHeaps =
-                ClustererKMedoids.matrixAsHeaps(matrix);
+        List<PriorityBuffer<Integer>> listHeaps = ClustererKMedoids
+                .matrixAsHeaps(matrix);
 
         for (int i = 1; i < k; i++) {
-            LinkedHashMap<Integer, Double> mapElementNearest =
-                    new LinkedHashMap<>();
+            LinkedHashMap<Integer, Double> mapElementNearest = new LinkedHashMap<>();
             double total = 0;
 
             for (int j = 0; j < matrix.length; j++) {
@@ -284,8 +283,8 @@ public final class ClustererKMedoids {
     private static Result parallelScan(double[][] matrix, ScoringFunction sf) {
         int countThreads = Runtime.getRuntime().availableProcessors() * 2;
         ExecutorService threadPool = Executors.newFixedThreadPool(countThreads);
-        ExecutorCompletionService<Result> ecs =
-                new ExecutorCompletionService<>(threadPool);
+        ExecutorCompletionService<Result> ecs = new ExecutorCompletionService<>(
+                threadPool);
 
         for (int i = 2; i <= matrix.length; i++) {
             ClusterCallable task = new ClusterCallable(matrix, sf, i);
@@ -308,8 +307,8 @@ public final class ClustererKMedoids {
                 continue;
             }
 
-            double score =
-                    ClustererKMedoids.PAMSIL.score(result.medoids, matrix);
+            double score = ClustererKMedoids.PAMSIL.score(result.medoids,
+                    matrix);
             if (overallBest == null || score > overallBest.score) {
                 overallBest = result;
                 overallBest.score = score;
@@ -327,9 +326,8 @@ public final class ClustererKMedoids {
         if (ClustererKMedoids.heaps == null) {
             List<PriorityBuffer<Integer>> list = new ArrayList<>();
             for (int i = 0; i < matrix.length; i++) {
-                PriorityBuffer<Integer> heap =
-                        new PriorityBuffer<>(true, new MatrixComparator(i,
-                                matrix));
+                PriorityBuffer<Integer> heap = new PriorityBuffer<>(true,
+                        new MatrixComparator(i, matrix));
                 for (int j = 0; j < matrix.length; j++) {
                     heap.add(j);
                 }

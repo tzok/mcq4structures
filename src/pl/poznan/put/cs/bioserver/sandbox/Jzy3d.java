@@ -21,9 +21,8 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 
 public class Jzy3d {
     public static void main(String[] args) {
-        List<File> pdbs =
-                BenchmarkReference.list(new File(
-                        "/home/tzok/pdb/puzzles/Challenge1/"));
+        List<File> pdbs = BenchmarkReference.list(new File(
+                "/home/tzok/pdb/puzzles/Challenge1/"));
         List<Structure> structures = new ArrayList<>();
         PDBFileReader reader = new PDBFileReader();
         for (int i = 0; i < pdbs.size(); i++) {

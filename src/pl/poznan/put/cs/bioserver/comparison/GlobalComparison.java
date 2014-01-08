@@ -85,10 +85,10 @@ public abstract class GlobalComparison {
          * each calculation
          */
         int countThreads = Runtime.getRuntime().availableProcessors() * 2;
-        final ExecutorService threadPool =
-                Executors.newFixedThreadPool(countThreads);
-        ExecutorCompletionService<SingleResult> ecs =
-                new ExecutorCompletionService<>(threadPool);
+        final ExecutorService threadPool = Executors
+                .newFixedThreadPool(countThreads);
+        ExecutorCompletionService<SingleResult> ecs = new ExecutorCompletionService<>(
+                threadPool);
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
                 CompareCallable task = new CompareCallable(structures, i, j);

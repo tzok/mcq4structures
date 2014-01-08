@@ -118,8 +118,8 @@ public class DialogColorbar extends JDialog {
                     double lmin = Math.PI;
                     double lmax = 0;
                     for (ComparisonLocal local : listResults) {
-                        double[] deltas =
-                                local.getAngles().get(angleType).getDeltas();
+                        double[] deltas = local.getAngles().get(angleType)
+                                .getDeltas();
                         lmin = Math.min(lmin, StatUtils.min(deltas));
                         lmax = Math.max(lmax, StatUtils.max(deltas));
                     }

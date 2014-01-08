@@ -46,11 +46,9 @@ public class Clusterer {
 
         for (int i = 0; i < values.size(); i++) {
             for (int j = i + 1; j < values.size(); j++) {
-                matrix[i][j] =
-                        matrix[j][i] =
-                                DihedralAngles.subtractDihedral(
-                                        Math.toRadians(values.get(i)),
-                                        Math.toRadians(values.get(j)));
+                matrix[i][j] = matrix[j][i] = DihedralAngles.subtractDihedral(
+                        Math.toRadians(values.get(i)),
+                        Math.toRadians(values.get(j)));
             }
         }
 
@@ -64,11 +62,10 @@ public class Clusterer {
         }
         System.out.println();
 
-        Result kMedoids =
-                ClustererKMedoids.kMedoids(matrix, ClustererKMedoids.PAM, 4);
-        Map<Integer, Set<Integer>> clusters =
-                ClustererKMedoids.getClusterAssignments(kMedoids.medoids,
-                        matrix);
+        Result kMedoids = ClustererKMedoids.kMedoids(matrix,
+                ClustererKMedoids.PAM, 4);
+        Map<Integer, Set<Integer>> clusters = ClustererKMedoids
+                .getClusterAssignments(kMedoids.medoids, matrix);
 
         for (Entry<Integer, Set<Integer>> entry : clusters.entrySet()) {
             StringBuilder builder = new StringBuilder();

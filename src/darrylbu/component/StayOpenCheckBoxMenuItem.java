@@ -23,9 +23,8 @@ public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (getModel().isArmed() && isShowing()) {
-                    StayOpenCheckBoxMenuItem.path =
-                            MenuSelectionManager.defaultManager()
-                                    .getSelectedPath();
+                    StayOpenCheckBoxMenuItem.path = MenuSelectionManager
+                            .defaultManager().getSelectedPath();
                 }
             }
         });

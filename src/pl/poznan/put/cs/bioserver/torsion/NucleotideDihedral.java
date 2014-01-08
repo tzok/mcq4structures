@@ -20,22 +20,7 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 public final class NucleotideDihedral extends AbstractAngleType {
     /** All names of angles in a nucleotide. */
     private enum AngleName {
-        ALPHA,
-        BETA,
-        CHI,
-        DELTA,
-        EPSILON,
-        ETA,
-        ETA_PRIM,
-        GAMMA,
-        TAU0,
-        TAU1,
-        TAU2,
-        TAU3,
-        TAU4,
-        THETA,
-        THETA_PRIM,
-        ZETA
+        ALPHA, BETA, CHI, DELTA, EPSILON, ETA, ETA_PRIM, GAMMA, TAU0, TAU1, TAU2, TAU3, TAU4, THETA, THETA_PRIM, ZETA
     }
 
     private static List<AngleType> angles = Arrays.asList(new AngleType[] {
@@ -95,10 +80,8 @@ public final class NucleotideDihedral extends AbstractAngleType {
     private static final String O5P = " O5'";
     private static final String P = " P  ";
 
-    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms =
-            new HashMap<>();
-    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules =
-            new HashMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms = new HashMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules = new HashMap<>();
     private static Set<Character> setPyrimidines = new HashSet<>();
 
     static {

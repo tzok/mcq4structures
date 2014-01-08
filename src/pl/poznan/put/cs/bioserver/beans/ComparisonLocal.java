@@ -80,9 +80,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
             List<AngleType> angleNames) throws StructureException {
-        Structure[] s =
-                new Structure[] { new StructureImpl((Chain) c1.clone()),
-                        new StructureImpl((Chain) c2.clone()) };
+        Structure[] s = new Structure[] {
+                new StructureImpl((Chain) c1.clone()),
+                new StructureImpl((Chain) c2.clone()) };
 
         StringBuilder builder = new StringBuilder();
         builder.append(StructureManager.getName(c1.getParent()));
@@ -111,9 +111,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             r.addChain((Chain) c.clone());
         }
 
-        String title =
-                StructureManager.getName(left) + ", "
-                        + StructureManager.getName(right);
+        String title = StructureManager.getName(left) + ", "
+                + StructureManager.getName(right);
         return ComparisonLocal.newInstance(
                 TorsionLocalComparison.compare(l, r, list), title, list);
     }
@@ -398,20 +397,19 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             mapY.register(i, ticks.get(i));
         }
 
-        Shape surface =
-                Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
-                        maxX - 1), maxX, new Range(0, maxY), maxY - 1),
-                        new Mapper() {
-                            @Override
-                            public double f(double x, double y) {
-                                int i = (int) Math.round(x);
-                                int j = (int) Math.round(y);
+        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(
+                0, maxX - 1), maxX, new Range(0, maxY), maxY - 1),
+                new Mapper() {
+                    @Override
+                    public double f(double x, double y) {
+                        int i = (int) Math.round(x);
+                        int j = (int) Math.round(y);
 
-                                i = Math.max(Math.min(i, maxX - 1), 0);
-                                j = Math.max(Math.min(j, maxY - 1), 0);
-                                return angleList.get(i).getDeltas()[j];
-                            }
-                        });
+                        i = Math.max(Math.min(i, maxX - 1), 0);
+                        j = Math.max(Math.min(j, maxY - 1), 0);
+                        return angleList.get(i).getDeltas()[j];
+                    }
+                });
 
         surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0,
                 (float) Math.PI, new Color(1, 1, 1, .5f)));
@@ -445,9 +443,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", builder.toString());
 
-        URL resource =
-                MainWindow.class.getResource("/pl/poznan/put/cs/"
-                        + "bioserver/external/MatplotlibLocal.xsl");
+        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
+                + "bioserver/external/MatplotlibLocal.xsl");
         Matplotlib.runXsltAndPython(resource, this, parameters);
     }
 }

@@ -20,9 +20,8 @@ public class ClusteringHierarchical extends XMLSerializable implements
 
     public static ClusteringHierarchical newInstance(
             ComparisonGlobal comparison, Linkage linkage) {
-        List<Cluster> result =
-                ClustererHierarchical.hierarchicalClustering(
-                        comparison.getDistanceMatrix(), linkage);
+        List<Cluster> result = ClustererHierarchical.hierarchicalClustering(
+                comparison.getDistanceMatrix(), linkage);
         return new ClusteringHierarchical(result, comparison, linkage);
     }
 
@@ -83,10 +82,9 @@ public class ClusteringHierarchical extends XMLSerializable implements
 
     @Override
     public void visualizeHighQuality() {
-        URL resource =
-                getClass()
-                        .getResource(
-                                "/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
+        URL resource = getClass()
+                .getResource(
+                        "/pl/poznan/put/cs/bioserver/external/MatplotlibHierarchical.xsl");
         Matplotlib.runXsltAndPython(resource, this);
     }
 }

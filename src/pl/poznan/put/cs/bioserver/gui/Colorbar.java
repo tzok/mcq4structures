@@ -68,8 +68,8 @@ class Colorbar extends JPanel {
             delta = max;
         }
 
-        double hue =
-                (delta - min) / (max - min) * (red[0] - green[0]) + green[0];
+        double hue = (delta - min) / (max - min) * (red[0] - green[0])
+                + green[0];
         return Color.getHSBColor((float) hue, 0.75f, 0.75f);
     }
 }

@@ -17,10 +17,10 @@ public class ColorbarTicks extends JPanel {
 
     ColorbarTicks(Pair<String, List<ResidueNumber>> pair) {
         super();
-        this.reference = pair;
+        reference = pair;
 
-        Dimension size =
-                new JLabel(pair.getLeft() + pair.getLeft()).getPreferredSize();
+        Dimension size = new JLabel(pair.getLeft() + pair.getLeft())
+                .getPreferredSize();
         setPreferredSize(size);
     }
 

@@ -36,9 +36,8 @@ public class PrintAngles {
         try {
             Structure structure = new PDBFileReader().getStructure(args[0]);
             Helper.normalizeAtomNames(structure);
-            List<Atom> atomArray =
-                    Helper.getAtomArray(structure,
-                            NucleotideDihedral.getUsedAtoms());
+            List<Atom> atomArray = Helper.getAtomArray(structure,
+                    NucleotideDihedral.getUsedAtoms());
 
             MultiKeyMap<Object, Double> map = new MultiKeyMap<>();
             SortedSet<ResidueNumber> set = new TreeSet<>();
@@ -50,8 +49,8 @@ public class PrintAngles {
                     Atom b1 = atoms.b;
                     assert b1 != null;
 
-                    ResidueNumber residueNumber =
-                            b1.getGroup().getResidueNumber();
+                    ResidueNumber residueNumber = b1.getGroup()
+                            .getResidueNumber();
                     set.add(residueNumber);
                     map.put(residueNumber, type, dihedral);
                 }
@@ -64,13 +63,12 @@ public class PrintAngles {
             }
             System.out.println("MCQ_BACKBONE\tMCQ_BACKBONE_RIBOSE\tP");
 
-            Set<String> setBackbone =
-                    new HashSet<>(Arrays.asList(new String[] { "ALPHA", "BETA",
-                            "GAMMA", "DELTA", "EPSILON", "ZETA" }));
-            Set<String> setAllButChi =
-                    new HashSet<>(Arrays.asList(new String[] { "ALPHA", "BETA",
-                            "GAMMA", "DELTA", "EPSILON", "ZETA", "TAU0",
-                            "TAU1", "TAU2", "TAU3", "TAU4" }));
+            Set<String> setBackbone = new HashSet<>(Arrays.asList(new String[] {
+                    "ALPHA", "BETA", "GAMMA", "DELTA", "EPSILON", "ZETA" }));
+            Set<String> setAllButChi = new HashSet<>(
+                    Arrays.asList(new String[] { "ALPHA", "BETA", "GAMMA",
+                            "DELTA", "EPSILON", "ZETA", "TAU0", "TAU1", "TAU2",
+                            "TAU3", "TAU4" }));
 
             DecimalFormat format = new DecimalFormat("0.0");
             DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
@@ -101,8 +99,7 @@ public class PrintAngles {
                         dihedral += 2 * Math.PI;
                     }
                     if (type.getAngleName().startsWith("TAU")) {
-                        taus[Integer.valueOf(type.getAngleName().substring(3))] =
-                                dihedral;
+                        taus[Integer.valueOf(type.getAngleName().substring(3))] = dihedral;
                     }
                     System.out.print(format.format(Math.toDegrees(dihedral)));
                     System.out.print('\t');
@@ -128,9 +125,8 @@ public class PrintAngles {
                 System.out.print(format.format(Math.toDegrees(mcq)));
                 System.out.print('\t');
 
-                double scale =
-                        2 * (Math.sin(Math.toRadians(36.0)) + Math.sin(Math
-                                .toRadians(72.0)));
+                double scale = 2 * (Math.sin(Math.toRadians(36.0)) + Math
+                        .sin(Math.toRadians(72.0)));
                 double y1 = taus[1] + taus[4] - taus[0] - taus[3];
                 double x1 = taus[2] * scale;
                 double p = Math.atan2(y1, x1);

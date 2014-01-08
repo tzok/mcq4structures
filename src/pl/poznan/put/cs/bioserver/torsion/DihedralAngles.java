@@ -22,10 +22,8 @@ import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 public final class DihedralAngles {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DihedralAngles.class);
-    private static MultiKeyMap<Object, List<Quadruplet>> mapAtomsQuadruplets =
-            new MultiKeyMap<>();
-    private static Map<List<Atom>, Map<Atom, Integer>> reverseMapCache =
-            new HashMap<>();
+    private static MultiKeyMap<Object, List<Quadruplet>> mapAtomsQuadruplets = new MultiKeyMap<>();
+    private static Map<List<Atom>, Map<Atom, Integer>> reverseMapCache = new HashMap<>();
 
     /**
      * Calculate all angle differences for given angle type.
@@ -40,10 +38,10 @@ public final class DihedralAngles {
      */
     public static List<AngleDifference> calculateAngleDiff(List<Atom> left,
             List<Atom> right, AngleType angleType, boolean wasAligned) {
-        List<Quadruplet> quads1 =
-                DihedralAngles.getQuadruplets(left, angleType);
-        List<Quadruplet> quads2 =
-                DihedralAngles.getQuadruplets(right, angleType);
+        List<Quadruplet> quads1 = DihedralAngles
+                .getQuadruplets(left, angleType);
+        List<Quadruplet> quads2 = DihedralAngles.getQuadruplets(right,
+                angleType);
         DihedralAngles.LOGGER.debug("Processing angle: "
                 + angleType.getAngleName() + ". Atom count: " + left.size()
                 + " " + right.size() + ". Quadruplets found: " + quads1.size()
@@ -64,9 +62,8 @@ public final class DihedralAngles {
                 Quadruplet q2 = quads2.get(j);
 
                 if (q1.isCorresponding(q2, wasAligned)) {
-                    AngleDifference diff =
-                            new AngleDifference(q1.getAtoms(), q2.getAtoms(),
-                                    angleType);
+                    AngleDifference diff = new AngleDifference(q1.getAtoms(),
+                            q2.getAtoms(), angleType);
                     differences.add(diff);
                     found = true;
                     break;
@@ -74,10 +71,9 @@ public final class DihedralAngles {
             }
 
             if (!found) {
-                AngleDifference diff =
-                        new AngleDifference(q1.getAtoms(),
-                                new UniTypeQuadruplet<Atom>(null, null, null,
-                                        null), angleType);
+                AngleDifference diff = new AngleDifference(q1.getAtoms(),
+                        new UniTypeQuadruplet<Atom>(null, null, null, null),
+                        angleType);
                 differences.add(diff);
             }
         }
@@ -142,15 +138,15 @@ public final class DihedralAngles {
             DihedralAngles.reverseMapCache.put(atoms,
                     DihedralAngles.makeReverseMap(atoms));
         }
-        Map<Atom, Integer> reverseMap =
-                DihedralAngles.reverseMapCache.get(atoms);
+        Map<Atom, Integer> reverseMap = DihedralAngles.reverseMapCache
+                .get(atoms);
 
         @SuppressWarnings("unchecked")
-        MultiKeyMap<Object, Atom> mapChainResidue[] =
-                new MultiKeyMap[] { new MultiKeyMap<Object, Atom>(),
-                        new MultiKeyMap<Object, Atom>(),
-                        new MultiKeyMap<Object, Atom>(),
-                        new MultiKeyMap<Object, Atom>() };
+        MultiKeyMap<Object, Atom> mapChainResidue[] = new MultiKeyMap[] {
+                new MultiKeyMap<Object, Atom>(),
+                new MultiKeyMap<Object, Atom>(),
+                new MultiKeyMap<Object, Atom>(),
+                new MultiKeyMap<Object, Atom>() };
         List<Atom> listReference = new ArrayList<>();
 
         for (Atom atom : atoms) {
@@ -195,13 +191,11 @@ public final class DihedralAngles {
             }
 
             if (listQuad.size() == 4) {
-                UniTypeQuadruplet<Atom> quadAtom =
-                        new UniTypeQuadruplet<>(listQuad);
-                UniTypeQuadruplet<Integer> quadIndex =
-                        new UniTypeQuadruplet<>(reverseMap.get(quadAtom.a),
-                                reverseMap.get(quadAtom.b),
-                                reverseMap.get(quadAtom.c),
-                                reverseMap.get(quadAtom.d));
+                UniTypeQuadruplet<Atom> quadAtom = new UniTypeQuadruplet<>(
+                        listQuad);
+                UniTypeQuadruplet<Integer> quadIndex = new UniTypeQuadruplet<>(
+                        reverseMap.get(quadAtom.a), reverseMap.get(quadAtom.b),
+                        reverseMap.get(quadAtom.c), reverseMap.get(quadAtom.d));
                 result.add(new Quadruplet(quadAtom, quadIndex));
             } else {
                 DihedralAngles.LOGGER.debug("Quad not found, for angle: "

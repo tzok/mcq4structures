@@ -48,9 +48,8 @@ public final class XSLT {
             Map<String, Object> parameters) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            Result result =
-                    new StreamResult(new OutputStreamWriter(stream,
-                            Charset.forName("UTF-8")));
+            Result result = new StreamResult(new OutputStreamWriter(stream,
+                    Charset.forName("UTF-8")));
 
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer(stylesheet);
