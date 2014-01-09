@@ -40,17 +40,16 @@ public final class AlignerSequence {
         List<Sequence<Compound>> sequences = new ArrayList<>();
         Map<Sequence<Compound>, Chain> map = new HashMap<>();
         for (Chain c : chains) {
-            Sequence<Compound> sequence =
-                    (Sequence<Compound>) AlignerSequence.getSequence(c);
+            Sequence<Compound> sequence = (Sequence<Compound>) AlignerSequence
+                    .getSequence(c);
             sequences.add(sequence);
             map.put(sequence, c);
         }
 
-        SubstitutionMatrix<? extends Compound> matrix =
-                AlignerSequence.getSubstitutionMatrix(chains.get(0));
-        PairwiseSequenceScorerType type =
-                isGlobal ? PairwiseSequenceScorerType.GLOBAL
-                        : PairwiseSequenceScorerType.LOCAL;
+        SubstitutionMatrix<? extends Compound> matrix = AlignerSequence
+                .getSubstitutionMatrix(chains.get(0));
+        PairwiseSequenceScorerType type = isGlobal ? PairwiseSequenceScorerType.GLOBAL
+                : PairwiseSequenceScorerType.LOCAL;
 
         return AlignmentSequence.newInstance(Alignments
                 .getMultipleSequenceAlignment(sequences, matrix, type), map,
@@ -62,10 +61,9 @@ public final class AlignerSequence {
     }
 
     private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {
-        try (InputStreamReader reader =
-                new InputStreamReader(
-                        AlignerSequence.class.getResourceAsStream("/pl/poznan/put/cs/"
-                                + "bioserver/alignment/NUC44.txt"), "UTF-8")) {
+        try (InputStreamReader reader = new InputStreamReader(
+                AlignerSequence.class.getResourceAsStream("/pl/poznan/put/cs/"
+                        + "bioserver/alignment/NUC44.txt"), "UTF-8")) {
             return new SimpleSubstitutionMatrix<>(
                     RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
         } catch (IOException e) {
