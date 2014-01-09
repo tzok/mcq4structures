@@ -152,7 +152,7 @@ public final class NucleotideDihedral extends AbstractAngleType {
                         NucleotideDihedral.C1P }));
 
         NucleotideDihedral.mapAngleToRules.put(AngleName.ALPHA,
-                new UniTypeQuadruplet<>(new Integer[] { 0, 1, 1, 1 }));
+                new UniTypeQuadruplet<>(new Integer[] { -1, 0, 0, 0 }));
         NucleotideDihedral.mapAngleToRules.put(AngleName.BETA,
                 new UniTypeQuadruplet<>(new Integer[] { 0, 0, 0, 0 }));
         NucleotideDihedral.mapAngleToRules.put(AngleName.GAMMA,
