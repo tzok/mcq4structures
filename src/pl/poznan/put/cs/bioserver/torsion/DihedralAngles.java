@@ -238,6 +238,20 @@ public final class DihedralAngles {
         return diff;
     }
 
+    // TODO
+    public static double subtractDihedral2(double a1, double a2) {
+        if (Double.isNaN(a1) || Double.isNaN(a2)) {
+            return Double.NaN;
+        }
+
+        double full = 2 * Math.PI;
+        double a1Mod = (a1 + full) % full;
+        double a2Mod = (a2 + full) % full;
+        double diff = Math.abs(a1Mod - a2Mod);
+        diff = Math.min(diff, full - diff);
+        return diff;
+    }
+
     /**
      * Calculate one dihedral angle value. By default use the atan method.
      * 

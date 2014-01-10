@@ -169,15 +169,13 @@ public class MCQ extends GlobalComparison {
 
     // TODO: Refactor!
     public static double calculate(List<Double> values) {
-        int counter = 0;
         double sines = 0.0;
         double cosines = 0.0;
         for (double v : values) {
             sines += Math.sin(v);
             cosines += Math.cos(v);
-            counter++;
         }
-        return Math.atan2(sines / counter, cosines / counter);
+        return Math.atan2(sines / values.size(), cosines / values.size());
     }
 
     /**
