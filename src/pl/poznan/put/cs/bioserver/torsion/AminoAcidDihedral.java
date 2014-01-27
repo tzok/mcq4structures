@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.biojava.bio.structure.Group;
 
 import pl.poznan.put.cs.bioserver.helper.Constants;

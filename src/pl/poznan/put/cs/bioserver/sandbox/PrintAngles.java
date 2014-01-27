@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.collections15.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.ResidueNumber;
 import org.biojava.bio.structure.Structure;

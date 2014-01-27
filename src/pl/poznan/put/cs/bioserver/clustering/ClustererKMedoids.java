@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -18,7 +19,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.commons.collections15.buffer.PriorityBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,12 +85,12 @@ public final class ClustererKMedoids {
     public static final ScoringFunction PAM = new ScoringFunction() {
         @Override
         public double score(Set<Integer> medoids, double[][] matrix) {
-            List<PriorityBuffer<Integer>> asHeaps = ClustererKMedoids
+            List<PriorityQueue<Integer>> asHeaps = ClustererKMedoids
                     .matrixAsHeaps(matrix);
             double result = 0;
 
             for (int i = 0; i < matrix.length; i++) {
-                PriorityBuffer<Integer> heap = asHeaps.get(i);
+                PriorityQueue<Integer> heap = asHeaps.get(i);
                 Iterator<Integer> iterator = heap.iterator();
                 while (iterator.hasNext()) {
                     Integer closest = iterator.next();
@@ -127,7 +127,7 @@ public final class ClustererKMedoids {
             .getLogger(ClustererKMedoids.class);
     private static final Random RANDOM = new Random();
 
-    private static List<PriorityBuffer<Integer>> heaps;
+    private static List<PriorityQueue<Integer>> heaps;
 
     /**
      * Assign every object to its closest medoid.
@@ -145,11 +145,11 @@ public final class ClustererKMedoids {
             clustering.put(i, new HashSet<Integer>());
         }
 
-        List<PriorityBuffer<Integer>> binaryHeaps = ClustererKMedoids
+        List<PriorityQueue<Integer>> binaryHeaps = ClustererKMedoids
                 .matrixAsHeaps(matrix);
 
         for (int i = 0; i < matrix.length; i++) {
-            PriorityBuffer<Integer> heap = binaryHeaps.get(i);
+            PriorityQueue<Integer> heap = binaryHeaps.get(i);
             Iterator<Integer> iterator = heap.iterator();
             while (iterator.hasNext()) {
                 Integer closest = iterator.next();
@@ -238,7 +238,7 @@ public final class ClustererKMedoids {
         Set<Integer> setMedoids = new HashSet<>();
         setMedoids.add(ClustererKMedoids.RANDOM.nextInt(matrix.length));
 
-        List<PriorityBuffer<Integer>> listHeaps = ClustererKMedoids
+        List<PriorityQueue<Integer>> listHeaps = ClustererKMedoids
                 .matrixAsHeaps(matrix);
 
         for (int i = 1; i < k; i++) {
@@ -321,12 +321,12 @@ public final class ClustererKMedoids {
         return overallBest;
     }
 
-    synchronized static List<PriorityBuffer<Integer>> matrixAsHeaps(
+    synchronized static List<PriorityQueue<Integer>> matrixAsHeaps(
             final double[][] matrix) {
         if (ClustererKMedoids.heaps == null) {
-            List<PriorityBuffer<Integer>> list = new ArrayList<>();
+            List<PriorityQueue<Integer>> list = new ArrayList<>();
             for (int i = 0; i < matrix.length; i++) {
-                PriorityBuffer<Integer> heap = new PriorityBuffer<>(true,
+                PriorityQueue<Integer> heap = new PriorityQueue<>(10,
                         new MatrixComparator(i, matrix));
                 for (int j = 0; j < matrix.length; j++) {
                     heap.add(j);

@@ -25,7 +25,7 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.collections15.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.math3.fraction.ProperFractionFormat;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.ResidueNumber;

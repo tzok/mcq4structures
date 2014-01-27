@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections15.map.MultiKeyMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.Group;
@@ -18,7 +18,7 @@ import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
-public class TorsionAngleSpace {
+public class StructureInTorsionAngleSpace {
     // allow the distance between two centers of mass of residues to be at most
     // 12 anstroms
     private static final double MAX_ALLOWED_DISTANCE_SQUARED = 12 * 12;
@@ -27,7 +27,7 @@ public class TorsionAngleSpace {
     private static final double N1_C2_MAX_DISTANCE_SQUARED = 2 * 2;
 
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(TorsionAngleSpace.class);
+            .getLogger(StructureInTorsionAngleSpace.class);
 
     // two keys: int indexOfResidue, AngleType angleType
     // value: double torsionAngle
@@ -36,7 +36,7 @@ public class TorsionAngleSpace {
     private List<Group> residues;
     private List<AngleType> angleTypes;
 
-    public TorsionAngleSpace(List<Group> residues) {
+    public StructureInTorsionAngleSpace(List<Group> residues) {
         super();
         this.residues = new ArrayList<>(residues);
 
@@ -91,13 +91,13 @@ public class TorsionAngleSpace {
                     Atom c2 = g.getAtomByPDBname(NucleotideDihedral.C2);
                     Atom c6 = g.getAtomByPDBname(NucleotideDihedral.C6);
 
-                    if (Calc.getDistanceFast(n1, c2) <= TorsionAngleSpace.N1_C2_MAX_DISTANCE_SQUARED
-                            && Calc.getDistanceFast(n1, c6) <= TorsionAngleSpace.N1_C6_MAX_DISTANCE_SQUARED
-                            && Calc.getDistanceFast(c2, c6) <= TorsionAngleSpace.C2_C6_MAX_DISTANCE_SQUARED) {
+                    if (Calc.getDistanceFast(n1, c2) <= StructureInTorsionAngleSpace.N1_C2_MAX_DISTANCE_SQUARED
+                            && Calc.getDistanceFast(n1, c6) <= StructureInTorsionAngleSpace.N1_C6_MAX_DISTANCE_SQUARED
+                            && Calc.getDistanceFast(c2, c6) <= StructureInTorsionAngleSpace.C2_C6_MAX_DISTANCE_SQUARED) {
                         isUseful = true;
                     }
                 } catch (StructureException e) {
-                    TorsionAngleSpace.LOGGER.error(
+                    StructureInTorsionAngleSpace.LOGGER.error(
                             "Failed to check distance between N1-C2-C6 atoms",
                             e);
                 }
@@ -143,15 +143,15 @@ public class TorsionAngleSpace {
             Atom c2 = Calc.getCentroid(g2.getAtoms().toArray(new Atom[0]));
 
             try {
-                isConnected[i] = Calc.getDistanceFast(c1, c2) < TorsionAngleSpace.MAX_ALLOWED_DISTANCE_SQUARED;
+                isConnected[i] = Calc.getDistanceFast(c1, c2) < StructureInTorsionAngleSpace.MAX_ALLOWED_DISTANCE_SQUARED;
 
                 if (!isConnected[i]) {
-                    TorsionAngleSpace.LOGGER
+                    StructureInTorsionAngleSpace.LOGGER
                             .debug("These residues were found to break the helix: "
                                     + g1 + " " + g2);
                 }
             } catch (StructureException e) {
-                TorsionAngleSpace.LOGGER.warn("Failed to calculate "
+                StructureInTorsionAngleSpace.LOGGER.warn("Failed to calculate "
                         + "distance between residues", e);
                 // do nothing
             }
@@ -204,7 +204,7 @@ public class TorsionAngleSpace {
         }
     }
 
-    public McqResult compareGlobally(TorsionAngleSpace other)
+    public McqResult compareGlobally(StructureInTorsionAngleSpace other)
             throws InvalidInputException {
         if (residues.size() != other.residues.size()) {
             throw new InvalidInputException("Cannot compare structures "
@@ -258,7 +258,7 @@ public class TorsionAngleSpace {
                 total, differences.size(), mcq);
     }
 
-    public List<McqResult> compareLocally(TorsionAngleSpace other)
+    public List<McqResult> compareLocally(StructureInTorsionAngleSpace other)
             throws InvalidInputException {
         if (residues.size() != other.residues.size()) {
             throw new InvalidInputException("Cannot compare structures "

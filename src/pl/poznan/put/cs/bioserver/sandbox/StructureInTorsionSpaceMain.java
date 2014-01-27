@@ -11,7 +11,7 @@ import org.biojava.bio.structure.io.PDBFileReader;
 
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.torsion.McqResult;
-import pl.poznan.put.cs.bioserver.torsion.TorsionAngleSpace;
+import pl.poznan.put.cs.bioserver.torsion.StructureInTorsionAngleSpace;
 
 public class StructureInTorsionSpaceMain {
     public static void main(String[] args) throws IOException,
@@ -25,7 +25,8 @@ public class StructureInTorsionSpaceMain {
             residues.addAll(c.getAtomGroups());
         }
 
-        TorsionAngleSpace ts1 = new TorsionAngleSpace(residues);
+        StructureInTorsionAngleSpace ts1 = new StructureInTorsionAngleSpace(
+                residues);
 
         structure = reader.getStructure("/home/tzok/pdb/1EVV.pdb.gz");
         residues = new ArrayList<>();
@@ -34,7 +35,8 @@ public class StructureInTorsionSpaceMain {
             residues.addAll(c.getAtomGroups());
         }
 
-        TorsionAngleSpace ts2 = new TorsionAngleSpace(residues);
+        StructureInTorsionAngleSpace ts2 = new StructureInTorsionAngleSpace(
+                residues);
 
         McqResult result = ts1.compareGlobally(ts2);
         System.out.println(result);
