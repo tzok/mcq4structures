@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.jumpmind.symmetric.csv.CsvWriter;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
 import org.jzy3d.colors.Color;
@@ -35,8 +36,6 @@ import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.Visualizable;
 import pl.poznan.put.cs.bioserver.visualisation.MDS;
 import pl.poznan.put.cs.bioserver.visualisation.MDSPlot;
-
-import com.csvreader.CsvWriter;
 
 @XmlRootElement
 public class ComparisonGlobal extends XMLSerializable implements Clusterable,
@@ -179,21 +178,22 @@ public class ComparisonGlobal extends XMLSerializable implements Clusterable,
     public void visualize3D() {
         final int max = distanceMatrix.length;
 
-        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(
-                0, max - 1), max), new Mapper() {
-            @Override
-            public double f(double x, double y) {
-                int i = (int) Math.round(x);
-                int j = (int) Math.round(y);
+        Shape surface =
+                Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
+                        max - 1), max), new Mapper() {
+                    @Override
+                    public double f(double x, double y) {
+                        int i = (int) Math.round(x);
+                        int j = (int) Math.round(y);
 
-                i = Math.max(Math.min(i, max - 1), 0);
-                j = Math.max(Math.min(j, max - 1), 0);
-                return getDistanceMatrix()[i][j];
-            }
-        });
+                        i = Math.max(Math.min(i, max - 1), 0);
+                        j = Math.max(Math.min(j, max - 1), 0);
+                        return getDistanceMatrix()[i][j];
+                    }
+                });
 
-        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), surface
-                .getBounds().getZmin(), surface.getBounds().getZmax(),
+        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
+                surface.getBounds().getZmin(), surface.getBounds().getZmax(),
                 new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(false);

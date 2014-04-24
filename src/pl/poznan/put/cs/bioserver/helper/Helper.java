@@ -37,7 +37,8 @@ import difflib.Patch;
  */
 public final class Helper {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helper.class);
-    private static final MultiKeyMap<Object, List<Atom>> MAP_GROUPS_ATOMS = new MultiKeyMap<>();
+    private static final MultiKeyMap<Object, List<Atom>> MAP_GROUPS_ATOMS =
+            new MultiKeyMap<>();
     private static final Set<String> SET_NUCLEOTIDE_ATOMS;
 
     private static final List<String> USED_ATOMS;
@@ -100,9 +101,9 @@ public final class Helper {
         List<Atom> list1 = new ArrayList<>(left);
         List<Atom> list2 = new ArrayList<>(right);
 
-        Patch patch = DiffUtils.diff(l, r);
+        Patch<String> patch = DiffUtils.diff(l, r);
         int cumulated1 = 0, cumulated2 = 0;
-        for (Delta d : patch.getDeltas()) {
+        for (Delta<String> d : patch.getDeltas()) {
             int position = d.getOriginal().getPosition();
             if (d instanceof InsertDelta) {
                 int size = d.getRevised().getLines().size();
@@ -138,68 +139,6 @@ public final class Helper {
 
         Helper.sanityCheck(list1, list2);
         return Pair.of(list1, list2);
-    }
-
-    public static List<Atom> getAtomArray(Structure structure,
-            List<String> atomNames) {
-        List<Atom> list = new ArrayList<>();
-        for (Chain c : structure.getChains()) {
-            list.addAll(Helper.getAtomArray(c.getAtomGroups(), atomNames));
-        }
-        return list;
-    }
-
-    /**
-     * Get atoms needed for torsion angle analysis from both structures. If
-     * their chain count or naming differ, then streamline all residues and
-     * treat them as a single chain.
-     * 
-     * @param s1
-     *            First structure.
-     * @param s2
-     *            Second structure.
-     * @return Two arrays of atoms.
-     * @throws StructureException
-     *             If there were problems with resolution of chain names.
-     */
-    public static Pair<List<Atom>, List<Atom>> getCommonAtomArray(
-            Structure left, Structure right, boolean streamGroups)
-            throws StructureException {
-        if (streamGroups) {
-            List<Group> g1 = Helper.streamGroups(left);
-            List<Group> g2 = Helper.streamGroups(right);
-            return Helper.getCommonAtomArray(g1, g2);
-        }
-
-        List<Chain> c1 = left.getChains();
-        List<Chain> c2 = right.getChains();
-        int size = c1.size();
-        if (size == c2.size()) {
-            String[] ids1 = new String[size];
-            String[] ids2 = new String[size];
-            for (int i = 0; i < size; i++) {
-                ids1[i] = c1.get(i).getChainID();
-                ids2[i] = c2.get(i).getChainID();
-            }
-            Arrays.sort(ids1);
-            Arrays.sort(ids2);
-
-            if (Arrays.equals(ids1, ids2)) {
-                List<Atom> resultLeft = new ArrayList<>();
-                List<Atom> resultRight = new ArrayList<>();
-                for (String id : ids1) {
-                    Pair<List<Atom>, List<Atom>> common = Helper
-                            .getCommonAtomArray(left.getChainByPDB(id),
-                                    right.getChainByPDB(id));
-                    resultLeft.addAll(common.getLeft());
-                    resultRight.addAll(common.getRight());
-                }
-                return Pair.of(resultLeft, resultRight);
-            }
-        }
-        // null means that it is impossible to get common atom array without
-        // streaming of the groups
-        return null;
     }
 
     public static String getExportPrefix() {
@@ -246,9 +185,8 @@ public final class Helper {
             } else if (Helper.isNucleotide(g)) {
                 nucleotide++;
             } else {
-                Helper.LOGGER
-                        .warn("Group is neither amino acid, nor nucleotide: "
-                                + g);
+                Helper.LOGGER.warn("Group is neither amino acid, nor nucleotide: "
+                        + g);
             }
         }
         return nucleotide > amino;
@@ -282,42 +220,63 @@ public final class Helper {
      * @param s
      *            Input structure.
      */
-    public static void normalizeAtomNames(Structure s) {
-        for (Chain c : s.getChains()) {
+    public static void normalizeAtomNames(List<Chain> chains) {
+        for (Chain c : chains) {
             Helper.normalizeAtomNames(c);
         }
     }
 
     /**
-     * Extract atoms of given names from a list of groups.
+     * Get atoms needed for torsion angle analysis from both structures. If
+     * their chain count or naming differ, then streamline all residues and
+     * treat them as a single chain.
      * 
-     * @param groups
-     *            A list of groups (in most cases, a single chain).
-     * @param atomNames
-     *            An array of names to be accepted.
-     * @return A list of atoms.
+     * @param s1
+     *            First structure.
+     * @param s2
+     *            Second structure.
+     * @return Two arrays of atoms.
+     * @throws StructureException
+     *             If there were problems with resolution of chain names.
      */
-    private static synchronized List<Atom> getAtomArray(List<Group> groups,
-            List<String> atomNames) {
-        if (!Helper.MAP_GROUPS_ATOMS.containsKey(groups, atomNames)) {
-            List<Atom> list = new ArrayList<>();
-            for (Group g : groups) {
-                if (!(Helper.isNucleotide(g) || Helper.isAminoAcid(g))) {
-                    continue;
-                }
-
-                for (String name : atomNames) {
-                    try {
-                        Atom atom = g.getAtom(name);
-                        list.add(atom);
-                    } catch (StructureException e) {
-                        // do nothing
-                    }
-                }
-            }
-            Helper.MAP_GROUPS_ATOMS.put(groups, atomNames, list);
+    public static Pair<List<Atom>, List<Atom>> getCommonAtomArray(
+            Structure left, Structure right, boolean streamGroups)
+            throws StructureException {
+        if (streamGroups) {
+            List<Group> g1 = Helper.streamGroups(left);
+            List<Group> g2 = Helper.streamGroups(right);
+            return Helper.getCommonAtomArray(g1, g2);
         }
-        return Helper.MAP_GROUPS_ATOMS.get(groups, atomNames);
+
+        List<Chain> c1 = left.getChains();
+        List<Chain> c2 = right.getChains();
+        int size = c1.size();
+        if (size == c2.size()) {
+            String[] ids1 = new String[size];
+            String[] ids2 = new String[size];
+            for (int i = 0; i < size; i++) {
+                ids1[i] = c1.get(i).getChainID();
+                ids2[i] = c2.get(i).getChainID();
+            }
+            Arrays.sort(ids1);
+            Arrays.sort(ids2);
+
+            if (Arrays.equals(ids1, ids2)) {
+                List<Atom> resultLeft = new ArrayList<>();
+                List<Atom> resultRight = new ArrayList<>();
+                for (String id : ids1) {
+                    Pair<List<Atom>, List<Atom>> common =
+                            Helper.getCommonAtomArray(left.getChainByPDB(id),
+                                    right.getChainByPDB(id));
+                    resultLeft.addAll(common.getLeft());
+                    resultRight.addAll(common.getRight());
+                }
+                return Pair.of(resultLeft, resultRight);
+            }
+        }
+        // null means that it is impossible to get common atom array without
+        // streaming of the groups
+        return null;
     }
 
     /**
@@ -340,26 +299,58 @@ public final class Helper {
         Helper.removeInsertedResidues(left);
         Helper.removeInsertedResidues(right);
 
-        Helper.normalizeAtomNames(left);
-        Helper.normalizeAtomNames(right);
+        Helper.normalizeAtomNamesInResidues(left);
+        Helper.normalizeAtomNamesInResidues(right);
 
-        List<Atom> leftAtoms = Helper.getAtomArray(left, Helper.USED_ATOMS);
-        List<Atom> rightAtoms = Helper.getAtomArray(right, Helper.USED_ATOMS);
+        List<Atom> leftAtoms =
+                Helper.getAtomArrayInResidues(left, Helper.USED_ATOMS);
+        List<Atom> rightAtoms =
+                Helper.getAtomArrayInResidues(right, Helper.USED_ATOMS);
         return Pair.of(leftAtoms, rightAtoms);
     }
 
-    /**
-     * Change all asterisks (*) in atom names into apostrophes (').
-     * 
-     * @param c
-     *            Input chain.
-     */
-    private static void normalizeAtomNames(Chain c) {
-        Helper.normalizeAtomNames(c.getAtomGroups());
+    public static List<Atom> getAtomArray(List<Chain> chains,
+            List<String> atomNames) {
+        List<Atom> list = new ArrayList<>();
+        for (Chain c : chains) {
+            list.addAll(Helper.getAtomArrayInResidues(c.getAtomGroups(),
+                    atomNames));
+        }
+        return list;
     }
 
-    private static void normalizeAtomNames(List<Group> groups) {
-        for (Group g : groups) {
+    private static List<Atom> getAtomArrayInResidues(List<Group> residues,
+            List<String> atomNames) {
+        if (!Helper.MAP_GROUPS_ATOMS.containsKey(residues, atomNames)) {
+            List<Atom> atoms = new ArrayList<>();
+            for (Group g : residues) {
+                if (!(Helper.isNucleotide(g) || Helper.isAminoAcid(g))) {
+                    continue;
+                }
+
+                for (String name : atomNames) {
+                    try {
+                        Atom atom = g.getAtom(name);
+                        atoms.add(atom);
+                    } catch (StructureException e) {
+                        // do nothing
+                    }
+                }
+            }
+            // FIXME
+            // Helper.MAP_GROUPS_ATOMS.put(residues, atomNames, atoms);
+            return atoms;
+        }
+
+        return Helper.MAP_GROUPS_ATOMS.get(residues, atomNames);
+    }
+
+    private static void normalizeAtomNames(Chain c) {
+        Helper.normalizeAtomNamesInResidues(c.getAtomGroups());
+    }
+
+    private static void normalizeAtomNamesInResidues(List<Group> residues) {
+        for (Group g : residues) {
             for (Atom a : g.getAtoms()) {
                 a.setName(a.getName().replace('*', '\''));
                 a.setFullName(a.getFullName().replace('*', '\''));
@@ -383,8 +374,8 @@ public final class Helper {
         assert left.size() == right.size();
         for (int i = 0; i < left.size(); i++) {
             assert left.get(i) == null
-                    || left.get(i).getFullName()
-                            .equals(right.get(i).getFullName());
+                    || left.get(i).getFullName().equals(
+                            right.get(i).getFullName());
         }
     }
 
@@ -395,11 +386,9 @@ public final class Helper {
             idsList.add(c.getChainID());
         }
         String[] ids = idsList.toArray(new String[idsList.size()]);
-        Helper.LOGGER
-                .trace("Chain IDs before sorting: " + Arrays.toString(ids));
+        Helper.LOGGER.trace("Chain IDs before sorting: " + Arrays.toString(ids));
         Arrays.sort(ids);
-        Helper.LOGGER
-                .trace("Chain IDs after sorting:  " + Arrays.toString(ids));
+        Helper.LOGGER.trace("Chain IDs after sorting:  " + Arrays.toString(ids));
 
         List<Group> result = new ArrayList<>();
         for (String chainId : ids) {

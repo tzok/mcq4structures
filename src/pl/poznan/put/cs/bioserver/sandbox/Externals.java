@@ -23,8 +23,8 @@ import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
 import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
 import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
-import pl.poznan.put.cs.bioserver.clustering.ClustererHierarchical.Linkage;
-import pl.poznan.put.cs.bioserver.clustering.ClustererKMedoids;
+import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
+import pl.poznan.put.clustering.ClustererKMedoids;
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
 import pl.poznan.put.cs.bioserver.external.Matplotlib;
 import pl.poznan.put.cs.bioserver.external.XSLT;
@@ -50,8 +50,8 @@ public class Externals {
     public static void main(String[] args) throws ParserConfigurationException,
             IOException, StructureException, JAXBException,
             TransformerException, InvalidInputException {
-        List<File> pdbs = Externals.list(new File(
-                "/home/tzok/pdb/puzzles/Challenge2/"));
+        List<File> pdbs =
+                Externals.list(new File("/home/tzok/pdb/puzzles/Challenge2/"));
         List<Structure> structures = new ArrayList<>();
         for (int i = 0; i < pdbs.size(); i++) {
             try {
@@ -67,24 +67,24 @@ public class Externals {
         }
         XMLSerializable xmlResults;
         try {
-            xmlResults = ComparisonLocalMulti.newInstance(list, list.get(0),
-                    AngleAverageAll.getInstance());
+            xmlResults =
+                    ComparisonLocalMulti.newInstance(list, list.get(0),
+                            AngleAverageAll.getInstance());
             try (OutputStream stream = new FileOutputStream("/tmp/multi.xml")) {
                 XSLT.printDocument(xmlResults.toXML(), stream);
             }
-            Matplotlib
-                    .runXsltAndPython(
-                            Externals.class
-                                    .getResource("/pl/poznan/"
-                                            + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"),
-                            new File("/tmp/multi.py"), new File(
-                                    "/tmp/multi.pdf"), xmlResults, null);
+            Matplotlib.runXsltAndPython(
+                    Externals.class.getResource("/pl/poznan/"
+                            + "put/cs/bioserver/external/MatplotlibLocalMulti.xsl"),
+                    new File("/tmp/multi.py"), new File("/tmp/multi.pdf"),
+                    xmlResults, null);
         } catch (InvalidInputException e) {
             e.printStackTrace();
         }
 
-        xmlResults = ComparisonLocal.newInstance(structures.get(0).getChain(0),
-                structures.get(1).getChain(0), MCQ.USED_ANGLES);
+        xmlResults =
+                ComparisonLocal.newInstance(structures.get(0).getChain(0),
+                        structures.get(1).getChain(0), MCQ.USED_ANGLES);
         XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -102,11 +102,11 @@ public class Externals {
         for (Structure s : structures) {
             labels.add(StructureManager.getName(s));
         }
-        ComparisonGlobal global = ComparisonGlobal.newInstance(matrix, labels,
-                mcq);
+        ComparisonGlobal global =
+                ComparisonGlobal.newInstance(matrix, labels, mcq);
 
-        xmlResults = ClusteringHierarchical.newInstance(global,
-                Linkage.Complete);
+        xmlResults =
+                ClusteringHierarchical.newInstance(global, Linkage.Complete);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"
@@ -114,8 +114,9 @@ public class Externals {
                 new File("/tmp/hierarchical.py"), new File(
                         "/tmp/hierarchical.pdf"), xmlResults);
 
-        xmlResults = ClusteringPartitional.newInstance(global,
-                ClustererKMedoids.PAM, null);
+        xmlResults =
+                ClusteringPartitional.newInstance(global,
+                        ClustererKMedoids.PAM, null);
         // XSLT.printDocument(xmlResults.toXML(), System.out);
 
         Matplotlib.runXsltAndPython(Externals.class.getResource("/pl/poznan/"

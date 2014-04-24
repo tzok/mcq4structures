@@ -1,6 +1,6 @@
-package pl.poznan.put.cs.bioserver.torsion;
+package pl.poznan.put.cs.bioserver.comparison.bean;
 
-public class McqResult {
+public class McqBeanData {
     private int incorrectFirst;
     private int incorrectSecond;
     private int incorrectBoth;
@@ -8,7 +8,7 @@ public class McqResult {
     private int correct;
     private double mcq;
 
-    public McqResult(int incorrectFirst, int incorrectSecond,
+    public McqBeanData(int incorrectFirst, int incorrectSecond,
             int incorrectBoth, int total, int correct, double mcq) {
         super();
         this.incorrectFirst = incorrectFirst;
@@ -21,9 +21,9 @@ public class McqResult {
 
     @Override
     public String toString() {
-        return "McqResult [incorrectFirst=" + incorrectFirst
+        return "McqBeanData [incorrectFirst=" + incorrectFirst
                 + ", incorrectSecond=" + incorrectSecond + ", incorrectBoth="
                 + incorrectBoth + ", total=" + total + ", correct=" + correct
-                + ", mcq=" + Math.toDegrees(mcq) + "]";
+                + ", mcq=" + mcq + "]";
     }
 }

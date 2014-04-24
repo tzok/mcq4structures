@@ -15,7 +15,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
-import pl.poznan.put.cs.bioserver.clustering.ClustererHierarchical.Cluster;
+import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
 
 /**
  * Plot of dendrogram representing hierarchical clustering.
@@ -51,12 +51,16 @@ public class HierarchicalPlot extends JFrame {
         DefaultXYDataset dataset = new DefaultXYDataset();
         List<String> labels = clustering.getComparison().getLabels();
         for (Cluster cluster : clustering.getClustering()) {
-            String label = HierarchicalPlot
-                    .generateLabel(cluster.items, labels);
-            double[] x = new double[] { cluster.left.x, cluster.left.x,
-                    cluster.right.x, cluster.right.x };
-            double[] y = new double[] { cluster.left.y, cluster.y, cluster.y,
-                    cluster.right.y };
+            String label =
+                    HierarchicalPlot.generateLabel(cluster.getItems(), labels);
+            Cluster left = cluster.getLeft();
+            Cluster right = cluster.getRight();
+            double[] x =
+                    new double[] { left.getX(), left.getX(), right.getX(),
+                            right.getX() };
+            double[] y =
+                    new double[] { left.getY(), cluster.getY(), cluster.getY(),
+                            right.getY() };
             dataset.addSeries(label, new double[][] { x, y });
         }
 
@@ -68,8 +72,8 @@ public class HierarchicalPlot extends JFrame {
         NumberAxis yAxis = new NumberAxis();
         yAxis.setTickLabelsVisible(false);
         yAxis.setTickMarksVisible(false);
-        XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
-                new XYLineAndShapeRenderer());
+        XYPlot plot =
+                new XYPlot(dataset, xAxis, yAxis, new XYLineAndShapeRenderer());
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(false);
         chart = new JFreeChart(plot);

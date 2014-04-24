@@ -136,8 +136,7 @@ public class TorsionLocalComparison extends LocalComparison {
             Map<ResidueNumber, AngleDifference[]> mapResToTaus) {
         List<AngleDifference> pAngles = new ArrayList<>();
         // the formula taken from literature
-        double scale = 2 * (Math.sin(36.0 * Math.PI / 180.0) + Math
-                .sin(72.0 * Math.PI / 180.0));
+        double scale = 2 * (Math.sin(Math.toRadians(36.0)) + Math.sin(Math.toRadians(72.0)));
         for (Entry<ResidueNumber, AngleDifference[]> entry : mapResToTaus
                 .entrySet()) {
             ResidueNumber residue = entry.getKey();

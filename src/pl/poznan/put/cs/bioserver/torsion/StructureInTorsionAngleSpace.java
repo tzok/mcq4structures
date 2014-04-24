@@ -15,30 +15,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.cs.bioserver.comparison.MCQ;
+import pl.poznan.put.cs.bioserver.comparison.bean.McqGlobalBean;
+import pl.poznan.put.cs.bioserver.comparison.bean.McqLocalBean;
+import pl.poznan.put.cs.bioserver.comparison.bean.StructureSelection;
 import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
 import pl.poznan.put.cs.bioserver.helper.UniTypeQuadruplet;
 
 public class StructureInTorsionAngleSpace {
     // allow the distance between two centers of mass of residues to be at most
-    // 12 anstroms
+    // 12 angstroms
     private static final double MAX_ALLOWED_DISTANCE_SQUARED = 12 * 12;
     private static final double C2_C6_MAX_DISTANCE_SQUARED = 3 * 3;
     private static final double N1_C6_MAX_DISTANCE_SQUARED = 2 * 2;
     private static final double N1_C2_MAX_DISTANCE_SQUARED = 2 * 2;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(StructureInTorsionAngleSpace.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(StructureInTorsionAngleSpace.class);
 
     // two keys: int indexOfResidue, AngleType angleType
     // value: double torsionAngle
     private MultiKeyMap<Object, Double> torsionAngles = new MultiKeyMap<>();
 
-    private List<Group> residues;
-    private List<AngleType> angleTypes;
+    private StructureSelection selection;
+    private ArrayList<Group> residues;
 
-    public StructureInTorsionAngleSpace(List<Group> residues) {
+    public StructureInTorsionAngleSpace(StructureSelection selection) {
         super();
-        this.residues = new ArrayList<>(residues);
+        this.selection = selection;
+
+        residues = new ArrayList<>(selection.getResidues());
 
         analyze();
     }
@@ -143,12 +148,12 @@ public class StructureInTorsionAngleSpace {
             Atom c2 = Calc.getCentroid(g2.getAtoms().toArray(new Atom[0]));
 
             try {
-                isConnected[i] = Calc.getDistanceFast(c1, c2) < StructureInTorsionAngleSpace.MAX_ALLOWED_DISTANCE_SQUARED;
+                isConnected[i] =
+                        Calc.getDistanceFast(c1, c2) < StructureInTorsionAngleSpace.MAX_ALLOWED_DISTANCE_SQUARED;
 
                 if (!isConnected[i]) {
-                    StructureInTorsionAngleSpace.LOGGER
-                            .debug("These residues were found to break the helix: "
-                                    + g1 + " " + g2);
+                    StructureInTorsionAngleSpace.LOGGER.debug("These residues were found to break the helix: "
+                            + g1 + " " + g2);
                 }
             } catch (StructureException e) {
                 StructureInTorsionAngleSpace.LOGGER.warn("Failed to calculate "
@@ -162,14 +167,10 @@ public class StructureInTorsionAngleSpace {
          * four required atoms (if present and if residues required are
          * connected)
          */
-        angleTypes = new ArrayList<>();
-        angleTypes.addAll(NucleotideDihedral.getAngles());
-        angleTypes.addAll(AminoAcidDihedral.getAngles());
-
         for (int i = 0; i < residues.size(); i++) {
             Group g = residues.get(i);
 
-            for (AngleType at : angleTypes) {
+            for (AngleType at : MCQ.USED_ANGLES) {
                 UniTypeQuadruplet<String> q1 = at.getAtomNames(g);
                 UniTypeQuadruplet<Integer> q2 = at.getGroupRule();
 
@@ -197,14 +198,15 @@ public class StructureInTorsionAngleSpace {
                     continue;
                 }
 
-                double angleValue = DihedralAngles
-                        .calculateDihedral(new UniTypeQuadruplet<>(atoms));
+                double angleValue =
+                        DihedralAngles.calculateDihedral(new UniTypeQuadruplet<>(
+                                atoms));
                 torsionAngles.put(i, at, angleValue);
             }
         }
     }
 
-    public McqResult compareGlobally(StructureInTorsionAngleSpace other)
+    public McqGlobalBean compareGlobally(StructureInTorsionAngleSpace other)
             throws InvalidInputException {
         if (residues.size() != other.residues.size()) {
             throw new InvalidInputException("Cannot compare structures "
@@ -254,11 +256,11 @@ public class StructureInTorsionAngleSpace {
         }
 
         double mcq = MCQ.calculate(differences);
-        return new McqResult(incorrectFirst, incorrectSecond, incorrectBoth,
-                total, differences.size(), mcq);
+        return new McqGlobalBean(this, other, incorrectFirst, incorrectSecond,
+                incorrectBoth, total, differences.size(), mcq);
     }
 
-    public List<McqResult> compareLocally(StructureInTorsionAngleSpace other)
+    public McqLocalBean compareLocally(StructureInTorsionAngleSpace other)
             throws InvalidInputException {
         if (residues.size() != other.residues.size()) {
             throw new InvalidInputException("Cannot compare structures "
@@ -267,7 +269,7 @@ public class StructureInTorsionAngleSpace {
                     + "]");
         }
 
-        List<McqResult> results = new ArrayList<>();
+        List<McqGlobalBean> results = new ArrayList<>();
 
         for (int i = 0; i < residues.size(); i++) {
             Group g = residues.get(i);
@@ -309,13 +311,16 @@ public class StructureInTorsionAngleSpace {
             }
 
             double mcq = MCQ.calculate(differences);
-            McqResult mcqResult = new McqResult(incorrectFirst,
-                    incorrectSecond, incorrectBoth, total, differences.size(),
-                    mcq);
-            results.add(mcqResult);
+            // FIXME
+            // McqGlobalBean mcqResult = new McqGlobalBean(incorrectFirst,
+            // incorrectSecond, incorrectBoth, total, differences.size(),
+            // mcq);
+            // results.add(mcqResult);
         }
 
-        return results;
+        // FIXME
+        // return new McqLocalBean(this, other, results);
+        return null;
     }
 
     @Override
@@ -328,7 +333,7 @@ public class StructureInTorsionAngleSpace {
             builder.append(residueNumber.toPDB());
             builder.append('\t');
 
-            for (AngleType at : angleTypes) {
+            for (AngleType at : MCQ.USED_ANGLES) {
                 Double angle = torsionAngles.get(i, at);
                 builder.append(Math.toDegrees(angle));
                 builder.append('\t');
