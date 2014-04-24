@@ -18,23 +18,23 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.junit.Test;
 
-import pl.poznan.put.cs.bioserver.beans.AlignmentSequence;
-import pl.poznan.put.cs.bioserver.beans.ClusteringHierarchical;
-import pl.poznan.put.cs.bioserver.beans.ClusteringPartitional;
-import pl.poznan.put.cs.bioserver.beans.ComparisonGlobal;
-import pl.poznan.put.cs.bioserver.beans.ComparisonLocal;
-import pl.poznan.put.cs.bioserver.beans.ComparisonLocalMulti;
-import pl.poznan.put.cs.bioserver.beans.XMLSerializable;
+import pl.poznan.put.beans.AlignmentSequence;
+import pl.poznan.put.beans.ClusteringHierarchical;
+import pl.poznan.put.beans.ClusteringPartitional;
+import pl.poznan.put.beans.ComparisonGlobal;
+import pl.poznan.put.beans.ComparisonLocal;
+import pl.poznan.put.beans.ComparisonLocalMulti;
+import pl.poznan.put.beans.XMLSerializable;
 import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
 import pl.poznan.put.clustering.ClustererKMedoids;
-import pl.poznan.put.cs.bioserver.comparison.GlobalComparison;
-import pl.poznan.put.cs.bioserver.comparison.MCQ;
-import pl.poznan.put.cs.bioserver.external.XSLT;
-import pl.poznan.put.cs.bioserver.helper.InvalidInputException;
-import pl.poznan.put.cs.bioserver.helper.StructureManager;
-import pl.poznan.put.cs.bioserver.torsion.AngleAverageAll;
-import pl.poznan.put.cs.bioserver.torsion.AnglePseudophasePucker;
-import pl.poznan.put.cs.bioserver.torsion.AngleType;
+import pl.poznan.put.comparison.GlobalComparison;
+import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.external.XSLT;
+import pl.poznan.put.helper.InvalidInputException;
+import pl.poznan.put.helper.StructureManager;
+import pl.poznan.put.torsion.AngleAverageAll;
+import pl.poznan.put.torsion.AnglePseudophasePucker;
+import pl.poznan.put.torsion.AngleType;
 
 public class TestXmlSerializable {
     private static final File TMPDIR = new File(
