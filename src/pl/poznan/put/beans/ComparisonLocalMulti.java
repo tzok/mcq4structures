@@ -199,21 +199,22 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         ComparisonLocal reference = results.get(0);
         final int maxY = reference.getTicks().size();
 
-        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(
-                0, maxX - 1), maxX, new Range(0, maxY - 1), maxY),
-                new Mapper() {
-                    @Override
-                    public double f(double x, double y) {
-                        int i = (int) Math.round(x);
-                        int j = (int) Math.round(y);
+        Shape surface =
+                Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
+                        maxX - 1), maxX, new Range(0, maxY - 1), maxY),
+                        new Mapper() {
+                            @Override
+                            public double f(double x, double y) {
+                                int i = (int) Math.round(x);
+                                int j = (int) Math.round(y);
 
-                        i = Math.max(Math.min(i, maxX - 1), 0);
-                        j = Math.max(Math.min(j, maxY - 1), 0);
-                        // FIXME
-                        return getResults().get(i).getAngles()
-                                .get(getAngleName()).getDeltas()[j];
-                    }
-                });
+                                i = Math.max(Math.min(i, maxX - 1), 0);
+                                j = Math.max(Math.min(j, maxY - 1), 0);
+                                // FIXME
+                                return getResults().get(i).getAngles().get(
+                                        getAngleName()).getDeltas()[j];
+                            }
+                        });
 
         surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0,
                 (float) Math.PI, new Color(1, 1, 1, .5f)));
@@ -250,8 +251,9 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         parameters.put("min", "0");
         parameters.put("max", "3.1415");
 
-        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
-                + "bioserver/external/MatplotlibLocalMulti.xsl");
+        URL resource =
+                MainWindow.class.getResource("/pl/poznan/put/cs/"
+                        + "bioserver/external/MatplotlibLocalMulti.xsl");
         Matplotlib.runXsltAndPython(resource, this, parameters);
     }
 }

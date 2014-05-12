@@ -15,8 +15,8 @@ public abstract class XMLSerializable implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public Document toXML() throws JAXBException, ParserConfigurationException {
-        Document document = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder().newDocument();
+        Document document =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         JAXBContext context = JAXBContext.newInstance(getClass());
         Marshaller marshaller = context.createMarshaller();
         marshaller.marshal(this, new DOMResult(document));

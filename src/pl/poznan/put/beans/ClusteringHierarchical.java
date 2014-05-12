@@ -7,9 +7,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import pl.poznan.put.clustering.ClustererHierarchical;
-import pl.poznan.put.clustering.HierarchicalPlot;
 import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
 import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
+import pl.poznan.put.clustering.HierarchicalPlot;
 import pl.poznan.put.external.Matplotlib;
 import pl.poznan.put.helper.Visualizable;
 

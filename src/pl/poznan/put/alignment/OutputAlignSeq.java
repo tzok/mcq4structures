@@ -70,8 +70,7 @@ public class OutputAlignSeq implements Exportable {
         length = query.getLength();
 
         gaps = 0;
-        for (AlignedSequence<Sequence<Compound>, Compound> seq : pair
-                .getAlignedSequences()) {
+        for (AlignedSequence<Sequence<Compound>, Compound> seq : pair.getAlignedSequences()) {
             gaps += StringUtils.countMatches(seq.getSequenceAsString(), "-");
         }
     }

@@ -58,9 +58,9 @@ public class PrintAngles {
 
         PDBFileReader pdbFileReader = new PDBFileReader();
 
-        for (int i = 0; i < args.length; i++) {
+        for (String arg : args) {
             try {
-                Structure structure = pdbFileReader.getStructure(args[i]);
+                Structure structure = pdbFileReader.getStructure(arg);
 
                 for (int j = 0; j < structure.nrModels(); j++) {
                     List<Chain> model = structure.getModel(j);
@@ -171,7 +171,7 @@ public class PrintAngles {
                     }
                 }
             } catch (IOException e) {
-                System.err.println("Failed for: " + args[i]);
+                System.err.println("Failed for: " + arg);
                 e.printStackTrace();
             }
         }

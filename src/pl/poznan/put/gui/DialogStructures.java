@@ -58,29 +58,30 @@ final class DialogStructures extends JDialog {
 
         modelAll = new DefaultListModel<>();
         final JList<Structure> listAll = new JList<>(modelAll);
-        listAll.setBorder(BorderFactory
-                .createTitledBorder("Available structures"));
-        final ListCellRenderer<? super Structure> renderer = listAll
-                .getCellRenderer();
+        listAll.setBorder(BorderFactory.createTitledBorder("Available structures"));
+        final ListCellRenderer<? super Structure> renderer =
+                listAll.getCellRenderer();
         modelSelected = new DefaultListModel<>();
         final JList<Structure> listSelected = new JList<>(modelSelected);
-        listSelected.setBorder(BorderFactory
-                .createTitledBorder("Selected structures"));
+        listSelected.setBorder(BorderFactory.createTitledBorder("Selected structures"));
 
-        ListCellRenderer<Structure> pdbCellRenderer = new ListCellRenderer<Structure>() {
-            @Override
-            public Component getListCellRendererComponent(
-                    JList<? extends Structure> list, Structure value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) renderer.getListCellRendererComponent(
-                        list, value, index, isSelected, cellHasFocus);
-                if (value != null) {
-                    label.setText(StructureManager.getName(value));
-                }
-                assert label != null;
-                return label;
-            }
-        };
+        ListCellRenderer<Structure> pdbCellRenderer =
+                new ListCellRenderer<Structure>() {
+                    @Override
+                    public Component getListCellRendererComponent(
+                            JList<? extends Structure> list, Structure value,
+                            int index, boolean isSelected, boolean cellHasFocus) {
+                        JLabel label =
+                                (JLabel) renderer.getListCellRendererComponent(
+                                        list, value, index, isSelected,
+                                        cellHasFocus);
+                        if (value != null) {
+                            label.setText(StructureManager.getName(value));
+                        }
+                        assert label != null;
+                        return label;
+                    }
+                };
         listAll.setCellRenderer(pdbCellRenderer);
         listSelected.setCellRenderer(pdbCellRenderer);
 
@@ -145,19 +146,20 @@ final class DialogStructures extends JDialog {
 
         setTitle("MCQ4Structures: structure selection");
 
-        ListSelectionListener listSelectionListener = new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent arg0) {
-                assert arg0 != null;
-                ListSelectionModel source = (ListSelectionModel) arg0
-                        .getSource();
-                if (source.equals(listAll.getSelectionModel())) {
-                    buttonSelect.setEnabled(!listAll.isSelectionEmpty());
-                } else { // source.equals(listSelected)
-                    buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
-                }
-            }
-        };
+        ListSelectionListener listSelectionListener =
+                new ListSelectionListener() {
+                    @Override
+                    public void valueChanged(ListSelectionEvent arg0) {
+                        assert arg0 != null;
+                        ListSelectionModel source =
+                                (ListSelectionModel) arg0.getSource();
+                        if (source.equals(listAll.getSelectionModel())) {
+                            buttonSelect.setEnabled(!listAll.isSelectionEmpty());
+                        } else { // source.equals(listSelected)
+                            buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
+                        }
+                    }
+                };
         listAll.getSelectionModel().addListSelectionListener(
                 listSelectionListener);
         listSelected.getSelectionModel().addListSelectionListener(
@@ -243,8 +245,8 @@ final class DialogStructures extends JDialog {
     public int showDialog() {
         SortedSet<Structure> setManager = StructureManager.getAllStructures();
         ArrayList<Structure> listLeft = Collections.list(modelAll.elements());
-        ArrayList<Structure> listRight = Collections.list(modelSelected
-                .elements());
+        ArrayList<Structure> listRight =
+                Collections.list(modelSelected.elements());
 
         ArrayList<Structure> list = (ArrayList<Structure>) listLeft.clone();
         list.removeAll(setManager);

@@ -48,8 +48,8 @@ final class DialogAngles extends JDialog {
     }
 
     HashMap<String, AngleType> mapNameToAngle;
-    List<AngleType> selectedNames = Arrays
-            .asList(new AngleType[] { AngleAverageAll.getInstance() });
+    List<AngleType> selectedNames =
+            Arrays.asList(new AngleType[] { AngleAverageAll.getInstance() });
 
     private DialogAngles(Frame owner) {
         super(owner, true);
@@ -174,8 +174,7 @@ final class DialogAngles extends JDialog {
                     for (Component component : panel.getComponents()) {
                         if (component instanceof JCheckBox
                                 && ((JCheckBox) component).isSelected()) {
-                            selectedNames.add(mapNameToAngle
-                                    .get(((JCheckBox) component).getText()));
+                            selectedNames.add(mapNameToAngle.get(((JCheckBox) component).getText()));
                         }
                     }
                 }

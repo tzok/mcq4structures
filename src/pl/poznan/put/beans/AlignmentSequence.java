@@ -27,8 +27,8 @@ import pl.poznan.put.helper.StructureManager;
 
 @XmlRootElement
 public class AlignmentSequence extends XMLSerializable implements Exportable {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AlignmentSequence.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AlignmentSequence.class);
     private static final long serialVersionUID = -819554091819458384L;
 
     // /////////////////////////////////////////////////////////////////////////
@@ -47,8 +47,9 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
          */
         Map<Chain, String> mapChainToName = new HashMap<>();
         for (Chain chain : chains) {
-            String name = StructureManager.getName(chain.getParent()) + "."
-                    + chain.getChainID();
+            String name =
+                    StructureManager.getName(chain.getParent()) + "."
+                            + chain.getChainID();
             mapChainToName.put(chain, name);
         }
 
@@ -66,8 +67,8 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         /*
          * convert every sequence into an array of characters
          */
-        List<AlignedSequence<Sequence<Compound>, Compound>> list = profile
-                .getAlignedSequences();
+        List<AlignedSequence<Sequence<Compound>, Compound>> list =
+                profile.getAlignedSequences();
         char[][] sequences = new char[list.size()][];
         for (int i = 0; i < list.size(); i++) {
             sequences[i] = list.get(i).toString().toCharArray();
@@ -81,13 +82,14 @@ public class AlignmentSequence extends XMLSerializable implements Exportable {
         for (int i = 0; i < sequences[0].length; i += 60) {
             char[][] copy = new char[list.size()][];
             for (int j = 0; j < list.size(); j++) {
-                copy[j] = Arrays.copyOfRange(sequences[j], i,
-                        Math.min(i + 60, sequences[j].length));
+                copy[j] =
+                        Arrays.copyOfRange(sequences[j], i,
+                                Math.min(i + 60, sequences[j].length));
 
-                AlignedSequence<Sequence<Compound>, Compound> alignedSequence = list
-                        .get(j);
-                Sequence<Compound> sequence = alignedSequence
-                        .getOriginalSequence();
+                AlignedSequence<Sequence<Compound>, Compound> alignedSequence =
+                        list.get(j);
+                Sequence<Compound> sequence =
+                        alignedSequence.getOriginalSequence();
                 Chain chain = map.get(sequence);
                 String name = mapChainToName.get(chain);
                 name = name.substring(0, Math.min(name.length(), 11));

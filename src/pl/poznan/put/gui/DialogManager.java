@@ -47,8 +47,7 @@ final class DialogManager extends JDialog {
         super(parent);
 
         final JList<File> list = new JList<>(model);
-        list.setBorder(BorderFactory
-                .createTitledBorder("List of open structures"));
+        list.setBorder(BorderFactory.createTitledBorder("List of open structures"));
 
         JButton buttonOpen = new JButton("Open structure(s)");
         JButton buttonRemove = new JButton("Close selected structure(s)");
@@ -73,8 +72,8 @@ final class DialogManager extends JDialog {
         add(panelFetch, BorderLayout.SOUTH);
         getRootPane().setDefaultButton(buttonFetch);
 
-        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId
-                .getPreferredSize().height));
+        fieldPdbId.setPreferredSize(new Dimension(128,
+                fieldPdbId.getPreferredSize().height));
 
         int width = 480;
         int height = 480;

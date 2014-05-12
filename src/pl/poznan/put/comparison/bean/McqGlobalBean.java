@@ -7,8 +7,8 @@ import java.util.Locale;
 import pl.poznan.put.torsion.StructureInTorsionAngleSpace;
 
 public class McqGlobalBean extends GlobalBean {
-    private static final DecimalFormat FORMAT = (DecimalFormat) NumberFormat
-            .getInstance(Locale.ENGLISH);
+    private static final DecimalFormat FORMAT =
+            (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
     static {
         McqGlobalBean.FORMAT.setMaximumFractionDigits(2);
     }
@@ -24,8 +24,9 @@ public class McqGlobalBean extends GlobalBean {
         super();
         this.structureFirst = structureFirst;
         this.structureSecond = structureSecond;
-        data = new McqBeanData(incorrectFirst, incorrectSecond, incorrectBoth,
-                total, correct, mcq);
+        data =
+                new McqBeanData(incorrectFirst, incorrectSecond, incorrectBoth,
+                        total, correct, mcq);
     }
 
     @Override

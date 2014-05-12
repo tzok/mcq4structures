@@ -58,16 +58,17 @@ final class DialogChains extends JDialog {
             panel.add(panels[1]);
             add(new JScrollPane(panel), BorderLayout.CENTER);
 
-            final ListCellRenderer<? super Structure> renderer = combo
-                    .getRenderer();
+            final ListCellRenderer<? super Structure> renderer =
+                    combo.getRenderer();
             combo.setRenderer(new ListCellRenderer<Structure>() {
                 @Override
                 public Component getListCellRendererComponent(
                         JList<? extends Structure> list, Structure value,
                         int index, boolean isSelected, boolean cellHasFocus) {
-                    JLabel label = (JLabel) renderer
-                            .getListCellRendererComponent(list, value, index,
-                                    isSelected, cellHasFocus);
+                    JLabel label =
+                            (JLabel) renderer.getListCellRendererComponent(
+                                    list, value, index, isSelected,
+                                    cellHasFocus);
                     if (value != null) {
                         label.setText(StructureManager.getName(value));
                     }
@@ -175,10 +176,10 @@ final class DialogChains extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                structureLeft = (Structure) panelsChainsLeft.combo
-                        .getSelectedItem();
-                structureRight = (Structure) panelsChainsRight.combo
-                        .getSelectedItem();
+                structureLeft =
+                        (Structure) panelsChainsLeft.combo.getSelectedItem();
+                structureRight =
+                        (Structure) panelsChainsRight.combo.getSelectedItem();
                 if (structureLeft == null || structureRight == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();

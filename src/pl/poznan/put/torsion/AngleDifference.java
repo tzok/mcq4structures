@@ -110,19 +110,16 @@ public class AngleDifference implements Comparable<AngleDifference> {
             return false;
         }
         AngleDifference other = (AngleDifference) obj;
-        if (Double.doubleToLongBits(angle1) != Double
-                .doubleToLongBits(other.angle1)) {
+        if (Double.doubleToLongBits(angle1) != Double.doubleToLongBits(other.angle1)) {
             return false;
         }
-        if (Double.doubleToLongBits(angle2) != Double
-                .doubleToLongBits(other.angle2)) {
+        if (Double.doubleToLongBits(angle2) != Double.doubleToLongBits(other.angle2)) {
             return false;
         }
         if (!angleName.equals(other.angleName)) {
             return false;
         }
-        if (Double.doubleToLongBits(difference) != Double
-                .doubleToLongBits(other.difference)) {
+        if (Double.doubleToLongBits(difference) != Double.doubleToLongBits(other.difference)) {
             return false;
         }
         if (!residue.equals(other.residue)) {

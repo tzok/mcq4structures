@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.beans.XMLSerializable;
 
 public final class Matplotlib {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(Matplotlib.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(Matplotlib.class);
 
     public static void runXsltAndPython(URL resource, File fileScript,
             File fileOutput, XMLSerializable data) throws IOException,
@@ -38,12 +38,13 @@ public final class Matplotlib {
             File fileOutput, XMLSerializable data,
             Map<String, Object> parameters) throws IOException, JAXBException,
             ParserConfigurationException {
-        String pythonCode = XSLT.transform(resource,
-                new DOMSource(data.toXML()), parameters);
+        String pythonCode =
+                XSLT.transform(resource, new DOMSource(data.toXML()),
+                        parameters);
         Matplotlib.LOGGER.trace("Generated script:\n" + pythonCode);
 
-        try (Writer writer = new FileWriterWithEncoding(fileScript,
-                Charset.forName("UTF-8"))) {
+        try (Writer writer =
+                new FileWriterWithEncoding(fileScript, Charset.forName("UTF-8"))) {
             writer.write(pythonCode);
         }
 
@@ -66,8 +67,8 @@ public final class Matplotlib {
         File fileOutput = null;
 
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "Python script", "py");
+        FileNameExtensionFilter filter =
+                new FileNameExtensionFilter("Python script", "py");
         chooser.setFileFilter(filter);
         chooser.setSelectedFile(new File("script.py"));
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {

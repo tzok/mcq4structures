@@ -50,8 +50,8 @@ public abstract class GlobalComparison {
         }
     }
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(GlobalComparison.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GlobalComparison.class);
 
     /**
      * Compare each structures with each other.
@@ -85,10 +85,10 @@ public abstract class GlobalComparison {
          * each calculation
          */
         int countThreads = Runtime.getRuntime().availableProcessors() * 2;
-        final ExecutorService threadPool = Executors
-                .newFixedThreadPool(countThreads);
-        ExecutorCompletionService<SingleResult> ecs = new ExecutorCompletionService<>(
-                threadPool);
+        final ExecutorService threadPool =
+                Executors.newFixedThreadPool(countThreads);
+        ExecutorCompletionService<SingleResult> ecs =
+                new ExecutorCompletionService<>(threadPool);
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
                 CompareCallable task = new CompareCallable(structures, i, j);
@@ -108,15 +108,15 @@ public abstract class GlobalComparison {
                 try {
                     while (!threadPool.awaitTermination(1, TimeUnit.SECONDS)) {
                         if (listener != null) {
-                            listener.stateChanged(all,
-                                    ((ThreadPoolExecutor) threadPool)
-                                            .getCompletedTaskCount());
+                            listener.stateChanged(
+                                    all,
+                                    ((ThreadPoolExecutor) threadPool).getCompletedTaskCount());
                         }
                     }
                     if (listener != null) {
-                        listener.stateChanged(all,
-                                ((ThreadPoolExecutor) threadPool)
-                                        .getCompletedTaskCount());
+                        listener.stateChanged(
+                                all,
+                                ((ThreadPoolExecutor) threadPool).getCompletedTaskCount());
                     }
                 } catch (InterruptedException e) {
                     threadPool.shutdownNow();

@@ -71,8 +71,8 @@ public class TorsionLocalComparison extends LocalComparison {
     public static Map<AngleType, List<AngleDifference>> compare(Structure s1,
             Structure s2, List<AngleType> angles) throws StructureException {
         boolean wasAligned = false;
-        Pair<List<Atom>, List<Atom>> atoms = Helper.getCommonAtomArray(s1, s2,
-                false);
+        Pair<List<Atom>, List<Atom>> atoms =
+                Helper.getCommonAtomArray(s1, s2, false);
         if (atoms == null) {
             atoms = Helper.getCommonAtomArray(s1, s2, true);
             wasAligned = true;
@@ -100,27 +100,30 @@ public class TorsionLocalComparison extends LocalComparison {
 
         try {
             PDBFileReader reader = new PDBFileReader();
-            Structure[] structures = new Structure[] {
-                    reader.getStructure(args[0]), reader.getStructure(args[1]) };
+            Structure[] structures =
+                    new Structure[] { reader.getStructure(args[0]),
+                            reader.getStructure(args[1]) };
             TorsionLocalComparison comparison = new TorsionLocalComparison();
 
             Map<AngleType, List<AngleDifference>> result;
             if (args.length == 5) {
-                result = TorsionLocalComparison
-                        .compare(
-                                new StructureImpl(structures[0]
-                                        .getChainByPDB(args[3])),
-                                new StructureImpl(structures[1]
-                                        .getChainByPDB(args[4])), false);
+                result =
+                        TorsionLocalComparison.compare(
+                                new StructureImpl(
+                                        structures[0].getChainByPDB(args[3])),
+                                new StructureImpl(
+                                        structures[1].getChainByPDB(args[4])),
+                                false);
             } else {
-                result = (Map<AngleType, List<AngleDifference>>) comparison
-                        .compare(structures[0], structures[1]);
+                result =
+                        (Map<AngleType, List<AngleDifference>>) comparison.compare(
+                                structures[0], structures[1]);
             }
 
             AngleType angleName = AngleAverageAll.getInstance();
             List<AngleDifference> list = result.get(angleName);
-            AngleDifference[] array = list.toArray(new AngleDifference[list
-                    .size()]);
+            AngleDifference[] array =
+                    list.toArray(new AngleDifference[list.size()]);
             Arrays.sort(array);
             for (AngleDifference ad : array) {
                 System.out.println(ad.getResidue() + " " + ad.getDifference());
@@ -136,9 +139,9 @@ public class TorsionLocalComparison extends LocalComparison {
             Map<ResidueNumber, AngleDifference[]> mapResToTaus) {
         List<AngleDifference> pAngles = new ArrayList<>();
         // the formula taken from literature
-        double scale = 2 * (Math.sin(Math.toRadians(36.0)) + Math.sin(Math.toRadians(72.0)));
-        for (Entry<ResidueNumber, AngleDifference[]> entry : mapResToTaus
-                .entrySet()) {
+        double scale =
+                2 * (Math.sin(Math.toRadians(36.0)) + Math.sin(Math.toRadians(72.0)));
+        for (Entry<ResidueNumber, AngleDifference[]> entry : mapResToTaus.entrySet()) {
             ResidueNumber residue = entry.getKey();
             AngleDifference[] taus = entry.getValue();
 
@@ -150,16 +153,20 @@ public class TorsionLocalComparison extends LocalComparison {
 
             if (flag) {
                 pAngles.add(new AngleDifference(residue, Double.NaN,
-                        Double.NaN, Double.NaN, AnglePseudophasePucker
-                                .getInstance()));
+                        Double.NaN, Double.NaN,
+                        AnglePseudophasePucker.getInstance()));
             } else {
-                double y1 = taus[1].getAngleFirst() + taus[4].getAngleFirst()
-                        - taus[0].getAngleFirst() - taus[3].getAngleFirst();
+                double y1 =
+                        taus[1].getAngleFirst() + taus[4].getAngleFirst()
+                                - taus[0].getAngleFirst()
+                                - taus[3].getAngleFirst();
                 double x1 = taus[2].getAngleFirst() * scale;
                 double tau1 = Math.atan2(y1, x1);
 
-                double y2 = taus[1].getAngleSecond() + taus[4].getAngleSecond()
-                        - taus[0].getAngleSecond() - taus[3].getAngleSecond();
+                double y2 =
+                        taus[1].getAngleSecond() + taus[4].getAngleSecond()
+                                - taus[0].getAngleSecond()
+                                - taus[3].getAngleSecond();
                 double x2 = taus[2].getAngleSecond() * scale;
                 double tau2 = Math.atan2(y2, x2);
 
@@ -175,8 +182,7 @@ public class TorsionLocalComparison extends LocalComparison {
             Map<ResidueNumber, List<AngleDifference>> mapResToDiffs,
             List<AngleType> angleTypes, AngleType angleName) {
         List<AngleDifference> mcqAngles = new ArrayList<>();
-        for (Entry<ResidueNumber, List<AngleDifference>> entry : mapResToDiffs
-                .entrySet()) {
+        for (Entry<ResidueNumber, List<AngleDifference>> entry : mapResToDiffs.entrySet()) {
             ResidueNumber residue = entry.getKey();
             List<AngleDifference> list = entry.getValue();
 
@@ -222,9 +228,11 @@ public class TorsionLocalComparison extends LocalComparison {
                     equalized.getLeft(), equalized.getRight(), at, wasAligned));
         }
 
-        Map<ResidueNumber, List<AngleDifference>> mapResToDiffs = new HashMap<>();
+        Map<ResidueNumber, List<AngleDifference>> mapResToDiffs =
+                new HashMap<>();
         Map<ResidueNumber, AngleDifference[]> mapResToTaus = new HashMap<>();
-        Map<AngleType, List<AngleDifference>> mapNameToDiffs = new LinkedHashMap<>();
+        Map<AngleType, List<AngleDifference>> mapNameToDiffs =
+                new LinkedHashMap<>();
         for (AngleDifference diff : allDiffs) {
             ResidueNumber residue = diff.getResidue();
             AngleType angleName = diff.getAngleType();

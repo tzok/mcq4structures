@@ -19,8 +19,8 @@ public class ColorbarTicks extends JPanel {
         super();
         reference = pair;
 
-        Dimension size = new JLabel(pair.getLeft() + pair.getLeft())
-                .getPreferredSize();
+        Dimension size =
+                new JLabel(pair.getLeft() + pair.getLeft()).getPreferredSize();
         setPreferredSize(size);
     }
 

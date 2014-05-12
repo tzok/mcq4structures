@@ -76,9 +76,12 @@ public final class AminoAcidDihedral extends AbstractAngleType {
     private static final String SD = " SD ";
     private static final String SG = " SG ";
 
-    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms = new HashMap<>();
-    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules = new HashMap<>();
-    private static MultiKeyMap<Object, UniTypeQuadruplet<String>> mapResidueAngleNameToAtoms = new MultiKeyMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<String>> mapAngleToAtoms =
+            new HashMap<>();
+    private static Map<AngleName, UniTypeQuadruplet<Integer>> mapAngleToRules =
+            new HashMap<>();
+    private static MultiKeyMap<Object, UniTypeQuadruplet<String>> mapResidueAngleNameToAtoms =
+            new MultiKeyMap<>();
 
     static {
         AminoAcidDihedral.mapAngleToAtoms.put(AngleName.PHI,
@@ -357,8 +360,9 @@ public final class AminoAcidDihedral extends AbstractAngleType {
             return AminoAcidDihedral.mapAngleToAtoms.get(angleName);
         }
 
-        UniTypeQuadruplet<String> names = AminoAcidDihedral.mapResidueAngleNameToAtoms
-                .get(g.getPDBName(), angleName);
+        UniTypeQuadruplet<String> names =
+                AminoAcidDihedral.mapResidueAngleNameToAtoms.get(
+                        g.getPDBName(), angleName);
         if (names == null) {
             names = new UniTypeQuadruplet<>(null, null, null, null);
         }

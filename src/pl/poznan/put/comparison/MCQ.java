@@ -130,13 +130,14 @@ public class MCQ extends GlobalComparison {
         List<AngleDifference> allDiffs = new ArrayList<>();
         for (AngleType at : MCQ.USED_ANGLES) {
             List<AngleDifference> diffs;
-            diffs = DihedralAngles.calculateAngleDiff(equalized.getLeft(),
-                    equalized.getRight(), at, wasAligned);
+            diffs =
+                    DihedralAngles.calculateAngleDiff(equalized.getLeft(),
+                            equalized.getRight(), at, wasAligned);
             allDiffs.addAll(diffs);
         }
         if (MCQ.LOGGER.isTraceEnabled()) {
-            StringBuilder builder = new StringBuilder(
-                    "All angular distances:\n");
+            StringBuilder builder =
+                    new StringBuilder("All angular distances:\n");
             for (AngleDifference ad : allDiffs) {
                 builder.append(ad);
                 builder.append('\n');

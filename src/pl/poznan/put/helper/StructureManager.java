@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
  * @author tzok
  */
 public final class StructureManager {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(StructureManager.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(StructureManager.class);
 
     private static Map<File, List<Structure>> mapFileModels = new TreeMap<>();
     private static Map<Structure, File> mapModelFile = new HashMap<>();
@@ -142,16 +142,16 @@ public final class StructureManager {
     private static boolean isMmCif(File file) throws IOException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
+                try (BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(
+                                new GZIPInputStream(stream), "UTF-8"))) {
                     String line = reader.readLine();
                     return line != null && line.startsWith("data_");
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line = reader.readLine();
                 return line != null && line.startsWith("data_");
             }
@@ -162,9 +162,9 @@ public final class StructureManager {
             InvalidInputException {
         try (InputStream stream = new FileInputStream(file)) {
             if (file.getName().endsWith(".gz")) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new GZIPInputStream(stream),
-                                "UTF-8"))) {
+                try (BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(
+                                new GZIPInputStream(stream), "UTF-8"))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (line.startsWith("ATOM")) {
@@ -175,8 +175,8 @@ public final class StructureManager {
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(stream, "UTF-8"))) {
+            try (BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("ATOM")) {
@@ -259,14 +259,14 @@ public final class StructureManager {
                         lastResidue = null;
                     }
 
-                    int residue = Integer
-                            .valueOf(line.substring(22, 26).trim());
+                    int residue =
+                            Integer.valueOf(line.substring(22, 26).trim());
                     if (lastResidue != null && residue - lastResidue != 0
                             && residue - lastResidue != 1) {
-                        String message = "Residues in the PDB file are not numbered sequentially, "
-                                + "lastResidue = "
-                                + lastResidue
-                                + ", residue = " + residue;
+                        String message =
+                                "Residues in the PDB file are not numbered sequentially, "
+                                        + "lastResidue = " + lastResidue
+                                        + ", residue = " + residue;
                         StructureManager.LOGGER.error(message);
                         throw new InvalidInputException(message);
                     }

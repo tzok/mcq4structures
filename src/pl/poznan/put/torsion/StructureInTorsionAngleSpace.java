@@ -36,13 +36,10 @@ public class StructureInTorsionAngleSpace {
     // value: double torsionAngle
     private MultiKeyMap<Object, Double> torsionAngles = new MultiKeyMap<>();
 
-    private StructureSelection selection;
     private ArrayList<Group> residues;
 
     public StructureInTorsionAngleSpace(StructureSelection selection) {
         super();
-        this.selection = selection;
-
         residues = new ArrayList<>(selection.getResidues());
 
         analyze();
@@ -269,7 +266,7 @@ public class StructureInTorsionAngleSpace {
                     + "]");
         }
 
-        List<McqGlobalBean> results = new ArrayList<>();
+        new ArrayList<>();
 
         for (int i = 0; i < residues.size(); i++) {
             Group g = residues.get(i);
@@ -287,10 +284,6 @@ public class StructureInTorsionAngleSpace {
                 list = NucleotideDihedral.getAngles();
             }
 
-            int incorrectFirst = 0;
-            int incorrectSecond = 0;
-            int incorrectBoth = 0;
-            int total = 0;
             List<Double> differences = new ArrayList<>();
 
             for (AngleType at : list) {
@@ -298,24 +291,14 @@ public class StructureInTorsionAngleSpace {
                 double a2 = other.torsionAngles.get(i, at);
 
                 if (Double.isNaN(a1) && Double.isNaN(a2)) {
-                    incorrectBoth++;
                 } else if (Double.isNaN(a1) && !Double.isNaN(a2)) {
-                    incorrectFirst++;
                 } else if (!Double.isNaN(a1) && Double.isNaN(a2)) {
-                    incorrectSecond++;
                 } else {
                     differences.add(DihedralAngles.subtractDihedral(a1, a2));
                 }
-
-                total++;
             }
 
-            double mcq = MCQ.calculate(differences);
-            // FIXME
-            // McqGlobalBean mcqResult = new McqGlobalBean(incorrectFirst,
-            // incorrectSecond, incorrectBoth, total, differences.size(),
-            // mcq);
-            // results.add(mcqResult);
+            MCQ.calculate(differences);
         }
 
         // FIXME
