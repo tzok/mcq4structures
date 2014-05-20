@@ -10,7 +10,9 @@ import java.net.URL;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -56,21 +58,20 @@ import org.jzy3d.plot3d.primitives.axes.layout.providers.SmartTickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
-import pl.poznan.put.beans.auxiliary.Angle;
-import pl.poznan.put.beans.auxiliary.RGB;
+import pl.poznan.put.beans.auxiliary.AngleDeltas;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.TorsionLocalComparison;
 import pl.poznan.put.external.Matplotlib;
 import pl.poznan.put.gui.MainWindow;
 import pl.poznan.put.gui.TorsionAxis;
-import pl.poznan.put.helper.Colors;
 import pl.poznan.put.helper.Constants;
-import pl.poznan.put.helper.Exportable;
-import pl.poznan.put.helper.Helper;
-import pl.poznan.put.helper.StructureManager;
-import pl.poznan.put.helper.Visualizable;
+import pl.poznan.put.helper.RGB;
+import pl.poznan.put.helper.XMLSerializable;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.torsion.AngleDifference;
 import pl.poznan.put.torsion.AngleType;
+import pl.poznan.put.utility.StructureManager;
 
 @XmlRootElement
 public class ComparisonLocal extends XMLSerializable implements Exportable,
@@ -79,9 +80,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     public static ComparisonLocal newInstance(Chain c1, Chain c2,
             List<AngleType> angleNames) throws StructureException {
-        Structure[] s =
-                new Structure[] { new StructureImpl((Chain) c1.clone()),
-                        new StructureImpl((Chain) c2.clone()) };
+        Structure[] s = new Structure[] { new StructureImpl((Chain) c1.clone()), new StructureImpl(
+                (Chain) c2.clone()) };
 
         StringBuilder builder = new StringBuilder();
         builder.append(StructureManager.getName(c1.getParent()));
@@ -94,7 +94,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         String title = builder.toString();
 
         return ComparisonLocal.newInstance(
-                TorsionLocalComparison.compare(s[0], s[1], angleNames), title,
+                TorsionLocalComparison.run(s[0], s[1], angleNames), title,
                 angleNames);
     }
 
@@ -110,11 +110,10 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             r.addChain((Chain) c.clone());
         }
 
-        String title =
-                StructureManager.getName(left) + ", "
-                        + StructureManager.getName(right);
+        String title = StructureManager.getName(left) + ", "
+                + StructureManager.getName(right);
         return ComparisonLocal.newInstance(
-                TorsionLocalComparison.compare(l, r, list), title, list);
+                TorsionLocalComparison.run(l, r, list), title, list);
     }
 
     private static ComparisonLocal newInstance(
@@ -161,7 +160,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         /*
          * read map data into desired format
          */
-        Map<AngleType, Angle> angles = new LinkedHashMap<>();
+        Map<AngleType, AngleDeltas> angles = new LinkedHashMap<>();
         for (AngleType angleName : comparison.keySet()) {
             if (!setAngles.contains(angleName)) {
                 continue;
@@ -174,7 +173,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
                 j++;
             }
 
-            Angle angle = new Angle();
+            AngleDeltas angle = new AngleDeltas();
             angle.setName(angleName.getAngleDisplayName());
             angle.setDeltas(deltas);
             angles.put(angleName, angle);
@@ -185,10 +184,11 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             ticks.add(String.format("%s:%03d", residue.getChainId(),
                     residue.getSeqNum()));
         }
-        return new ComparisonLocal(angles, Colors.toRGB(), ticks, title);
+        return new ComparisonLocal(angles, Constants.colorsAsRGB(), ticks,
+                title);
     }
 
-    private Map<AngleType, Angle> angles;
+    private Map<AngleType, AngleDeltas> angles;
     private List<RGB> colors;
     private List<String> ticks;
     private String title;
@@ -196,7 +196,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
     public ComparisonLocal() {
     }
 
-    private ComparisonLocal(Map<AngleType, Angle> angles, List<RGB> colors,
+    private ComparisonLocal(Map<AngleType, AngleDeltas> angles, List<RGB> colors,
             List<String> ticks, String title) {
         super();
         this.angles = angles;
@@ -210,8 +210,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             CsvWriter csvWriter = new CsvWriter(writer, '\t');
             csvWriter.write("");
-            List<Angle> angleArray = new ArrayList<>(getAngles().values());
-            for (Angle angle : angleArray) {
+            List<AngleDeltas> angleArray = new ArrayList<>(getAngles().values());
+            for (AngleDeltas angle : angleArray) {
                 csvWriter.write(angle.getName());
             }
             csvWriter.endRecord();
@@ -227,22 +227,22 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         }
     }
 
-    public Map<AngleType, Angle> getAngles() {
+    public Map<AngleType, AngleDeltas> getAngles() {
         return angles;
     }
 
-    public Map<String, Angle> getAnglesNames() {
-        Map<String, Angle> map = new LinkedHashMap<>();
-        for (Entry<AngleType, Angle> entry : angles.entrySet()) {
+    public Map<String, AngleDeltas> getAnglesNames() {
+        Map<String, AngleDeltas> map = new LinkedHashMap<>();
+        for (Entry<AngleType, AngleDeltas> entry : angles.entrySet()) {
             map.put(entry.getKey().getAngleName(), entry.getValue());
         }
         return map;
     }
 
     @XmlElement
-    public void setAnglesNames(Map<String, Angle> map) {
-        Map<AngleType, Angle> result = new LinkedHashMap<>();
-        for (Entry<String, Angle> entry : map.entrySet()) {
+    public void setAnglesNames(Map<String, AngleDeltas> map) {
+        Map<AngleType, AngleDeltas> result = new LinkedHashMap<>();
+        for (Entry<String, AngleDeltas> entry : map.entrySet()) {
             for (AngleType at : MCQ.USED_ANGLES) {
                 if (at.getAngleName().equals(entry.getKey())) {
                     result.put(at, entry.getValue());
@@ -283,7 +283,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     @Override
     public File suggestName() {
-        String filename = Helper.getExportPrefix();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+        String filename = sdf.format(new Date());
         filename += "-Local-Distance-";
         filename += title.replace(", ", "-");
         filename += ".csv";
@@ -297,7 +298,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             x[i] = i;
         }
 
-        List<Angle> angleArray = new ArrayList<>(getAngles().values());
+        List<AngleDeltas> angleArray = new ArrayList<>(getAngles().values());
         double[][] y = new double[angleArray.size()][];
         for (int i = 0; i < angleArray.size(); i++) {
             y[i] = new double[ticks.size()];
@@ -309,9 +310,9 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         DefaultXYDataset dataset = new DefaultXYDataset();
         DefaultXYItemRenderer renderer = new DefaultXYItemRenderer();
         for (int i = 0; i < y.length; i++) {
-            dataset.addSeries(angleArray.get(i).getName(), new double[][] { x,
-                    y[i] });
-            renderer.setSeriesPaint(i, Colors.ALL.get(i + 1));
+            dataset.addSeries(angleArray.get(i).getName(),
+                    new double[][] { x, y[i] });
+            renderer.setSeriesPaint(i, Constants.COLORS.get(i + 1));
         }
 
         NumberAxis xAxis = new TorsionAxis(ticks);
@@ -374,7 +375,7 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
 
     @Override
     public void visualize3D() {
-        final List<Angle> angleList = new ArrayList<>(getAngles().values());
+        final List<AngleDeltas> angleList = new ArrayList<>(getAngles().values());
         final int maxX = angleList.size();
         final int maxY = ticks.size();
 
@@ -395,20 +396,19 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
             mapY.register(i, ticks.get(i));
         }
 
-        Shape surface =
-                Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
-                        maxX - 1), maxX, new Range(0, maxY), maxY - 1),
-                        new Mapper() {
-                            @Override
-                            public double f(double x, double y) {
-                                int i = (int) Math.round(x);
-                                int j = (int) Math.round(y);
+        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(
+                0, maxX - 1), maxX, new Range(0, maxY), maxY - 1),
+                new Mapper() {
+                    @Override
+                    public double f(double x, double y) {
+                        int i = (int) Math.round(x);
+                        int j = (int) Math.round(y);
 
-                                i = Math.max(Math.min(i, maxX - 1), 0);
-                                j = Math.max(Math.min(j, maxY - 1), 0);
-                                return angleList.get(i).getDeltas()[j];
-                            }
-                        });
+                        i = Math.max(Math.min(i, maxX - 1), 0);
+                        j = Math.max(Math.min(j, maxY - 1), 0);
+                        return angleList.get(i).getDeltas()[j];
+                    }
+                });
 
         surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0,
                 (float) Math.PI, new Color(1, 1, 1, .5f)));
@@ -442,9 +442,8 @@ public class ComparisonLocal extends XMLSerializable implements Exportable,
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("angles", builder.toString());
 
-        URL resource =
-                MainWindow.class.getResource("/pl/poznan/put/cs/"
-                        + "bioserver/external/MatplotlibLocal.xsl");
+        URL resource = MainWindow.class.getResource("/pl/poznan/put/cs/"
+                + "bioserver/external/MatplotlibLocal.xsl");
         Matplotlib.runXsltAndPython(resource, this, parameters);
     }
 }

@@ -2,7 +2,7 @@ package pl.poznan.put.helper.wrappers;
 
 import org.biojava.bio.structure.Chain;
 
-import pl.poznan.put.helper.StructureManager;
+import pl.poznan.put.utility.StructureManager;
 
 public class WrapperChain {
     private Chain chain;

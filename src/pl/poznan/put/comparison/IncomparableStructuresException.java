@@ -5,10 +5,14 @@ package pl.poznan.put.comparison;
  * 
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
-class IncomparableStructuresException extends Exception {
+public class IncomparableStructuresException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    IncomparableStructuresException(Throwable cause) {
-        super(cause);
+    public IncomparableStructuresException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public IncomparableStructuresException(String message) {
+        super(message);
     }
 }

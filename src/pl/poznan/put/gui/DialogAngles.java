@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,12 +21,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import pl.poznan.put.torsion.AminoAcidDihedral;
-import pl.poznan.put.torsion.AngleAverageAll;
-import pl.poznan.put.torsion.AngleAverageSelected;
-import pl.poznan.put.torsion.AnglePseudophasePucker;
-import pl.poznan.put.torsion.AngleType;
-import pl.poznan.put.torsion.NucleotideDihedral;
+import pl.poznan.put.common.ChiTorsionAngleType;
+import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.common.TorsionAngle;
+import pl.poznan.put.nucleic.PseudophasePuckerAngle;
+import pl.poznan.put.nucleic.RNATorsionAngle;
+import pl.poznan.put.protein.ProteinTorsionAngle;
+import pl.poznan.put.utility.AverageAngle;
 
 final class DialogAngles extends JDialog {
     private static DialogAngles instance;
@@ -47,29 +49,27 @@ final class DialogAngles extends JDialog {
         }
     }
 
-    HashMap<String, AngleType> mapNameToAngle;
-    List<AngleType> selectedNames =
-            Arrays.asList(new AngleType[] { AngleAverageAll.getInstance() });
+    private final List<TorsionAngle> selectedAngles = new ArrayList<>();
+    private final Map<String, TorsionAngle> mapNameToAngleAmino = new HashMap<>();
+    private final Map<String, TorsionAngle> mapNameToAngleNucleic = new HashMap<>();
 
     private DialogAngles(Frame owner) {
         super(owner, true);
-        mapNameToAngle = new HashMap<>();
 
         final JPanel panelAnglesAmino = new JPanel();
         panelAnglesAmino.setLayout(new BoxLayout(panelAnglesAmino,
                 BoxLayout.Y_AXIS));
 
-        List<AngleType> angles = new ArrayList<>(AminoAcidDihedral.getAngles());
-        angles.add(AngleAverageSelected.getInstance());
-        angles.add(AngleAverageAll.getInstance());
-        for (AngleType type : angles) {
-            String name = type.getAngleDisplayName();
-            JCheckBox checkBox = new JCheckBox(name);
+        List<TorsionAngle> angles = new ArrayList<>();
+        angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
+        angles.addAll(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN));
+        angles.add(AverageAngle.getInstance(MoleculeType.PROTEIN));
+
+        for (TorsionAngle angle : angles) {
+            String displayName = angle.getDisplayName();
+            JCheckBox checkBox = new JCheckBox(displayName);
             panelAnglesAmino.add(checkBox);
-            if (type.equals(AngleAverageAll.getInstance())) {
-                checkBox.setSelected(true);
-            }
-            mapNameToAngle.put(name, type);
+            mapNameToAngleAmino.put(displayName, angle);
         }
 
         final JButton buttonSelectAllAmino = new JButton("Select all");
@@ -83,25 +83,24 @@ final class DialogAngles extends JDialog {
         panelAmino.setLayout(new BorderLayout());
         panelAmino.add(panelAnglesAmino, BorderLayout.CENTER);
         panelAmino.add(panelButtonsAmino, BorderLayout.SOUTH);
-        panelAmino.setBorder(BorderFactory.createTitledBorder("Amino acids"));
+        panelAmino.setBorder(BorderFactory.createTitledBorder("Protein"));
 
         // PANEL NUCLEIC
         final JPanel panelAnglesNucleic = new JPanel();
         panelAnglesNucleic.setLayout(new BoxLayout(panelAnglesNucleic,
                 BoxLayout.Y_AXIS));
 
-        angles = new ArrayList<>(NucleotideDihedral.getAngles());
-        angles.add(AnglePseudophasePucker.getInstance());
-        angles.add(AngleAverageSelected.getInstance());
-        angles.add(AngleAverageAll.getInstance());
-        for (AngleType type : angles) {
-            String name = type.getAngleDisplayName();
-            JCheckBox checkBox = new JCheckBox(name);
+        angles = new ArrayList<>();
+        angles.addAll(Arrays.asList(RNATorsionAngle.values()));
+        angles.addAll(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA));
+        angles.add(PseudophasePuckerAngle.getInstance());
+        angles.add(AverageAngle.getInstance(MoleculeType.RNA));
+
+        for (TorsionAngle angle : angles) {
+            String displayName = angle.getDisplayName();
+            JCheckBox checkBox = new JCheckBox(displayName);
             panelAnglesNucleic.add(checkBox);
-            if (type.equals(AngleAverageAll.getInstance())) {
-                checkBox.setSelected(true);
-            }
-            mapNameToAngle.put(name, type);
+            mapNameToAngleNucleic.put(displayName, angle);
         }
 
         final JButton buttonSelectAllNucleic = new JButton("Select all");
@@ -115,7 +114,7 @@ final class DialogAngles extends JDialog {
         panelNucleic.setLayout(new BorderLayout());
         panelNucleic.add(panelAnglesNucleic, BorderLayout.CENTER);
         panelNucleic.add(panelButtonsNucleic, BorderLayout.SOUTH);
-        panelNucleic.setBorder(BorderFactory.createTitledBorder("Nucleotides"));
+        panelNucleic.setBorder(BorderFactory.createTitledBorder("RNA"));
 
         JPanel panelOptions = new JPanel();
         panelOptions.setLayout(new GridLayout(1, 2));
@@ -166,15 +165,26 @@ final class DialogAngles extends JDialog {
         buttonClearNucleic.addActionListener(actionListenerSelection);
 
         buttonOk.addActionListener(new ActionListener() {
+            @SuppressWarnings("synthetic-access")
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedNames = new ArrayList<>();
-                for (JPanel panel : new JPanel[] { panelAnglesAmino,
-                        panelAnglesNucleic }) {
+                List<TorsionAngle> selected = getAngles();
+                selected.clear();
+
+                JPanel[] panels = new JPanel[] { panelAnglesAmino, panelAnglesNucleic };
+                @SuppressWarnings("rawtypes")
+                Map[] maps = new Map[] { mapNameToAngleAmino, mapNameToAngleNucleic };
+
+                for (int i = 0; i < panels.length; i++) {
+                    JPanel panel = panels[i];
+                    @SuppressWarnings("unchecked")
+                    Map<String, TorsionAngle> map = maps[i];
                     for (Component component : panel.getComponents()) {
                         if (component instanceof JCheckBox
                                 && ((JCheckBox) component).isSelected()) {
-                            selectedNames.add(mapNameToAngle.get(((JCheckBox) component).getText()));
+                            String displayName = ((JCheckBox) component).getText();
+                            TorsionAngle torsionAngle = map.get(displayName);
+                            selected.add(torsionAngle);
                         }
                     }
                 }
@@ -196,7 +206,7 @@ final class DialogAngles extends JDialog {
         setTitle("MCQ4Structures: torsion angle(s) selection");
     }
 
-    public List<AngleType> getAngles() {
-        return selectedNames;
+    public List<TorsionAngle> getAngles() {
+        return selectedAngles;
     }
 }

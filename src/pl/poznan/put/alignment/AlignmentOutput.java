@@ -3,7 +3,9 @@ package pl.poznan.put.alignment;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,8 +22,7 @@ import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.align.model.AFPChain;
 import org.biojava.bio.structure.jama.Matrix;
 
-import pl.poznan.put.helper.Exportable;
-import pl.poznan.put.helper.Helper;
+import pl.poznan.put.interfaces.Exportable;
 
 /**
  * A class that holds the results of structural alignment.
@@ -80,13 +81,12 @@ public class AlignmentOutput implements Exportable {
         return clone;
     }
 
-    private AFPChain afpChain;
-    private String description;
-    private List<Atom> listAtomsLeft;
-    private List<Atom> listAtomsRight;
-    private Structure structureLeft;
-
-    private Structure structureRight;
+    private final AFPChain afpChain;
+    private final String description;
+    private final List<Atom> listAtomsLeft;
+    private final List<Atom> listAtomsRight;
+    private final Structure structureLeft;
+    private final Structure structureRight;
 
     /**
      * Create an instance which stores information about the computed alignment,
@@ -165,26 +165,25 @@ public class AlignmentOutput implements Exportable {
         Structure leftWhole = structureLeft.clone();
         Structure rightWhole = structureRight.clone();
         Matrix matrix = afpChain.getBlockRotationMatrix()[0];
-        Atom c1 =
-                Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft.size()]));
-        Atom c2 =
-                Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight.size()]));
+        Atom c1 = Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft.size()]));
+        Atom c2 = Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight.size()]));
         Calc.shift(leftWhole, Calc.invert(c1));
         Calc.shift(rightWhole, Calc.invert(c2));
         Calc.rotate(rightWhole, matrix);
 
         Pair<List<Atom>, List<Atom>> aligned = getAtoms();
-        Structure leftFiltered =
-                AlignmentOutput.filterStructure(leftWhole, aligned.getLeft());
-        Structure rightFiltered =
-                AlignmentOutput.filterStructure(rightWhole, aligned.getRight());
+        Structure leftFiltered = AlignmentOutput.filterStructure(leftWhole,
+                aligned.getLeft());
+        Structure rightFiltered = AlignmentOutput.filterStructure(rightWhole,
+                aligned.getRight());
         return new StructuresAligned(leftWhole, rightWhole, leftFiltered,
                 rightFiltered);
     }
 
     @Override
     public File suggestName() {
-        String filename = Helper.getExportPrefix();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+        String filename = sdf.format(new Date());
         filename += "-3DSTRA-";
         filename += description.replace(", ", "-");
         filename += ".pdb";

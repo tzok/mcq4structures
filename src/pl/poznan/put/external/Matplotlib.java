@@ -21,7 +21,7 @@ import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.beans.XMLSerializable;
+import pl.poznan.put.helper.XMLSerializable;
 
 public final class Matplotlib {
     private static final Logger LOGGER =

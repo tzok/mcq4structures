@@ -3,7 +3,7 @@ package pl.poznan.put.visualisation;
 import org.biojava.bio.structure.jama.EigenvalueDecomposition;
 import org.biojava.bio.structure.jama.Matrix;
 
-import pl.poznan.put.helper.InvalidInputException;
+import pl.poznan.put.utility.InvalidInputException;
 
 /**
  * A utility class implementing a Multidimensional Scaling method.
@@ -64,17 +64,15 @@ public final class MDS {
         for (int i = 0; i < distance.length; ++i) {
             b[i] = new double[distance.length];
             for (int j = 0; j < distance.length; ++j) {
-                b[i][j] =
-                        -0.5
-                                * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
+                b[i][j] = -0.5
+                        * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
             }
         }
 
         /*
          * decompose B = VDV^T (or else called KLK^T)
          */
-        EigenvalueDecomposition evd =
-                new EigenvalueDecomposition(new Matrix(b));
+        EigenvalueDecomposition evd = new EigenvalueDecomposition(new Matrix(b));
 
         /*
          * find maxima in L

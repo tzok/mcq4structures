@@ -8,13 +8,13 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 import pl.poznan.put.beans.ComparisonLocal;
-import pl.poznan.put.beans.auxiliary.Angle;
-import pl.poznan.put.torsion.AngleType;
+import pl.poznan.put.beans.auxiliary.AngleDeltas;
+import pl.poznan.put.common.TorsionAngle;
 
 class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
     private ComparisonLocal local;
-    private AngleType angleType;
+    private TorsionAngle angleType;
 
     private float[] green;
     private float[] red;
@@ -41,8 +41,8 @@ class Colorbar extends JPanel {
         int width = size.width / local.getTicks().size();
         int height = size.height;
 
-        Map<AngleType, Angle> angles = local.getAngles();
-        Angle average = angles.get(angleType);
+        Map<AngleType, AngleDeltas> angles = local.getAngles();
+        AngleDeltas average = angles.get(angleType);
         int i = 0;
         for (double delta : average.getDeltas()) {
             g.setColor(getColor(delta));
@@ -68,8 +68,8 @@ class Colorbar extends JPanel {
             delta = max;
         }
 
-        double hue =
-                (delta - min) / (max - min) * (red[0] - green[0]) + green[0];
+        double hue = (delta - min) / (max - min) * (red[0] - green[0])
+                + green[0];
         return Color.getHSBColor((float) hue, 0.75f, 0.75f);
     }
 }

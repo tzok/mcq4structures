@@ -1,129 +1,198 @@
 package pl.poznan.put.comparison;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.SVDSuperimposer;
-import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.alignment.AlignerStructure;
-import pl.poznan.put.alignment.AlignmentOutput;
-import pl.poznan.put.helper.Helper;
-import pl.poznan.put.helper.InvalidInputException;
-import pl.poznan.put.helper.StructureManager;
+import pl.poznan.put.atoms.AtomName;
+import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.common.ResidueType;
+import pl.poznan.put.helper.StructureHelper;
+import pl.poznan.put.matching.FragmentComparisonResult;
+import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.MCQMatcher;
+import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.structure.ResidueTorsionAngles;
+import pl.poznan.put.structure.StructureSelection;
 
 /**
  * Implementation of RMSD global similarity measure.
  * 
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
-public class RMSD extends GlobalComparison {
-    public static final String NAME = "RMSD";
+public class RMSD implements GlobalComparator {
+    public enum AtomFilter {
+        ALL, BACKBONE, MAIN
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RMSD.class);
 
-    /**
-     * A command line wrapper to calculate RMSD for given structures. It outputs
-     * the upper half of the dissimilarity matrix. For example, for 4 structures
-     * the output will like this:
-     * 
-     * OK 1-vs-2 1-vs-3 1-vs-4 2-vs-3 2-vs-4 3-vs-4
-     * 
-     * @param args
-     *            A list of paths to PDB files.
-     */
-    public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("ERROR");
-            System.out.println("Incorrect number of arguments provided");
-            return;
-        }
-        List<Structure> list = new ArrayList<>();
-        for (String arg : args) {
-            try {
-                list.add(StructureManager.loadStructure(new File(arg)).get(0));
-            } catch (IOException | InvalidInputException e) {
-                System.out.println("ERROR");
-                e.printStackTrace();
-            }
-        }
+    private AtomFilter filter;
+    private boolean onlyHeavy;
 
-        RMSD rmsd = new RMSD();
-        double[][] compare = rmsd.compare(list, null);
-        System.out.println("OK");
-        for (double[] element : compare) {
-            System.out.println(Arrays.toString(element));
-        }
+    public RMSD(AtomFilter filter, boolean onlyHeavy) {
+        super();
+        this.filter = filter;
+        this.onlyHeavy = onlyHeavy;
     }
 
-    /**
-     * Compare two given structures. By default, do not try to align based on
-     * atoms, but if impossible to compare then try the alignment.
-     * 
-     * @param s1
-     *            First structure.
-     * @param s2
-     *            Second structure.
-     * @return RMSD.
-     */
-    @Override
-    public double compare(Structure s1, Structure s2)
-            throws IncomparableStructuresException {
-        RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
-                + s2.getPDBCode());
+    public AtomFilter getFilter() {
+        return filter;
+    }
 
-        if (Helper.isNucleicAcid(s1) != Helper.isNucleicAcid(s2)) {
-            return Double.NaN;
+    public void setFilter(AtomFilter filter) {
+        this.filter = filter;
+    }
+
+    public boolean isOnlyHeavy() {
+        return onlyHeavy;
+    }
+
+    public void setOnlyHeavy(boolean onlyHeavy) {
+        this.onlyHeavy = onlyHeavy;
+    }
+
+    @Override
+    public GlobalComparisonResult compareGlobally(StructureSelection s1,
+            StructureSelection s2) throws IncomparableStructuresException {
+        MCQMatcher matcher = new MCQMatcher(true,
+                MCQ.getAllAvailableTorsionAngles());
+        List<FragmentMatch> matches = matcher.match(s1, s2);
+
+        if (matches == null || matches.size() == 0) {
+            throw new IncomparableStructuresException("No matching fragments "
+                    + "found");
+        }
+
+        List<Atom> atomsL = new ArrayList<>();
+        List<Atom> atomsR = new ArrayList<>();
+
+        for (FragmentMatch fragment : matches) {
+            RMSD.LOGGER.debug("Taking into account fragments: " + fragment);
+            FragmentComparisonResult fragmentComparisonResult = fragment.getBestResult();
+
+            for (ResidueComparisonResult residueResult : fragmentComparisonResult.getResidueResults()) {
+                ResidueTorsionAngles left = residueResult.getLeft();
+                ResidueTorsionAngles right = residueResult.getRight();
+                ResidueType residueType = left.getResidueType();
+                MoleculeType chainType = residueType.getChainType();
+                List<AtomName> atomNames = new ArrayList<>();
+
+                switch (filter) {
+                case ALL:
+                    atomNames.addAll(chainType.getBackboneAtoms());
+                    if (residueType == right.getResidueType()) {
+                        atomNames.addAll(residueType.getResidueAtoms());
+                    }
+                    break;
+                case BACKBONE:
+                    atomNames.addAll(chainType.getBackboneAtoms());
+                    break;
+                case MAIN:
+                    atomNames.add(chainType.getMainAtom());
+                    break;
+                default:
+                    break;
+                }
+
+                for (AtomName name : atomNames) {
+                    if (onlyHeavy && !name.getType().isHeavy()) {
+                        continue;
+                    }
+
+                    Atom l = StructureHelper.findAtom(left.getGroup(), name);
+                    Atom r = StructureHelper.findAtom(right.getGroup(), name);
+
+                    if (l != null && r != null) {
+                        atomsL.add(l);
+                        atomsR.add(r);
+                    }
+                }
+            }
         }
 
         try {
-            Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
-            Pair<List<Atom>, List<Atom>> atoms =
-                    Helper.getCommonAtomArray(structures[0], structures[1],
-                            false);
-            if (atoms == null) {
-                atoms =
-                        Helper.getCommonAtomArray(structures[0], structures[1],
-                                true);
+            Atom[] atomSetL = atomsL.toArray(new Atom[atomsL.size()]);
+            Atom[] atomSetR = atomsR.toArray(new Atom[atomsR.size()]);
+            SVDSuperimposer superimposer = new SVDSuperimposer(atomSetL,
+                    atomSetR);
+
+            List<Atom> clones = new ArrayList<>();
+
+            for (Atom atom : atomsR) {
+                Atom r = (Atom) atom.clone();
+                Calc.rotate(r, superimposer.getRotation());
+                Calc.shift(r, superimposer.getTranslation());
+                clones.add(r);
             }
-            assert atoms != null;
 
-            List<Atom> left = atoms.getLeft();
-            List<Atom> right = atoms.getRight();
-
-            if (left.size() != right.size()) {
-                RMSD.LOGGER.info("Atom sets have different sizes. Must use "
-                        + "alignment before calculating RMSD");
-                AlignmentOutput output =
-                        AlignerStructure.align(structures[0], structures[1], "");
-                return output.getAFPChain().getTotalRmsdOpt();
-            }
-            RMSD.LOGGER.debug("Atom set size: " + left.size());
-
-            Atom[] leftArray = left.toArray(new Atom[left.size()]);
-            Atom[] rightArray = right.toArray(new Atom[right.size()]);
-            SVDSuperimposer superimposer =
-                    new SVDSuperimposer(leftArray, rightArray);
-            Calc.rotate(structures[1], superimposer.getRotation());
-            Calc.shift(structures[1], superimposer.getTranslation());
-            return SVDSuperimposer.getRMS(leftArray, rightArray);
+            double rmsd = SVDSuperimposer.getRMS(atomSetL,
+                    clones.toArray(new Atom[clones.size()]));
+            return new GlobalComparisonResult(getName(), s1.getName(),
+                    s2.getName(), matches, rmsd, false);
         } catch (StructureException e) {
-            RMSD.LOGGER.error("Failed to compare structures", e);
-            throw new IncomparableStructuresException(e);
+            throw new IncomparableStructuresException(
+                    "Failed to calculate RMSD", e);
         }
     }
 
     @Override
-    public String toString() {
-        return RMSD.NAME;
+    public String getName() {
+        return "RMSD";
     }
+
+    // @formatter:off
+//    public double compare(Structure s1, Structure s2)
+//            throws IncomparableStructuresException {
+//        RMSD.LOGGER.debug("Comparing: " + s1.getPDBCode() + " and "
+//                + s2.getPDBCode());
+//
+//        if (McqHelper.isNucleicAcid(s1) != McqHelper.isNucleicAcid(s2)) {
+//            return Double.NaN;
+//        }
+//
+//        try {
+//            Structure[] structures = new Structure[] { s1.clone(), s2.clone() };
+//            Pair<List<Atom>, List<Atom>> atoms =
+//                    McqHelper.getCommonAtomArray(structures[0], structures[1],
+//                            false);
+//            if (atoms == null) {
+//                atoms =
+//                        McqHelper.getCommonAtomArray(structures[0], structures[1],
+//                                true);
+//            }
+//            assert atoms != null;
+//
+//            List<Atom> left = atoms.getLeft();
+//            List<Atom> right = atoms.getRight();
+//
+//            if (left.size() != right.size()) {
+//                RMSD.LOGGER.info("Atom sets have different sizes. Must use "
+//                        + "alignment before calculating RMSD");
+//                AlignmentOutput output =
+//                        AlignerStructure.align(structures[0], structures[1], "");
+//                return output.getAFPChain().getTotalRmsdOpt();
+//            }
+//            RMSD.LOGGER.debug("Atom set size: " + left.size());
+//
+//            Atom[] leftArray = left.toArray(new Atom[left.size()]);
+//            Atom[] rightArray = right.toArray(new Atom[right.size()]);
+//            SVDSuperimposer superimposer =
+//                    new SVDSuperimposer(leftArray, rightArray);
+//            Calc.rotate(structures[1], superimposer.getRotation());
+//            Calc.shift(structures[1], superimposer.getTranslation());
+//            return SVDSuperimposer.getRMS(leftArray, rightArray);
+//        } catch (StructureException e) {
+//            RMSD.LOGGER.error("Failed to compare structures", e);
+//            throw new IncomparableStructuresException(e);
+//        }
+//    }
+    // @formatter:on
+
 }

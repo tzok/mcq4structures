@@ -9,9 +9,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import pl.poznan.put.clustering.ClustererHierarchical;
 import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
 import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
-import pl.poznan.put.clustering.HierarchicalPlot;
 import pl.poznan.put.external.Matplotlib;
-import pl.poznan.put.helper.Visualizable;
+import pl.poznan.put.gui.HierarchicalPlot;
+import pl.poznan.put.helper.XMLSerializable;
+import pl.poznan.put.interfaces.Visualizable;
 
 @XmlRootElement
 public class ClusteringHierarchical extends XMLSerializable implements

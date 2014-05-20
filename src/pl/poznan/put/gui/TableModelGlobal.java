@@ -1,34 +1,32 @@
 package pl.poznan.put.gui;
 
-import java.text.DecimalFormat;
-import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
 
-import pl.poznan.put.beans.ComparisonGlobal;
-import pl.poznan.put.helper.Constants;
+import pl.poznan.put.comparison.GlobalComparisonResult;
+import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 
 class TableModelGlobal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
-    private DecimalFormat format;
-    private String measure;
-    private List<String> names;
-    private double[][] values;
 
-    TableModelGlobal(ComparisonGlobal comparisonGlobal) {
+    private final int size;
+    private final String measure;
+    private final String[] names;
+    private final GlobalComparisonResult[][] values;
+
+    TableModelGlobal(GlobalComparisonResultMatrix comparisonGlobal) {
         super();
-        names = comparisonGlobal.getLabels();
-        values = comparisonGlobal.getDistanceMatrix();
-        measure = comparisonGlobal.getMethodName().toString();
-        format = new DecimalFormat("0.000");
+        size = comparisonGlobal.getSize();
+        names = comparisonGlobal.getNames();
+        values = comparisonGlobal.getResults();
+        measure = comparisonGlobal.getMeasureName();
     }
 
     @Override
     public int getColumnCount() {
-        if (names.size() == 0) {
+        if (size == 0) {
             return 0;
         }
-        return names.size() + 1;
+        return size + 1;
     }
 
     @Override
@@ -36,23 +34,28 @@ class TableModelGlobal extends AbstractTableModel {
         if (column == 0) {
             return "Global " + measure;
         }
-        return names.get(column - 1);
+        return names[column - 1];
     }
 
     @Override
     public int getRowCount() {
-        return values.length;
+        return size;
     }
 
     @Override
     public Object getValueAt(int row, int column) {
         if (column == 0) {
-            return names.get(row);
+            return names[row];
         }
-        double value = values[row][column - 1];
-        if ("RMSD".equals(measure)) {
-            return format.format(value);
+
+        if (row == column - 1) {
+            return "";
         }
-        return format.format(Math.toDegrees(value)) + Constants.UNICODE_DEGREE;
+
+        if (values[row][column - 1] == null) {
+            return "FAILED";
+        }
+
+        return values[row][column - 1].toDisplayString();
     }
 }

@@ -9,7 +9,7 @@ import javax.swing.table.AbstractTableModel;
 
 import pl.poznan.put.beans.ComparisonLocal;
 import pl.poznan.put.beans.ComparisonLocalMulti;
-import pl.poznan.put.beans.auxiliary.Angle;
+import pl.poznan.put.beans.auxiliary.AngleDeltas;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.torsion.AngleType;
 
@@ -46,8 +46,8 @@ class TableModelLocalMulti extends AbstractTableModel {
             ComparisonLocal comparisonLocal = results.get(i - 1);
             columns.add(comparisonLocal.getTitle());
 
-            Map<AngleType, Angle> angles = comparisonLocal.getAngles();
-            Angle angle = angles.get(angleType);
+            Map<AngleType, AngleDeltas> angles = comparisonLocal.getAngles();
+            AngleDeltas angle = angles.get(angleType);
             assert angle != null;
 
             double[] deltas = angle.getDeltas();

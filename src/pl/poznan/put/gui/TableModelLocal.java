@@ -1,43 +1,34 @@
 package pl.poznan.put.gui;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import pl.poznan.put.beans.ComparisonLocal;
-import pl.poznan.put.beans.auxiliary.Angle;
-import pl.poznan.put.helper.Constants;
+import pl.poznan.put.common.TorsionAngle;
+import pl.poznan.put.comparison.MCQLocalComparisonResult;
+import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.matching.TorsionAngleDelta;
 
 class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
-    private List<String> columnNames;
-    private DecimalFormat format;
-    private List<String> rowsNames;
-    private double[][] values;
 
-    TableModelLocal(ComparisonLocal comparisonLocal) {
+    private final List<String> rowsNames;
+    private final List<String> columnNames;
+    private final List<TorsionAngle> columnAngles;
+    private final List<ResidueComparisonResult> values;
+
+    TableModelLocal(MCQLocalComparisonResult result) {
         super();
 
-        rowsNames = comparisonLocal.getTicks();
-
-        List<Angle> angles =
-                new ArrayList<>(comparisonLocal.getAngles().values());
+        rowsNames = result.getDataLabels();
         columnNames = new ArrayList<>();
-        for (Angle a : angles) {
-            columnNames.add(a.getName());
+        for (TorsionAngle angle : result.getAngles()) {
+            columnNames.add(angle.getDisplayName());
         }
 
-        values = new double[rowsNames.size()][];
-        for (int i = 0; i < rowsNames.size(); i++) {
-            values[i] = new double[angles.size()];
-            for (int j = 0; j < angles.size(); j++) {
-                values[i][j] = angles.get(j).getDeltas()[i];
-            }
-        }
-
-        format = new DecimalFormat("0.000");
+        columnAngles = result.getAngles();
+        values = result.getDataRows();
     }
 
     @Override
@@ -64,11 +55,9 @@ class TableModelLocal extends AbstractTableModel {
             return rowsNames.get(row);
         }
 
-        double value = values[row][column - 1];
-        if (Double.isNaN(value)) {
-            return "-";
-        }
-
-        return format.format(Math.toDegrees(value)) + Constants.UNICODE_DEGREE;
+        ResidueComparisonResult residueResult = values.get(row);
+        TorsionAngle torsionAngle = columnAngles.get(column - 1);
+        TorsionAngleDelta delta = residueResult.getDelta(torsionAngle);
+        return delta != null ? delta.toDisplayString() : null;
     }
 }

@@ -1,6 +1,5 @@
 package pl.poznan.put.alignment;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.biojava.bio.structure.Atom;
-import org.biojava.bio.structure.Element;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.align.StructureAlignment;
@@ -18,8 +16,8 @@ import org.biojava.bio.structure.align.model.AFPChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.helper.Helper;
-import pl.poznan.put.helper.StructureManager;
+import pl.poznan.put.atoms.AtomName;
+import pl.poznan.put.helper.StructureHelper;
 
 /**
  * A class that allows to computer structural alignment.
@@ -27,12 +25,11 @@ import pl.poznan.put.helper.StructureManager;
  * @author tzok
  */
 public final class AlignerStructure {
-    private static Map<AlignmentInput, AlignmentOutput> cache = new HashMap<>();
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(AlignerStructure.class);
+    private static final Map<AlignmentInput, AlignmentOutput> CACHE = new HashMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlignerStructure.class);
 
     /**
-     * Align structurally two structures.
+     * Align structurally two molecules.
      * 
      * @param s1
      *            First structure.
@@ -49,24 +46,23 @@ public final class AlignerStructure {
          * Check if alignment was made before
          */
         AlignmentInput input = new AlignmentInput(left, right);
-        if (AlignerStructure.cache.containsKey(input)) {
+        if (AlignerStructure.CACHE.containsKey(input)) {
             AlignerStructure.LOGGER.info("Reusing alignment data from cache");
-            return AlignerStructure.cache.get(input);
+            return AlignerStructure.CACHE.get(input);
         }
 
         Set<Atom> changedAtoms = new HashSet<>();
         List<Atom> listLeft = AlignerStructure.changePToCA(left, changedAtoms);
-        List<Atom> listRight =
-                AlignerStructure.changePToCA(right, changedAtoms);
+        List<Atom> listRight = AlignerStructure.changePToCA(right, changedAtoms);
 
         StructureAlignment alignment = new CeMain();
         CeParameters parameters = new CeParameters();
+
         while (true) {
-            AFPChain align =
-                    alignment.align(
-                            listLeft.toArray(new Atom[listLeft.size()]),
-                            listRight.toArray(new Atom[listRight.size()]),
-                            parameters);
+            AFPChain align = alignment.align(
+                    listLeft.toArray(new Atom[listLeft.size()]),
+                    listRight.toArray(new Atom[listRight.size()]), parameters);
+
             if (align.getBlockRotationMatrix().length == 0) {
                 int winSize = parameters.getWinSize();
                 winSize--;
@@ -82,30 +78,24 @@ public final class AlignerStructure {
                 atom.setName("P");
                 atom.setFullName(" P  ");
             }
-            AlignmentOutput result =
-                    new AlignmentOutput(align, left, right, listLeft,
-                            listRight, description);
-            AlignerStructure.cache.put(input, result);
+
+            AlignmentOutput result = new AlignmentOutput(align, left, right,
+                    listLeft, listRight, description);
+            AlignerStructure.CACHE.put(input, result);
             return result;
         }
     }
 
     private static List<Atom> changePToCA(Structure structure,
             Set<Atom> changedAtoms) {
-        List<Atom> list =
-                Helper.getAtomArray(structure.getChains(),
-                        Arrays.asList(new String[] { "P", "CA" }));
-        assert list.size() != 0 : "There are no P or CA atoms in: "
-                + StructureManager.getName(structure);
+        List<Atom> list = StructureHelper.findAllAtoms(structure, AtomName.P);
 
         for (Atom atom : list) {
-            assert atom != null;
-            if (atom.getElement().equals(Element.P)) {
-                atom.setName("CA");
-                atom.setFullName(" CA ");
-                changedAtoms.add(atom);
-            }
+            atom.setName("CA");
+            atom.setFullName(" CA ");
+            changedAtoms.add(atom);
         }
+
         return list;
     }
 

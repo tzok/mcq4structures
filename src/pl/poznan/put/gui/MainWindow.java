@@ -41,7 +41,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -61,30 +60,28 @@ import pl.poznan.put.alignment.AlignerStructure;
 import pl.poznan.put.alignment.AlignmentOutput;
 import pl.poznan.put.alignment.AlignmentOutput.StructuresAligned;
 import pl.poznan.put.beans.AlignmentSequence;
-import pl.poznan.put.beans.ComparisonGlobal;
-import pl.poznan.put.beans.ComparisonLocal;
-import pl.poznan.put.beans.ComparisonLocalMulti;
-import pl.poznan.put.comparison.ComparisonListener;
-import pl.poznan.put.comparison.GlobalComparison;
+import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.comparison.GlobalComparator;
+import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
+import pl.poznan.put.comparison.IncomparableStructuresException;
+import pl.poznan.put.comparison.LocalComparisonResult;
 import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.MCQLocalComparisonResult;
+import pl.poznan.put.comparison.ParallelGlobalComparison;
+import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
 import pl.poznan.put.comparison.RMSD;
-import pl.poznan.put.helper.Clusterable;
-import pl.poznan.put.helper.Colors;
-import pl.poznan.put.helper.Exportable;
-import pl.poznan.put.helper.Helper;
-import pl.poznan.put.helper.InvalidInputException;
-import pl.poznan.put.helper.StructureManager;
-import pl.poznan.put.helper.Visualizable;
-import pl.poznan.put.helper.wrappers.WrapperChain;
-import pl.poznan.put.torsion.AminoAcidDihedral;
-import pl.poznan.put.torsion.AngleAverageAll;
-import pl.poznan.put.torsion.AnglePseudophasePucker;
-import pl.poznan.put.torsion.AngleType;
-import pl.poznan.put.torsion.NucleotideDihedral;
+import pl.poznan.put.comparison.RMSD.AtomFilter;
+import pl.poznan.put.helper.Constants;
+import pl.poznan.put.interfaces.Clusterable;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.structure.StructureSelectionFactory;
+import pl.poznan.put.utility.StructureManager;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements ComparisonListener {
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
 
@@ -166,26 +163,24 @@ public class MainWindow extends JFrame {
          */
         JMenuBar menuBar = new JMenuBar();
 
-        URL resource =
-                getClass().getResource(
-                        "/toolbarButtonGraphics/general/Open16.gif");
+        URL resource = getClass().getResource(
+                "/toolbarButtonGraphics/general/Open16.gif");
         if (resource != null) {
-            itemOpen =
-                    new JMenuItem("Open structure(s)", new ImageIcon(resource));
+            itemOpen = new JMenuItem("Open structure(s)", new ImageIcon(
+                    resource));
         } else {
             itemOpen = new JMenuItem("Open structure(s)");
         }
-        resource =
-                getClass().getResource(
-                        "/toolbarButtonGraphics/general/Save16.gif");
+        resource = getClass().getResource(
+                "/toolbarButtonGraphics/general/Save16.gif");
         if (resource != null) {
             itemSave = new JMenuItem("Save results", new ImageIcon(resource));
         } else {
             itemSave = new JMenuItem("Save results");
         }
         itemSave.setEnabled(false);
-        checkBoxManager =
-                new StayOpenCheckBoxMenuItem("View structure manager", true);
+        checkBoxManager = new StayOpenCheckBoxMenuItem(
+                "View structure manager", true);
         itemExit = new JMenuItem("Exit");
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
@@ -199,11 +194,10 @@ public class MainWindow extends JFrame {
 
         radioGlobalMcq = new StayOpenRadioButtonMenuItem("Global MCQ", true);
         radioGlobalRmsd = new StayOpenRadioButtonMenuItem("Global RMSD", false);
-        radioLocal =
-                new StayOpenRadioButtonMenuItem("Local distances (pair)", false);
-        radioLocalMulti =
-                new StayOpenRadioButtonMenuItem("Local distances (multiple)",
-                        false);
+        radioLocal = new StayOpenRadioButtonMenuItem("Local distances (pair)",
+                false);
+        radioLocalMulti = new StayOpenRadioButtonMenuItem(
+                "Local distances (multiple)", false);
         ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
         group.add(radioGlobalRmsd);
@@ -212,14 +206,14 @@ public class MainWindow extends JFrame {
 
         itemSelectTorsion = new JMenuItem("Select torsion angles");
         itemSelectTorsion.setEnabled(false);
-        itemSelectStructuresCompare =
-                new JMenuItem("Select structures to compare");
+        itemSelectStructuresCompare = new JMenuItem(
+                "Select structures to compare");
         itemComputeDistances = new JMenuItem("Compute distance(s)");
         itemComputeDistances.setEnabled(false);
         itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
-        itemVisualiseHighQuality =
-                new JMenuItem("Visualise results (high-quality)");
+        itemVisualiseHighQuality = new JMenuItem(
+                "Visualise results (high-quality)");
         itemVisualiseHighQuality.setEnabled(false);
         itemVisualise3D = new JMenuItem("Visualise results in 3D");
         itemVisualise3D.setEnabled(false);
@@ -244,14 +238,12 @@ public class MainWindow extends JFrame {
         menu.add(itemCluster);
         menuBar.add(menu);
 
-        radioAlignSeqGlobal =
-                new StayOpenRadioButtonMenuItem("Global sequence alignment",
-                        true);
-        radioAlignSeqLocal =
-                new StayOpenRadioButtonMenuItem("Local sequence alignment",
-                        false);
-        radioAlignStruc =
-                new StayOpenRadioButtonMenuItem("3D structure alignment", false);
+        radioAlignSeqGlobal = new StayOpenRadioButtonMenuItem(
+                "Global sequence alignment", true);
+        radioAlignSeqLocal = new StayOpenRadioButtonMenuItem(
+                "Local sequence alignment", false);
+        radioAlignStruc = new StayOpenRadioButtonMenuItem(
+                "3D structure alignment", false);
         ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignSeqGlobal);
         groupAlign.add(radioAlignSeqLocal);
@@ -388,8 +380,7 @@ public class MainWindow extends JFrame {
         /*
          * Prepare cell renderer for JTable
          */
-        final TableCellRenderer defaultRenderer =
-                new DefaultTableCellRenderer();
+        final TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
         colorsRenderer = new DefaultTableCellRenderer() {
             private static final long serialVersionUID = -7868307163707467345L;
 
@@ -397,10 +388,9 @@ public class MainWindow extends JFrame {
             public Component getTableCellRendererComponent(JTable table,
                     Object value, boolean isSelected, boolean hasFocus,
                     int row, int column) {
-                Component component =
-                        defaultRenderer.getTableCellRendererComponent(table,
-                                value, isSelected, hasFocus, row, column);
-                component.setBackground(Colors.ALL.get(column));
+                Component component = defaultRenderer.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                component.setBackground(Constants.COLORS.get(column));
                 return component;
             }
         };
@@ -431,8 +421,8 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Exportable exportableLocal = exportable;
                 if (exportableLocal != null) {
-                    JFileChooser chooser =
-                            new JFileChooser(PdbChooser.getCurrentDirectory());
+                    JFileChooser chooser = new JFileChooser(
+                            PdbChooser.getCurrentDirectory());
                     chooser.setSelectedFile(exportableLocal.suggestName());
                     int option = chooser.showSaveDialog(MainWindow.this);
                     if (option == JFileChooser.APPROVE_OPTION) {
@@ -443,9 +433,8 @@ public class MainWindow extends JFrame {
                                     "Information",
                                     JOptionPane.INFORMATION_MESSAGE);
                         } catch (IOException exception) {
-                            String message =
-                                    "Failed to export results, reason: "
-                                            + exception.getMessage();
+                            String message = "Failed to export results, reason: "
+                                    + exception.getMessage();
                             JOptionPane.showMessageDialog(MainWindow.this,
                                     message, "Error", JOptionPane.ERROR_MESSAGE);
                         }
@@ -483,12 +472,10 @@ public class MainWindow extends JFrame {
                 itemVisualise3D.setEnabled(false);
                 itemCluster.setEnabled(false);
 
-                boolean globalCurr =
-                        source.equals(radioGlobalMcq)
-                                || source.equals(radioGlobalRmsd);
-                boolean globalPrev =
-                        sourcePrev.equals(radioGlobalMcq)
-                                || sourcePrev.equals(radioGlobalRmsd);
+                boolean globalCurr = source.equals(radioGlobalMcq)
+                        || source.equals(radioGlobalRmsd);
+                boolean globalPrev = sourcePrev.equals(radioGlobalMcq)
+                        || sourcePrev.equals(radioGlobalRmsd);
                 if (!globalCurr || !globalPrev) {
                     itemComputeDistances.setEnabled(false);
                 }
@@ -593,9 +580,8 @@ public class MainWindow extends JFrame {
                 assert arg0 != null;
 
                 Object source = arg0.getSource();
-                boolean isSequenceNow =
-                        source.equals(radioAlignSeqGlobal)
-                                || source.equals(radioAlignSeqLocal);
+                boolean isSequenceNow = source.equals(radioAlignSeqGlobal)
+                        || source.equals(radioAlignSeqLocal);
                 if (isSequenceNow != isSequencePrevious) {
                     itemComputeAlign.setEnabled(false);
                 }
@@ -641,8 +627,8 @@ public class MainWindow extends JFrame {
 
         List<Chain> chains = dialogChainsMultiple.getChains();
         boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        AlignmentSequence alignment =
-                AlignmentSequence.newInstance(chains, isGlobal);
+        AlignmentSequence alignment = AlignmentSequence.newInstance(chains,
+                isGlobal);
 
         exportable = alignment;
         textAreaAlignSeq.setText(alignment.getAlignment());
@@ -672,8 +658,11 @@ public class MainWindow extends JFrame {
         }
 
         Pair<Structure, Structure> structures = dialogChains.getStructures();
-        boolean isRNA = Helper.isNucleicAcid(structures.getLeft());
-        if (isRNA != Helper.isNucleicAcid(structures.getRight())) {
+        MoleculeType typeL = MoleculeType.detect(structures.getLeft().getChain(
+                0));
+        MoleculeType typeR = MoleculeType.detect(structures.getRight().getChain(
+                0));
+        if (typeL != typeR) {
             JOptionPane.showMessageDialog(this,
                     "Cannot align structures: different molecular " + "types",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -716,9 +705,8 @@ public class MainWindow extends JFrame {
                     // FIXME
                     // Helper.normalizeAtomNames(left);
                     // Helper.normalizeAtomNames(right);
-                    output =
-                            AlignerStructure.align(left, right,
-                                    dialogChains.getSelectionDescription());
+                    output = AlignerStructure.align(left, right,
+                            dialogChains.getSelectionDescription());
                     exportable = output;
                 } catch (StructureException e1) {
                     JOptionPane.showMessageDialog(MainWindow.this,
@@ -792,42 +780,37 @@ public class MainWindow extends JFrame {
     }
 
     void compareGlobal() {
-        final GlobalComparison comparison;
+        final GlobalComparator comparator;
         if (radioGlobalMcq.isSelected()) {
-            comparison = new MCQ();
+            comparator = new MCQ(MCQ.getAllAvailableTorsionAngles());
         } else { // radioRmsd.isSelected() == true
-            comparison = new RMSD();
+            comparator = new RMSD(AtomFilter.ALL, true);
         }
-
-        final ComparisonListener listener = new ComparisonListener() {
-            @Override
-            public void stateChanged(long all, long completed) {
-                progressBar.setMaximum((int) all);
-                progressBar.setValue((int) completed);
-            }
-        };
 
         final List<Structure> structures = dialogStructures.getStructures();
         final List<String> names = StructureManager.getNames(structures);
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                long start = System.currentTimeMillis();
-                double[][] matrix = comparison.compare(structures, listener);
-                final ComparisonGlobal comparisonGlobal =
-                        ComparisonGlobal.newInstance(matrix, names, comparison);
-                MainWindow.LOGGER.debug("Structure comparison took "
-                        + (System.currentTimeMillis() - start) + " ms");
+                List<StructureSelection> selections = new ArrayList<>();
+
+                for (int i = 0; i < structures.size(); i++) {
+                    selections.add(StructureSelectionFactory.create(
+                            names.get(i), structures.get(i)));
+                }
+
+                final GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(
+                        comparator, selections, MainWindow.this);
 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        clusterable = comparisonGlobal;
-                        exportable = comparisonGlobal;
-                        visualizable = comparisonGlobal;
+                        clusterable = matrix;
+                        exportable = matrix;
+                        visualizable = matrix;
 
-                        tableMatrix.setModel(new TableModelGlobal(
-                                comparisonGlobal));
+                        tableMatrix.setModel(new TableModelGlobal(matrix));
                         tableMatrix.setDefaultRenderer(Object.class,
                                 new DefaultTableCellRenderer());
 
@@ -841,7 +824,7 @@ public class MainWindow extends JFrame {
                                 + "Structures selected for global distance measure: "
                                 + dialogStructures.getSelectionDescription()
                                 + "<br>" + "Global distance matrix ("
-                                + comparison.toString() + "):" + "</html>");
+                                + matrix.getMeasureName() + "):" + "</html>");
                     }
                 });
             }
@@ -849,104 +832,47 @@ public class MainWindow extends JFrame {
         thread.start();
     }
 
-    void compareLocalMulti() {
-        List<Chain> chains = dialogChainsMultiple.getChains();
-        List<WrapperChain> wrapped = new ArrayList<>();
-        for (Chain chain : chains) {
-            wrapped.add(new WrapperChain(chain));
-        }
-
-        WrapperChain reference =
-                (WrapperChain) JOptionPane.showInputDialog(MainWindow.this,
-                        "Select your reference structure",
-                        "Reference structure", JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        wrapped.toArray(new WrapperChain[wrapped.size()]),
-                        wrapped.get(0));
-        if (reference == null) {
-            return;
-        }
-
-        List<AngleType> angles = new ArrayList<>();
-        angles.add(AngleAverageAll.getInstance());
-        if (Helper.isNucleicAcid(chains.get(0))) {
-            angles.addAll(NucleotideDihedral.getAngles());
-            angles.add(AnglePseudophasePucker.getInstance());
-        } else {
-            angles.addAll(AminoAcidDihedral.getAngles());
-        }
-
-        AngleType angleType =
-                (AngleType) JOptionPane.showInputDialog(MainWindow.this,
-                        "Select torsion angle", "Torsion angle",
-                        JOptionPane.INFORMATION_MESSAGE, null,
-                        angles.toArray(new AngleType[angles.size()]),
-                        AngleAverageAll.getInstance());
-        if (angleType == null) {
-            return;
-        }
-
-        progressBar.setMaximum(1);
-        progressBar.setValue(0);
-        ComparisonLocalMulti localMulti;
-        try {
-            localMulti =
-                    ComparisonLocalMulti.newInstance(chains,
-                            reference.getChain(), angleType);
-        } catch (StructureException | InvalidInputException e) {
-            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        progressBar.setValue(1);
-
-        exportable = localMulti;
-        visualizable = localMulti;
-
-        AbstractTableModel model =
-                new TableModelLocalMulti(localMulti, angleType);
-        tableMatrix.setDefaultRenderer(Object.class,
-                new DefaultTableCellRenderer());
-        tableMatrix.setModel(model);
-
-        itemSave.setEnabled(true);
-        itemSave.setText("Save results (CSV)");
-        itemVisualise.setEnabled(true);
-        itemVisualiseHighQuality.setEnabled(true);
-        itemVisualise3D.setEnabled(true);
-        itemCluster.setEnabled(false);
-
-        labelInfoMatrix.setText("<html>"
-                + "Structures selected for local distance measure: "
-                + dialogChainsMultiple.getSelectionDescription() + "<br>"
-                + "Local distance vector(s):" + "</html>");
-    }
-
     void compareLocalPair() {
         Pair<Structure, Structure> structures = dialogChains.getStructures();
         Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
 
-        progressBar.setMaximum(1);
-        progressBar.setValue(0);
-        ComparisonLocal comparisonLocal;
+        StructureSelection selectionL = StructureSelectionFactory.create(
+                StructureManager.getName(structures.getLeft()),
+                chains.getLeft());
+        StructureSelection selectionR = StructureSelectionFactory.create(
+                StructureManager.getName(structures.getRight()),
+                chains.getRight());
+
+        LocalComparisonResult comparisonLocal;
+
         try {
-            comparisonLocal =
-                    ComparisonLocal.newInstance(structures.getLeft(),
-                            structures.getRight(), chains.getLeft(),
-                            chains.getRight(), dialogAngles.getAngles());
-        } catch (StructureException e) {
+            progressBar.setValue(0);
+            progressBar.setMaximum(1);
+
+            MCQ mcq = new MCQ(dialogAngles.getAngles());
+            comparisonLocal = mcq.compareLocally(selectionL, selectionR);
+        } catch (IncomparableStructuresException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
+        } finally {
+            progressBar.setValue(1);
         }
-        progressBar.setValue(1);
+
+        if (comparisonLocal instanceof MCQLocalComparisonResult) {
+            TableModelLocal model = new TableModelLocal(
+                    (MCQLocalComparisonResult) comparisonLocal);
+            tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
+            tableMatrix.setModel(model);
+        } else {
+            JOptionPane.showMessageDialog(MainWindow.this, "Cannot continue, "
+                    + "the result of comparison is invalid", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         exportable = comparisonLocal;
         visualizable = comparisonLocal;
-
-        TableModelLocal model = new TableModelLocal(comparisonLocal);
-        tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
-        tableMatrix.setModel(model);
 
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");
@@ -960,6 +886,57 @@ public class MainWindow extends JFrame {
                 + "<br>" + "Local distance vector(s):" + "</html>");
     }
 
+    void compareLocalMulti() {
+        /*
+         * List<Chain> chains = dialogChainsMultiple.getChains();
+         * List<WrapperChain> wrapped = new ArrayList<>(); for (Chain chain :
+         * chains) { wrapped.add(new WrapperChain(chain)); }
+         * 
+         * WrapperChain reference = (WrapperChain) JOptionPane.showInputDialog(
+         * MainWindow.this, "Select your reference structure",
+         * "Reference structure", JOptionPane.INFORMATION_MESSAGE, null,
+         * wrapped.toArray(new WrapperChain[wrapped.size()]), wrapped.get(0));
+         * if (reference == null) { return; }
+         * 
+         * List<AngleType> angles = new ArrayList<>();
+         * angles.add(AngleAverageAll.getInstance()); if
+         * (MoleculeType.detect(chains.get(0)) == MoleculeType.RNA) {
+         * angles.addAll(NucleotideDihedral.getAngles());
+         * angles.add(AnglePseudophasePucker.getInstance()); } else {
+         * angles.addAll(AminoAcidDihedral.getAngles()); }
+         * 
+         * AngleType angleType = (AngleType) JOptionPane.showInputDialog(
+         * MainWindow.this, "Select torsion angle", "Torsion angle",
+         * JOptionPane.INFORMATION_MESSAGE, null, angles.toArray(new
+         * AngleType[angles.size()]), AngleAverageAll.getInstance()); if
+         * (angleType == null) { return; }
+         * 
+         * progressBar.setMaximum(1); progressBar.setValue(0);
+         * ComparisonLocalMulti localMulti; try { localMulti =
+         * ComparisonLocalMulti.newInstance(chains, reference.getChain(),
+         * angleType); } catch (StructureException | InvalidInputException e) {
+         * JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
+         * "Error", JOptionPane.ERROR_MESSAGE); return; }
+         * progressBar.setValue(1);
+         * 
+         * exportable = localMulti; visualizable = localMulti;
+         * 
+         * AbstractTableModel model = new TableModelLocalMulti(localMulti,
+         * angleType); tableMatrix.setDefaultRenderer(Object.class, new
+         * DefaultTableCellRenderer()); tableMatrix.setModel(model);
+         * 
+         * itemSave.setEnabled(true); itemSave.setText("Save results (CSV)");
+         * itemVisualise.setEnabled(true);
+         * itemVisualiseHighQuality.setEnabled(true);
+         * itemVisualise3D.setEnabled(true); itemCluster.setEnabled(false);
+         * 
+         * labelInfoMatrix.setText("<html>" +
+         * "Structures selected for local distance measure: " +
+         * dialogChainsMultiple.getSelectionDescription() + "<br>" +
+         * "Local distance vector(s):" + "</html>");
+         */
+    }
+
     void selectChains(Object source) {
         if (dialogChains.showDialog() != DialogChains.OK) {
             return;
@@ -968,11 +945,9 @@ public class MainWindow extends JFrame {
         Pair<Structure, Structure> structures = dialogChains.getStructures();
         Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
         if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
-            String message =
-                    "No chains specified for structure: "
-                            + StructureManager.getName(structures.getLeft())
-                            + " or "
-                            + StructureManager.getName(structures.getRight());
+            String message = "No chains specified for structure: "
+                    + StructureManager.getName(structures.getLeft()) + " or "
+                    + StructureManager.getName(structures.getRight());
             JOptionPane.showMessageDialog(MainWindow.this, message,
                     "Information", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -1023,9 +998,9 @@ public class MainWindow extends JFrame {
         }
 
         List<Chain> chains = dialogChainsMultiple.getChains();
-        boolean isRNA = Helper.isNucleicAcid(chains.get(0));
+        MoleculeType type = MoleculeType.detect(chains.get(0));
         for (Chain c : chains) {
-            if (Helper.isNucleicAcid(c) != isRNA) {
+            if (type != MoleculeType.detect(c)) {
                 JOptionPane.showMessageDialog(this, "Cannot align/compare "
                         + "structures: different molecular types", "Error",
                         JOptionPane.ERROR_MESSAGE);
@@ -1095,5 +1070,11 @@ public class MainWindow extends JFrame {
                 + "measure: "
                 + dialogStructures.getSelectionDescription()
                 + "</html>");
+    }
+
+    @Override
+    public void stateChanged(long all, long completed) {
+        progressBar.setMaximum((int) all);
+        progressBar.setValue((int) completed);
     }
 }

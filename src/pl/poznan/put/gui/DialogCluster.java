@@ -20,12 +20,12 @@ import javax.swing.SpinnerNumberModel;
 
 import pl.poznan.put.beans.ClusteringHierarchical;
 import pl.poznan.put.beans.ClusteringPartitional;
-import pl.poznan.put.beans.ComparisonGlobal;
 import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
 import pl.poznan.put.clustering.ClustererKMedoids;
 import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
-import pl.poznan.put.helper.InvalidInputException;
-import pl.poznan.put.helper.Visualizable;
+import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
+import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.utility.InvalidInputException;
 
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -33,14 +33,14 @@ public class DialogCluster extends JDialog {
     JButton buttonVisualize;
     JButton buttonVisualize3D;
     JButton buttonVisualizeHighQuality;
-    ComparisonGlobal comparisonGlobal;
+    GlobalComparisonResultMatrix comparisonGlobal;
     JCheckBox findBestK;
     JRadioButton hierarchical;
     JSpinner kspinner;
     JComboBox<Linkage> linkage;
     JComboBox<ScoringFunction> scoringFunction;
 
-    public DialogCluster(ComparisonGlobal comparisonGlobal) {
+    public DialogCluster(GlobalComparisonResultMatrix comparisonGlobal) {
         super();
 
         this.comparisonGlobal = comparisonGlobal;
@@ -52,8 +52,8 @@ public class DialogCluster extends JDialog {
         group.add(kmedoids);
 
         linkage = new JComboBox<>(Linkage.values());
-        scoringFunction =
-                new JComboBox<>(ClustererKMedoids.getScoringFunctions());
+        scoringFunction = new JComboBox<>(
+                ClustererKMedoids.getScoringFunctions());
         scoringFunction.setEnabled(false);
         findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);
@@ -170,18 +170,13 @@ public class DialogCluster extends JDialog {
     Visualizable getVisualizable() throws InvalidInputException {
         Visualizable visualizable;
         if (hierarchical.isSelected()) {
-            visualizable =
-                    ClusteringHierarchical.newInstance(comparisonGlobal,
-                            (Linkage) linkage.getSelectedItem());
+            visualizable = ClusteringHierarchical.newInstance(comparisonGlobal,
+                    (Linkage) linkage.getSelectedItem());
         } else {
-            Integer k =
-                    (Integer) (findBestK.isSelected() ? null
-                            : kspinner.getValue());
-            visualizable =
-                    ClusteringPartitional.newInstance(
-                            comparisonGlobal,
-                            (ScoringFunction) scoringFunction.getSelectedItem(),
-                            k);
+            Integer k = (Integer) (findBestK.isSelected() ? null
+                    : kspinner.getValue());
+            visualizable = ClusteringPartitional.newInstance(comparisonGlobal,
+                    (ScoringFunction) scoringFunction.getSelectedItem(), k);
         }
         return visualizable;
     }

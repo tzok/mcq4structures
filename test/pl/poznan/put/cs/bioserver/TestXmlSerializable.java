@@ -24,17 +24,17 @@ import pl.poznan.put.beans.ClusteringPartitional;
 import pl.poznan.put.beans.ComparisonGlobal;
 import pl.poznan.put.beans.ComparisonLocal;
 import pl.poznan.put.beans.ComparisonLocalMulti;
-import pl.poznan.put.beans.XMLSerializable;
 import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
 import pl.poznan.put.clustering.ClustererKMedoids;
-import pl.poznan.put.comparison.GlobalComparison;
+import pl.poznan.put.comparison.ParallelGlobalComparison;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.external.XSLT;
-import pl.poznan.put.helper.InvalidInputException;
-import pl.poznan.put.helper.StructureManager;
+import pl.poznan.put.helper.XMLSerializable;
 import pl.poznan.put.torsion.AngleAverageAll;
 import pl.poznan.put.torsion.AnglePseudophasePucker;
 import pl.poznan.put.torsion.AngleType;
+import pl.poznan.put.utility.InvalidInputException;
+import pl.poznan.put.utility.StructureManager;
 
 public class TestXmlSerializable {
     private static final File TMPDIR = new File(
@@ -83,8 +83,8 @@ public class TestXmlSerializable {
             labels.add(StructureManager.getName(s));
         }
 
-        GlobalComparison method = new MCQ();
-        double[][] distanceMatrix = method.compare(structures, null);
+        ParallelGlobalComparison method = new MCQ();
+        double[][] distanceMatrix = method.match(structures, null);
         ComparisonGlobal comparison =
                 ComparisonGlobal.newInstance(distanceMatrix, labels, method);
 
@@ -110,8 +110,8 @@ public class TestXmlSerializable {
             labels.add(StructureManager.getName(s));
         }
 
-        GlobalComparison method = new MCQ();
-        double[][] distanceMatrix = method.compare(structures, null);
+        ParallelGlobalComparison method = new MCQ();
+        double[][] distanceMatrix = method.match(structures, null);
         ComparisonGlobal comparison =
                 ComparisonGlobal.newInstance(distanceMatrix, labels, method);
 
@@ -138,8 +138,8 @@ public class TestXmlSerializable {
             labels.add(StructureManager.getName(s));
         }
 
-        GlobalComparison method = new MCQ();
-        double[][] distanceMatrix = method.compare(structures, null);
+        ParallelGlobalComparison method = new MCQ();
+        double[][] distanceMatrix = method.match(structures, null);
 
         XMLSerializable xmlSerializable =
                 ComparisonGlobal.newInstance(distanceMatrix, labels, method);

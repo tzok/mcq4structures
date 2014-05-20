@@ -30,8 +30,8 @@ import javax.swing.event.ListSelectionListener;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 
-import pl.poznan.put.helper.Helper;
-import pl.poznan.put.helper.StructureManager;
+import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.utility.StructureManager;
 
 final class DialogChainsMultiple extends JDialog {
     private static class FilteredListModel extends AbstractListModel<Chain> {
@@ -46,7 +46,7 @@ final class DialogChainsMultiple extends JDialog {
         }
 
         public void addElement(Chain f) {
-            if (Helper.isNucleicAcid(f)) {
+            if (MoleculeType.detect(f) == MoleculeType.RNA) {
                 listRNAs.add(f);
             } else {
                 listProteins.add(f);
@@ -127,38 +127,31 @@ final class DialogChainsMultiple extends JDialog {
         listSelected = new JList<>(modelSelected);
         listSelected.setBorder(BorderFactory.createTitledBorder("Selected chains"));
 
-        final ListCellRenderer<? super Chain> renderer =
-                listAll.getCellRenderer();
-        ListCellRenderer<Chain> pdbCellRenderer =
-                new ListCellRenderer<Chain>() {
-                    @Override
-                    public Component getListCellRendererComponent(
-                            JList<? extends Chain> list, Chain value,
-                            int index, boolean isSelected, boolean cellHasFocus) {
-                        JLabel label =
-                                (JLabel) renderer.getListCellRendererComponent(
-                                        list, value, index, isSelected,
-                                        cellHasFocus);
-                        if (value != null) {
-                            boolean isRNA = Helper.isNucleicAcid(value);
-                            int size = Helper.countResidues(value, isRNA);
+        final ListCellRenderer<? super Chain> renderer = listAll.getCellRenderer();
+        ListCellRenderer<Chain> pdbCellRenderer = new ListCellRenderer<Chain>() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<? extends Chain> list, Chain value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) renderer.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    boolean isRNA = MoleculeType.detect(value) == MoleculeType.RNA;
+                    int size = value.getAtomLength();
 
-                            Structure parent = value.getParent();
-                            assert parent != null;
-                            String text =
-                                    String.format("%s.%s (%s, %d %s)",
-                                            StructureManager.getName(parent),
-                                            value.getChainID(), isRNA ? "RNA"
-                                                    : "protein", size, isRNA
-                                                    ? "nt" : "aa");
-                            label.setText(text);
-                            label.setBackground(isRNA ? Color.CYAN
-                                    : Color.YELLOW);
-                        }
-                        assert label != null;
-                        return label;
-                    }
-                };
+                    Structure parent = value.getParent();
+                    assert parent != null;
+                    String text = String.format("%s.%s (%s, %d %s)",
+                            StructureManager.getName(parent),
+                            value.getChainID(), isRNA ? "RNA" : "protein",
+                            size, isRNA ? "nt" : "aa");
+                    label.setText(text);
+                    label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
+                }
+                assert label != null;
+                return label;
+            }
+        };
         listAll.setCellRenderer(pdbCellRenderer);
         listSelected.setCellRenderer(pdbCellRenderer);
 
@@ -231,21 +224,19 @@ final class DialogChainsMultiple extends JDialog {
 
         setTitle("MCQ4Structures: multiple chain selection");
 
-        ListSelectionListener listSelectionListener =
-                new ListSelectionListener() {
-                    @Override
-                    public void valueChanged(ListSelectionEvent arg0) {
-                        if (arg0 != null) {
-                            ListSelectionModel source =
-                                    (ListSelectionModel) arg0.getSource();
-                            if (source.equals(listAll.getSelectionModel())) {
-                                buttonSelect.setEnabled(!listAll.isSelectionEmpty());
-                            } else { // source.equals(listSelected)
-                                buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
-                            }
-                        }
+        ListSelectionListener listSelectionListener = new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent arg0) {
+                if (arg0 != null) {
+                    ListSelectionModel source = (ListSelectionModel) arg0.getSource();
+                    if (source.equals(listAll.getSelectionModel())) {
+                        buttonSelect.setEnabled(!listAll.isSelectionEmpty());
+                    } else { // source.equals(listSelected)
+                        buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
                     }
-                };
+                }
+            }
+        };
         listAll.getSelectionModel().addListSelectionListener(
                 listSelectionListener);
         listSelected.getSelectionModel().addListSelectionListener(

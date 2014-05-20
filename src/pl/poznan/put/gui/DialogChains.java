@@ -30,8 +30,8 @@ import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
-import pl.poznan.put.helper.Helper;
-import pl.poznan.put.helper.StructureManager;
+import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.utility.StructureManager;
 
 final class DialogChains extends JDialog {
     private class PanelChains extends JPanel {
@@ -58,17 +58,14 @@ final class DialogChains extends JDialog {
             panel.add(panels[1]);
             add(new JScrollPane(panel), BorderLayout.CENTER);
 
-            final ListCellRenderer<? super Structure> renderer =
-                    combo.getRenderer();
+            final ListCellRenderer<? super Structure> renderer = combo.getRenderer();
             combo.setRenderer(new ListCellRenderer<Structure>() {
                 @Override
                 public Component getListCellRendererComponent(
                         JList<? extends Structure> list, Structure value,
                         int index, boolean isSelected, boolean cellHasFocus) {
-                    JLabel label =
-                            (JLabel) renderer.getListCellRendererComponent(
-                                    list, value, index, isSelected,
-                                    cellHasFocus);
+                    JLabel label = (JLabel) renderer.getListCellRendererComponent(
+                            list, value, index, isSelected, cellHasFocus);
                     if (value != null) {
                         label.setText(StructureManager.getName(value));
                     }
@@ -90,7 +87,8 @@ final class DialogChains extends JDialog {
                     panels[1].add(new JLabel("Proteins:"));
                     for (Chain chain : structure.getChains()) {
                         JCheckBox checkBox = new JCheckBox(chain.getChainID());
-                        int index = Helper.isNucleicAcid(chain) ? 0 : 1;
+                        int index = MoleculeType.detect(chain) == MoleculeType.RNA ? 0
+                                : 1;
                         panels[index].add(checkBox);
                     }
                     panels[0].updateUI();
@@ -176,10 +174,8 @@ final class DialogChains extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                structureLeft =
-                        (Structure) panelsChainsLeft.combo.getSelectedItem();
-                structureRight =
-                        (Structure) panelsChainsRight.combo.getSelectedItem();
+                structureLeft = (Structure) panelsChainsLeft.combo.getSelectedItem();
+                structureRight = (Structure) panelsChainsRight.combo.getSelectedItem();
                 if (structureLeft == null || structureRight == null) {
                     chosenOption = DialogChains.CANCEL;
                     dispose();

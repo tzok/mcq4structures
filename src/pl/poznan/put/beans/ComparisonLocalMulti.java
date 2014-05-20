@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,16 +37,16 @@ import org.jzy3d.plot3d.primitives.axes.layout.providers.SmartTickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
-import pl.poznan.put.beans.auxiliary.Angle;
+import pl.poznan.put.beans.auxiliary.AngleDeltas;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.external.Matplotlib;
 import pl.poznan.put.gui.DialogColorbar;
 import pl.poznan.put.gui.MainWindow;
-import pl.poznan.put.helper.Exportable;
-import pl.poznan.put.helper.Helper;
-import pl.poznan.put.helper.InvalidInputException;
-import pl.poznan.put.helper.Visualizable;
+import pl.poznan.put.helper.XMLSerializable;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.torsion.AngleType;
+import pl.poznan.put.utility.InvalidInputException;
 
 @XmlRootElement
 public class ComparisonLocalMulti extends XMLSerializable implements
@@ -60,10 +62,10 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         }
 
         // sanity check
-        boolean isRNA = Helper.isNucleicAcid(reference);
-        int size = Helper.countResidues(reference, isRNA);
+        boolean isRNA = McqHelper.isNucleicAcid(reference);
+        int size = McqHelper.countResidues(reference, isRNA);
         for (Chain chain : chains) {
-            if (Helper.countResidues(chain, isRNA) != size) {
+            if (McqHelper.countResidues(chain, isRNA) != size) {
                 throw new InvalidInputException("Chains have different sizes");
             }
         }
@@ -78,7 +80,7 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         }
 
         return new ComparisonLocalMulti(list, angleType,
-                Helper.getSequenceFasta(reference));
+                McqHelper.getSequenceFasta(reference));
     }
 
     private List<ComparisonLocal> results = new ArrayList<>();
@@ -141,8 +143,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
         double[][] deltas = new double[results.size()][];
         for (int i = 0; i < results.size(); i++) {
             ComparisonLocal comparisonLocal = results.get(i);
-            Map<AngleType, Angle> angles = comparisonLocal.getAngles();
-            Angle average = angles.get(angleType);
+            Map<AngleType, AngleDeltas> angles = comparisonLocal.getAngles();
+            AngleDeltas average = angles.get(angleType);
             assert average != null;
             deltas[i] = average.getDeltas();
         }
@@ -171,7 +173,8 @@ public class ComparisonLocalMulti extends XMLSerializable implements
 
     @Override
     public File suggestName() {
-        StringBuilder builder = new StringBuilder(Helper.getExportPrefix());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+        StringBuilder builder = new StringBuilder(sdf.format(new Date()));
         builder.append("-Local-Distance-Multi-");
         for (ComparisonLocal local : results) {
             builder.append(local.getTitle().split(", ")[1]);

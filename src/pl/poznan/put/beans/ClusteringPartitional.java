@@ -23,15 +23,16 @@ import pl.poznan.put.beans.auxiliary.Cluster;
 import pl.poznan.put.beans.auxiliary.Cluster3D;
 import pl.poznan.put.beans.auxiliary.Point;
 import pl.poznan.put.beans.auxiliary.Point3D;
-import pl.poznan.put.beans.auxiliary.RGB;
 import pl.poznan.put.clustering.ClustererKMedoids;
 import pl.poznan.put.clustering.ClustererKMedoids.Result;
 import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
-import pl.poznan.put.clustering.KMedoidsPlot;
 import pl.poznan.put.external.Matplotlib;
-import pl.poznan.put.helper.Colors;
-import pl.poznan.put.helper.InvalidInputException;
-import pl.poznan.put.helper.Visualizable;
+import pl.poznan.put.gui.KMedoidsPlot;
+import pl.poznan.put.helper.Constants;
+import pl.poznan.put.helper.RGB;
+import pl.poznan.put.helper.XMLSerializable;
+import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.utility.InvalidInputException;
 import pl.poznan.put.visualisation.MDS;
 
 @XmlRootElement
@@ -47,11 +48,10 @@ public class ClusteringPartitional extends XMLSerializable implements
         double[][] mds3D = MDS.multidimensionalScaling(distanceMatrix, 3);
 
         ClustererKMedoids clusterer = new ClustererKMedoids();
-        Result clustering =
-                clusterer.kMedoids(distanceMatrix, scoringFunction, k);
-        Map<Integer, Set<Integer>> clusterMap =
-                ClustererKMedoids.getClusterAssignments(
-                        clustering.getMedoids(), distanceMatrix);
+        Result clustering = clusterer.kMedoids(distanceMatrix, scoringFunction,
+                k);
+        Map<Integer, Set<Integer>> clusterMap = ClustererKMedoids.getClusterAssignments(
+                clustering.getMedoids(), distanceMatrix);
 
         List<String> labelsAll = comparison.getLabels();
         List<Point> medoids = new ArrayList<>();
@@ -98,8 +98,9 @@ public class ClusteringPartitional extends XMLSerializable implements
             clusters3D.add(cluster3D);
         }
 
-        return new ClusteringPartitional(clusters, clusters3D, Colors.toRGB(),
-                comparison, labels, medoids, scoringFunction);
+        return new ClusteringPartitional(clusters, clusters3D,
+                Constants.colorsAsRGB(), comparison, labels, medoids,
+                scoringFunction);
     }
 
     private List<Cluster> clusters;
@@ -206,12 +207,10 @@ public class ClusteringPartitional extends XMLSerializable implements
         double max = Double.NEGATIVE_INFINITY;
         for (Cluster3D cluster : clusters3d) {
             for (Point3D point : cluster.getPoints()) {
-                double lmin =
-                        Math.min(Math.min(point.getX(), point.getY()),
-                                point.getY());
-                double lmax =
-                        Math.min(Math.min(point.getX(), point.getY()),
-                                point.getY());
+                double lmin = Math.min(Math.min(point.getX(), point.getY()),
+                        point.getY());
+                double lmax = Math.min(Math.min(point.getX(), point.getY()),
+                        point.getY());
                 if (lmin < min) {
                     min = lmin;
                 }
@@ -225,14 +224,13 @@ public class ClusteringPartitional extends XMLSerializable implements
         Graph graph = chart.getScene().getGraph();
         for (int i = 0; i < clusters3d.size(); i++) {
             Cluster3D cluster = clusters3d.get(i);
-            java.awt.Color c = Colors.ALL.get(i + 1);
+            java.awt.Color c = Constants.COLORS.get(i + 1);
             Color color = new Color(c.getRed(), c.getGreen(), c.getBlue());
             boolean isLabeled = false;
             for (Point3D point : cluster.getPoints()) {
-                Coord3d center =
-                        new Coord3d(point.getX(), point.getY(), point.getZ());
-                float radius =
-                        (float) ((max - min) / comparison.getLabels().size());
+                Coord3d center = new Coord3d(point.getX(), point.getY(),
+                        point.getZ());
+                float radius = (float) ((max - min) / comparison.getLabels().size());
                 Sphere sphere = new Sphere(center, radius, 15, color);
                 sphere.setWireframeColor(Color.BLACK);
                 graph.add(sphere);
@@ -249,9 +247,8 @@ public class ClusteringPartitional extends XMLSerializable implements
 
     @Override
     public void visualizeHighQuality() {
-        URL resource =
-                getClass().getResource(
-                        "/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
+        URL resource = getClass().getResource(
+                "/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
         Matplotlib.runXsltAndPython(resource, this);
     }
 }
