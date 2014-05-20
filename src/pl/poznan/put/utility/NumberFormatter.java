@@ -4,16 +4,16 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
-public class AngleFormatter {
-    private static final AngleFormatter INSTANCE = new AngleFormatter();
+public class NumberFormatter {
+    private static final NumberFormatter INSTANCE = new NumberFormatter();
 
     public static String format(double value) {
-        return AngleFormatter.INSTANCE.numberFormat.format(value);
+        return NumberFormatter.INSTANCE.numberFormat.format(value);
     }
 
     private final NumberFormat numberFormat;
 
-    private AngleFormatter() {
+    private NumberFormatter() {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setDecimalSeparator('.');
         numberFormat = new DecimalFormat("###.###", symbols);

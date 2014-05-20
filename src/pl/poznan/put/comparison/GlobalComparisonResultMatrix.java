@@ -118,7 +118,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
     @Override
     public void export(File file) throws IOException {
         try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
-            CsvWriter csvWriter = new CsvWriter(writer, '\t');
+            CsvWriter csvWriter = new CsvWriter(writer, ';');
             csvWriter.write("Global " + measureName);
 
             for (String name : names) {
@@ -130,7 +130,8 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
             for (int i = 0; i < size; i++) {
                 csvWriter.write(names[i]);
                 for (int j = 0; j < size; j++) {
-                    csvWriter.write(results[i][j].toDisplayString());
+                    csvWriter.write(results[i][j] != null ? results[i][j].toExportString()
+                            : null);
                 }
                 csvWriter.endRecord();
             }

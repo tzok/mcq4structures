@@ -1,15 +1,12 @@
 package pl.poznan.put.comparison;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.List;
 
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.utility.NumberFormatter;
 
 public class GlobalComparisonResult {
-    private static final NumberFormat FORMAT = new DecimalFormat("0.000");
-
     private final String measureName;
     private final String nameLeft;
     private final String nameRight;
@@ -54,13 +51,35 @@ public class GlobalComparisonResult {
         return Double.toString(value);
     }
 
-    public String toDisplayString() {
+    /**
+     * Represent numeric value in a way external tools understand (dot as
+     * fraction point and no UNICODE_DEGREE sign).
+     * 
+     * @return String representation of this delta object understandable by
+     *         external tools.
+     */
+    public String toExportString() {
         if (isAngle) {
-            return GlobalComparisonResult.FORMAT.format(Math.toDegrees(value))
-                    + Constants.UNICODE_DEGREE;
+            return NumberFormatter.format(Math.toDegrees(value));
         }
 
-        return GlobalComparisonResult.FORMAT.format(value)
-                + Constants.UNICODE_ANGSTROM;
+        return NumberFormatter.format(value);
+    }
+
+    /**
+     * Represent object as a String which will be displayed to user in the GUI.
+     * 
+     * @return String representation of object to be shown in the GUI.
+     */
+    public String toDisplayString() {
+        String result = toExportString();
+
+        if (isAngle) {
+            result += Constants.UNICODE_DEGREE;
+        } else {
+            result += Constants.UNICODE_ANGSTROM;
+        }
+
+        return result;
     }
 }

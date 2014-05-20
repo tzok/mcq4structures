@@ -89,9 +89,12 @@ public class MCQ implements GlobalComparator, LocalComparator {
             FragmentComparisonResult fragmentComparisonResult = fragment.getBestResult();
 
             for (ResidueComparisonResult residueResult : fragmentComparisonResult.getResidueResults()) {
-                for (TorsionAngleDelta delta : residueResult.getDeltas()) {
-                    if (delta.getState() == State.BOTH_VALID) {
-                        deltas.add(delta.getDelta());
+                for (TorsionAngle torsionAngle : angles) {
+                    TorsionAngleDelta angleDelta = residueResult.getDelta(torsionAngle);
+
+                    if (angleDelta != null
+                            && angleDelta.getState() == State.BOTH_VALID) {
+                        deltas.add(angleDelta.getDelta());
                     }
                 }
             }

@@ -9,7 +9,7 @@ import pl.poznan.put.common.TorsionAngleValue;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.helper.TorsionAnglesHelper;
-import pl.poznan.put.utility.AngleFormatter;
+import pl.poznan.put.utility.NumberFormatter;
 import pl.poznan.put.utility.AverageAngle;
 
 public class TorsionAngleDelta {
@@ -127,7 +127,7 @@ public class TorsionAngleDelta {
         case BOTH_INVALID:
             return null;
         case BOTH_VALID:
-            return AngleFormatter.format(Math.toDegrees(delta));
+            return NumberFormatter.format(Math.toDegrees(delta));
         case TORSION_LEFT_INVALID:
             return "Missing atoms in left";
         case TORSION_RIGHT_INVALID:
