@@ -18,6 +18,7 @@ import pl.poznan.put.matching.FragmentComparisonResult;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.structure.ResidueTorsionAngles;
 import pl.poznan.put.structure.StructureSelection;
 
@@ -63,9 +64,9 @@ public class RMSD implements GlobalComparator {
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(true,
                 MCQ.getAllAvailableTorsionAngles());
-        List<FragmentMatch> matches = matcher.match(s1, s2);
+        SelectionMatch matches = matcher.matchSelections(s1, s2);
 
-        if (matches == null || matches.size() == 0) {
+        if (matches == null || matches.getSize() == 0) {
             throw new IncomparableStructuresException("No matching fragments "
                     + "found");
         }
@@ -73,7 +74,7 @@ public class RMSD implements GlobalComparator {
         List<Atom> atomsL = new ArrayList<>();
         List<Atom> atomsR = new ArrayList<>();
 
-        for (FragmentMatch fragment : matches) {
+        for (FragmentMatch fragment : matches.getFragmentMatches()) {
             RMSD.LOGGER.debug("Taking into account fragments: " + fragment);
             FragmentComparisonResult fragmentComparisonResult = fragment.getBestResult();
 

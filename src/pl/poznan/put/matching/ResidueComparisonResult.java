@@ -6,6 +6,7 @@ import pl.poznan.put.common.ChiTorsionAngle;
 import pl.poznan.put.common.ChiTorsionAngleType;
 import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.structure.ResidueTorsionAngles;
+import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class ResidueComparisonResult {
     private final ResidueTorsionAngles left;

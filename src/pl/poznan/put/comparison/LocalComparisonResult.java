@@ -1,18 +1,16 @@
 package pl.poznan.put.comparison;
 
-import java.util.List;
-
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.SelectionMatch;
 
 public abstract class LocalComparisonResult implements Exportable, Visualizable {
     protected final String nameLeft;
     protected final String nameRight;
-    protected final List<FragmentMatch> matches;
+    protected final SelectionMatch matches;
 
     public LocalComparisonResult(String nameLeft, String nameRight,
-            List<FragmentMatch> matches) {
+            SelectionMatch matches) {
         super();
         this.nameLeft = nameLeft;
         this.nameRight = nameRight;
@@ -27,7 +25,7 @@ public abstract class LocalComparisonResult implements Exportable, Visualizable 
         return nameRight;
     }
 
-    public List<FragmentMatch> getMatches() {
+    public SelectionMatch getMatches() {
         return matches;
     }
 }

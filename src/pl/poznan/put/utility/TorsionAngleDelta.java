@@ -1,16 +1,14 @@
-package pl.poznan.put.matching;
+package pl.poznan.put.utility;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.poznan.put.common.AverageAngle;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.common.TorsionAngleValue;
-import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.helper.TorsionAnglesHelper;
-import pl.poznan.put.utility.NumberFormatter;
-import pl.poznan.put.utility.AverageAngle;
 
 public class TorsionAngleDelta {
     public enum State {
@@ -80,7 +78,7 @@ public class TorsionAngleDelta {
             }
         }
 
-        double mcq = MCQ.calculate(values);
+        double mcq = TorsionAnglesHelper.calculateMean(values);
         return new TorsionAngleDelta(
                 AverageAngle.calculate(moleculeType, left),
                 AverageAngle.calculate(moleculeType, right),

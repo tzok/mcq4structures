@@ -84,7 +84,7 @@ public class TestXmlSerializable {
         }
 
         ParallelGlobalComparison method = new MCQ();
-        double[][] distanceMatrix = method.match(structures, null);
+        double[][] distanceMatrix = method.matchSelections(structures, null);
         ComparisonGlobal comparison =
                 ComparisonGlobal.newInstance(distanceMatrix, labels, method);
 
@@ -111,7 +111,7 @@ public class TestXmlSerializable {
         }
 
         ParallelGlobalComparison method = new MCQ();
-        double[][] distanceMatrix = method.match(structures, null);
+        double[][] distanceMatrix = method.matchSelections(structures, null);
         ComparisonGlobal comparison =
                 ComparisonGlobal.newInstance(distanceMatrix, labels, method);
 
@@ -139,7 +139,7 @@ public class TestXmlSerializable {
         }
 
         ParallelGlobalComparison method = new MCQ();
-        double[][] distanceMatrix = method.match(structures, null);
+        double[][] distanceMatrix = method.matchSelections(structures, null);
 
         XMLSerializable xmlSerializable =
                 ComparisonGlobal.newInstance(distanceMatrix, labels, method);

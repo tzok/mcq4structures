@@ -3,17 +3,18 @@ package pl.poznan.put.matching;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.poznan.put.common.AverageAngle;
 import pl.poznan.put.common.ChiTorsionAngleType;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.common.TorsionAngleValue;
-import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.helper.TorsionAnglesHelper;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.ResidueTorsionAngles;
 import pl.poznan.put.structure.StructureSelection;
-import pl.poznan.put.utility.AverageAngle;
+import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class MCQMatcher implements StructureMatcher {
     private boolean matchChiByType;
@@ -26,10 +27,11 @@ public class MCQMatcher implements StructureMatcher {
     }
 
     @Override
-    public List<FragmentMatch> match(StructureSelection s1,
+    public SelectionMatch matchSelections(StructureSelection s1,
             StructureSelection s2) {
         if (s1.getSize() == 0 || s2.getSize() == 2) {
-            return new ArrayList<>();
+            return new SelectionMatch(matchChiByType, angles,
+                    new ArrayList<FragmentMatch>());
         }
 
         List<CompactFragment> fr1 = s1.getCompactFragments();
@@ -50,15 +52,16 @@ public class MCQMatcher implements StructureMatcher {
                     continue;
                 }
 
-                matrix[i][j] = matchFragment(fi, fj);
+                matrix[i][j] = matchFragments(fi, fj);
             }
         }
 
-        return MCQMatcher.assignFragments(matrix);
+        List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
+        return new SelectionMatch(matchChiByType, angles, fragmentMatches);
     }
 
     @Override
-    public FragmentMatch matchFragment(CompactFragment f1, CompactFragment f2) {
+    public FragmentMatch matchFragments(CompactFragment f1, CompactFragment f2) {
         CompactFragment smaller = f1;
         CompactFragment bigger = f2;
 
@@ -246,7 +249,7 @@ public class MCQMatcher implements StructureMatcher {
             }
         }
 
-        double mcq = MCQ.calculate(deltas);
+        double mcq = TorsionAnglesHelper.calculateMean(deltas);
         return new FragmentComparisonResult(residueResults, firstInvalid,
                 secondInvalid, bothInvalid, deltas.size(), mcq);
     }

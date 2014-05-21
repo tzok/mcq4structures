@@ -8,17 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.common.TorsionAngle;
+import pl.poznan.put.helper.TorsionAnglesHelper;
 import pl.poznan.put.matching.FragmentComparisonResult;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparisonResult;
-import pl.poznan.put.matching.TorsionAngleDelta;
-import pl.poznan.put.matching.TorsionAngleDelta.State;
+import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.nucleic.RNAChiTorsionAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinChiTorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
 import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.utility.TorsionAngleDelta;
+import pl.poznan.put.utility.TorsionAngleDelta.State;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -28,20 +30,6 @@ import pl.poznan.put.structure.StructureSelection;
  */
 public class MCQ implements GlobalComparator, LocalComparator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
-
-    public static double calculate(List<Double> values) {
-        if (values.size() == 0) {
-            return Double.NaN;
-        }
-
-        double sines = 0.0;
-        double cosines = 0.0;
-        for (double v : values) {
-            sines += Math.sin(v);
-            cosines += Math.cos(v);
-        }
-        return Math.atan2(sines / values.size(), cosines / values.size());
-    }
 
     public static List<TorsionAngle> getAllAvailableTorsionAngles() {
         List<TorsionAngle> angles = new ArrayList<>();
@@ -75,16 +63,16 @@ public class MCQ implements GlobalComparator, LocalComparator {
     public GlobalComparisonResult compareGlobally(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(true, angles);
-        List<FragmentMatch> matches = matcher.match(s1, s2);
+        SelectionMatch matches = matcher.matchSelections(s1, s2);
 
-        if (matches == null || matches.size() == 0) {
+        if (matches == null || matches.getSize() == 0) {
             throw new IncomparableStructuresException("No matching fragments "
                     + "found");
         }
 
         List<Double> deltas = new ArrayList<>();
 
-        for (FragmentMatch fragment : matches) {
+        for (FragmentMatch fragment : matches.getFragmentMatches()) {
             MCQ.LOGGER.debug("Taking into account fragments: " + fragment);
             FragmentComparisonResult fragmentComparisonResult = fragment.getBestResult();
 
@@ -100,7 +88,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             }
         }
 
-        double mcq = MCQ.calculate(deltas);
+        double mcq = TorsionAnglesHelper.calculateMean(deltas);
         return new GlobalComparisonResult(getName(), s1.getName(),
                 s2.getName(), matches, mcq, true);
     }
@@ -109,7 +97,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
     public LocalComparisonResult compareLocally(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(true, angles);
-        List<FragmentMatch> matches = matcher.match(s1, s2);
+        SelectionMatch matches = matcher.matchSelections(s1, s2);
         return new MCQLocalComparisonResult(s1.getName(), s2.getName(),
                 matches, angles);
     }

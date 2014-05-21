@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.comparison.MCQLocalComparisonResult;
 import pl.poznan.put.matching.ResidueComparisonResult;
-import pl.poznan.put.matching.TorsionAngleDelta;
+import pl.poznan.put.utility.TorsionAngleDelta;
 
 class TableModelLocal extends AbstractTableModel {
     private static final long serialVersionUID = 1L;

@@ -21,13 +21,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import pl.poznan.put.common.AverageAngle;
 import pl.poznan.put.common.ChiTorsionAngleType;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
-import pl.poznan.put.utility.AverageAngle;
 
 final class DialogAngles extends JDialog {
     private static DialogAngles instance;

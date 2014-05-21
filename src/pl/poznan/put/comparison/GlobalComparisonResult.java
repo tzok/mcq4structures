@@ -1,21 +1,19 @@
 package pl.poznan.put.comparison;
 
-import java.util.List;
-
 import pl.poznan.put.helper.Constants;
-import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.utility.NumberFormatter;
 
 public class GlobalComparisonResult {
     private final String measureName;
     private final String nameLeft;
     private final String nameRight;
-    private final List<FragmentMatch> matches;
+    private final SelectionMatch matches;
     private final double value;
     private final boolean isAngle;
 
     public GlobalComparisonResult(String measureName, String nameLeft,
-            String nameRight, List<FragmentMatch> matches, double value,
+            String nameRight, SelectionMatch matches, double value,
             boolean isAngle) {
         super();
         this.measureName = measureName;
@@ -38,7 +36,7 @@ public class GlobalComparisonResult {
         return nameRight;
     }
 
-    public List<FragmentMatch> getMatches() {
+    public SelectionMatch getMatches() {
         return matches;
     }
 

@@ -13,15 +13,16 @@ import org.jumpmind.symmetric.csv.CsvWriter;
 import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparisonResult;
-import pl.poznan.put.matching.TorsionAngleDelta;
+import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.Residue;
+import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class MCQLocalComparisonResult extends LocalComparisonResult {
     private final List<TorsionAngle> angles;
 
     public MCQLocalComparisonResult(String nameLeft, String nameRight,
-            List<FragmentMatch> matches, List<TorsionAngle> angles) {
+            SelectionMatch matches, List<TorsionAngle> angles) {
         super(nameLeft, nameRight, matches);
         this.angles = angles;
     }
@@ -33,7 +34,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
     public List<String> getDataLabels() {
         List<String> result = new ArrayList<>();
 
-        for (FragmentMatch fragment : matches) {
+        for (FragmentMatch fragment : matches.getFragmentMatches()) {
             CompactFragment bigger = fragment.getBiggerOnlyMatched();
             CompactFragment smaller = fragment.getSmaller();
 
@@ -50,7 +51,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
     public List<ResidueComparisonResult> getDataRows() {
         List<ResidueComparisonResult> allResults = new ArrayList<>();
 
-        for (FragmentMatch fragment : matches) {
+        for (FragmentMatch fragment : matches.getFragmentMatches()) {
             allResults.addAll(fragment.getBestResult().getResidueResults());
         }
 
