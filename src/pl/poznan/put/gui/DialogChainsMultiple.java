@@ -31,25 +31,26 @@ import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.structure.CompactFragment;
+import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.structure.StructureSelectionFactory;
-import pl.poznan.put.structure.TypedStructureSelection;
 import pl.poznan.put.utility.StructureManager;
 
 final class DialogChainsMultiple extends JDialog {
     private static class FilteredListModel extends
-            AbstractListModel<TypedStructureSelection> {
+            AbstractListModel<CompactFragment> {
         private static final long serialVersionUID = 1L;
 
         boolean isProtein = true;
         boolean isRNA = true;
-        List<TypedStructureSelection> listProteins = new ArrayList<>();
-        List<TypedStructureSelection> listRNAs = new ArrayList<>();
+        List<CompactFragment> listProteins = new ArrayList<>();
+        List<CompactFragment> listRNAs = new ArrayList<>();
 
         public FilteredListModel() {
         }
 
         @Override
-        public TypedStructureSelection getElementAt(int index) {
+        public CompactFragment getElementAt(int index) {
             if (isRNA) {
                 if (index < listRNAs.size()) {
                     return listRNAs.get(index);
@@ -65,15 +66,15 @@ final class DialogChainsMultiple extends JDialog {
                     + (isProtein ? listProteins.size() : 0);
         }
 
-        public List<TypedStructureSelection> getElements() {
-            ArrayList<TypedStructureSelection> list = new ArrayList<>();
+        public List<CompactFragment> getElements() {
+            ArrayList<CompactFragment> list = new ArrayList<>();
             list.addAll(listRNAs);
             list.addAll(listProteins);
             return list;
         }
 
-        public List<TypedStructureSelection> getSelectedElements() {
-            List<TypedStructureSelection> list = new ArrayList<>();
+        public List<CompactFragment> getSelectedElements() {
+            List<CompactFragment> list = new ArrayList<>();
             if (isRNA) {
                 list.addAll(listRNAs);
             }
@@ -83,8 +84,8 @@ final class DialogChainsMultiple extends JDialog {
             return list;
         }
 
-        public void addElement(TypedStructureSelection element) {
-            MoleculeType moleculeType = element.getMoleculeType();
+        public void addElement(CompactFragment element) {
+            MoleculeType moleculeType = element.getChainType();
 
             if (moleculeType == MoleculeType.RNA) {
                 listRNAs.add(element);
@@ -93,13 +94,13 @@ final class DialogChainsMultiple extends JDialog {
             }
         }
 
-        public void addElements(List<TypedStructureSelection> list) {
-            for (TypedStructureSelection element : list) {
+        public void addElements(List<CompactFragment> list) {
+            for (CompactFragment element : list) {
                 addElement(element);
             }
         }
 
-        public void removeElement(TypedStructureSelection element) {
+        public void removeElement(CompactFragment element) {
             if (listRNAs.contains(element)) {
                 listRNAs.remove(element);
             } else {
@@ -107,8 +108,8 @@ final class DialogChainsMultiple extends JDialog {
             }
         }
 
-        public void removeElements(List<TypedStructureSelection> list) {
-            for (TypedStructureSelection element : list) {
+        public void removeElements(List<CompactFragment> list) {
+            for (CompactFragment element : list) {
                 removeElement(element);
             }
         }
@@ -132,9 +133,9 @@ final class DialogChainsMultiple extends JDialog {
     int chosenOption;
     FilteredListModel modelAll = new FilteredListModel();
     FilteredListModel modelSelected = new FilteredListModel();
-    JList<TypedStructureSelection> listAll = new JList<>(modelAll);
-    JList<TypedStructureSelection> listSelected = new JList<>(modelSelected);
-    List<TypedStructureSelection> selectedChains = new ArrayList<>();
+    JList<CompactFragment> listAll = new JList<>(modelAll);
+    JList<CompactFragment> listSelected = new JList<>(modelSelected);
+    List<CompactFragment> selectedChains = new ArrayList<>();
 
     private DialogChainsMultiple(Frame owner) {
         super(owner, true);
@@ -144,26 +145,19 @@ final class DialogChainsMultiple extends JDialog {
         listSelected = new JList<>(modelSelected);
         listSelected.setBorder(BorderFactory.createTitledBorder("Selected chains"));
 
-        final ListCellRenderer<? super TypedStructureSelection> renderer = listAll.getCellRenderer();
-        ListCellRenderer<TypedStructureSelection> pdbCellRenderer = new ListCellRenderer<TypedStructureSelection>() {
+        final ListCellRenderer<? super CompactFragment> renderer = listAll.getCellRenderer();
+        ListCellRenderer<CompactFragment> pdbCellRenderer = new ListCellRenderer<CompactFragment>() {
             @Override
             public Component getListCellRendererComponent(
-                    JList<? extends TypedStructureSelection> list,
-                    TypedStructureSelection value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
+                    JList<? extends CompactFragment> list,
+                    CompactFragment value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(
                         list, value, index, isSelected, cellHasFocus);
 
                 if (value != null) {
-                    boolean isRNA = value.getMoleculeType() == MoleculeType.RNA;
-                    int size = value.getSize();
-                    String name = value.getName();
-                    String typeName = isRNA ? "RNA" : "protein";
-                    String typeUnit = isRNA ? "nt" : "aa";
-
-                    String text = String.format("%s (%s, %d %s)", name,
-                            typeName, size, typeUnit);
-                    label.setText(text);
+                    boolean isRNA = value.getChainType() == MoleculeType.RNA;
+                    label.setText(value.toString());
                     label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                 }
 
@@ -263,7 +257,7 @@ final class DialogChainsMultiple extends JDialog {
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                List<TypedStructureSelection> values;
+                List<CompactFragment> values;
                 boolean isSelect;
 
                 if (arg0 != null) {
@@ -282,7 +276,7 @@ final class DialogChainsMultiple extends JDialog {
                         isSelect = false;
                     }
 
-                    for (TypedStructureSelection f : values) {
+                    for (CompactFragment f : values) {
                         assert f != null;
                         if (isSelect) {
                             modelAll.removeElement(f);
@@ -341,17 +335,17 @@ final class DialogChainsMultiple extends JDialog {
         checkProtein.addActionListener(checkBoxListener);
     }
 
-    public List<TypedStructureSelection> getChains() {
+    public List<CompactFragment> getChains() {
         return selectedChains;
     }
 
     public String getSelectionDescription() {
         StringBuilder builder = new StringBuilder();
         int i = 0;
-        for (TypedStructureSelection c : selectedChains) {
+        for (CompactFragment c : selectedChains) {
             builder.append("<span style=\"color: "
                     + (i % 2 == 0 ? "blue" : "green") + "\">");
-            builder.append(c.getName());
+            builder.append(c.toString());
             builder.append("</span>, ");
             i++;
         }
@@ -360,36 +354,38 @@ final class DialogChainsMultiple extends JDialog {
     }
 
     public int showDialog() {
-        List<TypedStructureSelection> selections = new ArrayList<>();
+        List<CompactFragment> fragments = new ArrayList<>();
 
         for (Structure structure : StructureManager.getAllStructures()) {
             for (Chain chain : structure.getChains()) {
                 String name = StructureManager.getName(structure) + "."
                         + chain.getChainID();
-                selections.add(StructureSelectionFactory.create(name, chain));
+                StructureSelection selection = StructureSelectionFactory.create(
+                        name, chain);
+                fragments.addAll(selection.getCompactFragments());
             }
         }
 
-        List<TypedStructureSelection> listL = modelAll.getElements();
-        List<TypedStructureSelection> listR = modelSelected.getElements();
+        List<CompactFragment> listL = modelAll.getElements();
+        List<CompactFragment> listR = modelSelected.getElements();
 
         /*
          * Refresh data -> if some structure was removed from StructureManager,
          * remove its chains as well
          */
-        List<TypedStructureSelection> list = new ArrayList<>(listL);
-        list.removeAll(selections);
+        List<CompactFragment> list = new ArrayList<>(listL);
+        list.removeAll(fragments);
         modelAll.removeElements(list);
         list = new ArrayList<>(listR);
-        list.removeAll(selections);
+        list.removeAll(fragments);
         modelSelected.removeElements(list);
 
         /*
          * Add all chains from structure that are new in the StructureManager
          */
-        selections.removeAll(listL);
-        selections.removeAll(listR);
-        modelAll.addElements(selections);
+        fragments.removeAll(listL);
+        fragments.removeAll(listR);
+        modelAll.addElements(fragments);
 
         listAll.updateUI();
         listSelected.updateUI();

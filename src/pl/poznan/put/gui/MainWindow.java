@@ -73,9 +73,9 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
+import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.structure.StructureSelectionFactory;
-import pl.poznan.put.structure.TypedStructureSelection;
 import pl.poznan.put.utility.StructureManager;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
@@ -624,7 +624,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
         // textAreaAlignSeq.setText("");
         // layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
         //
-        // List<TypedStructureSelection> chains =
+        // List<CompactFragment> chains =
         // dialogChainsMultiple.getChains();
         // boolean isGlobal = radioAlignSeqGlobal.isSelected();
         // AlignmentSequence alignment = AlignmentSequence.newInstance(chains,
@@ -889,12 +889,12 @@ public class MainWindow extends JFrame implements ComparisonListener {
     }
 
     void compareLocalMulti() {
-        List<TypedStructureSelection> selections = dialogChainsMultiple.getChains();
-        TypedStructureSelection[] array = selections.toArray(new TypedStructureSelection[selections.size()]);
-        MoleculeType moleculeType = array[0].getMoleculeType();
+        List<CompactFragment> selections = dialogChainsMultiple.getChains();
+        CompactFragment[] array = selections.toArray(new CompactFragment[selections.size()]);
+        MoleculeType moleculeType = array[0].getChainType();
         List<TorsionAngle> angles = new ArrayList<>();
 
-        TypedStructureSelection reference = (TypedStructureSelection) JOptionPane.showInputDialog(
+        CompactFragment reference = (CompactFragment) JOptionPane.showInputDialog(
                 MainWindow.this, "Select your reference structure",
                 "Reference structure", JOptionPane.INFORMATION_MESSAGE, null,
                 array, array[0]);
@@ -1020,11 +1020,11 @@ public class MainWindow extends JFrame implements ComparisonListener {
             return;
         }
 
-        List<TypedStructureSelection> selections = dialogChainsMultiple.getChains();
-        MoleculeType type = selections.get(0).getMoleculeType();
+        List<CompactFragment> selections = dialogChainsMultiple.getChains();
+        MoleculeType type = selections.get(0).getChainType();
 
-        for (TypedStructureSelection c : selections) {
-            if (type != c.getMoleculeType()) {
+        for (CompactFragment c : selections) {
+            if (type != c.getChainType()) {
                 JOptionPane.showMessageDialog(this, "Cannot align/compare "
                         + "structures: different types", "Error",
                         JOptionPane.ERROR_MESSAGE);

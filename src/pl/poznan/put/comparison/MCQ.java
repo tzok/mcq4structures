@@ -18,6 +18,7 @@ import pl.poznan.put.nucleic.RNAChiTorsionAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinChiTorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
+import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.utility.TorsionAngleDelta;
 import pl.poznan.put.utility.TorsionAngleDelta.State;
@@ -100,5 +101,25 @@ public class MCQ implements GlobalComparator, LocalComparator {
         SelectionMatch matches = matcher.matchSelections(s1, s2);
         return new MCQLocalComparisonResult(s1.getName(), s2.getName(),
                 matches, angles);
+    }
+
+    @Override
+    public ModelsComparisonResult compareModels(CompactFragment reference,
+            List<CompactFragment> fragments)
+            throws IncomparableStructuresException {
+        /*
+         * Sanity check
+         */
+        for (CompactFragment fragment : fragments) {
+            if (fragment.getChainType() != reference.getChainType()
+                    || fragment.getSize() != reference.getSize()) {
+                throw new IncomparableStructuresException("All models must "
+                        + "be of the same type and size as the reference "
+                        + "structure");
+            }
+        }
+
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -1,5 +1,8 @@
 package pl.poznan.put.comparison;
 
+import java.util.List;
+
+import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.StructureSelection;
 
 /**
@@ -10,4 +13,8 @@ import pl.poznan.put.structure.StructureSelection;
 public interface LocalComparator {
     LocalComparisonResult compareLocally(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException;
+
+    ModelsComparisonResult compareModels(CompactFragment reference,
+            List<CompactFragment> models)
+            throws IncomparableStructuresException;
 }
