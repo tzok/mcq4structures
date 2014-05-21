@@ -62,6 +62,7 @@ import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.LocalComparisonResult;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.MCQLocalComparisonResult;
+import pl.poznan.put.comparison.ModelsComparisonResult;
 import pl.poznan.put.comparison.ParallelGlobalComparison;
 import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
 import pl.poznan.put.comparison.RMSD;
@@ -922,29 +923,42 @@ public class MainWindow extends JFrame implements ComparisonListener {
             return;
         }
 
+        List<TorsionAngle> selectedAngles = new ArrayList<>();
+
+        if (angleType.equals(AverageAngle.getInstance(moleculeType))) {
+            selectedAngles.addAll(moleculeType.getBackboneTorsionAngles());
+            selectedAngles.addAll(ChiTorsionAngleType.getChiTorsionAngles(moleculeType));
+        } else if (angleType.equals(PseudophasePuckerAngle.getInstance())) {
+            selectedAngles.add(RNATorsionAngle.TAU0);
+            selectedAngles.add(RNATorsionAngle.TAU1);
+            selectedAngles.add(RNATorsionAngle.TAU2);
+            selectedAngles.add(RNATorsionAngle.TAU3);
+            selectedAngles.add(RNATorsionAngle.TAU4);
+        }
+
+        selectedAngles.add(angleType);
+        selections.remove(reference);
+        ModelsComparisonResult result;
+
         progressBar.setMaximum(1);
         progressBar.setValue(0);
 
-        // ComparisonLocalMulti localMulti;
-        // try {
-        // localMulti = ComparisonLocalMulti.newInstance(chains,
-        // reference.getChain(), angleType);
-        // } catch (StructureException | InvalidInputException e) {
-        // JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
-        // "Error", JOptionPane.ERROR_MESSAGE);
-        // return;
-        // }
+        try {
+            MCQ mcq = new MCQ(selectedAngles);
+            result = mcq.compareModels(reference, selections);
+        } catch (IncomparableStructuresException e) {
+            JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         progressBar.setValue(1);
+        exportable = result;
+        visualizable = result;
 
-        // exportable = localMulti;
-        // visualizable = localMulti;
-        //
-        // AbstractTableModel model = new TableModelLocalMulti(localMulti,
-        // angleType);
-        // tableMatrix.setDefaultRenderer(Object.class,
-        // new DefaultTableCellRenderer());
-        // tableMatrix.setModel(model);
+        tableMatrix.setDefaultRenderer(Object.class,
+                new DefaultTableCellRenderer());
+        tableMatrix.setModel(new TableModelLocalMulti(result));
 
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");

@@ -105,12 +105,12 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
     @Override
     public ModelsComparisonResult compareModels(CompactFragment reference,
-            List<CompactFragment> fragments)
+            List<CompactFragment> models)
             throws IncomparableStructuresException {
         /*
          * Sanity check
          */
-        for (CompactFragment fragment : fragments) {
+        for (CompactFragment fragment : models) {
             if (fragment.getChainType() != reference.getChainType()
                     || fragment.getSize() != reference.getSize()) {
                 throw new IncomparableStructuresException("All models must "
@@ -119,7 +119,14 @@ public class MCQ implements GlobalComparator, LocalComparator {
             }
         }
 
-        // TODO Auto-generated method stub
-        return null;
+        MCQMatcher matcher = new MCQMatcher(true, angles);
+        List<FragmentMatch> matches = new ArrayList<>();
+
+        for (CompactFragment fragment : models) {
+            matches.add(matcher.matchFragments(reference, fragment));
+        }
+
+        return new ModelsComparisonResult(angles.get(angles.size() - 1),
+                reference, models, matches);
     }
 }
