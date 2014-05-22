@@ -3,32 +3,32 @@ package pl.poznan.put.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.Map;
+import java.util.List;
 
 import javax.swing.JPanel;
 
 import pl.poznan.put.common.TorsionAngle;
-import pl.poznan.put.comparison.MCQLocalComparisonResult;
+import pl.poznan.put.comparison.ModelsComparisonResult;
+import pl.poznan.put.matching.ResidueComparisonResult;
 
 class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
-    private MCQLocalComparisonResult local;
-    private TorsionAngle angleType;
 
-    private float[] green;
-    private float[] red;
-    private double max;
-    private double min;
+    private final ModelsComparisonResult result;
+    private final int index;
+    private final TorsionAngle torsionAngle;
 
-    Colorbar(MCQLocalComparisonResult result, TorsionAngle torsionAngle) {
+    private final float[] green = Color.RGBtoHSB(0, 255, 0, null);
+    private final float[] red = Color.RGBtoHSB(255, 0, 0, null);
+
+    private double max = Math.PI;
+    private double min = 0;
+
+    Colorbar(ModelsComparisonResult result, int index) {
         super();
-        this.local = result;
-        this.angleType = torsionAngle;
-
-        green = Color.RGBtoHSB(0, 255, 0, null);
-        red = Color.RGBtoHSB(255, 0, 0, null);
-        min = 0;
-        max = Math.PI;
+        this.result = result;
+        this.index = index;
+        torsionAngle = result.getTorsionAngle();
     }
 
     @Override
@@ -36,13 +36,14 @@ class Colorbar extends JPanel {
         super.paintComponent(g);
 
         Dimension size = getSize();
-        int width = size.width / local.getTicks().size();
+        int width = size.width / result.getFragmentSize();
         int height = size.height;
 
-        Map<AngleType, AngleDeltas> angles = local.getAngles();
-        AngleDeltas average = angles.get(angleType);
-        int i = 0;
-        for (double delta : average.getDeltas()) {
+        List<ResidueComparisonResult> residueResults = result.getResidueResults(index);
+
+        for (int i = 0; i < residueResults.size(); i++) {
+            ResidueComparisonResult residueResult = residueResults.get(i);
+            double delta = residueResult.getDelta(torsionAngle).getDelta();
             g.setColor(getColor(delta));
             g.fillRect(i * width, 0, width, height - 1);
             g.setColor(Color.BLACK);

@@ -10,10 +10,12 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Group;
 import org.jumpmind.symmetric.csv.CsvWriter;
 
 import pl.poznan.put.common.TorsionAngle;
+import pl.poznan.put.gui.DialogColorbar;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
@@ -117,8 +119,8 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
     @Override
     public void visualize() {
-        // TODO Auto-generated method stub
-
+        DialogColorbar dialogColorbar = new DialogColorbar(this);
+        dialogColorbar.setVisible(true);
     }
 
     @Override
@@ -171,5 +173,26 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
         }
 
         return new DefaultTableModel(data, columnNames);
+    }
+
+    public Pair<Double, Double> getMinMax() {
+        double min = Double.POSITIVE_INFINITY;
+        double max = Double.NEGATIVE_INFINITY;
+
+        for (FragmentMatch match : matches) {
+            for (ResidueComparisonResult result : match.getBestResult().getResidueResults()) {
+                double delta = result.getDelta(torsionAngle).getDelta();
+
+                if (delta < min) {
+                    min = delta;
+                }
+
+                if (delta > max) {
+                    max = delta;
+                }
+            }
+        }
+
+        return Pair.of(min, max);
     }
 }

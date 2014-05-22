@@ -18,11 +18,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
-import pl.poznan.put.beans.ComparisonLocal;
-import pl.poznan.put.beans.ComparisonLocalMulti;
-import pl.poznan.put.torsion.AngleType;
+import pl.poznan.put.comparison.ModelsComparisonResult;
 
 public class DialogColorbar extends JDialog {
     private static final long serialVersionUID = 2659329749184089277L;
@@ -31,14 +29,9 @@ public class DialogColorbar extends JDialog {
     JTextField editMin = new JTextField("0", 8);
     JTextField editMax = new JTextField("180", 8);
     List<Colorbar> listColorbars = new ArrayList<>();
-    List<ComparisonLocal> listResults;
-    AngleType angleType;
 
-    public DialogColorbar(ComparisonLocalMulti localMulti) {
+    public DialogColorbar(final ModelsComparisonResult result) {
         super();
-        listResults = localMulti.getResults();
-        angleType = localMulti.getAngleType();
-
         setTitle("Colorbar");
         setLayout(new GridBagLayout());
 
@@ -62,10 +55,10 @@ public class DialogColorbar extends JDialog {
         add(panel, c);
 
         c.gridy = 1;
-        add(new ColorbarTicks(localMulti.getReferenceSequence()), c);
+        add(new ColorbarTicks(result.getReference().getSequence()));
 
-        for (ComparisonLocal local : listResults) {
-            Colorbar colorbar = new Colorbar(local, localMulti.getAngleType());
+        for (int i = 0; i < result.getModelCount(); i++) {
+            Colorbar colorbar = new Colorbar(result, i);
             listColorbars.add(colorbar);
 
             c.gridx = 0;
@@ -79,7 +72,7 @@ public class DialogColorbar extends JDialog {
             c.weightx = 0;
             c.weighty = 0;
             c.fill = GridBagConstraints.HORIZONTAL;
-            add(new JLabel(local.getTitle()), c);
+            add(new JLabel(result.getModels().get(i).getName()), c);
         }
 
         c.gridx = 0;
@@ -87,7 +80,7 @@ public class DialogColorbar extends JDialog {
         c.weightx = 1;
         c.weighty = 0;
         c.fill = GridBagConstraints.BOTH;
-        add(new ColorbarTicks(localMulti.getReferenceSequence()), c);
+        add(new ColorbarTicks(result.getReference().getSequence()), c);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension size = toolkit.getScreenSize();
@@ -115,16 +108,9 @@ public class DialogColorbar extends JDialog {
                 double max = Math.PI;
 
                 if (checkRelative.isSelected()) {
-                    double lmin = Math.PI;
-                    double lmax = 0;
-                    for (ComparisonLocal local : listResults) {
-                        double[] deltas =
-                                local.getAngles().get(angleType).getDeltas();
-                        lmin = Math.min(lmin, StatUtils.min(deltas));
-                        lmax = Math.max(lmax, StatUtils.max(deltas));
-                    }
-                    min = lmin;
-                    max = lmax;
+                    Pair<Double, Double> minMax = result.getMinMax();
+                    min = minMax.getLeft();
+                    max = minMax.getRight();
                 }
 
                 for (Colorbar colorbar : listColorbars) {

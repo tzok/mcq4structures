@@ -8,39 +8,37 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.biojava.bio.structure.ResidueNumber;
+import pl.poznan.put.structure.Residue;
+import pl.poznan.put.structure.Sequence;
 
 public class ColorbarTicks extends JPanel {
     private static final long serialVersionUID = 2174544811162082541L;
-    private Pair<String, List<ResidueNumber>> reference;
 
-    ColorbarTicks(Pair<String, List<ResidueNumber>> pair) {
+    private final Sequence sequence;
+
+    ColorbarTicks(Sequence sequence) {
         super();
-        reference = pair;
+        this.sequence = sequence;
 
-        Dimension size =
-                new JLabel(pair.getLeft() + pair.getLeft()).getPreferredSize();
+        Dimension size = new JLabel(sequence.toString() + sequence.toString()).getPreferredSize();
         setPreferredSize(size);
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        assert g != null;
-
-        String sequence = reference.getLeft();
-        List<ResidueNumber> resids = reference.getRight();
+        g.setColor(Color.BLACK);
 
         Dimension size = getSize();
-        int length = reference.getLeft().length();
+        int length = sequence.getLength();
         int width = size.width / length;
         int height = size.height;
 
-        g.setColor(Color.BLACK);
-        for (int i = 0; i < length; i++) {
-            g.drawString(sequence.substring(i, i + 1)
-                    + resids.get(i).getSeqNum(), i * width, height / 2 + 6);
+        List<Residue> residues = sequence.getResidues();
+
+        for (int i = 0; i < residues.size(); i++) {
+            Residue residue = residues.get(i);
+            g.drawString(residue.toString(), i * width, height / 2 + 6);
         }
     }
 }

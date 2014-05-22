@@ -134,18 +134,6 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
 
     @Override
     public void visualize() {
-        for (double[] value : matrix) {
-            for (double element : value) {
-                if (Double.isNaN(element)) {
-                    JOptionPane.showMessageDialog(null,
-                            "Results cannot be visualized. Some "
-                                    + "structures could not be compared.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-        }
-
         double[][] mds;
         try {
             mds = MDS.multidimensionalScaling(matrix, 2);
