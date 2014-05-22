@@ -2,14 +2,14 @@ package pl.poznan.put.comparison;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
-import org.jumpmind.symmetric.csv.CsvWriter;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
 import org.jzy3d.colors.Color;
@@ -28,13 +28,15 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import pl.poznan.put.gui.DialogCluster;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.utility.InvalidInputException;
+import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.visualisation.MDS;
 import pl.poznan.put.visualisation.MDSPlot;
 
 public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
-        Visualizable {
+        Visualizable, Tabular {
     private final String measureName;
     private final int size;
     private final String[] names;
@@ -117,25 +119,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
 
     @Override
     public void export(File file) throws IOException {
-        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
-            CsvWriter csvWriter = new CsvWriter(writer, ';');
-            csvWriter.write("Global " + measureName);
-
-            for (String name : names) {
-                csvWriter.write(name);
-            }
-
-            csvWriter.endRecord();
-
-            for (int i = 0; i < size; i++) {
-                csvWriter.write(names[i]);
-                for (int j = 0; j < size; j++) {
-                    csvWriter.write(results[i][j] != null ? results[i][j].toExportString()
-                            : null);
-                }
-                csvWriter.endRecord();
-            }
-        }
+        TabularExporter.export(this, file);
     }
 
     @Override
@@ -220,5 +204,49 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
     @Override
     public void visualizeHighQuality() {
         throw new UnsupportedOperationException("Method not implemented!");
+    }
+
+    @Override
+    public TableModel asExportableTableModel() {
+        return asTableModel(false);
+    }
+
+    @Override
+    public TableModel asDisplayableTableModel() {
+        return asTableModel(true);
+    }
+
+    private TableModel asTableModel(boolean isDisplay) {
+        String[] columnNames = new String[names.length + 1];
+        columnNames[0] = isDisplay ? "" : null;
+        for (int i = 0; i < names.length; i++) {
+            columnNames[i + 1] = names[i];
+        }
+
+        String[][] values = new String[results.length][];
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] = new String[columnNames.length];
+            values[i][0] = names[i];
+
+            for (int j = 0; j < results[i].length; j++) {
+                // diagonal is empty
+                if (i == j) {
+                    values[i][j + 1] = isDisplay ? "" : null;
+                    continue;
+                }
+
+                GlobalComparisonResult result = results[i][j];
+
+                if (result == null) {
+                    values[i][j + 1] = "Failed";
+                } else {
+                    values[i][j + 1] = isDisplay ? result.toDisplayString()
+                            : result.toExportString();
+                }
+            }
+        }
+
+        return new DefaultTableModel(values, columnNames);
     }
 }

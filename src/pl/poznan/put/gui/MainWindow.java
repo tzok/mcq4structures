@@ -813,7 +813,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
                         exportable = matrix;
                         visualizable = matrix;
 
-                        tableMatrix.setModel(new TableModelGlobal(matrix));
+                        tableMatrix.setModel(matrix.asDisplayableTableModel());
                         tableMatrix.setDefaultRenderer(Object.class,
                                 new DefaultTableCellRenderer());
 
@@ -863,10 +863,8 @@ public class MainWindow extends JFrame implements ComparisonListener {
         }
 
         if (comparisonLocal instanceof MCQLocalComparisonResult) {
-            TableModelLocal model = new TableModelLocal(
-                    (MCQLocalComparisonResult) comparisonLocal);
+            tableMatrix.setModel(comparisonLocal.asDisplayableTableModel());
             tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
-            tableMatrix.setModel(model);
         } else {
             JOptionPane.showMessageDialog(MainWindow.this, "Cannot continue, "
                     + "the result of comparison is invalid", "Error",
@@ -956,9 +954,9 @@ public class MainWindow extends JFrame implements ComparisonListener {
         exportable = result;
         visualizable = result;
 
+        tableMatrix.setModel(result.asDisplayableTableModel());
         tableMatrix.setDefaultRenderer(Object.class,
                 new DefaultTableCellRenderer());
-        tableMatrix.setModel(new TableModelLocalMulti(result));
 
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");

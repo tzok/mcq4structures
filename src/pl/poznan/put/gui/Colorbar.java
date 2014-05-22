@@ -7,13 +7,12 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
-import pl.poznan.put.beans.ComparisonLocal;
-import pl.poznan.put.beans.auxiliary.AngleDeltas;
 import pl.poznan.put.common.TorsionAngle;
+import pl.poznan.put.comparison.MCQLocalComparisonResult;
 
 class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
-    private ComparisonLocal local;
+    private MCQLocalComparisonResult local;
     private TorsionAngle angleType;
 
     private float[] green;
@@ -21,10 +20,10 @@ class Colorbar extends JPanel {
     private double max;
     private double min;
 
-    Colorbar(ComparisonLocal local, AngleType angleType) {
+    Colorbar(MCQLocalComparisonResult result, TorsionAngle torsionAngle) {
         super();
-        this.local = local;
-        this.angleType = angleType;
+        this.local = result;
+        this.angleType = torsionAngle;
 
         green = Color.RGBtoHSB(0, 255, 0, null);
         red = Color.RGBtoHSB(255, 0, 0, null);
@@ -35,7 +34,6 @@ class Colorbar extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        assert g != null;
 
         Dimension size = getSize();
         int width = size.width / local.getTicks().size();

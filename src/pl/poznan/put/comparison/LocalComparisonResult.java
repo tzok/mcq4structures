@@ -1,10 +1,12 @@
 package pl.poznan.put.comparison;
 
 import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.SelectionMatch;
 
-public abstract class LocalComparisonResult implements Exportable, Visualizable {
+public abstract class LocalComparisonResult implements Exportable,
+        Visualizable, Tabular {
     protected final String nameLeft;
     protected final String nameRight;
     protected final SelectionMatch matches;

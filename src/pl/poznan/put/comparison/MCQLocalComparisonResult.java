@@ -5,13 +5,14 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.math3.fraction.ProperFractionFormat;
 import org.jfree.chart.ChartPanel;
@@ -21,7 +22,6 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
-import org.jumpmind.symmetric.csv.CsvWriter;
 
 import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.gui.TorsionAxis;
@@ -31,6 +31,7 @@ import pl.poznan.put.matching.ResidueComparisonResult;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.Residue;
+import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class MCQLocalComparisonResult extends LocalComparisonResult {
@@ -54,8 +55,8 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
             CompactFragment smaller = fragment.getSmaller();
 
             for (int i = 0; i < fragment.getSize(); i++) {
-                Residue r1 = Residue.fromGroup(bigger.getResidue(i));
-                Residue r2 = Residue.fromGroup(smaller.getResidue(i));
+                Residue r1 = Residue.fromGroup(bigger.getGroup(i));
+                Residue r2 = Residue.fromGroup(smaller.getGroup(i));
                 result.add(r1 + " - " + r2);
             }
         }
@@ -75,31 +76,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
     @Override
     public void export(File file) throws IOException {
-        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
-            CsvWriter csvWriter = new CsvWriter(writer, ';');
-            csvWriter.write(null);
-
-            for (TorsionAngle angle : angles) {
-                csvWriter.write(angle.toString());
-            }
-
-            csvWriter.endRecord();
-            List<String> dataLabels = getDataLabels();
-            List<ResidueComparisonResult> dataRows = getDataRows();
-            assert dataLabels.size() == dataRows.size();
-
-            for (int i = 0; i < dataLabels.size(); i++) {
-                csvWriter.write(dataLabels.get(i));
-                ResidueComparisonResult residueResult = dataRows.get(i);
-
-                for (TorsionAngle angle : angles) {
-                    TorsionAngleDelta delta = residueResult.getDelta(angle);
-                    csvWriter.write(delta.toExportString());
-                }
-
-                csvWriter.endRecord();
-            }
-        }
+        TabularExporter.export(this, file);
     }
 
     @Override
@@ -174,5 +151,50 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
     @Override
     public void visualizeHighQuality() {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public TableModel asExportableTableModel() {
+        return asTableModel(false);
+    }
+
+    @Override
+    public TableModel asDisplayableTableModel() {
+        return asTableModel(true);
+    }
+
+    private TableModel asTableModel(boolean isDisplay) {
+        String[] columnNames = new String[angles.size() + 1];
+        columnNames[0] = isDisplay ? "" : null;
+
+        for (int i = 0; i < angles.size(); i++) {
+            TorsionAngle angle = angles.get(i);
+            columnNames[i + 1] = isDisplay ? angle.getDisplayName()
+                    : angle.toString();
+        }
+
+        List<String> labels = getDataLabels();
+        List<ResidueComparisonResult> rows = getDataRows();
+        String[][] data = new String[rows.size()][];
+
+        for (int i = 0; i < rows.size(); i++) {
+            data[i] = new String[angles.size() + 1];
+            data[i][0] = labels.get(i);
+            ResidueComparisonResult row = rows.get(i);
+
+            for (int j = 0; j < angles.size(); j++) {
+                TorsionAngle angle = angles.get(j);
+                TorsionAngleDelta delta = row.getDelta(angle);
+
+                if (delta == null) {
+                    data[i][j + 1] = null;
+                } else {
+                    data[i][j + 1] = isDisplay ? delta.toDisplayString()
+                            : delta.toExportString();
+                }
+            }
+        }
+
+        return new DefaultTableModel(data, columnNames);
     }
 }
