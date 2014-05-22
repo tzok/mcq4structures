@@ -166,8 +166,8 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
         try {
             mds = MDS.multidimensionalScaling(matrix, 2);
         } catch (InvalidInputException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Warning",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
