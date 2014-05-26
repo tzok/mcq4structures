@@ -126,13 +126,6 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
     @Override
     public void visualize3D() {
         // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visualizeHighQuality() {
-        // TODO Auto-generated method stub
-
     }
 
     @Override

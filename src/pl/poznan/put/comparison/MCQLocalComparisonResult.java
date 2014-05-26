@@ -148,11 +148,6 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
     }
 
     @Override
-    public void visualizeHighQuality() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
     public TableModel asExportableTableModel() {
         return asTableModel(false);
     }

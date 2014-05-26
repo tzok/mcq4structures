@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -20,8 +21,11 @@ import javax.swing.SpinnerNumberModel;
 
 import pl.poznan.put.beans.ClusteringHierarchical;
 import pl.poznan.put.beans.ClusteringPartitional;
+import pl.poznan.put.clustering.ClustererHierarchical;
+import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
 import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
 import pl.poznan.put.clustering.ClustererKMedoids;
+import pl.poznan.put.clustering.ClustererKMedoids.Result;
 import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.interfaces.Visualizable;
@@ -168,16 +172,53 @@ public class DialogCluster extends JDialog {
     }
 
     Visualizable getVisualizable() throws InvalidInputException {
-        Visualizable visualizable;
         if (hierarchical.isSelected()) {
-            visualizable = ClusteringHierarchical.newInstance(comparisonGlobal,
+            final List<Cluster> clustering = ClustererHierarchical.hierarchicalClustering(
+                    comparisonGlobal.getMatrix(),
                     (Linkage) linkage.getSelectedItem());
-        } else {
-            Integer k = (Integer) (findBestK.isSelected() ? null
-                    : kspinner.getValue());
-            visualizable = ClusteringPartitional.newInstance(comparisonGlobal,
-                    (ScoringFunction) scoringFunction.getSelectedItem(), k);
+
+            return new Visualizable() {
+                @Override
+                public void visualizeHighQuality() {
+                    // TODO Auto-generated method stub
+                }
+
+                @Override
+                public void visualize3D() {
+                    // TODO Auto-generated method stub
+                }
+
+                @Override
+                public void visualize() {
+                    HierarchicalPlot plot = new HierarchicalPlot(
+                            comparisonGlobal, clustering);
+                    plot.setVisible(true);
+                }
+            };
         }
-        return visualizable;
+
+        Integer k = (Integer) (findBestK.isSelected() ? null
+                : kspinner.getValue());
+        ClustererKMedoids clusterer = new ClustererKMedoids();
+        Result medoids = clusterer.kMedoids(comparisonGlobal.getMatrix(),
+                (ScoringFunction) scoringFunction.getSelectedItem(), k);
+
+        return new Visualizable() {
+            @Override
+            public void visualizeHighQuality() {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void visualize3D() {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void visualize() {
+                new KMedoidsPlot(comparisonGlobal, medoids);
+            }
+        };
     }
 }

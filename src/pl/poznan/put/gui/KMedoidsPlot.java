@@ -16,6 +16,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 import pl.poznan.put.beans.ClusteringPartitional;
 import pl.poznan.put.beans.auxiliary.Cluster;
 import pl.poznan.put.beans.auxiliary.Point;
+import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 
 /**
  * Plot of k-medoids clustering.
@@ -23,8 +24,9 @@ import pl.poznan.put.beans.auxiliary.Point;
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    public KMedoidsPlot(ClusteringPartitional clustering) {
+    public KMedoidsPlot(GlobalComparisonResultMatrix matrix, Result kMedoids) {
         DefaultXYDataset dataset = new DefaultXYDataset();
+
         for (Cluster cluster : clustering.getClusters()) {
             StringBuilder builder = new StringBuilder();
             builder.append("[ ");

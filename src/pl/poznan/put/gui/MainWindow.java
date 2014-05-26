@@ -68,6 +68,8 @@ import pl.poznan.put.helper.Constants;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.msa.SequenceAligner;
+import pl.poznan.put.msa.SequenceAlignment;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
@@ -545,10 +547,11 @@ public class MainWindow extends JFrame implements ComparisonListener {
         itemVisualiseHighQuality.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                final Visualizable visualizable2 = visualizable;
-                if (visualizable2 != null) {
-                    visualizable2.visualizeHighQuality();
-                }
+                // FIXME
+                // final Visualizable visualizable2 = visualizable;
+                // if (visualizable2 != null) {
+                // visualizable2.visualizeHighQuality();
+                // }
             }
         });
 
@@ -622,31 +625,29 @@ public class MainWindow extends JFrame implements ComparisonListener {
     }
 
     void alignSequences() {
-        // textAreaAlignSeq.setText("");
-        // layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
-        //
-        // List<CompactFragment> chains =
-        // dialogChainsMultiple.getChains();
-        // boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        // AlignmentSequence alignment = AlignmentSequence.newInstance(chains,
-        // isGlobal);
-        //
-        // exportable = alignment;
-        // textAreaAlignSeq.setText(alignment.getAlignment());
-        // itemSave.setEnabled(true);
-        // itemSave.setText("Save results (TXT)");
-        //
-        // if (isGlobal) {
-        // labelInfoAlignSeq.setText("<html>"
-        // + "Structures selected for global sequence alignment: "
-        // + alignment.getTitle() + "<br>"
-        // + "Global sequence alignment results:" + "</html>");
-        // } else {
-        // labelInfoAlignSeq.setText("<html>"
-        // + "Structures selected for local sequence alignment: "
-        // + alignment.getTitle() + "<br>"
-        // + "Local sequence alignment results:" + "</html>");
-        // }
+        textAreaAlignSeq.setText("");
+        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+
+        List<CompactFragment> chains = dialogChainsMultiple.getChains();
+        boolean isGlobal = radioAlignSeqGlobal.isSelected();
+        SequenceAlignment alignment = SequenceAligner.align(chains, isGlobal);
+
+        exportable = alignment;
+        textAreaAlignSeq.setText(alignment.getAlignment());
+        itemSave.setEnabled(true);
+        itemSave.setText("Save results (TXT)");
+
+        if (isGlobal) {
+            labelInfoAlignSeq.setText("<html>"
+                    + "Structures selected for global sequence alignment: "
+                    + alignment.getTitle() + "<br>"
+                    + "Global sequence alignment results:" + "</html>");
+        } else {
+            labelInfoAlignSeq.setText("<html>"
+                    + "Structures selected for local sequence alignment: "
+                    + alignment.getTitle() + "<br>"
+                    + "Local sequence alignment results:" + "</html>");
+        }
     }
 
     void alignStructures() {

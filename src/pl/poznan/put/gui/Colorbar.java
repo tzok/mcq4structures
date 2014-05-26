@@ -13,13 +13,12 @@ import pl.poznan.put.torsion.TorsionAngle;
 
 class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
+    private static final float[] GREEN_HSB = Color.RGBtoHSB(0, 255, 0, null);
+    private static final float[] RED_HSB = Color.RGBtoHSB(255, 0, 0, null);
 
     private final ModelsComparisonResult result;
     private final int index;
     private final TorsionAngle torsionAngle;
-
-    private final float[] green = Color.RGBtoHSB(0, 255, 0, null);
-    private final float[] red = Color.RGBtoHSB(255, 0, 0, null);
 
     private double max = Math.PI;
     private double min = 0;
@@ -67,8 +66,8 @@ class Colorbar extends JPanel {
             delta = max;
         }
 
-        double hue = (delta - min) / (max - min) * (red[0] - green[0])
-                + green[0];
+        double hue = (delta - min) / (max - min) * (RED_HSB[0] - GREEN_HSB[0])
+                + GREEN_HSB[0];
         return Color.getHSBColor((float) hue, 0.75f, 0.75f);
     }
 }

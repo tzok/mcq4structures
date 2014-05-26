@@ -14,9 +14,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.beans.ClusteringHierarchical;
-import pl.poznan.put.clustering.ClustererHierarchical;
 import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
+import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 
 /**
  * Plot of dendrogram representing hierarchical clustering.
@@ -24,11 +23,11 @@ import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
 public class HierarchicalPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private static String generateLabel(List<Integer> items, List<String> labels) {
+    private static String generateLabel(List<Integer> items, String[] labels) {
         StringBuilder builder = new StringBuilder();
         builder.append("[ ");
         for (int i : items) {
-            builder.append(labels.get(i));
+            builder.append(labels[i]);
             builder.append(", ");
         }
         builder.delete(builder.length() - 2, builder.length());
@@ -41,6 +40,8 @@ public class HierarchicalPlot extends JFrame {
     /**
      * Create a JFrame that shows the result of hierarchical plotting.
      * 
+     * @param clustering
+     * 
      * @param distance
      *            A distance matrix, NxN.
      * @param structureNames
@@ -48,20 +49,18 @@ public class HierarchicalPlot extends JFrame {
      * @param linkage
      *            Linkage type @see Clusterer.Type;
      */
-    public HierarchicalPlot(ClusteringHierarchical clustering) {
+    public HierarchicalPlot(GlobalComparisonResultMatrix matrix,
+            List<Cluster> clustering) {
         DefaultXYDataset dataset = new DefaultXYDataset();
-        List<String> labels = clustering.getComparison().getLabels();
-        for (Cluster cluster : clustering.getClustering()) {
-            String label =
-                    HierarchicalPlot.generateLabel(cluster.getItems(), labels);
+        String[] labels = matrix.getNames();
+
+        for (Cluster cluster : clustering) {
+            String label = HierarchicalPlot.generateLabel(cluster.getItems(),
+                    labels);
             Cluster left = cluster.getLeft();
             Cluster right = cluster.getRight();
-            double[] x =
-                    new double[] { left.getX(), left.getX(), right.getX(),
-                            right.getX() };
-            double[] y =
-                    new double[] { left.getY(), cluster.getY(), cluster.getY(),
-                            right.getY() };
+            double[] x = new double[] { left.getX(), left.getX(), right.getX(), right.getX() };
+            double[] y = new double[] { left.getY(), cluster.getY(), cluster.getY(), right.getY() };
             dataset.addSeries(label, new double[][] { x, y });
         }
 
@@ -69,12 +68,12 @@ public class HierarchicalPlot extends JFrame {
         xAxis.setTickLabelsVisible(false);
         xAxis.setTickMarksVisible(false);
         xAxis.setAutoRange(false);
-        xAxis.setRange(-1, clustering.getComparison().getLabels().size());
+        xAxis.setRange(-1, labels.length);
         NumberAxis yAxis = new NumberAxis();
         yAxis.setTickLabelsVisible(false);
         yAxis.setTickMarksVisible(false);
-        XYPlot plot =
-                new XYPlot(dataset, xAxis, yAxis, new XYLineAndShapeRenderer());
+        XYPlot plot = new XYPlot(dataset, xAxis, yAxis,
+                new XYLineAndShapeRenderer());
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(false);
         chart = new JFreeChart(plot);

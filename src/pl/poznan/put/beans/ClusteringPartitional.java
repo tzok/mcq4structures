@@ -26,12 +26,12 @@ import pl.poznan.put.beans.auxiliary.Point3D;
 import pl.poznan.put.clustering.ClustererKMedoids;
 import pl.poznan.put.clustering.ClustererKMedoids.Result;
 import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
-import pl.poznan.put.external.Matplotlib;
 import pl.poznan.put.gui.KMedoidsPlot;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.helper.RGB;
 import pl.poznan.put.helper.XMLSerializable;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.mcqgraphics.Matplotlib;
 import pl.poznan.put.utility.InvalidInputException;
 import pl.poznan.put.visualisation.MDS;
 
@@ -247,8 +247,5 @@ public class ClusteringPartitional extends XMLSerializable implements
 
     @Override
     public void visualizeHighQuality() {
-        URL resource = getClass().getResource(
-                "/pl/poznan/put/cs/bioserver/external/MatplotlibPartitional.xsl");
-        Matplotlib.runXsltAndPython(resource, this);
     }
 }

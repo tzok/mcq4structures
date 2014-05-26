@@ -4,6 +4,4 @@ public interface Visualizable {
     void visualize();
 
     void visualize3D();
-
-    void visualizeHighQuality();
 }

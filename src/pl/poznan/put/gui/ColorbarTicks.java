@@ -3,7 +3,6 @@ package pl.poznan.put.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,14 +29,12 @@ public class ColorbarTicks extends JPanel {
         g.setColor(Color.BLACK);
 
         Dimension size = getSize();
-        int length = sequence.getLength();
+        int length = sequence.getSize();
         int width = size.width / length;
         int height = size.height;
 
-        List<Residue> residues = sequence.getResidues();
-
-        for (int i = 0; i < residues.size(); i++) {
-            Residue residue = residues.get(i);
+        for (int i = 0; i < sequence.getSize(); i++) {
+            Residue residue = sequence.getResidue(i);
             g.drawString(residue.toString(), i * width, height / 2 + 6);
         }
     }

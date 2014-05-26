@@ -190,11 +190,6 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
     }
 
     @Override
-    public void visualizeHighQuality() {
-        throw new UnsupportedOperationException("Method not implemented!");
-    }
-
-    @Override
     public TableModel asExportableTableModel() {
         return asTableModel(false);
     }
