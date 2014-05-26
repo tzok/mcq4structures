@@ -46,8 +46,7 @@ public class AlignmentOutput implements Exportable {
         }
     }
 
-    private static Structure filterStructure(Structure structure,
-            List<Atom> atoms) {
+    private static Structure filterStructure(Structure structure, Atom[] atoms) {
         Map<String, Set<Integer>> map = new HashMap<>();
         for (Atom a : atoms) {
             Group g = a.getGroup();
@@ -83,8 +82,8 @@ public class AlignmentOutput implements Exportable {
 
     private final AFPChain afpChain;
     private final String description;
-    private final List<Atom> listAtomsLeft;
-    private final List<Atom> listAtomsRight;
+    private final Atom[] listAtomsLeft;
+    private final Atom[] listAtomsRight;
     private final Structure structureLeft;
     private final Structure structureRight;
 
@@ -102,13 +101,13 @@ public class AlignmentOutput implements Exportable {
      *            Atoms that were used in the alignment process.
      */
     AlignmentOutput(AFPChain afpChain, Structure structureLeft,
-            Structure structureRight, List<Atom> listAtomsLeft,
-            List<Atom> listAtomsRight, String description) {
+            Structure structureRight, Atom[] listAtomsLeft,
+            Atom[] listAtomsRight, String description) {
         this.afpChain = afpChain;
         this.structureLeft = structureLeft;
         this.structureRight = structureRight;
-        this.listAtomsLeft = listAtomsLeft;
-        this.listAtomsRight = listAtomsRight;
+        this.listAtomsLeft = listAtomsLeft.clone();
+        this.listAtomsRight = listAtomsRight.clone();
         this.description = description;
     }
 
@@ -136,21 +135,24 @@ public class AlignmentOutput implements Exportable {
      * 
      * @return Two arrays of atoms.
      */
-    public Pair<List<Atom>, List<Atom>> getAtoms() {
+    public Pair<Atom[], Atom[]> getAtoms() {
         List<Atom> l = new ArrayList<>();
         List<Atom> r = new ArrayList<>();
 
         int[][][] optAln = afpChain.getOptAln();
         for (int i = 0; i < 2; i++) {
             for (int[][] element : optAln) {
-                List<Atom> from = i == 0 ? listAtomsLeft : listAtomsRight;
+                Atom[] from = i == 0 ? listAtomsLeft : listAtomsRight;
                 List<Atom> to = i == 0 ? l : r;
+
                 for (int k = 0; k < element[i].length; k++) {
-                    to.add(from.get(k));
+                    to.add(from[k]);
                 }
             }
         }
-        return Pair.of(l, r);
+
+        return Pair.of(l.toArray(new Atom[l.size()]),
+                r.toArray(new Atom[r.size()]));
     }
 
     /**
@@ -165,13 +167,13 @@ public class AlignmentOutput implements Exportable {
         Structure leftWhole = structureLeft.clone();
         Structure rightWhole = structureRight.clone();
         Matrix matrix = afpChain.getBlockRotationMatrix()[0];
-        Atom c1 = Calc.getCentroid(listAtomsLeft.toArray(new Atom[listAtomsLeft.size()]));
-        Atom c2 = Calc.getCentroid(listAtomsRight.toArray(new Atom[listAtomsRight.size()]));
+        Atom c1 = Calc.getCentroid(listAtomsLeft);
+        Atom c2 = Calc.getCentroid(listAtomsRight);
         Calc.shift(leftWhole, Calc.invert(c1));
         Calc.shift(rightWhole, Calc.invert(c2));
         Calc.rotate(rightWhole, matrix);
 
-        Pair<List<Atom>, List<Atom>> aligned = getAtoms();
+        Pair<Atom[], Atom[]> aligned = getAtoms();
         Structure leftFiltered = AlignmentOutput.filterStructure(leftWhole,
                 aligned.getLeft());
         Structure rightFiltered = AlignmentOutput.filterStructure(rightWhole,

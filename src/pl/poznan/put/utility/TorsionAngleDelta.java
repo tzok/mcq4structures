@@ -3,12 +3,13 @@ package pl.poznan.put.utility;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.common.AverageAngle;
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.common.TorsionAngle;
-import pl.poznan.put.common.TorsionAngleValue;
+import pl.poznan.put.helper.CommonNumberFormat;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.helper.TorsionAnglesHelper;
+import pl.poznan.put.torsion.AngleValue;
+import pl.poznan.put.torsion.AverageAngle;
+import pl.poznan.put.torsion.TorsionAngle;
 
 public class TorsionAngleDelta {
     public enum State {
@@ -16,13 +17,13 @@ public class TorsionAngleDelta {
         DIFFERENT_CHI;
     }
 
-    private final TorsionAngleValue torsionAngleValueLeft;
-    private final TorsionAngleValue torsionAngleValueRight;
+    private final AngleValue torsionAngleValueLeft;
+    private final AngleValue torsionAngleValueRight;
     private final State state;
     private final double delta;
 
-    public static TorsionAngleDelta calculate(TorsionAngleValue torsion1,
-            TorsionAngleValue torsion2) {
+    public static TorsionAngleDelta calculate(AngleValue torsion1,
+            AngleValue torsion2) {
         State state;
         double delta = Double.NaN;
 
@@ -41,10 +42,10 @@ public class TorsionAngleDelta {
         return new TorsionAngleDelta(torsion1, torsion2, state, delta);
     }
 
-    public static TorsionAngleDelta calculateChiDelta(TorsionAngleValue chiL,
-            TorsionAngleValue chiR, boolean matchChiByType) {
-        TorsionAngle torL = chiL.getTorsionAngle();
-        TorsionAngle torR = chiR.getTorsionAngle();
+    public static TorsionAngleDelta calculateChiDelta(AngleValue chiL,
+            AngleValue chiR, boolean matchChiByType) {
+        TorsionAngle torL = chiL.getAngle();
+        TorsionAngle torR = chiR.getAngle();
 
         if (!matchChiByType && torL.getMoleculeType() == MoleculeType.RNA
                 && !torL.equals(torR)) {
@@ -57,8 +58,8 @@ public class TorsionAngleDelta {
 
     public static TorsionAngleDelta calculateAverage(MoleculeType moleculeType,
             List<TorsionAngleDelta> deltas) {
-        List<TorsionAngleValue> left = new ArrayList<>();
-        List<TorsionAngleValue> right = new ArrayList<>();
+        List<AngleValue> left = new ArrayList<>();
+        List<AngleValue> right = new ArrayList<>();
         List<Double> values = new ArrayList<>();
 
         for (TorsionAngleDelta tad : deltas) {
@@ -85,11 +86,11 @@ public class TorsionAngleDelta {
                 Double.isNaN(mcq) ? State.BOTH_INVALID : State.BOTH_VALID, mcq);
     }
 
-    public TorsionAngleValue getTorsionAngleValueLeft() {
+    public AngleValue getTorsionAngleValueLeft() {
         return torsionAngleValueLeft;
     }
 
-    public TorsionAngleValue getTorsionAngleValueRight() {
+    public AngleValue getTorsionAngleValueRight() {
         return torsionAngleValueRight;
     }
 
@@ -102,7 +103,7 @@ public class TorsionAngleDelta {
     }
 
     public TorsionAngle getTorsionAngle() {
-        return torsionAngleValueLeft.getTorsionAngle();
+        return torsionAngleValueLeft.getAngle();
     }
 
     @Override
@@ -125,7 +126,7 @@ public class TorsionAngleDelta {
         case BOTH_INVALID:
             return null;
         case BOTH_VALID:
-            return NumberFormatter.format(Math.toDegrees(delta));
+            return CommonNumberFormat.formatDouble(Math.toDegrees(delta));
         case TORSION_LEFT_INVALID:
             return "Missing atoms in left";
         case TORSION_RIGHT_INVALID:
@@ -154,8 +155,8 @@ public class TorsionAngleDelta {
         return result;
     }
 
-    private TorsionAngleDelta(TorsionAngleValue torsion1,
-            TorsionAngleValue torsion2, State state, double delta) {
+    private TorsionAngleDelta(AngleValue torsion1,
+            AngleValue torsion2, State state, double delta) {
         super();
         this.torsionAngleValueLeft = torsion1;
         this.torsionAngleValueRight = torsion2;

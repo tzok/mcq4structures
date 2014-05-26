@@ -14,7 +14,6 @@ import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.apache.commons.math3.fraction.ProperFractionFormat;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -23,14 +22,15 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.gui.TorsionAxis;
 import pl.poznan.put.helper.Constants;
+import pl.poznan.put.helper.FractionAngleFormat;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparisonResult;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.Residue;
+import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.utility.TorsionAngleDelta;
 
@@ -127,8 +127,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
         yAxis.setRange(0, Math.PI);
         yAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
 
-        final ProperFractionFormat format = new ProperFractionFormat();
-        yAxis.setNumberFormatOverride(new FractionAngleFormat(format));
+        yAxis.setNumberFormatOverride(FractionAngleFormat.createInstance());
         XYPlot plot = new XYPlot(dataset, xAxis, yAxis, renderer);
 
         JFrame frame = new JFrame();

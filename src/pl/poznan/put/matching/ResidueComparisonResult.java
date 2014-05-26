@@ -2,10 +2,10 @@ package pl.poznan.put.matching;
 
 import java.util.List;
 
-import pl.poznan.put.common.ChiTorsionAngle;
-import pl.poznan.put.common.ChiTorsionAngleType;
-import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.structure.ResidueTorsionAngles;
+import pl.poznan.put.torsion.ChiTorsionAngle;
+import pl.poznan.put.torsion.ChiTorsionAngleType;
+import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class ResidueComparisonResult {

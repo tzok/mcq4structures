@@ -7,7 +7,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.helper.TorsionAnglesHelper;
 import pl.poznan.put.matching.FragmentComparisonResult;
 import pl.poznan.put.matching.FragmentMatch;
@@ -20,6 +19,7 @@ import pl.poznan.put.protein.ProteinChiTorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TorsionAngleDelta;
 import pl.poznan.put.utility.TorsionAngleDelta.State;
 
@@ -111,7 +111,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
          * Sanity check
          */
         for (CompactFragment fragment : models) {
-            if (fragment.getChainType() != reference.getChainType()
+            if (fragment.getMoleculeType() != reference.getMoleculeType()
                     || fragment.getSize() != reference.getSize()) {
                 throw new IncomparableStructuresException("All models must "
                         + "be of the same type and size as the reference "

@@ -1,8 +1,8 @@
 package pl.poznan.put.comparison;
 
+import pl.poznan.put.helper.CommonNumberFormat;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.utility.NumberFormatter;
 
 public class GlobalComparisonResult {
     private final String measureName;
@@ -58,10 +58,10 @@ public class GlobalComparisonResult {
      */
     public String toExportString() {
         if (isAngle) {
-            return NumberFormatter.format(Math.toDegrees(value));
+            return CommonNumberFormat.formatDouble(Math.toDegrees(value));
         }
 
-        return NumberFormatter.format(value);
+        return CommonNumberFormat.formatDouble(value);
     }
 
     /**

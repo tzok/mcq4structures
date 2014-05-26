@@ -7,9 +7,9 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.comparison.ModelsComparisonResult;
 import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.torsion.TorsionAngle;
 
 class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;

@@ -3,17 +3,17 @@ package pl.poznan.put.matching;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.common.AverageAngle;
-import pl.poznan.put.common.ChiTorsionAngleType;
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.common.TorsionAngle;
-import pl.poznan.put.common.TorsionAngleValue;
 import pl.poznan.put.helper.TorsionAnglesHelper;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.ResidueTorsionAngles;
 import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.torsion.AngleValue;
+import pl.poznan.put.torsion.AverageAngle;
+import pl.poznan.put.torsion.ChiTorsionAngleType;
+import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class MCQMatcher implements StructureMatcher {
@@ -34,21 +34,21 @@ public class MCQMatcher implements StructureMatcher {
                     new ArrayList<FragmentMatch>());
         }
 
-        List<CompactFragment> fr1 = s1.getCompactFragments();
-        List<CompactFragment> fr2 = s2.getCompactFragments();
+        CompactFragment[] fr1 = s1.getCompactFragments();
+        CompactFragment[] fr2 = s2.getCompactFragments();
 
-        FragmentMatch[][] matrix = new FragmentMatch[fr1.size()][];
-        for (int i = 0; i < fr1.size(); i++) {
-            matrix[i] = new FragmentMatch[fr2.size()];
+        FragmentMatch[][] matrix = new FragmentMatch[fr1.length][];
+        for (int i = 0; i < fr1.length; i++) {
+            matrix[i] = new FragmentMatch[fr2.length];
         }
 
-        for (int i = 0; i < fr1.size(); i++) {
-            CompactFragment fi = fr1.get(i);
+        for (int i = 0; i < fr1.length; i++) {
+            CompactFragment fi = fr1[i];
 
-            for (int j = 0; j < fr2.size(); j++) {
-                CompactFragment fj = fr2.get(j);
+            for (int j = 0; j < fr2.length; j++) {
+                CompactFragment fj = fr2[j];
 
-                if (fi.getChainType() != fj.getChainType()) {
+                if (fi.getMoleculeType() != fj.getMoleculeType()) {
                     continue;
                 }
 
@@ -166,16 +166,16 @@ public class MCQMatcher implements StructureMatcher {
             }
 
             if (angle instanceof ChiTorsionAngleType) {
-                TorsionAngleValue angleValueL = a1.getChiAngleValue((ChiTorsionAngleType) angle);
-                TorsionAngleValue angleValueR = a2.getChiAngleValue((ChiTorsionAngleType) angle);
+                AngleValue angleValueL = a1.getChiAngleValue((ChiTorsionAngleType) angle);
+                AngleValue angleValueR = a2.getChiAngleValue((ChiTorsionAngleType) angle);
                 TorsionAngleDelta delta = TorsionAngleDelta.calculateChiDelta(
                         angleValueL, angleValueR, matchChiByType);
                 result.add(delta);
                 continue;
             }
 
-            TorsionAngleValue angleValueL = a1.getAngleValue(angle);
-            TorsionAngleValue angleValueR = a2.getAngleValue(angle);
+            AngleValue angleValueL = a1.getAngleValue(angle);
+            AngleValue angleValueR = a2.getAngleValue(angle);
             TorsionAngleDelta delta = TorsionAngleDelta.calculate(angleValueL,
                     angleValueR);
             result.add(delta);
@@ -195,18 +195,18 @@ public class MCQMatcher implements StructureMatcher {
 
         if (isPseudophasePucker) {
             TorsionAngle[] taus = new TorsionAngle[] { RNATorsionAngle.TAU0, RNATorsionAngle.TAU1, RNATorsionAngle.TAU2, RNATorsionAngle.TAU3, RNATorsionAngle.TAU4 };
-            TorsionAngleValue[] l = new TorsionAngleValue[5];
-            TorsionAngleValue[] r = new TorsionAngleValue[5];
+            AngleValue[] l = new AngleValue[5];
+            AngleValue[] r = new AngleValue[5];
 
             for (int i = 0; i < 5; i++) {
                 l[i] = a1.getAngleValue(taus[i]);
                 r[i] = a2.getAngleValue(taus[i]);
             }
 
-            TorsionAngleValue pL = PseudophasePuckerAngle.calculate(l[0], l[1],
-                    l[2], l[3], l[4]);
-            TorsionAngleValue pR = PseudophasePuckerAngle.calculate(r[0], r[1],
-                    r[2], r[3], r[4]);
+            AngleValue pL = PseudophasePuckerAngle.calculate(l[0], l[1], l[2],
+                    l[3], l[4]);
+            AngleValue pR = PseudophasePuckerAngle.calculate(r[0], r[1], r[2],
+                    r[3], r[4]);
             result.add(TorsionAngleDelta.calculate(pL, pR));
         }
 

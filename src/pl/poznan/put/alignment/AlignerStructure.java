@@ -2,7 +2,6 @@ package pl.poznan.put.alignment;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,16 +51,14 @@ public final class AlignerStructure {
         }
 
         Set<Atom> changedAtoms = new HashSet<>();
-        List<Atom> listLeft = AlignerStructure.changePToCA(left, changedAtoms);
-        List<Atom> listRight = AlignerStructure.changePToCA(right, changedAtoms);
+        Atom[] listLeft = AlignerStructure.changePToCA(left, changedAtoms);
+        Atom[] listRight = AlignerStructure.changePToCA(right, changedAtoms);
 
         StructureAlignment alignment = new CeMain();
         CeParameters parameters = new CeParameters();
 
         while (true) {
-            AFPChain align = alignment.align(
-                    listLeft.toArray(new Atom[listLeft.size()]),
-                    listRight.toArray(new Atom[listRight.size()]), parameters);
+            AFPChain align = alignment.align(listLeft, listRight, parameters);
 
             if (align.getBlockRotationMatrix().length == 0) {
                 int winSize = parameters.getWinSize();
@@ -86,17 +83,15 @@ public final class AlignerStructure {
         }
     }
 
-    private static List<Atom> changePToCA(Structure structure,
+    private static Atom[] changePToCA(Structure structure,
             Set<Atom> changedAtoms) {
-        List<Atom> list = StructureHelper.findAllAtoms(structure, AtomName.P);
-
-        for (Atom atom : list) {
+        for (Atom atom : StructureHelper.findAllAtoms(structure, AtomName.P)) {
             atom.setName("CA");
             atom.setFullName(" CA ");
             changedAtoms.add(atom);
         }
 
-        return list;
+        return StructureHelper.findAllAtoms(structure, AtomName.P);
     }
 
     private AlignerStructure() {

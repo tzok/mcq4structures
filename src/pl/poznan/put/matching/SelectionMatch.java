@@ -2,7 +2,7 @@ package pl.poznan.put.matching;
 
 import java.util.List;
 
-import pl.poznan.put.common.TorsionAngle;
+import pl.poznan.put.torsion.TorsionAngle;
 
 public class SelectionMatch {
     private final boolean matchChiByType;

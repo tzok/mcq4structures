@@ -52,10 +52,7 @@ import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.common.AverageAngle;
-import pl.poznan.put.common.ChiTorsionAngleType;
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.comparison.GlobalComparator;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.comparison.IncomparableStructuresException;
@@ -77,6 +74,9 @@ import pl.poznan.put.protein.ProteinTorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.structure.StructureSelectionFactory;
+import pl.poznan.put.torsion.AverageAngle;
+import pl.poznan.put.torsion.ChiTorsionAngleType;
+import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.StructureManager;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
@@ -890,7 +890,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
     void compareLocalMulti() {
         List<CompactFragment> selections = dialogChainsMultiple.getChains();
         CompactFragment[] array = selections.toArray(new CompactFragment[selections.size()]);
-        MoleculeType moleculeType = array[0].getChainType();
+        MoleculeType moleculeType = array[0].getMoleculeType();
         List<TorsionAngle> angles = new ArrayList<>();
 
         CompactFragment reference = (CompactFragment) JOptionPane.showInputDialog(
@@ -903,11 +903,11 @@ public class MainWindow extends JFrame implements ComparisonListener {
 
         if (moleculeType == MoleculeType.PROTEIN) {
             angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
-            angles.addAll(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN));
+            angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN)));
             angles.add(AverageAngle.getInstance(MoleculeType.PROTEIN));
         } else if (moleculeType == MoleculeType.RNA) {
             angles.addAll(Arrays.asList(RNATorsionAngle.values()));
-            angles.addAll(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA));
+            angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA)));
             angles.add(PseudophasePuckerAngle.getInstance());
             angles.add(AverageAngle.getInstance(MoleculeType.RNA));
         }
@@ -924,8 +924,8 @@ public class MainWindow extends JFrame implements ComparisonListener {
         List<TorsionAngle> selectedAngles = new ArrayList<>();
 
         if (angleType.equals(AverageAngle.getInstance(moleculeType))) {
-            selectedAngles.addAll(moleculeType.getBackboneTorsionAngles());
-            selectedAngles.addAll(ChiTorsionAngleType.getChiTorsionAngles(moleculeType));
+            selectedAngles.addAll(Arrays.asList(moleculeType.getBackboneTorsionAngles()));
+            selectedAngles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(moleculeType)));
         } else if (angleType.equals(PseudophasePuckerAngle.getInstance())) {
             selectedAngles.add(RNATorsionAngle.TAU0);
             selectedAngles.add(RNATorsionAngle.TAU1);
@@ -1033,10 +1033,10 @@ public class MainWindow extends JFrame implements ComparisonListener {
         }
 
         List<CompactFragment> selections = dialogChainsMultiple.getChains();
-        MoleculeType type = selections.get(0).getChainType();
+        MoleculeType type = selections.get(0).getMoleculeType();
 
         for (CompactFragment c : selections) {
-            if (type != c.getChainType()) {
+            if (type != c.getMoleculeType()) {
                 JOptionPane.showMessageDialog(this, "Cannot align/compare "
                         + "structures: different types", "Error",
                         JOptionPane.ERROR_MESSAGE);

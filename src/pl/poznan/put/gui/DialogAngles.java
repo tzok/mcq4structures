@@ -21,13 +21,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import pl.poznan.put.common.AverageAngle;
-import pl.poznan.put.common.ChiTorsionAngleType;
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
+import pl.poznan.put.torsion.AverageAngle;
+import pl.poznan.put.torsion.ChiTorsionAngleType;
+import pl.poznan.put.torsion.TorsionAngle;
 
 final class DialogAngles extends JDialog {
     private static DialogAngles instance;
@@ -62,7 +62,7 @@ final class DialogAngles extends JDialog {
 
         List<TorsionAngle> angles = new ArrayList<>();
         angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
-        angles.addAll(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN));
+        angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN)));
         angles.add(AverageAngle.getInstance(MoleculeType.PROTEIN));
 
         for (TorsionAngle angle : angles) {
@@ -92,7 +92,7 @@ final class DialogAngles extends JDialog {
 
         angles = new ArrayList<>();
         angles.addAll(Arrays.asList(RNATorsionAngle.values()));
-        angles.addAll(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA));
+        angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA)));
         angles.add(PseudophasePuckerAngle.getInstance());
         angles.add(AverageAngle.getInstance(MoleculeType.RNA));
 

@@ -11,6 +11,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -85,7 +86,7 @@ final class DialogChainsMultiple extends JDialog {
         }
 
         public void addElement(CompactFragment element) {
-            MoleculeType moleculeType = element.getChainType();
+            MoleculeType moleculeType = element.getMoleculeType();
 
             if (moleculeType == MoleculeType.RNA) {
                 listRNAs.add(element);
@@ -156,7 +157,7 @@ final class DialogChainsMultiple extends JDialog {
                         list, value, index, isSelected, cellHasFocus);
 
                 if (value != null) {
-                    boolean isRNA = value.getChainType() == MoleculeType.RNA;
+                    boolean isRNA = value.getMoleculeType() == MoleculeType.RNA;
                     label.setText(value.toString());
                     label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                 }
@@ -362,7 +363,7 @@ final class DialogChainsMultiple extends JDialog {
                         + chain.getChainID();
                 StructureSelection selection = StructureSelectionFactory.create(
                         name, chain);
-                fragments.addAll(selection.getCompactFragments());
+                fragments.addAll(Arrays.asList(selection.getCompactFragments()));
             }
         }
 

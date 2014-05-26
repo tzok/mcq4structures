@@ -14,7 +14,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Group;
 import org.jumpmind.symmetric.csv.CsvWriter;
 
-import pl.poznan.put.common.TorsionAngle;
 import pl.poznan.put.gui.DialogColorbar;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -24,6 +23,7 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparisonResult;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.Residue;
+import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class ModelsComparisonResult implements Exportable, Visualizable,

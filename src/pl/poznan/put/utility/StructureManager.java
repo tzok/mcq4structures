@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 
 import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.align.ce.AbstractUserArgumentProcessor;
 import org.biojava.bio.structure.io.MMCIFFileReader;
 import org.biojava.bio.structure.io.PDBFileReader;
 import org.slf4j.Logger;
@@ -30,14 +31,24 @@ public final class StructureManager {
     private static final List<StructureInfo> STRUCTURES = new ArrayList<>();
     private static final MMCIFFileReader MMCIF_READER = new MMCIFFileReader();
     private static final PDBFileReader PDB_READER = new PDBFileReader();
+    private static final File TMP_DIR = new File(
+            System.getProperty("java.io.tmpdir"));
+    private static final File PDB_DIR = new File(StructureManager.TMP_DIR,
+            "pdbs");
+
+    static {
+        // AbstractUserArgumentProcessor.PDB_DIR is what PDBFileReader in
+        // BioJava checks!
+        StructureManager.PDB_DIR.mkdirs();
+        System.setProperty(AbstractUserArgumentProcessor.PDB_DIR,
+                StructureManager.PDB_DIR.getAbsolutePath());
+    }
 
     public static List<Structure> getAllStructures() {
         SortedSet<StructureInfo> set = new TreeSet<>(
                 new Comparator<StructureInfo>() {
                     @Override
                     public int compare(StructureInfo o1, StructureInfo o2) {
-                        assert o1 != null;
-                        assert o2 != null;
                         String name1 = o1.getName();
                         String name2 = o2.getName();
                         return name1.compareTo(name2);
@@ -138,8 +149,8 @@ public final class StructureManager {
             return new ArrayList<>();
         }
 
-        File pdbFile = new File(StructureManager.PDB_READER.getPath());
-        pdbFile = new File(pdbFile, "pdb" + pdbId.toLowerCase() + ".ent.gz");
+        File pdbFile = new File(StructureManager.PDB_DIR, "pdb"
+                + pdbId.toLowerCase() + ".ent.gz");
 
         if (!pdbFile.exists()) {
             return new ArrayList<>();

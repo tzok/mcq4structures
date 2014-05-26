@@ -1,6 +1,7 @@
 package pl.poznan.put.comparison;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.biojava.bio.structure.Atom;
@@ -84,16 +85,18 @@ public class RMSD implements GlobalComparator {
                 ResidueType residueType = left.getResidueType();
                 MoleculeType chainType = residueType.getChainType();
                 List<AtomName> atomNames = new ArrayList<>();
+                AtomName[] atoms = chainType.getBackboneAtoms();
 
                 switch (filter) {
                 case ALL:
-                    atomNames.addAll(chainType.getBackboneAtoms());
+                    atomNames.addAll(Arrays.asList(atoms));
                     if (residueType == right.getResidueType()) {
-                        atomNames.addAll(residueType.getResidueAtoms());
+                        atoms = residueType.getResidueAtoms();
+                        atomNames.addAll(Arrays.asList(atoms));
                     }
                     break;
                 case BACKBONE:
-                    atomNames.addAll(chainType.getBackboneAtoms());
+                    atomNames.addAll(Arrays.asList(atoms));
                     break;
                 case MAIN:
                     atomNames.add(chainType.getMainAtom());
