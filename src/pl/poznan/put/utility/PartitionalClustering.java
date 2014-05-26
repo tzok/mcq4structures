@@ -2,9 +2,6 @@ package pl.poznan.put.utility;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
@@ -15,9 +12,9 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.scene.Graph;
 import org.jzy3d.plot3d.text.drawable.DrawableTextBitmap;
 
-import pl.poznan.put.clustering.ClustererKMedoids;
-import pl.poznan.put.clustering.ClustererKMedoids.Result;
-import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
+import pl.poznan.put.clustering.partitional.ClusterAssignment;
+import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
+import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.gui.KMedoidsPlot;
 import pl.poznan.put.helper.Constants;
@@ -123,28 +120,24 @@ public class PartitionalClustering implements Visualizable {
     private final GlobalComparisonResultMatrix matrix;
     private final List<String> labels;
     private final List<Point> medoids;
-    private final ScoringFunction scoringFunction;
+    private final ScoredClusteringResult clustering;
 
     public PartitionalClustering(GlobalComparisonResultMatrix matrix,
-            ScoringFunction scoringFunction, Integer k)
-            throws InvalidInputException {
-        this.scoringFunction = scoringFunction;
+            ScoredClusteringResult clustering) throws InvalidInputException {
         this.matrix = matrix;
+        this.clustering = clustering;
 
         double[][] distanceMatrix = matrix.getMatrix();
         double[][] mds2D = MDS.multidimensionalScaling(distanceMatrix, 2);
         double[][] mds3D = MDS.multidimensionalScaling(distanceMatrix, 3);
 
-        ClustererKMedoids clusterer = new ClustererKMedoids();
-        Result clustering = clusterer.kMedoids(distanceMatrix, scoringFunction,
-                k);
-        Map<Integer, Set<Integer>> clusterMap = ClustererKMedoids.getClusterAssignments(
-                clustering.getMedoids(), distanceMatrix);
+        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(
+                clustering.getPrototypes(), matrix.getMatrix());
 
         String[] labelsAll = matrix.getNames();
         medoids = new ArrayList<>();
 
-        for (int index : clusterMap.keySet()) {
+        for (int index : assignment.getPrototypes()) {
             Point medoid = new Point();
             medoid.setLabel(labelsAll[index]);
             medoid.setX(mds2D[index][0]);
@@ -156,12 +149,12 @@ public class PartitionalClustering implements Visualizable {
         clusters3d = new ArrayList<>();
         labels = new ArrayList<>();
 
-        for (Entry<Integer, Set<Integer>> entry : clusterMap.entrySet()) {
+        for (int prototype : assignment.getPrototypes()) {
             List<Point> points = new ArrayList<>();
             List<Point3D> points3D = new ArrayList<>();
             StringBuilder builder = new StringBuilder();
 
-            for (int index : entry.getValue()) {
+            for (int index : assignment.getAssignedTo(prototype)) {
                 builder.append(labelsAll[index]);
                 builder.append(", ");
 
@@ -208,11 +201,7 @@ public class PartitionalClustering implements Visualizable {
     }
 
     public ScoringFunction getScoringFunction() {
-        return scoringFunction;
-    }
-
-    public String getScoringFunctionName() {
-        return scoringFunction.toString();
+        return clustering.getScoringFunction();
     }
 
     @Override

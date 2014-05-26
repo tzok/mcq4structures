@@ -14,7 +14,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
+import pl.poznan.put.clustering.hierarchical.HierarchicalCluster;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 
 /**
@@ -50,15 +50,15 @@ public class HierarchicalPlot extends JFrame {
      *            Linkage type @see Clusterer.Type;
      */
     public HierarchicalPlot(GlobalComparisonResultMatrix matrix,
-            List<Cluster> clustering) {
+            HierarchicalCluster[] clustering) {
         DefaultXYDataset dataset = new DefaultXYDataset();
         String[] labels = matrix.getNames();
 
-        for (Cluster cluster : clustering) {
+        for (HierarchicalCluster cluster : clustering) {
             String label = HierarchicalPlot.generateLabel(cluster.getItems(),
                     labels);
-            Cluster left = cluster.getLeft();
-            Cluster right = cluster.getRight();
+            HierarchicalCluster left = cluster.getLeft();
+            HierarchicalCluster right = cluster.getRight();
             double[] x = new double[] { left.getX(), left.getX(), right.getX(), right.getX() };
             double[] y = new double[] { left.getY(), cluster.getY(), cluster.getY(), right.getY() };
             dataset.addSeries(label, new double[][] { x, y });

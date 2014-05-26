@@ -7,7 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -19,11 +18,15 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import pl.poznan.put.clustering.ClustererHierarchical;
-import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
-import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
-import pl.poznan.put.clustering.ClustererKMedoids;
-import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
+import pl.poznan.put.clustering.hierarchical.HierarchicalCluster;
+import pl.poznan.put.clustering.hierarchical.HierarchicalClusterer;
+import pl.poznan.put.clustering.hierarchical.Linkage;
+import pl.poznan.put.clustering.partitional.KMedoids;
+import pl.poznan.put.clustering.partitional.KScanner;
+import pl.poznan.put.clustering.partitional.PAM;
+import pl.poznan.put.clustering.partitional.PAMSIL;
+import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
+import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.utility.InvalidInputException;
@@ -55,7 +58,7 @@ public class DialogCluster extends JDialog {
 
         linkage = new JComboBox<>(Linkage.values());
         scoringFunction = new JComboBox<>(
-                ClustererKMedoids.getScoringFunctions());
+                new ScoringFunction[] { PAM.getInstance(), PAMSIL.getInstance() });
         scoringFunction.setEnabled(false);
         findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);
@@ -168,10 +171,11 @@ public class DialogCluster extends JDialog {
     }
 
     Visualizable getVisualizable() throws InvalidInputException {
+        double[][] matrix = comparisonGlobal.getMatrix();
+
         if (hierarchical.isSelected()) {
-            final List<Cluster> clustering = ClustererHierarchical.hierarchicalClustering(
-                    comparisonGlobal.getMatrix(),
-                    (Linkage) linkage.getSelectedItem());
+            final HierarchicalCluster[] clusters = HierarchicalClusterer.cluster(
+                    matrix, (Linkage) linkage.getSelectedItem());
 
             return new Visualizable() {
                 @Override
@@ -182,15 +186,24 @@ public class DialogCluster extends JDialog {
                 @Override
                 public void visualize() {
                     HierarchicalPlot plot = new HierarchicalPlot(
-                            comparisonGlobal, clustering);
+                            comparisonGlobal, clusters);
                     plot.setVisible(true);
                 }
             };
         }
 
-        Integer k = (Integer) (findBestK.isSelected() ? null
-                : kspinner.getValue());
-        return new PartitionalClustering(comparisonGlobal,
-                (ScoringFunction) scoringFunction.getSelectedItem(), k);
+        // FIXME
+        KMedoids clusterer = new KMedoids(1);
+        ScoringFunction sf = (ScoringFunction) scoringFunction.getSelectedItem();
+        ScoredClusteringResult result;
+
+        if (findBestK.isSelected()) {
+            result = KScanner.parallelScan(clusterer, matrix, sf);
+        } else {
+            int k = (int) kspinner.getValue();
+            result = clusterer.findPrototypes(matrix, sf, k);
+        }
+
+        return new PartitionalClustering(comparisonGlobal, result);
     }
 }
