@@ -125,7 +125,59 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
     @Override
     public void visualize3D() {
-        // TODO Auto-generated method stub
+        // TODO: major refactoring required
+        // final int maxX = results.size();
+        // if (maxX <= 1) {
+        // JOptionPane.showMessageDialog(null,
+        // "3D plot requires a comparison based on at least "
+        // + "two structures", "Warning",
+        // JOptionPane.WARNING_MESSAGE);
+        // return;
+        // }
+        // ComparisonLocal reference = results.get(0);
+        // final int maxY = reference.getTicks().size();
+        //
+        // Shape surface =
+        // Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
+        // maxX - 1), maxX, new Range(0, maxY - 1), maxY),
+        // new Mapper() {
+        // @Override
+        // public double f(double x, double y) {
+        // int i = (int) Math.round(x);
+        // int j = (int) Math.round(y);
+        //
+        // i = Math.max(Math.min(i, maxX - 1), 0);
+        // j = Math.max(Math.min(j, maxY - 1), 0);
+        // // FIXME
+        // return getResults().get(i).getAngles().get(
+        // getAngleName()).getDeltas()[j];
+        // }
+        // });
+        //
+        // surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0,
+        // (float) Math.PI, new Color(1, 1, 1, .5f)));
+        // surface.setFaceDisplayed(true);
+        // surface.setWireframeDisplayed(false);
+        //
+        // TickLabelMap mapX = new TickLabelMap();
+        // for (int i = 0; i < maxX; i++) {
+        // mapX.register(i, results.get(i).getTitle());
+        // }
+        // TickLabelMap mapY = new TickLabelMap();
+        // for (int i = 0; i < maxY; i++) {
+        // mapY.register(i, reference.getTicks().get(i));
+        // }
+        //
+        // Chart chart = new Chart(Quality.Nicest);
+        // chart.getScene().getGraph().add(surface);
+        //
+        // IAxeLayout axeLayout = chart.getAxeLayout();
+        // axeLayout.setXTickProvider(new RegularTickProvider(maxX));
+        // axeLayout.setXTickRenderer(mapX);
+        // axeLayout.setYTickProvider(new SmartTickProvider(maxY));
+        // axeLayout.setYTickRenderer(mapY);
+        //
+        // ChartLauncher.openChart(chart);
     }
 
     @Override
