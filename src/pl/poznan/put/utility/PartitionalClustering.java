@@ -1,14 +1,10 @@
-package pl.poznan.put.beans;
+package pl.poznan.put.utility;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
@@ -19,31 +15,123 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.scene.Graph;
 import org.jzy3d.plot3d.text.drawable.DrawableTextBitmap;
 
-import pl.poznan.put.beans.auxiliary.Cluster;
-import pl.poznan.put.beans.auxiliary.Cluster3D;
-import pl.poznan.put.beans.auxiliary.Point;
-import pl.poznan.put.beans.auxiliary.Point3D;
 import pl.poznan.put.clustering.ClustererKMedoids;
 import pl.poznan.put.clustering.ClustererKMedoids.Result;
 import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
+import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.gui.KMedoidsPlot;
 import pl.poznan.put.helper.Constants;
-import pl.poznan.put.helper.RGB;
-import pl.poznan.put.helper.XMLSerializable;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.mcqgraphics.Matplotlib;
-import pl.poznan.put.utility.InvalidInputException;
 import pl.poznan.put.visualisation.MDS;
 
-@XmlRootElement
-public class ClusteringPartitional extends XMLSerializable implements
-        Visualizable {
-    private static final long serialVersionUID = -7474446942015119359L;
+public class PartitionalClustering implements Visualizable {
+    public class Cluster {
+        private List<Point> points = new ArrayList<>();
 
-    public static ClusteringPartitional newInstance(
-            ComparisonGlobal comparison, ScoringFunction scoringFunction,
-            Integer k) throws InvalidInputException {
-        double[][] distanceMatrix = comparison.getDistanceMatrix();
+        public List<Point> getPoints() {
+            return points;
+        }
+
+        public void setPoints(List<Point> points) {
+            this.points = points;
+        }
+    }
+
+    public class Cluster3D {
+        private List<Point3D> points = new ArrayList<>();
+
+        public List<Point3D> getPoints() {
+            return points;
+        }
+
+        public void setPoints(List<Point3D> points) {
+            this.points = points;
+        }
+    }
+
+    public class Point {
+        private String label = "";
+        private double x;
+        private double y;
+
+        public String getLabel() {
+            return label;
+        }
+
+        public double getX() {
+            return x;
+        }
+
+        public double getY() {
+            return y;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public void setX(double x) {
+            this.x = x;
+        }
+
+        public void setY(double y) {
+            this.y = y;
+        }
+    }
+
+    public class Point3D {
+        private String label = "";
+        private double x;
+        private double y;
+        private double z;
+
+        public String getLabel() {
+            return label;
+        }
+
+        public double getX() {
+            return x;
+        }
+
+        public double getY() {
+            return y;
+        }
+
+        public double getZ() {
+            return z;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public void setX(double x) {
+            this.x = x;
+        }
+
+        public void setY(double y) {
+            this.y = y;
+        }
+
+        public void setZ(double z) {
+            this.z = z;
+        }
+    }
+
+    private final List<Cluster> clusters;
+    private final List<Cluster3D> clusters3d;
+    private final GlobalComparisonResultMatrix matrix;
+    private final List<String> labels;
+    private final List<Point> medoids;
+    private final ScoringFunction scoringFunction;
+
+    public PartitionalClustering(GlobalComparisonResultMatrix matrix,
+            ScoringFunction scoringFunction, Integer k)
+            throws InvalidInputException {
+        this.scoringFunction = scoringFunction;
+        this.matrix = matrix;
+
+        double[][] distanceMatrix = matrix.getMatrix();
         double[][] mds2D = MDS.multidimensionalScaling(distanceMatrix, 2);
         double[][] mds3D = MDS.multidimensionalScaling(distanceMatrix, 3);
 
@@ -53,40 +141,44 @@ public class ClusteringPartitional extends XMLSerializable implements
         Map<Integer, Set<Integer>> clusterMap = ClustererKMedoids.getClusterAssignments(
                 clustering.getMedoids(), distanceMatrix);
 
-        List<String> labelsAll = comparison.getLabels();
-        List<Point> medoids = new ArrayList<>();
+        String[] labelsAll = matrix.getNames();
+        medoids = new ArrayList<>();
+
         for (int index : clusterMap.keySet()) {
             Point medoid = new Point();
-            medoid.setLabel(labelsAll.get(index));
+            medoid.setLabel(labelsAll[index]);
             medoid.setX(mds2D[index][0]);
             medoid.setY(mds2D[index][1]);
             medoids.add(medoid);
         }
 
-        List<Cluster> clusters = new ArrayList<>();
-        List<Cluster3D> clusters3D = new ArrayList<>();
-        List<String> labels = new ArrayList<>();
+        clusters = new ArrayList<>();
+        clusters3d = new ArrayList<>();
+        labels = new ArrayList<>();
+
         for (Entry<Integer, Set<Integer>> entry : clusterMap.entrySet()) {
             List<Point> points = new ArrayList<>();
             List<Point3D> points3D = new ArrayList<>();
             StringBuilder builder = new StringBuilder();
+
             for (int index : entry.getValue()) {
-                builder.append(labelsAll.get(index));
+                builder.append(labelsAll[index]);
                 builder.append(", ");
 
                 Point point = new Point();
-                point.setLabel(labelsAll.get(index));
+                point.setLabel(labelsAll[index]);
                 point.setX(mds2D[index][0]);
                 point.setY(mds2D[index][1]);
                 points.add(point);
 
                 Point3D point3D = new Point3D();
-                point3D.setLabel(labelsAll.get(index));
+                point3D.setLabel(labelsAll[index]);
                 point3D.setX(mds3D[index][0]);
                 point3D.setY(mds3D[index][1]);
                 point3D.setZ(mds3D[index][2]);
                 points3D.add(point3D);
             }
+
             builder.delete(builder.length() - 2, builder.length());
             labels.add(builder.toString());
 
@@ -95,82 +187,24 @@ public class ClusteringPartitional extends XMLSerializable implements
             clusters.add(cluster);
             Cluster3D cluster3D = new Cluster3D();
             cluster3D.setPoints(points3D);
-            clusters3D.add(cluster3D);
+            clusters3d.add(cluster3D);
         }
-
-        return new ClusteringPartitional(clusters, clusters3D,
-                Constants.colorsAsRGB(), comparison, labels, medoids,
-                scoringFunction);
-    }
-
-    private List<Cluster> clusters;
-    private List<Cluster3D> clusters3d;
-    private List<RGB> colors;
-    private ComparisonGlobal comparison;
-    private List<String> labels;
-    private List<Point> medoids;
-    private ScoringFunction scoringFunction;
-
-    public ClusteringPartitional() {
-    }
-
-    private ClusteringPartitional(List<Cluster> clusters,
-            List<Cluster3D> clusters3d, List<RGB> colors,
-            ComparisonGlobal comparison, List<String> labels,
-            List<Point> medoids, ScoringFunction scoringFunction) {
-        super();
-        this.clusters = clusters;
-        this.clusters3d = clusters3d;
-        this.colors = colors;
-        this.comparison = comparison;
-        this.labels = labels;
-        this.medoids = medoids;
-        this.scoringFunction = scoringFunction;
     }
 
     public List<Cluster> getClusters() {
         return clusters;
     }
 
-    @XmlElement
-    public void setClusters(List<Cluster> clusters) {
-        this.clusters = clusters;
-    }
-
-    public List<RGB> getColors() {
-        return colors;
-    }
-
-    @XmlElement
-    public void setColors(List<RGB> colors) {
-        this.colors = colors;
-    }
-
-    public ComparisonGlobal getComparison() {
-        return comparison;
-    }
-
-    @XmlElement
-    public void setComparison(ComparisonGlobal comparison) {
-        this.comparison = comparison;
+    public GlobalComparisonResultMatrix getMatrix() {
+        return matrix;
     }
 
     public List<String> getLabels() {
         return labels;
     }
 
-    @XmlElement
-    public void setLabels(List<String> labels) {
-        this.labels = labels;
-    }
-
     public List<Point> getMedoids() {
         return medoids;
-    }
-
-    @XmlElement
-    public void setMedoids(List<Point> medoids) {
-        this.medoids = medoids;
     }
 
     public ScoringFunction getScoringFunction() {
@@ -179,20 +213,6 @@ public class ClusteringPartitional extends XMLSerializable implements
 
     public String getScoringFunctionName() {
         return scoringFunction.toString();
-    }
-
-    @XmlElement
-    public void setScoringFunctionName(String name) {
-        switch (name) {
-        case ClustererKMedoids.NAME_PAM:
-            scoringFunction = ClustererKMedoids.PAM;
-            break;
-        case ClustererKMedoids.NAME_PAMSIL:
-            scoringFunction = ClustererKMedoids.PAMSIL;
-            break;
-        default:
-            scoringFunction = null;
-        }
     }
 
     @Override
@@ -230,7 +250,7 @@ public class ClusteringPartitional extends XMLSerializable implements
             for (Point3D point : cluster.getPoints()) {
                 Coord3d center = new Coord3d(point.getX(), point.getY(),
                         point.getZ());
-                float radius = (float) ((max - min) / comparison.getLabels().size());
+                float radius = (float) ((max - min) / matrix.getNames().length);
                 Sphere sphere = new Sphere(center, radius, 15, color);
                 sphere.setWireframeColor(Color.BLACK);
                 graph.add(sphere);
@@ -243,9 +263,5 @@ public class ClusteringPartitional extends XMLSerializable implements
         }
 
         ChartLauncher.openChart(chart);
-    }
-
-    @Override
-    public void visualizeHighQuality() {
     }
 }

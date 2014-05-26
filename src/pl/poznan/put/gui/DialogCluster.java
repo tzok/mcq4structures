@@ -19,17 +19,15 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import pl.poznan.put.beans.ClusteringHierarchical;
-import pl.poznan.put.beans.ClusteringPartitional;
 import pl.poznan.put.clustering.ClustererHierarchical;
 import pl.poznan.put.clustering.ClustererHierarchical.Cluster;
 import pl.poznan.put.clustering.ClustererHierarchical.Linkage;
 import pl.poznan.put.clustering.ClustererKMedoids;
-import pl.poznan.put.clustering.ClustererKMedoids.Result;
 import pl.poznan.put.clustering.ClustererKMedoids.ScoringFunction;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.utility.InvalidInputException;
+import pl.poznan.put.utility.PartitionalClustering;
 
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -136,8 +134,6 @@ public class DialogCluster extends JDialog {
                     Visualizable visualizable = getVisualizable();
                     if (source.equals(buttonVisualize)) {
                         visualizable.visualize();
-                    } else if (source.equals(buttonVisualizeHighQuality)) {
-                        visualizable.visualizeHighQuality();
                     } else { // source.equals(buttonVisualize3D)
                         visualizable.visualize3D();
                     }
@@ -179,11 +175,6 @@ public class DialogCluster extends JDialog {
 
             return new Visualizable() {
                 @Override
-                public void visualizeHighQuality() {
-                    // TODO Auto-generated method stub
-                }
-
-                @Override
                 public void visualize3D() {
                     // TODO Auto-generated method stub
                 }
@@ -199,26 +190,7 @@ public class DialogCluster extends JDialog {
 
         Integer k = (Integer) (findBestK.isSelected() ? null
                 : kspinner.getValue());
-        ClustererKMedoids clusterer = new ClustererKMedoids();
-        Result medoids = clusterer.kMedoids(comparisonGlobal.getMatrix(),
+        return new PartitionalClustering(comparisonGlobal,
                 (ScoringFunction) scoringFunction.getSelectedItem(), k);
-
-        return new Visualizable() {
-            @Override
-            public void visualizeHighQuality() {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void visualize3D() {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void visualize() {
-                new KMedoidsPlot(comparisonGlobal, medoids);
-            }
-        };
     }
 }

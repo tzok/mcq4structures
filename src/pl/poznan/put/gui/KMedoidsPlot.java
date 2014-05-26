@@ -13,10 +13,9 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.beans.ClusteringPartitional;
-import pl.poznan.put.beans.auxiliary.Cluster;
-import pl.poznan.put.beans.auxiliary.Point;
-import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
+import pl.poznan.put.utility.PartitionalClustering;
+import pl.poznan.put.utility.PartitionalClustering.Cluster;
+import pl.poznan.put.utility.PartitionalClustering.Point;
 
 /**
  * Plot of k-medoids clustering.
@@ -24,7 +23,7 @@ import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 public class KMedoidsPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    public KMedoidsPlot(GlobalComparisonResultMatrix matrix, Result kMedoids) {
+    public KMedoidsPlot(PartitionalClustering clustering) {
         DefaultXYDataset dataset = new DefaultXYDataset();
 
         for (Cluster cluster : clustering.getClusters()) {
@@ -35,6 +34,7 @@ public class KMedoidsPlot extends JFrame {
             double[] x = new double[size];
             double[] y = new double[size];
             int i = 0;
+
             for (Point point : cluster.getPoints()) {
                 builder.append(point.getLabel());
                 builder.append(", ");
@@ -42,6 +42,7 @@ public class KMedoidsPlot extends JFrame {
                 y[i] = point.getY();
                 i++;
             }
+
             builder.append(" ]");
             dataset.addSeries(builder.toString(), new double[][] { x, y });
         }
@@ -68,7 +69,7 @@ public class KMedoidsPlot extends JFrame {
 
         StringBuilder builder = new StringBuilder();
         builder.append("MCQ4Structures: global distance (");
-        builder.append(clustering.getComparison().getMethodName());
+        builder.append(clustering.getMatrix().getMeasureName());
         builder.append(") clusters by k-medoids (");
         builder.append(clustering.getScoringFunction());
         builder.append(", k = ");
