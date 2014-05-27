@@ -8,11 +8,11 @@ import pl.poznan.put.helper.TorsionAnglesHelper;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.ResidueTorsionAngles;
+import pl.poznan.put.structure.FragmentAngles;
+import pl.poznan.put.structure.ResidueAngles;
 import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.torsion.AngleValue;
 import pl.poznan.put.torsion.AverageAngle;
-import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TorsionAngleDelta;
 
@@ -70,8 +70,8 @@ public class MCQMatcher implements StructureMatcher {
             bigger = f1;
         }
 
-        List<ResidueTorsionAngles> biggerAngles = bigger.getTorsionAngles();
-        List<ResidueTorsionAngles> smallerAngles = smaller.getTorsionAngles();
+        FragmentAngles biggerAngles = bigger.getFragmentAngles();
+        FragmentAngles smallerAngles = smaller.getFragmentAngles();
         int sizeDifference = bigger.getSize() - smaller.getSize();
         FragmentComparisonResult bestResult = null;
         int bestShift = 0;
@@ -80,8 +80,8 @@ public class MCQMatcher implements StructureMatcher {
             List<ResidueComparisonResult> residueResults = new ArrayList<>();
 
             for (int j = 0; j < smaller.getSize(); j++) {
-                ResidueTorsionAngles a1 = smallerAngles.get(j);
-                ResidueTorsionAngles a2 = biggerAngles.get(j + i);
+                ResidueAngles a1 = smallerAngles.get(j);
+                ResidueAngles a2 = biggerAngles.get(j + i);
                 residueResults.add(compareResidues(a1, a2));
             }
 
@@ -92,7 +92,7 @@ public class MCQMatcher implements StructureMatcher {
             }
         }
 
-        return new FragmentMatch(bigger, CompactFragment.shift(bigger,
+        return new FragmentMatch(bigger, CompactFragment.createShifted(bigger,
                 bestShift, smaller.getSize()), smaller, bestResult, bestShift);
     }
 
@@ -143,8 +143,8 @@ public class MCQMatcher implements StructureMatcher {
         return result;
     }
 
-    private ResidueComparisonResult compareResidues(ResidueTorsionAngles a1,
-            ResidueTorsionAngles a2) {
+    private ResidueComparisonResult compareResidues(ResidueAngles a1,
+            ResidueAngles a2) {
         List<TorsionAngleDelta> result = new ArrayList<>();
         boolean isPseudophasePucker = false;
         boolean isAverageProtein = false;
@@ -162,15 +162,6 @@ public class MCQMatcher implements StructureMatcher {
                 } else if (angle.getMoleculeType() == MoleculeType.RNA) {
                     isAverageRNA = true;
                 }
-                continue;
-            }
-
-            if (angle instanceof ChiTorsionAngleType) {
-                AngleValue angleValueL = a1.getChiAngleValue((ChiTorsionAngleType) angle);
-                AngleValue angleValueR = a2.getChiAngleValue((ChiTorsionAngleType) angle);
-                TorsionAngleDelta delta = TorsionAngleDelta.calculateChiDelta(
-                        angleValueL, angleValueR, matchChiByType);
-                result.add(delta);
                 continue;
             }
 

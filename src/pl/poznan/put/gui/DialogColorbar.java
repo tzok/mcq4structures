@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.tuple.Pair;
 
 import pl.poznan.put.comparison.ModelsComparisonResult;
+import pl.poznan.put.structure.Sequence;
 
 public class DialogColorbar extends JDialog {
     private static final long serialVersionUID = 2659329749184089277L;
@@ -55,7 +56,8 @@ public class DialogColorbar extends JDialog {
         add(panel, c);
 
         c.gridy = 1;
-        add(new ColorbarTicks(result.getReference().getSequence()));
+        add(new ColorbarTicks(
+                Sequence.fromCompactFragment(result.getReference())), c);
 
         for (int i = 0; i < result.getModelCount(); i++) {
             Colorbar colorbar = new Colorbar(result, i);
@@ -80,7 +82,8 @@ public class DialogColorbar extends JDialog {
         c.weightx = 1;
         c.weighty = 0;
         c.fill = GridBagConstraints.BOTH;
-        add(new ColorbarTicks(result.getReference().getSequence()), c);
+        add(new ColorbarTicks(
+                Sequence.fromCompactFragment(result.getReference())), c);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension size = toolkit.getScreenSize();

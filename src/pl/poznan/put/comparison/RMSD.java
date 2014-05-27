@@ -20,7 +20,7 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparisonResult;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.structure.ResidueTorsionAngles;
+import pl.poznan.put.structure.ResidueAngles;
 import pl.poznan.put.structure.StructureSelection;
 
 /**
@@ -80,8 +80,8 @@ public class RMSD implements GlobalComparator {
             FragmentComparisonResult fragmentComparisonResult = fragment.getBestResult();
 
             for (ResidueComparisonResult residueResult : fragmentComparisonResult.getResidueResults()) {
-                ResidueTorsionAngles left = residueResult.getLeft();
-                ResidueTorsionAngles right = residueResult.getRight();
+                ResidueAngles left = residueResult.getLeft();
+                ResidueAngles right = residueResult.getRight();
                 ResidueType residueType = left.getResidueType();
                 MoleculeType chainType = residueType.getChainType();
                 List<AtomName> atomNames = new ArrayList<>();

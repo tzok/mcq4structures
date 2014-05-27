@@ -75,7 +75,7 @@ import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.StructureSelection;
-import pl.poznan.put.structure.StructureSelectionFactory;
+import pl.poznan.put.structure.SelectionFactory;
 import pl.poznan.put.torsion.AverageAngle;
 import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;
@@ -800,7 +800,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
                 List<StructureSelection> selections = new ArrayList<>();
 
                 for (int i = 0; i < structures.size(); i++) {
-                    selections.add(StructureSelectionFactory.create(
+                    selections.add(SelectionFactory.create(
                             names.get(i), structures.get(i)));
                 }
 
@@ -840,10 +840,10 @@ public class MainWindow extends JFrame implements ComparisonListener {
         Pair<Structure, Structure> structures = dialogChains.getStructures();
         Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
 
-        StructureSelection selectionL = StructureSelectionFactory.create(
+        StructureSelection selectionL = SelectionFactory.create(
                 StructureManager.getName(structures.getLeft()),
                 chains.getLeft());
-        StructureSelection selectionR = StructureSelectionFactory.create(
+        StructureSelection selectionR = SelectionFactory.create(
                 StructureManager.getName(structures.getRight()),
                 chains.getRight());
 

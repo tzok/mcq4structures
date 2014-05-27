@@ -10,7 +10,7 @@ import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
 import pl.poznan.put.comparison.RMSD.AtomFilter;
 import pl.poznan.put.structure.StructureSelection;
-import pl.poznan.put.structure.StructureSelectionFactory;
+import pl.poznan.put.structure.SelectionFactory;
 
 public class StructureSelectionSandbox {
     public static void main(String[] args) throws IOException,
@@ -19,8 +19,8 @@ public class StructureSelectionSandbox {
         Structure s1 = reader.getStructure("/home/tzok/pdb/1EHZ.pdb.gz");
         Structure s2 = reader.getStructure("/home/tzok/pdb/1EVV.pdb.gz");
 
-        StructureSelection sel1 = StructureSelectionFactory.create("sel1", s1);
-        StructureSelection sel2 = StructureSelectionFactory.create("sel2", s2);
+        StructureSelection sel1 = SelectionFactory.create("sel1", s1);
+        StructureSelection sel2 = SelectionFactory.create("sel2", s2);
 
         MCQ mcq = new MCQ(MCQ.getAllAvailableTorsionAngles());
         System.out.println(mcq.compareGlobally(sel1, sel2).toDisplayString());
