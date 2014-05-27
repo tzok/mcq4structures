@@ -29,7 +29,7 @@ public class MCQMatcher implements StructureMatcher {
     public SelectionMatch matchSelections(StructureSelection s1,
             StructureSelection s2) {
         if (s1.getSize() == 0 || s2.getSize() == 2) {
-            return new SelectionMatch(matchChiByType, angles,
+            return new SelectionMatch(s1, s2, matchChiByType, angles,
                     new ArrayList<FragmentMatch>());
         }
 
@@ -56,7 +56,8 @@ public class MCQMatcher implements StructureMatcher {
         }
 
         List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
-        return new SelectionMatch(matchChiByType, angles, fragmentMatches);
+        return new SelectionMatch(s1, s2, matchChiByType, angles,
+                fragmentMatches);
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.biojava.bio.structure.io.PDBFileReader;
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
-import pl.poznan.put.comparison.RMSD.AtomFilter;
+import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.structure.SelectionFactory;
 
