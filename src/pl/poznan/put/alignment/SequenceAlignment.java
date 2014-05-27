@@ -1,4 +1,4 @@
-package pl.poznan.put.msa;
+package pl.poznan.put.alignment;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,12 +29,13 @@ public class SequenceAlignment implements Exportable {
         return isGlobal;
     }
 
-    public String getAlignment() {
-        return alignment;
-    }
-
     public String getTitle() {
         return title;
+    }
+
+    @Override
+    public String toString() {
+        return alignment;
     }
 
     @Override

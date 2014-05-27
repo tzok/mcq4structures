@@ -6,12 +6,12 @@ public class FragmentMatch {
     private final CompactFragment biggerAll;
     private final CompactFragment biggerOnlyMatched;
     private final CompactFragment smaller;
-    private final FragmentComparisonResult bestResult;
+    private final FragmentComparison bestResult;
     private final int bestShift;
 
     public FragmentMatch(CompactFragment biggerAll,
             CompactFragment biggerOnlyMatched, CompactFragment smaller,
-            FragmentComparisonResult bestResult, int bestShift) {
+            FragmentComparison bestResult, int bestShift) {
         super();
         this.biggerAll = biggerAll;
         this.biggerOnlyMatched = biggerOnlyMatched;
@@ -32,7 +32,7 @@ public class FragmentMatch {
         return smaller;
     }
 
-    public FragmentComparisonResult getBestResult() {
+    public FragmentComparison getBestResult() {
         return bestResult;
     }
 

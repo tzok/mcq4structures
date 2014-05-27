@@ -8,13 +8,13 @@ import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TorsionAngleDelta;
 
-public class ResidueComparisonResult {
+public class ResidueComparison {
     private final ResidueAngles left;
     private final ResidueAngles right;
     private final List<TorsionAngleDelta> deltas;
 
-    public ResidueComparisonResult(ResidueAngles left,
-            ResidueAngles right, List<TorsionAngleDelta> deltas) {
+    public ResidueComparison(ResidueAngles left, ResidueAngles right,
+            List<TorsionAngleDelta> deltas) {
         super();
         this.left = left;
         this.right = right;
@@ -29,7 +29,7 @@ public class ResidueComparisonResult {
         return right;
     }
 
-    public TorsionAngleDelta getDelta(TorsionAngle angle) {
+    public TorsionAngleDelta getAngleDelta(TorsionAngle angle) {
         for (TorsionAngleDelta delta : deltas) {
             TorsionAngle torsionAngle = delta.getTorsionAngle();
 

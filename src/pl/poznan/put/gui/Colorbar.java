@@ -3,12 +3,12 @@ package pl.poznan.put.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.List;
 
 import javax.swing.JPanel;
 
 import pl.poznan.put.comparison.ModelsComparisonResult;
-import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.matching.FragmentComparison;
+import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.TorsionAngle;
 
 class Colorbar extends JPanel {
@@ -38,11 +38,11 @@ class Colorbar extends JPanel {
         int width = size.width / result.getFragmentSize();
         int height = size.height;
 
-        List<ResidueComparisonResult> residueResults = result.getResidueResults(index);
+        FragmentComparison residueResults = result.getFragmentComparison(index);
 
-        for (int i = 0; i < residueResults.size(); i++) {
-            ResidueComparisonResult residueResult = residueResults.get(i);
-            double delta = residueResult.getDelta(torsionAngle).getDelta();
+        for (int i = 0; i < residueResults.getSize(); i++) {
+            ResidueComparison residueResult = residueResults.getResidueComparison(i);
+            double delta = residueResult.getAngleDelta(torsionAngle).getDelta();
             g.setColor(getColor(delta));
             g.fillRect(i * width, 0, width, height - 1);
             g.setColor(Color.BLACK);

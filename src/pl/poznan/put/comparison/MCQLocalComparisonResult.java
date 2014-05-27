@@ -25,11 +25,10 @@ import org.jfree.data.xy.DefaultXYDataset;
 import pl.poznan.put.gui.TorsionAxis;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.helper.FractionAngleFormat;
+import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
-import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.Residue;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.utility.TorsionAngleDelta;
@@ -47,31 +46,24 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
         return angles;
     }
 
-    public List<String> getDataLabels() {
-        List<String> result = new ArrayList<>();
+    public String[] getResidueLabels() {
+        return matches.getResidueLabels();
+    }
 
-        for (FragmentMatch fragment : matches.getFragmentMatches()) {
-            CompactFragment bigger = fragment.getBiggerOnlyMatched();
-            CompactFragment smaller = fragment.getSmaller();
+    public FragmentComparison asFragmentComparison() {
+        List<ResidueComparison> residueComparisons = new ArrayList<>();
 
-            for (int i = 0; i < fragment.getSize(); i++) {
-                Residue r1 = Residue.fromGroup(bigger.getGroup(i));
-                Residue r2 = Residue.fromGroup(smaller.getGroup(i));
-                result.add(r1 + " - " + r2);
+        for (int i = 0; i < matches.getSize(); i++) {
+            FragmentMatch fragmentMatch = matches.getFragmentMatch(i);
+            FragmentComparison fragmentComparison = fragmentMatch.getBestResult();
+
+            for (int j = 0; j < fragmentComparison.getSize(); j++) {
+                residueComparisons.add(fragmentComparison.getResidueComparison(j));
             }
         }
 
-        return result;
-    }
-
-    public List<ResidueComparisonResult> getDataRows() {
-        List<ResidueComparisonResult> allResults = new ArrayList<>();
-
-        for (FragmentMatch fragment : matches.getFragmentMatches()) {
-            allResults.addAll(fragment.getBestResult().getResidueResults());
-        }
-
-        return allResults;
+        return FragmentComparison.fromResidueComparisons(residueComparisons,
+                angles);
     }
 
     @Override
@@ -91,23 +83,23 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
     @Override
     public void visualize() {
-        List<String> ticks = getDataLabels();
-        List<ResidueComparisonResult> rows = getDataRows();
-        double[] x = new double[ticks.size()];
+        String[] ticks = getResidueLabels();
+        FragmentComparison rows = asFragmentComparison();
+        double[] x = new double[ticks.length];
 
-        for (int i = 0; i < ticks.size(); i++) {
+        for (int i = 0; i < ticks.length; i++) {
             x[i] = i;
         }
 
         double[][] y = new double[angles.size()][];
 
         for (int i = 0; i < angles.size(); i++) {
-            y[i] = new double[ticks.size()];
+            y[i] = new double[ticks.length];
             TorsionAngle torsionAngle = angles.get(i);
 
-            for (int j = 0; j < ticks.size(); j++) {
-                ResidueComparisonResult result = rows.get(j);
-                y[i][j] = result.getDelta(torsionAngle).getDelta();
+            for (int j = 0; j < rows.getSize(); j++) {
+                ResidueComparison result = rows.getResidueComparison(j);
+                y[i][j] = result.getAngleDelta(torsionAngle).getDelta();
             }
         }
 
@@ -221,18 +213,18 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
                     : angle.toString();
         }
 
-        List<String> labels = getDataLabels();
-        List<ResidueComparisonResult> rows = getDataRows();
-        String[][] data = new String[rows.size()][];
+        String[] labels = getResidueLabels();
+        FragmentComparison rows = asFragmentComparison();
+        String[][] data = new String[rows.getSize()][];
 
-        for (int i = 0; i < rows.size(); i++) {
+        for (int i = 0; i < rows.getSize(); i++) {
             data[i] = new String[angles.size() + 1];
-            data[i][0] = labels.get(i);
-            ResidueComparisonResult row = rows.get(i);
+            data[i][0] = labels[i];
+            ResidueComparison row = rows.getResidueComparison(i);
 
             for (int j = 0; j < angles.size(); j++) {
                 TorsionAngle angle = angles.get(j);
-                TorsionAngleDelta delta = row.getDelta(angle);
+                TorsionAngleDelta delta = row.getAngleDelta(angle);
 
                 if (delta == null) {
                     data[i][j + 1] = null;

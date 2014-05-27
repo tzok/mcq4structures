@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.helper.TorsionAnglesHelper;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
@@ -73,11 +72,11 @@ public class MCQMatcher implements StructureMatcher {
         FragmentAngles biggerAngles = bigger.getFragmentAngles();
         FragmentAngles smallerAngles = smaller.getFragmentAngles();
         int sizeDifference = bigger.getSize() - smaller.getSize();
-        FragmentComparisonResult bestResult = null;
+        FragmentComparison bestResult = null;
         int bestShift = 0;
 
         for (int i = 0; i <= sizeDifference; i++) {
-            List<ResidueComparisonResult> residueResults = new ArrayList<>();
+            List<ResidueComparison> residueResults = new ArrayList<>();
 
             for (int j = 0; j < smaller.getSize(); j++) {
                 ResidueAngles a1 = smallerAngles.get(j);
@@ -85,7 +84,9 @@ public class MCQMatcher implements StructureMatcher {
                 residueResults.add(compareResidues(a1, a2));
             }
 
-            FragmentComparisonResult fragmentResult = aggregateResidueResults(residueResults);
+            FragmentComparison fragmentResult = FragmentComparison.fromResidueComparisons(
+                    residueResults, angles);
+
             if (bestResult == null || fragmentResult.compareTo(bestResult) < 0) {
                 bestResult = fragmentResult;
                 bestShift = i;
@@ -102,7 +103,7 @@ public class MCQMatcher implements StructureMatcher {
         boolean[] usedj = new boolean[matrix[0].length];
 
         while (true) {
-            FragmentComparisonResult minimum = null;
+            FragmentComparison minimum = null;
             int mini = -1;
             int minj = -1;
 
@@ -121,7 +122,7 @@ public class MCQMatcher implements StructureMatcher {
                         continue;
                     }
 
-                    FragmentComparisonResult matchResult = match.getBestResult();
+                    FragmentComparison matchResult = match.getBestResult();
                     if (minimum == null
                             || matchResult.getMcq() < minimum.getMcq()) {
                         minimum = matchResult;
@@ -143,8 +144,7 @@ public class MCQMatcher implements StructureMatcher {
         return result;
     }
 
-    private ResidueComparisonResult compareResidues(ResidueAngles a1,
-            ResidueAngles a2) {
+    private ResidueComparison compareResidues(ResidueAngles a1, ResidueAngles a2) {
         List<TorsionAngleDelta> result = new ArrayList<>();
         boolean isPseudophasePucker = false;
         boolean isAverageProtein = false;
@@ -201,47 +201,6 @@ public class MCQMatcher implements StructureMatcher {
             result.add(TorsionAngleDelta.calculate(pL, pR));
         }
 
-        return new ResidueComparisonResult(a1, a2, result);
-    }
-
-    private FragmentComparisonResult aggregateResidueResults(
-            List<ResidueComparisonResult> residueResults) {
-        List<Double> deltas = new ArrayList<>();
-        int firstInvalid = 0;
-        int secondInvalid = 0;
-        int bothInvalid = 0;
-
-        for (ResidueComparisonResult result : residueResults) {
-            for (TorsionAngle angle : angles) {
-                TorsionAngleDelta delta = result.getDelta(angle);
-
-                if (delta == null) {
-                    continue;
-                }
-
-                switch (delta.getState()) {
-                case BOTH_INVALID:
-                    bothInvalid++;
-                    break;
-                case BOTH_VALID:
-                    deltas.add(delta.getDelta());
-                    break;
-                case TORSION_LEFT_INVALID:
-                    firstInvalid++;
-                    break;
-                case TORSION_RIGHT_INVALID:
-                    secondInvalid++;
-                    break;
-                case DIFFERENT_CHI:
-                    bothInvalid++;
-                default:
-                    break;
-                }
-            }
-        }
-
-        double mcq = TorsionAnglesHelper.calculateMean(deltas);
-        return new FragmentComparisonResult(residueResults, firstInvalid,
-                secondInvalid, bothInvalid, deltas.size(), mcq);
+        return new ResidueComparison(a1, a2, result);
     }
 }

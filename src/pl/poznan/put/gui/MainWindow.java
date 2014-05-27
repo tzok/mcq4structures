@@ -52,6 +52,8 @@ import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.alignment.SequenceAligner;
+import pl.poznan.put.alignment.SequenceAlignment;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.comparison.GlobalComparator;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
@@ -68,8 +70,6 @@ import pl.poznan.put.helper.Constants;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.msa.SequenceAligner;
-import pl.poznan.put.msa.SequenceAlignment;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
@@ -628,12 +628,12 @@ public class MainWindow extends JFrame implements ComparisonListener {
         textAreaAlignSeq.setText("");
         layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
 
-        List<CompactFragment> chains = dialogChainsMultiple.getChains();
+        List<CompactFragment> fragments = dialogChainsMultiple.getChains();
         boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        SequenceAlignment alignment = SequenceAligner.align(chains, isGlobal);
+        SequenceAlignment alignment = SequenceAligner.align(fragments, isGlobal);
 
         exportable = alignment;
-        textAreaAlignSeq.setText(alignment.getAlignment());
+        textAreaAlignSeq.setText(alignment.toString());
         itemSave.setEnabled(true);
         itemSave.setText("Save results (TXT)");
 
@@ -800,8 +800,8 @@ public class MainWindow extends JFrame implements ComparisonListener {
                 List<StructureSelection> selections = new ArrayList<>();
 
                 for (int i = 0; i < structures.size(); i++) {
-                    selections.add(SelectionFactory.create(
-                            names.get(i), structures.get(i)));
+                    selections.add(SelectionFactory.create(names.get(i),
+                            structures.get(i)));
                 }
 
                 final GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(

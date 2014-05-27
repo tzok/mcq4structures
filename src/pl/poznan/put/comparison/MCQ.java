@@ -8,10 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.helper.TorsionAnglesHelper;
-import pl.poznan.put.matching.FragmentComparisonResult;
+import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
-import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.nucleic.RNAChiTorsionAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
@@ -73,13 +73,14 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
         List<Double> deltas = new ArrayList<>();
 
-        for (FragmentMatch fragment : matches.getFragmentMatches()) {
+        for (int i = 0; i < matches.getSize(); i++) {
+            FragmentMatch fragment = matches.getFragmentMatch(i);
             MCQ.LOGGER.debug("Taking into account fragments: " + fragment);
-            FragmentComparisonResult fragmentComparisonResult = fragment.getBestResult();
+            FragmentComparison fragmentComparison = fragment.getBestResult();
 
-            for (ResidueComparisonResult residueResult : fragmentComparisonResult.getResidueResults()) {
+            for (ResidueComparison residueComparison : fragmentComparison) {
                 for (TorsionAngle torsionAngle : angles) {
-                    TorsionAngleDelta angleDelta = residueResult.getDelta(torsionAngle);
+                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta != null
                             && angleDelta.getState() == State.BOTH_VALID) {

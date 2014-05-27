@@ -1,4 +1,4 @@
-package pl.poznan.put.msa;
+package pl.poznan.put.alignment;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

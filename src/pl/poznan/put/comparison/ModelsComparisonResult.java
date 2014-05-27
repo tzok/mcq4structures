@@ -19,9 +19,9 @@ import pl.poznan.put.gui.DialogColorbar;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.matching.FragmentComparisonResult;
+import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
-import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.Residue;
 import pl.poznan.put.torsion.TorsionAngle;
@@ -68,10 +68,9 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
         return reference.getSize();
     }
 
-    public List<ResidueComparisonResult> getResidueResults(int column) {
+    public FragmentComparison getFragmentComparison(int column) {
         FragmentMatch fragmentMatch = matches.get(column);
-        FragmentComparisonResult bestResult = fragmentMatch.getBestResult();
-        return bestResult.getResidueResults();
+        return fragmentMatch.getBestResult();
     }
 
     @Override
@@ -92,9 +91,9 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
                 csvWriter.write(residue.toString());
 
                 for (int j = 0; j < models.size(); j++) {
-                    List<ResidueComparisonResult> residueResults = getResidueResults(j);
-                    ResidueComparisonResult result = residueResults.get(i);
-                    TorsionAngleDelta delta = result.getDelta(torsionAngle);
+                    FragmentComparison residueResults = getFragmentComparison(j);
+                    ResidueComparison result = residueResults.getResidueComparison(i);
+                    TorsionAngleDelta delta = result.getAngleDelta(torsionAngle);
                     csvWriter.write(delta.toExportString());
                 }
 
@@ -205,9 +204,9 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
             data[i][0] = reference.getResidue(i).toString();
 
             for (int j = 0; j < models.size(); j++) {
-                List<ResidueComparisonResult> residueResults = getResidueResults(j);
-                ResidueComparisonResult result = residueResults.get(i);
-                TorsionAngleDelta delta = result.getDelta(torsionAngle);
+                FragmentComparison residueResults = getFragmentComparison(j);
+                ResidueComparison result = residueResults.getResidueComparison(i);
+                TorsionAngleDelta delta = result.getAngleDelta(torsionAngle);
 
                 if (delta == null) {
                     data[i][j + 1] = null;
@@ -226,8 +225,8 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
         double max = Double.NEGATIVE_INFINITY;
 
         for (FragmentMatch match : matches) {
-            for (ResidueComparisonResult result : match.getBestResult().getResidueResults()) {
-                double delta = result.getDelta(torsionAngle).getDelta();
+            for (ResidueComparison result : match.getBestResult()) {
+                double delta = result.getAngleDelta(torsionAngle).getDelta();
 
                 if (delta < min) {
                     min = delta;
@@ -248,7 +247,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
         for (int i = 0; i < matches.size(); i++) {
             FragmentMatch match = matches.get(i);
-            FragmentComparisonResult result = match.getBestResult();
+            FragmentComparison result = match.getBestResult();
             fragmentAverages[i] = result.getMcq();
         }
 

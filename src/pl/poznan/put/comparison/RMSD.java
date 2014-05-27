@@ -15,10 +15,10 @@ import pl.poznan.put.atoms.AtomName;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.common.ResidueType;
 import pl.poznan.put.helper.StructureHelper;
-import pl.poznan.put.matching.FragmentComparisonResult;
+import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
-import pl.poznan.put.matching.ResidueComparisonResult;
+import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.structure.ResidueAngles;
 import pl.poznan.put.structure.StructureSelection;
@@ -75,13 +75,14 @@ public class RMSD implements GlobalComparator {
         List<Atom> atomsL = new ArrayList<>();
         List<Atom> atomsR = new ArrayList<>();
 
-        for (FragmentMatch fragment : matches.getFragmentMatches()) {
+        for (int i = 0; i < matches.getSize(); i++) {
+            FragmentMatch fragment = matches.getFragmentMatch(i);
             RMSD.LOGGER.debug("Taking into account fragments: " + fragment);
-            FragmentComparisonResult fragmentComparisonResult = fragment.getBestResult();
+            FragmentComparison fragmentComparison = fragment.getBestResult();
 
-            for (ResidueComparisonResult residueResult : fragmentComparisonResult.getResidueResults()) {
-                ResidueAngles left = residueResult.getLeft();
-                ResidueAngles right = residueResult.getRight();
+            for (ResidueComparison residueComparison : fragmentComparison) {
+                ResidueAngles left = residueComparison.getLeft();
+                ResidueAngles right = residueComparison.getRight();
                 ResidueType residueType = left.getResidueType();
                 MoleculeType chainType = residueType.getChainType();
                 List<AtomName> atomNames = new ArrayList<>();
