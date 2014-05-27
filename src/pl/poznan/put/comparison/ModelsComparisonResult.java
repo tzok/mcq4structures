@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Group;
 import org.jumpmind.symmetric.csv.CsvWriter;
 
+import pl.poznan.put.clustering.partitional.Heap;
 import pl.poznan.put.gui.DialogColorbar;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -239,5 +240,26 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
         }
 
         return Pair.of(min, max);
+    }
+
+    public int[] createRanking() {
+        double[] fragmentAverages = new double[matches.size()];
+        int[] ranking = new int[matches.size()];
+
+        for (int i = 0; i < matches.size(); i++) {
+            FragmentMatch match = matches.get(i);
+            FragmentComparisonResult result = match.getBestResult();
+            fragmentAverages[i] = result.getMcq();
+        }
+
+        Heap heap = new Heap(fragmentAverages);
+        int i = 0;
+
+        for (int next : heap) {
+            ranking[i] = next;
+            i++;
+        }
+
+        return ranking;
     }
 }
