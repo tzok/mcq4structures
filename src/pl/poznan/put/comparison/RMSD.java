@@ -1,8 +1,9 @@
 package pl.poznan.put.comparison;
 
+import org.biojava.bio.structure.StructureException;
+
 import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
-import pl.poznan.put.matching.FragmentSuperposition;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.structure.StructureSelection;
@@ -50,10 +51,15 @@ public class RMSD implements GlobalComparator {
                     + "found");
         }
 
-        FragmentSuperposition superposition = FragmentSuperimposer.superimpose(
-                matches, filter, onlyHeavy);
-        return new GlobalComparisonResult(getName(), s1.getName(),
-                s2.getName(), matches, superposition.getRMSD(), false);
+        try {
+            FragmentSuperimposer superimposer = new FragmentSuperimposer(
+                    matches, filter, onlyHeavy);
+            return new GlobalComparisonResult(getName(), s1.getName(),
+                    s2.getName(), matches, superimposer.getRMSD(), false);
+        } catch (StructureException e) {
+            throw new IncomparableStructuresException("Failed to superimpose "
+                    + "structures and calculate RMSD", e);
+        }
     }
 
     @Override

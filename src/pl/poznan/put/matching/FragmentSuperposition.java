@@ -5,31 +5,25 @@ import java.util.List;
 import pl.poznan.put.structure.CompactFragment;
 
 public class FragmentSuperposition {
-    private final List<CompactFragment> left;
-    private final List<CompactFragment> right;
-    private final double rmsd;
+    private final List<CompactFragment> targetFragments;
+    private final List<CompactFragment> modelFragments;
 
-    public FragmentSuperposition(List<CompactFragment> left,
-            List<CompactFragment> right, double rmsd) {
+    public FragmentSuperposition(List<CompactFragment> targetFragments,
+            List<CompactFragment> modelFragments) {
         super();
-        this.left = left;
-        this.right = right;
-        this.rmsd = rmsd;
-    }
-
-    public double getRMSD() {
-        return rmsd;
+        this.targetFragments = targetFragments;
+        this.modelFragments = modelFragments;
     }
 
     public String toPDB() {
         StringBuilder builder = new StringBuilder();
         builder.append("MODEL        1                                                                  \n");
-        for (CompactFragment fragment : left) {
+        for (CompactFragment fragment : targetFragments) {
             builder.append(fragment.toPDB());
         }
         builder.append("ENDMDL                                                                          \n");
         builder.append("MODEL        2                                                                  \n");
-        for (CompactFragment fragment : right) {
+        for (CompactFragment fragment : modelFragments) {
             builder.append(fragment.toPDB());
         }
         builder.append("ENDMDL                                                                          \n");

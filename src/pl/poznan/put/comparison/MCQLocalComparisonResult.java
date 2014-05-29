@@ -29,9 +29,9 @@ import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TabularExporter;
-import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class MCQLocalComparisonResult extends LocalComparisonResult {
     private final List<TorsionAngle> angles;
@@ -55,7 +55,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
         for (int i = 0; i < matches.getSize(); i++) {
             FragmentMatch fragmentMatch = matches.getFragmentMatch(i);
-            FragmentComparison fragmentComparison = fragmentMatch.getBestResult();
+            FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
 
             for (int j = 0; j < fragmentComparison.getSize(); j++) {
                 residueComparisons.add(fragmentComparison.getResidueComparison(j));
@@ -224,7 +224,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
             for (int j = 0; j < angles.size(); j++) {
                 TorsionAngle angle = angles.get(j);
-                TorsionAngleDelta delta = row.getAngleDelta(angle);
+                AngleDelta delta = row.getAngleDelta(angle);
 
                 if (delta == null) {
                     data[i][j + 1] = null;

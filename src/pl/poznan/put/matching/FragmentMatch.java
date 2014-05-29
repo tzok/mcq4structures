@@ -1,52 +1,68 @@
 package pl.poznan.put.matching;
 
+import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.structure.CompactFragment;
 
 public class FragmentMatch {
-    private final CompactFragment biggerAll;
-    private final CompactFragment biggerOnlyMatched;
-    private final CompactFragment smaller;
-    private final FragmentComparison bestResult;
-    private final int bestShift;
+    private final CompactFragment target;
+    private final CompactFragment model;
+    private final boolean isTargetSmaller;
+    private final int shift;
+    private final FragmentComparison comparison;
 
-    public FragmentMatch(CompactFragment biggerAll,
-            CompactFragment biggerOnlyMatched, CompactFragment smaller,
-            FragmentComparison bestResult, int bestShift) {
+    public FragmentMatch(CompactFragment target, CompactFragment model,
+            boolean isTargetSmaller, int shift, FragmentComparison comparison) {
         super();
-        this.biggerAll = biggerAll;
-        this.biggerOnlyMatched = biggerOnlyMatched;
-        this.smaller = smaller;
-        this.bestResult = bestResult;
-        this.bestShift = bestShift;
+        this.target = target;
+        this.model = model;
+        this.isTargetSmaller = isTargetSmaller;
+        this.shift = shift;
+        this.comparison = comparison;
     }
 
-    public CompactFragment getBiggerAll() {
-        return biggerAll;
+    public FragmentComparison getFragmentComparison() {
+        return comparison;
     }
 
-    public CompactFragment getBiggerOnlyMatched() {
-        return biggerOnlyMatched;
+    public MoleculeType getMoleculeType() {
+        assert target.getMoleculeType() == model.getMoleculeType();
+        return target.getMoleculeType();
     }
 
-    public CompactFragment getSmaller() {
-        return smaller;
-    }
+    public String[] getResidueLabels() {
+        CompactFragment l = target;
+        CompactFragment r = model;
 
-    public FragmentComparison getBestResult() {
-        return bestResult;
-    }
+        if (isTargetSmaller) {
+            l = CompactFragment.createShifted(l, shift, r.getSize());
+        } else {
+            r = CompactFragment.createShifted(r, shift, l.getSize());
+        }
 
-    public int getBestShift() {
-        return bestShift;
-    }
+        String[] result = new String[l.getSize()];
 
-    public int getSize() {
-        return smaller.getSize();
+        for (int i = 0; i < l.getSize(); i++) {
+            result[i] = l.getResidue(i) + " - " + r.getResidue(i);
+        }
+
+        return result;
     }
 
     @Override
     public String toString() {
-        return biggerOnlyMatched + "\t" + smaller + "\t"
-                + Math.toDegrees(bestResult.getMcq());
+        CompactFragment targetFragment;
+        CompactFragment modelFragment;
+
+        if (isTargetSmaller) {
+            targetFragment = target;
+            modelFragment = CompactFragment.createShifted(model, shift,
+                    target.getSize());
+        } else {
+            targetFragment = CompactFragment.createShifted(target, shift,
+                    model.getSize());
+            modelFragment = model;
+        }
+
+        return isTargetSmaller + "\t" + targetFragment + "\t" + modelFragment;
     }
 }

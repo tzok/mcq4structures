@@ -3,34 +3,34 @@ package pl.poznan.put.matching;
 import java.util.List;
 
 import pl.poznan.put.structure.ResidueAngles;
+import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.ChiTorsionAngle;
 import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class ResidueComparison {
-    private final ResidueAngles left;
-    private final ResidueAngles right;
-    private final List<TorsionAngleDelta> deltas;
+    private final ResidueAngles targetAngles;
+    private final ResidueAngles modelAngles;
+    private final List<AngleDelta> angleDeltas;
 
-    public ResidueComparison(ResidueAngles left, ResidueAngles right,
-            List<TorsionAngleDelta> deltas) {
+    public ResidueComparison(ResidueAngles targetAngles,
+            ResidueAngles modelAngles, List<AngleDelta> angleDeltas) {
         super();
-        this.left = left;
-        this.right = right;
-        this.deltas = deltas;
+        this.targetAngles = targetAngles;
+        this.modelAngles = modelAngles;
+        this.angleDeltas = angleDeltas;
     }
 
-    public ResidueAngles getLeft() {
-        return left;
+    public ResidueAngles getTargetAngles() {
+        return targetAngles;
     }
 
-    public ResidueAngles getRight() {
-        return right;
+    public ResidueAngles getModelAngles() {
+        return modelAngles;
     }
 
-    public TorsionAngleDelta getAngleDelta(TorsionAngle angle) {
-        for (TorsionAngleDelta delta : deltas) {
+    public AngleDelta getAngleDelta(TorsionAngle angle) {
+        for (AngleDelta delta : angleDeltas) {
             TorsionAngle torsionAngle = delta.getTorsionAngle();
 
             if (angle instanceof ChiTorsionAngleType) {

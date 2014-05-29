@@ -13,38 +13,56 @@ import org.biojava.bio.structure.StructureException;
 import pl.poznan.put.atoms.AtomName;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.common.ResidueType;
-import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.helper.StructureHelper;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.ResidueAngles;
+import pl.poznan.put.structure.StructureSelection;
 
 public class FragmentSuperimposer {
     public enum AtomFilter {
         ALL, BACKBONE, MAIN
     }
 
-    public static FragmentSuperposition superimpose(
-            SelectionMatch selectionMatch, AtomFilter filter, boolean onlyHeavy)
-            throws IncomparableStructuresException {
-        List<Atom> atomsL = new ArrayList<>();
-        List<Atom> atomsR = new ArrayList<>();
+    private final SelectionMatch selectionMatch;
+    private final AtomFilter atomFilter;
+    private final boolean onlyHeavy;
+    private final SVDSuperimposer svdSuperimposer;
+    private final Atom[] atomsTarget;
+    private final Atom[] atomsModel;
 
+    public FragmentSuperimposer(SelectionMatch selectionMatch,
+            AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
+        super();
+        this.selectionMatch = selectionMatch;
+        this.atomFilter = atomFilter;
+        this.onlyHeavy = onlyHeavy;
+
+        List<Atom> atomsT = new ArrayList<>();
+        List<Atom> atomsM = new ArrayList<>();
+        filterAtoms(atomsT, atomsM);
+
+        atomsTarget = atomsT.toArray(new Atom[atomsT.size()]);
+        atomsModel = atomsM.toArray(new Atom[atomsM.size()]);
+        svdSuperimposer = new SVDSuperimposer(atomsTarget, atomsModel);
+    }
+
+    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM) {
         for (int i = 0; i < selectionMatch.getSize(); i++) {
             FragmentMatch fragment = selectionMatch.getFragmentMatch(i);
-            FragmentComparison fragmentComparison = fragment.getBestResult();
+            FragmentComparison fragmentComparison = fragment.getFragmentComparison();
 
             for (ResidueComparison residueComparison : fragmentComparison) {
-                ResidueAngles left = residueComparison.getLeft();
-                ResidueAngles right = residueComparison.getRight();
-                ResidueType residueType = left.getResidueType();
+                ResidueAngles targetAngles = residueComparison.getTargetAngles();
+                ResidueAngles modelAngles = residueComparison.getModelAngles();
+                ResidueType residueType = targetAngles.getResidueType();
                 MoleculeType chainType = residueType.getChainType();
                 AtomName[] atoms = chainType.getBackboneAtoms();
                 List<AtomName> atomNames = new ArrayList<>();
 
-                switch (filter) {
+                switch (atomFilter) {
                 case ALL:
                     atomNames.addAll(Arrays.asList(atoms));
-                    if (residueType == right.getResidueType()) {
+                    if (residueType == modelAngles.getResidueType()) {
                         atoms = residueType.getResidueAtoms();
                         atomNames.addAll(Arrays.asList(atoms));
                     }
@@ -64,81 +82,103 @@ public class FragmentSuperimposer {
                         continue;
                     }
 
-                    Atom l = StructureHelper.findAtom(left.getGroup(), name);
-                    Atom r = StructureHelper.findAtom(right.getGroup(), name);
+                    Atom l = StructureHelper.findAtom(targetAngles.getGroup(),
+                            name);
+                    Atom r = StructureHelper.findAtom(modelAngles.getGroup(),
+                            name);
 
                     if (l != null && r != null) {
-                        atomsL.add(l);
-                        atomsR.add(r);
+                        atomsT.add(l);
+                        atomsM.add(r);
                     }
                 }
             }
         }
+    }
 
-        Atom[] atomSetL = atomsL.toArray(new Atom[atomsL.size()]);
-        Atom[] atomSetR = atomsR.toArray(new Atom[atomsR.size()]);
+    public double getRMSD() throws StructureException {
         List<Atom> clones = new ArrayList<>();
 
-        try {
-            SVDSuperimposer superimposer = new SVDSuperimposer(atomSetL,
-                    atomSetR);
+        for (Atom atom : atomsModel) {
+            Atom r = (Atom) atom.clone();
+            Calc.rotate(r, svdSuperimposer.getRotation());
+            Calc.shift(r, svdSuperimposer.getTranslation());
+            clones.add(r);
+        }
 
-            /*
-             * Rotate and shift atoms needed for RMSD calculation
-             */
-            for (Atom atom : atomsR) {
-                Atom r = (Atom) atom.clone();
-                Calc.rotate(r, superimposer.getRotation());
-                Calc.shift(r, superimposer.getTranslation());
-                clones.add(r);
-            }
+        return SVDSuperimposer.getRMS(atomsTarget, atomsModel);
+    }
 
-            /*
-             * Rotate and shift ALL atoms in the fragment
-             */
-            List<CompactFragment> newFragmentsL = new ArrayList<>();
-            List<CompactFragment> newFragmentsR = new ArrayList<>();
+    public FragmentSuperposition getWholeSelections() {
+        StructureSelection target = selectionMatch.getTarget();
+        StructureSelection model = selectionMatch.getModel();
+        List<CompactFragment> targetFragments = Arrays.asList(target.getCompactFragments());
+        List<CompactFragment> modelFragments = new ArrayList<>();
 
-            for (int i = 0; i < selectionMatch.getSize(); i++) {
-                FragmentMatch fragmentMatch = selectionMatch.getFragmentMatch(i);
-                FragmentComparison fragmentComparison = fragmentMatch.getBestResult();
+        for (CompactFragment fragment : model.getCompactFragments()) {
+            CompactFragment modifiedFragment = new CompactFragment(model,
+                    fragment.getMoleculeType());
 
-                MoleculeType moleculeType = fragmentMatch.getSmaller().getMoleculeType();
-                CompactFragment fragmentL = new CompactFragment(
-                        selectionMatch.getParentLeft(), moleculeType);
-                CompactFragment fragmentR = new CompactFragment(
-                        selectionMatch.getParentRight(), moleculeType);
+            for (int i = 0; i < fragment.getSize(); i++) {
+                Group group = fragment.getGroup(i);
+                List<Atom> fragmentClones = new ArrayList<>();
 
-                for (ResidueComparison residueComparison : fragmentComparison) {
-                    ResidueAngles left = residueComparison.getLeft();
-                    fragmentL.addGroup(left.getGroup());
-
-                    ResidueAngles right = residueComparison.getRight();
-                    Group group = right.getGroup();
-                    List<Atom> fragmentClones = new ArrayList<>();
-
-                    for (Atom atom : group.getAtoms()) {
-                        Atom r = (Atom) atom.clone();
-                        Calc.rotate(r, superimposer.getRotation());
-                        Calc.shift(r, superimposer.getTranslation());
-                        fragmentClones.add(r);
-                    }
-
-                    Group groupClone = (Group) group.clone();
-                    groupClone.setAtoms(fragmentClones);
-                    fragmentR.addGroup(groupClone);
+                for (Atom atom : group.getAtoms()) {
+                    Atom r = (Atom) atom.clone();
+                    Calc.rotate(r, svdSuperimposer.getRotation());
+                    Calc.shift(r, svdSuperimposer.getTranslation());
+                    fragmentClones.add(r);
                 }
 
-                newFragmentsL.add(fragmentL);
-                newFragmentsR.add(fragmentR);
+                Group groupClone = (Group) group.clone();
+                groupClone.setAtoms(fragmentClones);
+                modifiedFragment.addGroup(groupClone);
             }
 
-            Atom[] array = clones.toArray(new Atom[clones.size()]);
-            double rmsd = SVDSuperimposer.getRMS(atomSetL, array);
-            return new FragmentSuperposition(newFragmentsL, newFragmentsR, rmsd);
-        } catch (StructureException e) {
-            throw new IncomparableStructuresException(
-                    "Failed to superimpose structures and calculate RMSD", e);
+            modelFragments.add(modifiedFragment);
         }
+
+        return new FragmentSuperposition(targetFragments, modelFragments);
+    }
+
+    public FragmentSuperposition getOnlyMatched() {
+        List<CompactFragment> newFragmentsL = new ArrayList<>();
+        List<CompactFragment> newFragmentsR = new ArrayList<>();
+
+        for (int i = 0; i < selectionMatch.getSize(); i++) {
+            FragmentMatch fragmentMatch = selectionMatch.getFragmentMatch(i);
+            FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
+
+            MoleculeType moleculeType = fragmentMatch.getMoleculeType();
+            CompactFragment fragmentL = new CompactFragment(
+                    selectionMatch.getTarget(), moleculeType);
+            CompactFragment fragmentR = new CompactFragment(
+                    selectionMatch.getModel(), moleculeType);
+
+            for (ResidueComparison residueComparison : fragmentComparison) {
+                ResidueAngles targetAngles = residueComparison.getTargetAngles();
+                fragmentL.addGroup(targetAngles.getGroup());
+
+                ResidueAngles modelAngles = residueComparison.getModelAngles();
+                Group group = modelAngles.getGroup();
+                List<Atom> fragmentClones = new ArrayList<>();
+
+                for (Atom atom : group.getAtoms()) {
+                    Atom r = (Atom) atom.clone();
+                    Calc.rotate(r, svdSuperimposer.getRotation());
+                    Calc.shift(r, svdSuperimposer.getTranslation());
+                    fragmentClones.add(r);
+                }
+
+                Group groupClone = (Group) group.clone();
+                groupClone.setAtoms(fragmentClones);
+                fragmentR.addGroup(groupClone);
+            }
+
+            newFragmentsL.add(fragmentL);
+            newFragmentsR.add(fragmentR);
+        }
+
+        return new FragmentSuperposition(newFragmentsL, newFragmentsR);
     }
 }

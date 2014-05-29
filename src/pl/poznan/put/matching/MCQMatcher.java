@@ -10,10 +10,10 @@ import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.FragmentAngles;
 import pl.poznan.put.structure.ResidueAngles;
 import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.AngleValue;
 import pl.poznan.put.torsion.AverageAngle;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class MCQMatcher implements StructureMatcher {
     private boolean matchChiByType;
@@ -26,26 +26,26 @@ public class MCQMatcher implements StructureMatcher {
     }
 
     @Override
-    public SelectionMatch matchSelections(StructureSelection s1,
-            StructureSelection s2) {
-        if (s1.getSize() == 0 || s2.getSize() == 2) {
-            return new SelectionMatch(s1, s2, matchChiByType, angles,
+    public SelectionMatch matchSelections(StructureSelection target,
+            StructureSelection model) {
+        if (target.getSize() == 0 || model.getSize() == 0) {
+            return new SelectionMatch(target, model, matchChiByType, angles,
                     new ArrayList<FragmentMatch>());
         }
 
-        CompactFragment[] fr1 = s1.getCompactFragments();
-        CompactFragment[] fr2 = s2.getCompactFragments();
+        CompactFragment[] targetFragments = target.getCompactFragments();
+        CompactFragment[] modelFragments = model.getCompactFragments();
+        FragmentMatch[][] matrix = new FragmentMatch[targetFragments.length][];
 
-        FragmentMatch[][] matrix = new FragmentMatch[fr1.length][];
-        for (int i = 0; i < fr1.length; i++) {
-            matrix[i] = new FragmentMatch[fr2.length];
+        for (int i = 0; i < targetFragments.length; i++) {
+            matrix[i] = new FragmentMatch[modelFragments.length];
         }
 
-        for (int i = 0; i < fr1.length; i++) {
-            CompactFragment fi = fr1[i];
+        for (int i = 0; i < targetFragments.length; i++) {
+            CompactFragment fi = targetFragments[i];
 
-            for (int j = 0; j < fr2.length; j++) {
-                CompactFragment fj = fr2[j];
+            for (int j = 0; j < modelFragments.length; j++) {
+                CompactFragment fj = modelFragments[j];
 
                 if (fi.getMoleculeType() != fj.getMoleculeType()) {
                     continue;
@@ -56,18 +56,21 @@ public class MCQMatcher implements StructureMatcher {
         }
 
         List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
-        return new SelectionMatch(s1, s2, matchChiByType, angles,
+        return new SelectionMatch(target, model, matchChiByType, angles,
                 fragmentMatches);
     }
 
     @Override
-    public FragmentMatch matchFragments(CompactFragment f1, CompactFragment f2) {
-        CompactFragment smaller = f1;
-        CompactFragment bigger = f2;
+    public FragmentMatch matchFragments(CompactFragment target,
+            CompactFragment model) {
+        CompactFragment smaller = target;
+        CompactFragment bigger = model;
+        boolean isTargetSmaller = true;
 
-        if (f1.getSize() > f2.getSize()) {
-            smaller = f2;
-            bigger = f1;
+        if (target.getSize() > model.getSize()) {
+            smaller = model;
+            bigger = target;
+            isTargetSmaller = false;
         }
 
         FragmentAngles biggerAngles = bigger.getFragmentAngles();
@@ -82,7 +85,8 @@ public class MCQMatcher implements StructureMatcher {
             for (int j = 0; j < smaller.getSize(); j++) {
                 ResidueAngles a1 = smallerAngles.get(j);
                 ResidueAngles a2 = biggerAngles.get(j + i);
-                residueResults.add(compareResidues(a1, a2));
+                residueResults.add(isTargetSmaller ? compareResidues(a1, a2)
+                        : compareResidues(a2, a1));
             }
 
             FragmentComparison fragmentResult = FragmentComparison.fromResidueComparisons(
@@ -94,8 +98,8 @@ public class MCQMatcher implements StructureMatcher {
             }
         }
 
-        return new FragmentMatch(bigger, CompactFragment.createShifted(bigger,
-                bestShift, smaller.getSize()), smaller, bestResult, bestShift);
+        return new FragmentMatch(target, model, isTargetSmaller, bestShift,
+                bestResult);
     }
 
     private static List<FragmentMatch> assignFragments(FragmentMatch[][] matrix) {
@@ -119,11 +123,13 @@ public class MCQMatcher implements StructureMatcher {
                     }
 
                     FragmentMatch match = matrix[i][j];
+
                     if (match == null) {
                         continue;
                     }
 
-                    FragmentComparison matchResult = match.getBestResult();
+                    FragmentComparison matchResult = match.getFragmentComparison();
+
                     if (minimum == null
                             || matchResult.getMcq() < minimum.getMcq()) {
                         minimum = matchResult;
@@ -145,8 +151,9 @@ public class MCQMatcher implements StructureMatcher {
         return result;
     }
 
-    private ResidueComparison compareResidues(ResidueAngles a1, ResidueAngles a2) {
-        List<TorsionAngleDelta> result = new ArrayList<>();
+    private ResidueComparison compareResidues(ResidueAngles target,
+            ResidueAngles model) {
+        List<AngleDelta> result = new ArrayList<>();
         boolean isPseudophasePucker = false;
         boolean isAverageProtein = false;
         boolean isAverageRNA = false;
@@ -166,22 +173,21 @@ public class MCQMatcher implements StructureMatcher {
                 continue;
             }
 
-            AngleValue angleValueL = a1.getAngleValue(angle);
-            AngleValue angleValueR = a2.getAngleValue(angle);
-            TorsionAngleDelta delta = TorsionAngleDelta.calculate(angleValueL,
-                    angleValueR);
+            AngleValue angleValueL = target.getAngleValue(angle);
+            AngleValue angleValueR = model.getAngleValue(angle);
+            AngleDelta delta = AngleDelta.calculate(angleValueL, angleValueR);
             result.add(delta);
         }
 
         if (isAverageProtein) {
-            TorsionAngleDelta average = TorsionAngleDelta.calculateAverage(
+            AngleDelta average = AngleDelta.calculateAverage(
                     MoleculeType.PROTEIN, result);
             result.add(average);
         }
 
         if (isAverageRNA) {
-            TorsionAngleDelta average = TorsionAngleDelta.calculateAverage(
-                    MoleculeType.RNA, result);
+            AngleDelta average = AngleDelta.calculateAverage(MoleculeType.RNA,
+                    result);
             result.add(average);
         }
 
@@ -191,17 +197,17 @@ public class MCQMatcher implements StructureMatcher {
             AngleValue[] r = new AngleValue[5];
 
             for (int i = 0; i < 5; i++) {
-                l[i] = a1.getAngleValue(taus[i]);
-                r[i] = a2.getAngleValue(taus[i]);
+                l[i] = target.getAngleValue(taus[i]);
+                r[i] = model.getAngleValue(taus[i]);
             }
 
             AngleValue pL = PseudophasePuckerAngle.calculate(l[0], l[1], l[2],
                     l[3], l[4]);
             AngleValue pR = PseudophasePuckerAngle.calculate(r[0], r[1], r[2],
                     r[3], r[4]);
-            result.add(TorsionAngleDelta.calculate(pL, pR));
+            result.add(AngleDelta.calculate(pL, pR));
         }
 
-        return new ResidueComparison(a1, a2, result);
+        return new ResidueComparison(target, model, result);
     }
 }

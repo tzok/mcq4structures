@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import pl.poznan.put.helper.TorsionAnglesHelper;
+import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class FragmentComparison implements Comparable<FragmentComparison>,
         Iterable<ResidueComparison> {
@@ -19,7 +19,7 @@ public class FragmentComparison implements Comparable<FragmentComparison>,
 
         for (ResidueComparison result : residueResults) {
             for (TorsionAngle angle : angles) {
-                TorsionAngleDelta delta = result.getAngleDelta(angle);
+                AngleDelta delta = result.getAngleDelta(angle);
 
                 if (delta == null) {
                     continue;
@@ -32,10 +32,10 @@ public class FragmentComparison implements Comparable<FragmentComparison>,
                 case BOTH_VALID:
                     deltas.add(delta.getDelta());
                     break;
-                case TORSION_LEFT_INVALID:
+                case TORSION_TARGET_INVALID:
                     firstInvalid++;
                     break;
-                case TORSION_RIGHT_INVALID:
+                case TORSION_MODEL_INVALID:
                     secondInvalid++;
                     break;
                 case DIFFERENT_CHI:

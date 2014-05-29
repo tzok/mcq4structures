@@ -24,8 +24,8 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.Residue;
+import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.TorsionAngleDelta;
 
 public class ModelsComparisonResult implements Exportable, Visualizable,
         Tabular {
@@ -70,7 +70,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
     public FragmentComparison getFragmentComparison(int column) {
         FragmentMatch fragmentMatch = matches.get(column);
-        return fragmentMatch.getBestResult();
+        return fragmentMatch.getFragmentComparison();
     }
 
     @Override
@@ -93,7 +93,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
                 for (int j = 0; j < models.size(); j++) {
                     FragmentComparison residueResults = getFragmentComparison(j);
                     ResidueComparison result = residueResults.getResidueComparison(i);
-                    TorsionAngleDelta delta = result.getAngleDelta(torsionAngle);
+                    AngleDelta delta = result.getAngleDelta(torsionAngle);
                     csvWriter.write(delta.toExportString());
                 }
 
@@ -206,7 +206,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
             for (int j = 0; j < models.size(); j++) {
                 FragmentComparison residueResults = getFragmentComparison(j);
                 ResidueComparison result = residueResults.getResidueComparison(i);
-                TorsionAngleDelta delta = result.getAngleDelta(torsionAngle);
+                AngleDelta delta = result.getAngleDelta(torsionAngle);
 
                 if (delta == null) {
                     data[i][j + 1] = null;
@@ -225,7 +225,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
         double max = Double.NEGATIVE_INFINITY;
 
         for (FragmentMatch match : matches) {
-            for (ResidueComparison result : match.getBestResult()) {
+            for (ResidueComparison result : match.getFragmentComparison()) {
                 double delta = result.getAngleDelta(torsionAngle).getDelta();
 
                 if (delta < min) {
@@ -247,7 +247,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
         for (int i = 0; i < matches.size(); i++) {
             FragmentMatch match = matches.get(i);
-            FragmentComparison result = match.getBestResult();
+            FragmentComparison result = match.getFragmentComparison();
             fragmentAverages[i] = result.getMcq();
         }
 

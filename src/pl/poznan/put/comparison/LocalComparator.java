@@ -11,10 +11,10 @@ import pl.poznan.put.structure.StructureSelection;
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public interface LocalComparator {
-    LocalComparisonResult compareLocally(StructureSelection s1,
-            StructureSelection s2) throws IncomparableStructuresException;
+    LocalComparisonResult comparePair(StructureSelection target,
+            StructureSelection model) throws IncomparableStructuresException;
 
-    ModelsComparisonResult compareModels(CompactFragment reference,
+    ModelsComparisonResult compareModels(CompactFragment target,
             List<CompactFragment> models)
             throws IncomparableStructuresException;
 }

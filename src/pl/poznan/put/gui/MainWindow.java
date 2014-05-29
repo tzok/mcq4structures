@@ -45,9 +45,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.jmol.api.JmolViewer;
 import org.slf4j.Logger;
@@ -668,22 +670,35 @@ public class MainWindow extends JFrame implements ComparisonListener {
         MCQMatcher matcher = new MCQMatcher(true,
                 MCQ.getAllAvailableTorsionAngles());
         SelectionMatch selectionMatch = matcher.matchSelections(s1, s2);
-
         exportable = selectionMatch;
 
-        String jmolScript = "frame 0.0; cartoon only; "
-                + "select model=1.1; color green; "
-                + "select model=1.2; color red; ";
-
         try {
+            String jmolScript = "frame 0.0; cartoon only; "
+                    + "select model=1.1; color green; "
+                    + "select model=1.2; color red; ";
+
             JmolViewer viewer = panelJmolLeft.getViewer();
-            viewer.openStringInline(selectionMatch.toPDB(false));
+            String pdb = selectionMatch.toPDB(false);
+            try {
+                FileUtils.write(new File("/tmp/whole.pdb"), pdb);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            viewer.openStringInline(pdb);
             panelJmolLeft.executeCmd(jmolScript);
 
             viewer = panelJmolRight.getViewer();
-            viewer.openStringInline(selectionMatch.toPDB(true));
+            pdb = selectionMatch.toPDB(true);
+            try {
+                FileUtils.write(new File("/tmp/matched.pdb"), pdb);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            viewer.openStringInline(pdb);
             panelJmolRight.executeCmd(jmolScript);
-        } catch (IncomparableStructuresException e) {
+        } catch (StructureException e) {
             JOptionPane.showMessageDialog(this, "Failed to align structures. "
                     + "Reason: " + e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -771,7 +786,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
             progressBar.setMaximum(1);
 
             MCQ mcq = new MCQ(dialogAngles.getAngles());
-            comparisonLocal = mcq.compareLocally(selectionL, selectionR);
+            comparisonLocal = mcq.comparePair(selectionL, selectionR);
         } catch (IncomparableStructuresException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);

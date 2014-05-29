@@ -19,9 +19,9 @@ import pl.poznan.put.protein.ProteinChiTorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.TorsionAngleDelta;
-import pl.poznan.put.utility.TorsionAngleDelta.State;
+import pl.poznan.put.torsion.AngleDelta.State;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -61,10 +61,10 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public GlobalComparisonResult compareGlobally(StructureSelection s1,
-            StructureSelection s2) throws IncomparableStructuresException {
+    public GlobalComparisonResult compareGlobally(StructureSelection target,
+            StructureSelection model) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(true, angles);
-        SelectionMatch matches = matcher.matchSelections(s1, s2);
+        SelectionMatch matches = matcher.matchSelections(target, model);
 
         if (matches == null || matches.getSize() == 0) {
             throw new IncomparableStructuresException("No matching fragments "
@@ -76,11 +76,11 @@ public class MCQ implements GlobalComparator, LocalComparator {
         for (int i = 0; i < matches.getSize(); i++) {
             FragmentMatch fragment = matches.getFragmentMatch(i);
             MCQ.LOGGER.debug("Taking into account fragments: " + fragment);
-            FragmentComparison fragmentComparison = fragment.getBestResult();
+            FragmentComparison fragmentComparison = fragment.getFragmentComparison();
 
             for (ResidueComparison residueComparison : fragmentComparison) {
                 for (TorsionAngle torsionAngle : angles) {
-                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
+                    AngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta != null
                             && angleDelta.getState() == State.BOTH_VALID) {
@@ -91,12 +91,12 @@ public class MCQ implements GlobalComparator, LocalComparator {
         }
 
         double mcq = TorsionAnglesHelper.calculateMean(deltas);
-        return new GlobalComparisonResult(getName(), s1.getName(),
-                s2.getName(), matches, mcq, true);
+        return new GlobalComparisonResult(getName(), target.getName(),
+                model.getName(), matches, mcq, true);
     }
 
     @Override
-    public LocalComparisonResult compareLocally(StructureSelection s1,
+    public LocalComparisonResult comparePair(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(true, angles);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
