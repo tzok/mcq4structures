@@ -20,6 +20,8 @@ import org.biojava3.core.sequence.RNASequence;
 import org.biojava3.core.sequence.compound.AminoAcidCompound;
 import org.biojava3.core.sequence.compound.NucleotideCompound;
 import org.biojava3.core.sequence.compound.RNACompoundSet;
+import org.biojava3.core.sequence.template.AbstractCompound;
+import org.biojava3.core.sequence.template.AbstractSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,182 +38,113 @@ import pl.poznan.put.structure.Sequence;
 public final class SequenceAligner {
     private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAligner.class);
 
-    // FIXME: rewrite all of this!
-    public static SequenceAlignment align(List<CompactFragment> fragments,
-            boolean isGlobal) {
+    private final List<CompactFragment> fragments;
+    private final boolean isGlobal;
+    private final String title;
+    private final MoleculeType moleculeType;
+    private final PairwiseSequenceScorerType type;
+    private final SubstitutionMatrix<? extends AbstractCompound> substitutionMatrix;
+
+    public SequenceAligner(List<CompactFragment> fragments, boolean isGlobal) {
+        super();
+        this.fragments = fragments;
+        this.isGlobal = isGlobal;
+
+        StringBuilder builder = new StringBuilder();
+        for (CompactFragment fragment : fragments) {
+            builder.append(fragment.getParentName());
+            builder.append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length());
+
+        title = builder.toString();
+        moleculeType = fragments.get(0).getMoleculeType();
+        type = isGlobal ? PairwiseSequenceScorerType.GLOBAL
+                : PairwiseSequenceScorerType.LOCAL;
+        substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix()
+                : SequenceAligner.getProteinSubstitutionMatrix();
+
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public SequenceAlignment align() {
         if (fragments.size() == 0) {
             return null;
         }
 
-        PairwiseSequenceScorerType type = isGlobal ? PairwiseSequenceScorerType.GLOBAL
-                : PairwiseSequenceScorerType.LOCAL;
+        List<AbstractSequence> sequences = new ArrayList<>();
+        Map<AbstractSequence, CompactFragment> mapSequenceName = new HashMap<>();
 
-        if (fragments.get(0).getMoleculeType() == MoleculeType.RNA) {
-            List<RNASequence> list = new ArrayList<>();
-            Map<RNASequence, CompactFragment> map = new HashMap<>();
+        for (CompactFragment fragment : fragments) {
+            String string = Sequence.fromCompactFragment(fragment).toString();
+            AbstractSequence sequence;
 
-            for (CompactFragment fragment : fragments) {
-                String string = Sequence.fromCompactFragment(fragment).toString();
+            if (moleculeType == MoleculeType.RNA) {
                 string = string.replace('T', 'U'); // FIXME
-                RNASequence rnaSequence = new RNASequence(string);
-                list.add(rnaSequence);
-                map.put(rnaSequence, fragment);
+                sequence = new RNASequence(string);
+            } else {
+                sequence = new ProteinSequence(string);
             }
 
-            SubstitutionMatrix<NucleotideCompound> matrix = getRNASubstitutionMatrix();
-            Profile<RNASequence, NucleotideCompound> profile = Alignments.getMultipleSequenceAlignment(
-                    list, matrix, type);
-
-            /*
-             * get name of every structure and chain
-             */
-            Map<CompactFragment, String> mapChainToName = new HashMap<>();
-            for (CompactFragment chain : fragments) {
-                mapChainToName.put(chain, chain.getParentName());
-            }
-
-            /*
-             * prepare a title (names separated with comma)
-             */
-            StringBuilder builder = new StringBuilder();
-            for (String name : mapChainToName.values()) {
-                builder.append(name);
-                builder.append(", ");
-            }
-
-            builder.delete(builder.length() - 2, builder.length());
-            String title = builder.toString();
-
-            /*
-             * convert every sequence into an array of characters
-             */
-            List<AlignedSequence<RNASequence, NucleotideCompound>> list2 = profile.getAlignedSequences();
-            char[][] sequences = new char[list2.size()][];
-            for (int i = 0; i < list2.size(); i++) {
-                sequences[i] = list2.get(i).toString().toCharArray();
-                assert sequences[i].length == sequences[0].length;
-            }
-
-            /*
-             * format alignment to clustalw
-             */
-            builder = new StringBuilder();
-            for (int i = 0; i < sequences[0].length; i += 60) {
-                char[][] copy = new char[list2.size()][];
-                for (int j = 0; j < list2.size(); j++) {
-                    copy[j] = Arrays.copyOfRange(sequences[j], i,
-                            Math.min(i + 60, sequences[j].length));
-
-                    AlignedSequence<RNASequence, NucleotideCompound> alignedSequence = list2.get(j);
-                    RNASequence sequence = alignedSequence.getOriginalSequence();
-                    CompactFragment chain = map.get(sequence);
-                    String name = mapChainToName.get(chain);
-                    name = name.substring(0, Math.min(name.length(), 11));
-                    builder.append(String.format("%-12s", name));
-                    builder.append(copy[j]);
-                    builder.append('\n');
-                }
-                builder.append("            ");
-                for (int k = 0; k < copy[0].length; k++) {
-                    boolean flag = true;
-                    for (int j = 0; j < list2.size(); j++) {
-                        if (copy[j][k] != copy[0][k]) {
-                            flag = false;
-                            break;
-                        }
-                    }
-                    builder.append(flag ? '*' : ' ');
-                }
-                builder.append("\n\n");
-            }
-
-            String alignment = builder.toString();
-            return new SequenceAlignment(isGlobal, alignment, title);
+            sequences.add(sequence);
+            mapSequenceName.put(sequence, fragment);
         }
 
-        if (fragments.get(0).getMoleculeType() == MoleculeType.PROTEIN) {
-            List<ProteinSequence> list = new ArrayList<>();
-            Map<ProteinSequence, CompactFragment> map = new HashMap<>();
+        Profile profile = Alignments.getMultipleSequenceAlignment(sequences,
+                substitutionMatrix, type);
 
-            for (CompactFragment fragment : fragments) {
-                String string = Sequence.fromCompactFragment(fragment).toString();
-                ProteinSequence proteinSequence = new ProteinSequence(string);
-                list.add(proteinSequence);
-                map.put(proteinSequence, fragment);
-            }
+        /*
+         * Convert every sequence into an array of characters
+         */
+        List<? extends AlignedSequence> alignedSequences = profile.getAlignedSequences();
+        char[][] sequencesAsChars = new char[alignedSequences.size()][];
 
-            SubstitutionMatrix<AminoAcidCompound> matrix = getProteinSubstitutionMatrix();
-            Profile<ProteinSequence, AminoAcidCompound> profile = Alignments.getMultipleSequenceAlignment(
-                    list, matrix, type);
-
-            /*
-             * get name of every structure and chain
-             */
-            Map<CompactFragment, String> mapChainToName = new HashMap<>();
-            for (CompactFragment chain : fragments) {
-                mapChainToName.put(chain, chain.getParentName());
-            }
-
-            /*
-             * prepare a title (names separated with comma)
-             */
-            StringBuilder builder = new StringBuilder();
-            for (String name : mapChainToName.values()) {
-                builder.append(name);
-                builder.append(", ");
-            }
-
-            builder.delete(builder.length() - 2, builder.length());
-            String title = builder.toString();
-
-            /*
-             * convert every sequence into an array of characters
-             */
-            List<AlignedSequence<ProteinSequence, AminoAcidCompound>> list2 = profile.getAlignedSequences();
-            char[][] sequences = new char[list2.size()][];
-            for (int i = 0; i < list2.size(); i++) {
-                sequences[i] = list2.get(i).toString().toCharArray();
-                assert sequences[i].length == sequences[0].length;
-            }
-
-            /*
-             * format alignment to clustalw
-             */
-            builder = new StringBuilder();
-            for (int i = 0; i < sequences[0].length; i += 60) {
-                char[][] copy = new char[list2.size()][];
-                for (int j = 0; j < list2.size(); j++) {
-                    copy[j] = Arrays.copyOfRange(sequences[j], i,
-                            Math.min(i + 60, sequences[j].length));
-
-                    AlignedSequence<ProteinSequence, AminoAcidCompound> alignedSequence = list2.get(j);
-                    ProteinSequence sequence = alignedSequence.getOriginalSequence();
-                    CompactFragment chain = map.get(sequence);
-                    String name = mapChainToName.get(chain);
-                    name = name.substring(0, Math.min(name.length(), 11));
-                    builder.append(String.format("%-12s", name));
-                    builder.append(copy[j]);
-                    builder.append('\n');
-                }
-                builder.append("            ");
-                for (int k = 0; k < copy[0].length; k++) {
-                    boolean flag = true;
-                    for (int j = 0; j < list2.size(); j++) {
-                        if (copy[j][k] != copy[0][k]) {
-                            flag = false;
-                            break;
-                        }
-                    }
-                    builder.append(flag ? '*' : ' ');
-                }
-                builder.append("\n\n");
-            }
-
-            String alignment = builder.toString();
-            return new SequenceAlignment(isGlobal, alignment, title);
+        for (int i = 0; i < alignedSequences.size(); i++) {
+            sequencesAsChars[i] = alignedSequences.get(i).toString().toCharArray();
+            assert sequencesAsChars[i].length == sequencesAsChars[0].length;
         }
 
-        return null;
+        /*
+         * Format alignment to clustalw
+         */
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < sequencesAsChars[0].length; i += 60) {
+            char[][] copy = new char[alignedSequences.size()][];
+
+            for (int j = 0; j < alignedSequences.size(); j++) {
+                copy[j] = Arrays.copyOfRange(sequencesAsChars[j], i,
+                        Math.min(i + 60, sequencesAsChars[j].length));
+
+                AlignedSequence alignedSequence = alignedSequences.get(j);
+                AbstractSequence sequence = (AbstractSequence) alignedSequence.getOriginalSequence();
+
+                CompactFragment fragment = mapSequenceName.get(sequence);
+                String name = fragment.getParentName();
+                name = name.substring(0, Math.min(name.length(), 11));
+
+                builder.append(String.format("%-12s", name));
+                builder.append(copy[j]);
+                builder.append('\n');
+            }
+
+            builder.append("            ");
+
+            for (int k = 0; k < copy[0].length; k++) {
+                boolean flag = true;
+                for (int j = 0; j < alignedSequences.size(); j++) {
+                    if (copy[j][k] != copy[0][k]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                builder.append(flag ? '*' : ' ');
+            }
+            builder.append("\n\n");
+        }
+
+        String alignment = builder.toString();
+        return new SequenceAlignment(isGlobal, alignment, title);
     }
 
     private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {
@@ -231,8 +164,5 @@ public final class SequenceAligner {
 
     private static SubstitutionMatrix<AminoAcidCompound> getProteinSubstitutionMatrix() {
         return SubstitutionMatrixHelper.getBlosum62();
-    }
-
-    private SequenceAligner() {
     }
 }

@@ -634,7 +634,8 @@ public class MainWindow extends JFrame implements ComparisonListener {
 
         List<CompactFragment> fragments = dialogChainsMultiple.getChains();
         boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        SequenceAlignment alignment = SequenceAligner.align(fragments, isGlobal);
+        SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
+        SequenceAlignment alignment = aligner.align();
 
         exportable = alignment;
         textAreaAlignSeq.setText(alignment.toString());
