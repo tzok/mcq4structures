@@ -121,7 +121,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
     JMenuItem itemSelectTorsion;
     JMenuItem itemVisualise;
     JMenuItem itemVisualise3D;
-    JMenuItem itemVisualiseHighQuality;
     JLabel labelAlignmentStatus;
 
     JTextPane labelInfoAlignSeq;
@@ -218,9 +217,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
         itemComputeDistances.setEnabled(false);
         itemVisualise = new JMenuItem("Visualise results");
         itemVisualise.setEnabled(false);
-        itemVisualiseHighQuality = new JMenuItem(
-                "Visualise results (high-quality)");
-        itemVisualiseHighQuality.setEnabled(false);
         itemVisualise3D = new JMenuItem("Visualise results in 3D");
         itemVisualise3D.setEnabled(false);
         itemCluster = new JMenuItem("Cluster results");
@@ -239,7 +235,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
         menu.addSeparator();
         menu.add(itemComputeDistances);
         menu.add(itemVisualise);
-        menu.add(itemVisualiseHighQuality);
         menu.add(itemVisualise3D);
         menu.add(itemCluster);
         menuBar.add(menu);
@@ -474,7 +469,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
                 Object source = arg0.getSource();
                 itemSelectTorsion.setEnabled(source.equals(radioLocal));
                 itemVisualise.setEnabled(false);
-                itemVisualiseHighQuality.setEnabled(false);
                 itemVisualise3D.setEnabled(false);
                 itemCluster.setEnabled(false);
 
@@ -545,17 +539,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
                 if (visualizable2 != null) {
                     visualizable2.visualize();
                 }
-            }
-        });
-
-        itemVisualiseHighQuality.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // FIXME
-                // final Visualizable visualizable2 = visualizable;
-                // if (visualizable2 != null) {
-                // visualizable2.visualizeHighQuality();
-                // }
             }
         });
 
@@ -811,7 +794,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");
         itemVisualise.setEnabled(true);
-        itemVisualiseHighQuality.setEnabled(true);
         itemVisualise3D.setEnabled(true);
         itemCluster.setEnabled(false);
 
@@ -894,7 +876,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
         itemSave.setEnabled(true);
         itemSave.setText("Save results (CSV)");
         itemVisualise.setEnabled(true);
-        itemVisualiseHighQuality.setEnabled(true);
         itemVisualise3D.setEnabled(true);
         itemCluster.setEnabled(false);
 
@@ -928,7 +909,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
-            itemVisualiseHighQuality.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
@@ -943,7 +923,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
-            itemVisualiseHighQuality.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
@@ -984,7 +963,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(true);
             itemVisualise.setEnabled(false);
-            itemVisualiseHighQuality.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
@@ -999,7 +977,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
             itemSave.setEnabled(false);
             itemComputeDistances.setEnabled(false);
             itemVisualise.setEnabled(false);
-            itemVisualiseHighQuality.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
@@ -1031,7 +1008,6 @@ public class MainWindow extends JFrame implements ComparisonListener {
         itemSave.setEnabled(false);
         itemComputeDistances.setEnabled(true);
         itemVisualise.setEnabled(false);
-        itemVisualiseHighQuality.setEnabled(false);
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 

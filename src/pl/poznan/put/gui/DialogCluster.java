@@ -37,7 +37,6 @@ public class DialogCluster extends JDialog {
 
     JButton buttonVisualize;
     JButton buttonVisualize3D;
-    JButton buttonVisualizeHighQuality;
     GlobalComparisonResultMatrix comparisonGlobal;
     JCheckBox findBestK;
     JRadioButton hierarchical;
@@ -67,7 +66,6 @@ public class DialogCluster extends JDialog {
         kspinner.setEnabled(false);
 
         buttonVisualize = new JButton("Visualize");
-        buttonVisualizeHighQuality = new JButton("Visualize (high quality)");
         buttonVisualize3D = new JButton("Visualize in 3D");
         buttonVisualize3D.setEnabled(false);
         JButton buttonClose = new JButton("Close");
@@ -106,8 +104,6 @@ public class DialogCluster extends JDialog {
         c.gridwidth = 1;
         container.add(buttonVisualize, c);
         c.gridx = 1;
-        container.add(buttonVisualizeHighQuality, c);
-        c.gridx = 2;
         container.add(buttonVisualize3D, c);
         c.gridx = 3;
         container.add(buttonClose, c);
@@ -147,7 +143,6 @@ public class DialogCluster extends JDialog {
             }
         };
         buttonVisualize.addActionListener(listener);
-        buttonVisualizeHighQuality.addActionListener(listener);
         buttonVisualize3D.addActionListener(listener);
 
         buttonClose.addActionListener(new ActionListener() {
