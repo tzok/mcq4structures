@@ -100,6 +100,36 @@ public class MCQMatcher implements StructureMatcher {
     }
 
     private static List<FragmentMatch> assignFragments(FragmentMatch[][] matrix) {
+        return MCQMatcher.assignHungarian(matrix);
+    }
+
+    private static List<FragmentMatch> assignHungarian(FragmentMatch[][] matrix) {
+        double[][] costMatrix = new double[matrix.length][];
+
+        for (int i = 0; i < matrix.length; i++) {
+            costMatrix[i] = new double[matrix[i].length];
+            for (int j = 0; j < matrix[i].length; j++) {
+                FragmentComparison fragmentComparison = matrix[i][j].getFragmentComparison();
+                costMatrix[i][j] = fragmentComparison.getMcq();
+            }
+        }
+
+        HungarianAlgorithm algorithm = new HungarianAlgorithm(costMatrix);
+        List<FragmentMatch> result = new ArrayList<>();
+        int[] assignment = algorithm.execute();
+
+        for (int i = 0; i < assignment.length; i++) {
+            int j = assignment[i];
+            if (j != -1) {
+                result.add(matrix[i][j]);
+            }
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unused")
+    private static List<FragmentMatch> assignGreedily(FragmentMatch[][] matrix) {
         List<FragmentMatch> result = new ArrayList<>();
         boolean[] usedi = new boolean[matrix.length];
         boolean[] usedj = new boolean[matrix[0].length];
