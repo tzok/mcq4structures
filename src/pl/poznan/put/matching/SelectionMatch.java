@@ -57,8 +57,8 @@ public class SelectionMatch implements Exportable {
     public String toPDB(boolean onlyMatched) throws StructureException {
         FragmentSuperimposer superimposer = new FragmentSuperimposer(this,
                 AtomFilter.ALL, true);
-        FragmentSuperposition superposition = onlyMatched ? superimposer.getOnlyMatched()
-                : superimposer.getWholeSelections();
+        FragmentSuperposition superposition = onlyMatched ? superimposer.getMatched()
+                : superimposer.getWhole();
         return superposition.toPDB();
     }
 
