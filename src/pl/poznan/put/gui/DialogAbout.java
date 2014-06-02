@@ -41,24 +41,23 @@ class DialogAbout extends JDialog {
         editorPane.setContentType("text/html");
         editorPane.setEditable(false);
 
-        URL resource =
-                getClass().getResource(
-                        "/pl/poznan/put/cs/bioserver/gui/about.html");
+        URL resource = getClass().getResource(
+                "/pl/poznan/put/cs/bioserver/gui/about.html");
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
             editorPane.setCaretPosition(0);
         } catch (IOException e) {
             DialogAbout.LOGGER.error("Failed to load 'About' text", e);
         }
+
         JScrollPane scrollPane = new JScrollPane(editorPane);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
-
         BufferedImage image = null;
         JLabel labelImage = new JLabel();
+
         try {
-            resource =
-                    getClass().getResource(
-                            "/pl/poznan/put/cs/bioserver/gui/rabit.png");
+            resource = getClass().getResource(
+                    "/pl/poznan/put/cs/bioserver/gui/rabit.png");
             image = ImageIO.read(resource);
             labelImage = new JLabel(new ImageIcon(image));
         } catch (IOException e) {

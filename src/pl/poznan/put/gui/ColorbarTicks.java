@@ -35,7 +35,8 @@ public class ColorbarTicks extends JPanel {
 
         for (int i = 0; i < sequence.getSize(); i++) {
             Residue residue = sequence.getResidue(i);
-            g.drawString(residue.toString(), i * width, height / 2 + 6);
+            g.drawString(Character.toString(residue.getResidueNameOneLetter()),
+                    i * width, height / 2 + 6);
         }
     }
 }

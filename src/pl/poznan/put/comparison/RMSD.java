@@ -42,8 +42,7 @@ public class RMSD implements GlobalComparator {
     @Override
     public GlobalComparisonResult compareGlobally(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(true,
-                MCQ.getAllAvailableTorsionAngles());
+        MCQMatcher matcher = new MCQMatcher(MCQ.getAllAvailableTorsionAngles());
         SelectionMatch matches = matcher.matchSelections(s1, s2);
 
         if (matches == null || matches.getSize() == 0) {
@@ -54,8 +53,8 @@ public class RMSD implements GlobalComparator {
         try {
             FragmentSuperimposer superimposer = new FragmentSuperimposer(
                     matches, filter, onlyHeavy);
-            return new GlobalComparisonResult(getName(), s1.getName(),
-                    s2.getName(), matches, superimposer.getRMSD(), false);
+            double rmsd = superimposer.getRMSD();
+            return new GlobalComparisonResult(getName(), matches, rmsd, false);
         } catch (StructureException e) {
             throw new IncomparableStructuresException("Failed to superimpose "
                     + "structures and calculate RMSD", e);

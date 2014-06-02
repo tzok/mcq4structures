@@ -22,7 +22,7 @@ public class TorsionAxis extends NumberAxis {
     }
 
     @Override
-    public List refreshTicks(Graphics2D g2, AxisState state,
+    public List<NumberTick> refreshTicks(Graphics2D g2, AxisState state,
             Rectangle2D dataArea, RectangleEdge edge) {
         List<NumberTick> ticks = super.refreshTicks(g2, state, dataArea, edge);
 

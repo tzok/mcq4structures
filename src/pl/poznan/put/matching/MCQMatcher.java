@@ -16,12 +16,10 @@ import pl.poznan.put.torsion.AverageAngle;
 import pl.poznan.put.torsion.TorsionAngle;
 
 public class MCQMatcher implements StructureMatcher {
-    private boolean matchChiByType;
     private List<TorsionAngle> angles;
 
-    public MCQMatcher(boolean matchChiByType, List<TorsionAngle> angles) {
+    public MCQMatcher(List<TorsionAngle> angles) {
         super();
-        this.matchChiByType = matchChiByType;
         this.angles = angles;
     }
 
@@ -29,7 +27,7 @@ public class MCQMatcher implements StructureMatcher {
     public SelectionMatch matchSelections(StructureSelection target,
             StructureSelection model) {
         if (target.getSize() == 0 || model.getSize() == 0) {
-            return new SelectionMatch(target, model, matchChiByType, angles,
+            return new SelectionMatch(target, model,
                     new ArrayList<FragmentMatch>());
         }
 
@@ -56,8 +54,7 @@ public class MCQMatcher implements StructureMatcher {
         }
 
         List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
-        return new SelectionMatch(target, model, matchChiByType, angles,
-                fragmentMatches);
+        return new SelectionMatch(target, model, fragmentMatches);
     }
 
     @Override

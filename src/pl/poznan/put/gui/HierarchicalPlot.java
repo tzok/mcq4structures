@@ -2,7 +2,6 @@ package pl.poznan.put.gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -23,18 +22,6 @@ import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 public class HierarchicalPlot extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private static String generateLabel(List<Integer> items, String[] labels) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[ ");
-        for (int i : items) {
-            builder.append(labels[i]);
-            builder.append(", ");
-        }
-        builder.delete(builder.length() - 2, builder.length());
-        builder.append(" ]");
-        return builder.toString();
-    }
-
     private JFreeChart chart;
 
     /**
@@ -52,11 +39,20 @@ public class HierarchicalPlot extends JFrame {
     public HierarchicalPlot(GlobalComparisonResultMatrix matrix,
             HierarchicalCluster[] clustering) {
         DefaultXYDataset dataset = new DefaultXYDataset();
-        String[] labels = matrix.getNames();
 
         for (HierarchicalCluster cluster : clustering) {
-            String label = HierarchicalPlot.generateLabel(cluster.getItems(),
-                    labels);
+            StringBuilder builder = new StringBuilder();
+            builder.append("[ ");
+
+            for (int i : cluster.getItems()) {
+                builder.append(matrix.getName(i));
+                builder.append(", ");
+
+            }
+            builder.delete(builder.length() - 2, builder.length());
+            builder.append(" ]");
+            String label = builder.toString();
+
             HierarchicalCluster left = cluster.getLeft();
             HierarchicalCluster right = cluster.getRight();
             double[] x = new double[] { left.getX(), left.getX(), right.getX(), right.getX() };
@@ -68,7 +64,7 @@ public class HierarchicalPlot extends JFrame {
         xAxis.setTickLabelsVisible(false);
         xAxis.setTickMarksVisible(false);
         xAxis.setAutoRange(false);
-        xAxis.setRange(-1, labels.length);
+        xAxis.setRange(-1, matrix.getSize());
         NumberAxis yAxis = new NumberAxis();
         yAxis.setTickLabelsVisible(false);
         yAxis.setTickMarksVisible(false);

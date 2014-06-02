@@ -42,7 +42,16 @@ public class ParallelGlobalComparison {
 
         @Override
         public SingleResult call() throws Exception {
-            return new SingleResult(i, j, comparator.compareGlobally(s1, s2));
+            try {
+                GlobalComparisonResult comp = comparator.compareGlobally(s1, s2);
+                return new SingleResult(i, j, comp);
+            } catch (IncomparableStructuresException e) {
+                ParallelGlobalComparison.LOGGER.error(
+                        "Failed to compare structures: " + s1.getName()
+                                + " and " + s2.getName(), e);
+            }
+
+            return null;
         }
     }
 
@@ -59,9 +68,8 @@ public class ParallelGlobalComparison {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelGlobalComparison.class);
-
-    static final ExecutorService THREAD_POOL = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
-    static final ExecutorCompletionService<SingleResult> EXECUTOR = new ExecutorCompletionService<>(
+    private static final ExecutorService THREAD_POOL = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+    private static final ExecutorCompletionService<SingleResult> EXECUTOR = new ExecutorCompletionService<>(
             ParallelGlobalComparison.THREAD_POOL);
 
     public static GlobalComparisonResultMatrix run(
@@ -122,7 +130,7 @@ public class ParallelGlobalComparison {
         for (int i = 0; i < all; i++) {
             try {
                 SingleResult result = ParallelGlobalComparison.EXECUTOR.take().get();
-                matrix.set(result.i, result.j, result.value);
+                matrix.setResult(result.i, result.j, result.value);
             } catch (InterruptedException | ExecutionException e) {
                 ParallelGlobalComparison.LOGGER.error(
                         "Failed to compare a pair of structures", e);

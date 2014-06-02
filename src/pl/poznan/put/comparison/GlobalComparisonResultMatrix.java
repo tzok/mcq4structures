@@ -10,20 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.ChartLauncher;
-import org.jzy3d.colors.Color;
-import org.jzy3d.colors.ColorMapper;
-import org.jzy3d.colors.colormaps.ColorMapRainbow;
-import org.jzy3d.maths.Range;
-import org.jzy3d.plot3d.builder.Builder;
-import org.jzy3d.plot3d.builder.Mapper;
-import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
-import org.jzy3d.plot3d.primitives.Shape;
-import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
-import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
-import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
-import org.jzy3d.plot3d.rendering.canvas.Quality;
+import org.biojava.bio.structure.jama.Matrix;
 
 import pl.poznan.put.gui.DialogCluster;
 import pl.poznan.put.interfaces.Clusterable;
@@ -41,7 +28,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
     private final int size;
     private final String[] names;
     private final GlobalComparisonResult[][] results;
-    private final double[][] matrix;
+    private final Matrix matrix;
 
     public GlobalComparisonResultMatrix(String measureName, int size) {
         super();
@@ -50,21 +37,24 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
 
         names = new String[size];
         results = new GlobalComparisonResult[size][];
-        matrix = new double[size][];
+        double[][] rawMatrix = new double[size][];
+
         for (int i = 0; i < size; ++i) {
             results[i] = new GlobalComparisonResult[size];
-            matrix[i] = new double[size];
+            rawMatrix[i] = new double[size];
         }
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i == j) {
-                    matrix[i][j] = 0;
+                    rawMatrix[i][j] = 0;
                 } else {
-                    matrix[i][j] = Double.NaN;
+                    rawMatrix[i][j] = Double.NaN;
                 }
             }
         }
+
+        matrix = new Matrix(rawMatrix);
     }
 
     public String getMeasureName() {
@@ -75,36 +65,37 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
         return size;
     }
 
-    public String[] getNames() {
-        return names;
+    public String getName(int index) {
+        return names[index];
     }
 
-    public GlobalComparisonResult[][] getResults() {
-        return results;
+    public GlobalComparisonResult getResult(int i, int j) {
+        return results[i][j];
     }
 
-    public double[][] getMatrix() {
-        return matrix;
-    }
-
-    public void set(int i, int j, GlobalComparisonResult result) {
+    public void setResult(int i, int j, GlobalComparisonResult result) {
         results[i][j] = results[j][i] = result;
-        matrix[i][j] = matrix[j][i] = result.getValue();
+        matrix.set(i, j, result.getValue());
+        matrix.set(j, i, result.getValue());
 
         if (names[i] == null) {
-            names[i] = result.getNameLeft();
+            names[i] = result.getTargetName();
         }
 
         if (names[j] == null) {
-            names[j] = result.getNameRight();
+            names[j] = result.getModelName();
         }
+    }
+
+    public Matrix getDistanceMatrix() {
+        return matrix;
     }
 
     @Override
     public void cluster() {
-        for (double[] value : matrix) {
-            for (double element : value) {
-                if (Double.isNaN(element)) {
+        for (int i = 0; i < matrix.getRowDimension(); i++) {
+            for (int j = 0; j < matrix.getColumnDimension(); j++) {
+                if (Double.isNaN(matrix.get(i, j))) {
                     JOptionPane.showMessageDialog(null, "Results cannot be "
                             + "clustered. Some structures could not be "
                             + "compared.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -136,7 +127,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
     public void visualize() {
         double[][] mds;
         try {
-            mds = MDS.multidimensionalScaling(matrix, 2);
+            mds = MDS.multidimensionalScaling(matrix.getArray(), 2);
         } catch (InvalidInputException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -151,42 +142,44 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
 
     @Override
     public void visualize3D() {
-        Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new Range(
-                0, size - 1), size), new Mapper() {
-            @Override
-            public double f(double x, double y) {
-                int i = (int) Math.round(x);
-                int j = (int) Math.round(y);
-
-                i = Math.max(Math.min(i, size - 1), 0);
-                j = Math.max(Math.min(j, size - 1), 0);
-                return matrix[i][j];
-            }
-        });
-
-        surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
-                surface.getBounds().getZmin(), surface.getBounds().getZmax(),
-                new Color(1, 1, 1, .5f)));
-        surface.setFaceDisplayed(true);
-        surface.setWireframeDisplayed(false);
-
-        Chart chart = new Chart(Quality.Nicest);
-        chart.getScene().getGraph().add(surface);
-
-        TickLabelMap map = new TickLabelMap();
-        for (int i = 0; i < names.length; i++) {
-            map.register(i, names[i]);
-        }
-
-        IAxeLayout axeLayout = chart.getAxeLayout();
-        axeLayout.setXTickProvider(new RegularTickProvider(size));
-        axeLayout.setXTickRenderer(map);
-        axeLayout.setYTickProvider(new RegularTickProvider(size));
-        axeLayout.setYTickRenderer(map);
-        axeLayout.setZAxeLabel(measureName.equals("MCQ") ? "Angular distance"
-                : "Distance [\u212B]");
-
-        ChartLauncher.openChart(chart);
+        // TODO
+        // Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new
+        // Range(
+        // 0, size - 1), size), new Mapper() {
+        // @Override
+        // public double f(double x, double y) {
+        // int i = (int) Math.round(x);
+        // int j = (int) Math.round(y);
+        //
+        // i = Math.max(Math.min(i, size - 1), 0);
+        // j = Math.max(Math.min(j, size - 1), 0);
+        // return matrix[i][j];
+        // }
+        // });
+        //
+        // surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
+        // surface.getBounds().getZmin(), surface.getBounds().getZmax(),
+        // new Color(1, 1, 1, .5f)));
+        // surface.setFaceDisplayed(true);
+        // surface.setWireframeDisplayed(false);
+        //
+        // Chart chart = new Chart(Quality.Nicest);
+        // chart.getScene().getGraph().add(surface);
+        //
+        // TickLabelMap map = new TickLabelMap();
+        // for (int i = 0; i < names.length; i++) {
+        // map.register(i, names[i]);
+        // }
+        //
+        // IAxeLayout axeLayout = chart.getAxeLayout();
+        // axeLayout.setXTickProvider(new RegularTickProvider(size));
+        // axeLayout.setXTickRenderer(map);
+        // axeLayout.setYTickProvider(new RegularTickProvider(size));
+        // axeLayout.setYTickRenderer(map);
+        // axeLayout.setZAxeLabel(measureName.equals("MCQ") ? "Angular distance"
+        // : "Distance [\u212B]");
+        //
+        // ChartLauncher.openChart(chart);
     }
 
     @Override
@@ -224,8 +217,8 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
                 if (result == null) {
                     values[i][j + 1] = "Failed";
                 } else {
-                    values[i][j + 1] = isDisplay ? result.toDisplayString()
-                            : result.toExportString();
+                    values[i][j + 1] = isDisplay ? result.getDisplayName()
+                            : result.getExportName();
                 }
             }
         }

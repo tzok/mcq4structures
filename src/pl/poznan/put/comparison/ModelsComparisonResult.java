@@ -30,7 +30,7 @@ import pl.poznan.put.torsion.TorsionAngle;
 public class ModelsComparisonResult implements Exportable, Visualizable,
         Tabular {
     private final TorsionAngle torsionAngle;
-    private final CompactFragment reference;
+    private final CompactFragment target;
     private final List<CompactFragment> models;
     private final List<FragmentMatch> matches;
 
@@ -39,7 +39,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
             List<FragmentMatch> matches) {
         super();
         this.torsionAngle = torsionAngle;
-        this.reference = reference;
+        this.target = reference;
         this.models = models;
         this.matches = matches;
     }
@@ -48,29 +48,24 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
         return torsionAngle;
     }
 
-    public CompactFragment getReference() {
-        return reference;
+    public CompactFragment getTarget() {
+        return target;
     }
 
-    public List<CompactFragment> getModels() {
-        return models;
+    public CompactFragment getModel(int index) {
+        return models.get(index);
     }
 
-    public List<FragmentMatch> getMatches() {
-        return matches;
+    public int getTargetSize() {
+        return target.getSize();
     }
 
     public int getModelCount() {
         return matches.size();
     }
 
-    public int getFragmentSize() {
-        return reference.getSize();
-    }
-
-    public FragmentComparison getFragmentComparison(int column) {
-        FragmentMatch fragmentMatch = matches.get(column);
-        return fragmentMatch.getFragmentComparison();
+    public FragmentMatch getFragmentMatch(int index) {
+        return matches.get(index);
     }
 
     @Override
@@ -85,15 +80,16 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
             csvWriter.endRecord();
 
-            for (int i = 0; i < reference.getSize(); i++) {
-                Group group = reference.getGroup(i);
+            for (int i = 0; i < target.getSize(); i++) {
+                Group group = target.getGroup(i);
                 Residue residue = Residue.fromGroup(group);
                 csvWriter.write(residue.toString());
 
                 for (int j = 0; j < models.size(); j++) {
-                    FragmentComparison residueResults = getFragmentComparison(j);
-                    ResidueComparison result = residueResults.getResidueComparison(i);
-                    AngleDelta delta = result.getAngleDelta(torsionAngle);
+                    FragmentMatch fragmentMatch = matches.get(j);
+                    FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
+                    ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
+                    AngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
                     csvWriter.write(delta.toExportString());
                 }
 
@@ -197,16 +193,17 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
             columnNames[i + 1] = models.get(i).getName();
         }
 
-        String[][] data = new String[reference.getSize()][];
+        String[][] data = new String[target.getSize()][];
 
-        for (int i = 0; i < reference.getSize(); i++) {
+        for (int i = 0; i < target.getSize(); i++) {
             data[i] = new String[models.size() + 1];
-            data[i][0] = reference.getResidue(i).toString();
+            data[i][0] = target.getResidue(i).toString();
 
             for (int j = 0; j < models.size(); j++) {
-                FragmentComparison residueResults = getFragmentComparison(j);
-                ResidueComparison result = residueResults.getResidueComparison(i);
-                AngleDelta delta = result.getAngleDelta(torsionAngle);
+                FragmentMatch fragmentMatch = matches.get(j);
+                FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
+                ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
+                AngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
 
                 if (delta == null) {
                     data[i][j + 1] = null;

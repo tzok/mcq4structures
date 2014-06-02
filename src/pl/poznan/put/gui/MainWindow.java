@@ -668,8 +668,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
         StructureSelection s2 = SelectionFactory.create(
                 StructureManager.getName(right), right);
 
-        MCQMatcher matcher = new MCQMatcher(true,
-                MCQ.getAllAvailableTorsionAngles());
+        MCQMatcher matcher = new MCQMatcher(MCQ.getAllAvailableTorsionAngles());
         SelectionMatch selectionMatch = matcher.matchSelections(s1, s2);
         exportable = selectionMatch;
 
@@ -786,7 +785,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
             progressBar.setValue(0);
             progressBar.setMaximum(1);
 
-            MCQ mcq = new MCQ(dialogAngles.getAngles());
+            MCQ mcq = new MCQ(Arrays.asList(dialogAngles.getAngles()));
             comparisonLocal = mcq.comparePair(selectionL, selectionR);
         } catch (IncomparableStructuresException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),

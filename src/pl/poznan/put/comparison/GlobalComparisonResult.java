@@ -1,24 +1,20 @@
 package pl.poznan.put.comparison;
 
+import pl.poznan.put.common.DisplayableExportable;
 import pl.poznan.put.helper.CommonNumberFormat;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.matching.SelectionMatch;
 
-public class GlobalComparisonResult {
+public class GlobalComparisonResult implements DisplayableExportable {
     private final String measureName;
-    private final String nameLeft;
-    private final String nameRight;
     private final SelectionMatch matches;
     private final double value;
     private final boolean isAngle;
 
-    public GlobalComparisonResult(String measureName, String nameLeft,
-            String nameRight, SelectionMatch matches, double value,
-            boolean isAngle) {
+    public GlobalComparisonResult(String measureName, SelectionMatch matches,
+            double value, boolean isAngle) {
         super();
         this.measureName = measureName;
-        this.nameLeft = nameLeft;
-        this.nameRight = nameRight;
         this.matches = matches;
         this.value = value;
         this.isAngle = isAngle;
@@ -28,15 +24,15 @@ public class GlobalComparisonResult {
         return measureName;
     }
 
-    public String getNameLeft() {
-        return nameLeft;
+    public String getTargetName() {
+        return matches.getTarget().getName();
     }
 
-    public String getNameRight() {
-        return nameRight;
+    public String getModelName() {
+        return matches.getModel().getName();
     }
 
-    public SelectionMatch getMatches() {
+    public SelectionMatch getSelectionMatch() {
         return matches;
     }
 
@@ -56,7 +52,8 @@ public class GlobalComparisonResult {
      * @return String representation of this delta object understandable by
      *         external tools.
      */
-    public String toExportString() {
+    @Override
+    public String getExportName() {
         if (isAngle) {
             return CommonNumberFormat.formatDouble(Math.toDegrees(value));
         }
@@ -69,8 +66,9 @@ public class GlobalComparisonResult {
      * 
      * @return String representation of object to be shown in the GUI.
      */
-    public String toDisplayString() {
-        String result = toExportString();
+    @Override
+    public String getDisplayName() {
+        String result = getExportName();
 
         if (isAngle) {
             result += Constants.UNICODE_DEGREE;

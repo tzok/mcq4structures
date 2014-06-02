@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import pl.poznan.put.comparison.ModelsComparisonResult;
 import pl.poznan.put.matching.FragmentComparison;
+import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.TorsionAngle;
 
@@ -35,13 +36,14 @@ class Colorbar extends JPanel {
         super.paintComponent(g);
 
         Dimension size = getSize();
-        int width = size.width / result.getFragmentSize();
+        int width = size.width / result.getTargetSize();
         int height = size.height;
 
-        FragmentComparison residueResults = result.getFragmentComparison(index);
+        FragmentMatch fragmentMatch = result.getFragmentMatch(index);
+        FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
 
-        for (int i = 0; i < residueResults.getSize(); i++) {
-            ResidueComparison residueResult = residueResults.getResidueComparison(i);
+        for (int i = 0; i < fragmentComparison.getSize(); i++) {
+            ResidueComparison residueResult = fragmentComparison.getResidueComparison(i);
             double delta = residueResult.getAngleDelta(torsionAngle).getDelta();
             g.setColor(getColor(delta));
             g.fillRect(i * width, 0, width, height - 1);

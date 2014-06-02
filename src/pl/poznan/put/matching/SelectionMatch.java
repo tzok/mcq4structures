@@ -2,32 +2,29 @@ package pl.poznan.put.matching;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.structure.StructureSelection;
-import pl.poznan.put.torsion.TorsionAngle;
 
 public class SelectionMatch implements Exportable {
     private final StructureSelection target;
     private final StructureSelection model;
-    private final boolean matchChiByType;
-    private final List<TorsionAngle> angles;
     private final List<FragmentMatch> fragmentMatches;
 
     public SelectionMatch(StructureSelection target, StructureSelection model,
-            boolean matchChiByType, List<TorsionAngle> angles,
             List<FragmentMatch> fragmentMatches) {
         super();
         this.target = target;
         this.model = model;
-        this.matchChiByType = matchChiByType;
-        this.angles = angles;
         this.fragmentMatches = fragmentMatches;
     }
 
@@ -67,12 +64,23 @@ public class SelectionMatch implements Exportable {
 
     @Override
     public void export(File file) throws IOException {
-        // TODO Auto-generated method stub
+        try {
+            FileUtils.write(file, toPDB(false));
+        } catch (StructureException e) {
+            throw new IOException("Failed to export the match to a PDB file", e);
+        }
     }
 
     @Override
     public File suggestName() {
-        // TODO Auto-generated method stub
-        return null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+        StringBuilder filename = new StringBuilder();
+        filename.append(sdf.format(new Date()));
+        filename.append("-3DSTRA-");
+        filename.append(target.getName());
+        filename.append("-");
+        filename.append(model.getName());
+        filename.append(".pdb");
+        return new File(filename.toString());
     }
 }

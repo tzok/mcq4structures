@@ -7,10 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 
 import org.biojava.bio.structure.Structure;
@@ -45,17 +42,6 @@ public final class StructureManager {
     }
 
     public static List<Structure> getAllStructures() {
-        SortedSet<StructureInfo> set = new TreeSet<>(
-                new Comparator<StructureInfo>() {
-                    @Override
-                    public int compare(StructureInfo o1, StructureInfo o2) {
-                        String name1 = o1.getName();
-                        String name2 = o2.getName();
-                        return name1.compareTo(name2);
-                    }
-                });
-        set.addAll(StructureManager.STRUCTURES);
-
         List<Structure> result = new ArrayList<>();
         for (StructureInfo si : StructureManager.STRUCTURES) {
             result.add(si.getStructure());

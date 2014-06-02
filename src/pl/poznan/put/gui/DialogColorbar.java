@@ -56,8 +56,8 @@ public class DialogColorbar extends JDialog {
         add(panel, c);
 
         c.gridy = 1;
-        add(new ColorbarTicks(
-                Sequence.fromCompactFragment(result.getReference())), c);
+        add(new ColorbarTicks(Sequence.fromCompactFragment(result.getTarget())),
+                c);
 
         for (int i = 0; i < result.getModelCount(); i++) {
             Colorbar colorbar = new Colorbar(result, i);
@@ -74,7 +74,7 @@ public class DialogColorbar extends JDialog {
             c.weightx = 0;
             c.weighty = 0;
             c.fill = GridBagConstraints.HORIZONTAL;
-            add(new JLabel(result.getModels().get(i).getName()), c);
+            add(new JLabel(result.getModel(i).getName()), c);
         }
 
         c.gridx = 0;
@@ -82,8 +82,8 @@ public class DialogColorbar extends JDialog {
         c.weightx = 1;
         c.weighty = 0;
         c.fill = GridBagConstraints.BOTH;
-        add(new ColorbarTicks(
-                Sequence.fromCompactFragment(result.getReference())), c);
+        add(new ColorbarTicks(Sequence.fromCompactFragment(result.getTarget())),
+                c);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension size = toolkit.getScreenSize();

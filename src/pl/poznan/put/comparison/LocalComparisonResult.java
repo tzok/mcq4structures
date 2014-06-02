@@ -7,24 +7,19 @@ import pl.poznan.put.matching.SelectionMatch;
 
 public abstract class LocalComparisonResult implements Exportable,
         Visualizable, Tabular {
-    protected final String nameLeft;
-    protected final String nameRight;
     protected final SelectionMatch matches;
 
-    public LocalComparisonResult(String nameLeft, String nameRight,
-            SelectionMatch matches) {
+    public LocalComparisonResult(SelectionMatch matches) {
         super();
-        this.nameLeft = nameLeft;
-        this.nameRight = nameRight;
         this.matches = matches;
     }
 
-    public String getNameLeft() {
-        return nameLeft;
+    public String getTargetName() {
+        return matches.getTarget().getName();
     }
 
-    public String getNameRight() {
-        return nameRight;
+    public String getModelName() {
+        return matches.getModel().getName();
     }
 
     public SelectionMatch getMatches() {

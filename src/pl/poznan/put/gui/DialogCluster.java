@@ -171,7 +171,7 @@ public class DialogCluster extends JDialog {
     }
 
     Visualizable getVisualizable() throws InvalidInputException {
-        double[][] matrix = comparisonGlobal.getMatrix();
+        double[][] matrix = comparisonGlobal.getDistanceMatrix().getArray();
 
         if (hierarchical.isSelected()) {
             final HierarchicalCluster[] clusters = HierarchicalClusterer.cluster(

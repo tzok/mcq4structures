@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.biojava.bio.structure.Structure;
 
-public class StructureInfo {
+public class StructureInfo implements Comparable<StructureInfo> {
     private final Structure structure;
     private final File path;
     private final String name;
@@ -26,5 +26,10 @@ public class StructureInfo {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int compareTo(StructureInfo o) {
+        return name.compareTo(o.name);
     }
 }

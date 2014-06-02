@@ -168,9 +168,7 @@ final class DialogAngles extends JDialog {
             @SuppressWarnings("synthetic-access")
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<TorsionAngle> selected = getAngles();
-                selected.clear();
-
+                List<TorsionAngle> selected = new ArrayList<>();
                 JPanel[] panels = new JPanel[] { panelAnglesAmino, panelAnglesNucleic };
                 @SuppressWarnings("rawtypes")
                 Map[] maps = new Map[] { mapNameToAngleAmino, mapNameToAngleNucleic };
@@ -189,6 +187,8 @@ final class DialogAngles extends JDialog {
                     }
                 }
 
+                selectedAngles.clear();
+                selectedAngles.addAll(selected);
                 dispose();
             }
         });
@@ -206,7 +206,7 @@ final class DialogAngles extends JDialog {
         setTitle("MCQ4Structures: torsion angle(s) selection");
     }
 
-    public List<TorsionAngle> getAngles() {
-        return selectedAngles;
+    public TorsionAngle[] getAngles() {
+        return selectedAngles.toArray(new TorsionAngle[selectedAngles.size()]);
     }
 }

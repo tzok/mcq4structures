@@ -36,9 +36,9 @@ import pl.poznan.put.utility.TabularExporter;
 public class MCQLocalComparisonResult extends LocalComparisonResult {
     private final List<TorsionAngle> angles;
 
-    public MCQLocalComparisonResult(String nameLeft, String nameRight,
-            SelectionMatch matches, List<TorsionAngle> angles) {
-        super(nameLeft, nameRight, matches);
+    public MCQLocalComparisonResult(SelectionMatch matches,
+            List<TorsionAngle> angles) {
+        super(matches);
         this.angles = angles;
     }
 
@@ -76,7 +76,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
         String filename = sdf.format(new Date());
         filename += "-Local-Distance-";
-        filename += nameLeft + "-" + nameRight;
+        filename += getTargetName() + "-" + getModelName();
         filename += ".csv";
         return new File(filename);
     }

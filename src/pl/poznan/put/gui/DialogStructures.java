@@ -36,8 +36,6 @@ final class DialogStructures extends JDialog {
 
     private static DialogStructures instance;
 
-    private static final long serialVersionUID = 1L;
-
     public static DialogStructures getInstance(Frame owner) {
         DialogStructures inst = DialogStructures.instance;
         if (inst == null) {

@@ -47,10 +47,6 @@ public class MCQ implements GlobalComparator, LocalComparator {
         this.angles = angles;
     }
 
-    public List<TorsionAngle> getAngles() {
-        return angles;
-    }
-
     public void setAngles(List<TorsionAngle> angles) {
         this.angles = angles;
     }
@@ -63,7 +59,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
     @Override
     public GlobalComparisonResult compareGlobally(StructureSelection target,
             StructureSelection model) throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(true, angles);
+        MCQMatcher matcher = new MCQMatcher(angles);
         SelectionMatch matches = matcher.matchSelections(target, model);
 
         if (matches == null || matches.getSize() == 0) {
@@ -91,17 +87,15 @@ public class MCQ implements GlobalComparator, LocalComparator {
         }
 
         double mcq = TorsionAnglesHelper.calculateMean(deltas);
-        return new GlobalComparisonResult(getName(), target.getName(),
-                model.getName(), matches, mcq, true);
+        return new GlobalComparisonResult(getName(), matches, mcq, true);
     }
 
     @Override
     public LocalComparisonResult comparePair(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(true, angles);
+        MCQMatcher matcher = new MCQMatcher(angles);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
-        return new MCQLocalComparisonResult(s1.getName(), s2.getName(),
-                matches, angles);
+        return new MCQLocalComparisonResult(matches, angles);
     }
 
     @Override
@@ -120,7 +114,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             }
         }
 
-        MCQMatcher matcher = new MCQMatcher(true, angles);
+        MCQMatcher matcher = new MCQMatcher(angles);
         List<FragmentMatch> matches = new ArrayList<>();
 
         for (CompactFragment fragment : models) {
