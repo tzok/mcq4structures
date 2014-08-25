@@ -10,7 +10,7 @@ public class ClusterAssignment {
     public static ClusterAssignment fromPrototypes(
             ClusterPrototypes prototypes, double[][] matrix) {
         int[] assignments = new int[matrix.length];
-        Map<Integer, List<Integer>> assignedToPrototype = new HashMap<Integer, List<Integer>>();
+        Map<Integer, List<Integer>> assignedToPrototype = new HashMap<>();
         List<Heap> binaryHeaps = Heap.fromMatrix(matrix);
 
         for (int i = 0; i < matrix.length; i++) {

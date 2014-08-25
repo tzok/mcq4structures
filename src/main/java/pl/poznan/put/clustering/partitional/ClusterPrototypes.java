@@ -17,14 +17,14 @@ public class ClusterPrototypes implements Iterable<Integer> {
 
     // http://en.wikipedia.org/wiki/K-means%2B%2B#Initialization_algorithm
     public static ClusterPrototypes initializeRandomly(double[][] matrix, int k) {
-        Set<Integer> setMedoids = new HashSet<Integer>();
+        Set<Integer> setMedoids = new HashSet<>();
         setMedoids.add(ClusterPrototypes.RANDOM.nextInt(matrix.length));
         List<Heap> listHeaps = Heap.fromMatrix(matrix);
         assert listHeaps.size() == matrix.length : "listHeaps.size() = "
                 + listHeaps.size() + ", matrix.length = " + matrix.length;
 
         for (int i = 1; i < k; i++) {
-            LinkedHashMap<Integer, Double> mapElementNearest = new LinkedHashMap<Integer, Double>();
+            LinkedHashMap<Integer, Double> mapElementNearest = new LinkedHashMap<>();
             double total = 0;
 
             for (int j = 0; j < matrix.length; j++) {
@@ -42,7 +42,7 @@ public class ClusterPrototypes implements Iterable<Integer> {
                 }
             }
 
-            Set<Integer> setCandidates = new HashSet<Integer>();
+            Set<Integer> setCandidates = new HashSet<>();
 
             for (int j = 0; j < matrix.length; j++) {
                 setCandidates.add(j);
@@ -63,7 +63,7 @@ public class ClusterPrototypes implements Iterable<Integer> {
     }
 
     public static ClusterPrototypes initializeLinearly(int k) {
-        Set<Integer> set = new HashSet<Integer>();
+        Set<Integer> set = new HashSet<>();
 
         for (int i = 0; i < k; i++) {
             set.add(i);
@@ -89,7 +89,7 @@ public class ClusterPrototypes implements Iterable<Integer> {
     }
 
     public ClusterPrototypes swap(int existing, int other) {
-        Set<Integer> set = new HashSet<Integer>(prototypes);
+        Set<Integer> set = new HashSet<>(prototypes);
         set.remove(existing);
         set.add(other);
         return new ClusterPrototypes(set);

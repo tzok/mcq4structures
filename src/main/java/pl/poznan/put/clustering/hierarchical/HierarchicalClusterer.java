@@ -3,27 +3,28 @@ package pl.poznan.put.clustering.hierarchical;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public final class HierarchicalClusterer {
-    public static HierarchicalCluster[] cluster(double[][] matrix,
+    public static HierarchicalClusteringResult cluster(double[][] matrix,
             Linkage linkage) {
         /*
          * initialise clusters as single elements
          */
-        List<HierarchicalCluster> clusters = new ArrayList<HierarchicalCluster>();
+        List<HierarchicalCluster> clusters = new ArrayList<>();
+        List<HierarchicalClusterMerge> merges = new ArrayList<>();
 
         for (int i = 0; i < matrix.length; ++i) {
-            List<Integer> c = new ArrayList<Integer>();
+            List<Integer> c = new ArrayList<>();
             c.add(i);
-            clusters.add(new HierarchicalCluster(c, i, 0));
+            clusters.add(new HierarchicalCluster(c));
         }
-
-        List<HierarchicalCluster> result = new ArrayList<HierarchicalCluster>();
 
         while (clusters.size() > 1) {
             /*
              * get two clusters to be merged
              */
-            HierarchicalCluster[] toMerge = new HierarchicalCluster[2];
+            Pair<Integer, Integer> pair = Pair.of(-1, -1);
             double leastDiff = Double.POSITIVE_INFINITY;
 
             for (int i = 0; i < clusters.size(); ++i) {
@@ -73,8 +74,7 @@ public final class HierarchicalClusterer {
                     }
 
                     if (delta < leastDiff) {
-                        toMerge[0] = clusters.get(i);
-                        toMerge[1] = clusters.get(j);
+                        pair = Pair.of(i, j);
                         leastDiff = delta;
                     }
                 }
@@ -83,16 +83,18 @@ public final class HierarchicalClusterer {
             /*
              * merge clusters
              */
-            HierarchicalCluster merged = new HierarchicalCluster(toMerge[0],
-                    toMerge[1], leastDiff);
-            result.add(merged);
+            HierarchicalCluster left = clusters.get(pair.getLeft());
+            HierarchicalCluster right = clusters.get(pair.getRight());
 
-            clusters.remove(toMerge[0]);
-            clusters.remove(toMerge[1]);
+            HierarchicalCluster merged = HierarchicalCluster.merge(left, right);
+            merges.add(new HierarchicalClusterMerge(pair, leastDiff));
+
+            clusters.remove(left);
+            clusters.remove(right);
             clusters.add(merged);
         }
 
-        return result.toArray(new HierarchicalCluster[result.size()]);
+        return new HierarchicalClusteringResult(merges);
     }
 
     private HierarchicalClusterer() {

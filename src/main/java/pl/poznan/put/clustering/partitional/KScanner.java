@@ -11,7 +11,7 @@ public class KScanner {
             ScoringFunction sf) {
         int countThreads = Runtime.getRuntime().availableProcessors() * 2;
         ExecutorService threadPool = Executors.newFixedThreadPool(countThreads);
-        ExecutorCompletionService<ScoredClusteringResult> ecs = new ExecutorCompletionService<ScoredClusteringResult>(
+        ExecutorCompletionService<ScoredClusteringResult> ecs = new ExecutorCompletionService<>(
                 threadPool);
 
         for (int i = 2; i <= matrix.length; i++) {

@@ -41,7 +41,7 @@ public class KMedoids implements PrototypeBasedClusterer {
             double score = sf.score(medoids, matrix);
 
             while (true) {
-                Set<Integer> nonmedoids = new HashSet<Integer>();
+                Set<Integer> nonmedoids = new HashSet<>();
 
                 for (int i = 0; i < matrix.length; i++) {
                     if (!medoids.isPrototype(i)) {
