@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.visualisation;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,7 +12,7 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.TorsionAngle;
 
-class Colorbar extends JPanel {
+public class Colorbar extends JPanel {
     private static final long serialVersionUID = -2199465714158200574L;
     private static final float[] GREEN_HSB = Color.RGBtoHSB(0, 255, 0, null);
     private static final float[] RED_HSB = Color.RGBtoHSB(255, 0, 0, null);
@@ -24,7 +24,7 @@ class Colorbar extends JPanel {
     private double max = Math.PI;
     private double min = 0;
 
-    Colorbar(ModelsComparisonResult result, int index) {
+    public Colorbar(ModelsComparisonResult result, int index) {
         super();
         this.result = result;
         this.index = index;
@@ -53,7 +53,7 @@ class Colorbar extends JPanel {
         }
     }
 
-    void setMinMax(double min, double max) {
+    public void setMinMax(double min, double max) {
         this.min = min;
         this.max = max;
         repaint();

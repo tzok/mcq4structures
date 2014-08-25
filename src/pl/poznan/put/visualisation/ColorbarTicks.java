@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.visualisation;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,7 +15,7 @@ public class ColorbarTicks extends JPanel {
 
     private final Sequence sequence;
 
-    ColorbarTicks(Sequence sequence) {
+    public ColorbarTicks(Sequence sequence) {
         super();
         this.sequence = sequence;
 

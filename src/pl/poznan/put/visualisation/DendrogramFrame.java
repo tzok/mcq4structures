@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.visualisation;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -32,8 +32,8 @@ public class DendrogramFrame extends JFrame {
         super("Dendrogram");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-
-        SVGDocument svgDocument = clustering.toSVG(names, false);
+        
+        SVGDocument svgDocument = clustering.toSVG(names, true);
         JSVGCanvas canvas = new JSVGCanvas();
         getContentPane().add(canvas, BorderLayout.CENTER);
         canvas.setSVGDocument(svgDocument);

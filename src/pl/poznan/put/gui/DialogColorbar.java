@@ -22,6 +22,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import pl.poznan.put.comparison.ModelsComparisonResult;
 import pl.poznan.put.structure.Sequence;
+import pl.poznan.put.visualisation.Colorbar;
+import pl.poznan.put.visualisation.ColorbarTicks;
 
 public class DialogColorbar extends JDialog {
     private static final long serialVersionUID = 2659329749184089277L;

@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.visualisation;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

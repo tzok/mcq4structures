@@ -7,8 +7,8 @@ import pl.poznan.put.clustering.partitional.ClusterAssignment;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
-import pl.poznan.put.gui.KMedoidsPlot;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.visualisation.KMedoidsPlot;
 import pl.poznan.put.visualisation.MDS;
 
 public class PartitionalClustering implements Visualizable {

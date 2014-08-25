@@ -22,7 +22,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.gui.TorsionAxis;
 import pl.poznan.put.helper.Constants;
 import pl.poznan.put.helper.FractionAngleFormat;
 import pl.poznan.put.matching.FragmentComparison;
@@ -32,6 +31,7 @@ import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TabularExporter;
+import pl.poznan.put.visualisation.TorsionAxis;
 
 public class MCQLocalComparisonResult extends LocalComparisonResult {
     private final List<TorsionAngle> angles;

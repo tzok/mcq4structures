@@ -31,6 +31,7 @@ import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.utility.InvalidInputException;
 import pl.poznan.put.utility.PartitionalClustering;
+import pl.poznan.put.visualisation.DendrogramFrame;
 
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;

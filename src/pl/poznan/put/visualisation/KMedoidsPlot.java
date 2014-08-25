@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.visualisation;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;

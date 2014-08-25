@@ -53,6 +53,9 @@ final class DialogAngles extends JDialog {
     private final Map<String, TorsionAngle> mapNameToAngleAmino = new HashMap<>();
     private final Map<String, TorsionAngle> mapNameToAngleNucleic = new HashMap<>();
 
+    private JCheckBox[] checkBoxTau = new JCheckBox[5];
+    private JCheckBox checkBoxP;
+
     private DialogAngles(Frame owner) {
         super(owner, true);
 
@@ -101,6 +104,57 @@ final class DialogAngles extends JDialog {
             JCheckBox checkBox = new JCheckBox(displayName);
             panelAnglesNucleic.add(checkBox);
             mapNameToAngleNucleic.put(displayName, angle);
+
+            if (angle.equals(RNATorsionAngle.TAU0)) {
+                checkBoxTau[0] = checkBox;
+            } else if (angle.equals(RNATorsionAngle.TAU1)) {
+                checkBoxTau[1] = checkBox;
+            } else if (angle.equals(RNATorsionAngle.TAU2)) {
+                checkBoxTau[2] = checkBox;
+            } else if (angle.equals(RNATorsionAngle.TAU3)) {
+                checkBoxTau[3] = checkBox;
+            } else if (angle.equals(RNATorsionAngle.TAU4)) {
+                checkBoxTau[4] = checkBox;
+            } else if (angle.equals(PseudophasePuckerAngle.getInstance())) {
+                checkBoxP = checkBox;
+            }
+        }
+
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource().equals(checkBoxP)) {
+                    /*
+                     * If "P" is selected, select & block all "TAUs"
+                     */
+                    boolean isSelected = checkBoxP.isSelected();
+                    for (int i = 0; i < checkBoxTau.length; i++) {
+                        if (isSelected) {
+                            checkBoxTau[i].setSelected(true);
+                        }
+                        checkBoxTau[i].setEnabled(!isSelected);
+                    }
+                } else {
+                    /*
+                     * If any of "TAUs" is unselected, unselect "P" as well
+                     */
+                    boolean flag = true;
+                    for (int i = 0; i < checkBoxTau.length; i++) {
+                        if (!checkBoxTau[i].isSelected()) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        checkBoxP.setSelected(false);
+                    }
+                }
+            }
+        };
+
+        checkBoxP.addActionListener(actionListener);
+        for (int i = 0; i < checkBoxTau.length; i++) {
+            checkBoxTau[i].addActionListener(actionListener);
         }
 
         final JButton buttonSelectAllNucleic = new JButton("Select all");
