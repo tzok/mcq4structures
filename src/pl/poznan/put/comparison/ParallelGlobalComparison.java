@@ -139,4 +139,7 @@ public class ParallelGlobalComparison {
 
         return matrix;
     }
+
+    private ParallelGlobalComparison() {
+    }
 }

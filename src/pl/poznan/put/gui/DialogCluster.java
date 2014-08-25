@@ -18,8 +18,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import pl.poznan.put.clustering.hierarchical.HierarchicalCluster;
 import pl.poznan.put.clustering.hierarchical.HierarchicalClusterer;
+import pl.poznan.put.clustering.hierarchical.HierarchicalClusteringResult;
 import pl.poznan.put.clustering.hierarchical.Linkage;
 import pl.poznan.put.clustering.partitional.KMedoids;
 import pl.poznan.put.clustering.partitional.KScanner;
@@ -169,7 +169,7 @@ public class DialogCluster extends JDialog {
         double[][] matrix = comparisonGlobal.getDistanceMatrix().getArray();
 
         if (hierarchical.isSelected()) {
-            final HierarchicalCluster[] clusters = HierarchicalClusterer.cluster(
+            final HierarchicalClusteringResult clustering = HierarchicalClusterer.cluster(
                     matrix, (Linkage) linkage.getSelectedItem());
 
             return new Visualizable() {
@@ -180,9 +180,9 @@ public class DialogCluster extends JDialog {
 
                 @Override
                 public void visualize() {
-                    HierarchicalPlot plot = new HierarchicalPlot(
-                            comparisonGlobal, clusters);
-                    plot.setVisible(true);
+                    DendrogramFrame dendrogramFrame = new DendrogramFrame(
+                            clustering, comparisonGlobal.getNames());
+                    dendrogramFrame.setVisible(true);
                 }
             };
         }

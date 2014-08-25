@@ -69,6 +69,10 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
         return names[index];
     }
 
+    public String[] getNames() {
+        return names.clone();
+    }
+
     public GlobalComparisonResult getResult(int i, int j) {
         return results[i][j];
     }
