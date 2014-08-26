@@ -65,4 +65,16 @@ public class FragmentMatch {
 
         return isTargetSmaller + "\t" + targetFragment + "\t" + modelFragment;
     }
+
+    public int getSize() {
+        return comparison.getSize();
+    }
+
+    public CompactFragment getTarget() {
+        return target;
+    }
+
+    public CompactFragment getModel() {
+        return model;
+    }
 }

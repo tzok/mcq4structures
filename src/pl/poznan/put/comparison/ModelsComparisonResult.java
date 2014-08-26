@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.stat.StatUtils;
 import org.biojava.bio.structure.Group;
 import org.jumpmind.symmetric.csv.CsvWriter;
 
@@ -22,9 +24,14 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
+import pl.poznan.put.matching.stats.Histogram;
+import pl.poznan.put.matching.stats.MatchStatistics;
+import pl.poznan.put.matching.stats.ModelsComparisonStatistics;
+import pl.poznan.put.matching.stats.Percentiles;
 import pl.poznan.put.structure.CompactFragment;
 import pl.poznan.put.structure.Residue;
 import pl.poznan.put.torsion.AngleDelta;
+import pl.poznan.put.torsion.AngleDelta.State;
 import pl.poznan.put.torsion.TorsionAngle;
 
 public class ModelsComparisonResult implements Exportable, Visualizable,
@@ -257,5 +264,66 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
         }
 
         return ranking;
+    }
+
+    public ModelsComparisonStatistics calculateStatistics() {
+        return calculateStatistics(
+                MatchStatistics.DEFAULT_ANGLE_LIMITS,
+                MatchStatistics.DEFAULT_PERCENTS_LIMITS);
+    }
+
+    public ModelsComparisonStatistics calculateStatistics(double[] angleLimits,
+            double[] percentsLimits) {
+        List<MatchStatistics> statistics = new ArrayList<>();
+
+        for (FragmentMatch match : matches) {
+            FragmentComparison fragmentComparison = match.getFragmentComparison();
+            List<Double> validDeltas = new ArrayList<>();
+            double[] validAngles = new double[angleLimits.length];
+
+            for (int i = 0; i < fragmentComparison.getSize(); i++) {
+                ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
+                AngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
+
+                if (angleDelta.getState() == State.BOTH_VALID) {
+                    double delta = angleDelta.getDelta();
+                    validDeltas.add(delta);
+
+                    for (int j = 0; j < angleLimits.length; j++) {
+                        if (Double.compare(delta, angleLimits[j]) < 0) {
+                            validAngles[j] += 1.0;
+                        }
+                    }
+                }
+            }
+
+            double[] validPercents = new double[percentsLimits.length];
+
+            if (validDeltas.size() > 0) {
+                for (int i = 0; i < angleLimits.length; i++) {
+                    validAngles[i] /= validDeltas.size();
+                }
+
+                double[] values = new double[validDeltas.size()];
+                for (int i = 0; i < validDeltas.size(); i++) {
+                    values[i] = validDeltas.get(i);
+                }
+
+                for (int i = 0; i < percentsLimits.length; i++) {
+                    validPercents[i] = StatUtils.percentile(values,
+                            percentsLimits[i]);
+                }
+            }
+
+            Histogram histogram = new Histogram(angleLimits, validAngles);
+            Percentiles percentiles = new Percentiles(percentsLimits,
+                    validPercents);
+            MatchStatistics matchStatistics = new MatchStatistics(match,
+                    histogram, percentiles);
+            statistics.add(matchStatistics);
+        }
+
+        return new ModelsComparisonStatistics(statistics, angleLimits,
+                percentsLimits);
     }
 }
