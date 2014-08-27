@@ -1,8 +1,6 @@
 package pl.poznan.put.clustering.hierarchical;
 
-import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,9 +10,10 @@ import java.util.Map;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.lang3.tuple.Pair;
-import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
+
+import pl.poznan.put.utility.SVGHelper;
 
 public class HierarchicalClusteringResult {
     private final List<HierarchicalClusterMerge> merges;
@@ -27,20 +26,13 @@ public class HierarchicalClusteringResult {
     }
 
     public SVGDocument toSVG(String[] names, boolean isRelative) {
-        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
-        String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
-        SVGDocument doc = (SVGDocument) impl.createDocument(svgNS, "svg", null);
+        SVGDocument doc = SVGHelper.emptyDocument();
         SVGGraphics2D svg = new SVGGraphics2D(doc);
+        FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+        LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
 
-        FontMetrics metrics = svg.getFontMetrics();
-        FontRenderContext renderContext = svg.getFontRenderContext();
-        Font font = svg.getFont();
-        LineMetrics lineMetrics = font.getLineMetrics(
-                "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM",
-                renderContext);
-
-        float fontHeight = lineMetrics.getHeight();
-        float fontAscent = lineMetrics.getAscent();
+        int fontHeight = (int) (Math.ceil(lineMetrics.getHeight()));
+        int fontAscent = (int) (Math.ceil(lineMetrics.getAscent()));
         double maxDistance = Double.NEGATIVE_INFINITY;
 
         /*
@@ -92,7 +84,7 @@ public class HierarchicalClusteringResult {
 
         for (int i = 0; i < items.size(); i++) {
             int item = items.get(i);
-            int y = (int) ((i + 1) * fontHeight - fontAscent / 2);
+            int y = (i + 1) * fontHeight - fontAscent / 2;
             mapCoords.put(clusters.get(item), Pair.of(maxWidth, y));
         }
 
@@ -128,8 +120,9 @@ public class HierarchicalClusteringResult {
         }
 
         Element root = doc.getDocumentElement();
-        root.setAttribute("width", Integer.toString(xf + 10));
-        root.setAttribute("height",
+        root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "width",
+                Integer.toString(xf + 10));
+        root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "height",
                 Float.toString(items.size() * fontHeight + 10.0f));
         svg.getRoot(root);
 
