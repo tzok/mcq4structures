@@ -2,6 +2,7 @@ package pl.poznan.put.matching;
 
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.structure.CompactFragment;
+import pl.poznan.put.structure.Residue;
 
 public class FragmentMatch {
     private final CompactFragment target;
@@ -34,15 +35,22 @@ public class FragmentMatch {
         CompactFragment r = model;
 
         if (isTargetSmaller) {
-            l = CompactFragment.createShifted(l, shift, r.getSize());
-        } else {
             r = CompactFragment.createShifted(r, shift, l.getSize());
+        } else {
+            l = CompactFragment.createShifted(l, shift, r.getSize());
         }
 
         String[] result = new String[l.getSize()];
 
         for (int i = 0; i < l.getSize(); i++) {
-            result[i] = l.getResidue(i) + " - " + r.getResidue(i);
+            Residue lname = l.getResidue(i);
+            Residue rname = r.getResidue(i);
+
+            if (lname.equals(rname)) {
+                result[i] = lname.toString();
+            } else {
+                result[i] = lname + " - " + rname;
+            }
         }
 
         return result;
@@ -63,7 +71,7 @@ public class FragmentMatch {
             modelFragment = model;
         }
 
-        return isTargetSmaller + "\t" + targetFragment + "\t" + modelFragment;
+        return targetFragment + " & " + modelFragment;
     }
 
     public int getSize() {

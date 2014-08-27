@@ -1,5 +1,6 @@
 package pl.poznan.put.matching;
 
+import java.util.Iterator;
 import java.util.List;
 
 import pl.poznan.put.structure.ResidueAngles;
@@ -8,7 +9,7 @@ import pl.poznan.put.torsion.ChiTorsionAngle;
 import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;
 
-public class ResidueComparison {
+public class ResidueComparison implements Iterable<AngleDelta> {
     private final ResidueAngles targetAngles;
     private final ResidueAngles modelAngles;
     private final List<AngleDelta> angleDeltas;
@@ -47,5 +48,10 @@ public class ResidueComparison {
         }
 
         return null;
+    }
+
+    @Override
+    public Iterator<AngleDelta> iterator() {
+        return angleDeltas.iterator();
     }
 }

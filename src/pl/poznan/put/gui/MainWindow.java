@@ -2,6 +2,7 @@ package pl.poznan.put.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -383,15 +384,18 @@ public class MainWindow extends JFrame implements ComparisonListener {
          */
         final TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
         colorsRenderer = new DefaultTableCellRenderer() {
-            private static final long serialVersionUID = -7868307163707467345L;
-
             @Override
             public Component getTableCellRendererComponent(JTable table,
                     Object value, boolean isSelected, boolean hasFocus,
                     int row, int column) {
                 Component component = defaultRenderer.getTableCellRendererComponent(
                         table, value, isSelected, hasFocus, row, column);
-                component.setBackground(Colors.COLORS[column]);
+                if (column == 0) {
+                    component.setBackground(Color.WHITE);
+                    component.setForeground(Color.BLACK);
+                } else {
+                    component.setBackground(Colors.COLORS[column - 1]);
+                }
                 return component;
             }
         };

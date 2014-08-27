@@ -13,7 +13,7 @@ import pl.poznan.put.visualisation.DendrogramComponent;
 public class DendrogramFrame extends JFrame {
     public DendrogramFrame(HierarchicalClusteringResult clustering,
             String[] names) {
-        super("Dendrogram");
+        super("MCQ4Structures: dendrogram of clustered data");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 

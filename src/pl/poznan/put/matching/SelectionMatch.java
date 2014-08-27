@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -15,7 +16,7 @@ import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.structure.StructureSelection;
 
-public class SelectionMatch implements Exportable {
+public class SelectionMatch implements Exportable, Iterable<FragmentMatch> {
     private final StructureSelection target;
     private final StructureSelection model;
     private final List<FragmentMatch> fragmentMatches;
@@ -82,5 +83,10 @@ public class SelectionMatch implements Exportable {
         filename.append(model.getName());
         filename.append(".pdb");
         return new File(filename.toString());
+    }
+
+    @Override
+    public Iterator<FragmentMatch> iterator() {
+        return fragmentMatches.iterator();
     }
 }

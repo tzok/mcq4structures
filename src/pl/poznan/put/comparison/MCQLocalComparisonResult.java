@@ -1,8 +1,5 @@
 package pl.poznan.put.comparison;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -10,28 +7,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
-import org.jfree.data.xy.DefaultXYDataset;
-
-import pl.poznan.put.constant.Colors;
+import pl.poznan.put.gui.LocalComparisonFrame;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.FractionAngleFormat;
 import pl.poznan.put.utility.TabularExporter;
-import pl.poznan.put.visualisation.TorsionAxis;
 
 public class MCQLocalComparisonResult extends LocalComparisonResult {
     private final List<TorsionAngle> angles;
@@ -83,55 +69,8 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
     @Override
     public void visualize() {
-        String[] ticks = getResidueLabels();
-        FragmentComparison rows = asFragmentComparison();
-        double[] x = new double[ticks.length];
-
-        for (int i = 0; i < ticks.length; i++) {
-            x[i] = i;
-        }
-
-        double[][] y = new double[angles.size()][];
-
-        for (int i = 0; i < angles.size(); i++) {
-            y[i] = new double[ticks.length];
-            TorsionAngle torsionAngle = angles.get(i);
-
-            for (int j = 0; j < rows.getSize(); j++) {
-                ResidueComparison result = rows.getResidueComparison(j);
-                y[i][j] = result.getAngleDelta(torsionAngle).getDelta();
-            }
-        }
-
-        DefaultXYDataset dataset = new DefaultXYDataset();
-        DefaultXYItemRenderer renderer = new DefaultXYItemRenderer();
-
-        for (int i = 0; i < y.length; i++) {
-            dataset.addSeries(angles.get(i).toString(),
-                    new double[][] { x, y[i] });
-            renderer.setSeriesPaint(i, Colors.COLORS[i + 1]);
-        }
-
-        NumberAxis xAxis = new TorsionAxis(ticks);
-        xAxis.setLabel("ResID");
-        NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Angular distance");
-        yAxis.setRange(0, Math.PI);
-        yAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-
-        yAxis.setNumberFormatOverride(FractionAngleFormat.createInstance());
-        XYPlot plot = new XYPlot(dataset, xAxis, yAxis, renderer);
-
-        JFrame frame = new JFrame();
-        frame.setLayout(new BorderLayout());
-        frame.add(new ChartPanel(new JFreeChart(plot)));
-
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Dimension size = toolkit.getScreenSize();
-        frame.setSize(size.width * 2 / 3, size.height * 2 / 3);
-        frame.setLocation(size.width / 6, size.height / 6);
-        frame.setTitle("MCQ4Structures: local distance plot");
-        frame.setVisible(true);
+        LocalComparisonFrame comparisonFrame = new LocalComparisonFrame(matches);
+        comparisonFrame.setVisible(true);
     }
 
     @Override

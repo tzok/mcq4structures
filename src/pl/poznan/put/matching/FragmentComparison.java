@@ -1,6 +1,7 @@
 package pl.poznan.put.matching;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -47,11 +48,12 @@ public class FragmentComparison implements Comparable<FragmentComparison>,
         }
 
         double mcq = TorsionAnglesHelper.calculateMean(deltas);
-        return new FragmentComparison(residueResults, firstInvalid,
+        return new FragmentComparison(residueResults, angles, firstInvalid,
                 secondInvalid, bothInvalid, deltas.size(), mcq);
     }
 
     private final List<ResidueComparison> residueResults;
+    private final List<TorsionAngle> angles;
     private final int firstInvalidCount;
     private final int secondInvalidCount;
     private final int bothInvalidCount;
@@ -59,10 +61,12 @@ public class FragmentComparison implements Comparable<FragmentComparison>,
     private final double mcq;
 
     public FragmentComparison(List<ResidueComparison> residueResults,
-            int firstInvalidCount, int secondInvalidCount,
-            int bothInvalidCount, int validCount, double mcq) {
+            List<TorsionAngle> angles, int firstInvalidCount,
+            int secondInvalidCount, int bothInvalidCount, int validCount,
+            double mcq) {
         super();
         this.residueResults = residueResults;
+        this.angles = angles;
         this.firstInvalidCount = firstInvalidCount;
         this.secondInvalidCount = secondInvalidCount;
         this.bothInvalidCount = bothInvalidCount;
@@ -100,6 +104,10 @@ public class FragmentComparison implements Comparable<FragmentComparison>,
 
     public ResidueComparison getResidueComparison(int index) {
         return residueResults.get(index);
+    }
+
+    public List<TorsionAngle> getAngles() {
+        return Collections.unmodifiableList(angles);
     }
 
     @Override
