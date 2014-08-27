@@ -1,5 +1,9 @@
 package pl.poznan.put.gui;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -16,11 +20,17 @@ class Gui extends JFrame {
 
     /**
      * Run the main graphical application.
-     * 
-     * @param args
-     *            Unused.
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
+        final List<File> pdbs = new ArrayList<>();
+
+        for (String argument : args) {
+            File file = new File(argument);
+            if (file.canRead()) {
+                pdbs.add(file);
+            }
+        }
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -42,6 +52,12 @@ class Gui extends JFrame {
                 }
 
                 MainWindow window = new MainWindow();
+
+                DialogManager instance = DialogManager.getInstance(window);
+                for (File pdb : pdbs) {
+                    instance.loadStructure(pdb);
+                }
+
                 window.setVisible(true);
             }
         });
