@@ -1,5 +1,8 @@
 package pl.poznan.put.comparison;
 
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.font.LineMetrics;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,13 +14,18 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.StatUtils;
 import org.biojava.bio.structure.Group;
 import org.jumpmind.symmetric.csv.CsvWriter;
+import org.w3c.dom.Element;
+import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.Heap;
-import pl.poznan.put.gui.DialogColorbar;
+import pl.poznan.put.constant.Colors;
+import pl.poznan.put.gui.ColorbarFrame;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
@@ -33,6 +41,7 @@ import pl.poznan.put.structure.Residue;
 import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.AngleDelta.State;
 import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.utility.SVGHelper;
 
 public class ModelsComparisonResult implements Exportable, Visualizable,
         Tabular {
@@ -122,8 +131,8 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
     @Override
     public void visualize() {
-        DialogColorbar dialogColorbar = new DialogColorbar(this);
-        dialogColorbar.setVisible(true);
+        ColorbarFrame frame = new ColorbarFrame(this);
+        frame.setVisible(true);
     }
 
     @Override
@@ -267,8 +276,7 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
     }
 
     public ModelsComparisonStatistics calculateStatistics() {
-        return calculateStatistics(
-                MatchStatistics.DEFAULT_ANGLE_LIMITS,
+        return calculateStatistics(MatchStatistics.DEFAULT_ANGLE_LIMITS,
                 MatchStatistics.DEFAULT_PERCENTS_LIMITS);
     }
 
@@ -325,5 +333,64 @@ public class ModelsComparisonResult implements Exportable, Visualizable,
 
         return new ModelsComparisonStatistics(statistics, angleLimits,
                 percentsLimits);
+    }
+
+    public SVGDocument toSVG(double min, double max) {
+        SVGDocument document = SVGHelper.emptyDocument();
+        SVGGraphics2D svg = new SVGGraphics2D(document);
+        LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
+        FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+
+        int fontHeight = (int) (Math.ceil(lineMetrics.getHeight()));
+        int blockWidth = fontHeight * 4 / 3;
+        int maxWidth = Integer.MIN_VALUE;
+
+        for (int i = 0; i < models.size(); i++) {
+            String modelName = models.get(i).getName();
+            svg.drawString(modelName, 0.0f, (i + 1) * fontHeight);
+            int width = metrics.stringWidth(modelName);
+
+            if (width > maxWidth) {
+                maxWidth = width;
+            }
+        }
+
+        for (int i = 0; i < matches.size(); i++) {
+            FragmentMatch fragmentMatch = matches.get(i);
+            FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
+
+            for (int j = 0; j < fragmentMatch.getSize(); j++) {
+                ResidueComparison comparison = fragmentComparison.getResidueComparison(j);
+                AngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
+
+                if (angleDelta.getState() == State.BOTH_VALID) {
+                    svg.setColor(Colors.interpolateColor(angleDelta.getDelta(),
+                            min, max));
+                } else {
+                    svg.setColor(Color.BLACK);
+                }
+
+                svg.fillRect(maxWidth + j * blockWidth, i * fontHeight,
+                        blockWidth, fontHeight);
+                svg.setColor(Color.BLACK);
+                svg.drawRect(maxWidth + j * blockWidth, i * fontHeight,
+                        blockWidth, fontHeight);
+            }
+        }
+
+        Element root = document.getDocumentElement();
+        svg.getRoot(root);
+
+        if (matches.size() > 0) {
+            int width = maxWidth + blockWidth * matches.get(0).getSize();
+            root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI,
+                    "width", Integer.toString(width));
+
+            int height = fontHeight * models.size();
+            root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI,
+                    "height", Integer.toString(height));
+        }
+
+        return document;
     }
 }

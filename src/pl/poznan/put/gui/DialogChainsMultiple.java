@@ -33,11 +33,14 @@ import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.structure.SelectionFactory;
+import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.utility.StructureManager;
 
 final class DialogChainsMultiple extends JDialog {
+    private static final int DEFAULT_WIDTH = 800;
+    private static final int DEFAULT_HEIGHT = 600;
+
     private static class FilteredListModel extends
             AbstractListModel<CompactFragment> {
         private static final long serialVersionUID = 1L;
@@ -227,12 +230,11 @@ final class DialogChainsMultiple extends JDialog {
         add(panelMain, BorderLayout.CENTER);
         add(panelOkCancel, BorderLayout.SOUTH);
 
-        int width = 640;
-        int height = 480;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - width;
-        int y = screenSize.height - height;
-        setSize(width, height);
+        int x = screenSize.width - DialogChainsMultiple.DEFAULT_WIDTH;
+        int y = screenSize.height - DialogChainsMultiple.DEFAULT_HEIGHT;
+        setSize(DialogChainsMultiple.DEFAULT_WIDTH,
+                DialogChainsMultiple.DEFAULT_HEIGHT);
         setLocation(x / 2, y / 2);
 
         setTitle("MCQ4Structures: multiple chain selection");
@@ -361,8 +363,8 @@ final class DialogChainsMultiple extends JDialog {
             for (Chain chain : structure.getChains()) {
                 String name = StructureManager.getName(structure) + "."
                         + chain.getChainID();
-                StructureSelection selection = SelectionFactory.create(
-                        name, chain);
+                StructureSelection selection = SelectionFactory.create(name,
+                        chain);
                 fragments.addAll(Arrays.asList(selection.getCompactFragments()));
             }
         }

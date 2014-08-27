@@ -1,9 +1,9 @@
 package pl.poznan.put.comparison;
 
-import pl.poznan.put.common.DisplayableExportable;
-import pl.poznan.put.helper.CommonNumberFormat;
-import pl.poznan.put.helper.Constants;
+import pl.poznan.put.constant.Unicode;
+import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.utility.CommonNumberFormat;
 
 public class GlobalComparisonResult implements DisplayableExportable {
     private final String measureName;
@@ -71,9 +71,9 @@ public class GlobalComparisonResult implements DisplayableExportable {
         String result = getExportName();
 
         if (isAngle) {
-            result += Constants.UNICODE_DEGREE;
+            result += Unicode.DEGREE;
         } else {
-            result += Constants.UNICODE_ANGSTROM;
+            result += Unicode.ANGSTROM;
         }
 
         return result;

@@ -68,7 +68,7 @@ import pl.poznan.put.comparison.ModelsComparisonResult;
 import pl.poznan.put.comparison.ParallelGlobalComparison;
 import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
 import pl.poznan.put.comparison.RMSD;
-import pl.poznan.put.helper.Constants;
+import pl.poznan.put.constant.Colors;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
@@ -391,7 +391,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
                     int row, int column) {
                 Component component = defaultRenderer.getTableCellRendererComponent(
                         table, value, isSelected, hasFocus, row, column);
-                component.setBackground(Constants.COLORS.get(column));
+                component.setBackground(Colors.COLORS[column]);
                 return component;
             }
         };

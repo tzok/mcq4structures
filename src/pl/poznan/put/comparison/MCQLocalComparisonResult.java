@@ -22,14 +22,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import pl.poznan.put.helper.Constants;
-import pl.poznan.put.helper.FractionAngleFormat;
+import pl.poznan.put.constant.Colors;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.utility.FractionAngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.visualisation.TorsionAxis;
 
@@ -109,7 +109,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
         for (int i = 0; i < y.length; i++) {
             dataset.addSeries(angles.get(i).toString(),
                     new double[][] { x, y[i] });
-            renderer.setSeriesPaint(i, Constants.COLORS.get(i + 1));
+            renderer.setSeriesPaint(i, Colors.COLORS[i + 1]);
         }
 
         NumberAxis xAxis = new TorsionAxis(ticks);

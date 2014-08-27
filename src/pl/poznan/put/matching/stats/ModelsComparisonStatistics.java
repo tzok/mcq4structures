@@ -5,8 +5,8 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import pl.poznan.put.helper.CommonNumberFormat;
-import pl.poznan.put.helper.FractionAngleFormat;
+import pl.poznan.put.utility.CommonNumberFormat;
+import pl.poznan.put.utility.FractionAngleFormat;
 
 public class ModelsComparisonStatistics {
     private final List<MatchStatistics> statistics;
