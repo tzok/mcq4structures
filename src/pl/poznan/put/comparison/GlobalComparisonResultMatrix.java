@@ -221,7 +221,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
                 if (result == null) {
                     values[i][j + 1] = "Failed";
                 } else {
-                    values[i][j + 1] = isDisplay ? result.getDisplayName()
+                    values[i][j + 1] = isDisplay ? result.getLongDisplayName()
                             : result.getExportName();
                 }
             }

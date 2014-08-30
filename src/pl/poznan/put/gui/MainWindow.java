@@ -823,26 +823,26 @@ public class MainWindow extends JFrame implements ComparisonListener {
         if (moleculeType == MoleculeType.PROTEIN) {
             angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
             angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN)));
-            angles.add(AverageAngle.getInstance(MoleculeType.PROTEIN));
+            angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.PROTEIN));
         } else if (moleculeType == MoleculeType.RNA) {
             angles.addAll(Arrays.asList(RNATorsionAngle.values()));
             angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA)));
             angles.add(PseudophasePuckerAngle.getInstance());
-            angles.add(AverageAngle.getInstance(MoleculeType.RNA));
+            angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.RNA));
         }
 
         TorsionAngle angleType = (TorsionAngle) JOptionPane.showInputDialog(
                 MainWindow.this, "Select torsion angle", "Torsion angle",
                 JOptionPane.INFORMATION_MESSAGE, null,
                 angles.toArray(new TorsionAngle[angles.size()]),
-                AverageAngle.getInstance(moleculeType));
+                AverageAngle.getInstanceAllAngles(moleculeType));
         if (angleType == null) {
             return;
         }
 
         List<TorsionAngle> selectedAngles = new ArrayList<>();
 
-        if (angleType.equals(AverageAngle.getInstance(moleculeType))) {
+        if (angleType.equals(AverageAngle.getInstanceAllAngles(moleculeType))) {
             selectedAngles.addAll(Arrays.asList(moleculeType.getBackboneTorsionAngles()));
             selectedAngles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(moleculeType)));
         } else if (angleType.equals(PseudophasePuckerAngle.getInstance())) {

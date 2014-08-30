@@ -148,7 +148,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
         for (int i = 0; i < angles.size(); i++) {
             TorsionAngle angle = angles.get(i);
-            columnNames[i + 1] = isDisplay ? angle.getDisplayName()
+            columnNames[i + 1] = isDisplay ? angle.getLongDisplayName()
                     : angle.toString();
         }
 

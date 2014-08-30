@@ -3,7 +3,6 @@ package pl.poznan.put.matching;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
@@ -115,8 +114,8 @@ public class MCQMatcher implements StructureMatcher {
         }
 
         HungarianAlgorithm algorithm = new HungarianAlgorithm(costMatrix);
-        List<FragmentMatch> result = new ArrayList<>();
         int[] assignment = algorithm.execute();
+        List<FragmentMatch> result = new ArrayList<>();
 
         for (int i = 0; i < assignment.length; i++) {
             int j = assignment[i];
@@ -181,9 +180,8 @@ public class MCQMatcher implements StructureMatcher {
     private ResidueComparison compareResidues(ResidueAngles target,
             ResidueAngles model) {
         List<AngleDelta> result = new ArrayList<>();
+        List<AverageAngle> averages = new ArrayList<>();
         boolean isPseudophasePucker = false;
-        boolean isAverageProtein = false;
-        boolean isAverageRNA = false;
 
         for (TorsionAngle angle : angles) {
             if (angle instanceof PseudophasePuckerAngle) {
@@ -192,11 +190,7 @@ public class MCQMatcher implements StructureMatcher {
             }
 
             if (angle instanceof AverageAngle) {
-                if (angle.getMoleculeType() == MoleculeType.PROTEIN) {
-                    isAverageProtein = true;
-                } else if (angle.getMoleculeType() == MoleculeType.RNA) {
-                    isAverageRNA = true;
-                }
+                averages.add((AverageAngle) angle);
                 continue;
             }
 
@@ -204,18 +198,6 @@ public class MCQMatcher implements StructureMatcher {
             AngleValue angleValueR = model.getAngleValue(angle);
             AngleDelta delta = AngleDelta.calculate(angleValueL, angleValueR);
             result.add(delta);
-        }
-
-        if (isAverageProtein) {
-            AngleDelta average = AngleDelta.calculateAverage(
-                    MoleculeType.PROTEIN, result);
-            result.add(average);
-        }
-
-        if (isAverageRNA) {
-            AngleDelta average = AngleDelta.calculateAverage(MoleculeType.RNA,
-                    result);
-            result.add(average);
         }
 
         if (isPseudophasePucker) {
@@ -233,6 +215,10 @@ public class MCQMatcher implements StructureMatcher {
             AngleValue pR = PseudophasePuckerAngle.calculate(r[0], r[1], r[2],
                     r[3], r[4]);
             result.add(AngleDelta.calculate(pL, pR));
+        }
+
+        for (AverageAngle average : averages) {
+            result.add(average.calculateDelta(result));
         }
 
         return new ResidueComparison(target, model, result);

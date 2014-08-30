@@ -21,6 +21,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
@@ -30,6 +32,37 @@ import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;
 
 final class DialogAngles extends JDialog {
+    private class AngleCheckBoxActionListener implements ActionListener {
+        private final List<JCheckBox> checkBoxes;
+
+        private AngleCheckBoxActionListener(List<JCheckBox> checkBoxes) {
+            this.checkBoxes = checkBoxes;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Object source = e.getSource();
+            boolean isSelected = ((JCheckBox) source).isSelected();
+
+            for (JCheckBox checkBox : checkBoxes) {
+                handleCheckBox(isSelected, checkBox);
+
+                if (checkBox.equals(checkBoxP)) {
+                    for (JCheckBox tau : checkBoxTau) {
+                        handleCheckBox(isSelected, tau);
+                    }
+                }
+            }
+        }
+
+        private void handleCheckBox(boolean isSelected, JCheckBox checkBox) {
+            if (isSelected) {
+                checkBox.setSelected(true);
+            }
+            checkBox.setEnabled(!isSelected);
+        }
+    }
+
     private static DialogAngles instance;
     private static final long serialVersionUID = 1L;
 
@@ -49,12 +82,18 @@ final class DialogAngles extends JDialog {
         }
     }
 
+    private final List<Pair<TorsionAngle, JCheckBox>> anglesCheckBoxes = new ArrayList<>();
     private final List<TorsionAngle> selectedAngles = new ArrayList<>();
     private final Map<String, TorsionAngle> mapNameToAngleAmino = new HashMap<>();
     private final Map<String, TorsionAngle> mapNameToAngleNucleic = new HashMap<>();
 
+    private final AverageAngle mcqProtein = AverageAngle.getInstanceMainAngles(MoleculeType.PROTEIN);
+    private final AverageAngle mcqRNA = AverageAngle.getInstanceMainAngles(MoleculeType.RNA);
+
     private JCheckBox[] checkBoxTau = new JCheckBox[5];
     private JCheckBox checkBoxP;
+    private JCheckBox checkBoxMcqProtein;
+    private JCheckBox checkBoxMcqRNA;
 
     private DialogAngles(Frame owner) {
         super(owner, true);
@@ -66,13 +105,19 @@ final class DialogAngles extends JDialog {
         List<TorsionAngle> angles = new ArrayList<>();
         angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
         angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN)));
-        angles.add(AverageAngle.getInstance(MoleculeType.PROTEIN));
+        angles.add(mcqProtein);
+        angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.PROTEIN));
 
         for (TorsionAngle angle : angles) {
-            String displayName = angle.getDisplayName();
+            String displayName = angle.getLongDisplayName();
             JCheckBox checkBox = new JCheckBox(displayName);
             panelAnglesAmino.add(checkBox);
             mapNameToAngleAmino.put(displayName, angle);
+            anglesCheckBoxes.add(Pair.of(angle, checkBox));
+
+            if (angle.equals(mcqProtein)) {
+                checkBoxMcqProtein = checkBox;
+            }
         }
 
         final JButton buttonSelectAllAmino = new JButton("Select all");
@@ -97,13 +142,15 @@ final class DialogAngles extends JDialog {
         angles.addAll(Arrays.asList(RNATorsionAngle.values()));
         angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA)));
         angles.add(PseudophasePuckerAngle.getInstance());
-        angles.add(AverageAngle.getInstance(MoleculeType.RNA));
+        angles.add(mcqRNA);
+        angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.RNA));
 
         for (TorsionAngle angle : angles) {
-            String displayName = angle.getDisplayName();
+            String displayName = angle.getLongDisplayName();
             JCheckBox checkBox = new JCheckBox(displayName);
             panelAnglesNucleic.add(checkBox);
             mapNameToAngleNucleic.put(displayName, angle);
+            anglesCheckBoxes.add(Pair.of(angle, checkBox));
 
             if (angle.equals(RNATorsionAngle.TAU0)) {
                 checkBoxTau[0] = checkBox;
@@ -117,45 +164,19 @@ final class DialogAngles extends JDialog {
                 checkBoxTau[4] = checkBox;
             } else if (angle.equals(PseudophasePuckerAngle.getInstance())) {
                 checkBoxP = checkBox;
+            } else if (angle.equals(mcqRNA)) {
+                checkBoxMcqRNA = checkBox;
             }
         }
 
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource().equals(checkBoxP)) {
-                    /*
-                     * If "P" is selected, select & block all "TAUs"
-                     */
-                    boolean isSelected = checkBoxP.isSelected();
-                    for (int i = 0; i < checkBoxTau.length; i++) {
-                        if (isSelected) {
-                            checkBoxTau[i].setSelected(true);
-                        }
-                        checkBoxTau[i].setEnabled(!isSelected);
-                    }
-                } else {
-                    /*
-                     * If any of "TAUs" is unselected, unselect "P" as well
-                     */
-                    boolean flag = true;
-                    for (int i = 0; i < checkBoxTau.length; i++) {
-                        if (!checkBoxTau[i].isSelected()) {
-                            flag = false;
-                            break;
-                        }
-                    }
-                    if (!flag) {
-                        checkBoxP.setSelected(false);
-                    }
-                }
-            }
-        };
-
-        checkBoxP.addActionListener(actionListener);
-        for (int i = 0; i < checkBoxTau.length; i++) {
-            checkBoxTau[i].addActionListener(actionListener);
-        }
+        checkBoxMcqProtein.addActionListener(new AngleCheckBoxActionListener(
+                getCheckBoxes(mcqProtein)));
+        checkBoxMcqRNA.addActionListener(new AngleCheckBoxActionListener(
+                getCheckBoxes(mcqRNA)));
+        checkBoxP.addActionListener(new AngleCheckBoxActionListener(
+                Arrays.asList(checkBoxTau)));
+        checkBoxMcqProtein.doClick();
+        checkBoxMcqRNA.doClick();
 
         final JButton buttonSelectAllNucleic = new JButton("Select all");
         JButton buttonClearNucleic = new JButton("Clear");
@@ -209,6 +230,9 @@ final class DialogAngles extends JDialog {
                 for (Component component : panel.getComponents()) {
                     if (component instanceof JCheckBox) {
                         ((JCheckBox) component).setSelected(state);
+                        if (!state) {
+                            component.setEnabled(true);
+                        }
                     }
                 }
             }
@@ -234,8 +258,8 @@ final class DialogAngles extends JDialog {
                     for (Component component : panel.getComponents()) {
                         if (component instanceof JCheckBox
                                 && ((JCheckBox) component).isSelected()) {
-                            String displayName = ((JCheckBox) component).getText();
-                            TorsionAngle torsionAngle = map.get(displayName);
+                            String angleName = ((JCheckBox) component).getText();
+                            TorsionAngle torsionAngle = map.get(angleName);
                             selected.add(torsionAngle);
                         }
                     }
@@ -262,5 +286,20 @@ final class DialogAngles extends JDialog {
 
     public TorsionAngle[] getAngles() {
         return selectedAngles.toArray(new TorsionAngle[selectedAngles.size()]);
+    }
+
+    private List<JCheckBox> getCheckBoxes(AverageAngle averageAngle) {
+        List<JCheckBox> checkBoxes = new ArrayList<>();
+
+        for (TorsionAngle angle : averageAngle.getConsideredAngles()) {
+            for (Pair<TorsionAngle, JCheckBox> pair : anglesCheckBoxes) {
+                if (angle.equals(pair.getLeft())) {
+                    checkBoxes.add(pair.getRight());
+                    break;
+                }
+            }
+        }
+
+        return checkBoxes;
     }
 }
