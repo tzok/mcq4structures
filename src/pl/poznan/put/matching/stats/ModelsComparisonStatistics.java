@@ -6,7 +6,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import pl.poznan.put.utility.CommonNumberFormat;
-import pl.poznan.put.utility.FractionAngleFormat;
+import pl.poznan.put.utility.AngleFormat;
 
 public class ModelsComparisonStatistics {
     private final List<MatchStatistics> statistics;
@@ -32,7 +32,7 @@ public class ModelsComparisonStatistics {
     public TableModel histogramsAsTableModel() {
         String[] columnNames = new String[angleLimits.length + 1];
         for (int i = 0; i < angleLimits.length; i++) {
-            columnNames[i + 1] = FractionAngleFormat.formatDouble(angleLimits[i]);
+            columnNames[i + 1] = AngleFormat.formatDisplayLong(angleLimits[i]);
         }
 
         String[][] data = new String[statistics.size()][];
@@ -49,7 +49,7 @@ public class ModelsComparisonStatistics {
         return new DefaultTableModel(data, columnNames);
     }
 
-    public TableModel percentilesAsTableModel() {
+    public TableModel percentilesAsTableModel(boolean isDisplayable) {
         String[] columnNames = new String[percentsLimits.length + 1];
         for (int i = 0; i < percentsLimits.length; i++) {
             columnNames[i + 1] = CommonNumberFormat.formatDouble(percentsLimits[i]);
@@ -63,7 +63,11 @@ public class ModelsComparisonStatistics {
 
             for (int j = 0; j < percentsLimits.length; j++) {
                 double angle = match.getAngleThresholdForGivenPercentile(percentsLimits[j]);
-                data[i][j + 1] = CommonNumberFormat.formatDouble(Math.toDegrees(angle));
+                if (isDisplayable) {
+                    data[i][j + 1] = AngleFormat.formatDisplayShort(angle);
+                } else {
+                    data[i][j + 1] = AngleFormat.formatExport(angle);
+                }
             }
         }
 

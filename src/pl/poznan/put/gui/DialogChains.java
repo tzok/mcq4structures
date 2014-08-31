@@ -35,11 +35,9 @@ import pl.poznan.put.utility.StructureManager;
 
 final class DialogChains extends JDialog {
     private class PanelChains extends JPanel {
-        private static final long serialVersionUID = 1L;
-
-        DefaultComboBoxModel<Structure> model = new DefaultComboBoxModel<>();
-        JComboBox<Structure> combo = new JComboBox<>(model);
-        JPanel[] panels = new JPanel[] { new JPanel(), new JPanel() };
+        private final DefaultComboBoxModel<Structure> model = new DefaultComboBoxModel<>();
+        private final JComboBox<Structure> combo = new JComboBox<>(model);
+        private final JPanel[] panels = new JPanel[] { new JPanel(), new JPanel() };
 
         public PanelChains() {
             super(new BorderLayout());
@@ -85,14 +83,24 @@ final class DialogChains extends JDialog {
                     panels[1].removeAll();
                     panels[0].add(new JLabel("RNAs:"));
                     panels[1].add(new JLabel("Proteins:"));
+
                     for (Chain chain : structure.getChains()) {
                         JCheckBox checkBox = new JCheckBox(chain.getChainID());
                         int index = MoleculeType.detect(chain) == MoleculeType.RNA ? 0
                                 : 1;
                         panels[index].add(checkBox);
+
+                        checkBox.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent arg0) {
+                                setButtonOkState();
+                            }
+                        });
                     }
+
                     panels[0].updateUI();
                     panels[1].updateUI();
+                    setButtonOkState();
                 }
             });
         }
@@ -121,11 +129,12 @@ final class DialogChains extends JDialog {
         }
     }
 
+    private static final int DEFAULT_HEIGHT = 480;
+    private static final int DEFAULT_WIDTH = 640;
     public static final int CANCEL = 0;
     public static final int OK = 1;
-    private static DialogChains instance;
 
-    private static final long serialVersionUID = 1L;
+    private static DialogChains instance;
 
     public static synchronized DialogChains getInstance(Frame owner) {
         DialogChains inst = DialogChains.instance;
@@ -136,21 +145,21 @@ final class DialogChains extends JDialog {
         return inst;
     }
 
-    List<Chain> chainsLeft = new ArrayList<>();
-    List<Chain> chainsRight = new ArrayList<>();
-    int chosenOption;
-    PanelChains panelsChainsLeft = new PanelChains();
-    PanelChains panelsChainsRight = new PanelChains();
+    private final PanelChains panelsChainsLeft = new PanelChains();
+    private final PanelChains panelsChainsRight = new PanelChains();
+    private final JButton buttonOk = new JButton("OK");
 
-    Structure structureLeft;
-    Structure structureRight;
+    private List<Chain> chainsLeft = new ArrayList<>();
+    private List<Chain> chainsRight = new ArrayList<>();
+    private Structure structureLeft;
+    private Structure structureRight;
+    private int chosenOption;
 
     private DialogChains(Frame owner) {
         super(owner, true);
         setLayout(new BorderLayout());
         setTitle("MCQ4Structures: structure & chain selection");
 
-        JButton buttonOk = new JButton("OK");
         JButton buttonCancel = new JButton("Cancel");
 
         JPanel panel = new JPanel(new GridLayout(1, 2));
@@ -163,12 +172,10 @@ final class DialogChains extends JDialog {
         panel.add(buttonCancel);
         add(panel, BorderLayout.SOUTH);
 
-        int width = 640;
-        int height = 480;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - width;
-        int y = screenSize.height - height;
-        setSize(width, height);
+        int x = screenSize.width - DialogChains.DEFAULT_WIDTH;
+        int y = screenSize.height - DialogChains.DEFAULT_HEIGHT;
+        setSize(DialogChains.DEFAULT_WIDTH, DialogChains.DEFAULT_HEIGHT);
         setLocation(x / 2, y / 2);
 
         buttonOk.addActionListener(new ActionListener() {
@@ -239,13 +246,34 @@ final class DialogChains extends JDialog {
     public int showDialog() {
         panelsChainsLeft.model.removeAllElements();
         panelsChainsRight.model.removeAllElements();
+
         for (Structure structure : StructureManager.getAllStructures()) {
             panelsChainsLeft.model.addElement(structure);
             panelsChainsRight.model.addElement(structure);
         }
 
+        setButtonOkState();
         chosenOption = DialogChains.CANCEL;
         setVisible(true);
         return chosenOption;
+    }
+
+    private void setButtonOkState() {
+        boolean flag = DialogChains.isAnyChainSelected(panelsChainsLeft);
+        flag &= DialogChains.isAnyChainSelected(panelsChainsRight);
+        buttonOk.setEnabled(flag);
+    }
+
+    private static boolean isAnyChainSelected(PanelChains panelsChains) {
+        for (JPanel panel : panelsChains.panels) {
+            for (Component component : panel.getComponents()) {
+                if (component instanceof JCheckBox
+                        && ((JCheckBox) component).isSelected()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

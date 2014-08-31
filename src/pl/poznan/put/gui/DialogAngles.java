@@ -86,6 +86,7 @@ final class DialogAngles extends JDialog {
     private final List<TorsionAngle> selectedAngles = new ArrayList<>();
     private final Map<String, TorsionAngle> mapNameToAngleAmino = new HashMap<>();
     private final Map<String, TorsionAngle> mapNameToAngleNucleic = new HashMap<>();
+    private final JButton buttonOk = new JButton("OK");
 
     private final AverageAngle mcqProtein = AverageAngle.getInstanceMainAngles(MoleculeType.PROTEIN);
     private final AverageAngle mcqRNA = AverageAngle.getInstanceMainAngles(MoleculeType.RNA);
@@ -94,6 +95,13 @@ final class DialogAngles extends JDialog {
     private JCheckBox checkBoxP;
     private JCheckBox checkBoxMcqProtein;
     private JCheckBox checkBoxMcqRNA;
+
+    private final ActionListener mainActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setButtonOkState();
+        }
+    };
 
     private DialogAngles(Frame owner) {
         super(owner, true);
@@ -111,6 +119,7 @@ final class DialogAngles extends JDialog {
         for (TorsionAngle angle : angles) {
             String displayName = angle.getLongDisplayName();
             JCheckBox checkBox = new JCheckBox(displayName);
+            checkBox.addActionListener(mainActionListener);
             panelAnglesAmino.add(checkBox);
             mapNameToAngleAmino.put(displayName, angle);
             anglesCheckBoxes.add(Pair.of(angle, checkBox));
@@ -148,6 +157,7 @@ final class DialogAngles extends JDialog {
         for (TorsionAngle angle : angles) {
             String displayName = angle.getLongDisplayName();
             JCheckBox checkBox = new JCheckBox(displayName);
+            checkBox.addActionListener(mainActionListener);
             panelAnglesNucleic.add(checkBox);
             mapNameToAngleNucleic.put(displayName, angle);
             anglesCheckBoxes.add(Pair.of(angle, checkBox));
@@ -196,8 +206,6 @@ final class DialogAngles extends JDialog {
         panelOptions.add(panelNucleic);
         panelOptions.add(panelAmino);
 
-        JButton buttonOk = new JButton("OK");
-
         JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
 
@@ -205,7 +213,7 @@ final class DialogAngles extends JDialog {
         add(panelOptions, BorderLayout.CENTER);
         add(panelOkCancel, BorderLayout.SOUTH);
 
-        ActionListener actionListenerSelection = new ActionListener() {
+        ActionListener selectClearActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 JPanel panel;
@@ -235,15 +243,16 @@ final class DialogAngles extends JDialog {
                         }
                     }
                 }
+
+                setButtonOkState();
             }
         };
-        buttonSelectAllAmino.addActionListener(actionListenerSelection);
-        buttonClearAmino.addActionListener(actionListenerSelection);
-        buttonSelectAllNucleic.addActionListener(actionListenerSelection);
-        buttonClearNucleic.addActionListener(actionListenerSelection);
+        buttonSelectAllAmino.addActionListener(selectClearActionListener);
+        buttonClearAmino.addActionListener(selectClearActionListener);
+        buttonSelectAllNucleic.addActionListener(selectClearActionListener);
+        buttonClearNucleic.addActionListener(selectClearActionListener);
 
         buttonOk.addActionListener(new ActionListener() {
-            @SuppressWarnings("synthetic-access")
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<TorsionAngle> selected = new ArrayList<>();
@@ -301,5 +310,21 @@ final class DialogAngles extends JDialog {
         }
 
         return checkBoxes;
+    }
+
+    private void setButtonOkState() {
+        for (Pair<TorsionAngle, JCheckBox> pair : anglesCheckBoxes) {
+            if (pair.getKey() instanceof AverageAngle) {
+                continue;
+            }
+
+            JCheckBox checkBox = pair.getValue();
+            if (checkBox.isSelected()) {
+                buttonOk.setEnabled(true);
+                return;
+            }
+        }
+
+        buttonOk.setEnabled(false);
     }
 }

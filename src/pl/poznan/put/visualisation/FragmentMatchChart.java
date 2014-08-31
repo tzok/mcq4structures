@@ -18,7 +18,7 @@ import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.AngleDelta.State;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.FractionAngleFormat;
+import pl.poznan.put.utility.AngleFormat;
 
 public class FragmentMatchChart {
     public static ChartPanel create(FragmentMatch match) {
@@ -60,7 +60,7 @@ public class FragmentMatchChart {
         rangeAxis.setLabel("Angular distance");
         rangeAxis.setRange(0, Math.PI);
         rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-        rangeAxis.setNumberFormatOverride(FractionAngleFormat.createInstance());
+        rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
 
         Plot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
         JFreeChart chart = new JFreeChart(plot);

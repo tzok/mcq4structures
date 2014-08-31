@@ -4,7 +4,7 @@ import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.utility.CommonNumberFormat;
-import pl.poznan.put.utility.FractionAngleFormat;
+import pl.poznan.put.utility.AngleFormat;
 
 public class GlobalComparisonResult implements DisplayableExportable {
     private final String measureName;
@@ -56,10 +56,10 @@ public class GlobalComparisonResult implements DisplayableExportable {
     @Override
     public String getExportName() {
         if (isAngle) {
-            return CommonNumberFormat.formatDouble(Math.toDegrees(value));
+            return AngleFormat.formatExport(value);
         }
 
-        return CommonNumberFormat.formatDouble(value);
+        return Double.toString(value);
     }
 
     /**
@@ -70,7 +70,7 @@ public class GlobalComparisonResult implements DisplayableExportable {
     @Override
     public String getLongDisplayName() {
         if (isAngle) {
-            return FractionAngleFormat.formatDouble(value);
+            return AngleFormat.formatDisplayLong(value);
         }
         return CommonNumberFormat.formatDouble(value) + Unicode.ANGSTROM;
     }
@@ -78,7 +78,7 @@ public class GlobalComparisonResult implements DisplayableExportable {
     @Override
     public String getShortDisplayName() {
         if (isAngle) {
-            return CommonNumberFormat.formatAngle(value);
+            return AngleFormat.formatDisplayShort(value);
         }
         return CommonNumberFormat.formatDouble(value) + Unicode.ANGSTROM;
     }

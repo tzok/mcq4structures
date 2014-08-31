@@ -45,10 +45,12 @@ final class DialogStructures extends JDialog {
         return inst;
     }
 
-    int chosenOption;
-    DefaultListModel<Structure> modelAll = new DefaultListModel<>();
-    DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
-    List<Structure> selectedStructures = new ArrayList<>();
+    private final JButton buttonOk = new JButton("OK");
+
+    private int chosenOption;
+    private DefaultListModel<Structure> modelAll = new DefaultListModel<>();
+    private DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
+    private List<Structure> selectedStructures = new ArrayList<>();
 
     private DialogStructures(Frame owner) {
         super(owner, true);
@@ -119,7 +121,6 @@ final class DialogStructures extends JDialog {
         constraints.fill = GridBagConstraints.BOTH;
         panelMain.add(new JScrollPane(listSelected), constraints);
 
-        JButton buttonOk = new JButton("OK");
         JButton buttonCancel = new JButton("Cancel");
         JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
@@ -187,6 +188,8 @@ final class DialogStructures extends JDialog {
                         modelSelected.removeElement(f);
                     }
                 }
+
+                buttonOk.setEnabled(modelSelected.size() > 1);
             }
         };
         buttonSelect.addActionListener(actionListenerSelectDeselect);
@@ -256,6 +259,7 @@ final class DialogStructures extends JDialog {
             modelAll.addElement(file);
         }
 
+        buttonOk.setEnabled(modelSelected.size() > 1);
         chosenOption = DialogStructures.CANCEL;
         setVisible(true);
         return chosenOption;
