@@ -121,7 +121,6 @@ public class MCQ implements GlobalComparator, LocalComparator {
             matches.add(matcher.matchFragments(reference, fragment));
         }
 
-        return new ModelsComparisonResult(angles.get(angles.size() - 1),
-                reference, models, matches);
+        return new ModelsComparisonResult(reference, models, matches);
     }
 }

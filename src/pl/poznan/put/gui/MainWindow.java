@@ -66,6 +66,7 @@ import pl.poznan.put.comparison.LocalComparisonResult;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.MCQLocalComparisonResult;
 import pl.poznan.put.comparison.ModelsComparisonResult;
+import pl.poznan.put.comparison.ModelsComparisonResult.SelectedAngle;
 import pl.poznan.put.comparison.ParallelGlobalComparison;
 import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
 import pl.poznan.put.comparison.RMSD;
@@ -823,28 +824,30 @@ public class MainWindow extends JFrame implements ComparisonListener {
         if (moleculeType == MoleculeType.PROTEIN) {
             angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
             angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN)));
-            angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.PROTEIN));
         } else if (moleculeType == MoleculeType.RNA) {
             angles.addAll(Arrays.asList(RNATorsionAngle.values()));
             angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA)));
             angles.add(PseudophasePuckerAngle.getInstance());
-            angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.RNA));
         }
+
+        AverageAngle averageAngle = AverageAngle.getInstanceMainAngles(moleculeType);
+        angles.add(averageAngle);
 
         TorsionAngle angleType = (TorsionAngle) JOptionPane.showInputDialog(
                 MainWindow.this, "Select torsion angle", "Torsion angle",
                 JOptionPane.INFORMATION_MESSAGE, null,
-                angles.toArray(new TorsionAngle[angles.size()]),
-                AverageAngle.getInstanceAllAngles(moleculeType));
+                angles.toArray(new TorsionAngle[angles.size()]), averageAngle);
         if (angleType == null) {
             return;
         }
 
         List<TorsionAngle> selectedAngles = new ArrayList<>();
 
-        if (angleType.equals(AverageAngle.getInstanceAllAngles(moleculeType))) {
-            selectedAngles.addAll(Arrays.asList(moleculeType.getBackboneTorsionAngles()));
-            selectedAngles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(moleculeType)));
+        if (angleType.equals(averageAngle)) {
+            selectedAngles.addAll(averageAngle.getConsideredAngles());
+            if (moleculeType == MoleculeType.RNA) {
+                selectedAngles.addAll(Arrays.asList(PseudophasePuckerAngle.requiredAngles()));
+            }
         } else if (angleType.equals(PseudophasePuckerAngle.getInstance())) {
             selectedAngles.add(RNATorsionAngle.TAU0);
             selectedAngles.add(RNATorsionAngle.TAU1);
@@ -856,6 +859,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
         selectedAngles.add(angleType);
         selections.remove(reference);
         ModelsComparisonResult result;
+        SelectedAngle selectedAngle;
 
         progressBar.setMaximum(1);
         progressBar.setValue(0);
@@ -863,6 +867,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
         try {
             MCQ mcq = new MCQ(selectedAngles);
             result = mcq.compareModels(reference, selections);
+            selectedAngle = result.selectAngle(angleType);
         } catch (IncomparableStructuresException e) {
             JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -870,10 +875,10 @@ public class MainWindow extends JFrame implements ComparisonListener {
         }
 
         progressBar.setValue(1);
-        exportable = result;
-        visualizable = result;
+        exportable = selectedAngle;
+        visualizable = selectedAngle;
 
-        tableMatrix.setModel(result.asDisplayableTableModel());
+        tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
         tableMatrix.setDefaultRenderer(Object.class,
                 new DefaultTableCellRenderer());
 

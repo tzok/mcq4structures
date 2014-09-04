@@ -52,7 +52,8 @@ public class ModelsComparisonStatistics {
     public TableModel percentilesAsTableModel(boolean isDisplayable) {
         String[] columnNames = new String[percentsLimits.length + 1];
         for (int i = 0; i < percentsLimits.length; i++) {
-            columnNames[i + 1] = CommonNumberFormat.formatDouble(percentsLimits[i]);
+            columnNames[i + 1] = CommonNumberFormat.formatDouble(percentsLimits[i])
+                    + "%";
         }
 
         String[][] data = new String[statistics.size()][];
