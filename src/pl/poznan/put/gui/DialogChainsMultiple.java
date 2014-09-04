@@ -38,9 +38,6 @@ import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.utility.StructureManager;
 
 final class DialogChainsMultiple extends JDialog {
-    private static final int DEFAULT_WIDTH = 800;
-    private static final int DEFAULT_HEIGHT = 600;
-
     private static class FilteredListModel extends
             AbstractListModel<CompactFragment> {
         private static final long serialVersionUID = 1L;
@@ -117,13 +114,30 @@ final class DialogChainsMultiple extends JDialog {
                 removeElement(element);
             }
         }
+
+        public boolean canAddElement(CompactFragment element) {
+            MoleculeType moleculeType = element.getMoleculeType();
+            if (getSize() > 0
+                    && getElementAt(0).getMoleculeType() != moleculeType) {
+                return false;
+            }
+
+            List<CompactFragment> list = moleculeType == MoleculeType.RNA ? listRNAs
+                    : listProteins;
+            if (list.size() > 0 && list.get(0).getSize() != element.getSize()) {
+                return false;
+            }
+
+            return true;
+        }
     }
 
     public static final int CANCEL = 0;
     public static final int OK = 1;
-    private static DialogChainsMultiple instance;
+    private static final int DEFAULT_WIDTH = 800;
+    private static final int DEFAULT_HEIGHT = 600;
 
-    private static final long serialVersionUID = 1L;
+    private static DialogChainsMultiple instance;
 
     public static DialogChainsMultiple getInstance(Frame owner) {
         DialogChainsMultiple inst = DialogChainsMultiple.instance;
@@ -134,22 +148,34 @@ final class DialogChainsMultiple extends JDialog {
         return inst;
     }
 
-    int chosenOption;
-    FilteredListModel modelAll = new FilteredListModel();
-    FilteredListModel modelSelected = new FilteredListModel();
-    JList<CompactFragment> listAll = new JList<>(modelAll);
-    JList<CompactFragment> listSelected = new JList<>(modelSelected);
-    List<CompactFragment> selectedChains = new ArrayList<>();
+    private final FilteredListModel modelAll = new FilteredListModel();
+    private final FilteredListModel modelSelected = new FilteredListModel();
+    private final JList<CompactFragment> listAll = new JList<>(modelAll);
+    private final JList<CompactFragment> listSelected = new JList<>(
+            modelSelected);
+    private final ListCellRenderer<? super CompactFragment> renderer = listAll.getCellRenderer();
+    private final JButton buttonOk = new JButton("OK");
+    private final JButton buttonCancel = new JButton("Cancel");
+    private final JCheckBox checkRNA = new JCheckBox("RNAs", true);
+    private final JCheckBox checkProtein = new JCheckBox("proteins", true);
+    private final JButton buttonSelect = new JButton("Select ->");
+    private final JButton buttonSelectAll = new JButton("Select all ->");
+    private final JButton buttonDeselect = new JButton("<- Deselect");
+    private final JButton buttonDeselectAll = new JButton("<- Deselect all");
+
+    private int chosenOption;
+    private List<CompactFragment> selectedChains = new ArrayList<>();
 
     private DialogChainsMultiple(Frame owner) {
         super(owner, true);
+        setTitle("MCQ4Structures: multiple chain selection");
+        setButtonOkState();
 
-        listAll = new JList<>(modelAll);
         listAll.setBorder(BorderFactory.createTitledBorder("Available chains"));
-        listSelected = new JList<>(modelSelected);
         listSelected.setBorder(BorderFactory.createTitledBorder("Selected chains"));
+        buttonSelect.setEnabled(false);
+        buttonDeselect.setEnabled(false);
 
-        final ListCellRenderer<? super CompactFragment> renderer = listAll.getCellRenderer();
         ListCellRenderer<CompactFragment> pdbCellRenderer = new ListCellRenderer<CompactFragment>() {
             @Override
             public Component getListCellRendererComponent(
@@ -170,15 +196,6 @@ final class DialogChainsMultiple extends JDialog {
         };
         listAll.setCellRenderer(pdbCellRenderer);
         listSelected.setCellRenderer(pdbCellRenderer);
-
-        final JCheckBox checkRNA = new JCheckBox("RNAs", true);
-        final JCheckBox checkProtein = new JCheckBox("proteins", true);
-        final JButton buttonSelect = new JButton("Select ->");
-        buttonSelect.setEnabled(false);
-        final JButton buttonSelectAll = new JButton("Select all ->");
-        final JButton buttonDeselect = new JButton("<- Deselect");
-        buttonDeselect.setEnabled(false);
-        JButton buttonDeselectAll = new JButton("<- Deselect all");
 
         JPanel panelButtons = new JPanel();
         panelButtons.setLayout(new GridBagLayout());
@@ -220,8 +237,6 @@ final class DialogChainsMultiple extends JDialog {
         constraints.fill = GridBagConstraints.BOTH;
         panelMain.add(new JScrollPane(listSelected), constraints);
 
-        JButton buttonOk = new JButton("OK");
-        JButton buttonCancel = new JButton("Cancel");
         JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
         panelOkCancel.add(buttonCancel);
@@ -237,8 +252,6 @@ final class DialogChainsMultiple extends JDialog {
                 DialogChainsMultiple.DEFAULT_HEIGHT);
         setLocation(x / 2, y / 2);
 
-        setTitle("MCQ4Structures: multiple chain selection");
-
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
@@ -249,6 +262,8 @@ final class DialogChainsMultiple extends JDialog {
                     } else { // source.equals(listSelected)
                         buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
                     }
+
+                    setButtonOkState();
                 }
             }
         };
@@ -282,8 +297,10 @@ final class DialogChainsMultiple extends JDialog {
                     for (CompactFragment f : values) {
                         assert f != null;
                         if (isSelect) {
-                            modelAll.removeElement(f);
-                            modelSelected.addElement(f);
+                            if (modelSelected.canAddElement(f)) {
+                                modelAll.removeElement(f);
+                                modelSelected.addElement(f);
+                            }
                         } else {
                             modelAll.addElement(f);
                             modelSelected.removeElement(f);
@@ -295,6 +312,8 @@ final class DialogChainsMultiple extends JDialog {
 
                     listAll.updateUI();
                     listSelected.updateUI();
+
+                    setButtonOkState();
                 }
             }
         };
@@ -356,6 +375,10 @@ final class DialogChainsMultiple extends JDialog {
         return builder.toString();
     }
 
+    public void setButtonOkState() {
+        buttonOk.setEnabled(modelSelected.getSize() >= 2);
+    }
+
     public int showDialog() {
         List<CompactFragment> fragments = new ArrayList<>();
 
@@ -395,7 +418,6 @@ final class DialogChainsMultiple extends JDialog {
         chosenOption = DialogChainsMultiple.CANCEL;
 
         setVisible(true);
-
         return chosenOption;
     }
 }
