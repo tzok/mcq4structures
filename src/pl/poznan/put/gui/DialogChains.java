@@ -31,7 +31,7 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.utility.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 
 final class DialogChains extends JDialog {
     private class PanelChains extends JPanel {

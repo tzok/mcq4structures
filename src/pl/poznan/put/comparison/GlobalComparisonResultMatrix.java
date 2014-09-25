@@ -100,9 +100,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
         for (int i = 0; i < matrix.getRowDimension(); i++) {
             for (int j = 0; j < matrix.getColumnDimension(); j++) {
                 if (Double.isNaN(matrix.get(i, j))) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be "
-                            + "clustered. Some structures could not be "
-                            + "compared.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -133,14 +131,12 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
         try {
             mds = MDS.multidimensionalScaling(matrix.getArray(), 2);
         } catch (InvalidInputException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         MDSPlot plot = new MDSPlot(mds, Arrays.asList(names));
-        plot.setTitle("MCQ4Structures: global distance diagram (" + measureName
-                + ")");
+        plot.setTitle("MCQ4Structures: global distance diagram (" + measureName + ")");
         plot.setVisible(true);
     }
 
@@ -221,8 +217,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
                 if (result == null) {
                     values[i][j + 1] = "Failed";
                 } else {
-                    values[i][j + 1] = isDisplay ? result.getShortDisplayName()
-                            : result.getExportName();
+                    values[i][j + 1] = isDisplay ? result.getShortDisplayName() : result.getExportName();
                 }
             }
         }

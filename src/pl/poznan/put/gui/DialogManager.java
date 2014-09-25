@@ -24,7 +24,7 @@ import javax.swing.JTextField;
 
 import org.biojava.bio.structure.Structure;
 
-import pl.poznan.put.utility.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 
 final class DialogManager extends JDialog {
     private static DialogManager instance;

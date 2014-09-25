@@ -81,12 +81,12 @@ import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
+import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.structure.SelectionFactory;
 import pl.poznan.put.torsion.AverageAngle;
 import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.StructureManager;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 

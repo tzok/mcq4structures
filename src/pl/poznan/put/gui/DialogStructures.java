@@ -28,7 +28,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.biojava.bio.structure.Structure;
 
-import pl.poznan.put.utility.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 
 final class DialogStructures extends JDialog {
     public static final int CANCEL = 0;
@@ -68,8 +68,7 @@ final class DialogStructures extends JDialog {
             public Component getListCellRendererComponent(
                     JList<? extends Structure> list, Structure value,
                     int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) renderer.getListCellRendererComponent(
-                        list, value, index, isSelected, cellHasFocus);
+                JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value != null) {
                     label.setText(StructureManager.getName(value));
                 }
@@ -152,10 +151,8 @@ final class DialogStructures extends JDialog {
                 }
             }
         };
-        listAll.getSelectionModel().addListSelectionListener(
-                listSelectionListener);
-        listSelected.getSelectionModel().addListSelectionListener(
-                listSelectionListener);
+        listAll.getSelectionModel().addListSelectionListener(listSelectionListener);
+        listSelected.getSelectionModel().addListSelectionListener(listSelectionListener);
 
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
@@ -220,8 +217,7 @@ final class DialogStructures extends JDialog {
         int i = 0;
         for (Structure s : selectedStructures) {
             assert s != null;
-            builder.append("<span style=\"color: "
-                    + (i % 2 == 0 ? "blue" : "green") + "\">");
+            builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
             builder.append(StructureManager.getName(s));
             builder.append("</span>, ");
             i++;
@@ -241,13 +237,13 @@ final class DialogStructures extends JDialog {
         ArrayList<Structure> listLeft = Collections.list(modelAll.elements());
         ArrayList<Structure> listRight = Collections.list(modelSelected.elements());
 
-        ArrayList<Structure> list = (ArrayList<Structure>) listLeft.clone();
+        ArrayList<Structure> list = new ArrayList<>(listLeft);
         list.removeAll(setManager);
         for (Structure structure : list) {
             modelAll.removeElement(structure);
         }
 
-        list = (ArrayList<Structure>) listRight.clone();
+        list = new ArrayList<>(listRight);
         list.removeAll(setManager);
         for (Structure structure : list) {
             modelSelected.removeElement(structure);
