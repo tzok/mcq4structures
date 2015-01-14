@@ -41,7 +41,7 @@ import pl.poznan.put.structure.Residue;
 import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.AngleDelta.State;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.utility.SVGHelper;
+import pl.poznan.put.utility.svg.SVGHelper;
 
 public class ModelsComparisonResult {
     public class SelectedAngle implements Exportable, Tabular, Visualizable {
