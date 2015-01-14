@@ -24,17 +24,6 @@
 	</repositories>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>test</testSourceDirectory>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-		</resources>
-
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -55,6 +44,9 @@
 							<addClasspath>true</addClasspath>
 							<mainClass>pl.poznan.put.gui.Gui</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Permissions>all-permissions</Permissions>
+						</manifestEntries>
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -63,12 +55,33 @@
 				<executions>
 					<execution>
 						<id>make-assembly</id>
-						<phase>package</phase>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jarsigner-plugin</artifactId>
+				<version>1.3.2</version>
+				<executions>
+					<execution>
+						<id>sign</id>
+						<phase>package</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<keystore>${project.basedir}/certs/keystore.p12</keystore>
+					<storetype>pkcs12</storetype>
+					<jarPath>${project.build.directory}/${project.build.FinalName}-${project.packaging}-with-dependencies.${project.packaging}</jarPath>
+					<verify>true</verify>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
