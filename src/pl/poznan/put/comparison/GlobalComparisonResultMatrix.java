@@ -194,7 +194,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
 
     private TableModel asTableModel(boolean isDisplay) {
         String[] columnNames = new String[names.length + 1];
-        columnNames[0] = isDisplay ? "" : null;
+        columnNames[0] = "";
         for (int i = 0; i < names.length; i++) {
             columnNames[i + 1] = names[i];
         }
