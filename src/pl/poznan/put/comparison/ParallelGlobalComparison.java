@@ -137,6 +137,7 @@ public class ParallelGlobalComparison {
             }
         }
 
+        thread.interrupt();
         return matrix;
     }
 
