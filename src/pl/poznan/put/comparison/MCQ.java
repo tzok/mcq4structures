@@ -1,9 +1,12 @@
 package pl.poznan.put.comparison;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.biojava.bio.structure.Structure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +21,14 @@ import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinChiTorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
 import pl.poznan.put.structure.CompactFragment;
+import pl.poznan.put.structure.SelectionFactory;
+import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.structure.StructureSelection;
 import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.torsion.AngleDelta.State;
+import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.utility.TabularExporter;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -121,6 +128,32 @@ public class MCQ implements GlobalComparator, LocalComparator {
             matches.add(matcher.matchFragments(reference, fragment));
         }
 
-        return new ModelsComparisonResult(reference, models, matches);
+		return new ModelsComparisonResult(reference, models, matches);
+	}
+
+    public static void main(String[] args) throws IOException {
+        if (args.length < 2) {
+            System.err.println("You must specify at least 2 structures");
+            return;
+        }
+
+        List<StructureSelection> selections = new ArrayList<StructureSelection>();
+
+        for (int i = 0; i < args.length; i++) {
+            File file = new File(args[i]);
+
+            if (!file.canRead()) {
+                System.err.println("Failed to open file: " + file);
+                return;
+            }
+
+            Structure structure = StructureManager.loadStructure(file).get(0);
+            selections.add(SelectionFactory.create(file.getName(), structure));
+        }
+
+        GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(
+                new MCQ(MCQ.getAllAvailableTorsionAngles()), selections, null);
+        System.out.println(TabularExporter.export(matrix
+                    .asExportableTableModel()));
     }
 }
