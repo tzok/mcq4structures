@@ -13,7 +13,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.utility.SVGHelper;
+import pl.poznan.put.utility.svg.SVGHelper;
 
 public class HierarchicalClusteringResult {
     private final List<HierarchicalClusterMerge> merges;
