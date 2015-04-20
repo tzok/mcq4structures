@@ -4,7 +4,7 @@
 
 	<groupId>pl.poznan.put</groupId>
 	<artifactId>clustering</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
 	<name>clustering</name>
@@ -59,11 +59,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
-		</dependency>
+        </dependency>
+
 		<dependency>
 			<groupId>pl.poznan.put</groupId>
 			<artifactId>TzokCommons</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>
