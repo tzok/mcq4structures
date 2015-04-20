@@ -3,8 +3,8 @@ package pl.poznan.put.comparison;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.utility.CommonNumberFormat;
 import pl.poznan.put.utility.AngleFormat;
+import pl.poznan.put.utility.CommonNumberFormat;
 
 public class GlobalComparisonResult implements DisplayableExportable {
     private final String measureName;
@@ -49,7 +49,7 @@ public class GlobalComparisonResult implements DisplayableExportable {
     /**
      * Represent numeric value in a way external tools understand (dot as
      * fraction point and no UNICODE_DEGREE sign).
-     * 
+     *
      * @return String representation of this delta object understandable by
      *         external tools.
      */
@@ -64,7 +64,7 @@ public class GlobalComparisonResult implements DisplayableExportable {
 
     /**
      * Represent object as a String which will be displayed to user in the GUI.
-     * 
+     *
      * @return String representation of object to be shown in the GUI.
      */
     @Override

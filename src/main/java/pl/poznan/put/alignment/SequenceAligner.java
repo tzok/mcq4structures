@@ -26,14 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.Sequence;
+import pl.poznan.put.matching.CompactFragment;
 
 /**
  * A class which allows to compute a global or local sequence alignment.
- * 
+ *
  * @author tzok
- * 
+ *
  */
 public final class SequenceAligner {
     private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAligner.class);
@@ -59,10 +58,8 @@ public final class SequenceAligner {
 
         title = builder.toString();
         moleculeType = fragments.get(0).getMoleculeType();
-        type = isGlobal ? PairwiseSequenceScorerType.GLOBAL
-                : PairwiseSequenceScorerType.LOCAL;
-        substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix()
-                : SequenceAligner.getProteinSubstitutionMatrix();
+        type = isGlobal ? PairwiseSequenceScorerType.GLOBAL : PairwiseSequenceScorerType.LOCAL;
+        substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix() : SequenceAligner.getProteinSubstitutionMatrix();
 
     }
 
@@ -90,8 +87,7 @@ public final class SequenceAligner {
             mapSequenceName.put(sequence, fragment);
         }
 
-        Profile profile = Alignments.getMultipleSequenceAlignment(sequences,
-                substitutionMatrix, type);
+        Profile profile = Alignments.getMultipleSequenceAlignment(sequences, substitutionMatrix, type);
 
         /*
          * Convert every sequence into an array of characters
@@ -113,8 +109,7 @@ public final class SequenceAligner {
             char[][] copy = new char[alignedSequences.size()][];
 
             for (int j = 0; j < alignedSequences.size(); j++) {
-                copy[j] = Arrays.copyOfRange(sequencesAsChars[j], i,
-                        Math.min(i + 60, sequencesAsChars[j].length));
+                copy[j] = Arrays.copyOfRange(sequencesAsChars[j], i, Math.min(i + 60, sequencesAsChars[j].length));
 
                 AlignedSequence alignedSequence = alignedSequences.get(j);
                 AbstractSequence sequence = (AbstractSequence) alignedSequence.getOriginalSequence();
@@ -148,14 +143,10 @@ public final class SequenceAligner {
     }
 
     private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {
-        try (InputStreamReader reader = new InputStreamReader(
-                SequenceAligner.class.getResourceAsStream("/pl/poznan/put"
-                        + "/alignment/NUC44.txt"), "UTF-8")) {
-            return new SimpleSubstitutionMatrix<>(
-                    RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
+        try (InputStreamReader reader = new InputStreamReader(SequenceAligner.class.getResourceAsStream("/pl/poznan/put" + "/alignment/NUC44.txt"), "UTF-8")) {
+            return new SimpleSubstitutionMatrix<>(RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
         } catch (IOException e) {
-            SequenceAligner.LOGGER.error(
-                    "Failed to load substitution matrix for RNA", e);
+            SequenceAligner.LOGGER.error("Failed to load substitution matrix for RNA", e);
         }
 
         // warning, the default will not work with MSA for RNAs!

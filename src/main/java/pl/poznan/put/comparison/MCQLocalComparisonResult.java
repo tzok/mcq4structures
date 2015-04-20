@@ -11,11 +11,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import pl.poznan.put.gui.LocalComparisonFrame;
+import pl.poznan.put.matching.AngleDelta;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TabularExporter;
 

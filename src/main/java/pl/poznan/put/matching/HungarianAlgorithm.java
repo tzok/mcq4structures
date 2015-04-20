@@ -3,17 +3,17 @@ package pl.poznan.put.matching;
 import java.util.Arrays;
 
 /* Copyright (c) 2012 Kevin L. Stern
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,7 @@ import java.util.Arrays;
  * one worker and so that no worker is assigned to more than one job in such a
  * manner so as to minimize the total cost of completing the jobs.
  * <p>
- * 
+ *
  * An assignment for a cost matrix that has more workers than jobs will
  * necessarily include unassigned workers, indicated by an assignment value of
  * -1; in no other circumstance will there be unassigned workers. Similarly, an
@@ -41,10 +41,10 @@ import java.util.Arrays;
  * jobs. For completeness, an assignment for a square cost matrix will give
  * exactly one unique worker to each job.
  * <p>
- * 
+ *
  * This version of the Hungarian algorithm runs in time O(n^3), where n is the
  * maximum among the number of workers and the number of jobs.
- * 
+ *
  * @author Kevin L. Stern
  */
 public class HungarianAlgorithm {
@@ -59,7 +59,7 @@ public class HungarianAlgorithm {
 
     /**
      * Construct an instance of the algorithm.
-     * 
+     *
      * @param costMatrix
      *            the cost matrix, where matrix[i][j] holds the cost of
      *            assigning worker i to job j, for all i, j. The cost matrix
@@ -67,29 +67,29 @@ public class HungarianAlgorithm {
      *            same length.
      */
     public HungarianAlgorithm(double[][] costMatrix) {
-        this.dim = Math.max(costMatrix.length, costMatrix[0].length);
-        this.rows = costMatrix.length;
-        this.cols = costMatrix[0].length;
-        this.costMatrix = new double[this.dim][this.dim];
-        for (int w = 0; w < this.dim; w++) {
+        dim = Math.max(costMatrix.length, costMatrix[0].length);
+        rows = costMatrix.length;
+        cols = costMatrix[0].length;
+        this.costMatrix = new double[dim][dim];
+        for (int w = 0; w < dim; w++) {
             if (w < costMatrix.length) {
-                if (costMatrix[w].length != this.cols) {
+                if (costMatrix[w].length != cols) {
                     throw new IllegalArgumentException("Irregular cost matrix");
                 }
-                this.costMatrix[w] = Arrays.copyOf(costMatrix[w], this.dim);
+                this.costMatrix[w] = Arrays.copyOf(costMatrix[w], dim);
             } else {
-                this.costMatrix[w] = new double[this.dim];
+                this.costMatrix[w] = new double[dim];
             }
         }
-        labelByWorker = new double[this.dim];
-        labelByJob = new double[this.dim];
-        minSlackWorkerByJob = new int[this.dim];
-        minSlackValueByJob = new double[this.dim];
-        committedWorkers = new boolean[this.dim];
-        parentWorkerByCommittedJob = new int[this.dim];
-        matchJobByWorker = new int[this.dim];
+        labelByWorker = new double[dim];
+        labelByJob = new double[dim];
+        minSlackWorkerByJob = new int[dim];
+        minSlackValueByJob = new double[dim];
+        committedWorkers = new boolean[dim];
+        parentWorkerByCommittedJob = new int[dim];
+        matchJobByWorker = new int[dim];
         Arrays.fill(matchJobByWorker, -1);
-        matchWorkerByJob = new int[this.dim];
+        matchWorkerByJob = new int[dim];
         Arrays.fill(matchWorkerByJob, -1);
     }
 
@@ -113,7 +113,7 @@ public class HungarianAlgorithm {
 
     /**
      * Execute the algorithm.
-     * 
+     *
      * @return the minimum cost matching of workers to jobs based upon the
      *         provided cost matrix. A matching value of -1 indicates that the
      *         corresponding worker is unassigned.
@@ -155,7 +155,7 @@ public class HungarianAlgorithm {
      * committed jobs are simultaneously decreased by the same amount in order
      * to maintain a feasible labeling).
      * <p>
-     * 
+     *
      * The runtime of a single phase of the algorithm is O(n^2), where n is the
      * dimension of the internal square cost matrix, since each edge is visited
      * at most once and since increasing the labeling is accomplished in time
@@ -204,8 +204,7 @@ public class HungarianAlgorithm {
             committedWorkers[worker] = true;
             for (int j = 0; j < dim; j++) {
                 if (parentWorkerByCommittedJob[j] == -1) {
-                    double slack = costMatrix[worker][j]
-                            - labelByWorker[worker] - labelByJob[j];
+                    double slack = costMatrix[worker][j] - labelByWorker[worker] - labelByJob[j];
                     if (minSlackValueByJob[j] > slack) {
                         minSlackValueByJob[j] = slack;
                         minSlackWorkerByJob[j] = worker;
@@ -216,7 +215,7 @@ public class HungarianAlgorithm {
     }
 
     /**
-     * 
+     *
      * @return the first unmatched worker or {@link #dim} if none.
      */
     protected int fetchUnmatchedWorker() {
@@ -236,9 +235,7 @@ public class HungarianAlgorithm {
     protected void greedyMatch() {
         for (int w = 0; w < dim; w++) {
             for (int j = 0; j < dim; j++) {
-                if (matchJobByWorker[w] == -1
-                        && matchWorkerByJob[j] == -1
-                        && costMatrix[w][j] - labelByWorker[w] - labelByJob[j] == 0) {
+                if (matchJobByWorker[w] == -1 && matchWorkerByJob[j] == -1 && costMatrix[w][j] - labelByWorker[w] - labelByJob[j] == 0) {
                     match(w, j);
                 }
             }
@@ -249,7 +246,7 @@ public class HungarianAlgorithm {
      * Initialize the next phase of the algorithm by clearing the committed
      * workers and jobs sets and by initializing the slack arrays to the values
      * corresponding to the specified root worker.
-     * 
+     *
      * @param w
      *            the worker at which to root the next phase.
      */
@@ -258,8 +255,7 @@ public class HungarianAlgorithm {
         Arrays.fill(parentWorkerByCommittedJob, -1);
         committedWorkers[w] = true;
         for (int j = 0; j < dim; j++) {
-            minSlackValueByJob[j] = costMatrix[w][j] - labelByWorker[w]
-                    - labelByJob[j];
+            minSlackValueByJob[j] = costMatrix[w][j] - labelByWorker[w] - labelByJob[j];
             minSlackWorkerByJob[j] = w;
         }
     }

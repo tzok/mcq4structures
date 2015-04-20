@@ -5,8 +5,7 @@ import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.SelectionMatch;
 
-public abstract class LocalComparisonResult implements Exportable,
-        Visualizable, Tabular {
+public abstract class LocalComparisonResult implements Exportable, Visualizable, Tabular {
     protected final SelectionMatch matches;
 
     public LocalComparisonResult(SelectionMatch matches) {

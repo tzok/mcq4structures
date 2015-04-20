@@ -47,8 +47,7 @@ public class SequenceAlignment implements Exportable {
             writer.write("\n\n");
             writer.write(alignment);
         } catch (UnsupportedEncodingException e) {
-            SequenceAlignment.LOGGER.error(
-                    "Failed to export sequence alignment", e);
+            SequenceAlignment.LOGGER.error("Failed to export sequence alignment", e);
             throw new IOException(e);
         }
     }

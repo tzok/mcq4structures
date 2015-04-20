@@ -7,21 +7,21 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.helper.TorsionAnglesHelper;
+import pl.poznan.put.matching.AngleDelta;
+import pl.poznan.put.matching.CompactFragment;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.matching.AngleDelta.State;
 import pl.poznan.put.nucleic.RNAChiTorsionAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinChiTorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.StructureSelection;
-import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
-import pl.poznan.put.torsion.AngleDelta.State;
+import pl.poznan.put.torsion.TorsionAnglesHelper;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle

@@ -12,12 +12,10 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.constant.Colors;
+import pl.poznan.put.matching.AngleDelta;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.torsion.AngleDelta;
-import pl.poznan.put.torsion.AngleDelta.State;
-import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.AngleFormat;
 
 public class FragmentMatchChart {

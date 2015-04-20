@@ -31,7 +31,7 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.structure.StructureManager;
+import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogChains extends JDialog {
     private class PanelChains extends JPanel {
@@ -62,8 +62,7 @@ final class DialogChains extends JDialog {
                 public Component getListCellRendererComponent(
                         JList<? extends Structure> list, Structure value,
                         int index, boolean isSelected, boolean cellHasFocus) {
-                    JLabel label = (JLabel) renderer.getListCellRendererComponent(
-                            list, value, index, isSelected, cellHasFocus);
+                    JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                     if (value != null) {
                         label.setText(StructureManager.getName(value));
                     }
@@ -86,8 +85,7 @@ final class DialogChains extends JDialog {
 
                     for (Chain chain : structure.getChains()) {
                         JCheckBox checkBox = new JCheckBox(chain.getChainID());
-                        int index = MoleculeType.detect(chain) == MoleculeType.RNA ? 0
-                                : 1;
+                        int index = MoleculeType.detect(chain) == MoleculeType.RNA ? 0 : 1;
                         panels[index].add(checkBox);
 
                         checkBox.addActionListener(new ActionListener() {
@@ -111,15 +109,12 @@ final class DialogChains extends JDialog {
             if (structure != null) {
                 for (JPanel panel : panels) {
                     for (Component component : panel.getComponents()) {
-                        if (component instanceof JCheckBox
-                                && ((JCheckBox) component).isSelected()) {
+                        if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
                             String chainId = ((JCheckBox) component).getText();
                             try {
                                 list.add(structure.getChainByPDB(chainId));
                             } catch (StructureException e) {
-                                JOptionPane.showMessageDialog(
-                                        DialogChains.this, e.getMessage(),
-                                        "Error", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(DialogChains.this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -267,8 +262,7 @@ final class DialogChains extends JDialog {
     private static boolean isAnyChainSelected(PanelChains panelsChains) {
         for (JPanel panel : panelsChains.panels) {
             for (Component component : panel.getComponents()) {
-                if (component instanceof JCheckBox
-                        && ((JCheckBox) component).isSelected()) {
+                if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
                     return true;
                 }
             }

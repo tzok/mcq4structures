@@ -7,7 +7,7 @@ import pl.poznan.put.utility.InvalidInputException;
 
 /**
  * A utility class implementing a Multidimensional Scaling method.
- * 
+ *
  * @author tzok
  */
 public final class MDS {
@@ -15,7 +15,7 @@ public final class MDS {
      * Calculate the Multidimensional Scaling. It gets a distance matrix and
      * creates a map of points in N-dimensions whose mutual distances correspond
      * to the given input matrix.
-     * 
+     *
      * @param distance
      *            A distance matrix, NxN.
      * @param dimensions
@@ -64,8 +64,7 @@ public final class MDS {
         for (int i = 0; i < distance.length; ++i) {
             b[i] = new double[distance.length];
             for (int j = 0; j < distance.length; ++j) {
-                b[i][j] = -0.5
-                        * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
+                b[i][j] = -0.5 * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
             }
         }
 
@@ -88,8 +87,7 @@ public final class MDS {
             }
             // if L[max][max] < 0, then it's impossible to visualise
             if (l[max][max] < 0) {
-                throw new InvalidInputException(
-                        "Cannot visualize specified structures in 2D");
+                throw new InvalidInputException("Cannot visualize specified structures in 2D");
             }
             maxima[i] = max;
             l[max][max] = Double.NEGATIVE_INFINITY;

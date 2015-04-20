@@ -39,8 +39,7 @@ public class TorsionAxis extends NumberAxis {
             NumberTick nt = visibleIntegerTicks.get(i);
             int index = (int) nt.getValue();
             if (index < ticksNames.length) {
-                result.add(new NumberTick(index, ticksNames[index],
-                        nt.getTextAnchor(), nt.getRotationAnchor(), Math.PI / 4));
+                result.add(new NumberTick(index, ticksNames[index], nt.getTextAnchor(), nt.getRotationAnchor(), Math.PI / 4));
             }
         }
         return result;

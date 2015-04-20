@@ -2,8 +2,8 @@ package pl.poznan.put.comparison;
 
 import java.util.List;
 
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.matching.CompactFragment;
+import pl.poznan.put.matching.StructureSelection;
 
 /**
  * An abstraction for any local comparison measure.

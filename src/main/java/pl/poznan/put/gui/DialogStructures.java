@@ -28,7 +28,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.biojava.bio.structure.Structure;
 
-import pl.poznan.put.structure.StructureManager;
+import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogStructures extends JDialog {
     public static final int CANCEL = 0;

@@ -12,7 +12,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * A main window of the application.
- * 
+ *
  * @author tzok
  */
 class Gui extends JFrame {
@@ -41,10 +41,7 @@ class Gui extends JFrame {
                     if ("Nimbus".equals(info.getName())) {
                         try {
                             UIManager.setLookAndFeel(info.getClassName());
-                        } catch (ClassNotFoundException
-                                | InstantiationException
-                                | IllegalAccessException
-                                | UnsupportedLookAndFeelException e) {
+                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
                             // do nothing
                         }
                         break;

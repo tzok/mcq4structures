@@ -29,10 +29,8 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
         setSVGDocument(svg);
 
         Element rootElement = svg.getDocumentElement();
-        svgWidth = (int) Math.ceil(Double.parseDouble(rootElement.getAttributeNS(
-                SVGDOMImplementation.SVG_NAMESPACE_URI, "width")));
-        svgHeight = (int) Math.ceil(Double.parseDouble(rootElement.getAttributeNS(
-                SVGDOMImplementation.SVG_NAMESPACE_URI, "height")));
+        svgWidth = (int) Math.ceil(Double.parseDouble(rootElement.getAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "width")));
+        svgHeight = (int) Math.ceil(Double.parseDouble(rootElement.getAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "height")));
         setPreferredSize(new Dimension(svgWidth, svgHeight));
     }
 

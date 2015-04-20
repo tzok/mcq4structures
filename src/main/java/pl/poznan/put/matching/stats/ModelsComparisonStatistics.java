@@ -5,8 +5,8 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import pl.poznan.put.utility.CommonNumberFormat;
 import pl.poznan.put.utility.AngleFormat;
+import pl.poznan.put.utility.CommonNumberFormat;
 
 public class ModelsComparisonStatistics {
     private final List<MatchStatistics> statistics;
@@ -52,8 +52,7 @@ public class ModelsComparisonStatistics {
     public TableModel percentilesAsTableModel(boolean isDisplayable) {
         String[] columnNames = new String[percentsLimits.length + 1];
         for (int i = 0; i < percentsLimits.length; i++) {
-            columnNames[i + 1] = CommonNumberFormat.formatDouble(percentsLimits[i])
-                    + "%";
+            columnNames[i + 1] = CommonNumberFormat.formatDouble(percentsLimits[i]) + "%";
         }
 
         String[][] data = new String[statistics.size()][];

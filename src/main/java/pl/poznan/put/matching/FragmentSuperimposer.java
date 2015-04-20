@@ -10,13 +10,10 @@ import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.SVDSuperimposer;
 import org.biojava.bio.structure.StructureException;
 
-import pl.poznan.put.atoms.AtomName;
+import pl.poznan.put.atom.AtomName;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.common.ResidueType;
-import pl.poznan.put.helper.StructureHelper;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.ResidueAngles;
-import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.structure.tertiary.StructureHelper;
 
 public class FragmentSuperimposer {
     public enum AtomFilter {
@@ -33,8 +30,7 @@ public class FragmentSuperimposer {
     private final Atom[] totalAtomsTarget;
     private final Atom[] totalAtomsModel;
 
-    public FragmentSuperimposer(SelectionMatch selectionMatch,
-            AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
+    public FragmentSuperimposer(SelectionMatch selectionMatch, AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
         super();
         this.selectionMatch = selectionMatch;
         this.atomFilter = atomFilter;
@@ -50,12 +46,10 @@ public class FragmentSuperimposer {
 
         totalAtomsTarget = atomsT.toArray(new Atom[atomsT.size()]);
         totalAtomsModel = atomsM.toArray(new Atom[atomsM.size()]);
-        totalSuperimposer = new SVDSuperimposer(totalAtomsTarget,
-                totalAtomsModel);
+        totalSuperimposer = new SVDSuperimposer(totalAtomsTarget, totalAtomsModel);
     }
 
-    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM)
-            throws StructureException {
+    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM) throws StructureException {
         for (int i = 0; i < selectionMatch.getSize(); i++) {
             FragmentMatch fragment = selectionMatch.getFragmentMatch(i);
             FragmentComparison fragmentComparison = fragment.getFragmentComparison();
@@ -93,10 +87,8 @@ public class FragmentSuperimposer {
                         continue;
                     }
 
-                    Atom l = StructureHelper.findAtom(targetAngles.getGroup(),
-                            name);
-                    Atom r = StructureHelper.findAtom(modelAngles.getGroup(),
-                            name);
+                    Atom l = StructureHelper.findAtom(targetAngles.getGroup(), name);
+                    Atom r = StructureHelper.findAtom(modelAngles.getGroup(), name);
 
                     if (l != null && r != null) {
                         atomsTarget.add(l);
@@ -110,8 +102,7 @@ public class FragmentSuperimposer {
 
             matchAtomsTarget[i] = atomsTarget.toArray(new Atom[atomsTarget.size()]);
             matchAtomsModel[i] = atomsModel.toArray(new Atom[atomsModel.size()]);
-            matchSuperimposer[i] = new SVDSuperimposer(matchAtomsTarget[i],
-                    matchAtomsModel[i]);
+            matchSuperimposer[i] = new SVDSuperimposer(matchAtomsTarget[i], matchAtomsModel[i]);
         }
     }
 
@@ -140,8 +131,7 @@ public class FragmentSuperimposer {
         List<CompactFragment> modelFragments = new ArrayList<>();
 
         for (CompactFragment fragment : model.getCompactFragments()) {
-            CompactFragment modifiedFragment = new CompactFragment(model,
-                    fragment.getMoleculeType());
+            CompactFragment modifiedFragment = new CompactFragment(model, fragment.getMoleculeType());
 
             for (int i = 0; i < fragment.getSize(); i++) {
                 Group group = fragment.getGroup(i);
@@ -174,10 +164,8 @@ public class FragmentSuperimposer {
             FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
 
             MoleculeType moleculeType = fragmentMatch.getMoleculeType();
-            CompactFragment fragmentL = new CompactFragment(
-                    selectionMatch.getTarget(), moleculeType);
-            CompactFragment fragmentR = new CompactFragment(
-                    selectionMatch.getModel(), moleculeType);
+            CompactFragment fragmentL = new CompactFragment(selectionMatch.getTarget(), moleculeType);
+            CompactFragment fragmentR = new CompactFragment(selectionMatch.getModel(), moleculeType);
 
             for (ResidueComparison residueComparison : fragmentComparison) {
                 ResidueAngles targetAngles = residueComparison.getTargetAngles();

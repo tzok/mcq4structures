@@ -2,8 +2,6 @@ package pl.poznan.put.matching;
 
 import java.util.List;
 
-import pl.poznan.put.structure.CompactFragment;
-
 public class FragmentSuperposition {
     private final List<CompactFragment> targetFragments;
     private final List<CompactFragment> modelFragments;

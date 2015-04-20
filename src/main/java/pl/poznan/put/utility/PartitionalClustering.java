@@ -121,9 +121,7 @@ public class PartitionalClustering implements Visualizable {
         double[][] mds2D = MDS.multidimensionalScaling(distanceMatrix, 2);
         double[][] mds3D = MDS.multidimensionalScaling(distanceMatrix, 3);
 
-        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(
-                clustering.getPrototypes(),
-                matrix.getDistanceMatrix().getArray());
+        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(clustering.getPrototypes(), matrix.getDistanceMatrix().getArray());
 
         medoids = new ArrayList<>();
 

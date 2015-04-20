@@ -93,13 +93,11 @@ class DialogAbout extends JDialog {
                     return;
                 }
 
-                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
-                        && Desktop.isDesktopSupported()) {
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED && Desktop.isDesktopSupported()) {
                     try {
                         Desktop.getDesktop().browse(e.getURL().toURI());
                     } catch (IOException | URISyntaxException e1) {
-                        DialogAbout.LOGGER.error(
-                                "Failed to browse URL: " + e.getURL(), e1);
+                        DialogAbout.LOGGER.error("Failed to browse URL: " + e.getURL(), e1);
                     }
                 }
             }

@@ -24,12 +24,12 @@ import javax.swing.JPanel;
 import org.apache.commons.lang3.tuple.Pair;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
-import pl.poznan.put.torsion.AverageAngle;
 import pl.poznan.put.torsion.ChiTorsionAngleType;
+import pl.poznan.put.torsion.PseudophasePuckerAngle;
 import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.torsion.type.AverageTorsionAngleType;
 
 final class DialogAngles extends JDialog {
     private class AngleCheckBoxActionListener implements ActionListener {
@@ -88,8 +88,8 @@ final class DialogAngles extends JDialog {
     private final Map<String, TorsionAngle> mapNameToAngleNucleic = new HashMap<>();
     private final JButton buttonOk = new JButton("OK");
 
-    private final AverageAngle mcqProtein = AverageAngle.getInstanceMainAngles(MoleculeType.PROTEIN);
-    private final AverageAngle mcqRNA = AverageAngle.getInstanceMainAngles(MoleculeType.RNA);
+    private final AverageTorsionAngleType mcqProtein = AverageTorsionAngleType.getInstanceMainAngles(MoleculeType.PROTEIN);
+    private final AverageTorsionAngleType mcqRNA = AverageTorsionAngleType.getInstanceMainAngles(MoleculeType.RNA);
 
     private JCheckBox[] checkBoxTau = new JCheckBox[5];
     private JCheckBox checkBoxP;
@@ -114,7 +114,7 @@ final class DialogAngles extends JDialog {
         angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
         angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN)));
         angles.add(mcqProtein);
-        angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.PROTEIN));
+        angles.add(AverageTorsionAngleType.getInstanceAllAngles(MoleculeType.PROTEIN));
 
         for (TorsionAngle angle : angles) {
             String displayName = angle.getLongDisplayName();
@@ -152,7 +152,7 @@ final class DialogAngles extends JDialog {
         angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA)));
         angles.add(PseudophasePuckerAngle.getInstance());
         angles.add(mcqRNA);
-        angles.add(AverageAngle.getInstanceAllAngles(MoleculeType.RNA));
+        angles.add(AverageTorsionAngleType.getInstanceAllAngles(MoleculeType.RNA));
 
         for (TorsionAngle angle : angles) {
             String displayName = angle.getLongDisplayName();
@@ -297,7 +297,7 @@ final class DialogAngles extends JDialog {
         return selectedAngles.toArray(new TorsionAngle[selectedAngles.size()]);
     }
 
-    private List<JCheckBox> getCheckBoxes(AverageAngle averageAngle) {
+    private List<JCheckBox> getCheckBoxes(AverageTorsionAngleType averageAngle) {
         List<JCheckBox> checkBoxes = new ArrayList<>();
 
         for (TorsionAngle angle : averageAngle.getConsideredAngles()) {
@@ -314,7 +314,7 @@ final class DialogAngles extends JDialog {
 
     private void setButtonOkState() {
         for (Pair<TorsionAngle, JCheckBox> pair : anglesCheckBoxes) {
-            if (pair.getKey() instanceof AverageAngle) {
+            if (pair.getKey() instanceof AverageTorsionAngleType) {
                 continue;
             }
 

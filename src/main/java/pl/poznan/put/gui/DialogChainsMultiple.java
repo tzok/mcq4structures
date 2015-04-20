@@ -32,10 +32,10 @@ import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.SelectionFactory;
-import pl.poznan.put.structure.StructureManager;
-import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.matching.CompactFragment;
+import pl.poznan.put.matching.SelectionFactory;
+import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogChainsMultiple extends JDialog {
     private static class FilteredListModel extends

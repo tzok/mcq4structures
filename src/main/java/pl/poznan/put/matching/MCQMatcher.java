@@ -3,16 +3,11 @@ package pl.poznan.put.matching;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.poznan.put.nucleic.PseudophasePuckerAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.FragmentAngles;
-import pl.poznan.put.structure.ResidueAngles;
-import pl.poznan.put.structure.StructureSelection;
-import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.AngleValue;
-import pl.poznan.put.torsion.AverageAngle;
+import pl.poznan.put.torsion.PseudophasePuckerAngle;
 import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.torsion.type.AverageTorsionAngleType;
 
 public class MCQMatcher implements StructureMatcher {
     private List<TorsionAngle> angles;
@@ -180,7 +175,7 @@ public class MCQMatcher implements StructureMatcher {
     private ResidueComparison compareResidues(ResidueAngles target,
             ResidueAngles model) {
         List<AngleDelta> result = new ArrayList<>();
-        List<AverageAngle> averages = new ArrayList<>();
+        List<AverageTorsionAngleType> averages = new ArrayList<>();
         boolean isPseudophasePucker = false;
 
         for (TorsionAngle angle : angles) {
@@ -189,8 +184,8 @@ public class MCQMatcher implements StructureMatcher {
                 continue;
             }
 
-            if (angle instanceof AverageAngle) {
-                averages.add((AverageAngle) angle);
+            if (angle instanceof AverageTorsionAngleType) {
+                averages.add((AverageTorsionAngleType) angle);
                 continue;
             }
 
@@ -217,7 +212,7 @@ public class MCQMatcher implements StructureMatcher {
             result.add(AngleDelta.calculate(pL, pR));
         }
 
-        for (AverageAngle average : averages) {
+        for (AverageTorsionAngleType average : averages) {
             result.add(average.calculateDelta(result));
         }
 

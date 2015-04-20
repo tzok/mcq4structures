@@ -3,8 +3,6 @@ package pl.poznan.put.matching;
 import java.util.Iterator;
 import java.util.List;
 
-import pl.poznan.put.structure.ResidueAngles;
-import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.ChiTorsionAngle;
 import pl.poznan.put.torsion.ChiTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngle;

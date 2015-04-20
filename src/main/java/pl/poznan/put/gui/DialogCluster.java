@@ -56,8 +56,7 @@ public class DialogCluster extends JDialog {
         group.add(kmedoids);
 
         linkage = new JComboBox<>(Linkage.values());
-        scoringFunction = new JComboBox<>(
-                new ScoringFunction[] { PAM.getInstance(), PAMSIL.getInstance() });
+        scoringFunction = new JComboBox<>(new ScoringFunction[] { PAM.getInstance(), PAMSIL.getInstance() });
         scoringFunction.setEnabled(false);
         findBestK = new JCheckBox("Find best k?", true);
         findBestK.setEnabled(false);
@@ -137,8 +136,7 @@ public class DialogCluster extends JDialog {
                         visualizable.visualize3D();
                     }
                 } catch (InvalidInputException e) {
-                    JOptionPane.showMessageDialog(DialogCluster.this,
-                            e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(DialogCluster.this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -169,8 +167,7 @@ public class DialogCluster extends JDialog {
         double[][] matrix = comparisonGlobal.getDistanceMatrix().getArray();
 
         if (hierarchical.isSelected()) {
-            final HierarchicalClusteringResult clustering = HierarchicalClusterer.cluster(
-                    matrix, (Linkage) linkage.getSelectedItem());
+            final HierarchicalClusteringResult clustering = HierarchicalClusterer.cluster(matrix, (Linkage) linkage.getSelectedItem());
 
             return new Visualizable() {
                 @Override
@@ -180,8 +177,7 @@ public class DialogCluster extends JDialog {
 
                 @Override
                 public void visualize() {
-                    DendrogramFrame dendrogramFrame = new DendrogramFrame(
-                            clustering, comparisonGlobal.getNames());
+                    DendrogramFrame dendrogramFrame = new DendrogramFrame(clustering, comparisonGlobal.getNames());
                     dendrogramFrame.setVisible(true);
                 }
             };

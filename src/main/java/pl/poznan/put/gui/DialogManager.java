@@ -24,7 +24,7 @@ import javax.swing.JTextField;
 
 import org.biojava.bio.structure.Structure;
 
-import pl.poznan.put.structure.StructureManager;
+import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogManager extends JDialog {
     private static DialogManager instance;
@@ -71,8 +71,7 @@ final class DialogManager extends JDialog {
         add(panelFetch, BorderLayout.SOUTH);
         getRootPane().setDefaultButton(buttonFetch);
 
-        fieldPdbId.setPreferredSize(new Dimension(128,
-                fieldPdbId.getPreferredSize().height));
+        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId.getPreferredSize().height));
 
         int width = 480;
         int height = 480;
@@ -115,10 +114,7 @@ final class DialogManager extends JDialog {
                     File path = StructureManager.getFile(models.get(0));
                     model.addElement(path);
                 } else {
-                    JOptionPane.showMessageDialog(DialogManager.this,
-                            "Failed to download " + pdbId
-                                    + " from the Protein Data Bank", "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(DialogManager.this, "Failed to download " + pdbId + " from the Protein Data Bank", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -134,9 +130,7 @@ final class DialogManager extends JDialog {
                 model.addElement(file);
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(DialogManager.instance,
-                    e.getMessage(), "Error: " + e.getClass(),
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(DialogManager.instance, e.getMessage(), "Error: " + e.getClass(), JOptionPane.ERROR_MESSAGE);
         }
     }
 }

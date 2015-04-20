@@ -6,7 +6,7 @@ import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.matching.StructureSelection;
 
 /**
  * Implementation of RMSD global similarity measure.

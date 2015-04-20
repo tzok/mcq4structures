@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.structure.StructureSelection;
+import pl.poznan.put.matching.StructureSelection;
 
 /**
  * An abstraction of all global comparison measures.
@@ -31,8 +31,7 @@ public class ParallelGlobalComparison {
         private final StructureSelection s1;
         private final StructureSelection s2;
 
-        public CompareCallable(GlobalComparator comparator,
-                List<StructureSelection> structures, int i, int j) {
+        public CompareCallable(GlobalComparator comparator, List<StructureSelection> structures, int i, int j) {
             this.comparator = comparator;
             s1 = structures.get(i);
             s2 = structures.get(j);
@@ -46,9 +45,7 @@ public class ParallelGlobalComparison {
                 GlobalComparisonResult comp = comparator.compareGlobally(s1, s2);
                 return new SingleResult(i, j, comp);
             } catch (IncomparableStructuresException e) {
-                ParallelGlobalComparison.LOGGER.error(
-                        "Failed to compare structures: " + s1.getName()
-                                + " and " + s2.getName(), e);
+                ParallelGlobalComparison.LOGGER.error("Failed to compare structures: " + s1.getName() + " and " + s2.getName(), e);
             }
 
             return null;
@@ -69,19 +66,14 @@ public class ParallelGlobalComparison {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelGlobalComparison.class);
     private static final ExecutorService THREAD_POOL = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
-    private static final ExecutorCompletionService<SingleResult> EXECUTOR = new ExecutorCompletionService<>(
-            ParallelGlobalComparison.THREAD_POOL);
+    private static final ExecutorCompletionService<SingleResult> EXECUTOR = new ExecutorCompletionService<>(ParallelGlobalComparison.THREAD_POOL);
 
-    public static GlobalComparisonResultMatrix run(
-            final GlobalComparator comparator,
-            final List<StructureSelection> structures,
-            final ComparisonListener listener) {
+    public static GlobalComparisonResultMatrix run(final GlobalComparator comparator, final List<StructureSelection> structures, final ComparisonListener listener) {
         /*
          * Create distance matrix, set diagonal to 0 and other values to NaN
          */
         final int size = structures.size();
-        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(
-                comparator.getName(), size);
+        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(comparator.getName(), size);
 
         /*
          * Create a fixed pool of threads and a service to gather results from
@@ -89,8 +81,7 @@ public class ParallelGlobalComparison {
          */
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
-                CompareCallable task = new CompareCallable(comparator,
-                        structures, i, j);
+                CompareCallable task = new CompareCallable(comparator, structures, i, j);
                 ParallelGlobalComparison.EXECUTOR.submit(task);
             }
         }
@@ -104,8 +95,7 @@ public class ParallelGlobalComparison {
             @Override
             public void run() {
                 try {
-                    while (!ParallelGlobalComparison.THREAD_POOL.awaitTermination(
-                            1, TimeUnit.SECONDS)) {
+                    while (!ParallelGlobalComparison.THREAD_POOL.awaitTermination(1, TimeUnit.SECONDS)) {
                         if (listener != null) {
                             long completed = ((ThreadPoolExecutor) ParallelGlobalComparison.THREAD_POOL).getCompletedTaskCount();
                             listener.stateChanged(all, completed);
@@ -132,8 +122,7 @@ public class ParallelGlobalComparison {
                 SingleResult result = ParallelGlobalComparison.EXECUTOR.take().get();
                 matrix.setResult(result.i, result.j, result.value);
             } catch (InterruptedException | ExecutionException e) {
-                ParallelGlobalComparison.LOGGER.error(
-                        "Failed to compare a pair of structures", e);
+                ParallelGlobalComparison.LOGGER.error("Failed to compare a pair of structures", e);
             }
         }
 

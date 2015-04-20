@@ -22,8 +22,7 @@ import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.visualisation.MDS;
 import pl.poznan.put.visualisation.MDSPlot;
 
-public class GlobalComparisonResultMatrix implements Clusterable, Exportable,
-        Visualizable, Tabular {
+public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Visualizable, Tabular {
     private final String measureName;
     private final int size;
     private final String[] names;

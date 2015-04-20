@@ -1,8 +1,7 @@
 package pl.poznan.put.matching;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.Residue;
+import pl.poznan.put.structure.tertiary.Residue;
 
 public class FragmentMatch {
     private final CompactFragment target;

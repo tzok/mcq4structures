@@ -14,7 +14,6 @@ import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
-import pl.poznan.put.structure.StructureSelection;
 
 public class SelectionMatch implements Exportable, Iterable<FragmentMatch> {
     private final StructureSelection target;

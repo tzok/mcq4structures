@@ -5,9 +5,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import pl.poznan.put.helper.TorsionAnglesHelper;
-import pl.poznan.put.torsion.AngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.torsion.TorsionAnglesHelper;
 
 public class FragmentComparison implements Comparable<FragmentComparison>,
         Iterable<ResidueComparison> {

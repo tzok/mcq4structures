@@ -75,18 +75,18 @@ import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
+import pl.poznan.put.matching.CompactFragment;
 import pl.poznan.put.matching.MCQMatcher;
+import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.nucleic.PseudophasePuckerAngle;
+import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
-import pl.poznan.put.structure.CompactFragment;
-import pl.poznan.put.structure.StructureManager;
-import pl.poznan.put.structure.StructureSelection;
-import pl.poznan.put.structure.SelectionFactory;
-import pl.poznan.put.torsion.AverageAngle;
+import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.ChiTorsionAngleType;
+import pl.poznan.put.torsion.PseudophasePuckerAngle;
 import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.torsion.type.AverageTorsionAngleType;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
@@ -830,7 +830,7 @@ public class MainWindow extends JFrame implements ComparisonListener {
             angles.add(PseudophasePuckerAngle.getInstance());
         }
 
-        AverageAngle averageAngle = AverageAngle.getInstanceMainAngles(moleculeType);
+        AverageTorsionAngleType averageAngle = AverageTorsionAngleType.getInstanceMainAngles(moleculeType);
         angles.add(averageAngle);
 
         TorsionAngle angleType = (TorsionAngle) JOptionPane.showInputDialog(
