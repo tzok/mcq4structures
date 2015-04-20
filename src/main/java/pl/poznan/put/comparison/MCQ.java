@@ -121,6 +121,32 @@ public class MCQ implements GlobalComparator, LocalComparator {
             matches.add(matcher.matchFragments(reference, fragment));
         }
 
-        return new ModelsComparisonResult(reference, models, matches);
+		return new ModelsComparisonResult(reference, models, matches);
+	}
+
+    public static void main(String[] args) throws IOException {
+        if (args.length < 2) {
+            System.err.println("You must specify at least 2 structures");
+            return;
+        }
+
+        List<StructureSelection> selections = new ArrayList<StructureSelection>();
+
+        for (int i = 0; i < args.length; i++) {
+            File file = new File(args[i]);
+
+            if (!file.canRead()) {
+                System.err.println("Failed to open file: " + file);
+                return;
+            }
+
+            Structure structure = StructureManager.loadStructure(file).get(0);
+            selections.add(SelectionFactory.create(file.getName(), structure));
+        }
+
+        GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(
+                new MCQ(MCQ.getAllAvailableTorsionAngles()), selections, null);
+        System.out.println(TabularExporter.export(matrix
+                    .asExportableTableModel()));
     }
 }
