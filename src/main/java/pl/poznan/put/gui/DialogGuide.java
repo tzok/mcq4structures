@@ -29,7 +29,7 @@ class DialogGuide extends JDialog {
         editorPane.setContentType("text/html");
         editorPane.setEditable(false);
 
-        URL resource = getClass().getResource("/pl/poznan/put/gui/guide.html");
+        URL resource = getClass().getResource("/guide.html");
         try (InputStream stream = resource.openStream()) {
             editorPane.setText(IOUtils.toString(stream, "UTF-8"));
             editorPane.setCaretPosition(0);
