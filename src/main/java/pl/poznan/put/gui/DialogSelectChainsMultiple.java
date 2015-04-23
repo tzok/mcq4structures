@@ -37,7 +37,7 @@ import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-final class DialogChainsMultiple extends JDialog {
+final class DialogSelectChainsMultiple extends JDialog {
     private static class FilteredListModel extends
             AbstractListModel<CompactFragment> {
         private static final long serialVersionUID = 1L;
@@ -137,14 +137,14 @@ final class DialogChainsMultiple extends JDialog {
     private static final int DEFAULT_WIDTH = 800;
     private static final int DEFAULT_HEIGHT = 600;
 
-    private static DialogChainsMultiple instance;
+    private static DialogSelectChainsMultiple instance;
 
-    public static DialogChainsMultiple getInstance(Frame owner) {
-        DialogChainsMultiple inst = DialogChainsMultiple.instance;
+    public static DialogSelectChainsMultiple getInstance(Frame owner) {
+        DialogSelectChainsMultiple inst = DialogSelectChainsMultiple.instance;
         if (inst == null) {
-            inst = new DialogChainsMultiple(owner);
+            inst = new DialogSelectChainsMultiple(owner);
         }
-        DialogChainsMultiple.instance = inst;
+        DialogSelectChainsMultiple.instance = inst;
         return inst;
     }
 
@@ -166,7 +166,7 @@ final class DialogChainsMultiple extends JDialog {
     private int chosenOption;
     private List<CompactFragment> selectedChains = new ArrayList<>();
 
-    private DialogChainsMultiple(Frame owner) {
+    private DialogSelectChainsMultiple(Frame owner) {
         super(owner, true);
         setTitle("MCQ4Structures: multiple chain selection");
         setButtonOkState();
@@ -246,10 +246,10 @@ final class DialogChainsMultiple extends JDialog {
         add(panelOkCancel, BorderLayout.SOUTH);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - DialogChainsMultiple.DEFAULT_WIDTH;
-        int y = screenSize.height - DialogChainsMultiple.DEFAULT_HEIGHT;
-        setSize(DialogChainsMultiple.DEFAULT_WIDTH,
-                DialogChainsMultiple.DEFAULT_HEIGHT);
+        int x = screenSize.width - DialogSelectChainsMultiple.DEFAULT_WIDTH;
+        int y = screenSize.height - DialogSelectChainsMultiple.DEFAULT_HEIGHT;
+        setSize(DialogSelectChainsMultiple.DEFAULT_WIDTH,
+                DialogSelectChainsMultiple.DEFAULT_HEIGHT);
         setLocation(x / 2, y / 2);
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
@@ -326,7 +326,7 @@ final class DialogChainsMultiple extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedChains = modelSelected.getSelectedElements();
-                chosenOption = DialogChainsMultiple.OK;
+                chosenOption = DialogSelectChainsMultiple.OK;
                 dispose();
             }
         });
@@ -334,7 +334,7 @@ final class DialogChainsMultiple extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                chosenOption = DialogChainsMultiple.CANCEL;
+                chosenOption = DialogSelectChainsMultiple.CANCEL;
                 dispose();
             }
         });
@@ -415,7 +415,7 @@ final class DialogChainsMultiple extends JDialog {
 
         listAll.updateUI();
         listSelected.updateUI();
-        chosenOption = DialogChainsMultiple.CANCEL;
+        chosenOption = DialogSelectChainsMultiple.CANCEL;
 
         setVisible(true);
         return chosenOption;

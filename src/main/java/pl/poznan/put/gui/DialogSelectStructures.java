@@ -30,61 +30,54 @@ import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-final class DialogStructures extends JDialog {
+final class DialogSelectStructures extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
+    private static final Dimension INITIAL_STRUCTURE_LIST_SIZE = new Dimension(320, 420);
 
-    private static DialogStructures instance;
+    private final DefaultListModel<Structure> modelAll = new DefaultListModel<>();
+    private final DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
+    private final JList<Structure> listAll = new JList<>(modelAll);
+    private final JList<Structure> listSelected = new JList<>(modelSelected);
+    private final JScrollPane scrollPaneAll = new JScrollPane(listAll);
+    private final JScrollPane scrollPaneSelected = new JScrollPane(listSelected);
 
-    public static DialogStructures getInstance(Frame owner) {
-        DialogStructures inst = DialogStructures.instance;
-        if (inst == null) {
-            inst = new DialogStructures(owner);
+    private final List<Structure> selectedStructures = new ArrayList<>();
+    private final ListCellRenderer<? super Structure> renderer = listAll.getCellRenderer();
+    private final ListCellRenderer<Structure> pdbCellRenderer = new ListCellRenderer<Structure>() {
+        @Override
+        public Component getListCellRendererComponent(
+                JList<? extends Structure> list, Structure value, int index,
+                boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value != null) {
+                label.setText(StructureManager.getName(value));
+            }
+            assert label != null;
+            return label;
         }
-        DialogStructures.instance = inst;
-        return inst;
-    }
-
+    };
+    private final JButton buttonSelect = new JButton("Select ->");
+    private final JButton buttonSelectAll = new JButton("Select all ->");
+    private final JButton buttonDeselect = new JButton("<- Deselect");
+    private final JButton buttonDeselectAll = new JButton("<- Deselect all");
     private final JButton buttonOk = new JButton("OK");
+    private final JButton buttonCancel = new JButton("Cancel");
 
     private int chosenOption;
-    private DefaultListModel<Structure> modelAll = new DefaultListModel<>();
-    private DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
-    private List<Structure> selectedStructures = new ArrayList<>();
 
-    private DialogStructures(Frame owner) {
-        super(owner, true);
+    public DialogSelectStructures(Frame owner) {
+        super(owner, "MCQ4Structures: structure selection", true);
 
-        modelAll = new DefaultListModel<>();
-        final JList<Structure> listAll = new JList<>(modelAll);
         listAll.setBorder(BorderFactory.createTitledBorder("Available structures"));
-        final ListCellRenderer<? super Structure> renderer = listAll.getCellRenderer();
-        modelSelected = new DefaultListModel<>();
-        final JList<Structure> listSelected = new JList<>(modelSelected);
-        listSelected.setBorder(BorderFactory.createTitledBorder("Selected structures"));
-
-        ListCellRenderer<Structure> pdbCellRenderer = new ListCellRenderer<Structure>() {
-            @Override
-            public Component getListCellRendererComponent(
-                    JList<? extends Structure> list, Structure value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value != null) {
-                    label.setText(StructureManager.getName(value));
-                }
-                assert label != null;
-                return label;
-            }
-        };
         listAll.setCellRenderer(pdbCellRenderer);
+        listSelected.setBorder(BorderFactory.createTitledBorder("Selected structures"));
         listSelected.setCellRenderer(pdbCellRenderer);
+        scrollPaneAll.setPreferredSize(DialogSelectStructures.INITIAL_STRUCTURE_LIST_SIZE);
+        scrollPaneSelected.setPreferredSize(DialogSelectStructures.INITIAL_STRUCTURE_LIST_SIZE);
 
-        final JButton buttonSelect = new JButton("Select ->");
         buttonSelect.setEnabled(false);
-        final JButton buttonSelectAll = new JButton("Select all ->");
-        final JButton buttonDeselect = new JButton("<- Deselect");
         buttonDeselect.setEnabled(false);
-        JButton buttonDeselectAll = new JButton("<- Deselect all");
 
         JPanel panelButtons = new JPanel();
         panelButtons.setLayout(new GridBagLayout());
@@ -106,21 +99,16 @@ final class DialogStructures extends JDialog {
         panelMain.setLayout(new GridBagLayout());
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 0.5;
-        constraints.weighty = 0.5;
-        constraints.fill = GridBagConstraints.BOTH;
-        panelMain.add(new JScrollPane(listAll), constraints);
-        constraints.gridx++;
-        constraints.weightx = 0;
+        constraints.weighty = 1;
+        constraints.fill = GridBagConstraints.VERTICAL;
+        panelMain.add(scrollPaneAll, constraints);
+        constraints.gridx = 1;
         constraints.fill = GridBagConstraints.VERTICAL;
         panelMain.add(panelButtons, constraints);
-        constraints.gridx++;
-        constraints.weightx = 0.5;
-        constraints.fill = GridBagConstraints.BOTH;
-        panelMain.add(new JScrollPane(listSelected), constraints);
+        constraints.gridx = 2;
+        constraints.fill = GridBagConstraints.VERTICAL;
+        panelMain.add(scrollPaneSelected, constraints);
 
-        JButton buttonCancel = new JButton("Cancel");
         JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
         panelOkCancel.add(buttonCancel);
@@ -128,16 +116,13 @@ final class DialogStructures extends JDialog {
         setLayout(new BorderLayout());
         add(panelMain, BorderLayout.CENTER);
         add(panelOkCancel, BorderLayout.SOUTH);
+        pack();
 
-        int width = 640;
-        int height = 480;
+        Dimension size = getSize();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - width;
-        int y = screenSize.height - height;
-        setSize(width, height);
+        int x = screenSize.width - size.width;
+        int y = screenSize.height - size.height;
         setLocation(x / 2, y / 2);
-
-        setTitle("MCQ4Structures: structure selection");
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
@@ -146,7 +131,7 @@ final class DialogStructures extends JDialog {
                 ListSelectionModel source = (ListSelectionModel) arg0.getSource();
                 if (source.equals(listAll.getSelectionModel())) {
                     buttonSelect.setEnabled(!listAll.isSelectionEmpty());
-                } else { // source.equals(listSelected)
+                } else if (source.equals(listSelected.getSelectionModel())) {
                     buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
                 }
             }
@@ -157,8 +142,8 @@ final class DialogStructures extends JDialog {
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                List<Structure> values;
-                boolean isSelect;
+                List<Structure> values = Collections.emptyList();
+                boolean isSelect = false;
 
                 assert arg0 != null;
                 Object source = arg0.getSource();
@@ -171,7 +156,7 @@ final class DialogStructures extends JDialog {
                 } else if (source.equals(buttonDeselect)) {
                     values = listSelected.getSelectedValuesList();
                     isSelect = false;
-                } else { // source.equals(buttonDeselectAll)
+                } else if (source.equals(buttonDeselectAll)) {
                     values = Collections.list(modelSelected.elements());
                     isSelect = false;
                 }
@@ -197,8 +182,9 @@ final class DialogStructures extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedStructures = Collections.list(modelSelected.elements());
-                chosenOption = DialogStructures.OK;
+                selectedStructures.clear();
+                selectedStructures.addAll(Collections.list(modelSelected.elements()));
+                chosenOption = DialogSelectStructures.OK;
                 dispose();
             }
         });
@@ -206,30 +192,14 @@ final class DialogStructures extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                chosenOption = DialogStructures.CANCEL;
+                chosenOption = DialogSelectStructures.CANCEL;
                 dispose();
             }
         });
     }
 
-    public String getSelectionDescription() {
-        StringBuilder builder = new StringBuilder();
-        int i = 0;
-        for (Structure s : selectedStructures) {
-            assert s != null;
-            builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
-            builder.append(StructureManager.getName(s));
-            builder.append("</span>, ");
-            i++;
-        }
-        builder.delete(builder.length() - 2, builder.length());
-        String result = builder.toString();
-        assert result != null;
-        return result;
-    }
-
     public List<Structure> getStructures() {
-        return selectedStructures;
+        return Collections.unmodifiableList(selectedStructures);
     }
 
     public int showDialog() {
@@ -256,7 +226,7 @@ final class DialogStructures extends JDialog {
         }
 
         buttonOk.setEnabled(modelSelected.size() > 1);
-        chosenOption = DialogStructures.CANCEL;
+        chosenOption = DialogSelectStructures.CANCEL;
         setVisible(true);
         return chosenOption;
     }

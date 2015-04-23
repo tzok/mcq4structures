@@ -20,9 +20,8 @@ import org.slf4j.LoggerFactory;
 
 class DialogGuide extends JDialog {
     private static final Logger LOGGER = LoggerFactory.getLogger(DialogGuide.class);
-    private static final long serialVersionUID = 1L;
 
-    DialogGuide(Frame owner) {
+    public DialogGuide(Frame owner) {
         super(owner, true);
 
         JEditorPane editorPane = new JEditorPane();

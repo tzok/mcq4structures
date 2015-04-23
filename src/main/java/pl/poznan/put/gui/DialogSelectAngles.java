@@ -31,7 +31,7 @@ import pl.poznan.put.torsion.PseudophasePuckerAngle;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.torsion.type.AverageTorsionAngleType;
 
-final class DialogAngles extends JDialog {
+final class DialogSelectAngles extends JDialog {
     private class AngleCheckBoxActionListener implements ActionListener {
         private final List<JCheckBox> checkBoxes;
 
@@ -63,20 +63,20 @@ final class DialogAngles extends JDialog {
         }
     }
 
-    private static DialogAngles instance;
+    private static DialogSelectAngles instance;
     private static final long serialVersionUID = 1L;
 
-    public static DialogAngles getInstance(Frame owner) {
-        DialogAngles inst = DialogAngles.instance;
+    public static DialogSelectAngles getInstance(Frame owner) {
+        DialogSelectAngles inst = DialogSelectAngles.instance;
         if (inst == null) {
-            inst = new DialogAngles(owner);
+            inst = new DialogSelectAngles(owner);
         }
-        DialogAngles.instance = inst;
+        DialogSelectAngles.instance = inst;
         return inst;
     }
 
     public static void selectAngles() {
-        DialogAngles inst = DialogAngles.instance;
+        DialogSelectAngles inst = DialogSelectAngles.instance;
         if (inst != null) {
             inst.setVisible(true);
         }
@@ -103,7 +103,7 @@ final class DialogAngles extends JDialog {
         }
     };
 
-    private DialogAngles(Frame owner) {
+    private DialogSelectAngles(Frame owner) {
         super(owner, true);
 
         final JPanel panelAnglesAmino = new JPanel();

@@ -27,23 +27,10 @@ import org.biojava.bio.structure.Structure;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogManager extends JDialog {
-    private static DialogManager instance;
+    private final DefaultListModel<File> model = new DefaultListModel<>();
 
-    private static final long serialVersionUID = 1L;
-
-    static DialogManager getInstance(Frame owner) {
-        DialogManager inst = DialogManager.instance;
-        if (inst == null) {
-            inst = new DialogManager(owner);
-        }
-        DialogManager.instance = inst;
-        return inst;
-    }
-
-    DefaultListModel<File> model = new DefaultListModel<>();
-
-    private DialogManager(Frame parent) {
-        super(parent);
+    public DialogManager(Frame parent) {
+        super(parent, "MCQ4Structures: structure manager");
 
         final JList<File> list = new JList<>(model);
         list.setBorder(BorderFactory.createTitledBorder("List of open structures"));
@@ -72,25 +59,19 @@ final class DialogManager extends JDialog {
         getRootPane().setDefaultButton(buttonFetch);
 
         fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId.getPreferredSize().height));
+        pack();
 
-        int width = 480;
-        int height = 480;
+        Dimension size = getSize();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - width;
-        int y = screenSize.height - height;
-        setSize(width, height);
+        int x = screenSize.width - size.width;
+        int y = screenSize.height - size.height;
         setLocation(x / 2, y / 2);
-
         setAlwaysOnTop(true);
-        setTitle("MCQ4Structures: structure manager");
 
         buttonOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                File[] files = PdbChooser.getSelectedFiles(DialogManager.this);
-                for (File f : files) {
-                    loadStructure(f);
-                }
+                selectAndLoadStructures();
             }
         });
 
@@ -124,13 +105,21 @@ final class DialogManager extends JDialog {
         return model.elements();
     }
 
-    void loadStructure(File file) {
-        try {
-            if (StructureManager.loadStructure(file).size() > 0) {
-                model.addElement(file);
+    public void selectAndLoadStructures() {
+        PdbChooser pdbChooser = PdbChooser.getInstance();
+        List<File> files = pdbChooser.selectFiles(DialogManager.this);
+        loadStructures(files);
+    }
+
+    public void loadStructures(List<File> files) {
+        for (File file : files) {
+            try {
+                if (StructureManager.loadStructure(file).size() > 0) {
+                    model.addElement(file);
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error: " + e.getClass(), JOptionPane.ERROR_MESSAGE);
             }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(DialogManager.instance, e.getMessage(), "Error: " + e.getClass(), JOptionPane.ERROR_MESSAGE);
         }
     }
 }

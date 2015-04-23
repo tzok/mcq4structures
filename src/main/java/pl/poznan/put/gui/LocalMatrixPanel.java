@@ -1,6 +1,7 @@
 package pl.poznan.put.gui;
 
 import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -12,14 +13,22 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
+import org.apache.commons.lang3.tuple.Pair;
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Structure;
 
-public class MatrixPanel extends JPanel implements ComparisonListener {
+import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
+import pl.poznan.put.structure.tertiary.StructureManager;
+
+public class LocalMatrixPanel extends JPanel implements ComparisonListener {
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar();
 
-    public MatrixPanel() {
+    private Pair<Structure, Structure> structures;
+    private Pair<List<Chain>, List<Chain>> chains;
+
+    public LocalMatrixPanel() {
         super(new BorderLayout());
 
         labelInfoMatrix.setBorder(new EmptyBorder(10, 10, 10, 0));
@@ -42,10 +51,41 @@ public class MatrixPanel extends JPanel implements ComparisonListener {
         add(panelProgressBar, BorderLayout.SOUTH);
     }
 
+    public void setStructuresAndChains(Pair<Structure, Structure> structures,
+            Pair<List<Chain>, List<Chain>> chains) {
+        this.structures = structures;
+        this.chains = chains;
+        updateHeader();
+    }
+
     @Override
     public void stateChanged(long all, long completed) {
         progressBar.setMaximum((int) all);
         progressBar.setValue((int) completed);
     }
 
+    public void updateHeader() {
+        Structure left = structures.getLeft();
+        Structure right = structures.getRight();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("<span style=\"color: blue\">");
+        builder.append(StructureManager.getName(left));
+        builder.append('.');
+
+        for (Chain chain : chains.getLeft()) {
+            builder.append(chain.getChainID());
+        }
+
+        builder.append("</span>, <span style=\"color: green\">");
+        builder.append(StructureManager.getName(right));
+        builder.append('.');
+
+        for (Chain chain : chains.getRight()) {
+            builder.append(chain.getChainID());
+        }
+
+        builder.append("</span>");
+        labelInfoMatrix.setText("<html>Structures selected for local distance measure: " + builder.toString() + "</html>");
+    }
 }

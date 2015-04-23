@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -30,10 +31,15 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Structure;
+
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.structure.tertiary.StructureManager;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
@@ -43,7 +49,8 @@ public class MainWindow extends JFrame {
 
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
-    private static final String CARD_MATRIX = "CARD_MATRIX";
+    private static final String CARD_GLOBAL_MATRIX = "CARD_GLOBAL_MATRIX";
+    private static final String CARD_LOCAL_MATRIX = "CARD_LOCAL_MATRIX";
     private static final String TITLE = "MCQ4Structures: computing similarity of 3D RNA / protein structures";
 
     private final TableCellRenderer colorsRenderer = new DefaultTableCellRenderer() {
@@ -95,22 +102,34 @@ public class MainWindow extends JFrame {
 
     private final CardLayout layoutCards = new CardLayout();
     private final JPanel panelCards = new JPanel();
-    private final MatrixPanel panelResultsMatrix = new MatrixPanel();
+    private final GlobalMatrixPanel panelResultsGlobalMatrix = new GlobalMatrixPanel();
+    private final LocalMatrixPanel panelResultsLocalMatrix = new LocalMatrixPanel();
     private final SequenceAlignmentPanel panelResultsAlignSeq = new SequenceAlignmentPanel();
     private final StructureAlignmentPanel panelResultsAlignStruc = new StructureAlignmentPanel();
+
+    private final PdbChooser pdbChooser = PdbChooser.getInstance();
+    private final DialogManager dialogManager;
+    private final DialogSelectStructures dialogStructures;
+    private final DialogSelectChains dialogChains;
 
     private Clusterable clusterable;
     private Exportable exportable;
     private Visualizable visualizable;
 
-    public MainWindow() {
+    public MainWindow(List<File> pdbs) {
         super();
+
+        dialogStructures = new DialogSelectStructures(this);
+        dialogChains = new DialogSelectChains(this);
+        dialogManager = new DialogManager(this);
+        dialogManager.loadStructures(pdbs);
 
         createMenu();
 
         panelCards.setLayout(layoutCards);
         panelCards.add(new JPanel());
-        panelCards.add(panelResultsMatrix, MainWindow.CARD_MATRIX);
+        panelCards.add(panelResultsGlobalMatrix, MainWindow.CARD_GLOBAL_MATRIX);
+        panelCards.add(panelResultsLocalMatrix, MainWindow.CARD_LOCAL_MATRIX);
         panelCards.add(panelResultsAlignSeq, MainWindow.CARD_ALIGN_SEQ);
         panelCards.add(panelResultsAlignStruc, MainWindow.CARD_ALIGN_STRUC);
 
@@ -125,7 +144,7 @@ public class MainWindow extends JFrame {
         setSize(size.width * 3 / 4, size.height * 3 / 4);
         setLocation(size.width / 8, size.height / 8);
 
-        DialogManager.getInstance(this).addWindowListener(new WindowAdapter() {
+        dialogManager.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
@@ -201,38 +220,21 @@ public class MainWindow extends JFrame {
         itemOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                File[] files = PdbChooser.getSelectedFiles(MainWindow.this);
-                for (File f : files) {
-                    DialogManager.getInstance(MainWindow.this).loadStructure(f);
-                }
+                dialogManager.selectAndLoadStructures();
             }
         });
 
         itemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Exportable exportableLocal = exportable;
-                if (exportableLocal != null) {
-                    JFileChooser chooser = new JFileChooser(PdbChooser.getCurrentDirectory());
-                    chooser.setSelectedFile(exportableLocal.suggestName());
-                    int option = chooser.showSaveDialog(MainWindow.this);
-                    if (option == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            exportableLocal.export(chooser.getSelectedFile());
-                            JOptionPane.showMessageDialog(MainWindow.this, "Successfully exported the results!", "Information", JOptionPane.INFORMATION_MESSAGE);
-                        } catch (IOException exception) {
-                            String message = "Failed to export results, reason: " + exception.getMessage();
-                            JOptionPane.showMessageDialog(MainWindow.this, message, "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                }
+                saveResults();
             }
         });
 
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DialogManager.getInstance(MainWindow.this).setVisible(checkBoxManager.isSelected());
+                dialogManager.setVisible(checkBoxManager.isSelected());
             }
         });
 
@@ -272,7 +274,7 @@ public class MainWindow extends JFrame {
         itemSelectTorsion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                DialogAngles.selectAngles();
+                DialogSelectAngles.selectAngles();
             }
         });
 
@@ -317,9 +319,8 @@ public class MainWindow extends JFrame {
         itemVisualise.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Visualizable visualizable2 = visualizable;
-                if (visualizable2 != null) {
-                    visualizable2.visualize();
+                if (visualizable != null) {
+                    visualizable.visualize();
                 }
             }
         });
@@ -327,9 +328,8 @@ public class MainWindow extends JFrame {
         itemVisualise3D.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Visualizable visualizable2 = visualizable;
-                if (visualizable2 != null) {
-                    visualizable2.visualize3D();
+                if (visualizable != null) {
+                    visualizable.visualize3D();
                 }
             }
         });
@@ -337,9 +337,8 @@ public class MainWindow extends JFrame {
         itemCluster.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                final Clusterable clusterable2 = clusterable;
-                if (clusterable2 != null) {
-                    clusterable2.cluster();
+                if (clusterable != null) {
+                    clusterable.cluster();
                 }
             }
         });
@@ -677,50 +676,40 @@ public class MainWindow extends JFrame {
     }
 
     void selectChains(Object source) {
-        // TODO
-        // if (dialogChains.showDialog() != DialogChains.OK) {
-        // return;
-        // }
-        //
-        // Pair<Structure, Structure> structures = dialogChains.getStructures();
-        // Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
-        // if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
-        // String message = "No chains specified for structure: " +
-        // StructureManager.getName(structures.getLeft()) + " or " +
-        // StructureManager.getName(structures.getRight());
-        // JOptionPane.showMessageDialog(MainWindow.this, message,
-        // "Information", JOptionPane.INFORMATION_MESSAGE);
-        // return;
-        // }
-        //
-        // if (source.equals(itemSelectStructuresCompare)) {
-        // tableMatrix.setModel(new DefaultTableModel());
-        // layoutCards.show(panelCards, MainWindow.CARD_MATRIX);
-        //
-        // itemSave.setEnabled(false);
-        // itemComputeDistances.setEnabled(true);
-        // itemVisualise.setEnabled(false);
-        // itemVisualise3D.setEnabled(false);
-        // itemCluster.setEnabled(false);
-        // itemComputeAlign.setEnabled(false);
-        //
-        // labelInfoMatrix.setText("<html>Structures selected for local distance measure: "
-        // + dialogChains.getSelectionDescription() + "</html>");
-        // } else { // source.equals(itemSelectChainsAlignStruc)
-        // panelJmolLeft.executeCmd("restore state " + "state_init");
-        // panelJmolRight.executeCmd("restore state " + "state_init");
-        // layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
-        //
-        // itemSave.setEnabled(false);
-        // itemComputeDistances.setEnabled(false);
-        // itemVisualise.setEnabled(false);
-        // itemVisualise3D.setEnabled(false);
-        // itemCluster.setEnabled(false);
-        // itemComputeAlign.setEnabled(true);
-        //
-        // labelInfoAlignStruc.setText("<html>Structures selected for 3D structure alignment: "
-        // + dialogChains.getSelectionDescription() + "</html>");
-        // }
+        if (dialogChains.showDialog() != DialogSelectChains.OK) {
+            return;
+        }
+
+        Pair<Structure, Structure> structures = dialogChains.getStructures();
+        Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
+
+        if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
+            String message = "No chains specified for structure: " + StructureManager.getName(structures.getLeft()) + " or " + StructureManager.getName(structures.getRight());
+            JOptionPane.showMessageDialog(MainWindow.this, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        if (source.equals(itemSelectStructuresCompare)) {
+            itemSave.setEnabled(false);
+            itemComputeDistances.setEnabled(true);
+            itemVisualise.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
+            itemCluster.setEnabled(false);
+            itemComputeAlign.setEnabled(false);
+
+            panelResultsLocalMatrix.setStructuresAndChains(structures, chains);
+            layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
+        } else if (source.equals(itemSelectStructuresAlign)) {
+            itemSave.setEnabled(false);
+            itemComputeDistances.setEnabled(false);
+            itemVisualise.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
+            itemCluster.setEnabled(false);
+            itemComputeAlign.setEnabled(true);
+
+            panelResultsAlignStruc.setStructuresAndChains(structures, chains);
+            layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
+        }
     }
 
     void selectChainsMultiple(Object source) {
@@ -779,30 +768,39 @@ public class MainWindow extends JFrame {
     }
 
     void selectStructures() {
-        // TODO
-        // if (dialogStructures.showDialog() != DialogStructures.OK) {
-        // return;
-        // }
-        // List<Structure> structures = dialogStructures.getStructures();
-        // if (structures.size() < 2) {
-        // JOptionPane.showMessageDialog(MainWindow.this, "At " +
-        // "least two structures must be selected to " +
-        // "compute global distance", "Information",
-        // JOptionPane.INFORMATION_MESSAGE);
-        // return;
-        // }
-        //
-        // tableMatrix.setModel(new DefaultTableModel());
-        // layoutCards.show(panelCards, MainWindow.CARD_MATRIX);
-        //
-        // itemSave.setEnabled(false);
-        // itemComputeDistances.setEnabled(true);
-        // itemVisualise.setEnabled(false);
-        // itemVisualise3D.setEnabled(false);
-        // itemCluster.setEnabled(false);
-        //
-        // labelInfoMatrix.setText("<html>Structures selected for global distance "
-        // + "measure: " + dialogStructures.getSelectionDescription() +
-        // "</html>");
+        if (dialogStructures.showDialog() != DialogSelectStructures.OK) {
+            return;
+        }
+
+        List<Structure> structures = dialogStructures.getStructures();
+        if (structures.size() < 2) {
+            JOptionPane.showMessageDialog(MainWindow.this, "At least two structures must be selected to compute global distance", "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        itemSave.setEnabled(false);
+        itemComputeDistances.setEnabled(true);
+        itemVisualise.setEnabled(false);
+        itemVisualise3D.setEnabled(false);
+        itemCluster.setEnabled(false);
+
+        panelResultsGlobalMatrix.setStructures(structures);
+        layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+    }
+
+    private void saveResults() {
+        if (exportable != null) {
+            pdbChooser.setSelectedFile(exportable.suggestName());
+            int option = pdbChooser.showSaveDialog(MainWindow.this);
+
+            if (option == JFileChooser.APPROVE_OPTION) {
+                try {
+                    exportable.export(pdbChooser.getSelectedFile());
+                    JOptionPane.showMessageDialog(MainWindow.this, "Successfully exported the results!", "Information", JOptionPane.INFORMATION_MESSAGE);
+                } catch (IOException exception) {
+                    JOptionPane.showMessageDialog(MainWindow.this, "Failed to export results, reason: " + exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
     }
 }

@@ -48,13 +48,7 @@ class Gui extends JFrame {
                     }
                 }
 
-                MainWindow window = new MainWindow();
-
-                DialogManager instance = DialogManager.getInstance(window);
-                for (File pdb : pdbs) {
-                    instance.loadStructure(pdb);
-                }
-
+                MainWindow window = new MainWindow(pdbs);
                 window.setVisible(true);
             }
         });
