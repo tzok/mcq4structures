@@ -2,8 +2,8 @@ package pl.poznan.put.comparison;
 
 import java.util.List;
 
-import pl.poznan.put.matching.CompactFragment;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 /**
  * An abstraction for any local comparison measure.
@@ -14,7 +14,7 @@ public interface LocalComparator {
     LocalComparisonResult comparePair(StructureSelection target,
             StructureSelection model) throws IncomparableStructuresException;
 
-    ModelsComparisonResult compareModels(CompactFragment target,
-            List<CompactFragment> models)
+    ModelsComparisonResult compareModels(PdbCompactFragment target,
+            List<PdbCompactFragment> models)
             throws IncomparableStructuresException;
 }

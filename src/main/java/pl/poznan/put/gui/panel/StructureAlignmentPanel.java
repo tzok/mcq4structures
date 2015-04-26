@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;

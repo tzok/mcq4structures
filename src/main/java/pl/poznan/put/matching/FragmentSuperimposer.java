@@ -13,6 +13,7 @@ import org.biojava.bio.structure.StructureException;
 import pl.poznan.put.atom.AtomName;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.common.ResidueType;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.structure.tertiary.StructureHelper;
 
 public class FragmentSuperimposer {
@@ -57,8 +58,8 @@ public class FragmentSuperimposer {
             List<Atom> atomsModel = new ArrayList<>();
 
             for (ResidueComparison residueComparison : fragmentComparison) {
-                ResidueAngles targetAngles = residueComparison.getTargetAngles();
-                ResidueAngles modelAngles = residueComparison.getModelAngles();
+                PdbResidueTorsionAngleValues targetAngles = residueComparison.getTargetAngles();
+                PdbResidueTorsionAngleValues modelAngles = residueComparison.getModelAngles();
                 ResidueType residueType = targetAngles.getResidueType();
                 MoleculeType chainType = residueType.getChainType();
                 AtomName[] atoms = chainType.getBackboneAtoms();
@@ -127,13 +128,13 @@ public class FragmentSuperimposer {
     public FragmentSuperposition getWhole() {
         StructureSelection target = selectionMatch.getTarget();
         StructureSelection model = selectionMatch.getModel();
-        List<CompactFragment> targetFragments = Arrays.asList(target.getCompactFragments());
-        List<CompactFragment> modelFragments = new ArrayList<>();
+        List<PdbCompactFragment> targetFragments = Arrays.asList(target.getCompactFragments());
+        List<PdbCompactFragment> modelFragments = new ArrayList<>();
 
-        for (CompactFragment fragment : model.getCompactFragments()) {
-            CompactFragment modifiedFragment = new CompactFragment(model, fragment.getMoleculeType());
+        for (PdbCompactFragment fragment : model.getCompactFragments()) {
+            PdbCompactFragment modifiedFragment = new PdbCompactFragment(model, fragment.getMoleculeType());
 
-            for (int i = 0; i < fragment.getSize(); i++) {
+            for (int i = 0; i < fragment.size(); i++) {
                 Group group = fragment.getGroup(i);
                 List<Atom> fragmentClones = new ArrayList<>();
 
@@ -146,7 +147,7 @@ public class FragmentSuperimposer {
 
                 Group groupClone = (Group) group.clone();
                 groupClone.setAtoms(fragmentClones);
-                modifiedFragment.addGroup(groupClone);
+                modifiedFragment.addResidue(groupClone);
             }
 
             modelFragments.add(modifiedFragment);
@@ -156,22 +157,22 @@ public class FragmentSuperimposer {
     }
 
     public FragmentSuperposition getMatched() {
-        List<CompactFragment> newFragmentsL = new ArrayList<>();
-        List<CompactFragment> newFragmentsR = new ArrayList<>();
+        List<PdbCompactFragment> newFragmentsL = new ArrayList<>();
+        List<PdbCompactFragment> newFragmentsR = new ArrayList<>();
 
         for (int i = 0; i < selectionMatch.getSize(); i++) {
             FragmentMatch fragmentMatch = selectionMatch.getFragmentMatch(i);
             FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
 
             MoleculeType moleculeType = fragmentMatch.getMoleculeType();
-            CompactFragment fragmentL = new CompactFragment(selectionMatch.getTarget(), moleculeType);
-            CompactFragment fragmentR = new CompactFragment(selectionMatch.getModel(), moleculeType);
+            PdbCompactFragment fragmentL = new PdbCompactFragment(selectionMatch.getTarget(), moleculeType);
+            PdbCompactFragment fragmentR = new PdbCompactFragment(selectionMatch.getModel(), moleculeType);
 
             for (ResidueComparison residueComparison : fragmentComparison) {
-                ResidueAngles targetAngles = residueComparison.getTargetAngles();
-                fragmentL.addGroup(targetAngles.getGroup());
+                PdbResidueTorsionAngleValues targetAngles = residueComparison.getTargetAngles();
+                fragmentL.addResidue(targetAngles.getGroup());
 
-                ResidueAngles modelAngles = residueComparison.getModelAngles();
+                PdbResidueTorsionAngleValues modelAngles = residueComparison.getModelAngles();
                 Group group = modelAngles.getGroup();
                 List<Atom> fragmentClones = new ArrayList<>();
 
@@ -184,7 +185,7 @@ public class FragmentSuperimposer {
 
                 Group groupClone = (Group) group.clone();
                 groupClone.setAtoms(fragmentClones);
-                fragmentR.addGroup(groupClone);
+                fragmentR.addResidue(groupClone);
             }
 
             newFragmentsL.add(fragmentL);

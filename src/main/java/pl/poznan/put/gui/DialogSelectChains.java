@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 
+import pl.poznan.put.gui.panel.ChainsPanel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogSelectChains extends JDialog {
@@ -34,8 +35,8 @@ final class DialogSelectChains extends JDialog {
         }
     };
 
-    private final PanelChains panelsChainsLeft = new PanelChains(actionListener);
-    private final PanelChains panelsChainsRight = new PanelChains(actionListener);
+    private final ChainsPanel panelsChainsLeft = new ChainsPanel(actionListener);
+    private final ChainsPanel panelsChainsRight = new ChainsPanel(actionListener);
     private final JButton buttonOk = new JButton("OK");
     private final JButton buttonCancel = new JButton("Cancel");
 
@@ -127,7 +128,7 @@ final class DialogSelectChains extends JDialog {
         buttonOk.setEnabled(flag);
     }
 
-    private static boolean isAnyChainSelected(PanelChains panelsChains) {
+    private static boolean isAnyChainSelected(ChainsPanel panelsChains) {
         for (JPanel panel : new JPanel[] { panelsChains.getRnaPanel(), panelsChains.getProteinPanel() }) {
             for (Component component : panel.getComponents()) {
                 if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {

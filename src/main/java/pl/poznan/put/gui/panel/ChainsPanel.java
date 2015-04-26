@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -28,13 +28,13 @@ import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-public class PanelChains extends JPanel {
+public class ChainsPanel extends JPanel {
     private final DefaultComboBoxModel<Structure> structureComboBoxModel = new DefaultComboBoxModel<>();
     private final JComboBox<Structure> structureComboBox = new JComboBox<>(structureComboBoxModel);
     private final JPanel rnaPanel = new JPanel();
     private final JPanel proteinPanel = new JPanel();
 
-    public PanelChains(final ActionListener actionListener) {
+    public ChainsPanel(final ActionListener actionListener) {
         super(new BorderLayout());
 
         rnaPanel.setLayout(new BoxLayout(rnaPanel, BoxLayout.Y_AXIS));

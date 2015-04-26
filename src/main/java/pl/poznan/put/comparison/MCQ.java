@@ -7,21 +7,21 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.matching.AngleDelta;
-import pl.poznan.put.matching.CompactFragment;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.matching.AngleDelta.State;
 import pl.poznan.put.nucleic.RNAChiTorsionAngle;
 import pl.poznan.put.nucleic.RNATorsionAngle;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.protein.ProteinChiTorsionAngle;
 import pl.poznan.put.protein.ProteinTorsionAngle;
+import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.torsion.TorsionAnglesHelper;
+import pl.poznan.put.torsion.TorsionAngleDelta.State;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -76,7 +76,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
             for (ResidueComparison residueComparison : fragmentComparison) {
                 for (TorsionAngle torsionAngle : angles) {
-                    AngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
+                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta != null
                             && angleDelta.getState() == State.BOTH_VALID) {
@@ -99,15 +99,15 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public ModelsComparisonResult compareModels(CompactFragment reference,
-            List<CompactFragment> models)
+    public ModelsComparisonResult compareModels(PdbCompactFragment reference,
+            List<PdbCompactFragment> models)
             throws IncomparableStructuresException {
         /*
          * Sanity check
          */
-        for (CompactFragment fragment : models) {
+        for (PdbCompactFragment fragment : models) {
             if (fragment.getMoleculeType() != reference.getMoleculeType()
-                    || fragment.getSize() != reference.getSize()) {
+                    || fragment.size() != reference.size()) {
                 throw new IncomparableStructuresException("All models must "
                         + "be of the same type and size as the reference "
                         + "structure");
@@ -117,7 +117,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
         MCQMatcher matcher = new MCQMatcher(angles);
         List<FragmentMatch> matches = new ArrayList<>();
 
-        for (CompactFragment fragment : models) {
+        for (PdbCompactFragment fragment : models) {
             matches.add(matcher.matchFragments(reference, fragment));
         }
 

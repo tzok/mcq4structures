@@ -35,10 +35,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 
+import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.constant.Colors;
+import pl.poznan.put.gui.panel.GlobalMatrixPanel;
+import pl.poznan.put.gui.panel.LocalMatrixPanel;
+import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
+import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
+import pl.poznan.put.gui.panel.StructureAlignmentPanel;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
@@ -51,6 +58,7 @@ public class MainWindow extends JFrame {
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
     private static final String CARD_GLOBAL_MATRIX = "CARD_GLOBAL_MATRIX";
     private static final String CARD_LOCAL_MATRIX = "CARD_LOCAL_MATRIX";
+    private static final String CARD_LOCAL_MULTI_MATRIX = "CARD_LOCAL_MULTI_MATRIX";
     private static final String TITLE = "MCQ4Structures: computing similarity of 3D RNA / protein structures";
 
     private final TableCellRenderer colorsRenderer = new DefaultTableCellRenderer() {
@@ -104,6 +112,7 @@ public class MainWindow extends JFrame {
     private final JPanel panelCards = new JPanel();
     private final GlobalMatrixPanel panelResultsGlobalMatrix = new GlobalMatrixPanel();
     private final LocalMatrixPanel panelResultsLocalMatrix = new LocalMatrixPanel();
+    private final LocalMultiMatrixPanel panelResultsLocalMultiMatrix = new LocalMultiMatrixPanel();
     private final SequenceAlignmentPanel panelResultsAlignSeq = new SequenceAlignmentPanel();
     private final StructureAlignmentPanel panelResultsAlignStruc = new StructureAlignmentPanel();
 
@@ -111,6 +120,7 @@ public class MainWindow extends JFrame {
     private final DialogManager dialogManager;
     private final DialogSelectStructures dialogStructures;
     private final DialogSelectChains dialogChains;
+    private DialogSelectChainsMultiple dialogChainsMultiple;
 
     private Clusterable clusterable;
     private Exportable exportable;
@@ -119,17 +129,19 @@ public class MainWindow extends JFrame {
     public MainWindow(List<File> pdbs) {
         super();
 
+        dialogManager = new DialogManager(this);
         dialogStructures = new DialogSelectStructures(this);
         dialogChains = new DialogSelectChains(this);
-        dialogManager = new DialogManager(this);
-        dialogManager.loadStructures(pdbs);
+        dialogChainsMultiple = new DialogSelectChainsMultiple(this);
 
+        dialogManager.loadStructures(pdbs);
         createMenu();
 
         panelCards.setLayout(layoutCards);
         panelCards.add(new JPanel());
         panelCards.add(panelResultsGlobalMatrix, MainWindow.CARD_GLOBAL_MATRIX);
         panelCards.add(panelResultsLocalMatrix, MainWindow.CARD_LOCAL_MATRIX);
+        panelCards.add(panelResultsLocalMultiMatrix, MainWindow.CARD_LOCAL_MULTI_MATRIX);
         panelCards.add(panelResultsAlignSeq, MainWindow.CARD_ALIGN_SEQ);
         panelCards.add(panelResultsAlignStruc, MainWindow.CARD_ALIGN_STRUC);
 
@@ -675,6 +687,27 @@ public class MainWindow extends JFrame {
         // "Local distance vector(s):" + "</html>");
     }
 
+    void selectStructures() {
+        if (dialogStructures.showDialog() != DialogSelectStructures.OK) {
+            return;
+        }
+
+        List<Structure> structures = dialogStructures.getStructures();
+        if (structures.size() < 2) {
+            JOptionPane.showMessageDialog(MainWindow.this, "At least two structures must be selected to compute global distance", "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        itemSave.setEnabled(false);
+        itemComputeDistances.setEnabled(true);
+        itemVisualise.setEnabled(false);
+        itemVisualise3D.setEnabled(false);
+        itemCluster.setEnabled(false);
+
+        panelResultsGlobalMatrix.setStructures(structures);
+        layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+    }
+
     void selectChains(Object source) {
         if (dialogChains.showDialog() != DialogSelectChains.OK) {
             return;
@@ -713,79 +746,46 @@ public class MainWindow extends JFrame {
     }
 
     void selectChainsMultiple(Object source) {
-        // TODO
-        // if (dialogChainsMultiple.showDialog() != DialogChainsMultiple.OK) {
-        // return;
-        // }
-        //
-        // if (dialogChainsMultiple.getChains().size() < 2) {
-        // JOptionPane.showMessageDialog(this,
-        // "You have to select at least two chains", "Warning",
-        // JOptionPane.WARNING_MESSAGE);
-        // return;
-        // }
-        //
-        // List<CompactFragment> selections = dialogChainsMultiple.getChains();
-        // MoleculeType type = selections.get(0).getMoleculeType();
-        //
-        // for (CompactFragment c : selections) {
-        // if (type != c.getMoleculeType()) {
-        // JOptionPane.showMessageDialog(this, "Cannot align/compare " +
-        // "structures: different types", "Error", JOptionPane.ERROR_MESSAGE);
-        // return;
-        // }
-        // }
-        //
-        // if (source.equals(itemSelectStructuresCompare)) {
-        // tableMatrix.setModel(new DefaultTableModel());
-        // layoutCards.show(panelCards, MainWindow.CARD_MATRIX);
-        //
-        // itemSave.setEnabled(false);
-        // itemComputeDistances.setEnabled(true);
-        // itemVisualise.setEnabled(false);
-        // itemVisualise3D.setEnabled(false);
-        // itemCluster.setEnabled(false);
-        // itemComputeAlign.setEnabled(false);
-        //
-        // labelInfoMatrix.setText("<html>Structures selected for local distance measure: "
-        // + dialogChainsMultiple.getSelectionDescription() + "</html>");
-        // } else { // source.equals(itemSelectStructuresAlign)
-        // textAreaAlignSeq.setText("");
-        // layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
-        //
-        // itemSave.setEnabled(false);
-        // itemComputeDistances.setEnabled(false);
-        // itemVisualise.setEnabled(false);
-        // itemVisualise3D.setEnabled(false);
-        // itemCluster.setEnabled(false);
-        // itemComputeAlign.setEnabled(true);
-        //
-        // labelInfoAlignSeq.setText("<html>Structures selected for " +
-        // (radioAlignSeqGlobal.isSelected() ? "global" : "local") +
-        // " sequence alignment: " +
-        // dialogChainsMultiple.getSelectionDescription() + "</html>");
-        // }
-    }
-
-    void selectStructures() {
-        if (dialogStructures.showDialog() != DialogSelectStructures.OK) {
+        if (dialogChainsMultiple.showDialog() != DialogSelectChainsMultiple.OK) {
             return;
         }
 
-        List<Structure> structures = dialogStructures.getStructures();
-        if (structures.size() < 2) {
-            JOptionPane.showMessageDialog(MainWindow.this, "At least two structures must be selected to compute global distance", "Information", JOptionPane.INFORMATION_MESSAGE);
+        if (dialogChainsMultiple.getChains().size() < 2) {
+            JOptionPane.showMessageDialog(this, "You have to select at least two chains", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        itemSave.setEnabled(false);
-        itemComputeDistances.setEnabled(true);
-        itemVisualise.setEnabled(false);
-        itemVisualise3D.setEnabled(false);
-        itemCluster.setEnabled(false);
+        List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
+        MoleculeType type = fragments.get(0).getMoleculeType();
 
-        panelResultsGlobalMatrix.setStructures(structures);
-        layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+        for (PdbCompactFragment c : fragments) {
+            if (type != c.getMoleculeType()) {
+                JOptionPane.showMessageDialog(this, "Cannot align/compare structures: different types", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        if (source.equals(itemSelectStructuresCompare)) {
+            itemSave.setEnabled(false);
+            itemComputeDistances.setEnabled(true);
+            itemVisualise.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
+            itemCluster.setEnabled(false);
+            itemComputeAlign.setEnabled(false);
+
+            panelResultsLocalMultiMatrix.setFragments(fragments);
+            layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
+        } else if (source.equals(itemSelectStructuresAlign)) {
+            itemSave.setEnabled(false);
+            itemComputeDistances.setEnabled(false);
+            itemVisualise.setEnabled(false);
+            itemVisualise3D.setEnabled(false);
+            itemCluster.setEnabled(false);
+            itemComputeAlign.setEnabled(true);
+
+            panelResultsAlignSeq.setFragments(fragments, radioAlignSeqGlobal.isSelected());
+            layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+        }
     }
 
     private void saveResults() {

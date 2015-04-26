@@ -12,10 +12,10 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.constant.Colors;
-import pl.poznan.put.matching.AngleDelta;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
+import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.AngleFormat;
 
 public class FragmentMatchChart {
@@ -25,14 +25,14 @@ public class FragmentMatchChart {
         FragmentComparison comparison = match.getFragmentComparison();
 
         int i = 0;
-        for (TorsionAngle angle : comparison.getAngles()) {
+        for (TorsionAngle angle : comparison.getAngleTypes()) {
             double[][] data = new double[2][];
-            data[0] = new double[comparison.getSize()];
-            data[1] = new double[comparison.getSize()];
+            data[0] = new double[comparison.size()];
+            data[1] = new double[comparison.size()];
 
             int j = 0;
             for (ResidueComparison residue : comparison) {
-                AngleDelta delta = residue.getAngleDelta(angle);
+                TorsionAngleDelta delta = residue.getAngleDelta(angle);
                 data[0][j] = j;
 
                 if (delta.getState() == State.BOTH_VALID) {

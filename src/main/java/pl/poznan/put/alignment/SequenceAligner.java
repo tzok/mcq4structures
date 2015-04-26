@@ -26,31 +26,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.matching.CompactFragment;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
-/**
- * A class which allows to compute a global or local sequence alignment.
- *
- * @author tzok
- *
- */
 public final class SequenceAligner {
     private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAligner.class);
 
-    private final List<CompactFragment> fragments;
+    private final List<PdbCompactFragment> fragments;
     private final boolean isGlobal;
     private final String title;
     private final MoleculeType moleculeType;
     private final PairwiseSequenceScorerType type;
     private final SubstitutionMatrix<? extends AbstractCompound> substitutionMatrix;
 
-    public SequenceAligner(List<CompactFragment> fragments, boolean isGlobal) {
+    public SequenceAligner(List<PdbCompactFragment> fragments, boolean isGlobal) {
         super();
         this.fragments = fragments;
         this.isGlobal = isGlobal;
 
         StringBuilder builder = new StringBuilder();
-        for (CompactFragment fragment : fragments) {
+        for (PdbCompactFragment fragment : fragments) {
             builder.append(fragment.getParentName());
             builder.append(", ");
         }
@@ -60,7 +54,6 @@ public final class SequenceAligner {
         moleculeType = fragments.get(0).getMoleculeType();
         type = isGlobal ? PairwiseSequenceScorerType.GLOBAL : PairwiseSequenceScorerType.LOCAL;
         substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix() : SequenceAligner.getProteinSubstitutionMatrix();
-
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -70,10 +63,10 @@ public final class SequenceAligner {
         }
 
         List<AbstractSequence> sequences = new ArrayList<>();
-        Map<AbstractSequence, CompactFragment> mapSequenceName = new HashMap<>();
+        Map<AbstractSequence, PdbCompactFragment> mapSequenceName = new HashMap<>();
 
-        for (CompactFragment fragment : fragments) {
-            String string = Sequence.fromCompactFragment(fragment).toString();
+        for (PdbCompactFragment fragment : fragments) {
+            String string = fragment.toSequence();
             AbstractSequence sequence;
 
             if (moleculeType == MoleculeType.RNA) {
@@ -114,7 +107,7 @@ public final class SequenceAligner {
                 AlignedSequence alignedSequence = alignedSequences.get(j);
                 AbstractSequence sequence = (AbstractSequence) alignedSequence.getOriginalSequence();
 
-                CompactFragment fragment = mapSequenceName.get(sequence);
+                PdbCompactFragment fragment = mapSequenceName.get(sequence);
                 String name = fragment.getParentName();
                 name = name.substring(0, Math.min(name.length(), 11));
 

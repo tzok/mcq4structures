@@ -11,11 +11,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import pl.poznan.put.gui.LocalComparisonFrame;
-import pl.poznan.put.matching.AngleDelta;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.utility.TabularExporter;
 
@@ -43,7 +43,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
             FragmentMatch fragmentMatch = matches.getFragmentMatch(i);
             FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
 
-            for (int j = 0; j < fragmentComparison.getSize(); j++) {
+            for (int j = 0; j < fragmentComparison.size(); j++) {
                 residueComparisons.add(fragmentComparison.getResidueComparison(j));
             }
         }
@@ -154,16 +154,16 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
         String[] labels = getResidueLabels();
         FragmentComparison rows = asFragmentComparison();
-        String[][] data = new String[rows.getSize()][];
+        String[][] data = new String[rows.size()][];
 
-        for (int i = 0; i < rows.getSize(); i++) {
+        for (int i = 0; i < rows.size(); i++) {
             data[i] = new String[angles.size() + 1];
             data[i][0] = labels[i];
             ResidueComparison row = rows.getResidueComparison(i);
 
             for (int j = 0; j < angles.size(); j++) {
                 TorsionAngle angle = angles.get(j);
-                AngleDelta delta = row.getAngleDelta(angle);
+                TorsionAngleDelta delta = row.getAngleDelta(angle);
 
                 if (delta == null) {
                     data[i][j + 1] = null;

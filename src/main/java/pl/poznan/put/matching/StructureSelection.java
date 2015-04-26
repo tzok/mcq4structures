@@ -3,6 +3,7 @@ package pl.poznan.put.matching;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,62 +12,57 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.biojava.bio.structure.Group;
 
-import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.torsion.type.TorsionAngleType;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
 public class StructureSelection implements Exportable, Tabular {
-    private final String name;
-    private final List<Group> residues;
+    private final List<PdbCompactFragment> compactFragments = new ArrayList<>();
 
-    public StructureSelection(String name, List<Group> residues) {
+    private final String name;
+    private final List<PdbResidue> residues;
+
+    public StructureSelection(String name, List<PdbResidue> residues) throws InvalidCircularValueException {
         super();
         this.name = name;
         this.residues = residues;
+
+        analyzeTorsionAngles();
+    }
+
+    private void analyzeTorsionAngles() throws InvalidCircularValueException {
+        int fromIndex = 0;
+
+        for (int i = 1; i < residues.size(); i++) {
+            PdbResidue previous = residues.get(i - 1);
+            PdbResidue current = residues.get(i);
+
+            if (!previous.isConnectedTo(current)) {
+                compactFragments.add(new PdbCompactFragment(residues.subList(fromIndex, i)));
+                fromIndex = i;
+            }
+        }
+
+        compactFragments.add(new PdbCompactFragment(residues.subList(fromIndex, residues.size())));
     }
 
     public String getName() {
         return name;
     }
 
-    public int getSize() {
-        return residues.size();
+    public List<PdbResidue> getResidues() {
+        return Collections.unmodifiableList(residues);
     }
 
-    public CompactFragment[] getCompactFragments() {
-        List<CompactFragment> result = new ArrayList<CompactFragment>();
-
-        if (residues.size() == 0) {
-            return new CompactFragment[0];
-        }
-
-        Group first = residues.get(0);
-        CompactFragment current = new CompactFragment(this, MoleculeType.detect(first));
-        current.addGroup(first);
-
-        for (int i = 0; i < residues.size() - 1; i++) {
-            Group r1 = residues.get(i);
-            Group r2 = residues.get(i + 1);
-            MoleculeType c1 = MoleculeType.detect(r1);
-            MoleculeType c2 = MoleculeType.detect(r2);
-
-            if (c1 == c2 && c1.areConnected(r1, r2)) {
-                current.addGroup(r2);
-            } else {
-                result.add(current);
-                current = new CompactFragment(this, c2);
-                current.addGroup(r2);
-            }
-        }
-
-        result.add(current);
-        return result.toArray(new CompactFragment[result.size()]);
+    public List<PdbCompactFragment> getCompactFragments() {
+        return Collections.unmodifiableList(compactFragments);
     }
 
     @Override
@@ -109,8 +105,8 @@ public class StructureSelection implements Exportable, Tabular {
 
     @Override
     public String toString() {
-        Residue first = Residue.fromGroup(residues.get(0));
-        Residue last = Residue.fromGroup(residues.get(residues.size() - 1));
+        PdbResidue first = residues.get(0);
+        PdbResidue last = residues.get(residues.size() - 1);
         return first + " - " + last + " (count: " + residues.size() + ")";
     }
 
@@ -135,51 +131,51 @@ public class StructureSelection implements Exportable, Tabular {
     }
 
     private TableModel asTableModel(boolean isDisplayable) {
-        Set<TorsionAngleType> allAngles = new LinkedHashSet<TorsionAngleType>();
-        Set<String> columns = new LinkedHashSet<String>();
+        Set<TorsionAngleType> allAngleTypes = commonTorsionAngleTypes();
+        Set<String> columns = new LinkedHashSet<>();
         columns.add("Residue");
+
+        for (TorsionAngleType angleType : allAngleTypes) {
+            columns.add(isDisplayable ? angleType.getLongDisplayName() : angleType.getExportName());
+        }
 
         int rowCount = 0;
 
-        for (CompactFragment fragment : getCompactFragments()) {
-            FragmentAngles fragmentAngles = fragment.getFragmentAngles();
-
-            for (ResidueAngles angles : fragmentAngles) {
-                for (TorsionAngleValue angleValue : angles) {
-                    TorsionAngleType angle = angleValue.getAngle();
-
-                    if (angle instanceof ChiTorsionAngle) {
-                        allAngles.add(ChiTorsionAngleType.CHI);
-                    } else {
-                        allAngles.add(angle);
-                    }
-
-                    columns.add(isDisplayable ? angle.getLongDisplayName() : angle.getExportName());
-                }
-            }
-
-            rowCount += fragmentAngles.getSize();
+        for (PdbCompactFragment fragment : compactFragments) {
+            List<PdbResidue> fragmentResidues = fragment.getResidues();
+            rowCount += fragmentResidues.size();
         }
 
         String[][] data = new String[rowCount][];
         int i = 0;
 
-        for (CompactFragment fragment : getCompactFragments()) {
-            for (ResidueAngles angles : fragment.getFragmentAngles()) {
-                List<String> row = new ArrayList<String>();
-                row.add(Residue.fromGroup(angles.getGroup()).toString());
+        for (PdbCompactFragment fragment : compactFragments) {
+            for (PdbResidue residue : fragment.getResidues()) {
+                List<String> row = new ArrayList<>();
 
-                for (TorsionAngleType angle : allAngles) {
-                    TorsionAngleValue angleValue = angles.getAngleValue(angle);
-                    double value = angleValue.getValue();
-                    row.add(isDisplayable ? AngleFormat.formatDisplayLong(value) : AngleFormat.formatExport(value));
+                for (TorsionAngleType angleType : allAngleTypes) {
+                    TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, angleType);
+                    double radians = angleValue.getValue().getRadians();
+                    row.add(isDisplayable ? AngleFormat.formatDisplayLong(radians) : AngleFormat.formatExport(radians));
                 }
 
                 data[i] = row.toArray(new String[row.size()]);
-                i++;
+                i += 1;
             }
         }
 
         return new DefaultTableModel(data, columns.toArray(new String[columns.size()]));
+    }
+
+    private Set<TorsionAngleType> commonTorsionAngleTypes() {
+        Set<TorsionAngleType> set = new LinkedHashSet<>();
+        for (PdbCompactFragment compactFragment : compactFragments) {
+            set.addAll(compactFragment.commonTorsionAngleTypes());
+        }
+        return set;
+    }
+
+    public int size() {
+        return residues.size();
     }
 }

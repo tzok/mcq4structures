@@ -1,49 +1,73 @@
 package pl.poznan.put.matching;
 
+import java.util.List;
+
+import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.structure.tertiary.Residue;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.pdb.analysis.PdbResidue;
 
 public class FragmentMatch {
-    private final CompactFragment target;
-    private final CompactFragment model;
+    private final PdbCompactFragment targetFragment;
+    private final PdbCompactFragment modelFragment;
     private final boolean isTargetSmaller;
     private final int shift;
-    private final FragmentComparison comparison;
+    private final FragmentComparison fragmentComparison;
 
-    public FragmentMatch(CompactFragment target, CompactFragment model,
-            boolean isTargetSmaller, int shift, FragmentComparison comparison) {
+    public FragmentMatch(PdbCompactFragment targetFragment,
+            PdbCompactFragment modelFragment, boolean isTargetSmaller,
+            int shift, FragmentComparison comparison) {
         super();
-        this.target = target;
-        this.model = model;
+        this.targetFragment = targetFragment;
+        this.modelFragment = modelFragment;
         this.isTargetSmaller = isTargetSmaller;
         this.shift = shift;
-        this.comparison = comparison;
+        this.fragmentComparison = comparison;
+    }
+
+    public PdbCompactFragment getTargetFragment() {
+        return targetFragment;
+    }
+
+    public PdbCompactFragment getModelFragment() {
+        return modelFragment;
+    }
+
+    public boolean isTargetSmaller() {
+        return isTargetSmaller;
+    }
+
+    public int getShift() {
+        return shift;
     }
 
     public FragmentComparison getFragmentComparison() {
-        return comparison;
+        return fragmentComparison;
     }
 
     public MoleculeType getMoleculeType() {
-        assert target.getMoleculeType() == model.getMoleculeType();
-        return target.getMoleculeType();
+        assert targetFragment.moleculeType() == modelFragment.moleculeType();
+        return targetFragment.moleculeType();
     }
 
-    public String[] getResidueLabels() {
-        CompactFragment l = target;
-        CompactFragment r = model;
+    public String[] getResidueLabels() throws InvalidCircularValueException {
+        PdbCompactFragment target = targetFragment;
+        PdbCompactFragment model = modelFragment;
 
         if (isTargetSmaller) {
-            r = CompactFragment.createShifted(r, shift, l.getSize());
+            model = model.shift(shift, target.size());
         } else {
-            l = CompactFragment.createShifted(l, shift, r.getSize());
+            target = target.shift(shift, model.size());
         }
 
-        String[] result = new String[l.getSize()];
+        List<PdbResidue> targetResidues = target.getResidues();
+        List<PdbResidue> modelResidues = model.getResidues();
 
-        for (int i = 0; i < l.getSize(); i++) {
-            Residue lname = l.getResidue(i);
-            Residue rname = r.getResidue(i);
+        String[] result = new String[target.size()];
+
+        for (int i = 0; i < target.size(); i++) {
+            PdbResidue lname = targetResidues.get(i);
+            PdbResidue rname = modelResidues.get(i);
 
             if (lname.equals(rname)) {
                 result[i] = lname.toString();
@@ -57,31 +81,29 @@ public class FragmentMatch {
 
     @Override
     public String toString() {
-        CompactFragment targetFragment;
-        CompactFragment modelFragment;
+        PdbCompactFragment target;
+        PdbCompactFragment model;
 
         if (isTargetSmaller) {
-            targetFragment = target;
-            modelFragment = CompactFragment.createShifted(model, shift,
-                    target.getSize());
+            target = targetFragment;
+            model = modelFragment.shift(shift, targetFragment.size());
         } else {
-            targetFragment = CompactFragment.createShifted(target, shift,
-                    model.getSize());
-            modelFragment = model;
+            target = targetFragment.shift(shift, modelFragment.size());
+            model = modelFragment;
         }
 
-        return targetFragment + " & " + modelFragment;
+        return target + " & " + model;
     }
 
     public int getSize() {
-        return comparison.getSize();
+        return fragmentComparison.size();
     }
 
-    public CompactFragment getTarget() {
-        return target;
+    public PdbCompactFragment getTarget() {
+        return targetFragment;
     }
 
-    public CompactFragment getModel() {
-        return model;
+    public PdbCompactFragment getModel() {
+        return modelFragment;
     }
 }

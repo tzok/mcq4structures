@@ -1,89 +1,87 @@
 package pl.poznan.put.matching;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import pl.poznan.put.rna.torsion.Nu0;
-import pl.poznan.put.rna.torsion.Nu1;
-import pl.poznan.put.rna.torsion.Nu2;
-import pl.poznan.put.rna.torsion.Nu3;
-import pl.poznan.put.rna.torsion.Nu4;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
+import pl.poznan.put.circular.exception.InvalidCircularValueException;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleValue;
-import pl.poznan.put.torsion.type.AverageTorsionAngleType;
-import pl.poznan.put.torsion.type.PseudophasePuckerType;
 import pl.poznan.put.torsion.type.TorsionAngleType;
 
 public class MCQMatcher implements StructureMatcher {
-    private List<TorsionAngleType> angles;
+    private List<TorsionAngleType> angleTypes;
 
-    public MCQMatcher(List<TorsionAngleType> angles) {
+    public MCQMatcher(List<TorsionAngleType> angleTypes) {
         super();
-        this.angles = angles;
+        this.angleTypes = angleTypes;
     }
 
     @Override
     public SelectionMatch matchSelections(StructureSelection target,
-            StructureSelection model) {
-        if (target.getSize() == 0 || model.getSize() == 0) {
-            return new SelectionMatch(target, model, new ArrayList<FragmentMatch>());
+            StructureSelection model) throws InvalidCircularValueException {
+        if (target.size() == 0 || model.size() == 0) {
+            return new SelectionMatch(target, model, Collections.<FragmentMatch> emptyList());
         }
 
-        CompactFragment[] targetFragments = target.getCompactFragments();
-        CompactFragment[] modelFragments = model.getCompactFragments();
-        FragmentMatch[][] matrix = new FragmentMatch[targetFragments.length][];
-
-        for (int i = 0; i < targetFragments.length; i++) {
-            matrix[i] = new FragmentMatch[modelFragments.length];
-        }
-
-        for (int i = 0; i < targetFragments.length; i++) {
-            CompactFragment fi = targetFragments[i];
-
-            for (int j = 0; j < modelFragments.length; j++) {
-                CompactFragment fj = modelFragments[j];
-
-                if (fi.getMoleculeType() != fj.getMoleculeType()) {
-                    continue;
-                }
-
-                matrix[i][j] = matchFragments(fi, fj);
-            }
-        }
-
+        FragmentMatch[][] matrix = fillMatchingMatrix(target, model);
         List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
         return new SelectionMatch(target, model, fragmentMatches);
     }
 
-    @Override
-    public FragmentMatch matchFragments(CompactFragment target,
-            CompactFragment model) {
-        CompactFragment smaller = target;
-        CompactFragment bigger = model;
-        boolean isTargetSmaller = true;
+    private FragmentMatch[][] fillMatchingMatrix(StructureSelection target,
+            StructureSelection model) throws InvalidCircularValueException {
+        List<PdbCompactFragment> targetFragments = target.getCompactFragments();
+        List<PdbCompactFragment> modelFragments = model.getCompactFragments();
+        FragmentMatch[][] matrix = new FragmentMatch[targetFragments.size()][];
 
-        if (target.getSize() > model.getSize()) {
-            smaller = model;
-            bigger = target;
-            isTargetSmaller = false;
+        for (int i = 0; i < targetFragments.size(); i++) {
+            matrix[i] = new FragmentMatch[modelFragments.size()];
         }
 
-        FragmentAngles biggerAngles = bigger.getFragmentAngles();
-        FragmentAngles smallerAngles = smaller.getFragmentAngles();
-        int sizeDifference = bigger.getSize() - smaller.getSize();
+        for (int i = 0; i < targetFragments.size(); i++) {
+            PdbCompactFragment fi = targetFragments.get(i);
+            for (int j = 0; j < modelFragments.size(); j++) {
+                PdbCompactFragment fj = modelFragments.get(j);
+                if (fi.moleculeType() == fj.moleculeType()) {
+                    matrix[i][j] = matchFragments(fi, fj);
+                }
+            }
+        }
+        return matrix;
+    }
+
+    @Override
+    public FragmentMatch matchFragments(PdbCompactFragment targetFragment,
+            PdbCompactFragment modelFragment) throws InvalidCircularValueException {
+        List<PdbResidue> targetResidues = targetFragment.getResidues();
+        List<PdbResidue> modelResidues = modelFragment.getResidues();
+        boolean isTargetSmaller = targetFragment.size() < modelFragment.size();
+        int sizeDifference = isTargetSmaller ? modelFragment.size() - targetFragment.size() : targetFragment.size() - modelFragment.size();
+
         FragmentComparison bestResult = null;
         int bestShift = 0;
 
         for (int i = 0; i <= sizeDifference; i++) {
-            List<ResidueComparison> residueResults = new ArrayList<>();
+            List<ResidueComparison> residueComparisons = new ArrayList<>();
 
-            for (int j = 0; j < smaller.getSize(); j++) {
-                ResidueAngles a1 = smallerAngles.get(j);
-                ResidueAngles a2 = biggerAngles.get(j + i);
-                residueResults.add(isTargetSmaller ? compareResidues(a1, a2) : compareResidues(a2, a1));
+            if (isTargetSmaller) {
+                for (int j = 0; j < targetFragment.size(); j++) {
+                    PdbResidue targetResidue = targetResidues.get(j);
+                    PdbResidue modelResidue = modelResidues.get(j + i);
+                    residueComparisons.add(compareResidues(targetFragment, targetResidue, modelFragment, modelResidue));
+                }
+            } else {
+                for (int j = 0; j < modelFragment.size(); j++) {
+                    PdbResidue targetResidue = targetResidues.get(j + i);
+                    PdbResidue modelResidue = modelResidues.get(j);
+                    residueComparisons.add(compareResidues(targetFragment, targetResidue, modelFragment, modelResidue));
+                }
             }
 
-            FragmentComparison fragmentResult = FragmentComparison.fromResidueComparisons(residueResults, angles);
+            FragmentComparison fragmentResult = FragmentComparison.fromResidueComparisons(residueComparisons, angleTypes);
 
             if (bestResult == null || fragmentResult.compareTo(bestResult) < 0) {
                 bestResult = fragmentResult;
@@ -91,7 +89,21 @@ public class MCQMatcher implements StructureMatcher {
             }
         }
 
-        return new FragmentMatch(target, model, isTargetSmaller, bestShift, bestResult);
+        return new FragmentMatch(targetFragment, modelFragment, isTargetSmaller, bestShift, bestResult);
+    }
+
+    private ResidueComparison compareResidues(
+            PdbCompactFragment targetFragment, PdbResidue targetResidue,
+            PdbCompactFragment modelFragment, PdbResidue modelResidue) throws InvalidCircularValueException {
+        List<TorsionAngleDelta> angleDeltas = new ArrayList<>();
+
+        for (TorsionAngleType angleType : angleTypes) {
+            TorsionAngleValue targetValue = targetFragment.getTorsionAngleValue(targetResidue, angleType);
+            TorsionAngleValue modelValue = modelFragment.getTorsionAngleValue(modelResidue, angleType);
+            angleDeltas.add(targetValue.subtract(modelValue));
+        }
+
+        return new ResidueComparison(targetResidue, modelResidue, angleDeltas);
     }
 
     private static List<FragmentMatch> assignFragments(FragmentMatch[][] matrix) {
@@ -105,7 +117,7 @@ public class MCQMatcher implements StructureMatcher {
             costMatrix[i] = new double[matrix[i].length];
             for (int j = 0; j < matrix[i].length; j++) {
                 FragmentComparison fragmentComparison = matrix[i][j].getFragmentComparison();
-                costMatrix[i][j] = fragmentComparison.getMcq();
+                costMatrix[i][j] = fragmentComparison.getMCQ().getRadians();
             }
         }
 
@@ -152,7 +164,7 @@ public class MCQMatcher implements StructureMatcher {
 
                     FragmentComparison matchResult = match.getFragmentComparison();
 
-                    if (minimum == null || matchResult.getMcq() < minimum.getMcq()) {
+                    if (minimum == null || matchResult.getMCQ().getRadians() < minimum.getMCQ().getRadians()) {
                         minimum = matchResult;
                         mini = i;
                         minj = j;
@@ -170,50 +182,5 @@ public class MCQMatcher implements StructureMatcher {
         }
 
         return result;
-    }
-
-    private ResidueComparison compareResidues(ResidueAngles target,
-            ResidueAngles model) {
-        List<AngleDelta> result = new ArrayList<>();
-        List<AverageTorsionAngleType> averages = new ArrayList<>();
-        boolean isPseudophasePucker = false;
-
-        for (TorsionAngleType angle : angles) {
-            if (angle instanceof PseudophasePuckerType) {
-                isPseudophasePucker = true;
-                continue;
-            }
-
-            if (angle instanceof AverageTorsionAngleType) {
-                averages.add((AverageTorsionAngleType) angle);
-                continue;
-            }
-
-            TorsionAngleValue angleValueL = target.getAngleValue(angle);
-            TorsionAngleValue angleValueR = model.getAngleValue(angle);
-            AngleDelta delta = AngleDelta.calculate(angleValueL, angleValueR);
-            result.add(delta);
-        }
-
-        if (isPseudophasePucker) {
-            TorsionAngleType[] taus = new TorsionAngleType[] { Nu0.getInstance(), Nu1.getInstance(), Nu2.getInstance(), Nu3.getInstance(), Nu4.getInstance() };
-            TorsionAngleValue[] l = new TorsionAngleValue[5];
-            TorsionAngleValue[] r = new TorsionAngleValue[5];
-
-            for (int i = 0; i < 5; i++) {
-                l[i] = target.getAngleValue(taus[i]);
-                r[i] = model.getAngleValue(taus[i]);
-            }
-
-            TorsionAngleValue pL = PseudophasePuckerType.calculate(l[0], l[1], l[2], l[3], l[4]);
-            TorsionAngleValue pR = PseudophasePuckerType.calculate(r[0], r[1], r[2], r[3], r[4]);
-            result.add(AngleDelta.calculate(pL, pR));
-        }
-
-        for (AverageTorsionAngleType average : averages) {
-            result.add(average.calculateDelta(result));
-        }
-
-        return new ResidueComparison(target, model, result);
     }
 }

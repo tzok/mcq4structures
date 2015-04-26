@@ -1,7 +1,6 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -14,19 +13,22 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.biojava.bio.structure.Chain;
 import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
+public class LocalMatrixPanel extends JPanel implements ComparisonListener {
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar();
 
-    private List<Structure> structures = Collections.emptyList();
+    private Pair<Structure, Structure> structures;
+    private Pair<List<Chain>, List<Chain>> chains;
 
-    public GlobalMatrixPanel() {
+    public LocalMatrixPanel() {
         super(new BorderLayout());
 
         labelInfoMatrix.setBorder(new EmptyBorder(10, 10, 10, 0));
@@ -49,8 +51,10 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
         add(panelProgressBar, BorderLayout.SOUTH);
     }
 
-    public void setStructures(List<Structure> structures) {
+    public void setStructuresAndChains(Pair<Structure, Structure> structures,
+            Pair<List<Chain>, List<Chain>> chains) {
         this.structures = structures;
+        this.chains = chains;
         updateHeader();
     }
 
@@ -61,18 +65,27 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
     }
 
     public void updateHeader() {
-        StringBuilder builder = new StringBuilder();
-        int i = 0;
+        Structure left = structures.getLeft();
+        Structure right = structures.getRight();
 
-        for (Structure s : structures) {
-            assert s != null;
-            builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
-            builder.append(StructureManager.getName(s));
-            builder.append("</span>, ");
-            i++;
+        StringBuilder builder = new StringBuilder();
+        builder.append("<span style=\"color: blue\">");
+        builder.append(StructureManager.getName(left));
+        builder.append('.');
+
+        for (Chain chain : chains.getLeft()) {
+            builder.append(chain.getChainID());
         }
 
-        builder.delete(builder.length() - 2, builder.length());
-        labelInfoMatrix.setText("<html>Structures selected for global distance measure: " + builder.toString() + "</html>");
+        builder.append("</span>, <span style=\"color: green\">");
+        builder.append(StructureManager.getName(right));
+        builder.append('.');
+
+        for (Chain chain : chains.getRight()) {
+            builder.append(chain.getChainID());
+        }
+
+        builder.append("</span>");
+        labelInfoMatrix.setText("<html>Structures selected for local distance measure: " + builder.toString() + "</html>");
     }
 }

@@ -29,18 +29,18 @@ import pl.poznan.put.gui.ColorbarFrame;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.matching.AngleDelta;
-import pl.poznan.put.matching.CompactFragment;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.matching.AngleDelta.State;
 import pl.poznan.put.matching.stats.Histogram;
 import pl.poznan.put.matching.stats.MatchStatistics;
 import pl.poznan.put.matching.stats.ModelsComparisonStatistics;
 import pl.poznan.put.matching.stats.Percentiles;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.structure.tertiary.Residue;
+import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public class ModelsComparisonResult {
@@ -58,13 +58,13 @@ public class ModelsComparisonResult {
                 CsvWriter csvWriter = new CsvWriter(writer, ';');
                 csvWriter.write(null);
 
-                for (CompactFragment model : models) {
+                for (PdbCompactFragment model : models) {
                     csvWriter.write(model.getName());
                 }
 
                 csvWriter.endRecord();
 
-                for (int i = 0; i < target.getSize(); i++) {
+                for (int i = 0; i < target.size(); i++) {
                     Group group = target.getGroup(i);
                     Residue residue = Residue.fromGroup(group);
                     csvWriter.write(residue.toString());
@@ -73,7 +73,7 @@ public class ModelsComparisonResult {
                         FragmentMatch fragmentMatch = matches.get(j);
                         FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
                         ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
-                        AngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
+                        TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
                         csvWriter.write(delta.toExportString());
                     }
 
@@ -88,7 +88,7 @@ public class ModelsComparisonResult {
             StringBuilder builder = new StringBuilder(sdf.format(new Date()));
             builder.append("-Local-Distance-Multi");
 
-            for (CompactFragment model : models) {
+            for (PdbCompactFragment model : models) {
                 builder.append('-');
                 builder.append(model.getParentName());
             }
@@ -114,9 +114,9 @@ public class ModelsComparisonResult {
                 columnNames[i + 1] = models.get(i).getName();
             }
 
-            String[][] data = new String[target.getSize()][];
+            String[][] data = new String[target.size()][];
 
-            for (int i = 0; i < target.getSize(); i++) {
+            for (int i = 0; i < target.size(); i++) {
                 data[i] = new String[models.size() + 1];
                 data[i][0] = target.getResidue(i).toString();
 
@@ -124,7 +124,7 @@ public class ModelsComparisonResult {
                     FragmentMatch fragmentMatch = matches.get(j);
                     FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
                     ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
-                    AngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
+                    TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
 
                     if (delta == null) {
                         data[i][j + 1] = null;
@@ -164,7 +164,7 @@ public class ModelsComparisonResult {
 
                 for (int j = 0; j < fragmentMatch.getSize(); j++) {
                     ResidueComparison comparison = fragmentComparison.getResidueComparison(j);
-                    AngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
+                    TorsionAngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta.getState() == State.BOTH_VALID) {
                         svg.setColor(Colors.interpolateColor(
@@ -211,9 +211,9 @@ public class ModelsComparisonResult {
                 List<Double> validDeltas = new ArrayList<>();
                 double[] validAngles = new double[angleLimits.length];
 
-                for (int i = 0; i < fragmentComparison.getSize(); i++) {
+                for (int i = 0; i < fragmentComparison.size(); i++) {
                     ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
-                    AngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
+                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta.getState() == State.BOTH_VALID) {
                         double delta = angleDelta.getDelta();
@@ -342,28 +342,28 @@ public class ModelsComparisonResult {
         }
     }
 
-    private final CompactFragment target;
-    private final List<CompactFragment> models;
+    private final PdbCompactFragment target;
+    private final List<PdbCompactFragment> models;
     private final List<FragmentMatch> matches;
 
-    public ModelsComparisonResult(CompactFragment reference,
-            List<CompactFragment> models, List<FragmentMatch> matches) {
+    public ModelsComparisonResult(PdbCompactFragment reference,
+            List<PdbCompactFragment> models, List<FragmentMatch> matches) {
         super();
         this.target = reference;
         this.models = models;
         this.matches = matches;
     }
 
-    public CompactFragment getTarget() {
+    public PdbCompactFragment getTarget() {
         return target;
     }
 
-    public CompactFragment getModel(int index) {
+    public PdbCompactFragment getModel(int index) {
         return models.get(index);
     }
 
     public int getTargetSize() {
-        return target.getSize();
+        return target.size();
     }
 
     public int getModelCount() {
@@ -381,7 +381,7 @@ public class ModelsComparisonResult {
         for (int i = 0; i < matches.size(); i++) {
             FragmentMatch match = matches.get(i);
             FragmentComparison result = match.getFragmentComparison();
-            fragmentAverages[i] = result.getMcq();
+            fragmentAverages[i] = result.getMCQ();
         }
 
         Heap heap = new Heap(fragmentAverages);

@@ -55,17 +55,15 @@ public class SelectionMatch implements Exportable, Iterable<FragmentMatch> {
     }
 
     public String toPDB(boolean onlyMatched) throws StructureException {
-        FragmentSuperimposer superimposer = new FragmentSuperimposer(this,
-                AtomFilter.ALL, true);
-        FragmentSuperposition superposition = onlyMatched ? superimposer.getMatched()
-                : superimposer.getWhole();
+        FragmentSuperimposer superimposer = new FragmentSuperimposer(this, AtomFilter.ALL, true);
+        FragmentSuperposition superposition = onlyMatched ? superimposer.getMatched() : superimposer.getWhole();
         return superposition.toPDB();
     }
 
     @Override
     public void export(File file) throws IOException {
         try {
-            FileUtils.write(file, toPDB(false));
+            FileUtils.writeStringToFile(file, toPDB(false), "UTF-8");
         } catch (StructureException e) {
             throw new IOException("Failed to export the match to a PDB file", e);
         }
