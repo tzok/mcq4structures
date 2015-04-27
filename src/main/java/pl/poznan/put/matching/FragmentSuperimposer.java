@@ -1,19 +1,29 @@
 package pl.poznan.put.matching;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Calc;
-import org.biojava.bio.structure.Group;
 import org.biojava.bio.structure.SVDSuperimposer;
 import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.atom.AtomName;
 import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.common.ResidueComponent;
+import pl.poznan.put.common.ResidueInformationProvider;
+import pl.poznan.put.pdb.PdbAtomLine;
+import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.structure.tertiary.StructureHelper;
+import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.protein.ProteinBackbone;
+import pl.poznan.put.protein.aminoacid.AminoAcidType;
+import pl.poznan.put.rna.Phosphate;
+import pl.poznan.put.rna.Ribose;
+import pl.poznan.put.rna.base.NucleobaseType;
 
 public class FragmentSuperimposer {
     public enum AtomFilter {
@@ -57,44 +67,23 @@ public class FragmentSuperimposer {
             List<Atom> atomsTarget = new ArrayList<>();
             List<Atom> atomsModel = new ArrayList<>();
 
-            for (ResidueComparison residueComparison : fragmentComparison) {
-                PdbResidueTorsionAngleValues targetAngles = residueComparison.getTargetAngles();
-                PdbResidueTorsionAngleValues modelAngles = residueComparison.getModelAngles();
-                ResidueType residueType = targetAngles.getResidueType();
-                MoleculeType chainType = residueType.getChainType();
-                AtomName[] atoms = chainType.getBackboneAtoms();
-                List<AtomName> atomNames = new ArrayList<>();
-
-                switch (atomFilter) {
-                case ALL:
-                    atomNames.addAll(Arrays.asList(atoms));
-                    if (residueType == modelAngles.getResidueType()) {
-                        atoms = residueType.getResidueAtoms();
-                        atomNames.addAll(Arrays.asList(atoms));
-                    }
-                    break;
-                case BACKBONE:
-                    atomNames.addAll(Arrays.asList(atoms));
-                    break;
-                case MAIN:
-                    atomNames.add(chainType.getMainAtom());
-                    break;
-                default:
-                    break;
-                }
+            for (ResidueComparison residueComparison : fragmentComparison.getResidueComparisons()) {
+                PdbResidue target = residueComparison.getTarget();
+                PdbResidue model = residueComparison.getModel();
+                MoleculeType moleculeType = target.getMoleculeType();
+                List<AtomName> atomNames = handleAtomFilter(moleculeType);
 
                 for (AtomName name : atomNames) {
                     if (onlyHeavy && !name.getType().isHeavy()) {
                         continue;
                     }
 
-                    Atom l = StructureHelper.findAtom(targetAngles.getGroup(), name);
-                    Atom r = StructureHelper.findAtom(modelAngles.getGroup(), name);
-
-                    if (l != null && r != null) {
-                        atomsTarget.add(l);
-                        atomsModel.add(r);
+                    if (!target.hasAtom(name) || !model.hasAtom(name)) {
+                        continue;
                     }
+
+                    atomsTarget.add(target.findAtom(name).toBioJavaAtom());
+                    atomsModel.add(model.findAtom(name).toBioJavaAtom());
                 }
             }
 
@@ -104,6 +93,64 @@ public class FragmentSuperimposer {
             matchAtomsTarget[i] = atomsTarget.toArray(new Atom[atomsTarget.size()]);
             matchAtomsModel[i] = atomsModel.toArray(new Atom[atomsModel.size()]);
             matchSuperimposer[i] = new SVDSuperimposer(matchAtomsTarget[i], matchAtomsModel[i]);
+        }
+    }
+
+    private List<AtomName> handleAtomFilter(MoleculeType moleculeType) {
+        List<AtomName> atomNames = new ArrayList<>();
+
+        switch (moleculeType) {
+        case PROTEIN:
+            atomNames = handleAtomFilterForProtein();
+        case RNA:
+            atomNames = handleAtomFilterForRNA();
+        case UNKNOWN:
+        default:
+            atomNames = Collections.emptyList();
+        }
+        return atomNames;
+    }
+
+    private List<AtomName> handleAtomFilterForRNA() {
+        Set<AtomName> atomNames = new HashSet<>();
+
+        switch (atomFilter) {
+        case ALL:
+            for (NucleobaseType nucleobaseType : NucleobaseType.values()) {
+                ResidueInformationProvider provider = nucleobaseType.getResidueInformationProvider();
+                for (ResidueComponent component : provider.getAllMoleculeComponents()) {
+                    atomNames.addAll(component.getAtoms());
+                }
+            }
+            return new ArrayList<>(atomNames);
+        case BACKBONE:
+            atomNames.addAll(Phosphate.getInstance().getAtoms());
+            atomNames.addAll(Ribose.getInstance().getAtoms());
+            return new ArrayList<>(atomNames);
+        case MAIN:
+            return Collections.singletonList(AtomName.P);
+        default:
+            return Collections.emptyList();
+        }
+    }
+
+    private List<AtomName> handleAtomFilterForProtein() {
+        switch (atomFilter) {
+        case ALL:
+            Set<AtomName> atomNames = new HashSet<>();
+            for (AminoAcidType aminoAcidType : AminoAcidType.values()) {
+                ResidueInformationProvider provider = aminoAcidType.getResidueInformationProvider();
+                for (ResidueComponent component : provider.getAllMoleculeComponents()) {
+                    atomNames.addAll(component.getAtoms());
+                }
+            }
+            return new ArrayList<>(atomNames);
+        case BACKBONE:
+            return ProteinBackbone.getInstance().getAtoms();
+        case MAIN:
+            return Collections.singletonList(AtomName.C);
+        default:
+            return Collections.emptyList();
         }
     }
 
@@ -132,25 +179,24 @@ public class FragmentSuperimposer {
         List<PdbCompactFragment> modelFragments = new ArrayList<>();
 
         for (PdbCompactFragment fragment : model.getCompactFragments()) {
-            PdbCompactFragment modifiedFragment = new PdbCompactFragment(model, fragment.moleculeType());
+            List<PdbResidue> modifiedResidues = new ArrayList<>();
 
-            for (int i = 0; i < fragment.size(); i++) {
-                Group group = fragment.getGroup(i);
-                List<Atom> fragmentClones = new ArrayList<>();
+            for (PdbResidue residue : fragment.getResidues()) {
+                List<PdbAtomLine> modifiedAtoms = new ArrayList<>();
 
-                for (Atom atom : group.getAtoms()) {
-                    Atom r = (Atom) atom.clone();
-                    Calc.rotate(r, totalSuperimposer.getRotation());
-                    Calc.shift(r, totalSuperimposer.getTranslation());
-                    fragmentClones.add(r);
+                for (PdbAtomLine atom : residue.getAtoms()) {
+                    Atom bioJavaAtom = atom.toBioJavaAtom();
+                    Calc.rotate(bioJavaAtom, totalSuperimposer.getRotation());
+                    Calc.shift(bioJavaAtom, totalSuperimposer.getTranslation());
+                    modifiedAtoms.add(PdbAtomLine.fromBioJavaAtom(bioJavaAtom));
                 }
 
-                Group groupClone = (Group) group.clone();
-                groupClone.setAtoms(fragmentClones);
-                modifiedFragment.addResidue(groupClone);
+                PdbResidueIdentifier identifier = residue.getResidueIdentifier();
+                String residueName = residue.getDetectedResidueName();
+                modifiedResidues.add(new PdbResidue(identifier, residueName, modifiedAtoms, false));
             }
 
-            modelFragments.add(modifiedFragment);
+            modelFragments.add(new PdbCompactFragment(modifiedResidues));
         }
 
         return new FragmentSuperposition(targetFragments, modelFragments);
@@ -163,33 +209,29 @@ public class FragmentSuperimposer {
         for (int i = 0; i < selectionMatch.getSize(); i++) {
             FragmentMatch fragmentMatch = selectionMatch.getFragmentMatch(i);
             FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
+            List<PdbResidue> matchedModelResiduesModified = new ArrayList<>();
+            List<PdbResidue> matchedTargetResidues = new ArrayList<>();
 
-            MoleculeType moleculeType = fragmentMatch.moleculeType();
-            PdbCompactFragment fragmentL = new PdbCompactFragment(selectionMatch.getTarget(), moleculeType);
-            PdbCompactFragment fragmentR = new PdbCompactFragment(selectionMatch.getModel(), moleculeType);
+            for (ResidueComparison residueComparison : fragmentComparison.getResidueComparisons()) {
+                matchedTargetResidues.add(residueComparison.getTarget());
 
-            for (ResidueComparison residueComparison : fragmentComparison) {
-                PdbResidueTorsionAngleValues targetAngles = residueComparison.getTargetAngles();
-                fragmentL.addResidue(targetAngles.getGroup());
+                PdbResidue model = residueComparison.getModel();
+                List<PdbAtomLine> modifiedAtoms = new ArrayList<>();
 
-                PdbResidueTorsionAngleValues modelAngles = residueComparison.getModelAngles();
-                Group group = modelAngles.getGroup();
-                List<Atom> fragmentClones = new ArrayList<>();
-
-                for (Atom atom : group.getAtoms()) {
-                    Atom r = (Atom) atom.clone();
-                    Calc.rotate(r, matchSuperimposer[i].getRotation());
-                    Calc.shift(r, matchSuperimposer[i].getTranslation());
-                    fragmentClones.add(r);
+                for (PdbAtomLine atom : model.getAtoms()) {
+                    Atom bioJavaAtom = atom.toBioJavaAtom();
+                    Calc.rotate(bioJavaAtom, totalSuperimposer.getRotation());
+                    Calc.shift(bioJavaAtom, totalSuperimposer.getTranslation());
+                    modifiedAtoms.add(PdbAtomLine.fromBioJavaAtom(bioJavaAtom));
                 }
 
-                Group groupClone = (Group) group.clone();
-                groupClone.setAtoms(fragmentClones);
-                fragmentR.addResidue(groupClone);
+                PdbResidueIdentifier identifier = model.getResidueIdentifier();
+                String residueName = model.getDetectedResidueName();
+                matchedModelResiduesModified.add(new PdbResidue(identifier, residueName, modifiedAtoms, false));
             }
 
-            newFragmentsL.add(fragmentL);
-            newFragmentsR.add(fragmentR);
+            newFragmentsL.add(new PdbCompactFragment(matchedTargetResidues));
+            newFragmentsR.add(new PdbCompactFragment(matchedModelResiduesModified));
         }
 
         return new FragmentSuperposition(newFragmentsL, newFragmentsR);

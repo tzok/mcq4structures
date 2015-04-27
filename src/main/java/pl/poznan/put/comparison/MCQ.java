@@ -1,5 +1,7 @@
 package pl.poznan.put.comparison;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,17 +13,16 @@ import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
+import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.nucleic.RNAChiTorsionAngle;
-import pl.poznan.put.nucleic.RNATorsionAngle;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.protein.ProteinChiTorsionAngle;
-import pl.poznan.put.protein.ProteinTorsionAngle;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.torsion.TorsionAnglesHelper;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
+import pl.poznan.put.torsion.type.TorsionAngleType;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -32,22 +33,9 @@ import pl.poznan.put.torsion.TorsionAngleDelta.State;
 public class MCQ implements GlobalComparator, LocalComparator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
 
-    public static List<TorsionAngle> getAllAvailableTorsionAngles() {
-        List<TorsionAngle> angles = new ArrayList<>();
-        angles.addAll(Arrays.asList(RNATorsionAngle.values()));
-        angles.addAll(Arrays.asList(RNAChiTorsionAngle.values()));
-        angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
-        angles.addAll(Arrays.asList(ProteinChiTorsionAngle.values()));
-        return angles;
-    }
+    private final List<TorsionAngleType> angles;
 
-    private List<TorsionAngle> angles;
-
-    public MCQ(List<TorsionAngle> angles) {
-        this.angles = angles;
-    }
-
-    public void setAngles(List<TorsionAngle> angles) {
+    public MCQ(List<TorsionAngleType> angles) {
         this.angles = angles;
     }
 
@@ -63,8 +51,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
         SelectionMatch matches = matcher.matchSelections(target, model);
 
         if (matches == null || matches.getSize() == 0) {
-            throw new IncomparableStructuresException("No matching fragments "
-                    + "found");
+            throw new IncomparableStructuresException("No matching fragments found");
         }
 
         List<Double> deltas = new ArrayList<>();
@@ -78,8 +65,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
                 for (TorsionAngle torsionAngle : angles) {
                     TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
 
-                    if (angleDelta != null
-                            && angleDelta.getState() == State.BOTH_VALID) {
+                    if (angleDelta != null && angleDelta.getState() == State.BOTH_VALID) {
                         deltas.add(angleDelta.getDelta());
                     }
                 }
@@ -100,17 +86,13 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
     @Override
     public ModelsComparisonResult compareModels(PdbCompactFragment reference,
-            List<PdbCompactFragment> models)
-            throws IncomparableStructuresException {
+            List<PdbCompactFragment> models) throws IncomparableStructuresException {
         /*
          * Sanity check
          */
         for (PdbCompactFragment fragment : models) {
-            if (fragment.moleculeType() != reference.moleculeType()
-                    || fragment.size() != reference.size()) {
-                throw new IncomparableStructuresException("All models must "
-                        + "be of the same type and size as the reference "
-                        + "structure");
+            if (fragment.moleculeType() != reference.moleculeType() || fragment.size() != reference.size()) {
+                throw new IncomparableStructuresException("All models must be of the same type and size as the reference structure");
             }
         }
 
@@ -121,8 +103,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
             matches.add(matcher.matchFragments(reference, fragment));
         }
 
-		return new ModelsComparisonResult(reference, models, matches);
-	}
+        return new ModelsComparisonResult(reference, models, matches);
+    }
 
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
@@ -130,7 +112,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             return;
         }
 
-        List<StructureSelection> selections = new ArrayList<StructureSelection>();
+        List<StructureSelection> selections = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
             File file = new File(args[i]);
@@ -140,13 +122,11 @@ public class MCQ implements GlobalComparator, LocalComparator {
                 return;
             }
 
-            Structure structure = StructureManager.loadStructure(file).get(0);
+            PdbModel structure = StructureManager.loadStructure(file).get(0);
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(
-                new MCQ(MCQ.getAllAvailableTorsionAngles()), selections, null);
-        System.out.println(TabularExporter.export(matrix
-                    .asExportableTableModel()));
+        GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(new MCQ(MCQ.getAllAvailableTorsionAngles()), selections, null);
+        System.out.println(TabularExporter.export(matrix.asExportableTableModel()));
     }
 }
