@@ -12,7 +12,6 @@ import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.atom.AtomName;
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.common.ResidueType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.structure.tertiary.StructureHelper;
 
@@ -31,7 +30,8 @@ public class FragmentSuperimposer {
     private final Atom[] totalAtomsTarget;
     private final Atom[] totalAtomsModel;
 
-    public FragmentSuperimposer(SelectionMatch selectionMatch, AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
+    public FragmentSuperimposer(SelectionMatch selectionMatch,
+            AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
         super();
         this.selectionMatch = selectionMatch;
         this.atomFilter = atomFilter;
@@ -128,11 +128,11 @@ public class FragmentSuperimposer {
     public FragmentSuperposition getWhole() {
         StructureSelection target = selectionMatch.getTarget();
         StructureSelection model = selectionMatch.getModel();
-        List<PdbCompactFragment> targetFragments = Arrays.asList(target.getCompactFragments());
+        List<PdbCompactFragment> targetFragments = target.getCompactFragments();
         List<PdbCompactFragment> modelFragments = new ArrayList<>();
 
         for (PdbCompactFragment fragment : model.getCompactFragments()) {
-            PdbCompactFragment modifiedFragment = new PdbCompactFragment(model, fragment.getMoleculeType());
+            PdbCompactFragment modifiedFragment = new PdbCompactFragment(model, fragment.moleculeType());
 
             for (int i = 0; i < fragment.size(); i++) {
                 Group group = fragment.getGroup(i);
@@ -164,7 +164,7 @@ public class FragmentSuperimposer {
             FragmentMatch fragmentMatch = selectionMatch.getFragmentMatch(i);
             FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
 
-            MoleculeType moleculeType = fragmentMatch.getMoleculeType();
+            MoleculeType moleculeType = fragmentMatch.moleculeType();
             PdbCompactFragment fragmentL = new PdbCompactFragment(selectionMatch.getTarget(), moleculeType);
             PdbCompactFragment fragmentR = new PdbCompactFragment(selectionMatch.getModel(), moleculeType);
 

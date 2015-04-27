@@ -22,11 +22,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import org.biojava.bio.structure.Structure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogManager extends JDialog {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DialogManager.class);
+
     private final DefaultListModel<File> model = new DefaultListModel<>();
 
     public DialogManager(Frame parent) {
@@ -90,12 +95,15 @@ final class DialogManager extends JDialog {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String pdbId = fieldPdbId.getText();
-                List<Structure> models = StructureManager.loadStructure(pdbId);
-                if (models.size() > 0) {
+
+                try {
+                    List<PdbModel> models = StructureManager.loadStructure(pdbId);
                     File path = StructureManager.getFile(models.get(0));
                     model.addElement(path);
-                } else {
-                    JOptionPane.showMessageDialog(DialogManager.this, "Failed to download " + pdbId + " from the Protein Data Bank", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IOException | PdbParsingException e) {
+                    String message = "Failed to download and/or parse PDB file: " + pdbId;
+                    DialogManager.LOGGER.error(message, e);
+                    JOptionPane.showMessageDialog(DialogManager.this, message, "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -117,8 +125,10 @@ final class DialogManager extends JDialog {
                 if (StructureManager.loadStructure(file).size() > 0) {
                     model.addElement(file);
                 }
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "Error: " + e.getClass(), JOptionPane.ERROR_MESSAGE);
+            } catch (IOException | PdbParsingException e) {
+                String message = "Failed to load and/or parse PDB file: " + file;
+                DialogManager.LOGGER.error(message, e);
+                JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

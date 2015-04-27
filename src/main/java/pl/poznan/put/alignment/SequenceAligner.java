@@ -45,13 +45,13 @@ public final class SequenceAligner {
 
         StringBuilder builder = new StringBuilder();
         for (PdbCompactFragment fragment : fragments) {
-            builder.append(fragment.getParentName());
+            builder.append(fragment.toString());
             builder.append(", ");
         }
         builder.delete(builder.length() - 2, builder.length());
 
         title = builder.toString();
-        moleculeType = fragments.get(0).getMoleculeType();
+        moleculeType = fragments.get(0).moleculeType();
         type = isGlobal ? PairwiseSequenceScorerType.GLOBAL : PairwiseSequenceScorerType.LOCAL;
         substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix() : SequenceAligner.getProteinSubstitutionMatrix();
     }
@@ -108,7 +108,7 @@ public final class SequenceAligner {
                 AbstractSequence sequence = (AbstractSequence) alignedSequence.getOriginalSequence();
 
                 PdbCompactFragment fragment = mapSequenceName.get(sequence);
-                String name = fragment.getParentName();
+                String name = fragment.toString();
                 name = name.substring(0, Math.min(name.length(), 11));
 
                 builder.append(String.format("%-12s", name));

@@ -14,9 +14,8 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-import org.biojava.bio.structure.Structure;
-
 import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
@@ -24,7 +23,7 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar();
 
-    private List<Structure> structures = Collections.emptyList();
+    private List<PdbModel> structures = Collections.emptyList();
 
     public GlobalMatrixPanel() {
         super(new BorderLayout());
@@ -49,7 +48,7 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
         add(panelProgressBar, BorderLayout.SOUTH);
     }
 
-    public void setStructures(List<Structure> structures) {
+    public void setStructures(List<PdbModel> structures) {
         this.structures = structures;
         updateHeader();
     }
@@ -64,7 +63,7 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
         StringBuilder builder = new StringBuilder();
         int i = 0;
 
-        for (Structure s : structures) {
+        for (PdbModel s : structures) {
             assert s != null;
             builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
             builder.append(StructureManager.getName(s));

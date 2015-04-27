@@ -45,7 +45,23 @@ public class FragmentMatch {
         return fragmentComparison;
     }
 
-    public MoleculeType getMoleculeType() {
+    @Override
+    public String toString() {
+        PdbCompactFragment target;
+        PdbCompactFragment model;
+
+        if (isTargetSmaller) {
+            target = targetFragment;
+            model = modelFragment.shift(shift, targetFragment.size());
+        } else {
+            target = targetFragment.shift(shift, modelFragment.size());
+            model = modelFragment;
+        }
+
+        return target + " & " + model;
+    }
+
+    public MoleculeType moleculeType() {
         assert targetFragment.moleculeType() == modelFragment.moleculeType();
         return targetFragment.moleculeType();
     }
@@ -77,33 +93,5 @@ public class FragmentMatch {
         }
 
         return result;
-    }
-
-    @Override
-    public String toString() {
-        PdbCompactFragment target;
-        PdbCompactFragment model;
-
-        if (isTargetSmaller) {
-            target = targetFragment;
-            model = modelFragment.shift(shift, targetFragment.size());
-        } else {
-            target = targetFragment.shift(shift, modelFragment.size());
-            model = modelFragment;
-        }
-
-        return target + " & " + model;
-    }
-
-    public int getSize() {
-        return fragmentComparison.size();
-    }
-
-    public PdbCompactFragment getTarget() {
-        return targetFragment;
-    }
-
-    public PdbCompactFragment getModel() {
-        return modelFragment;
     }
 }

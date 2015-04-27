@@ -17,10 +17,10 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.gui.panel.ChainsPanel;
+import pl.poznan.put.pdb.analysis.PdbChain;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogSelectChains extends JDialog {
@@ -40,10 +40,10 @@ final class DialogSelectChains extends JDialog {
     private final JButton buttonOk = new JButton("OK");
     private final JButton buttonCancel = new JButton("Cancel");
 
-    private List<Chain> chainsLeft = new ArrayList<>();
-    private List<Chain> chainsRight = new ArrayList<>();
-    private Structure structureLeft;
-    private Structure structureRight;
+    private List<PdbChain> chainsLeft = new ArrayList<>();
+    private List<PdbChain> chainsRight = new ArrayList<>();
+    private PdbModel structureLeft;
+    private PdbModel structureRight;
     private int chosenOption;
 
     public DialogSelectChains(Frame owner) {
@@ -103,16 +103,16 @@ final class DialogSelectChains extends JDialog {
         });
     }
 
-    public Pair<List<Chain>, List<Chain>> getChains() {
+    public Pair<List<PdbChain>, List<PdbChain>> getChains() {
         return Pair.of(chainsLeft, chainsRight);
     }
 
-    public Pair<Structure, Structure> getStructures() {
+    public Pair<PdbModel, PdbModel> getStructures() {
         return Pair.of(structureLeft, structureRight);
     }
 
     public int showDialog() {
-        List<Structure> structures = StructureManager.getAllStructures();
+        List<PdbModel> structures = StructureManager.getAllStructures();
         panelsChainsLeft.reloadStructures(structures);
         panelsChainsRight.reloadStructures(structures);
 

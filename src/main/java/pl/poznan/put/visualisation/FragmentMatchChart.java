@@ -16,6 +16,7 @@ import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.TorsionAngleDelta;
+import pl.poznan.put.torsion.type.TorsionAngleType;
 import pl.poznan.put.utility.AngleFormat;
 
 public class FragmentMatchChart {
@@ -25,18 +26,18 @@ public class FragmentMatchChart {
         FragmentComparison comparison = match.getFragmentComparison();
 
         int i = 0;
-        for (TorsionAngle angle : comparison.getAngleTypes()) {
+        for (TorsionAngleType angle : comparison.getAngleTypes()) {
             double[][] data = new double[2][];
             data[0] = new double[comparison.size()];
             data[1] = new double[comparison.size()];
 
             int j = 0;
-            for (ResidueComparison residue : comparison) {
+            for (ResidueComparison residue : comparison.getResidueComparisons()) {
                 TorsionAngleDelta delta = residue.getAngleDelta(angle);
                 data[0][j] = j;
 
-                if (delta.getState() == State.BOTH_VALID) {
-                    data[1][j] = delta.getDelta();
+                if (delta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
+                    data[1][j] = delta.getDelta().getRadians();
                 } else {
                     data[1][j] = Double.NaN;
                 }

@@ -14,10 +14,10 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
+import pl.poznan.put.pdb.analysis.PdbChain;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 public class LocalMatrixPanel extends JPanel implements ComparisonListener {
@@ -25,8 +25,8 @@ public class LocalMatrixPanel extends JPanel implements ComparisonListener {
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar();
 
-    private Pair<Structure, Structure> structures;
-    private Pair<List<Chain>, List<Chain>> chains;
+    private Pair<PdbModel, PdbModel> structures;
+    private Pair<List<PdbChain>, List<PdbChain>> chains;
 
     public LocalMatrixPanel() {
         super(new BorderLayout());
@@ -51,8 +51,8 @@ public class LocalMatrixPanel extends JPanel implements ComparisonListener {
         add(panelProgressBar, BorderLayout.SOUTH);
     }
 
-    public void setStructuresAndChains(Pair<Structure, Structure> structures,
-            Pair<List<Chain>, List<Chain>> chains) {
+    public void setStructuresAndChains(Pair<PdbModel, PdbModel> structures,
+            Pair<List<PdbChain>, List<PdbChain>> chains) {
         this.structures = structures;
         this.chains = chains;
         updateHeader();
@@ -65,24 +65,24 @@ public class LocalMatrixPanel extends JPanel implements ComparisonListener {
     }
 
     public void updateHeader() {
-        Structure left = structures.getLeft();
-        Structure right = structures.getRight();
+        PdbModel left = structures.getLeft();
+        PdbModel right = structures.getRight();
 
         StringBuilder builder = new StringBuilder();
         builder.append("<span style=\"color: blue\">");
         builder.append(StructureManager.getName(left));
         builder.append('.');
 
-        for (Chain chain : chains.getLeft()) {
-            builder.append(chain.getChainID());
+        for (PdbChain chain : chains.getLeft()) {
+            builder.append(chain.getIdentifier());
         }
 
         builder.append("</span>, <span style=\"color: green\">");
         builder.append(StructureManager.getName(right));
         builder.append('.');
 
-        for (Chain chain : chains.getRight()) {
-            builder.append(chain.getChainID());
+        for (PdbChain chain : chains.getRight()) {
+            builder.append(chain.getIdentifier());
         }
 
         builder.append("</span>");

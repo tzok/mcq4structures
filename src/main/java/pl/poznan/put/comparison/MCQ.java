@@ -106,7 +106,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
          * Sanity check
          */
         for (PdbCompactFragment fragment : models) {
-            if (fragment.getMoleculeType() != reference.getMoleculeType()
+            if (fragment.moleculeType() != reference.moleculeType()
                     || fragment.size() != reference.size()) {
                 throw new IncomparableStructuresException("All models must "
                         + "be of the same type and size as the reference "

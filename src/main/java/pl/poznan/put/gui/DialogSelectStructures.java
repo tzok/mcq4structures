@@ -26,8 +26,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.biojava.bio.structure.Structure;
-
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogSelectStructures extends JDialog {
@@ -35,19 +34,19 @@ final class DialogSelectStructures extends JDialog {
     public static final int OK = 1;
     private static final Dimension INITIAL_STRUCTURE_LIST_SIZE = new Dimension(320, 420);
 
-    private final DefaultListModel<Structure> modelAll = new DefaultListModel<>();
-    private final DefaultListModel<Structure> modelSelected = new DefaultListModel<>();
-    private final JList<Structure> listAll = new JList<>(modelAll);
-    private final JList<Structure> listSelected = new JList<>(modelSelected);
+    private final DefaultListModel<PdbModel> modelAll = new DefaultListModel<>();
+    private final DefaultListModel<PdbModel> modelSelected = new DefaultListModel<>();
+    private final JList<PdbModel> listAll = new JList<>(modelAll);
+    private final JList<PdbModel> listSelected = new JList<>(modelSelected);
     private final JScrollPane scrollPaneAll = new JScrollPane(listAll);
     private final JScrollPane scrollPaneSelected = new JScrollPane(listSelected);
 
-    private final List<Structure> selectedStructures = new ArrayList<>();
-    private final ListCellRenderer<? super Structure> renderer = listAll.getCellRenderer();
-    private final ListCellRenderer<Structure> pdbCellRenderer = new ListCellRenderer<Structure>() {
+    private final List<PdbModel> selectedStructures = new ArrayList<>();
+    private final ListCellRenderer<? super PdbModel> renderer = listAll.getCellRenderer();
+    private final ListCellRenderer<PdbModel> pdbCellRenderer = new ListCellRenderer<PdbModel>() {
         @Override
         public Component getListCellRendererComponent(
-                JList<? extends Structure> list, Structure value, int index,
+                JList<? extends PdbModel> list, PdbModel value, int index,
                 boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value != null) {
@@ -142,7 +141,7 @@ final class DialogSelectStructures extends JDialog {
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                List<Structure> values = Collections.emptyList();
+                List<PdbModel> values = Collections.emptyList();
                 boolean isSelect = false;
 
                 assert arg0 != null;
@@ -161,7 +160,7 @@ final class DialogSelectStructures extends JDialog {
                     isSelect = false;
                 }
 
-                for (Structure f : values) {
+                for (PdbModel f : values) {
                     if (isSelect) {
                         modelAll.removeElement(f);
                         modelSelected.addElement(f);
@@ -198,30 +197,30 @@ final class DialogSelectStructures extends JDialog {
         });
     }
 
-    public List<Structure> getStructures() {
+    public List<PdbModel> getStructures() {
         return Collections.unmodifiableList(selectedStructures);
     }
 
     public int showDialog() {
-        List<Structure> setManager = StructureManager.getAllStructures();
-        ArrayList<Structure> listLeft = Collections.list(modelAll.elements());
-        ArrayList<Structure> listRight = Collections.list(modelSelected.elements());
+        List<PdbModel> setManager = StructureManager.getAllStructures();
+        ArrayList<PdbModel> listLeft = Collections.list(modelAll.elements());
+        ArrayList<PdbModel> listRight = Collections.list(modelSelected.elements());
 
-        ArrayList<Structure> list = new ArrayList<>(listLeft);
+        ArrayList<PdbModel> list = new ArrayList<>(listLeft);
         list.removeAll(setManager);
-        for (Structure structure : list) {
+        for (PdbModel structure : list) {
             modelAll.removeElement(structure);
         }
 
         list = new ArrayList<>(listRight);
         list.removeAll(setManager);
-        for (Structure structure : list) {
+        for (PdbModel structure : list) {
             modelSelected.removeElement(structure);
         }
 
         setManager.removeAll(listLeft);
         setManager.removeAll(listRight);
-        for (Structure file : setManager) {
+        for (PdbModel file : setManager) {
             modelAll.addElement(file);
         }
 

@@ -54,7 +54,7 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
     }
 
     public void addElement(PdbCompactFragment element) {
-        MoleculeType moleculeType = element.getMoleculeType();
+        MoleculeType moleculeType = element.moleculeType();
 
         if (moleculeType == MoleculeType.RNA) {
             listRNAs.add(element);
@@ -84,8 +84,8 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
     }
 
     public boolean canAddElement(PdbCompactFragment element) {
-        MoleculeType moleculeType = element.getMoleculeType();
-        if (getSize() > 0 && getElementAt(0).getMoleculeType() != moleculeType) {
+        MoleculeType moleculeType = element.moleculeType();
+        if (getSize() > 0 && getElementAt(0).moleculeType() != moleculeType) {
             return false;
         }
 

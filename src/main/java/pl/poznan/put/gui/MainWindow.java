@@ -32,8 +32,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Structure;
 
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.constant.Colors;
@@ -45,7 +43,9 @@ import pl.poznan.put.gui.panel.StructureAlignmentPanel;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
@@ -90,7 +90,6 @@ public class MainWindow extends JFrame {
     private final JRadioButtonMenuItem radioGlobalRmsd = new StayOpenRadioButtonMenuItem("Global RMSD", false);
     private final JRadioButtonMenuItem radioLocal = new StayOpenRadioButtonMenuItem("Local distances (pair)", false);
     private final JRadioButtonMenuItem radioLocalMulti = new StayOpenRadioButtonMenuItem("Local distances (multiple)", false);
-    private final JMenuItem itemSelectTorsion = new JMenuItem("Select torsion angles");
     private final JMenuItem itemSelectStructuresCompare = new JMenuItem("Select structures to compare");
     private final JMenuItem itemComputeDistances = new JMenuItem("Compute distance(s)");
     private final JMenuItem itemVisualise = new JMenuItem("Visualise results");
@@ -120,7 +119,8 @@ public class MainWindow extends JFrame {
     private final DialogManager dialogManager;
     private final DialogSelectStructures dialogStructures;
     private final DialogSelectChains dialogChains;
-    private DialogSelectChainsMultiple dialogChainsMultiple;
+    private final DialogSelectChainsMultiple dialogChainsMultiple;
+    private final DialogSelectAngles dialogAngles;
 
     private Clusterable clusterable;
     private Exportable exportable;
@@ -133,6 +133,7 @@ public class MainWindow extends JFrame {
         dialogStructures = new DialogSelectStructures(this);
         dialogChains = new DialogSelectChains(this);
         dialogChainsMultiple = new DialogSelectChainsMultiple(this);
+        dialogAngles = new DialogSelectAngles(this);
 
         dialogManager.loadStructures(pdbs);
         createMenu();
@@ -167,7 +168,6 @@ public class MainWindow extends JFrame {
 
     private void createMenu() {
         itemSave.setEnabled(false);
-        itemSelectTorsion.setEnabled(false);
         itemComputeDistances.setEnabled(false);
         itemVisualise.setEnabled(false);
         itemVisualise3D.setEnabled(false);
@@ -203,7 +203,6 @@ public class MainWindow extends JFrame {
         menuDistanceMeasure.add(radioLocal);
         menuDistanceMeasure.add(radioLocalMulti);
         menuDistanceMeasure.addSeparator();
-        menuDistanceMeasure.add(itemSelectTorsion);
         menuDistanceMeasure.add(itemSelectStructuresCompare);
         menuDistanceMeasure.addSeparator();
         menuDistanceMeasure.add(itemComputeDistances);
@@ -265,7 +264,6 @@ public class MainWindow extends JFrame {
                 assert arg0 != null;
 
                 Object source = arg0.getSource();
-                itemSelectTorsion.setEnabled(source.equals(radioLocal));
                 itemVisualise.setEnabled(false);
                 itemVisualise3D.setEnabled(false);
                 itemCluster.setEnabled(false);
@@ -283,18 +281,12 @@ public class MainWindow extends JFrame {
         radioLocal.addActionListener(radioActionListener);
         radioLocalMulti.addActionListener(radioActionListener);
 
-        itemSelectTorsion.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                DialogSelectAngles.selectAngles();
-            }
-        });
-
         ActionListener selectActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 assert e != null;
-                Object source = e.getSource();
+                JMenuItem source = (JMenuItem) e.getSource();
+
                 if (source.equals(itemSelectStructuresCompare)) {
                     if (radioLocal.isSelected()) {
                         selectChains(source);
@@ -692,7 +684,7 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        List<Structure> structures = dialogStructures.getStructures();
+        List<PdbModel> structures = dialogStructures.getStructures();
         if (structures.size() < 2) {
             JOptionPane.showMessageDialog(MainWindow.this, "At least two structures must be selected to compute global distance", "Information", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -708,13 +700,13 @@ public class MainWindow extends JFrame {
         layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
     }
 
-    void selectChains(Object source) {
+    private void selectChains(JMenuItem source) {
         if (dialogChains.showDialog() != DialogSelectChains.OK) {
             return;
         }
 
-        Pair<Structure, Structure> structures = dialogChains.getStructures();
-        Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
+        Pair<PdbModel, PdbModel> structures = dialogChains.getStructures();
+        Pair<List<PdbChain>, List<PdbChain>> chains = dialogChains.getChains();
 
         if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
             String message = "No chains specified for structure: " + StructureManager.getName(structures.getLeft()) + " or " + StructureManager.getName(structures.getRight());
@@ -745,7 +737,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    void selectChainsMultiple(Object source) {
+    private void selectChainsMultiple(JMenuItem source) {
         if (dialogChainsMultiple.showDialog() != DialogSelectChainsMultiple.OK) {
             return;
         }
@@ -756,10 +748,10 @@ public class MainWindow extends JFrame {
         }
 
         List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
-        MoleculeType type = fragments.get(0).getMoleculeType();
+        MoleculeType type = fragments.get(0).moleculeType();
 
         for (PdbCompactFragment c : fragments) {
-            if (type != c.getMoleculeType()) {
+            if (type != c.moleculeType()) {
                 JOptionPane.showMessageDialog(this, "Cannot align/compare structures: different types", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }

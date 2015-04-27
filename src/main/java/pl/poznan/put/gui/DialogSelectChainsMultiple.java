@@ -11,7 +11,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -27,13 +26,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Structure;
-
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 final class DialogSelectChainsMultiple extends JDialog {
@@ -76,7 +74,7 @@ final class DialogSelectChainsMultiple extends JDialog {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
                 if (value != null) {
-                    boolean isRNA = value.getMoleculeType() == MoleculeType.RNA;
+                    boolean isRNA = value.moleculeType() == MoleculeType.RNA;
                     label.setText(value.toString());
                     label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                 }
@@ -256,11 +254,11 @@ final class DialogSelectChainsMultiple extends JDialog {
     public int showDialog() {
         List<PdbCompactFragment> fragments = new ArrayList<>();
 
-        for (Structure structure : StructureManager.getAllStructures()) {
-            for (Chain chain : structure.getChains()) {
-                String name = StructureManager.getName(structure) + "." + chain.getChainID();
+        for (PdbModel structure : StructureManager.getAllStructures()) {
+            for (PdbChain chain : structure.getChains()) {
+                String name = StructureManager.getName(structure) + "." + chain.getIdentifier();
                 StructureSelection selection = SelectionFactory.create(name, chain);
-                fragments.addAll(Arrays.asList(selection.getCompactFragments()));
+                fragments.addAll(selection.getCompactFragments());
             }
         }
 
