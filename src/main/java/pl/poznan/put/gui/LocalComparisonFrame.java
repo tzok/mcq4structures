@@ -15,13 +15,13 @@ import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.visualisation.FragmentMatchChart;
 
 public class LocalComparisonFrame extends JFrame {
-    public LocalComparisonFrame(SelectionMatch matches) {
+    public LocalComparisonFrame(SelectionMatch selectionMatch) {
         super("MCQ4Structures: local distance plot");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        for (FragmentMatch match : matches) {
+        for (FragmentMatch match : selectionMatch.getFragmentMatches()) {
             ChartPanel chart = FragmentMatchChart.create(match);
             chart.setName(match.toString());
             tabbedPane.add(chart);

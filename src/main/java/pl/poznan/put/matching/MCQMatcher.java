@@ -9,12 +9,13 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleValue;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.torsion.type.TorsionAngleType;
 
 public class MCQMatcher implements StructureMatcher {
-    private List<TorsionAngleType> angleTypes;
+    private List<MasterTorsionAngleType> angleTypes;
 
-    public MCQMatcher(List<TorsionAngleType> angleTypes) {
+    public MCQMatcher(List<MasterTorsionAngleType> angleTypes) {
         super();
         this.angleTypes = angleTypes;
     }
@@ -97,13 +98,27 @@ public class MCQMatcher implements StructureMatcher {
             PdbCompactFragment modelFragment, PdbResidue modelResidue) throws InvalidCircularValueException {
         List<TorsionAngleDelta> angleDeltas = new ArrayList<>();
 
-        for (TorsionAngleType angleType : angleTypes) {
-            TorsionAngleValue targetValue = targetFragment.getTorsionAngleValue(targetResidue, angleType);
-            TorsionAngleValue modelValue = modelFragment.getTorsionAngleValue(modelResidue, angleType);
-            angleDeltas.add(targetValue.subtract(modelValue));
+        for (MasterTorsionAngleType masterType : angleTypes) {
+            TorsionAngleValue targetValue = MCQMatcher.matchTorsionAngleType(masterType, targetFragment, targetResidue);
+            TorsionAngleValue modelValue = MCQMatcher.matchTorsionAngleType(masterType, modelFragment, modelResidue);
+            angleDeltas.add(TorsionAngleDelta.subtractTorsionAngleValues(masterType, targetValue, modelValue));
         }
 
         return new ResidueComparison(targetResidue, modelResidue, angleDeltas);
+    }
+
+    private static TorsionAngleValue matchTorsionAngleType(
+            MasterTorsionAngleType masterType,
+            PdbCompactFragment compactFragment, PdbResidue residue) {
+        for (TorsionAngleType angleType : masterType.getAngleTypes()) {
+            TorsionAngleValue angleValue = compactFragment.getTorsionAngleValue(residue, angleType);
+            if (angleValue.isValid()) {
+                return angleValue;
+            }
+        }
+
+        TorsionAngleType firstAngleType = masterType.getAngleTypes()[0];
+        return TorsionAngleValue.invalidInstance(firstAngleType);
     }
 
     private static List<FragmentMatch> assignFragments(FragmentMatch[][] matrix) {
@@ -116,8 +131,7 @@ public class MCQMatcher implements StructureMatcher {
         for (int i = 0; i < matrix.length; i++) {
             costMatrix[i] = new double[matrix[i].length];
             for (int j = 0; j < matrix[i].length; j++) {
-                FragmentComparison fragmentComparison = matrix[i][j].getFragmentComparison();
-                costMatrix[i][j] = fragmentComparison.getMCQ().getRadians();
+                costMatrix[i][j] = matrix[i][j].getMeanDelta().getRadians();
             }
         }
 
@@ -142,7 +156,7 @@ public class MCQMatcher implements StructureMatcher {
         boolean[] usedj = new boolean[matrix[0].length];
 
         while (true) {
-            FragmentComparison minimum = null;
+            FragmentMatch minimum = null;
             int mini = -1;
             int minj = -1;
 
@@ -162,10 +176,8 @@ public class MCQMatcher implements StructureMatcher {
                         continue;
                     }
 
-                    FragmentComparison matchResult = match.getFragmentComparison();
-
-                    if (minimum == null || matchResult.getMCQ().getRadians() < minimum.getMCQ().getRadians()) {
-                        minimum = matchResult;
+                    if (minimum == null || match.getMeanDelta().getRadians() < minimum.getMeanDelta().getRadians()) {
+                        minimum = match;
                         mini = i;
                         minj = j;
                     }

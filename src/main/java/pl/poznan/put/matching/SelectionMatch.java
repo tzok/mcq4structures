@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -15,7 +15,7 @@ import org.biojava.bio.structure.StructureException;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 
-public class SelectionMatch implements Exportable, Iterable<FragmentMatch> {
+public class SelectionMatch implements Exportable {
     private final StructureSelection target;
     private final StructureSelection model;
     private final List<FragmentMatch> fragmentMatches;
@@ -36,12 +36,8 @@ public class SelectionMatch implements Exportable, Iterable<FragmentMatch> {
         return model;
     }
 
-    public FragmentMatch getFragmentMatch(int index) {
-        return fragmentMatches.get(index);
-    }
-
-    public int getSize() {
-        return fragmentMatches.size();
+    public List<FragmentMatch> getFragmentMatches() {
+        return Collections.unmodifiableList(fragmentMatches);
     }
 
     public String[] getResidueLabels() {
@@ -82,8 +78,7 @@ public class SelectionMatch implements Exportable, Iterable<FragmentMatch> {
         return new File(filename.toString());
     }
 
-    @Override
-    public Iterator<FragmentMatch> iterator() {
-        return fragmentMatches.iterator();
+    public int size() {
+        return fragmentMatches.size();
     }
 }

@@ -47,7 +47,7 @@ public class FragmentSuperimposer {
         this.atomFilter = atomFilter;
         this.onlyHeavy = onlyHeavy;
 
-        int matchesCount = selectionMatch.getSize();
+        int matchesCount = selectionMatch.size();
         matchSuperimposer = new SVDSuperimposer[matchesCount];
         matchAtomsTarget = new Atom[matchesCount][];
         matchAtomsModel = new Atom[matchesCount][];
@@ -61,13 +61,13 @@ public class FragmentSuperimposer {
     }
 
     private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM) throws StructureException {
-        for (int i = 0; i < selectionMatch.getSize(); i++) {
-            FragmentMatch fragment = selectionMatch.getFragmentMatch(i);
-            FragmentComparison fragmentComparison = fragment.getFragmentComparison();
+        int i = 0;
+
+        for (FragmentMatch fragment : selectionMatch.getFragmentMatches()) {
             List<Atom> atomsTarget = new ArrayList<>();
             List<Atom> atomsModel = new ArrayList<>();
 
-            for (ResidueComparison residueComparison : fragmentComparison.getResidueComparisons()) {
+            for (ResidueComparison residueComparison : fragment.getResidueComparisons()) {
                 PdbResidue target = residueComparison.getTarget();
                 PdbResidue model = residueComparison.getModel();
                 MoleculeType moleculeType = target.getMoleculeType();
@@ -93,6 +93,7 @@ public class FragmentSuperimposer {
             matchAtomsTarget[i] = atomsTarget.toArray(new Atom[atomsTarget.size()]);
             matchAtomsModel[i] = atomsModel.toArray(new Atom[atomsModel.size()]);
             matchSuperimposer[i] = new SVDSuperimposer(matchAtomsTarget[i], matchAtomsModel[i]);
+            i += 1;
         }
     }
 
@@ -158,7 +159,7 @@ public class FragmentSuperimposer {
         double distance = 0.0;
         double count = 0.0;
 
-        for (int i = 0; i < selectionMatch.getSize(); i++) {
+        for (int i = 0; i < selectionMatch.size(); i++) {
             for (int j = 0; j < matchAtomsModel[i].length; j++) {
                 Atom l = matchAtomsTarget[i][j];
                 Atom r = (Atom) matchAtomsModel[i][j].clone();
@@ -206,13 +207,11 @@ public class FragmentSuperimposer {
         List<PdbCompactFragment> newFragmentsL = new ArrayList<>();
         List<PdbCompactFragment> newFragmentsR = new ArrayList<>();
 
-        for (int i = 0; i < selectionMatch.getSize(); i++) {
-            FragmentMatch fragmentMatch = selectionMatch.getFragmentMatch(i);
-            FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
+        for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
             List<PdbResidue> matchedModelResiduesModified = new ArrayList<>();
             List<PdbResidue> matchedTargetResidues = new ArrayList<>();
 
-            for (ResidueComparison residueComparison : fragmentComparison.getResidueComparisons()) {
+            for (ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
                 matchedTargetResidues.add(residueComparison.getTarget());
 
                 PdbResidue model = residueComparison.getModel();

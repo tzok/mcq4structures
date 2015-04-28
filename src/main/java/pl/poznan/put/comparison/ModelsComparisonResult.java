@@ -18,7 +18,6 @@ import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.StatUtils;
-import org.biojava.bio.structure.Group;
 import org.jumpmind.symmetric.csv.CsvWriter;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
@@ -29,7 +28,6 @@ import pl.poznan.put.gui.ColorbarFrame;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.stats.Histogram;
@@ -37,17 +35,17 @@ import pl.poznan.put.matching.stats.MatchStatistics;
 import pl.poznan.put.matching.stats.ModelsComparisonStatistics;
 import pl.poznan.put.matching.stats.Percentiles;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.structure.tertiary.Residue;
+import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngle;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public class ModelsComparisonResult {
     public class SelectedAngle implements Exportable, Tabular, Visualizable {
-        private final TorsionAngle torsionAngle;
+        private final MasterTorsionAngleType torsionAngle;
 
-        private SelectedAngle(TorsionAngle torsionAngle) {
+        private SelectedAngle(MasterTorsionAngleType torsionAngle) {
             super();
             this.torsionAngle = torsionAngle;
         }
@@ -59,20 +57,18 @@ public class ModelsComparisonResult {
                 csvWriter.write(null);
 
                 for (PdbCompactFragment model : models) {
-                    csvWriter.write(model.getName());
+                    csvWriter.write(model.toString());
                 }
 
                 csvWriter.endRecord();
 
                 for (int i = 0; i < target.size(); i++) {
-                    Group group = target.getGroup(i);
-                    Residue residue = Residue.fromGroup(group);
+                    PdbResidue residue = target.getResidues().get(i);
                     csvWriter.write(residue.toString());
 
                     for (int j = 0; j < models.size(); j++) {
                         FragmentMatch fragmentMatch = matches.get(j);
-                        FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
-                        ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
+                        ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
                         TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
                         csvWriter.write(delta.toExportString());
                     }
@@ -90,7 +86,7 @@ public class ModelsComparisonResult {
 
             for (PdbCompactFragment model : models) {
                 builder.append('-');
-                builder.append(model.getParentName());
+                builder.append(model.toString());
             }
 
             builder.append(".csv");
@@ -111,26 +107,24 @@ public class ModelsComparisonResult {
             String[] columnNames = new String[models.size() + 1];
             columnNames[0] = isDisplay ? "" : null;
             for (int i = 0; i < models.size(); i++) {
-                columnNames[i + 1] = models.get(i).getName();
+                columnNames[i + 1] = models.get(i).toString();
             }
 
             String[][] data = new String[target.size()][];
 
             for (int i = 0; i < target.size(); i++) {
                 data[i] = new String[models.size() + 1];
-                data[i][0] = target.getResidue(i).toString();
+                data[i][0] = target.getResidues().get(i).toString();
 
                 for (int j = 0; j < models.size(); j++) {
                     FragmentMatch fragmentMatch = matches.get(j);
-                    FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
-                    ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
+                    ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
                     TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
 
                     if (delta == null) {
                         data[i][j + 1] = null;
                     } else {
-                        data[i][j + 1] = isDisplay ? delta.toDisplayString()
-                                : delta.toExportString();
+                        data[i][j + 1] = isDisplay ? delta.toDisplayString() : delta.toExportString();
                     }
                 }
             }
@@ -149,7 +143,7 @@ public class ModelsComparisonResult {
             int maxWidth = Integer.MIN_VALUE;
 
             for (int i = 0; i < models.size(); i++) {
-                String modelName = models.get(i).getName();
+                String modelName = models.get(i).toString();
                 svg.drawString(modelName, 0.0f, (i + 1) * fontHeight);
                 int width = metrics.stringWidth(modelName);
 
@@ -160,24 +154,20 @@ public class ModelsComparisonResult {
 
             for (int i = 0; i < matches.size(); i++) {
                 FragmentMatch fragmentMatch = matches.get(i);
-                FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
 
-                for (int j = 0; j < fragmentMatch.getSize(); j++) {
-                    ResidueComparison comparison = fragmentComparison.getResidueComparison(j);
+                for (int j = 0; j < fragmentMatch.size(); j++) {
+                    ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
                     TorsionAngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta.getState() == State.BOTH_VALID) {
-                        svg.setColor(Colors.interpolateColor(
-                                angleDelta.getDelta(), min, max));
+                        svg.setColor(Colors.interpolateColor(angleDelta.getDelta().getRadians(), min, max));
                     } else {
                         svg.setColor(Color.BLACK);
                     }
 
-                    svg.fillRect(maxWidth + j * blockWidth, i * fontHeight,
-                            blockWidth, fontHeight);
+                    svg.fillRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
                     svg.setColor(Color.BLACK);
-                    svg.drawRect(maxWidth + j * blockWidth, i * fontHeight,
-                            blockWidth, fontHeight);
+                    svg.drawRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
                 }
             }
 
@@ -185,21 +175,18 @@ public class ModelsComparisonResult {
             svg.getRoot(root);
 
             if (matches.size() > 0) {
-                int width = maxWidth + blockWidth * matches.get(0).getSize();
-                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI,
-                        "width", Integer.toString(width));
+                int width = maxWidth + blockWidth * matches.get(0).size();
+                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "width", Integer.toString(width));
 
                 int height = fontHeight * models.size();
-                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI,
-                        "height", Integer.toString(height));
+                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "height", Integer.toString(height));
             }
 
             return document;
         }
 
         public ModelsComparisonStatistics calculateStatistics() {
-            return calculateStatistics(MatchStatistics.DEFAULT_ANGLE_LIMITS,
-                    MatchStatistics.DEFAULT_PERCENTS_LIMITS);
+            return calculateStatistics(MatchStatistics.DEFAULT_ANGLE_LIMITS, MatchStatistics.DEFAULT_PERCENTS_LIMITS);
         }
 
         public ModelsComparisonStatistics calculateStatistics(
@@ -207,16 +194,15 @@ public class ModelsComparisonResult {
             List<MatchStatistics> statistics = new ArrayList<>();
 
             for (FragmentMatch match : matches) {
-                FragmentComparison fragmentComparison = match.getFragmentComparison();
                 List<Double> validDeltas = new ArrayList<>();
                 double[] validAngles = new double[angleLimits.length];
 
-                for (int i = 0; i < fragmentComparison.size(); i++) {
-                    ResidueComparison residueComparison = fragmentComparison.getResidueComparison(i);
+                for (int i = 0; i < match.size(); i++) {
+                    ResidueComparison residueComparison = match.getResidueComparisons().get(i);
                     TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta.getState() == State.BOTH_VALID) {
-                        double delta = angleDelta.getDelta();
+                        double delta = angleDelta.getDelta().getRadians();
                         validDeltas.add(delta);
 
                         for (int j = 0; j < angleLimits.length; j++) {
@@ -240,21 +226,17 @@ public class ModelsComparisonResult {
                     }
 
                     for (int i = 0; i < percentsLimits.length; i++) {
-                        validPercents[i] = StatUtils.percentile(values,
-                                percentsLimits[i]);
+                        validPercents[i] = StatUtils.percentile(values, percentsLimits[i]);
                     }
                 }
 
                 Histogram histogram = new Histogram(angleLimits, validAngles);
-                Percentiles percentiles = new Percentiles(percentsLimits,
-                        validPercents);
-                MatchStatistics matchStatistics = new MatchStatistics(match,
-                        histogram, percentiles);
+                Percentiles percentiles = new Percentiles(percentsLimits, validPercents);
+                MatchStatistics matchStatistics = new MatchStatistics(match, histogram, percentiles);
                 statistics.add(matchStatistics);
             }
 
-            return new ModelsComparisonStatistics(statistics, angleLimits,
-                    percentsLimits);
+            return new ModelsComparisonStatistics(statistics, angleLimits, percentsLimits);
         }
 
         public Pair<Double, Double> getMinMax() {
@@ -262,8 +244,8 @@ public class ModelsComparisonResult {
             double max = Double.NEGATIVE_INFINITY;
 
             for (FragmentMatch match : matches) {
-                for (ResidueComparison result : match.getFragmentComparison()) {
-                    double delta = result.getAngleDelta(torsionAngle).getDelta();
+                for (ResidueComparison result : match.getResidueComparisons()) {
+                    double delta = result.getAngleDelta(torsionAngle).getDelta().getRadians();
 
                     if (delta < min) {
                         min = delta;
@@ -380,8 +362,7 @@ public class ModelsComparisonResult {
 
         for (int i = 0; i < matches.size(); i++) {
             FragmentMatch match = matches.get(i);
-            FragmentComparison result = match.getFragmentComparison();
-            fragmentAverages[i] = result.getMCQ();
+            fragmentAverages[i] = match.getMeanDelta().getRadians();
         }
 
         Heap heap = new Heap(fragmentAverages);
@@ -396,7 +377,7 @@ public class ModelsComparisonResult {
     }
 
     public ModelsComparisonResult.SelectedAngle selectAngle(
-            TorsionAngle torsionAngle) {
+            MasterTorsionAngleType torsionAngle) {
         return new ModelsComparisonResult.SelectedAngle(torsionAngle);
     }
 }

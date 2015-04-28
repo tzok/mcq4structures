@@ -4,6 +4,7 @@ import java.util.List;
 
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleDelta;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.torsion.type.TorsionAngleType;
 
 public class ResidueComparison {
@@ -27,12 +28,14 @@ public class ResidueComparison {
         return model;
     }
 
-    public TorsionAngleDelta getAngleDelta(TorsionAngleType angleType) {
+    public TorsionAngleDelta getAngleDelta(MasterTorsionAngleType masterType) {
         for (TorsionAngleDelta delta : angleDeltas) {
-            if (angleType.equals(delta.getAngleType())) {
-                return delta;
+            for (TorsionAngleType angleType : masterType.getAngleTypes()) {
+                if (angleType.equals(delta.getMasterTorsionAngleType())) {
+                    return delta;
+                }
             }
         }
-        return TorsionAngleDelta.bothInvalidInstance(angleType);
+        return TorsionAngleDelta.bothInvalidInstance(masterType);
     }
 }

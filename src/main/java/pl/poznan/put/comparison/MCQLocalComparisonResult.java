@@ -16,40 +16,32 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngle;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.utility.TabularExporter;
 
 public class MCQLocalComparisonResult extends LocalComparisonResult {
-    private final List<TorsionAngle> angles;
+    private final List<MasterTorsionAngleType> angleTypes;
 
     public MCQLocalComparisonResult(SelectionMatch matches,
-            List<TorsionAngle> angles) {
+            List<MasterTorsionAngleType> angleTypes) {
         super(matches);
-        this.angles = angles;
+        this.angleTypes = angleTypes;
     }
 
-    public List<TorsionAngle> getAngles() {
-        return angles;
+    public List<MasterTorsionAngleType> getAngles() {
+        return angleTypes;
     }
 
     public String[] getResidueLabels() {
-        return matches.getResidueLabels();
+        return selectionMatch.getResidueLabels();
     }
 
     public FragmentComparison asFragmentComparison() {
         List<ResidueComparison> residueComparisons = new ArrayList<>();
-
-        for (int i = 0; i < matches.getSize(); i++) {
-            FragmentMatch fragmentMatch = matches.getFragmentMatch(i);
-            FragmentComparison fragmentComparison = fragmentMatch.getFragmentComparison();
-
-            for (int j = 0; j < fragmentComparison.size(); j++) {
-                residueComparisons.add(fragmentComparison.getResidueComparison(j));
-            }
+        for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+            residueComparisons.addAll(fragmentMatch.getResidueComparisons());
         }
-
-        return FragmentComparison.fromResidueComparisons(residueComparisons,
-                angles);
+        return FragmentComparison.fromResidueComparisons(residueComparisons, angleTypes);
     }
 
     @Override
@@ -69,7 +61,7 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
 
     @Override
     public void visualize() {
-        LocalComparisonFrame comparisonFrame = new LocalComparisonFrame(matches);
+        LocalComparisonFrame comparisonFrame = new LocalComparisonFrame(selectionMatch);
         comparisonFrame.setVisible(true);
     }
 
@@ -143,34 +135,31 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
     }
 
     private TableModel asTableModel(boolean isDisplay) {
-        String[] columnNames = new String[angles.size() + 1];
+        String[] columnNames = new String[angleTypes.size() + 1];
         columnNames[0] = isDisplay ? "" : null;
 
-        for (int i = 0; i < angles.size(); i++) {
-            TorsionAngle angle = angles.get(i);
-            columnNames[i + 1] = isDisplay ? angle.getLongDisplayName()
-                    : angle.toString();
+        for (int i = 0; i < angleTypes.size(); i++) {
+            MasterTorsionAngleType angle = angleTypes.get(i);
+            columnNames[i + 1] = isDisplay ? angle.getLongDisplayName() : angle.getExportName();
+        }
+
+        List<ResidueComparison> residueComparisons = new ArrayList<>();
+        for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+            residueComparisons.addAll(fragmentMatch.getResidueComparisons());
         }
 
         String[] labels = getResidueLabels();
-        FragmentComparison rows = asFragmentComparison();
-        String[][] data = new String[rows.size()][];
+        String[][] data = new String[residueComparisons.size()][];
 
-        for (int i = 0; i < rows.size(); i++) {
-            data[i] = new String[angles.size() + 1];
+        for (int i = 0; i < residueComparisons.size(); i++) {
+            ResidueComparison residueComparison = residueComparisons.get(i);
+            data[i] = new String[angleTypes.size() + 1];
             data[i][0] = labels[i];
-            ResidueComparison row = rows.getResidueComparison(i);
 
-            for (int j = 0; j < angles.size(); j++) {
-                TorsionAngle angle = angles.get(j);
-                TorsionAngleDelta delta = row.getAngleDelta(angle);
-
-                if (delta == null) {
-                    data[i][j + 1] = null;
-                } else {
-                    data[i][j + 1] = isDisplay ? delta.toDisplayString()
-                            : delta.toExportString();
-                }
+            for (int j = 0; j < angleTypes.size(); j++) {
+                MasterTorsionAngleType angle = angleTypes.get(j);
+                TorsionAngleDelta delta = residueComparison.getAngleDelta(angle);
+                data[i][j + 1] = delta.toString(isDisplay);
             }
         }
 

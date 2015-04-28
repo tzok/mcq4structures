@@ -84,13 +84,7 @@ public class TorsionAnglesPanel extends JPanel {
             handleMasterType(masterType, false);
         }
 
-        handleMasterType(new MasterTorsionAngleType() {
-            @Override
-            public TorsionAngleType[] getAngleTypes() {
-                return new TorsionAngleType[] { AverageTorsionAngleType.instanceForMainAngles(moleculeType) };
-            }
-        }, true);
-
+        handleMasterType(AverageTorsionAngleType.instanceForMainAngles(moleculeType), true);
     }
 
     private void handleMasterType(MasterTorsionAngleType masterType,

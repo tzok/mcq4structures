@@ -12,27 +12,25 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import pl.poznan.put.constant.Colors;
-import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.type.TorsionAngleType;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.utility.AngleFormat;
 
 public class FragmentMatchChart {
     public static ChartPanel create(FragmentMatch match) {
         DefaultXYDataset dataset = new DefaultXYDataset();
         XYItemRenderer renderer = new DefaultXYItemRenderer();
-        FragmentComparison comparison = match.getFragmentComparison();
 
         int i = 0;
-        for (TorsionAngleType angle : comparison.getAngleTypes()) {
+        for (MasterTorsionAngleType angle : match.getAngleTypes()) {
             double[][] data = new double[2][];
-            data[0] = new double[comparison.size()];
-            data[1] = new double[comparison.size()];
+            data[0] = new double[match.size()];
+            data[1] = new double[match.size()];
 
             int j = 0;
-            for (ResidueComparison residue : comparison.getResidueComparisons()) {
+            for (ResidueComparison residue : match.getResidueComparisons()) {
                 TorsionAngleDelta delta = residue.getAngleDelta(angle);
                 data[0][j] = j;
 

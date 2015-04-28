@@ -2,10 +2,12 @@ package pl.poznan.put.matching;
 
 import java.util.List;
 
+import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 public class FragmentMatch {
     private final PdbCompactFragment targetFragment;
@@ -41,8 +43,40 @@ public class FragmentMatch {
         return shift;
     }
 
-    public FragmentComparison getFragmentComparison() {
-        return fragmentComparison;
+    public List<ResidueComparison> getResidueComparisons() {
+        return fragmentComparison.getResidueComparisons();
+    }
+
+    public List<MasterTorsionAngleType> getAngleTypes() {
+        return fragmentComparison.getAngleTypes();
+    }
+
+    public int getTargetInvalidCount() {
+        return fragmentComparison.getTargetInvalidCount();
+    }
+
+    public int getModelInvalidCount() {
+        return fragmentComparison.getModelInvalidCount();
+    }
+
+    public int getBothInvalidCount() {
+        return fragmentComparison.getBothInvalidCount();
+    }
+
+    public int getValidCount() {
+        return fragmentComparison.getValidCount();
+    }
+
+    public Angle getMeanDelta() {
+        return fragmentComparison.getMeanDelta();
+    }
+
+    public int getMismatchCount() {
+        return fragmentComparison.getMismatchCount();
+    }
+
+    public int size() {
+        return fragmentComparison.size();
     }
 
     @Override

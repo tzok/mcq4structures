@@ -6,23 +6,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import pl.poznan.put.matching.FragmentComparison;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
+import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAnglesHelper;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
-import pl.poznan.put.torsion.type.TorsionAngleType;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
+import pl.poznan.put.utility.TabularExporter;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
@@ -31,12 +32,18 @@ import pl.poznan.put.torsion.type.TorsionAngleType;
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class MCQ implements GlobalComparator, LocalComparator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
+    private final List<MasterTorsionAngleType> angleTypes;
 
-    private final List<TorsionAngleType> angles;
+    public MCQ() {
+        super();
+        this.angleTypes = new ArrayList<>();
+        this.angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        this.angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+    }
 
-    public MCQ(List<TorsionAngleType> angles) {
-        this.angles = angles;
+    public MCQ(List<MasterTorsionAngleType> angleTypes) {
+        super();
+        this.angleTypes = angleTypes;
     }
 
     @Override
@@ -47,41 +54,38 @@ public class MCQ implements GlobalComparator, LocalComparator {
     @Override
     public GlobalComparisonResult compareGlobally(StructureSelection target,
             StructureSelection model) throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(angles);
+        MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(target, model);
 
-        if (matches == null || matches.getSize() == 0) {
+        if (matches == null || matches.size() == 0) {
             throw new IncomparableStructuresException("No matching fragments found");
         }
 
-        List<Double> deltas = new ArrayList<>();
+        List<Angle> deltas = new ArrayList<>();
 
-        for (int i = 0; i < matches.getSize(); i++) {
-            FragmentMatch fragment = matches.getFragmentMatch(i);
-            MCQ.LOGGER.debug("Taking into account fragments: " + fragment);
-            FragmentComparison fragmentComparison = fragment.getFragmentComparison();
+        for (FragmentMatch fragmentMatch : matches.getFragmentMatches()) {
+            for (ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
+                for (MasterTorsionAngleType angleType : angleTypes) {
+                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(angleType);
 
-            for (ResidueComparison residueComparison : fragmentComparison) {
-                for (TorsionAngle torsionAngle : angles) {
-                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
-
-                    if (angleDelta != null && angleDelta.getState() == State.BOTH_VALID) {
+                    if (angleDelta.getState() == State.BOTH_VALID) {
                         deltas.add(angleDelta.getDelta());
                     }
                 }
             }
         }
 
-        double mcq = TorsionAnglesHelper.calculateMean(deltas);
-        return new GlobalComparisonResult(getName(), matches, mcq, true);
+        AngleSample angleSample = new AngleSample(deltas);
+        Angle meanDirection = angleSample.getMeanDirection();
+        return new GlobalComparisonResult(getName(), matches, meanDirection.getRadians(), true);
     }
 
     @Override
     public LocalComparisonResult comparePair(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(angles);
+        MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
-        return new MCQLocalComparisonResult(matches, angles);
+        return new MCQLocalComparisonResult(matches, angleTypes);
     }
 
     @Override
@@ -96,7 +100,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             }
         }
 
-        MCQMatcher matcher = new MCQMatcher(angles);
+        MCQMatcher matcher = new MCQMatcher(angleTypes);
         List<FragmentMatch> matches = new ArrayList<>();
 
         for (PdbCompactFragment fragment : models) {
@@ -106,7 +110,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
         return new ModelsComparisonResult(reference, models, matches);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, PdbParsingException {
         if (args.length < 2) {
             System.err.println("You must specify at least 2 structures");
             return;
@@ -126,7 +130,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(new MCQ(MCQ.getAllAvailableTorsionAngles()), selections, null);
+        GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(new MCQ(), selections, null);
         System.out.println(TabularExporter.export(matrix.asExportableTableModel()));
     }
 }
