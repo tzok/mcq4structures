@@ -12,6 +12,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import pl.poznan.put.alignment.SequenceAlignment;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class SequenceAlignmentPanel extends JPanel {
@@ -38,7 +39,8 @@ public class SequenceAlignmentPanel extends JPanel {
         add(new JScrollPane(textAreaAlignSeq), BorderLayout.CENTER);
     }
 
-    public void setFragments(List<PdbCompactFragment> fragments, boolean isGlobal) {
+    public void setFragments(List<PdbCompactFragment> fragments,
+            boolean isGlobal) {
         this.fragments = fragments;
         updateHeaderAndResetTextArea(isGlobal);
     }
@@ -57,5 +59,16 @@ public class SequenceAlignmentPanel extends JPanel {
         builder.delete(builder.length() - 2, builder.length());
         labelInfoAlignSeq.setText("<html>Structures selected for " + (isGlobal ? "global" : "local") + " sequence alignment: " + builder.toString() + "</html>");
         textAreaAlignSeq.setText("");
+    }
+
+    public void setSequenceAlignment(SequenceAlignment alignment,
+            boolean isGlobal) {
+        if (isGlobal) {
+            labelInfoAlignSeq.setText("<html>Structures selected for global sequence alignment: " + alignment.getTitle() + "<br>Global sequence alignment results:</html>");
+        } else {
+            labelInfoAlignSeq.setText("<html>Structures selected for local sequence alignment: " + alignment.getTitle() + "<br>Local sequence alignment results:</html>");
+        }
+
+        textAreaAlignSeq.setText(alignment.toString());
     }
 }

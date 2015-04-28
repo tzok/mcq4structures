@@ -33,6 +33,8 @@ import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import pl.poznan.put.alignment.SequenceAligner;
+import pl.poznan.put.alignment.SequenceAlignment;
 import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
@@ -395,31 +397,17 @@ public class MainWindow extends JFrame {
     }
 
     void alignSequences() {
-        // TODO
-        // textAreaAlignSeq.setText("");
-        // layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
-        //
-        // List<CompactFragment> fragments = dialogChainsMultiple.getChains();
-        // boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        // SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
-        // SequenceAlignment alignment = aligner.align();
-        //
-        // exportable = alignment;
-        // textAreaAlignSeq.setText(alignment.toString());
-        // itemSave.setEnabled(true);
-        // itemSave.setText("Save results (TXT)");
-        //
-        // if (isGlobal) {
-        // labelInfoAlignSeq.setText("<html>" +
-        // "Structures selected for global sequence alignment: " +
-        // alignment.getTitle() + "<br>" + "Global sequence alignment results:"
-        // + "</html>");
-        // } else {
-        // labelInfoAlignSeq.setText("<html>" +
-        // "Structures selected for local sequence alignment: " +
-        // alignment.getTitle() + "<br>" + "Local sequence alignment results:" +
-        // "</html>");
-        // }
+        List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
+        boolean isGlobal = radioAlignSeqGlobal.isSelected();
+        panelResultsAlignSeq.setFragments(fragments, isGlobal);
+
+        SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
+        SequenceAlignment alignment = aligner.align();
+
+        exportable = alignment;
+        itemSave.setEnabled(true);
+        itemSave.setText("Save results (TXT)");
+        panelResultsAlignSeq.setSequenceAlignment(alignment, isGlobal);
     }
 
     void alignStructures() {
