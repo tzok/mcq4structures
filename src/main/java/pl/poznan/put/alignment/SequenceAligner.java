@@ -33,7 +33,6 @@ public final class SequenceAligner {
 
     private final List<PdbCompactFragment> fragments;
     private final boolean isGlobal;
-    private final String title;
     private final MoleculeType moleculeType;
     private final PairwiseSequenceScorerType type;
     private final SubstitutionMatrix<? extends AbstractCompound> substitutionMatrix;
@@ -43,14 +42,6 @@ public final class SequenceAligner {
         this.fragments = fragments;
         this.isGlobal = isGlobal;
 
-        StringBuilder builder = new StringBuilder();
-        for (PdbCompactFragment fragment : fragments) {
-            builder.append(fragment.toString());
-            builder.append(", ");
-        }
-        builder.delete(builder.length() - 2, builder.length());
-
-        title = builder.toString();
         moleculeType = fragments.get(0).moleculeType();
         type = isGlobal ? PairwiseSequenceScorerType.GLOBAL : PairwiseSequenceScorerType.LOCAL;
         substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix() : SequenceAligner.getProteinSubstitutionMatrix();
@@ -132,7 +123,7 @@ public final class SequenceAligner {
         }
 
         String alignment = builder.toString();
-        return new SequenceAlignment(isGlobal, alignment, title);
+        return new SequenceAlignment(isGlobal, alignment);
     }
 
     private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {

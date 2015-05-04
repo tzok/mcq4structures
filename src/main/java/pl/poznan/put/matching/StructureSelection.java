@@ -20,6 +20,7 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.torsion.type.TorsionAngleType;
+import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
@@ -113,6 +114,11 @@ public class StructureSelection implements Exportable, Tabular {
     @Override
     public void export(File file) throws IOException {
         TabularExporter.export(asExportableTableModel(), file);
+    }
+
+    @Override
+    public ExportFormat getExportFormat() {
+        return ExportFormat.CSV;
     }
 
     @Override

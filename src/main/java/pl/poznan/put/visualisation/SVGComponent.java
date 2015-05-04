@@ -19,6 +19,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.types.ExportFormat;
 
 public abstract class SVGComponent extends JSVGCanvas implements Exportable {
     private final JFileChooser chooser = new JFileChooser();
@@ -52,6 +53,11 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
         } catch (TranscoderException e) {
             throw new IOException("Failed to save SVG image", e);
         }
+    }
+
+    @Override
+    public ExportFormat getExportFormat() {
+        return ExportFormat.SVG;
     }
 
     public void selectFileAndExport() {

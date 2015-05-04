@@ -14,6 +14,7 @@ import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
+import pl.poznan.put.types.ExportFormat;
 
 public class SelectionMatch implements Exportable {
     private final StructureSelection target;
@@ -63,6 +64,11 @@ public class SelectionMatch implements Exportable {
         } catch (StructureException e) {
             throw new IOException("Failed to export the match to a PDB file", e);
         }
+    }
+
+    @Override
+    public ExportFormat getExportFormat() {
+        return ExportFormat.PDB;
     }
 
     @Override

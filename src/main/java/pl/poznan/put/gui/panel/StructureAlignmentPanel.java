@@ -2,9 +2,12 @@ package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
@@ -12,15 +15,38 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.biojava.bio.structure.StructureException;
 import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.matching.MCQMatcher;
+import pl.poznan.put.matching.SelectionFactory;
+import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
+import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 public class StructureAlignmentPanel extends JPanel {
-    private final JTextPane labelInfoAlignStruc = new JTextPane();
-    private final JLabel labelAlignmentStatus = new JLabel("", SwingConstants.CENTER);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);
+
+    // @formatter:off
+    private static final String JMOL_SCRIPT = 
+            "frame 0.0\n" + 
+            "cartoon only\n" + 
+            "select model=1.1\n" + 
+            "color green\n" + 
+            "select model=1.2\n" + 
+            "color red";
+    // @formatter:on
+
+    private final JTextPane labelHeader = new JTextPane();
+    private final JLabel labelStatus = new JLabel("", SwingConstants.CENTER);
     private final JmolPanel panelJmolLeft = new JmolPanel();
     private final JmolPanel panelJmolRight = new JmolPanel();
 
@@ -30,22 +56,22 @@ public class StructureAlignmentPanel extends JPanel {
     public StructureAlignmentPanel() {
         super();
 
-        labelInfoAlignStruc.setBorder(new EmptyBorder(10, 10, 10, 0));
-        labelInfoAlignStruc.setContentType("text/html");
-        labelInfoAlignStruc.setEditable(false);
-        labelInfoAlignStruc.setFont(UIManager.getFont("Label.font"));
-        labelInfoAlignStruc.setOpaque(false);
+        labelHeader.setBorder(new EmptyBorder(10, 10, 10, 0));
+        labelHeader.setContentType("text/html");
+        labelHeader.setEditable(false);
+        labelHeader.setFont(UIManager.getFont("Label.font"));
+        labelHeader.setOpaque(false);
 
         panelJmolLeft.executeCmd("background lightgrey; save state state_init");
         panelJmolRight.executeCmd("background darkgray; save state state_init");
 
         JPanel panelInfo = new JPanel(new GridLayout(1, 3));
         panelInfo.add(new JLabel("Whole structures (Jmol view)", SwingConstants.CENTER));
-        panelInfo.add(labelAlignmentStatus);
+        panelInfo.add(labelStatus);
         panelInfo.add(new JLabel("Aligned fragments (Jmol view)", SwingConstants.CENTER));
 
         JPanel panelMain = new JPanel(new BorderLayout());
-        panelMain.add(labelInfoAlignStruc, BorderLayout.NORTH);
+        panelMain.add(labelHeader, BorderLayout.NORTH);
         panelMain.add(panelInfo, BorderLayout.CENTER);
 
         JPanel panelJmols = new JPanel(new GridLayout(1, 2));
@@ -63,15 +89,16 @@ public class StructureAlignmentPanel extends JPanel {
 
         panelJmolLeft.executeCmd("restore state state_init");
         panelJmolRight.executeCmd("restore state state_init");
-        updateHeader();
+        labelStatus.setText("Ready");
+        updateHeader(false);
     }
 
-    public void updateHeader() {
+    public void updateHeader(boolean readyResults) {
         PdbModel left = structures.getLeft();
         PdbModel right = structures.getRight();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("<span style=\"color: blue\">");
+        builder.append("<html>Structures selected for 3D structure alignment: <span style=\"color: blue\">");
         builder.append(StructureManager.getName(left));
         builder.append('.');
 
@@ -88,6 +115,46 @@ public class StructureAlignmentPanel extends JPanel {
         }
 
         builder.append("</span>");
-        labelInfoAlignStruc.setText("<html>Structures selected for 3D structure alignment: " + builder.toString() + "</html>");
+
+        if (readyResults) {
+            builder.append("<br>3D structure alignment results:");
+        }
+
+        builder.append("</html>");
+        labelHeader.setText(builder.toString());
+    }
+
+    public ProcessingResult alignAndDisplayStructures() {
+        labelStatus.setText("Computing...");
+
+        List<MasterTorsionAngleType> torsionAngleTypes = new ArrayList<>();
+        torsionAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        torsionAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+
+        String nameLeft = StructureManager.getName(structures.getLeft());
+        String nameRight = StructureManager.getName(structures.getRight());
+
+        StructureSelection left = SelectionFactory.create(nameLeft, chains.getLeft());
+        StructureSelection right = SelectionFactory.create(nameRight, chains.getRight());
+
+        MCQMatcher matcher = new MCQMatcher(torsionAngleTypes);
+        SelectionMatch selectionMatch = matcher.matchSelections(left, right);
+
+        try {
+            panelJmolLeft.openStringInline(selectionMatch.toPDB(false));
+            panelJmolLeft.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);
+            panelJmolRight.openStringInline(selectionMatch.toPDB(true));
+            panelJmolRight.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);
+            updateHeader(true);
+            return new ProcessingResult(selectionMatch);
+        } catch (StructureException e) {
+            String message = "Failed to align structures: " + nameLeft + " and " + nameRight;
+            StructureAlignmentPanel.LOGGER.error(message, e);
+            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            labelStatus.setText("Computation finished");
+        }
+
+        return ProcessingResult.emptyInstance();
     }
 }

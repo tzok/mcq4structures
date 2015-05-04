@@ -14,7 +14,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
+import pl.poznan.put.comparison.ComparisonListener;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class LocalMultiMatrixPanel extends JPanel implements ComparisonListener {

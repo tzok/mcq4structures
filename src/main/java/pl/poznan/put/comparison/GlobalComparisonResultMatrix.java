@@ -17,6 +17,7 @@ import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.InvalidInputException;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.visualisation.MDS;
@@ -112,6 +113,11 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     @Override
     public void export(File file) throws IOException {
         TabularExporter.export(this, file);
+    }
+
+    @Override
+    public ExportFormat getExportFormat() {
+        return ExportFormat.CSV;
     }
 
     @Override

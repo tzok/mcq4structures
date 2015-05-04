@@ -25,13 +25,25 @@ public class RMSD implements GlobalComparator {
     private final boolean onlyHeavy;
     private final List<MasterTorsionAngleType> angleTypes;
 
+    public RMSD() {
+        super();
+        this.filter = AtomFilter.ALL;
+        this.onlyHeavy = true;
+        this.angleTypes = mainAngleTypes();
+    }
+
     public RMSD(AtomFilter filter, boolean onlyHeavy) {
         super();
         this.filter = filter;
         this.onlyHeavy = onlyHeavy;
-        this.angleTypes = new ArrayList<>();
-        this.angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-        this.angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+        this.angleTypes = mainAngleTypes();
+    }
+
+    private static List<MasterTorsionAngleType> mainAngleTypes() {
+        List<MasterTorsionAngleType> mainAngleTypes = new ArrayList<>();
+        mainAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        mainAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+        return mainAngleTypes;
     }
 
     @Override

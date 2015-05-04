@@ -1,6 +1,7 @@
 package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,8 +14,15 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 
-import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
+import pl.poznan.put.comparison.ComparisonListener;
+import pl.poznan.put.comparison.GlobalComparisonMeasure;
+import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
+import pl.poznan.put.comparison.ParallelGlobalComparator;
+import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.matching.SelectionFactory;
+import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
@@ -50,7 +58,7 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
 
     public void setStructures(List<PdbModel> structures) {
         this.structures = structures;
-        updateHeader();
+        updateHeader(false, "");
     }
 
     @Override
@@ -59,8 +67,9 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
         progressBar.setValue((int) completed);
     }
 
-    public void updateHeader() {
+    public void updateHeader(boolean readyResults, String measureName) {
         StringBuilder builder = new StringBuilder();
+        builder.append("<html>Structures selected for global distance measure: ");
         int i = 0;
 
         for (PdbModel s : structures) {
@@ -72,6 +81,32 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
         }
 
         builder.delete(builder.length() - 2, builder.length());
-        labelInfoMatrix.setText("<html>Structures selected for global distance measure: " + builder.toString() + "</html>");
+
+        if (readyResults) {
+            builder.append("<br>Global distance matrix (");
+            builder.append(measureName);
+            builder.append("):");
+        }
+
+        builder.append("</html>");
+        labelInfoMatrix.setText(builder.toString());
+    }
+
+    public ProcessingResult compareAndDisplayMatrix(
+            GlobalComparisonMeasure measure) {
+        List<StructureSelection> selections = new ArrayList<>();
+
+        for (int i = 0; i < structures.size(); i++) {
+            PdbModel structure = structures.get(i);
+            String name = StructureManager.getName(structure);
+            selections.add(SelectionFactory.create(name, structure));
+        }
+
+        ParallelGlobalComparator comparator = ParallelGlobalComparator.getInstance(measure);
+        GlobalComparisonResultMatrix matrix = comparator.run(selections, this);
+        tableMatrix.setModel(matrix.asDisplayableTableModel());
+        tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
+        updateHeader(true, matrix.getMeasureName());
+        return new ProcessingResult(matrix);
     }
 }

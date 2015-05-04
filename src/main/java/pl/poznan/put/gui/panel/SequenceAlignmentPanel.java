@@ -12,41 +12,51 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import pl.poznan.put.alignment.SequenceAligner;
 import pl.poznan.put.alignment.SequenceAlignment;
+import pl.poznan.put.gui.ProcessingResult;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class SequenceAlignmentPanel extends JPanel {
-    private final JTextPane labelInfoAlignSeq = new JTextPane();
-    private final JTextArea textAreaAlignSeq = new JTextArea();
+    private final JTextPane labelHeader = new JTextPane();
+    private final JTextArea textAreaAlignment = new JTextArea();
 
     private List<PdbCompactFragment> fragments = Collections.emptyList();
+    private boolean isGlobal;
 
     public SequenceAlignmentPanel() {
         super(new BorderLayout());
 
-        labelInfoAlignSeq.setBorder(new EmptyBorder(10, 10, 10, 0));
-        labelInfoAlignSeq.setContentType("text/html");
-        labelInfoAlignSeq.setEditable(false);
-        labelInfoAlignSeq.setFont(UIManager.getFont("Label.font"));
-        labelInfoAlignSeq.setOpaque(false);
-        textAreaAlignSeq.setEditable(false);
-        textAreaAlignSeq.setFont(new Font("Monospaced", Font.PLAIN, 20));
+        labelHeader.setBorder(new EmptyBorder(10, 10, 10, 0));
+        labelHeader.setContentType("text/html");
+        labelHeader.setEditable(false);
+        labelHeader.setFont(UIManager.getFont("Label.font"));
+        labelHeader.setOpaque(false);
+        textAreaAlignment.setEditable(false);
+        textAreaAlignment.setFont(new Font("Monospaced", Font.PLAIN, 20));
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(labelInfoAlignSeq, BorderLayout.CENTER);
+        panel.add(labelHeader, BorderLayout.CENTER);
 
         add(panel, BorderLayout.NORTH);
-        add(new JScrollPane(textAreaAlignSeq), BorderLayout.CENTER);
+        add(new JScrollPane(textAreaAlignment), BorderLayout.CENTER);
     }
 
     public void setFragments(List<PdbCompactFragment> fragments,
             boolean isGlobal) {
         this.fragments = fragments;
-        updateHeaderAndResetTextArea(isGlobal);
+        this.isGlobal = isGlobal;
+
+        textAreaAlignment.setText("");
+        updateHeader(false);
     }
 
-    private void updateHeaderAndResetTextArea(boolean isGlobal) {
+    private void updateHeader(boolean readyResults) {
         StringBuilder builder = new StringBuilder();
+        builder.append("<html>Structures selected for ");
+        builder.append((isGlobal ? "global" : "local"));
+        builder.append(" sequence alignment: ");
+
         int i = 0;
 
         for (PdbCompactFragment c : fragments) {
@@ -57,18 +67,24 @@ public class SequenceAlignmentPanel extends JPanel {
         }
 
         builder.delete(builder.length() - 2, builder.length());
-        labelInfoAlignSeq.setText("<html>Structures selected for " + (isGlobal ? "global" : "local") + " sequence alignment: " + builder.toString() + "</html>");
-        textAreaAlignSeq.setText("");
-    }
 
-    public void setSequenceAlignment(SequenceAlignment alignment,
-            boolean isGlobal) {
-        if (isGlobal) {
-            labelInfoAlignSeq.setText("<html>Structures selected for global sequence alignment: " + alignment.getTitle() + "<br>Global sequence alignment results:</html>");
-        } else {
-            labelInfoAlignSeq.setText("<html>Structures selected for local sequence alignment: " + alignment.getTitle() + "<br>Local sequence alignment results:</html>");
+        if (readyResults) {
+            builder.append("<br>");
+            builder.append(isGlobal ? "Global" : "Local");
+            builder.append("sequence alignment results:");
         }
 
-        textAreaAlignSeq.setText(alignment.toString());
+        builder.append("</html>");
+        labelHeader.setText(builder.toString());
+    }
+
+    public ProcessingResult alignAndDisplaySequences() {
+        SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
+        SequenceAlignment alignment = aligner.align();
+
+        textAreaAlignment.setText(alignment.toString());
+        updateHeader(true);
+
+        return new ProcessingResult(alignment);
     }
 }

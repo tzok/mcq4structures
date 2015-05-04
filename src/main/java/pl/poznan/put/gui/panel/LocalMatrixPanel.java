@@ -15,7 +15,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import pl.poznan.put.comparison.ParallelGlobalComparison.ComparisonListener;
+import pl.poznan.put.comparison.ComparisonListener;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;

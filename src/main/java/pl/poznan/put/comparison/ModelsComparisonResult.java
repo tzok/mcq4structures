@@ -39,6 +39,7 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.torsion.type.MasterTorsionAngleType;
+import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public class ModelsComparisonResult {
@@ -76,6 +77,11 @@ public class ModelsComparisonResult {
                     csvWriter.endRecord();
                 }
             }
+        }
+
+        @Override
+        public ExportFormat getExportFormat() {
+            return ExportFormat.CSV;
         }
 
         @Override

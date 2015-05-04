@@ -2,8 +2,6 @@ package pl.poznan.put.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -27,24 +25,16 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import pl.poznan.put.alignment.SequenceAligner;
-import pl.poznan.put.alignment.SequenceAlignment;
 import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.constant.Colors;
+import pl.poznan.put.comparison.GlobalComparisonMeasure;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
 import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
-import pl.poznan.put.interfaces.Clusterable;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
@@ -63,23 +53,28 @@ public class MainWindow extends JFrame {
     private static final String CARD_LOCAL_MULTI_MATRIX = "CARD_LOCAL_MULTI_MATRIX";
     private static final String TITLE = "MCQ4Structures: computing similarity of 3D RNA / protein structures";
 
-    private final TableCellRenderer colorsRenderer = new DefaultTableCellRenderer() {
-        private final TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table,
-                Object value, boolean isSelected, boolean hasFocus, int row,
-                int column) {
-            Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (column == 0) {
-                component.setBackground(Color.WHITE);
-                component.setForeground(Color.BLACK);
-            } else {
-                component.setBackground(Colors.COLORS[column - 1]);
-            }
-            return component;
-        }
-    };
+    // TODO
+    // private final TableCellRenderer colorsRenderer = new
+    // DefaultTableCellRenderer() {
+    // private final TableCellRenderer defaultRenderer = new
+    // DefaultTableCellRenderer();
+    //
+    // @Override
+    // public Component getTableCellRendererComponent(JTable table,
+    // Object value, boolean isSelected, boolean hasFocus, int row,
+    // int column) {
+    // Component component =
+    // defaultRenderer.getTableCellRendererComponent(table, value, isSelected,
+    // hasFocus, row, column);
+    // if (column == 0) {
+    // component.setBackground(Color.WHITE);
+    // component.setForeground(Color.BLACK);
+    // } else {
+    // component.setBackground(Colors.COLORS[column - 1]);
+    // }
+    // return component;
+    // }
+    // };
 
     private final JMenu menuFile = new JMenu("File");
     private final JMenuItem itemOpen = new JMenuItem("Open structure(s)", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_OPEN)));
@@ -122,11 +117,10 @@ public class MainWindow extends JFrame {
     private final DialogSelectStructures dialogStructures;
     private final DialogSelectChains dialogChains;
     private final DialogSelectChainsMultiple dialogChainsMultiple;
-    private final DialogSelectAngles dialogAngles;
+    // TODO
+    // private final DialogSelectAngles dialogAngles;
 
-    private Clusterable clusterable;
-    private Exportable exportable;
-    private Visualizable visualizable;
+    private ProcessingResult currentResult = ProcessingResult.emptyInstance();
 
     public MainWindow(List<File> pdbs) {
         super();
@@ -135,7 +129,8 @@ public class MainWindow extends JFrame {
         dialogStructures = new DialogSelectStructures(this);
         dialogChains = new DialogSelectChains(this);
         dialogChainsMultiple = new DialogSelectChainsMultiple(this);
-        dialogAngles = new DialogSelectAngles(this);
+        // TODO
+        // dialogAngles = new DialogSelectAngles(this);
 
         dialogManager.loadStructures(pdbs);
         createMenu();
@@ -325,8 +320,8 @@ public class MainWindow extends JFrame {
         itemVisualise.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (visualizable != null) {
-                    visualizable.visualize();
+                if (currentResult.canVisualize()) {
+                    currentResult.visualize();
                 }
             }
         });
@@ -334,8 +329,8 @@ public class MainWindow extends JFrame {
         itemVisualise3D.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (visualizable != null) {
-                    visualizable.visualize3D();
+                if (currentResult.canVisualize()) {
+                    currentResult.visualize3D();
                 }
             }
         });
@@ -343,8 +338,8 @@ public class MainWindow extends JFrame {
         itemCluster.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                if (clusterable != null) {
-                    clusterable.cluster();
+                if (currentResult.canCluster()) {
+                    currentResult.cluster();
                 }
             }
         });
@@ -396,133 +391,22 @@ public class MainWindow extends JFrame {
         });
     }
 
-    void alignSequences() {
-        List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
-        boolean isGlobal = radioAlignSeqGlobal.isSelected();
-        panelResultsAlignSeq.setFragments(fragments, isGlobal);
-
-        SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
-        SequenceAlignment alignment = aligner.align();
-
-        exportable = alignment;
-        itemSave.setEnabled(true);
-        itemSave.setText("Save results (TXT)");
-        panelResultsAlignSeq.setSequenceAlignment(alignment, isGlobal);
+    private void alignSequences() {
+        currentResult = panelResultsAlignSeq.alignAndDisplaySequences();
+        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+        updateMenuEnabledStates();
     }
 
-    void alignStructures() {
-        // TODO
-        // panelJmolLeft.executeCmd("restore state state_init");
-        // panelJmolRight.executeCmd("restore state state_init");
-        // layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
-        //
-        // Pair<Structure, Structure> pair = dialogChains.getStructures();
-        // Structure left = pair.getLeft();
-        // Structure right = pair.getRight();
-        // StructureSelection s1 =
-        // SelectionFactory.create(StructureManager.getName(left), left);
-        // StructureSelection s2 =
-        // SelectionFactory.create(StructureManager.getName(right), right);
-        //
-        // MCQMatcher matcher = new
-        // MCQMatcher(MCQ.getAllAvailableTorsionAngles());
-        // SelectionMatch selectionMatch = matcher.matchSelections(s1, s2);
-        // exportable = selectionMatch;
-        //
-        // try {
-        // String jmolScript = "frame 0.0; cartoon only; " +
-        // "select model=1.1; color green; " + "select model=1.2; color red; ";
-        //
-        // JmolViewer viewer = panelJmolLeft.getViewer();
-        // String pdb = selectionMatch.toPDB(false);
-        // try {
-        // FileUtils.write(new File("/tmp/whole.pdb"), pdb);
-        // } catch (IOException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // viewer.openStringInline(pdb);
-        // panelJmolLeft.executeCmd(jmolScript);
-        //
-        // viewer = panelJmolRight.getViewer();
-        // pdb = selectionMatch.toPDB(true);
-        // try {
-        // FileUtils.write(new File("/tmp/matched.pdb"), pdb);
-        // } catch (IOException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // viewer.openStringInline(pdb);
-        // panelJmolRight.executeCmd(jmolScript);
-        // } catch (StructureException e) {
-        // JOptionPane.showMessageDialog(this, "Failed to align structures. " +
-        // "Reason: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        // return;
-        // }
-        //
-        // itemSave.setEnabled(true);
-        // itemSave.setText("Save results (PDB)");
-        //
-        // labelAlignmentStatus.setText("Computation finished");
-        // labelInfoAlignStruc.setText("<html>" +
-        // "Structures selected for 3D structure alignment: " +
-        // dialogChains.getSelectionDescription() + "<br>" +
-        // "3D structure alignment results:" + "</html>");
+    private void alignStructures() {
+        currentResult = panelResultsAlignStruc.alignAndDisplayStructures();
+        layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
+        updateMenuEnabledStates();
     }
 
     void compareGlobal() {
-        // TODO
-        // final GlobalComparator comparator;
-        // if (radioGlobalMcq.isSelected()) {
-        // comparator = new MCQ(MCQ.getAllAvailableTorsionAngles());
-        // } else { // radioRmsd.isSelected() == true
-        // comparator = new RMSD(AtomFilter.ALL, true);
-        // }
-        //
-        // final List<Structure> structures = dialogStructures.getStructures();
-        // final List<String> names = StructureManager.getNames(structures);
-        //
-        // Thread thread = new Thread(new Runnable() {
-        // @Override
-        // public void run() {
-        // List<StructureSelection> selections = new ArrayList<>();
-        //
-        // for (int i = 0; i < structures.size(); i++) {
-        // selections.add(SelectionFactory.create(names.get(i),
-        // structures.get(i)));
-        // }
-        //
-        // final GlobalComparisonResultMatrix matrix =
-        // ParallelGlobalComparison.run(comparator, selections,
-        // MainWindow.this);
-        //
-        // SwingUtilities.invokeLater(new Runnable() {
-        // @Override
-        // public void run() {
-        // clusterable = matrix;
-        // exportable = matrix;
-        // visualizable = matrix;
-        //
-        // tableMatrix.setModel(matrix.asDisplayableTableModel());
-        // tableMatrix.setDefaultRenderer(Object.class, new
-        // DefaultTableCellRenderer());
-        //
-        // itemSave.setEnabled(true);
-        // itemSave.setText("Save results (CSV)");
-        // itemVisualise.setEnabled(true);
-        // itemVisualise3D.setEnabled(true);
-        // itemCluster.setEnabled(true);
-        //
-        // labelInfoMatrix.setText("<html>" +
-        // "Structures selected for global distance measure: " +
-        // dialogStructures.getSelectionDescription() + "<br>" +
-        // "Global distance matrix (" + matrix.getMeasureName() + "):" +
-        // "</html>");
-        // }
-        // });
-        // }
-        // });
-        // thread.start();
+        currentResult = panelResultsGlobalMatrix.compareAndDisplayMatrix(radioGlobalMcq.isSelected() ? GlobalComparisonMeasure.MCQ : GlobalComparisonMeasure.RMSD);
+        layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+        updateMenuEnabledStates();
     }
 
     void compareLocalPair() {
@@ -667,7 +551,7 @@ public class MainWindow extends JFrame {
         // "Local distance vector(s):" + "</html>");
     }
 
-    void selectStructures() {
+    private void selectStructures() {
         if (dialogStructures.showDialog() != DialogSelectStructures.OK) {
             return;
         }
@@ -769,18 +653,29 @@ public class MainWindow extends JFrame {
     }
 
     private void saveResults() {
-        if (exportable != null) {
-            pdbChooser.setSelectedFile(exportable.suggestName());
+        if (currentResult.canExport()) {
+            pdbChooser.setSelectedFile(currentResult.suggestName());
             int option = pdbChooser.showSaveDialog(MainWindow.this);
 
             if (option == JFileChooser.APPROVE_OPTION) {
                 try {
-                    exportable.export(pdbChooser.getSelectedFile());
+                    currentResult.export(pdbChooser.getSelectedFile());
                     JOptionPane.showMessageDialog(MainWindow.this, "Successfully exported the results!", "Information", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException exception) {
                     JOptionPane.showMessageDialog(MainWindow.this, "Failed to export results, reason: " + exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
+        }
+    }
+
+    private void updateMenuEnabledStates() {
+        itemSave.setEnabled(currentResult.canExport());
+        itemCluster.setEnabled(currentResult.canCluster());
+        itemVisualise.setEnabled(currentResult.canVisualize());
+        itemVisualise.setEnabled(currentResult.canVisualize());
+
+        if (currentResult.canExport()) {
+            itemSave.setText("Save results (" + currentResult.getExportFormat() + ")");
         }
     }
 }

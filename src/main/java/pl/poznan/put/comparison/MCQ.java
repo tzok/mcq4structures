@@ -130,7 +130,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        GlobalComparisonResultMatrix matrix = ParallelGlobalComparison.run(new MCQ(), selections, null);
+        ParallelGlobalComparator comparator = ParallelGlobalComparator.getInstance(GlobalComparisonMeasure.MCQ);
+        GlobalComparisonResultMatrix matrix = comparator.run(selections, IgnoringComparisonListener.getInstance());
         System.out.println(TabularExporter.export(matrix.asExportableTableModel()));
     }
 }
