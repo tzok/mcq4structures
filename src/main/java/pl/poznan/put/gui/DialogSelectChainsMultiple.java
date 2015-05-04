@@ -74,7 +74,7 @@ final class DialogSelectChainsMultiple extends JDialog {
                 JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
                 if (value != null) {
-                    boolean isRNA = value.moleculeType() == MoleculeType.RNA;
+                    boolean isRNA = value.getMoleculeType() == MoleculeType.RNA;
                     label.setText(value.toString());
                     label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                 }

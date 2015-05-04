@@ -96,8 +96,8 @@ public class FragmentMatch {
     }
 
     public MoleculeType moleculeType() {
-        assert targetFragment.moleculeType() == modelFragment.moleculeType();
-        return targetFragment.moleculeType();
+        assert targetFragment.getMoleculeType() == modelFragment.getMoleculeType();
+        return targetFragment.getMoleculeType();
     }
 
     public String[] getResidueLabels() throws InvalidCircularValueException {

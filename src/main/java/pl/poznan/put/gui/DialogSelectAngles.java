@@ -20,6 +20,8 @@ import pl.poznan.put.gui.panel.TorsionAnglesPanel;
 import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 final class DialogSelectAngles extends JDialog {
+    public static final int CANCEL = 0;
+    public static final int OK = 1;
     private final List<MasterTorsionAngleType> selectedAngles = new ArrayList<>();
 
     private final JButton buttonOk = new JButton("OK");
@@ -34,6 +36,8 @@ final class DialogSelectAngles extends JDialog {
 
     private final TorsionAnglesPanel panelAnglesRNA = new TorsionAnglesPanel(MoleculeType.RNA, checkBoxListener);
     private final TorsionAnglesPanel panelAnglesProtein = new TorsionAnglesPanel(MoleculeType.PROTEIN, checkBoxListener);
+
+    private int chosenOption;
 
     public DialogSelectAngles(Frame owner) {
         super(owner, true);
@@ -62,6 +66,7 @@ final class DialogSelectAngles extends JDialog {
         buttonOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                chosenOption = DialogSelectAngles.OK;
                 selectedAngles.clear();
                 selectedAngles.addAll(panelAnglesRNA.getSelected());
                 selectedAngles.addAll(panelAnglesProtein.getSelected());
@@ -72,6 +77,7 @@ final class DialogSelectAngles extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                chosenOption = DialogSelectAngles.CANCEL;
                 selectedAngles.clear();
                 dispose();
             }
@@ -85,5 +91,10 @@ final class DialogSelectAngles extends JDialog {
     private void setButtonOkState() {
         boolean enabled = panelAnglesRNA.isAnySelected() || panelAnglesProtein.isAnySelected();
         buttonOk.setEnabled(enabled);
+    }
+
+    public int showDialog() {
+        setVisible(true);
+        return chosenOption;
     }
 }

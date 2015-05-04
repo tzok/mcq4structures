@@ -104,9 +104,11 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
 
         ParallelGlobalComparator comparator = ParallelGlobalComparator.getInstance(measure);
         GlobalComparisonResultMatrix matrix = comparator.run(selections, this);
+
         tableMatrix.setModel(matrix.asDisplayableTableModel());
         tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
         updateHeader(true, matrix.getMeasureName());
+
         return new ProcessingResult(matrix);
     }
 }

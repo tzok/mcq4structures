@@ -42,7 +42,7 @@ public final class SequenceAligner {
         this.fragments = fragments;
         this.isGlobal = isGlobal;
 
-        moleculeType = fragments.get(0).moleculeType();
+        moleculeType = fragments.get(0).getMoleculeType();
         type = isGlobal ? PairwiseSequenceScorerType.GLOBAL : PairwiseSequenceScorerType.LOCAL;
         substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix() : SequenceAligner.getProteinSubstitutionMatrix();
     }

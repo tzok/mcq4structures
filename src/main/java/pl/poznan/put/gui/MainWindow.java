@@ -53,29 +53,6 @@ public class MainWindow extends JFrame {
     private static final String CARD_LOCAL_MULTI_MATRIX = "CARD_LOCAL_MULTI_MATRIX";
     private static final String TITLE = "MCQ4Structures: computing similarity of 3D RNA / protein structures";
 
-    // TODO
-    // private final TableCellRenderer colorsRenderer = new
-    // DefaultTableCellRenderer() {
-    // private final TableCellRenderer defaultRenderer = new
-    // DefaultTableCellRenderer();
-    //
-    // @Override
-    // public Component getTableCellRendererComponent(JTable table,
-    // Object value, boolean isSelected, boolean hasFocus, int row,
-    // int column) {
-    // Component component =
-    // defaultRenderer.getTableCellRendererComponent(table, value, isSelected,
-    // hasFocus, row, column);
-    // if (column == 0) {
-    // component.setBackground(Color.WHITE);
-    // component.setForeground(Color.BLACK);
-    // } else {
-    // component.setBackground(Colors.COLORS[column - 1]);
-    // }
-    // return component;
-    // }
-    // };
-
     private final JMenu menuFile = new JMenu("File");
     private final JMenuItem itemOpen = new JMenuItem("Open structure(s)", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_OPEN)));
     private final JMenuItem itemSave = new JMenuItem("Save results", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_SAVE)));
@@ -117,8 +94,7 @@ public class MainWindow extends JFrame {
     private final DialogSelectStructures dialogStructures;
     private final DialogSelectChains dialogChains;
     private final DialogSelectChainsMultiple dialogChainsMultiple;
-    // TODO
-    // private final DialogSelectAngles dialogAngles;
+    private final DialogSelectAngles dialogAngles;
 
     private ProcessingResult currentResult = ProcessingResult.emptyInstance();
 
@@ -129,8 +105,7 @@ public class MainWindow extends JFrame {
         dialogStructures = new DialogSelectStructures(this);
         dialogChains = new DialogSelectChains(this);
         dialogChainsMultiple = new DialogSelectChainsMultiple(this);
-        // TODO
-        // dialogAngles = new DialogSelectAngles(this);
+        dialogAngles = new DialogSelectAngles(this);
 
         dialogManager.loadStructures(pdbs);
         createMenu();
@@ -403,152 +378,24 @@ public class MainWindow extends JFrame {
         updateMenuEnabledStates();
     }
 
-    void compareGlobal() {
+    private void compareGlobal() {
         currentResult = panelResultsGlobalMatrix.compareAndDisplayMatrix(radioGlobalMcq.isSelected() ? GlobalComparisonMeasure.MCQ : GlobalComparisonMeasure.RMSD);
         layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
         updateMenuEnabledStates();
     }
 
-    void compareLocalPair() {
-        // TODO
-        // Pair<Structure, Structure> structures = dialogChains.getStructures();
-        // Pair<List<Chain>, List<Chain>> chains = dialogChains.getChains();
-        //
-        // StructureSelection selectionL =
-        // SelectionFactory.create(StructureManager.getName(structures.getLeft()),
-        // chains.getLeft());
-        // StructureSelection selectionR =
-        // SelectionFactory.create(StructureManager.getName(structures.getRight()),
-        // chains.getRight());
-        //
-        // LocalComparisonResult comparisonLocal;
-        //
-        // try {
-        // progressBar.setValue(0);
-        // progressBar.setMaximum(1);
-        //
-        // MCQ mcq = new MCQ(Arrays.asList(dialogAngles.getAngles()));
-        // comparisonLocal = mcq.comparePair(selectionL, selectionR);
-        // } catch (IncomparableStructuresException e) {
-        // JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
-        // "Error", JOptionPane.ERROR_MESSAGE);
-        // return;
-        // } finally {
-        // progressBar.setValue(1);
-        // }
-        //
-        // if (comparisonLocal instanceof MCQLocalComparisonResult) {
-        // tableMatrix.setModel(comparisonLocal.asDisplayableTableModel());
-        // tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
-        // } else {
-        // JOptionPane.showMessageDialog(MainWindow.this, "Cannot continue, " +
-        // "the result of comparison is invalid", "Error",
-        // JOptionPane.ERROR_MESSAGE);
-        // return;
-        // }
-        //
-        // exportable = comparisonLocal;
-        // visualizable = comparisonLocal;
-        //
-        // itemSave.setEnabled(true);
-        // itemSave.setText("Save results (CSV)");
-        // itemVisualise.setEnabled(true);
-        // itemVisualise3D.setEnabled(true);
-        // itemCluster.setEnabled(false);
-        //
-        // labelInfoMatrix.setText("<html>" + "Structures selected for local " +
-        // "distance measure: " + dialogChains.getSelectionDescription() +
-        // "<br>" + "Local distance vector(s):" + "</html>");
+    private void compareLocalPair() {
+        if (dialogAngles.showDialog() == DialogSelectAngles.OK) {
+            currentResult = panelResultsLocalMatrix.compareAndDisplayTable(dialogAngles.getAngles());
+            layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
+            updateMenuEnabledStates();
+        }
     }
 
-    void compareLocalMulti() {
-        // TODO
-        // List<CompactFragment> selections = dialogChainsMultiple.getChains();
-        // CompactFragment[] array = selections.toArray(new
-        // CompactFragment[selections.size()]);
-        // MoleculeType moleculeType = array[0].getMoleculeType();
-        // List<TorsionAngle> angles = new ArrayList<>();
-        //
-        // CompactFragment reference = (CompactFragment)
-        // JOptionPane.showInputDialog(MainWindow.this,
-        // "Select your reference structure", "Reference structure",
-        // JOptionPane.INFORMATION_MESSAGE, null, array, array[0]);
-        // if (reference == null) {
-        // return;
-        // }
-        //
-        // if (moleculeType == MoleculeType.PROTEIN) {
-        // angles.addAll(Arrays.asList(ProteinTorsionAngle.values()));
-        // angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.PROTEIN)));
-        // } else if (moleculeType == MoleculeType.RNA) {
-        // angles.addAll(Arrays.asList(RNATorsionAngle.values()));
-        // angles.addAll(Arrays.asList(ChiTorsionAngleType.getChiTorsionAngles(MoleculeType.RNA)));
-        // angles.add(PseudophasePuckerAngle.getInstance());
-        // }
-        //
-        // AverageTorsionAngleType averageAngle =
-        // AverageTorsionAngleType.getInstanceMainAngles(moleculeType);
-        // angles.add(averageAngle);
-        //
-        // TorsionAngle angleType = (TorsionAngle)
-        // JOptionPane.showInputDialog(MainWindow.this, "Select torsion angle",
-        // "Torsion angle", JOptionPane.INFORMATION_MESSAGE, null,
-        // angles.toArray(new TorsionAngle[angles.size()]), averageAngle);
-        // if (angleType == null) {
-        // return;
-        // }
-        //
-        // List<TorsionAngle> selectedAngles = new ArrayList<>();
-        //
-        // if (angleType.equals(averageAngle)) {
-        // selectedAngles.addAll(averageAngle.getConsideredAngles());
-        // if (moleculeType == MoleculeType.RNA) {
-        // selectedAngles.addAll(Arrays.asList(PseudophasePuckerAngle.requiredAngles()));
-        // }
-        // } else if (angleType.equals(PseudophasePuckerAngle.getInstance())) {
-        // selectedAngles.add(RNATorsionAngle.TAU0);
-        // selectedAngles.add(RNATorsionAngle.TAU1);
-        // selectedAngles.add(RNATorsionAngle.TAU2);
-        // selectedAngles.add(RNATorsionAngle.TAU3);
-        // selectedAngles.add(RNATorsionAngle.TAU4);
-        // }
-        //
-        // selectedAngles.add(angleType);
-        // selections.remove(reference);
-        // ModelsComparisonResult result;
-        // SelectedAngle selectedAngle;
-        //
-        // progressBar.setMaximum(1);
-        // progressBar.setValue(0);
-        //
-        // try {
-        // MCQ mcq = new MCQ(selectedAngles);
-        // result = mcq.compareModels(reference, selections);
-        // selectedAngle = result.selectAngle(angleType);
-        // } catch (IncomparableStructuresException e) {
-        // JOptionPane.showMessageDialog(MainWindow.this, e.getMessage(),
-        // "Error", JOptionPane.ERROR_MESSAGE);
-        // return;
-        // }
-        //
-        // progressBar.setValue(1);
-        // exportable = selectedAngle;
-        // visualizable = selectedAngle;
-        //
-        // tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
-        // tableMatrix.setDefaultRenderer(Object.class, new
-        // DefaultTableCellRenderer());
-        //
-        // itemSave.setEnabled(true);
-        // itemSave.setText("Save results (CSV)");
-        // itemVisualise.setEnabled(true);
-        // itemVisualise3D.setEnabled(true);
-        // itemCluster.setEnabled(false);
-        //
-        // labelInfoMatrix.setText("<html>" +
-        // "Structures selected for local distance measure: " +
-        // dialogChainsMultiple.getSelectionDescription() + "<br>" +
-        // "Local distance vector(s):" + "</html>");
+    private void compareLocalMulti() {
+        currentResult = panelResultsLocalMultiMatrix.compareAndDisplayTable();
+        layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
+        updateMenuEnabledStates();
     }
 
     private void selectStructures() {
@@ -620,10 +467,10 @@ public class MainWindow extends JFrame {
         }
 
         List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
-        MoleculeType type = fragments.get(0).moleculeType();
+        MoleculeType type = fragments.get(0).getMoleculeType();
 
         for (PdbCompactFragment c : fragments) {
-            if (type != c.moleculeType()) {
+            if (type != c.getMoleculeType()) {
                 JOptionPane.showMessageDialog(this, "Cannot align/compare structures: different types", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
