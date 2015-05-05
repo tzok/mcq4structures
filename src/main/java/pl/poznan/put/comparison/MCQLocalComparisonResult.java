@@ -2,6 +2,7 @@ package pl.poznan.put.comparison;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,8 +47,8 @@ public class MCQLocalComparisonResult extends LocalComparisonResult {
     }
 
     @Override
-    public void export(File file) throws IOException {
-        TabularExporter.export(this, file);
+    public void export(OutputStream stream) throws IOException {
+        TabularExporter.export(asExportableTableModel(), stream);
     }
 
     @Override

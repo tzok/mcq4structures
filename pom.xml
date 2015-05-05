@@ -68,26 +68,12 @@
 				</executions>
 			</plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jarsigner-plugin</artifactId>
-				<version>1.3.2</version>
-				<executions>
-					<execution>
-						<id>sign</id>
-						<phase>package</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<keystore>${project.basedir}/certs/keystore.p12</keystore>
-					<storetype>pkcs12</storetype>
-					<jarPath>${project.build.directory}/${project.build.FinalName}-${project.packaging}-with-dependencies.${project.packaging}</jarPath>
-					<verify>true</verify>
-				</configuration>
-			</plugin>
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jarsigner-plugin</artifactId> 
+				<version>1.3.2</version> <executions> <execution> <id>sign</id> <phase>package</phase> 
+				<goals> <goal>sign</goal> </goals> </execution> </executions> <configuration> 
+				<keystore>${project.basedir}/certs/keystore.p12</keystore> <storetype>pkcs12</storetype> 
+				<jarPath>${project.build.directory}/${project.build.FinalName}-${project.packaging}-with-dependencies.${project.packaging}</jarPath> 
+				<verify>true</verify> </configuration> </plugin> -->
 		</plugins>
 	</build>
 

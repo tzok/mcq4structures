@@ -2,6 +2,7 @@ package pl.poznan.put.matching;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.interfaces.Exportable;
@@ -58,9 +59,9 @@ public class SelectionMatch implements Exportable {
     }
 
     @Override
-    public void export(File file) throws IOException {
+    public void export(OutputStream stream) throws IOException {
         try {
-            FileUtils.writeStringToFile(file, toPDB(false), "UTF-8");
+            IOUtils.write(toPDB(false), stream, "UTF-8");
         } catch (StructureException e) {
             throw new IOException("Failed to export the match to a PDB file", e);
         }

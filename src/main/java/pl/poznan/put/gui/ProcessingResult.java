@@ -2,6 +2,7 @@ package pl.poznan.put.gui;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
@@ -60,8 +61,8 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
     }
 
     @Override
-    public void export(File file) throws IOException {
-        exportable.export(file);
+    public void export(OutputStream stream) throws IOException {
+        exportable.export(stream);
     }
 
     @Override

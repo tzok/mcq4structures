@@ -1,10 +1,9 @@
 package pl.poznan.put.visualisation;
 
 import java.awt.Dimension;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
 
 import javax.swing.JFileChooser;
 
@@ -44,10 +43,10 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
     }
 
     @Override
-    public void export(File file) throws IOException {
-        try (Writer writer = new FileWriter(file)) {
+    public void export(OutputStream stream) throws IOException {
+        try {
             TranscoderInput input = new TranscoderInput(svgDocument);
-            TranscoderOutput output = new TranscoderOutput(writer);
+            TranscoderOutput output = new TranscoderOutput(stream);
             Transcoder transcoder = new SVGTranscoder();
             transcoder.transcode(input, output);
         } catch (TranscoderException e) {
@@ -65,8 +64,8 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
         int state = chooser.showOpenDialog(getParent());
 
         if (state == JFileChooser.APPROVE_OPTION) {
-            try {
-                export(chooser.getSelectedFile());
+            try (OutputStream stream = new FileOutputStream(chooser.getSelectedFile())) {
+                export(stream);
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();

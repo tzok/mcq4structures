@@ -2,8 +2,10 @@ package pl.poznan.put.alignment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -34,8 +36,8 @@ public class SequenceAlignment implements Exportable {
     }
 
     @Override
-    public void export(File file) throws IOException {
-        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+    public void export(OutputStream stream) throws IOException {
+        try (Writer writer = new OutputStreamWriter(stream, "UTF-8")) {
             writer.write(isGlobal ? "Global" : "Local");
             writer.write(" sequence alignment: ");
             writer.write("\n\n");

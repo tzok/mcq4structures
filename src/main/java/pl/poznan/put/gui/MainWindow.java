@@ -10,7 +10,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
@@ -505,8 +507,8 @@ public class MainWindow extends JFrame {
             int option = pdbChooser.showSaveDialog(MainWindow.this);
 
             if (option == JFileChooser.APPROVE_OPTION) {
-                try {
-                    currentResult.export(pdbChooser.getSelectedFile());
+                try (OutputStream stream = new FileOutputStream(pdbChooser.getSelectedFile())) {
+                    currentResult.export(stream);
                     JOptionPane.showMessageDialog(MainWindow.this, "Successfully exported the results!", "Information", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException exception) {
                     JOptionPane.showMessageDialog(MainWindow.this, "Failed to export results, reason: " + exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

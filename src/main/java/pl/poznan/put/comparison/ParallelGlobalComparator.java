@@ -82,7 +82,7 @@ public class ParallelGlobalComparator {
                     while (true) {
                         long completed = ((ThreadPoolExecutor) threadPool).getCompletedTaskCount();
                         listener.stateChanged(all, completed);
-                        wait(1000);
+                        Thread.sleep(1000);
                     }
                 } catch (InterruptedException e) {
                     threadPool.shutdownNow();

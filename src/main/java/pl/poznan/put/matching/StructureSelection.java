@@ -2,6 +2,7 @@ package pl.poznan.put.matching;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -112,8 +113,8 @@ public class StructureSelection implements Exportable, Tabular {
     }
 
     @Override
-    public void export(File file) throws IOException {
-        TabularExporter.export(asExportableTableModel(), file);
+    public void export(OutputStream stream) throws IOException {
+        TabularExporter.export(asExportableTableModel(), stream);
     }
 
     @Override
@@ -158,6 +159,7 @@ public class StructureSelection implements Exportable, Tabular {
         for (PdbCompactFragment fragment : compactFragments) {
             for (PdbResidue residue : fragment.getResidues()) {
                 List<String> row = new ArrayList<>();
+                row.add(residue.toString());
 
                 for (TorsionAngleType angleType : allAngleTypes) {
                     TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, angleType);

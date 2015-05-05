@@ -5,7 +5,8 @@ import java.awt.FontMetrics;
 import java.awt.font.LineMetrics;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,31 +53,31 @@ public class ModelsComparisonResult {
         }
 
         @Override
-        public void export(File file) throws IOException {
-            try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
-                CsvWriter csvWriter = new CsvWriter(writer, ';');
-                csvWriter.write(null);
+        public void export(OutputStream stream) throws IOException {
+            CsvWriter csvWriter = new CsvWriter(stream, ',', Charset.forName("UTF-8"));
+            csvWriter.write(null);
 
-                for (PdbCompactFragment model : models) {
-                    csvWriter.write(model.toString());
+            for (PdbCompactFragment model : models) {
+                csvWriter.write(model.toString());
+            }
+
+            csvWriter.endRecord();
+
+            for (int i = 0; i < target.size(); i++) {
+                PdbResidue residue = target.getResidues().get(i);
+                csvWriter.write(residue.toString());
+
+                for (int j = 0; j < models.size(); j++) {
+                    FragmentMatch fragmentMatch = matches.get(j);
+                    ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
+                    TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
+                    csvWriter.write(delta.toExportString());
                 }
 
                 csvWriter.endRecord();
-
-                for (int i = 0; i < target.size(); i++) {
-                    PdbResidue residue = target.getResidues().get(i);
-                    csvWriter.write(residue.toString());
-
-                    for (int j = 0; j < models.size(); j++) {
-                        FragmentMatch fragmentMatch = matches.get(j);
-                        ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-                        TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
-                        csvWriter.write(delta.toExportString());
-                    }
-
-                    csvWriter.endRecord();
-                }
             }
+
+            csvWriter.close();
         }
 
         @Override
