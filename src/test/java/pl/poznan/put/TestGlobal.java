@@ -16,7 +16,10 @@ import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.MCQGlobalResult;
+import pl.poznan.put.comparison.RMSD;
+import pl.poznan.put.comparison.RMSDGlobalResult;
 import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
@@ -39,7 +42,7 @@ public class TestGlobal {
     }
 
     @Test
-    public void testGlobalMCQ() throws PdbParsingException, IncomparableStructuresException {
+    public void testMCQ() throws PdbParsingException, IncomparableStructuresException {
         List<PdbModel> models = parser.parse(pdb1EHZ);
         assertEquals(1, models.size());
         PdbModel model1 = models.get(0);
@@ -64,5 +67,25 @@ public class TestGlobal {
         assertEquals(605, fragmentMatch.getValidCount());
         assertEquals(9.177053297, comparisonResult.getMeanDirection().getDegrees(), 0.1);
         assertEquals(0.1601697957, comparisonResult.getMeanDirection().getRadians(), 0.01);
+    }
+
+    @Test
+    public void testRMSD() throws PdbParsingException, IncomparableStructuresException {
+        List<PdbModel> models = parser.parse(pdb1EHZ);
+        assertEquals(1, models.size());
+        PdbModel model1 = models.get(0);
+
+        models = parser.parse(pdb1EVV);
+        assertEquals(1, models.size());
+        PdbModel model2 = models.get(0);
+
+        StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
+        StructureSelection selection2 = SelectionFactory.create("1EVV", model2);
+
+        RMSD rmsd = new RMSD(AtomFilter.MAIN, true);
+        RMSDGlobalResult comparisonResult = (RMSDGlobalResult) rmsd.compareGlobally(selection1, selection2);
+
+        assertEquals(76, comparisonResult.getAtomCount());
+        assertEquals(0.593, comparisonResult.getRMSD(), 0.1);
     }
 }

@@ -14,6 +14,10 @@ public class RMSDGlobalResult extends GlobalComparisonResult {
         this.superimposer = superimposer;
     }
 
+    public int getAtomCount() {
+        return superimposer.getAtomCount();
+    }
+
     public double getRMSD() {
         return superimposer.getRMSD();
     }

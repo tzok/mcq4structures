@@ -99,18 +99,15 @@ public class FragmentSuperimposer {
     }
 
     private List<AtomName> handleAtomFilter(MoleculeType moleculeType) {
-        List<AtomName> atomNames = new ArrayList<>();
-
         switch (moleculeType) {
         case PROTEIN:
-            atomNames = handleAtomFilterForProtein();
+            return handleAtomFilterForProtein();
         case RNA:
-            atomNames = handleAtomFilterForRNA();
+            return handleAtomFilterForRNA();
         case UNKNOWN:
         default:
-            atomNames = Collections.emptyList();
+            return Collections.emptyList();
         }
-        return atomNames;
     }
 
     private List<AtomName> handleAtomFilterForRNA() {
@@ -154,6 +151,11 @@ public class FragmentSuperimposer {
         default:
             return Collections.emptyList();
         }
+    }
+
+    public int getAtomCount() {
+        assert totalAtomsTarget.length == totalAtomsModel.length;
+        return totalAtomsTarget.length;
     }
 
     public double getRMSD() {
