@@ -86,6 +86,6 @@ public class TestGlobal {
         RMSDGlobalResult comparisonResult = (RMSDGlobalResult) rmsd.compareGlobally(selection1, selection2);
 
         assertEquals(76, comparisonResult.getAtomCount());
-        assertEquals(0.593, comparisonResult.getRMSD(), 0.1);
+        assertEquals(0.5934545967, comparisonResult.getRMSD(), 0.1);
     }
 }
