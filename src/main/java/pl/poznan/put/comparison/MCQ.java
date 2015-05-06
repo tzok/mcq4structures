@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
@@ -39,6 +41,23 @@ public class MCQ implements GlobalComparator, LocalComparator {
         this.angleTypes = new ArrayList<>();
         this.angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
         this.angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+    }
+
+    public MCQ(MoleculeType moleculeType) {
+        super();
+
+        switch (moleculeType) {
+        case PROTEIN:
+            this.angleTypes = Arrays.asList(ProteinTorsionAngleType.mainAngles());
+            break;
+        case RNA:
+            this.angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
+            break;
+        case UNKNOWN:
+        default:
+            this.angleTypes = Collections.emptyList();
+            break;
+        }
     }
 
     public MCQ(List<MasterTorsionAngleType> angleTypes) {
@@ -75,9 +94,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             }
         }
 
-        AngleSample angleSample = new AngleSample(deltas);
-        Angle meanDirection = angleSample.getMeanDirection();
-        return new GlobalComparisonResult(getName(), matches, meanDirection.getRadians(), true);
+        return new MCQGlobalResult(getName(), matches, new AngleSample(deltas));
     }
 
     @Override
@@ -85,7 +102,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
-        return new MCQLocalComparisonResult(matches, angleTypes);
+        return new MCQLocalResult(matches, angleTypes);
     }
 
     @Override

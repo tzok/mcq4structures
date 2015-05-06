@@ -58,8 +58,7 @@ public class RMSD implements GlobalComparator {
 
         try {
             FragmentSuperimposer superimposer = new FragmentSuperimposer(matches, filter, onlyHeavy);
-            double rmsd = superimposer.getRMSD();
-            return new GlobalComparisonResult(getName(), matches, rmsd, false);
+            return new RMSDGlobalResult(getName(), matches, superimposer);
         } catch (StructureException e) {
             throw new IncomparableStructuresException("Failed to superimpose structures and calculate RMSD", e);
         }

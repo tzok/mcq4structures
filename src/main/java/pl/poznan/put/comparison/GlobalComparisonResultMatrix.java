@@ -80,8 +80,16 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
 
     public void setResult(int i, int j, GlobalComparisonResult result) {
         results[i][j] = results[j][i] = result;
-        matrix.set(i, j, result.getValue());
-        matrix.set(j, i, result.getValue());
+
+        if (result instanceof MCQGlobalResult) {
+            matrix.set(i, j, ((MCQGlobalResult) result).getMeanDirection().getRadians());
+            matrix.set(j, i, ((MCQGlobalResult) result).getMeanDirection().getRadians());
+        } else if (result instanceof RMSDGlobalResult) {
+            matrix.set(i, j, ((RMSDGlobalResult) result).getRMSD());
+            matrix.set(j, i, ((RMSDGlobalResult) result).getRMSD());
+        } else {
+            throw new IllegalArgumentException("Unsupported result type: " + result.getClass());
+        }
 
         if (names[i] == null) {
             names[i] = result.getTargetName();

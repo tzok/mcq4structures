@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.biojava.bio.structure.Atom;
 import org.biojava.bio.structure.Calc;
 import org.biojava.bio.structure.SVDSuperimposer;
@@ -155,7 +156,7 @@ public class FragmentSuperimposer {
         }
     }
 
-    public double getRMSD() throws StructureException {
+    public double getRMSD() {
         double distance = 0.0;
         double count = 0.0;
 
@@ -165,7 +166,10 @@ public class FragmentSuperimposer {
                 Atom r = (Atom) matchAtomsModel[i][j].clone();
                 Calc.rotate(r, matchSuperimposer[i].getRotation());
                 Calc.shift(r, matchSuperimposer[i].getTranslation());
-                distance += Calc.getDistanceFast(l, r);
+
+                Vector3D vl = new Vector3D(l.getX(), l.getY(), l.getZ());
+                Vector3D vr = new Vector3D(r.getX(), r.getY(), r.getZ());
+                distance += vl.distance(vr);
                 count += 1.0;
             }
         }

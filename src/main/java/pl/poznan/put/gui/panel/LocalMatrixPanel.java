@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.MCQLocalComparisonResult;
+import pl.poznan.put.comparison.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.gui.ProcessingResult;
 import pl.poznan.put.matching.SelectionFactory;
@@ -135,7 +135,7 @@ public class LocalMatrixPanel extends JPanel {
             StructureSelection selectionL = SelectionFactory.create(StructureManager.getName(structures.getLeft()), chains.getLeft());
             StructureSelection selectionR = SelectionFactory.create(StructureManager.getName(structures.getRight()), chains.getRight());
             MCQ mcq = new MCQ(selectedAngles);
-            MCQLocalComparisonResult result = (MCQLocalComparisonResult) mcq.comparePair(selectionL, selectionR);
+            MCQLocalResult result = (MCQLocalResult) mcq.comparePair(selectionL, selectionR);
 
             tableMatrix.setModel(result.asDisplayableTableModel());
             updateHeader(true);

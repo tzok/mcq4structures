@@ -21,10 +21,10 @@ import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 
-public class MCQLocalComparisonResult extends LocalComparisonResult {
+public class MCQLocalResult extends LocalComparisonResult {
     private final List<MasterTorsionAngleType> angleTypes;
 
-    public MCQLocalComparisonResult(SelectionMatch matches,
+    public MCQLocalResult(SelectionMatch matches,
             List<MasterTorsionAngleType> angleTypes) {
         super(matches);
         this.angleTypes = angleTypes;

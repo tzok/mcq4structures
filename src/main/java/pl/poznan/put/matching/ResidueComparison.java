@@ -5,7 +5,6 @@ import java.util.List;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.type.MasterTorsionAngleType;
-import pl.poznan.put.torsion.type.TorsionAngleType;
 
 public class ResidueComparison {
     private final PdbResidue target;
@@ -30,10 +29,8 @@ public class ResidueComparison {
 
     public TorsionAngleDelta getAngleDelta(MasterTorsionAngleType masterType) {
         for (TorsionAngleDelta delta : angleDeltas) {
-            for (TorsionAngleType angleType : masterType.getAngleTypes()) {
-                if (angleType.equals(delta.getMasterTorsionAngleType())) {
-                    return delta;
-                }
+            if (masterType.equals(delta.getMasterTorsionAngleType())) {
+                return delta;
             }
         }
         return TorsionAngleDelta.bothInvalidInstance(masterType);

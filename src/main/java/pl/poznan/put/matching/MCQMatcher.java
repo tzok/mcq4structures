@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
@@ -13,6 +16,8 @@ import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.torsion.type.TorsionAngleType;
 
 public class MCQMatcher implements StructureMatcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MCQMatcher.class);
+
     private List<MasterTorsionAngleType> angleTypes;
 
     public MCQMatcher(List<MasterTorsionAngleType> angleTypes) {
@@ -101,7 +106,12 @@ public class MCQMatcher implements StructureMatcher {
         for (MasterTorsionAngleType masterType : angleTypes) {
             TorsionAngleValue targetValue = MCQMatcher.matchTorsionAngleType(masterType, targetFragment, targetResidue);
             TorsionAngleValue modelValue = MCQMatcher.matchTorsionAngleType(masterType, modelFragment, modelResidue);
-            angleDeltas.add(TorsionAngleDelta.subtractTorsionAngleValues(masterType, targetValue, modelValue));
+            TorsionAngleDelta delta = TorsionAngleDelta.subtractTorsionAngleValues(masterType, targetValue, modelValue);
+            angleDeltas.add(delta);
+
+            if (MCQMatcher.LOGGER.isTraceEnabled()) {
+                MCQMatcher.LOGGER.trace(targetResidue + " vs " + modelResidue + " = " + delta);
+            }
         }
 
         return new ResidueComparison(targetResidue, modelResidue, angleDeltas);
