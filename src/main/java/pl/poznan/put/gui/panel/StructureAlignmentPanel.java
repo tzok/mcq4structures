@@ -54,7 +54,7 @@ public class StructureAlignmentPanel extends JPanel {
     private Pair<List<PdbChain>, List<PdbChain>> chains;
 
     public StructureAlignmentPanel() {
-        super();
+        super(new BorderLayout());
 
         labelHeader.setBorder(new EmptyBorder(10, 10, 10, 0));
         labelHeader.setContentType("text/html");
