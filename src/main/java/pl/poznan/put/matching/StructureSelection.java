@@ -36,10 +36,10 @@ public class StructureSelection implements Exportable, Tabular {
         this.name = name;
         this.residues = residues;
 
-        analyzeTorsionAngles();
+        divideIntoCompactFragments();
     }
 
-    private void analyzeTorsionAngles() throws InvalidCircularValueException {
+    private void divideIntoCompactFragments() throws InvalidCircularValueException {
         int fromIndex = 0;
 
         for (int i = 1; i < residues.size(); i++) {

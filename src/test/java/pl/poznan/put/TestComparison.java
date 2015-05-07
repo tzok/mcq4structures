@@ -119,4 +119,21 @@ public class TestComparison {
         assertEquals(76, comparisonResult.getAtomCount());
         assertEquals(0.5934545967, comparisonResult.getRMSD(), 0.1);
     }
+
+    @Test
+    public void testNoMatches() throws IncomparableStructuresException, PdbParsingException {
+        List<PdbModel> models = parser.parse(pdb1EHZ);
+        assertEquals(1, models.size());
+        PdbModel model1 = models.get(0);
+
+        models = parser.parse(pdb1EVV);
+        assertEquals(1, models.size());
+        PdbModel model2 = models.get(0);
+
+        StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
+        StructureSelection selection2 = SelectionFactory.create("1EVV", model2);
+
+        MCQ mcq = new MCQ(MoleculeType.PROTEIN);
+        mcq.compareGlobally(selection1, selection2);
+    }
 }

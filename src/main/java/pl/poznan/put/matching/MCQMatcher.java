@@ -7,11 +7,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
+import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.TorsionAngleDelta;
+import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.torsion.TorsionAngleValue;
+import pl.poznan.put.torsion.type.AverageTorsionAngleType;
 import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.torsion.type.TorsionAngleType;
 
@@ -104,9 +108,14 @@ public class MCQMatcher implements StructureMatcher {
         List<TorsionAngleDelta> angleDeltas = new ArrayList<>();
 
         for (MasterTorsionAngleType masterType : angleTypes) {
-            TorsionAngleValue targetValue = MCQMatcher.matchTorsionAngleType(masterType, targetFragment, targetResidue);
-            TorsionAngleValue modelValue = MCQMatcher.matchTorsionAngleType(masterType, modelFragment, modelResidue);
-            TorsionAngleDelta delta = TorsionAngleDelta.subtractTorsionAngleValues(masterType, targetValue, modelValue);
+            TorsionAngleDelta delta;
+
+            if (masterType instanceof AverageTorsionAngleType) {
+                delta = MCQMatcher.calculateAverageOverTorsionAnglesDifferences(targetFragment, targetResidue, modelFragment, modelResidue, (AverageTorsionAngleType) masterType);
+            } else {
+                delta = MCQMatcher.findAndSubtractTorsionAngles(targetFragment, targetResidue, modelFragment, modelResidue, masterType);
+            }
+
             angleDeltas.add(delta);
 
             if (MCQMatcher.LOGGER.isTraceEnabled()) {
@@ -115,6 +124,36 @@ public class MCQMatcher implements StructureMatcher {
         }
 
         return new ResidueComparison(targetResidue, modelResidue, angleDeltas);
+    }
+
+    private static TorsionAngleDelta calculateAverageOverTorsionAnglesDifferences(
+            PdbCompactFragment targetFragment, PdbResidue targetResidue,
+            PdbCompactFragment modelFragment, PdbResidue modelResidue,
+            AverageTorsionAngleType averageTorsionAngleType) {
+        List<Angle> angles = new ArrayList<>();
+
+        for (MasterTorsionAngleType masterType : averageTorsionAngleType.getConsideredAngles()) {
+            TorsionAngleDelta delta = MCQMatcher.findAndSubtractTorsionAngles(targetFragment, targetResidue, modelFragment, modelResidue, masterType);
+            if (delta.getState() == State.BOTH_VALID) {
+                angles.add(delta.getDelta());
+            }
+        }
+
+        if (angles.size() == 0) {
+            return TorsionAngleDelta.bothInvalidInstance(averageTorsionAngleType);
+        }
+
+        AngleSample angleSample = new AngleSample(angles);
+        return new TorsionAngleDelta(averageTorsionAngleType, State.BOTH_VALID, angleSample.getMeanDirection());
+    }
+
+    private static TorsionAngleDelta findAndSubtractTorsionAngles(
+            PdbCompactFragment targetFragment, PdbResidue targetResidue,
+            PdbCompactFragment modelFragment, PdbResidue modelResidue,
+            MasterTorsionAngleType masterType) {
+        TorsionAngleValue targetValue = MCQMatcher.matchTorsionAngleType(masterType, targetFragment, targetResidue);
+        TorsionAngleValue modelValue = MCQMatcher.matchTorsionAngleType(masterType, modelFragment, modelResidue);
+        return TorsionAngleDelta.subtractTorsionAngleValues(masterType, targetValue, modelValue);
     }
 
     private static TorsionAngleValue matchTorsionAngleType(
@@ -127,7 +166,7 @@ public class MCQMatcher implements StructureMatcher {
             }
         }
 
-        TorsionAngleType firstAngleType = masterType.getAngleTypes()[0];
+        TorsionAngleType firstAngleType = masterType.getAngleTypes().iterator().next();
         return TorsionAngleValue.invalidInstance(firstAngleType);
     }
 
@@ -141,7 +180,8 @@ public class MCQMatcher implements StructureMatcher {
         for (int i = 0; i < matrix.length; i++) {
             costMatrix[i] = new double[matrix[i].length];
             for (int j = 0; j < matrix[i].length; j++) {
-                costMatrix[i][j] = matrix[i][j].getMeanDelta().getRadians();
+                Angle delta = matrix[i][j].getMeanDelta();
+                costMatrix[i][j] = delta.isValid() ? delta.getRadians() : Math.PI;
             }
         }
 
