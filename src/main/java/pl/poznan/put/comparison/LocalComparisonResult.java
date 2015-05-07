@@ -21,7 +21,7 @@ public abstract class LocalComparisonResult implements Exportable, Visualizable,
         return selectionMatch.getModel().getName();
     }
 
-    public SelectionMatch getMatches() {
+    public SelectionMatch getSelectionMatch() {
         return selectionMatch;
     }
 }
