@@ -10,6 +10,11 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 public class FragmentMatch {
+    public static FragmentMatch invalidInstance(
+            PdbCompactFragment targetFragment, PdbCompactFragment modelFragment) {
+        return new FragmentMatch(targetFragment, modelFragment, false, 0, FragmentComparison.invalidInstance());
+    }
+
     private final PdbCompactFragment targetFragment;
     private final PdbCompactFragment modelFragment;
     private final boolean isTargetSmaller;

@@ -47,12 +47,19 @@ public class StructureSelection implements Exportable, Tabular {
             PdbResidue current = residues.get(i);
 
             if (!previous.isConnectedTo(current)) {
-                compactFragments.add(new PdbCompactFragment(residues.subList(fromIndex, i)));
+                compactFragments.add(new PdbCompactFragment(generateFragmentName(fromIndex, i), residues.subList(fromIndex, i)));
                 fromIndex = i;
             }
         }
 
-        compactFragments.add(new PdbCompactFragment(residues.subList(fromIndex, residues.size())));
+        compactFragments.add(new PdbCompactFragment(generateFragmentName(fromIndex, residues.size()), residues.subList(fromIndex, residues.size())));
+    }
+
+    private String generateFragmentName(int from, int to) {
+        if (from + 1 == to) {
+            return name + " " + (from + 1);
+        }
+        return name + " " + (from + 1) + "-" + to;
     }
 
     public String getName() {

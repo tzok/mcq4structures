@@ -57,6 +57,8 @@ public class MCQMatcher implements StructureMatcher {
                 PdbCompactFragment fj = modelFragments.get(j);
                 if (fi.getMoleculeType() == fj.getMoleculeType()) {
                     matrix[i][j] = matchFragments(fi, fj);
+                } else {
+                    matrix[i][j] = FragmentMatch.invalidInstance(fi, fj);
                 }
             }
         }

@@ -11,6 +11,12 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 public class FragmentComparison implements Comparable<FragmentComparison> {
+    private static final FragmentComparison INVALID_INSTANCE = new FragmentComparison(Collections.<ResidueComparison> emptyList(), Collections.<MasterTorsionAngleType> emptyList(), 0, 0, 0, 0, Angle.invalidInstance());
+
+    public static FragmentComparison invalidInstance() {
+        return FragmentComparison.INVALID_INSTANCE;
+    }
+
     public static FragmentComparison fromResidueComparisons(
             List<ResidueComparison> residueResults,
             List<MasterTorsionAngleType> angleTypes) throws InvalidCircularValueException {

@@ -203,7 +203,7 @@ public class FragmentSuperimposer {
                 modifiedResidues.add(new PdbResidue(identifier, residueName, modifiedAtoms, false));
             }
 
-            modelFragments.add(new PdbCompactFragment(modifiedResidues));
+            modelFragments.add(new PdbCompactFragment(fragment.getName(), modifiedResidues));
         }
 
         return new FragmentSuperposition(targetFragments, modelFragments);
@@ -235,8 +235,8 @@ public class FragmentSuperimposer {
                 matchedModelResiduesModified.add(new PdbResidue(identifier, residueName, modifiedAtoms, false));
             }
 
-            newFragmentsL.add(new PdbCompactFragment(matchedTargetResidues));
-            newFragmentsR.add(new PdbCompactFragment(matchedModelResiduesModified));
+            newFragmentsL.add(new PdbCompactFragment(fragmentMatch.getModelFragment().getName(), matchedTargetResidues));
+            newFragmentsR.add(new PdbCompactFragment(fragmentMatch.getTargetFragment().getName(), matchedModelResiduesModified));
         }
 
         return new FragmentSuperposition(newFragmentsL, newFragmentsR);

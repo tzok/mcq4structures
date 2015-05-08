@@ -114,7 +114,7 @@ public class ModelsComparisonResult {
             String[] columnNames = new String[models.size() + 1];
             columnNames[0] = isDisplay ? "" : null;
             for (int i = 0; i < models.size(); i++) {
-                columnNames[i + 1] = models.get(i).toString();
+                columnNames[i + 1] = models.get(i).getName();
             }
 
             String[][] data = new String[target.size()][];
