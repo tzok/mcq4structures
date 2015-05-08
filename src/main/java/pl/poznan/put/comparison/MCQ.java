@@ -106,25 +106,27 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public ModelsComparisonResult compareModels(PdbCompactFragment reference,
+    public ModelsComparisonResult compareModels(PdbCompactFragment target,
             List<PdbCompactFragment> models) throws IncomparableStructuresException {
         /*
          * Sanity check
          */
         for (PdbCompactFragment fragment : models) {
-            if (fragment.getMoleculeType() != reference.getMoleculeType() || fragment.size() != reference.size()) {
+            if (fragment.getMoleculeType() != target.getMoleculeType() || fragment.size() != target.size()) {
                 throw new IncomparableStructuresException("All models must be of the same type and size as the reference structure");
             }
         }
 
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         List<FragmentMatch> matches = new ArrayList<>();
+        List<PdbCompactFragment> modelsWithoutTarget = new ArrayList<>(models);
+        modelsWithoutTarget.remove(target);
 
-        for (PdbCompactFragment fragment : models) {
-            matches.add(matcher.matchFragments(reference, fragment));
+        for (PdbCompactFragment fragment : modelsWithoutTarget) {
+            matches.add(matcher.matchFragments(target, fragment));
         }
 
-        return new ModelsComparisonResult(reference, models, matches);
+        return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
     }
 
     public static void main(String[] args) throws IOException, PdbParsingException {

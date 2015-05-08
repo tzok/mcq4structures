@@ -112,7 +112,7 @@ public class LocalMultiMatrixPanel extends JPanel {
             tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
             updateHeader(true);
 
-            return new ProcessingResult(result);
+            return new ProcessingResult(selectedAngle);
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMultiMatrixPanel.LOGGER.error(message, e);
