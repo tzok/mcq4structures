@@ -26,6 +26,8 @@ import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
 public class StructureSelection implements Exportable, Tabular {
+    private static final int MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT = 1;
+
     private final List<PdbCompactFragment> compactFragments = new ArrayList<>();
 
     private final String name;
@@ -40,26 +42,47 @@ public class StructureSelection implements Exportable, Tabular {
     }
 
     private void divideIntoCompactFragments() throws InvalidCircularValueException {
-        int fromIndex = 0;
+        List<PdbResidue> candidates = new ArrayList<>();
 
-        for (int i = 1; i < residues.size(); i++) {
-            PdbResidue previous = residues.get(i - 1);
-            PdbResidue current = residues.get(i);
-
-            if (!previous.isConnectedTo(current)) {
-                compactFragments.add(new PdbCompactFragment(generateFragmentName(fromIndex, i), residues.subList(fromIndex, i)));
-                fromIndex = i;
+        for (PdbResidue residue : residues) {
+            if (!residue.isMissing()) {
+                candidates.add(residue);
             }
         }
 
-        compactFragments.add(new PdbCompactFragment(generateFragmentName(fromIndex, residues.size()), residues.subList(fromIndex, residues.size())));
+        List<PdbResidue> currentFragmentResidues = new ArrayList<>();
+        int index = 0;
+
+        while (candidates.size() > 0) {
+            PdbResidue current = candidates.get(index);
+            currentFragmentResidues.add(current);
+            candidates.remove(index);
+            index = current.findConnectedResidueIndex(candidates);
+
+            if (index == -1) {
+                if (currentFragmentResidues.size() > StructureSelection.MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT) {
+                    String fragmentName = generateFragmentName(currentFragmentResidues);
+                    PdbCompactFragment compactFragment = new PdbCompactFragment(fragmentName, currentFragmentResidues);
+                    compactFragments.add(compactFragment);
+                }
+
+                currentFragmentResidues = new ArrayList<>();
+                index = 0;
+            }
+        }
     }
 
-    private String generateFragmentName(int from, int to) {
-        if (from + 1 == to) {
-            return name + " " + (from + 1);
+    private String generateFragmentName(List<PdbResidue> fragmentResidues) {
+        assert fragmentResidues.size() > 0;
+
+        if (fragmentResidues.size() == 1) {
+            PdbResidue residue = fragmentResidues.get(0);
+            return name + " " + residue.getResidueNumber();
         }
-        return name + " " + (from + 1) + "-" + to;
+
+        PdbResidue first = fragmentResidues.get(0);
+        PdbResidue last = fragmentResidues.get(fragmentResidues.size() - 1);
+        return name + " " + first.getResidueNumber() + "-" + last.getResidueNumber();
     }
 
     public String getName() {
