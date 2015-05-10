@@ -140,6 +140,11 @@ public class StructureAlignmentPanel extends JPanel {
         MCQMatcher matcher = new MCQMatcher(torsionAngleTypes);
         SelectionMatch selectionMatch = matcher.matchSelections(left, right);
 
+        if (selectionMatch.size() == 0) {
+            JOptionPane.showMessageDialog(this, "The selected structures have no matching fragments in common", "Warning", JOptionPane.WARNING_MESSAGE);
+            return ProcessingResult.emptyInstance();
+        }
+
         try {
             panelJmolLeft.openStringInline(selectionMatch.toPDB(false));
             panelJmolLeft.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);

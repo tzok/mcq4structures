@@ -150,7 +150,7 @@ public class ModelsComparisonResult {
             int maxWidth = Integer.MIN_VALUE;
 
             for (int i = 0; i < models.size(); i++) {
-                String modelName = models.get(i).toString();
+                String modelName = models.get(i).getName();
                 svg.drawString(modelName, 0.0f, (i + 1) * fontHeight);
                 int width = metrics.stringWidth(modelName);
 

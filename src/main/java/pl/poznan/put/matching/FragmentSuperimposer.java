@@ -49,6 +49,11 @@ public class FragmentSuperimposer {
         this.onlyHeavy = onlyHeavy;
 
         int matchesCount = selectionMatch.size();
+
+        if (matchesCount == 0) {
+            throw new IllegalArgumentException("Failed to superimpose, because the set of structural matches is empty");
+        }
+
         matchSuperimposer = new SVDSuperimposer[matchesCount];
         matchAtomsTarget = new Atom[matchesCount][];
         matchAtomsModel = new Atom[matchesCount][];

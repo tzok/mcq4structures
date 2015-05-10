@@ -32,6 +32,24 @@ import pl.poznan.put.torsion.type.AverageTorsionAngleType;
 import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 public class LocalMultiMatrixPanel extends JPanel {
+    private class PdbCompactFragmentWrapper {
+        private final PdbCompactFragment fragment;
+
+        public PdbCompactFragmentWrapper(PdbCompactFragment fragment) {
+            super();
+            this.fragment = fragment;
+        }
+
+        public PdbCompactFragment getFragment() {
+            return fragment;
+        }
+
+        @Override
+        public String toString() {
+            return fragment.getName();
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalMultiMatrixPanel.class);
 
     private final JTextPane labelInfoMatrix = new JTextPane();
@@ -76,7 +94,7 @@ public class LocalMultiMatrixPanel extends JPanel {
 
         for (PdbCompactFragment c : fragments) {
             builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
-            builder.append(c.toString());
+            builder.append(c.getName());
             builder.append("</span>, ");
             i++;
         }
@@ -149,7 +167,11 @@ public class LocalMultiMatrixPanel extends JPanel {
     }
 
     private PdbCompactFragment selectReferenceStructure() {
-        PdbCompactFragment[] fragmentArray = fragments.toArray(new PdbCompactFragment[fragments.size()]);
-        return (PdbCompactFragment) JOptionPane.showInputDialog(this, "Select your reference structure", "Reference structure", JOptionPane.INFORMATION_MESSAGE, null, fragmentArray, fragmentArray[0]);
+        PdbCompactFragmentWrapper[] fragmentArray = new PdbCompactFragmentWrapper[fragments.size()];
+        for (int i = 0; i < fragments.size(); i++) {
+            fragmentArray[i] = new PdbCompactFragmentWrapper(fragments.get(i));
+        }
+        PdbCompactFragmentWrapper wrapper = (PdbCompactFragmentWrapper) JOptionPane.showInputDialog(this, "Select your reference structure", "Reference structure", JOptionPane.INFORMATION_MESSAGE, null, fragmentArray, fragmentArray[0]);
+        return wrapper.getFragment();
     }
 }

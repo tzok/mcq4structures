@@ -61,7 +61,7 @@ public class SequenceAlignmentPanel extends JPanel {
 
         for (PdbCompactFragment c : fragments) {
             builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
-            builder.append(c.toString());
+            builder.append(c.getName());
             builder.append("</span>, ");
             i++;
         }
