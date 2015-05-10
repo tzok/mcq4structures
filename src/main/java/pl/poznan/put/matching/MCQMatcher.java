@@ -183,7 +183,7 @@ public class MCQMatcher implements StructureMatcher {
             costMatrix[i] = new double[matrix[i].length];
             for (int j = 0; j < matrix[i].length; j++) {
                 Angle delta = matrix[i][j].getMeanDelta();
-                costMatrix[i][j] = delta.isValid() ? delta.getRadians() : Math.PI;
+                costMatrix[i][j] = delta.isValid() ? delta.getRadians() : Double.MAX_VALUE;
             }
         }
 
@@ -193,7 +193,7 @@ public class MCQMatcher implements StructureMatcher {
 
         for (int i = 0; i < assignment.length; i++) {
             int j = assignment[i];
-            if (j != -1) {
+            if (j != -1 && matrix[i][j].isValid()) {
                 result.add(matrix[i][j]);
             }
         }

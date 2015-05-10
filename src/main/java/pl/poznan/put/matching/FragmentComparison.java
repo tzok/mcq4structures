@@ -114,6 +114,10 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
         return residueComparisons.size();
     }
 
+    public boolean isValid() {
+        return meanDelta.isValid();
+    }
+
     @Override
     public int compareTo(FragmentComparison o) {
         return meanDelta.compareTo(o.meanDelta);

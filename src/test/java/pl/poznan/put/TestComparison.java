@@ -36,6 +36,8 @@ public class TestComparison {
 
     private String pdb1EHZ;
     private String pdb1EVV;
+    private String pdb1ZO1;
+    private String pdb1ZO3;
 
     @Before
     public void loadPdbFile() throws URISyntaxException, IOException {
@@ -43,6 +45,8 @@ public class TestComparison {
         File dir = new File(uri);
         pdb1EHZ = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1EHZ.pdb"), "utf-8");
         pdb1EVV = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1EVV.pdb"), "utf-8");
+        pdb1ZO1 = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1ZO1.pdb"), "utf-8");
+        pdb1ZO3 = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1ZO3.pdb"), "utf-8");
     }
 
     @Test
@@ -120,7 +124,7 @@ public class TestComparison {
         assertEquals(0.5934545967, comparisonResult.getRMSD(), 0.1);
     }
 
-    @Test
+    @Test(expected = IncomparableStructuresException.class)
     public void testNoMatches() throws IncomparableStructuresException, PdbParsingException {
         List<PdbModel> models = parser.parse(pdb1EHZ);
         assertEquals(1, models.size());
@@ -135,5 +139,22 @@ public class TestComparison {
 
         MCQ mcq = new MCQ(MoleculeType.PROTEIN);
         mcq.compareGlobally(selection1, selection2);
+    }
+
+    @Test
+    public void testRMSD_1ZO1_1ZO3() throws PdbParsingException, IncomparableStructuresException {
+        List<PdbModel> models = parser.parse(pdb1ZO1);
+        assertEquals(1, models.size());
+        PdbModel model1 = models.get(0);
+
+        models = parser.parse(pdb1ZO3);
+        assertEquals(1, models.size());
+        PdbModel model2 = models.get(0);
+
+        StructureSelection s1 = SelectionFactory.create("1ZO1", model1);
+        StructureSelection s2 = SelectionFactory.create("1ZO3", model2);
+
+        RMSD rmsd = new RMSD();
+        rmsd.compareGlobally(s1, s2);
     }
 }

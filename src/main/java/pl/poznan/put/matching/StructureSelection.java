@@ -26,7 +26,7 @@ import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
 public class StructureSelection implements Exportable, Tabular {
-    private static final int MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT = 1;
+    private static final int MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT = 3;
 
     private final List<PdbCompactFragment> compactFragments = new ArrayList<>();
 

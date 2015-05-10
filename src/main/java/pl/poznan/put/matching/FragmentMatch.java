@@ -84,6 +84,10 @@ public class FragmentMatch {
         return fragmentComparison.size();
     }
 
+    public boolean isValid() {
+        return fragmentComparison.isValid();
+    }
+
     @Override
     public String toString() {
         PdbCompactFragment target;
