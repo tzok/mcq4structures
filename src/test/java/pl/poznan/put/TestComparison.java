@@ -38,6 +38,8 @@ public class TestComparison {
     private String pdb1EVV;
     private String pdb1ZO1;
     private String pdb1ZO3;
+    private String pdb1TN1;
+    private String pdb1TN2;
 
     @Before
     public void loadPdbFile() throws URISyntaxException, IOException {
@@ -47,6 +49,8 @@ public class TestComparison {
         pdb1EVV = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1EVV.pdb"), "utf-8");
         pdb1ZO1 = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1ZO1.pdb"), "utf-8");
         pdb1ZO3 = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1ZO3.pdb"), "utf-8");
+        pdb1TN1 = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1TN1.pdb"), "utf-8");
+        pdb1TN2 = FileUtils.readFileToString(new File(dir, "../../src/test/resources/1TN2.pdb"), "utf-8");
     }
 
     @Test
@@ -156,5 +160,23 @@ public class TestComparison {
 
         RMSD rmsd = new RMSD();
         rmsd.compareGlobally(s1, s2);
+    }
+
+    @Test
+    public void testMCQ_1TN1_1TN2() throws PdbParsingException, IncomparableStructuresException {
+        List<PdbModel> models = parser.parse(pdb1TN1);
+        assertEquals(1, models.size());
+        PdbModel model1 = models.get(0);
+
+        models = parser.parse(pdb1TN2);
+        assertEquals(1, models.size());
+        PdbModel model2 = models.get(0);
+
+        StructureSelection s1 = SelectionFactory.create("1TN1", model1);
+        StructureSelection s2 = SelectionFactory.create("1TN2", model2);
+
+        MCQ mcq = new MCQ();
+        MCQGlobalResult comparisonResult = (MCQGlobalResult) mcq.compareGlobally(s1, s2);
+        assertEquals(0, comparisonResult.getMeanDirection().getRadians(), 0.1);
     }
 }
