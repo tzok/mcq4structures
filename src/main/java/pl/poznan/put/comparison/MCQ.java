@@ -129,7 +129,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
         return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
     }
 
-    public static void main(String[] args) throws IOException, PdbParsingException {
+    public static void main(String[] args) throws IOException, PdbParsingException, InterruptedException {
         if (args.length < 2) {
             System.err.println("You must specify at least 2 structures");
             return;
@@ -149,8 +149,23 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        ParallelGlobalComparator comparator = ParallelGlobalComparator.getInstance(GlobalComparisonMeasure.MCQ);
-        GlobalComparisonResultMatrix matrix = comparator.run(selections, IgnoringComparisonListener.getInstance());
-        TabularExporter.export(matrix.asExportableTableModel(), System.out);
+        ParallelGlobalComparator comparator = new ParallelGlobalComparator(GlobalComparisonMeasure.MCQ, selections, new ParallelGlobalComparator.ProgressListener() {
+            @Override
+            public void setProgress(int progress) {
+                // do nothing
+            }
+
+            @Override
+            public void complete(GlobalComparisonResultMatrix matrix) {
+                try {
+                    TabularExporter.export(matrix.asExportableTableModel(), System.out);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        comparator.start();
+        comparator.join();
     }
 }

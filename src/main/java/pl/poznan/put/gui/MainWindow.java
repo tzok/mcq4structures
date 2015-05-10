@@ -381,9 +381,16 @@ public class MainWindow extends JFrame {
     }
 
     private void compareGlobal() {
-        currentResult = panelResultsGlobalMatrix.compareAndDisplayMatrix(radioGlobalMcq.isSelected() ? GlobalComparisonMeasure.MCQ : GlobalComparisonMeasure.RMSD);
-        layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
-        updateMenuEnabledStates();
+        GlobalComparisonMeasure measure = radioGlobalMcq.isSelected() ? GlobalComparisonMeasure.MCQ : GlobalComparisonMeasure.RMSD;
+        panelResultsGlobalMatrix.compareAndDisplayMatrix(measure, new GlobalMatrixPanel.Callback() {
+            @Override
+            public void complete(ProcessingResult processingResult) {
+                currentResult = processingResult;
+                layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+                updateMenuEnabledStates();
+
+            }
+        });
     }
 
     private void compareLocalPair() {

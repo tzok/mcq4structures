@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -16,7 +15,10 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import pl.poznan.put.comparison.ComparisonListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.comparison.GlobalComparisonMeasure;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.comparison.ParallelGlobalComparator;
@@ -26,10 +28,16 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
+public class GlobalMatrixPanel extends JPanel {
+    public interface Callback {
+        void complete(ProcessingResult processingResult);
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalMatrixPanel.class);
+
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
-    private final JProgressBar progressBar = new JProgressBar();
+    private final JProgressBar progressBar = new JProgressBar(0, 1);
 
     private List<PdbModel> structures = Collections.emptyList();
 
@@ -41,15 +49,12 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
         labelInfoMatrix.setEditable(false);
         labelInfoMatrix.setFont(UIManager.getFont("Label.font"));
         labelInfoMatrix.setOpaque(false);
-        progressBar.setStringPainted(true);
 
         JPanel panelInfo = new JPanel(new BorderLayout());
         panelInfo.add(labelInfoMatrix, BorderLayout.CENTER);
 
-        JPanel panelProgressBar = new JPanel();
-        panelProgressBar.setLayout(new BoxLayout(panelProgressBar, BoxLayout.X_AXIS));
-        panelProgressBar.add(new JLabel("Progress in computing:"));
-        panelProgressBar.add(progressBar);
+        JPanel panelProgressBar = new JPanel(new BorderLayout());
+        panelProgressBar.add(progressBar, BorderLayout.CENTER);
 
         add(panelInfo, BorderLayout.NORTH);
         add(new JScrollPane(tableMatrix), BorderLayout.CENTER);
@@ -59,12 +64,6 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
     public void setStructures(List<PdbModel> structures) {
         this.structures = structures;
         updateHeader(false, "");
-    }
-
-    @Override
-    public void stateChanged(long all, long completed) {
-        progressBar.setMaximum((int) all);
-        progressBar.setValue((int) completed);
     }
 
     public void updateHeader(boolean readyResults, String measureName) {
@@ -92,23 +91,41 @@ public class GlobalMatrixPanel extends JPanel implements ComparisonListener {
         labelInfoMatrix.setText(builder.toString());
     }
 
-    public ProcessingResult compareAndDisplayMatrix(
-            GlobalComparisonMeasure measure) {
-        List<StructureSelection> selections = new ArrayList<>();
+    public void compareAndDisplayMatrix(GlobalComparisonMeasure measure,
+            final Callback callback) {
+        try {
+            List<StructureSelection> selections = new ArrayList<>();
 
-        for (int i = 0; i < structures.size(); i++) {
-            PdbModel structure = structures.get(i);
-            String name = StructureManager.getName(structure);
-            selections.add(SelectionFactory.create(name, structure));
+            for (int i = 0; i < structures.size(); i++) {
+                PdbModel structure = structures.get(i);
+                String name = StructureManager.getName(structure);
+                selections.add(SelectionFactory.create(name, structure));
+            }
+
+            progressBar.setMinimum(0);
+            progressBar.setMaximum(structures.size() * (structures.size() - 1) / 2);
+            progressBar.setValue(0);
+
+            ParallelGlobalComparator comparator = new ParallelGlobalComparator(measure, selections, new ParallelGlobalComparator.ProgressListener() {
+                @Override
+                public void setProgress(int progress) {
+                    progressBar.setValue(progress);
+                }
+
+                @Override
+                public void complete(GlobalComparisonResultMatrix matrix) {
+                    tableMatrix.setModel(matrix.asDisplayableTableModel());
+                    tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
+                    updateHeader(true, matrix.getMeasureName());
+                    callback.complete(new ProcessingResult(matrix));
+                }
+            });
+
+            comparator.start();
+        } catch (InvalidCircularValueException e) {
+            String message = "Failed to compare structures";
+            GlobalMatrixPanel.LOGGER.error(message, e);
+            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        ParallelGlobalComparator comparator = ParallelGlobalComparator.getInstance(measure);
-        GlobalComparisonResultMatrix matrix = comparator.run(selections, this);
-
-        tableMatrix.setModel(matrix.asDisplayableTableModel());
-        tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
-        updateHeader(true, matrix.getMeasureName());
-
-        return new ProcessingResult(matrix);
     }
 }

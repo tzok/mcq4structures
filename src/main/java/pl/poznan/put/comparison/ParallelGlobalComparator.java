@@ -3,7 +3,6 @@ package pl.poznan.put.comparison;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -12,36 +11,36 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.matching.StructureSelection;
 
-public class ParallelGlobalComparator {
+public class ParallelGlobalComparator extends Thread {
+    public interface ProgressListener {
+        void setProgress(int progress);
+
+        void complete(GlobalComparisonResultMatrix matrix);
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelGlobalComparator.class);
-    private static final ParallelGlobalComparator MCQ_INSTANCE = new ParallelGlobalComparator(GlobalComparisonMeasure.MCQ);
-    private static final ParallelGlobalComparator RMSD_INSTANCE = new ParallelGlobalComparator(GlobalComparisonMeasure.RMSD);
 
-    public static ParallelGlobalComparator getInstance(
-            GlobalComparisonMeasure measure) {
-        switch (measure) {
-        case MCQ:
-            return ParallelGlobalComparator.MCQ_INSTANCE;
-        case RMSD:
-            return ParallelGlobalComparator.RMSD_INSTANCE;
-        default:
-            throw new IllegalArgumentException("Unknown comparison measure: " + measure);
-        }
-    }
-
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+    private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     private final ExecutorCompletionService<CompareCallable.SingleResult> executor = new ExecutorCompletionService<>(threadPool);
-    private final GlobalComparisonMeasure measure;
 
-    private ParallelGlobalComparator(GlobalComparisonMeasure measure) {
+    private final GlobalComparisonMeasure measure;
+    private final List<StructureSelection> structures;
+    private final ProgressListener progressListener;
+
+    public ParallelGlobalComparator(GlobalComparisonMeasure measure,
+            List<StructureSelection> structures,
+            ProgressListener progressListener) {
         this.measure = measure;
+        this.structures = structures;
+        this.progressListener = progressListener;
     }
 
-    public GlobalComparisonResultMatrix run(
-            List<StructureSelection> structures, ComparisonListener listener) {
-        GlobalComparator comparator = measure.getComparator();
+    @Override
+    public void run() {
         int size = structures.size();
-        long all = size * (size - 1) / 2;
+        int all = size * (size - 1) / 2;
+        GlobalComparator comparator = measure.getComparator();
+        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(comparator.getName(), size);
 
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
@@ -50,9 +49,16 @@ public class ParallelGlobalComparator {
             }
         }
 
-        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(comparator.getName(), size);
-        Thread listenerThread = createListenerThread(structures, listener);
-        listenerThread.start();
+        long completed = 0;
+        while ((completed = threadPool.getCompletedTaskCount()) < all) {
+            progressListener.setProgress((int) completed);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                interrupt();
+            }
+        }
+        progressListener.setProgress(all);
 
         for (int i = 0; i < all; i++) {
             try {
@@ -63,31 +69,6 @@ public class ParallelGlobalComparator {
             }
         }
 
-        listenerThread.interrupt();
-        listener.stateChanged(all, all);
-
-        return matrix;
-    }
-
-    private Thread createListenerThread(
-            final List<StructureSelection> structures,
-            final ComparisonListener listener) {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int size = structures.size();
-                    long all = size * (size - 1) / 2;
-
-                    while (true) {
-                        long completed = ((ThreadPoolExecutor) threadPool).getCompletedTaskCount();
-                        listener.stateChanged(all, completed);
-                        Thread.sleep(1000);
-                    }
-                } catch (InterruptedException e) {
-                    threadPool.shutdownNow();
-                }
-            }
-        });
+        progressListener.complete(matrix);
     }
 }
