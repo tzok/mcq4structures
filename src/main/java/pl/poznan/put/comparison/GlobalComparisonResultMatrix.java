@@ -135,7 +135,17 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     }
 
     @Override
+    // TODO: Do not use javax.swing here, propagate error through exceptions
     public void visualize() {
+        for (GlobalComparisonResult[] row : resultsMatrix) {
+            for (GlobalComparisonResult value : row) {
+                if (value == null) {
+                    JOptionPane.showMessageDialog(null, "Cannot visualize an invalid distance matrix", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        }
+
         double[][] mds;
         try {
             mds = MDS.multidimensionalScaling(distanceMatrix.getArray(), 2);
