@@ -15,9 +15,12 @@ import org.junit.Test;
 
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbChain;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
+import pl.poznan.put.pdb.analysis.PdbResidue;
 
 public class TestSelection {
     private final PdbParser parser = new PdbParser();
@@ -50,6 +53,14 @@ public class TestSelection {
         assertNotNull(chainB);
 
         StructureSelection selection = new StructureSelection("B", chainB.getResidues());
-        assertEquals(2, selection.getCompactFragments().size());
+        List<PdbCompactFragment> compactFragments = selection.getCompactFragments();
+        assertEquals(1, compactFragments.size());
+        PdbCompactFragment compactFragment = compactFragments.get(0);
+
+        List<PdbResidue> residues = compactFragment.getResidues();
+        int size = residues.size();
+        assertEquals(new PdbResidueIdentifier('B', 74, ' '), residues.get(size - 3).getResidueIdentifier());
+        assertEquals(new PdbResidueIdentifier('B', 77, 'A'), residues.get(size - 2).getResidueIdentifier());
+        assertEquals(new PdbResidueIdentifier('B', 76, ' '), residues.get(size - 1).getResidueIdentifier());
     }
 }
