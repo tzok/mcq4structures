@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -68,6 +69,11 @@ public class MCQLocalResult extends LocalComparisonResult {
 
     @Override
     public void visualize() {
+        if (selectionMatch.size() == 0) {
+            JOptionPane.showMessageDialog(null, "Cannot visualize an empty result", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         LocalComparisonFrame comparisonFrame = new LocalComparisonFrame(selectionMatch);
         comparisonFrame.setVisible(true);
     }
