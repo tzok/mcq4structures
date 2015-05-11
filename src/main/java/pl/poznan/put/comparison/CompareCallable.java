@@ -3,14 +3,9 @@ package pl.poznan.put.comparison;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.poznan.put.matching.StructureSelection;
 
 public class CompareCallable implements Callable<CompareCallable.SingleResult> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompareCallable.class);
-
     public class SingleResult {
         final int i;
         final int j;
@@ -40,13 +35,7 @@ public class CompareCallable implements Callable<CompareCallable.SingleResult> {
 
     @Override
     public SingleResult call() throws Exception {
-        try {
-            GlobalComparisonResult comp = comparator.compareGlobally(s1, s2);
-            return new SingleResult(row, column, comp);
-        } catch (IncomparableStructuresException e) {
-            CompareCallable.LOGGER.error("Failed to compare structures: " + s1.getName() + " and " + s2.getName(), e);
-        }
-
-        return null;
+        GlobalComparisonResult comp = comparator.compareGlobally(s1, s2);
+        return new SingleResult(row, column, comp);
     }
 }

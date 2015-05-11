@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,7 +19,7 @@ public class DendrogramFrame extends JFrame {
     private final DendrogramComponent dendrogram;
 
     public DendrogramFrame(HierarchicalClusteringResult clustering,
-            String[] names) {
+            List<String> list) {
         super("MCQ4Structures: dendrogram of clustered data");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -27,7 +28,7 @@ public class DendrogramFrame extends JFrame {
         JButton buttonSave = new JButton("Save");
         contentPane.add(buttonSave, BorderLayout.NORTH);
 
-        dendrogram = new DendrogramComponent(clustering, names);
+        dendrogram = new DendrogramComponent(clustering, list);
         contentPane.add(dendrogram, BorderLayout.CENTER);
         pack();
 

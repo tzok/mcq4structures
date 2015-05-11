@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -26,36 +27,38 @@ import pl.poznan.put.visualisation.MDSPlot;
 
 public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Visualizable, Tabular {
     private final String measureName;
+    private final List<String> names;
     private final int size;
-    private final String[] names;
-    private final GlobalComparisonResult[][] results;
-    private final Matrix matrix;
+    private final GlobalComparisonResult[][] resultsMatrix;
+    private final Matrix distanceMatrix;
 
-    public GlobalComparisonResultMatrix(String measureName, int size) {
+    public GlobalComparisonResultMatrix(String measureName, List<String> names,
+            int size) {
         super();
         this.measureName = measureName;
+        this.names = names;
         this.size = size;
 
-        names = new String[size];
-        results = new GlobalComparisonResult[size][];
-        double[][] rawMatrix = new double[size][];
+        GlobalComparisonResult[][] results = new GlobalComparisonResult[size][];
+        double[][] distances = new double[size][];
 
         for (int i = 0; i < size; ++i) {
             results[i] = new GlobalComparisonResult[size];
-            rawMatrix[i] = new double[size];
+            distances[i] = new double[size];
         }
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i == j) {
-                    rawMatrix[i][j] = 0;
+                    distances[i][j] = 0;
                 } else {
-                    rawMatrix[i][j] = Double.NaN;
+                    distances[i][j] = Double.NaN;
                 }
             }
         }
 
-        matrix = new Matrix(rawMatrix);
+        this.resultsMatrix = results;
+        this.distanceMatrix = new Matrix(distances);
     }
 
     public String getMeasureName() {
@@ -67,48 +70,40 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     }
 
     public String getName(int index) {
-        return names[index];
+        return names.get(index);
     }
 
-    public String[] getNames() {
-        return names.clone();
+    public List<String> getNames() {
+        return Collections.unmodifiableList(names);
     }
 
     public GlobalComparisonResult getResult(int i, int j) {
-        return results[i][j];
+        return resultsMatrix[i][j];
     }
 
     public void setResult(int i, int j, GlobalComparisonResult result) {
-        results[i][j] = results[j][i] = result;
+        resultsMatrix[i][j] = resultsMatrix[j][i] = result;
 
         if (result instanceof MCQGlobalResult) {
-            matrix.set(i, j, ((MCQGlobalResult) result).getMeanDirection().getRadians());
-            matrix.set(j, i, ((MCQGlobalResult) result).getMeanDirection().getRadians());
+            distanceMatrix.set(i, j, ((MCQGlobalResult) result).getMeanDirection().getRadians());
+            distanceMatrix.set(j, i, ((MCQGlobalResult) result).getMeanDirection().getRadians());
         } else if (result instanceof RMSDGlobalResult) {
-            matrix.set(i, j, ((RMSDGlobalResult) result).getRMSD());
-            matrix.set(j, i, ((RMSDGlobalResult) result).getRMSD());
+            distanceMatrix.set(i, j, ((RMSDGlobalResult) result).getRMSD());
+            distanceMatrix.set(j, i, ((RMSDGlobalResult) result).getRMSD());
         } else {
             throw new IllegalArgumentException("Unsupported result type: " + result.getClass());
-        }
-
-        if (names[i] == null) {
-            names[i] = result.getTargetName();
-        }
-
-        if (names[j] == null) {
-            names[j] = result.getModelName();
         }
     }
 
     public Matrix getDistanceMatrix() {
-        return matrix;
+        return distanceMatrix;
     }
 
     @Override
     public void cluster() {
-        for (int i = 0; i < matrix.getRowDimension(); i++) {
-            for (int j = 0; j < matrix.getColumnDimension(); j++) {
-                if (Double.isNaN(matrix.get(i, j))) {
+        for (int i = 0; i < distanceMatrix.getRowDimension(); i++) {
+            for (int j = 0; j < distanceMatrix.getColumnDimension(); j++) {
+                if (Double.isNaN(distanceMatrix.get(i, j))) {
                     JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -143,13 +138,13 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     public void visualize() {
         double[][] mds;
         try {
-            mds = MDS.multidimensionalScaling(matrix.getArray(), 2);
+            mds = MDS.multidimensionalScaling(distanceMatrix.getArray(), 2);
         } catch (InvalidInputException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        MDSPlot plot = new MDSPlot(mds, Arrays.asList(names));
+        MDSPlot plot = new MDSPlot(mds, names);
         plot.setTitle("MCQ4Structures: global distance diagram (" + measureName + ")");
         plot.setVisible(true);
     }
@@ -207,26 +202,26 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     }
 
     private TableModel asTableModel(boolean isDisplay) {
-        String[] columnNames = new String[names.length + 1];
+        String[] columnNames = new String[names.size() + 1];
         columnNames[0] = "";
-        for (int i = 0; i < names.length; i++) {
-            columnNames[i + 1] = names[i];
+        for (int i = 0; i < names.size(); i++) {
+            columnNames[i + 1] = names.get(i);
         }
 
-        String[][] values = new String[results.length][];
+        String[][] values = new String[resultsMatrix.length][];
 
         for (int i = 0; i < values.length; i++) {
             values[i] = new String[columnNames.length];
-            values[i][0] = names[i];
+            values[i][0] = names.get(i);
 
-            for (int j = 0; j < results[i].length; j++) {
+            for (int j = 0; j < resultsMatrix[i].length; j++) {
                 // diagonal is empty
                 if (i == j) {
                     values[i][j + 1] = isDisplay ? "" : null;
                     continue;
                 }
 
-                GlobalComparisonResult result = results[i][j];
+                GlobalComparisonResult result = resultsMatrix[i][j];
 
                 if (result == null) {
                     values[i][j + 1] = "Failed";

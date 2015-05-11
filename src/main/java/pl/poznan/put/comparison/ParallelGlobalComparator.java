@@ -1,5 +1,6 @@
 package pl.poznan.put.comparison;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -37,10 +38,15 @@ public class ParallelGlobalComparator extends Thread {
 
     @Override
     public void run() {
+        List<String> names = new ArrayList<>();
+        for (StructureSelection selection : structures) {
+            names.add(selection.getName());
+        }
+
         int size = structures.size();
         int all = size * (size - 1) / 2;
         GlobalComparator comparator = measure.getComparator();
-        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(comparator.getName(), size);
+        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(comparator.getName(), names, size);
 
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
