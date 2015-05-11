@@ -15,9 +15,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.gui.panel.TorsionAnglesPanel;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 final class DialogSelectAngles extends JDialog {
     public static final int CANCEL = 0;

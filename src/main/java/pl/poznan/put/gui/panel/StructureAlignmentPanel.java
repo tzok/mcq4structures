@@ -30,7 +30,7 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 public class StructureAlignmentPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);

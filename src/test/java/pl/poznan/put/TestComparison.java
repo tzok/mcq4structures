@@ -12,7 +12,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.MCQGlobalResult;
@@ -26,6 +25,7 @@ import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
 

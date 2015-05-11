@@ -18,12 +18,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
-import pl.poznan.put.torsion.type.AverageTorsionAngleType;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
-import pl.poznan.put.torsion.type.TorsionAngleType;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.torsion.TorsionAngleType;
 
 public class TorsionAnglesPanel extends JPanel {
     private final Map<JCheckBox, MasterTorsionAngleType> mapCheckBoxToMasterType = new HashMap<>();
@@ -64,27 +64,28 @@ public class TorsionAnglesPanel extends JPanel {
 
     private void handleMoleculeType(final MoleculeType moleculeType) {
         MasterTorsionAngleType[] masterAngleTypes;
+        AverageTorsionAngleType averageAngleType;
 
         switch (moleculeType) {
         case PROTEIN:
             setBorder(BorderFactory.createTitledBorder("Protein"));
             masterAngleTypes = ProteinTorsionAngleType.values();
+            averageAngleType = ProteinTorsionAngleType.getAverageOverMainAngles();
             break;
         case RNA:
             setBorder(BorderFactory.createTitledBorder("RNA"));
             masterAngleTypes = RNATorsionAngleType.values();
+            averageAngleType = RNATorsionAngleType.getAverageOverMainAngles();
             break;
         case UNKNOWN:
         default:
-            masterAngleTypes = new MasterTorsionAngleType[0];
-            break;
+            return;
         }
 
         for (MasterTorsionAngleType masterType : masterAngleTypes) {
             handleMasterType(masterType, false);
         }
-
-        handleMasterType(AverageTorsionAngleType.instanceForMainAngles(moleculeType), true);
+        handleMasterType(averageAngleType, true);
     }
 
     private void handleMasterType(MasterTorsionAngleType masterType,

@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 
-import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {

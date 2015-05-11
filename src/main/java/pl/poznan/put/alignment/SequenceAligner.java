@@ -25,7 +25,7 @@ import org.biojava3.core.sequence.template.AbstractSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public final class SequenceAligner {

@@ -14,8 +14,8 @@ import org.jfree.data.xy.DefaultXYDataset;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.utility.AngleFormat;
 
 public class FragmentMatchChart {

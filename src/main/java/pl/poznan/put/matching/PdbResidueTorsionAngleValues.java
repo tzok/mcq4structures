@@ -3,8 +3,8 @@ package pl.poznan.put.matching;
 import java.util.List;
 
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.torsion.TorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleValue;
-import pl.poznan.put.torsion.type.TorsionAngleType;
 
 public class PdbResidueTorsionAngleValues {
     private final PdbResidue residue;

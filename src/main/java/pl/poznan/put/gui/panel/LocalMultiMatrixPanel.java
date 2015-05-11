@@ -19,17 +19,17 @@ import javax.swing.border.EmptyBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.ModelsComparisonResult;
 import pl.poznan.put.comparison.ModelsComparisonResult.SelectedAngle;
 import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
-import pl.poznan.put.torsion.type.AverageTorsionAngleType;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 public class LocalMultiMatrixPanel extends JPanel {
     private class PdbCompactFragmentWrapper {
@@ -146,21 +146,22 @@ public class LocalMultiMatrixPanel extends JPanel {
             PdbCompactFragment reference) {
         MoleculeType moleculeType = reference.getMoleculeType();
         MasterTorsionAngleType[] mainAngles;
+        AverageTorsionAngleType averageTorsionAngleType;
 
         switch (moleculeType) {
         case PROTEIN:
             mainAngles = ProteinTorsionAngleType.mainAngles();
+            averageTorsionAngleType = ProteinTorsionAngleType.getAverageOverMainAngles();
             break;
         case RNA:
             mainAngles = RNATorsionAngleType.mainAngles();
+            averageTorsionAngleType = RNATorsionAngleType.getAverageOverMainAngles();
             break;
         case UNKNOWN:
         default:
-            mainAngles = new MasterTorsionAngleType[0];
-            break;
+            throw new IllegalArgumentException("Unknown molecule type: " + moleculeType);
         }
 
-        AverageTorsionAngleType averageTorsionAngleType = AverageTorsionAngleType.instanceForMainAngles(moleculeType);
         MasterTorsionAngleType[] anglesToSelectFrom = Arrays.copyOf(mainAngles, mainAngles.length + 1);
         anglesToSelectFrom[mainAngles.length] = averageTorsionAngleType;
         return (MasterTorsionAngleType) JOptionPane.showInputDialog(this, "Select torsion angle", "Torsion angle", JOptionPane.INFORMATION_MESSAGE, null, anglesToSelectFrom, averageTorsionAngleType);

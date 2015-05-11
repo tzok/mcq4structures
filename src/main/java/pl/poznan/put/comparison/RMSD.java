@@ -13,7 +13,7 @@ import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 /**
  * Implementation of RMSD global similarity measure.

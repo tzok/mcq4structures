@@ -9,7 +9,6 @@ import java.util.List;
 
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
-import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
@@ -17,14 +16,15 @@ import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.utility.TabularExporter;
 
 /**

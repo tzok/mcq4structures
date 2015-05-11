@@ -7,8 +7,8 @@ import java.util.List;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 public class FragmentComparison implements Comparable<FragmentComparison> {
     private static final FragmentComparison INVALID_INSTANCE = new FragmentComparison(Collections.<ResidueComparison> emptyList(), Collections.<MasterTorsionAngleType> emptyList(), 0, 0, 0, 0, Angle.invalidInstance());

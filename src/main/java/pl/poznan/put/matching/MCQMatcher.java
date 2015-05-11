@@ -12,12 +12,12 @@ import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
+import pl.poznan.put.torsion.TorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.torsion.TorsionAngleValue;
-import pl.poznan.put.torsion.type.AverageTorsionAngleType;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
-import pl.poznan.put.torsion.type.TorsionAngleType;
 
 public class MCQMatcher implements StructureMatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQMatcher.class);

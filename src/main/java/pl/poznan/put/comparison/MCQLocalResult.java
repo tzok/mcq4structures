@@ -16,8 +16,8 @@ import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 

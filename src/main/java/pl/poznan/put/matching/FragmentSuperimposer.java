@@ -13,13 +13,13 @@ import org.biojava.bio.structure.SVDSuperimposer;
 import org.biojava.bio.structure.StructureException;
 
 import pl.poznan.put.atom.AtomName;
-import pl.poznan.put.common.MoleculeType;
-import pl.poznan.put.common.ResidueComponent;
-import pl.poznan.put.common.ResidueInformationProvider;
 import pl.poznan.put.pdb.PdbAtomLine;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.pdb.analysis.ResidueComponent;
+import pl.poznan.put.pdb.analysis.ResidueInformationProvider;
 import pl.poznan.put.protein.ProteinBackbone;
 import pl.poznan.put.protein.aminoacid.AminoAcidType;
 import pl.poznan.put.rna.Phosphate;
@@ -121,7 +121,7 @@ public class FragmentSuperimposer {
         switch (atomFilter) {
         case ALL:
             for (NucleobaseType nucleobaseType : NucleobaseType.values()) {
-                ResidueInformationProvider provider = nucleobaseType.getResidueInformationProvider();
+                ResidueInformationProvider provider = nucleobaseType.getResidueComponent();
                 for (ResidueComponent component : provider.getAllMoleculeComponents()) {
                     atomNames.addAll(component.getAtoms());
                 }
@@ -143,7 +143,7 @@ public class FragmentSuperimposer {
         case ALL:
             Set<AtomName> atomNames = new HashSet<>();
             for (AminoAcidType aminoAcidType : AminoAcidType.values()) {
-                ResidueInformationProvider provider = aminoAcidType.getResidueInformationProvider();
+                ResidueInformationProvider provider = aminoAcidType.getResidueComponent();
                 for (ResidueComponent component : provider.getAllMoleculeComponents()) {
                     atomNames.addAll(component.getAtoms());
                 }

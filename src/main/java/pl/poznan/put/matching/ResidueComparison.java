@@ -6,9 +6,9 @@ import java.util.List;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 
 public class ResidueComparison {
     private final PdbResidue target;

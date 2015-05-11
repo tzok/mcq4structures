@@ -32,7 +32,7 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 public class LocalMatrixPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalMatrixPanel.class);

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
-import pl.poznan.put.common.MoleculeType;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbResidue;

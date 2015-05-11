@@ -37,9 +37,9 @@ import pl.poznan.put.matching.stats.ModelsComparisonStatistics;
 import pl.poznan.put.matching.stats.Percentiles;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
-import pl.poznan.put.torsion.type.MasterTorsionAngleType;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 

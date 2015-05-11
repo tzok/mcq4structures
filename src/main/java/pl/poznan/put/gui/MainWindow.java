@@ -30,13 +30,13 @@ import javax.swing.JRadioButtonMenuItem;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import pl.poznan.put.common.MoleculeType;
 import pl.poznan.put.comparison.GlobalComparisonMeasure;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
 import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
