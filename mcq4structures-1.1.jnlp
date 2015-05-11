@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="6.0+ "codebase="http://www.cs.put.poznan.pl/tzok/mcq/1.1/" href="mcq4structures-1.1.jnlp">
+    <information>
+        <title>MCQ4Structures - compare molecules in torsional angle space</title>
+        <vendor>Tomasz Żok</vendor>
+        <offline-allowed/>
+    </information>
+    <update check="always" policy="prompt-update"/>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <java version="1.7+"/>
+        <jar href="mcq4structures-0.0.1-SNAPSHOT-jar-with-dependencies.jar" main="true"/>
+    </resources>
+    <application-desc main-class="pl.poznan.put.gui.Gui"/>
+</jnlp>

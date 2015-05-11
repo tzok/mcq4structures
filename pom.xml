@@ -1,0 +1,211 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>pl.poznan.put</groupId>
+	<artifactId>mcq4structures</artifactId>
+	<version>1.1.1</version>
+
+	<properties>
+		<biojava.version>3.0.7</biojava.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>biojava-maven-repo</id>
+			<name>BioJava repository</name>
+			<url>http://www.biojava.org/download/maven/</url>
+		</repository>
+
+		<repository>
+			<id>jzy3d-releases</id>
+			<name>Jzy3d Snapshots</name>
+			<url>http://www.jzy3d.org/maven/releases</url>
+		</repository>
+
+		<repository>
+			<id>freehep-releases</id>
+			<url>http://java.freehep.org/maven2/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>pl.poznan.put.gui.Gui</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Permissions>all-permissions</Permissions>
+						</manifestEntries>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jarsigner-plugin</artifactId> 
+				<version>1.3.2</version> <executions> <execution> <id>sign</id> <phase>package</phase> 
+				<goals> <goal>sign</goal> </goals> </execution> </executions> <configuration> 
+				<keystore>${project.basedir}/certs/keystore.p12</keystore> <storetype>pkcs12</storetype> 
+				<jarPath>${project.build.directory}/${project.build.FinalName}-${project.packaging}-with-dependencies.${project.packaging}</jarPath> 
+				<verify>true</verify> </configuration> </plugin> -->
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-exec</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.7</version>
+			<!-- <scope>provided</scope> -->
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.1.2</version>
+			<!-- <scope>runtime</scope> -->
+		</dependency>
+
+		<dependency>
+			<groupId>org.jumpmind.symmetric</groupId>
+			<artifactId>symmetric-csv</artifactId>
+			<version>3.5.19</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.googlecode.java-diff-utils</groupId>
+			<artifactId>diffutils</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.13</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jzy3d</groupId>
+			<artifactId>jzy3d-api</artifactId>
+			<version>0.9.1</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.biojava</groupId>
+			<artifactId>biojava3-core</artifactId>
+			<version>${biojava.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.biojava</groupId>
+			<artifactId>biojava3-alignment</artifactId>
+			<version>${biojava.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.biojava</groupId>
+			<artifactId>biojava3-structure</artifactId>
+			<version>${biojava.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.biojava</groupId>
+			<artifactId>biojava3-structure-gui</artifactId>
+			<version>${biojava.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.jmol</groupId>
+			<artifactId>jmol</artifactId>
+			<version>13.0.14</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>batik-swing</artifactId>
+			<version>1.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>batik-transcoder</artifactId>
+			<version>1.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.jlfgr</groupId>
+			<artifactId>jlfgr</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>pl.poznan.put</groupId>
+			<artifactId>clustering</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>pl.poznan.put</groupId>
+			<artifactId>BioCommons</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

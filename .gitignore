@@ -1,4 +1,6 @@
+.settings
 .sonar
 bin
 certs
 signed
+target
