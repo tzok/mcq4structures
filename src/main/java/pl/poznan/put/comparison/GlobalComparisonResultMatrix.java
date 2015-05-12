@@ -13,8 +13,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.biojava.bio.structure.jama.Matrix;
+import org.jzy3d.analysis.AnalysisLauncher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.gui.DialogCluster;
+import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -26,6 +30,8 @@ import pl.poznan.put.visualisation.MDS;
 import pl.poznan.put.visualisation.MDSPlot;
 
 public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Visualizable, Tabular {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalComparisonResult.class);
+
     private final String measureName;
     private final List<String> names;
     private final int size;
@@ -99,15 +105,23 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         return distanceMatrix;
     }
 
-    @Override
-    public void cluster() {
+    private boolean isMatrixValid() {
         for (int i = 0; i < distanceMatrix.getRowDimension(); i++) {
             for (int j = 0; j < distanceMatrix.getColumnDimension(); j++) {
                 if (Double.isNaN(distanceMatrix.get(i, j))) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    return false;
                 }
             }
+        }
+        return true;
+    }
+
+    @Override
+    // TODO: Do not use javax.swing here, propagate error through exceptions
+    public void cluster() {
+        if (!isMatrixValid()) {
+            JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         DialogCluster dialogClustering = new DialogCluster(this);
@@ -137,13 +151,9 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     @Override
     // TODO: Do not use javax.swing here, propagate error through exceptions
     public void visualize() {
-        for (GlobalComparisonResult[] row : resultsMatrix) {
-            for (GlobalComparisonResult value : row) {
-                if (value == null) {
-                    JOptionPane.showMessageDialog(null, "Cannot visualize an invalid distance matrix", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
+        if (!isMatrixValid()) {
+            JOptionPane.showMessageDialog(null, "Results cannot be visualized. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         double[][] mds;
@@ -161,44 +171,15 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
 
     @Override
     public void visualize3D() {
-        // TODO
-        // Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new
-        // Range(
-        // 0, size - 1), size), new Mapper() {
-        // @Override
-        // public double f(double x, double y) {
-        // int i = (int) Math.round(x);
-        // int j = (int) Math.round(y);
-        //
-        // i = Math.max(Math.min(i, size - 1), 0);
-        // j = Math.max(Math.min(j, size - 1), 0);
-        // return matrix[i][j];
-        // }
-        // });
-        //
-        // surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
-        // surface.getBounds().getZmin(), surface.getBounds().getZmax(),
-        // new Color(1, 1, 1, .5f)));
-        // surface.setFaceDisplayed(true);
-        // surface.setWireframeDisplayed(false);
-        //
-        // Chart chart = new Chart(Quality.Nicest);
-        // chart.getScene().getGraph().add(surface);
-        //
-        // TickLabelMap map = new TickLabelMap();
-        // for (int i = 0; i < names.length; i++) {
-        // map.register(i, names[i]);
-        // }
-        //
-        // IAxeLayout axeLayout = chart.getAxeLayout();
-        // axeLayout.setXTickProvider(new RegularTickProvider(size));
-        // axeLayout.setXTickRenderer(map);
-        // axeLayout.setYTickProvider(new RegularTickProvider(size));
-        // axeLayout.setYTickRenderer(map);
-        // axeLayout.setZAxeLabel(measureName.equals("MCQ") ? "Angular distance"
-        // : "Distance [\u212B]");
-        //
-        // ChartLauncher.openChart(chart);
+        try {
+            String[] namesArray = names.toArray(new String[names.size()]);
+            Surface3D surface3d = new Surface3D(distanceMatrix.getArray(), namesArray, namesArray);
+            AnalysisLauncher.open(surface3d);
+        } catch (Exception e) {
+            String message = "Failed to visualize in 3D";
+            GlobalComparisonResultMatrix.LOGGER.error(message, e);
+            JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override
