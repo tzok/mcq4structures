@@ -46,7 +46,7 @@ public class ParallelGlobalComparator extends Thread {
         int size = structures.size();
         int all = size * (size - 1) / 2;
         GlobalComparator comparator = measure.getComparator();
-        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(comparator.getName(), names, size);
+        GlobalComparisonResultMatrix matrix = new GlobalComparisonResultMatrix(comparator, names, size);
 
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
