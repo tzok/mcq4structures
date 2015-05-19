@@ -1,5 +1,6 @@
 package pl.poznan.put.matching;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pl.poznan.put.circular.Angle;
@@ -101,7 +102,7 @@ public class FragmentMatch {
             model = modelFragment;
         }
 
-        return target + " & " + model;
+        return target.getName() + " & " + model.getName();
     }
 
     public MoleculeType moleculeType() {
@@ -109,7 +110,7 @@ public class FragmentMatch {
         return targetFragment.getMoleculeType();
     }
 
-    public String[] getResidueLabels() throws InvalidCircularValueException {
+    public List<String> getResidueLabels() throws InvalidCircularValueException {
         PdbCompactFragment target = targetFragment;
         PdbCompactFragment model = modelFragment;
 
@@ -121,17 +122,16 @@ public class FragmentMatch {
 
         List<PdbResidue> targetResidues = target.getResidues();
         List<PdbResidue> modelResidues = model.getResidues();
-
-        String[] result = new String[target.size()];
+        List<String> result = new ArrayList<>();
 
         for (int i = 0; i < target.size(); i++) {
             PdbResidue lname = targetResidues.get(i);
             PdbResidue rname = modelResidues.get(i);
 
-            if (lname.equals(rname)) {
-                result[i] = lname.toString();
+            if (lname.toString().equals(rname.toString())) {
+                result.add(lname.toString());
             } else {
-                result[i] = lname + " - " + rname;
+                result.add(lname + " - " + rname);
             }
         }
 

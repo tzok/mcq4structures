@@ -1,5 +1,7 @@
 package pl.poznan.put.visualisation;
 
+import java.util.List;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -49,7 +51,7 @@ public class FragmentMatchChart {
             i++;
         }
 
-        String[] ticks = match.getResidueLabels();
+        List<String> ticks = match.getResidueLabels();
         ValueAxis domainAxis = new TorsionAxis(ticks);
         domainAxis.setLabel("ResID");
 
