@@ -16,8 +16,6 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author tzok
  */
 class Gui extends JFrame {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Run the main graphical application.
      */
