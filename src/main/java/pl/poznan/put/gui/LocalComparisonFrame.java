@@ -36,6 +36,5 @@ public class LocalComparisonFrame extends JFrame {
         int x = screenSize.width / 2 - preferredSize.width / 2;
         int y = screenSize.height / 2 - preferredSize.height / 2;
         setLocation(x, y);
-
     }
 }

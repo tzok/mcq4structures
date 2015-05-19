@@ -77,12 +77,12 @@ public class StructureSelection implements Exportable, Tabular {
 
         if (fragmentResidues.size() == 1) {
             PdbResidue residue = fragmentResidues.get(0);
-            return name + " " + residue.getResidueNumber();
+            return name + " " + residue.getChainIdentifier() + "." + residue.getResidueNumber();
         }
 
         PdbResidue first = fragmentResidues.get(0);
         PdbResidue last = fragmentResidues.get(fragmentResidues.size() - 1);
-        return name + " " + first.getResidueNumber() + "-" + last.getResidueNumber();
+        return name + " " + first.getChainIdentifier() + "." + first.getResidueNumber() + "-" + last.getResidueNumber();
     }
 
     public String getName() {

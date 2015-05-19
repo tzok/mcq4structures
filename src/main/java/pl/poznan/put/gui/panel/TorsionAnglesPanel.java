@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,7 +26,7 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleType;
 
 public class TorsionAnglesPanel extends JPanel {
-    private final Map<JCheckBox, MasterTorsionAngleType> mapCheckBoxToMasterType = new HashMap<>();
+    private final Map<JCheckBox, MasterTorsionAngleType> mapCheckBoxToMasterType = new LinkedHashMap<>();
 
     private final JPanel anglesPanel = new JPanel();
     private final JPanel buttonsPanel = new JPanel();

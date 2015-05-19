@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -42,12 +41,12 @@ public class SelectionMatch implements Exportable {
         return Collections.unmodifiableList(fragmentMatches);
     }
 
-    public String[] getResidueLabels() {
+    public List<String> getResidueLabels() {
         List<String> result = new ArrayList<>();
         for (FragmentMatch fragment : fragmentMatches) {
-            result.addAll(Arrays.asList(fragment.getResidueLabels()));
+            result.addAll(fragment.getResidueLabels());
         }
-        return result.toArray(new String[result.size()]);
+        return result;
     }
 
     public String toPDB(boolean onlyMatched) throws StructureException {

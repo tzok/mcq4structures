@@ -7,14 +7,22 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.biojava.bio.structure.jama.Matrix;
+import org.jzy3d.analysis.AnalysisLauncher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.gui.DialogCluster;
+import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -26,16 +34,18 @@ import pl.poznan.put.visualisation.MDS;
 import pl.poznan.put.visualisation.MDSPlot;
 
 public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Visualizable, Tabular {
-    private final String measureName;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalComparisonResult.class);
+
+    private final GlobalComparator measure;
     private final List<String> names;
     private final int size;
     private final GlobalComparisonResult[][] resultsMatrix;
     private final Matrix distanceMatrix;
 
-    public GlobalComparisonResultMatrix(String measureName, List<String> names,
-            int size) {
+    public GlobalComparisonResultMatrix(GlobalComparator measureName,
+            List<String> names, int size) {
         super();
-        this.measureName = measureName;
+        this.measure = measureName;
         this.names = names;
         this.size = size;
 
@@ -62,7 +72,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     }
 
     public String getMeasureName() {
-        return measureName;
+        return measure.getName();
     }
 
     public int getSize() {
@@ -99,15 +109,23 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         return distanceMatrix;
     }
 
-    @Override
-    public void cluster() {
+    private boolean isMatrixValid() {
         for (int i = 0; i < distanceMatrix.getRowDimension(); i++) {
             for (int j = 0; j < distanceMatrix.getColumnDimension(); j++) {
                 if (Double.isNaN(distanceMatrix.get(i, j))) {
-                    JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    return false;
                 }
             }
+        }
+        return true;
+    }
+
+    @Override
+    // TODO: Do not use javax.swing here, propagate error through exceptions
+    public void cluster() {
+        if (!isMatrixValid()) {
+            JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         DialogCluster dialogClustering = new DialogCluster(this);
@@ -129,7 +147,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
         String filename = sdf.format(new Date());
         filename += "-Global-";
-        filename += measureName;
+        filename += measure.getName();
         filename += ".csv";
         return new File(filename);
     }
@@ -137,13 +155,9 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     @Override
     // TODO: Do not use javax.swing here, propagate error through exceptions
     public void visualize() {
-        for (GlobalComparisonResult[] row : resultsMatrix) {
-            for (GlobalComparisonResult value : row) {
-                if (value == null) {
-                    JOptionPane.showMessageDialog(null, "Cannot visualize an invalid distance matrix", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
+        if (!isMatrixValid()) {
+            JOptionPane.showMessageDialog(null, "Results cannot be visualized. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         double[][] mds;
@@ -155,50 +169,50 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         }
 
         MDSPlot plot = new MDSPlot(mds, names);
-        plot.setTitle("MCQ4Structures: global distance diagram (" + measureName + ")");
+        plot.setTitle("MCQ4Structures: global distance diagram (" + measure.getName() + ")");
         plot.setVisible(true);
     }
 
     @Override
     public void visualize3D() {
-        // TODO
-        // Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new
-        // Range(
-        // 0, size - 1), size), new Mapper() {
-        // @Override
-        // public double f(double x, double y) {
-        // int i = (int) Math.round(x);
-        // int j = (int) Math.round(y);
-        //
-        // i = Math.max(Math.min(i, size - 1), 0);
-        // j = Math.max(Math.min(j, size - 1), 0);
-        // return matrix[i][j];
-        // }
-        // });
-        //
-        // surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
-        // surface.getBounds().getZmin(), surface.getBounds().getZmax(),
-        // new Color(1, 1, 1, .5f)));
-        // surface.setFaceDisplayed(true);
-        // surface.setWireframeDisplayed(false);
-        //
-        // Chart chart = new Chart(Quality.Nicest);
-        // chart.getScene().getGraph().add(surface);
-        //
-        // TickLabelMap map = new TickLabelMap();
-        // for (int i = 0; i < names.length; i++) {
-        // map.register(i, names[i]);
-        // }
-        //
-        // IAxeLayout axeLayout = chart.getAxeLayout();
-        // axeLayout.setXTickProvider(new RegularTickProvider(size));
-        // axeLayout.setXTickRenderer(map);
-        // axeLayout.setYTickProvider(new RegularTickProvider(size));
-        // axeLayout.setYTickRenderer(map);
-        // axeLayout.setZAxeLabel(measureName.equals("MCQ") ? "Angular distance"
-        // : "Distance [\u212B]");
-        //
-        // ChartLauncher.openChart(chart);
+        try {
+            String name = measure.getName();
+            double[][] matrix = distanceMatrix.getArray();
+            List<String> ticksX = names;
+            List<String> ticksY = names;
+            NavigableMap<Double, String> valueTickZ = prepareTicksZ();
+            String labelX = "";
+            String labelY = "";
+            String labelZ = "Distance";
+            boolean showAllTicksX = true;
+            boolean showAllTicksY = true;
+
+            Surface3D surface3d = new Surface3D(name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, showAllTicksX, showAllTicksY);
+            AnalysisLauncher.open(surface3d);
+        } catch (Exception e) {
+            String message = "Failed to visualize in 3D";
+            GlobalComparisonResultMatrix.LOGGER.error(message, e);
+            JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private NavigableMap<Double, String> prepareTicksZ() {
+        NavigableMap<Double, String> valueTickZ = new TreeMap<>();
+        valueTickZ.put(0.0, "0");
+
+        if (measure instanceof MCQ) {
+            for (double radians = Math.PI / 12.0; radians <= Math.PI + 1e-3; radians += Math.PI / 12.0) {
+                valueTickZ.put(radians, Long.toString(Math.round(Math.toDegrees(radians))) + Unicode.DEGREE);
+            }
+        } else if (measure instanceof RMSD) {
+            double max = StatUtils.max(distanceMatrix.getColumnPackedCopy());
+            for (double angstrom = 1.0; angstrom <= Math.ceil(max) + 1e-3; angstrom += 1.0) {
+                valueTickZ.put(angstrom, Long.toString(Math.round(angstrom)) + Unicode.ANGSTROM);
+            }
+        } else {
+            throw new IllegalArgumentException("Unknown measure: " + measure.getName());
+        }
+        return valueTickZ;
     }
 
     @Override

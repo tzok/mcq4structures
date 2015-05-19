@@ -18,7 +18,7 @@
 
 		<repository>
 			<id>jzy3d-releases</id>
-			<name>Jzy3d Snapshots</name>
+			<name>Jzy3d Releases</name>
 			<url>http://www.jzy3d.org/maven/releases</url>
 		</repository>
 
@@ -106,14 +106,12 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.7</version>
-			<!-- <scope>provided</scope> -->
 		</dependency>
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.1.2</version>
-			<!-- <scope>runtime</scope> -->
 		</dependency>
 
 		<dependency>
@@ -138,7 +136,6 @@
 			<groupId>org.jzy3d</groupId>
 			<artifactId>jzy3d-api</artifactId>
 			<version>0.9.1</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>

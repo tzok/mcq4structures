@@ -528,7 +528,7 @@ public class MainWindow extends JFrame {
         itemSave.setEnabled(currentResult.canExport());
         itemCluster.setEnabled(currentResult.canCluster());
         itemVisualise.setEnabled(currentResult.canVisualize());
-        itemVisualise.setEnabled(currentResult.canVisualize());
+        itemVisualise3D.setEnabled(currentResult.canVisualize());
 
         if (currentResult.canExport()) {
             itemSave.setText("Save results (" + currentResult.getExportFormat() + ")");

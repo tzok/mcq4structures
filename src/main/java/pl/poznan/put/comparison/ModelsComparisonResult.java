@@ -11,7 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NavigableMap;
 
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -20,12 +22,16 @@ import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.StatUtils;
 import org.jumpmind.symmetric.csv.CsvWriter;
+import org.jzy3d.analysis.AnalysisLauncher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.Heap;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.gui.ColorbarFrame;
+import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
@@ -44,6 +50,8 @@ import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public class ModelsComparisonResult {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModelsComparisonResult.class);
+
     public class SelectedAngle implements Exportable, Tabular, Visualizable {
         private final MasterTorsionAngleType torsionAngle;
 
@@ -275,59 +283,64 @@ public class ModelsComparisonResult {
 
         @Override
         public void visualize3D() {
-            // TODO: major refactoring required
-            // final int maxX = results.size();
-            // if (maxX <= 1) {
-            // JOptionPane.showMessageDialog(null,
-            // "3D plot requires a comparison based on at least "
-            // + "two structures", "Warning",
-            // JOptionPane.WARNING_MESSAGE);
-            // return;
-            // }
-            // ComparisonLocal reference = results.get(0);
-            // final int maxY = reference.getTicks().size();
-            //
-            // Shape surface =
-            // Builder.buildOrthonormal(new OrthonormalGrid(new Range(0,
-            // maxX - 1), maxX, new Range(0, maxY - 1), maxY),
-            // new Mapper() {
-            // @Override
-            // public double f(double x, double y) {
-            // int i = (int) Math.round(x);
-            // int j = (int) Math.round(y);
-            //
-            // i = Math.max(Math.min(i, maxX - 1), 0);
-            // j = Math.max(Math.min(j, maxY - 1), 0);
-            // // FIXME
-            // return getResults().get(i).getAngles().get(
-            // getAngleName()).getDeltas()[j];
-            // }
-            // });
-            //
-            // surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0,
-            // (float) Math.PI, new Color(1, 1, 1, .5f)));
-            // surface.setFaceDisplayed(true);
-            // surface.setWireframeDisplayed(false);
-            //
-            // TickLabelMap mapX = new TickLabelMap();
-            // for (int i = 0; i < maxX; i++) {
-            // mapX.register(i, results.get(i).getTitle());
-            // }
-            // TickLabelMap mapY = new TickLabelMap();
-            // for (int i = 0; i < maxY; i++) {
-            // mapY.register(i, reference.getTicks().get(i));
-            // }
-            //
-            // Chart chart = new Chart(Quality.Nicest);
-            // chart.getScene().getGraph().add(surface);
-            //
-            // IAxeLayout axeLayout = chart.getAxeLayout();
-            // axeLayout.setXTickProvider(new RegularTickProvider(maxX));
-            // axeLayout.setXTickRenderer(mapX);
-            // axeLayout.setYTickProvider(new SmartTickProvider(maxY));
-            // axeLayout.setYTickRenderer(mapY);
-            //
-            // ChartLauncher.openChart(chart);
+            if (models.size() < 1) {
+                JOptionPane.showMessageDialog(null, "At least one model is required for 3D visualization", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                String name = target.getName() + " " + torsionAngle.getExportName();
+                double[][] matrix = prepareMatrix();
+                List<String> ticksX = prepareTicksX();
+                List<String> ticksY = prepareTicksY();
+                NavigableMap<Double, String> valueTickZ = MCQLocalResult.prepareTicksZ();
+                String labelX = "Model";
+                String labelY = "Residue";
+                String labelZ = "Distance";
+                boolean showAllTicksX = true;
+                boolean showAllTicksY = false;
+
+                Surface3D surface3d = new Surface3D(name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, showAllTicksX, showAllTicksY);
+                AnalysisLauncher.open(surface3d);
+            } catch (Exception e) {
+                String message = "Failed to visualize in 3D";
+                ModelsComparisonResult.LOGGER.error(message, e);
+                JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        private double[][] prepareMatrix() {
+            int size = getTargetSize();
+            double[][] matrix = new double[models.size()][];
+
+            for (int i = 0; i < models.size(); i++) {
+                matrix[i] = new double[size];
+                FragmentMatch fragmentMatch = matches.get(i);
+                List<ResidueComparison> residueComparisons = fragmentMatch.getResidueComparisons();
+
+                for (int j = 0; j < size; j++) {
+                    ResidueComparison residueComparison = residueComparisons.get(j);
+                    matrix[i][j] = residueComparison.getAngleDelta(torsionAngle).getDelta().getRadians();
+                }
+            }
+
+            return matrix;
+        }
+
+        private List<String> prepareTicksX() {
+            List<String> ticksX = new ArrayList<>();
+            for (PdbCompactFragment model : models) {
+                ticksX.add(model.getName());
+            }
+            return ticksX;
+        }
+
+        private List<String> prepareTicksY() {
+            List<String> ticksY = new ArrayList<>();
+            for (PdbResidue residue : target.getResidues()) {
+                ticksY.add(residue.toString());
+            }
+            return ticksY;
         }
     }
 
