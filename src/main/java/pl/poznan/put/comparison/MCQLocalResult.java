@@ -147,7 +147,7 @@ public class MCQLocalResult extends LocalComparisonResult {
         return fragmentMatch.getResidueLabels();
     }
 
-    private static NavigableMap<Double, String> prepareTicksZ() {
+    protected static NavigableMap<Double, String> prepareTicksZ() {
         NavigableMap<Double, String> valueTickZ = new TreeMap<>();
         valueTickZ.put(0.0, "0");
 
