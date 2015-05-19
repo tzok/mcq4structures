@@ -7,12 +7,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.jzy3d.analysis.AnalysisLauncher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.gui.LocalComparisonFrame;
+import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
@@ -23,6 +31,8 @@ import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 
 public class MCQLocalResult extends LocalComparisonResult {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MCQLocalResult.class);
+
     private final List<MasterTorsionAngleType> angleTypes;
 
     public MCQLocalResult(SelectionMatch matches,
@@ -35,7 +45,7 @@ public class MCQLocalResult extends LocalComparisonResult {
         return angleTypes;
     }
 
-    public String[] getResidueLabels() {
+    public List<String> getResidueLabels() {
         return selectionMatch.getResidueLabels();
     }
 
@@ -80,61 +90,72 @@ public class MCQLocalResult extends LocalComparisonResult {
 
     @Override
     public void visualize3D() {
-        // TODO: required major refactoring
-        // // final List<AngleDeltas> angleList = new ArrayList<>(
-        // // getAngles().values());
-        // List<String> ticks = getDataLabels();
-        // final int maxX = angles.size();
-        // final int maxY = ticks.size();
-        //
-        // if (maxX <= 1) {
-        // JOptionPane.showMessageDialog(null,
-        // "3D plot requires a comparison based on at least "
-        // + "two angles", "Warning",
-        // JOptionPane.WARNING_MESSAGE);
-        // return;
-        // }
-        //
-        // TickLabelMap mapX = new TickLabelMap();
-        // for (int i = 0; i < angleList.size(); i++) {
-        // mapX.register(i, angleList.get(i).getName());
-        // }
-        // TickLabelMap mapY = new TickLabelMap();
-        // for (int i = 0; i < maxY; i++) {
-        // mapY.register(i, ticks.get(i));
-        // }
-        //
-        // Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(new
-        // Range(
-        // 0, maxX - 1), maxX, new Range(0, maxY), maxY - 1),
-        // new Mapper() {
-        // @Override
-        // public double f(double x, double y) {
-        // int i = (int) Math.round(x);
-        // int j = (int) Math.round(y);
-        //
-        // i = Math.max(Math.min(i, maxX - 1), 0);
-        // j = Math.max(Math.min(j, maxY - 1), 0);
-        // return angleList.get(i).getDeltas()[j];
-        // }
-        // });
-        //
-        // surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0,
-        // (float) Math.PI, new Color(1, 1, 1, .5f)));
-        // surface.setFaceDisplayed(true);
-        // surface.setWireframeDisplayed(false);
-        //
-        // Chart chart = new Chart(Quality.Nicest);
-        // chart.getScene().getGraph().add(surface);
-        //
-        // IAxeLayout axeLayout = chart.getAxeLayout();
-        // axeLayout.setXTickProvider(new RegularTickProvider(maxX));
-        // axeLayout.setXTickRenderer(mapX);
-        // axeLayout.setYTickProvider(new SmartTickProvider(maxY));
-        // axeLayout.setYTickRenderer(mapY);
-        // axeLayout.setZAxeLabel("Angular distance");
-        //
-        // ChartLauncher.openChart(chart);
+        if (angleTypes.size() <= 1) {
+            JOptionPane.showMessageDialog(null, "At least two torsion angle types are required for 3D visualization", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+                String name = fragmentMatch.toString();
+                double[][] matrix = prepareMatrix(fragmentMatch);
+                List<String> ticksX = prepareTicksX();
+                List<String> ticksY = MCQLocalResult.prepareTicksY(fragmentMatch);
+                NavigableMap<Double, String> valueTickZ = MCQLocalResult.prepareTicksZ();
+                String labelX = "Angle type";
+                String labelY = "Residue";
+                String labelZ = "Distance";
+                boolean showAllTicksX = true;
+                boolean showAllTicksY = false;
+
+                Surface3D surface3d = new Surface3D(name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, showAllTicksX, showAllTicksY);
+                AnalysisLauncher.open(surface3d);
+            }
+        } catch (Exception e) {
+            String message = "Failed to visualize in 3D";
+            MCQLocalResult.LOGGER.error(message, e);
+            JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private double[][] prepareMatrix(FragmentMatch fragmentMatch) {
+        List<ResidueComparison> residueComparisons = fragmentMatch.getResidueComparisons();
+        double[][] matrix = new double[angleTypes.size()][];
+
+        for (int i = 0; i < angleTypes.size(); i++) {
+            MasterTorsionAngleType angleType = angleTypes.get(i);
+            matrix[i] = new double[residueComparisons.size()];
+
+            for (int j = 0; j < residueComparisons.size(); j++) {
+                ResidueComparison residueComparison = residueComparisons.get(j);
+                matrix[i][j] = residueComparison.getAngleDelta(angleType).getDelta().getRadians();
+            }
+        }
+
+        return matrix;
+    }
+
+    private List<String> prepareTicksX() {
+        List<String> ticksX = new ArrayList<>();
+        for (MasterTorsionAngleType angleType : angleTypes) {
+            ticksX.add(angleType.getExportName());
+        }
+        return ticksX;
+    }
+
+    private static List<String> prepareTicksY(FragmentMatch fragmentMatch) {
+        return fragmentMatch.getResidueLabels();
+    }
+
+    private static NavigableMap<Double, String> prepareTicksZ() {
+        NavigableMap<Double, String> valueTickZ = new TreeMap<>();
+        valueTickZ.put(0.0, "0");
+
+        for (double radians = Math.PI / 12.0; radians <= Math.PI + 1e-3; radians += Math.PI / 12.0) {
+            valueTickZ.put(radians, Long.toString(Math.round(Math.toDegrees(radians))) + Unicode.DEGREE);
+        }
+
+        return valueTickZ;
     }
 
     @Override
@@ -161,13 +182,13 @@ public class MCQLocalResult extends LocalComparisonResult {
             residueComparisons.addAll(fragmentMatch.getResidueComparisons());
         }
 
-        String[] labels = getResidueLabels();
+        List<String> labels = getResidueLabels();
         String[][] data = new String[residueComparisons.size()][];
 
         for (int i = 0; i < residueComparisons.size(); i++) {
             ResidueComparison residueComparison = residueComparisons.get(i);
             data[i] = new String[angleTypes.size() + 1];
-            data[i][0] = labels[i];
+            data[i][0] = labels.get(i);
 
             for (int j = 0; j < angleTypes.size(); j++) {
                 MasterTorsionAngleType angle = angleTypes.get(j);

@@ -176,9 +176,18 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     @Override
     public void visualize3D() {
         try {
-            String[] ticks = names.toArray(new String[names.size()]);
-            NavigableMap<Double, String> valueTickZ = prepareTicks();
-            Surface3D surface3d = new Surface3D(distanceMatrix.getArray(), ticks, ticks, valueTickZ, "", "", "Distance");
+            String name = measure.getName();
+            double[][] matrix = distanceMatrix.getArray();
+            List<String> ticksX = names;
+            List<String> ticksY = names;
+            NavigableMap<Double, String> valueTickZ = prepareTicksZ();
+            String labelX = "";
+            String labelY = "";
+            String labelZ = "Distance";
+            boolean showAllTicksX = true;
+            boolean showAllTicksY = true;
+
+            Surface3D surface3d = new Surface3D(name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, showAllTicksX, showAllTicksY);
             AnalysisLauncher.open(surface3d);
         } catch (Exception e) {
             String message = "Failed to visualize in 3D";
@@ -187,7 +196,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         }
     }
 
-    private NavigableMap<Double, String> prepareTicks() {
+    private NavigableMap<Double, String> prepareTicksZ() {
         NavigableMap<Double, String> valueTickZ = new TreeMap<>();
         valueTickZ.put(0.0, "0");
 

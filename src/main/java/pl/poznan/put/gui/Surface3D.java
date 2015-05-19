@@ -2,6 +2,7 @@ package pl.poznan.put.gui;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.List;
 import java.util.NavigableMap;
 import java.util.SortedSet;
 
@@ -24,6 +25,7 @@ import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.primitives.axes.layout.IAxeLayout;
 import org.jzy3d.plot3d.primitives.axes.layout.providers.ITickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.providers.RegularTickProvider;
+import org.jzy3d.plot3d.primitives.axes.layout.providers.SmartTickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.providers.StaticTickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
@@ -55,23 +57,30 @@ public class Surface3D extends AbstractAnalysis {
     private final ITickProvider providerZ;
     private final ITickRenderer rendererZ;
 
+    private final String name;
     private final double[][] matrix;
-    private final String[] ticksX;
-    private final String[] ticksY;
+    private final List<String> ticksX;
+    private final List<String> ticksY;
     private final String labelX;
     private final String labelY;
     private final String labelZ;
+    private final boolean showAllTicksX;
+    private final boolean showAllTicksY;
 
-    public Surface3D(double[][] matrix, String[] ticksX, String[] ticksY,
-            NavigableMap<Double, String> valueTickZ, String labelX,
-            String labelY, String labelZ) {
+    public Surface3D(String name, double[][] matrix, List<String> ticksX,
+            List<String> ticksY, NavigableMap<Double, String> valueTickZ,
+            String labelX, String labelY, String labelZ, boolean showAllTicksX,
+            boolean showAllTicksY) {
         super();
+        this.name = name;
         this.matrix = matrix;
         this.ticksX = ticksX;
         this.ticksY = ticksY;
         this.labelX = labelX;
         this.labelY = labelY;
         this.labelZ = labelZ;
+        this.showAllTicksX = showAllTicksX;
+        this.showAllTicksY = showAllTicksY;
 
         SortedSet<Double> sortedSet = valueTickZ.navigableKeySet();
         double[] array = ArrayUtils.toPrimitive(sortedSet.toArray(new Double[sortedSet.size()]));
@@ -86,31 +95,37 @@ public class Surface3D extends AbstractAnalysis {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public void init() throws Exception {
         // Define a function to plot
         Mapper mapper = new Mapper() {
             @Override
             public double f(double x, double y) {
-                int i = Math.max(Math.min((int) Math.round(x), matrix.length - 1), 0);
-                int j = Math.max(Math.min((int) Math.round(y), matrix.length - 1), 0);
+                int i = Math.max(Math.min((int) Math.round(x), ticksX.size() - 1), 0);
+                int j = Math.max(Math.min((int) Math.round(y), ticksY.size() - 1), 0);
                 return matrix[i][j];
             }
         };
 
-        Range rangeX = new Range(0, ticksX.length);
-        Range rangeY = new Range(0, ticksY.length);
-        OrthonormalGrid orthonormalGrid = new OrthonormalGrid(rangeX, ticksX.length, rangeY, ticksY.length);
+        Range rangeX = new Range(0, ticksX.size());
+        Range rangeY = new Range(0, ticksY.size());
+        OrthonormalGrid orthonormalGrid = new OrthonormalGrid(rangeX, ticksX.size(), rangeY, ticksY.size());
 
         Shape surface = Builder.buildOrthonormal(orthonormalGrid, mapper);
         surface.setColorMapper(new ColorMapper(new ColorMapRedAndGreen(), minZ, maxZ, new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
-        surface.setWireframeDisplayed(false);
+        surface.setWireframeDisplayed(true);
+        surface.setWireframeColor(Color.GRAY);
 
         chart = new Chart(factory, Quality.Intermediate, "awt");
         IAxeLayout axeLayout = chart.getAxeLayout();
-        axeLayout.setXTickProvider(createProviderXY(true));
+        axeLayout.setXTickProvider(createProviderXY(true, showAllTicksX));
         axeLayout.setXTickRenderer(createRendererXY(true));
-        axeLayout.setYTickProvider(createProviderXY(false));
+        axeLayout.setYTickProvider(createProviderXY(false, showAllTicksY));
         axeLayout.setYTickRenderer(createRendererXY(false));
         axeLayout.setZTickProvider(providerZ);
         axeLayout.setZTickRenderer(rendererZ);
@@ -118,22 +133,25 @@ public class Surface3D extends AbstractAnalysis {
         axeLayout.setYAxeLabel(labelY);
         axeLayout.setZAxeLabel(labelZ);
 
-        chart.getView().setBoundManual(new BoundingBox3d(0, ticksX.length, 0, ticksY.length, (float) minZ, (float) maxZ));
+        chart.getView().setBoundManual(new BoundingBox3d(0, ticksX.size(), 0, ticksY.size(), (float) minZ, (float) maxZ));
         chart.addDrawable(surface);
     }
 
     private ITickRenderer createRendererXY(boolean isX) {
-        final String[] ticks = isX ? ticksX : ticksY;
+        final List<String> ticks = isX ? ticksX : ticksY;
         return new ITickRenderer() {
             @Override
             public String format(double x) {
-                int i = Math.max(Math.min((int) Math.round(x), ticks.length - 1), 0);
-                return ticks[i];
+                int i = Math.max(Math.min((int) Math.floor(x), ticks.size() - 1), 0);
+                return ticks.get(i);
             }
         };
     }
 
-    private ITickProvider createProviderXY(boolean isX) {
-        return new RegularTickProvider(isX ? ticksX.length : ticksY.length);
+    private ITickProvider createProviderXY(boolean isX, boolean showAllTicks) {
+        if (showAllTicks) {
+            return new RegularTickProvider(isX ? ticksX.size() : ticksY.size());
+        }
+        return new SmartTickProvider(isX ? ticksX.size() : ticksY.size());
     }
 }
