@@ -2,6 +2,7 @@ package pl.poznan.put.comparison;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.color.ColorSpace;
 import java.awt.font.LineMetrics;
 import java.io.File;
 import java.io.IOException;
@@ -23,13 +24,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.StatUtils;
 import org.jumpmind.symmetric.csv.CsvWriter;
 import org.jzy3d.analysis.AnalysisLauncher;
+import org.jzy3d.colors.colormaps.AbstractColorMap;
+import org.jzy3d.colors.colormaps.ColorMapRedAndGreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.Heap;
-import pl.poznan.put.constant.Colors;
 import pl.poznan.put.gui.ColorbarFrame;
 import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Exportable;
@@ -53,6 +55,8 @@ public class ModelsComparisonResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelsComparisonResult.class);
 
     public class SelectedAngle implements Exportable, Tabular, Visualizable {
+        private final AbstractColorMap colormap = new ColorMapRedAndGreen();
+
         private final MasterTorsionAngleType torsionAngle;
 
         private SelectedAngle(MasterTorsionAngleType torsionAngle) {
@@ -175,7 +179,9 @@ public class ModelsComparisonResult {
                     TorsionAngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
 
                     if (angleDelta.getState() == State.BOTH_VALID) {
-                        svg.setColor(Colors.interpolateColor(angleDelta.getDelta().getRadians(), min, max));
+                        float[] rgba = colormap.getColor(0, 0, angleDelta.getDelta().getRadians(), min, max).toArray();
+                        Color color = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), new float[] { rgba[0], rgba[1], rgba[2] }, rgba[3]);
+                        svg.setColor(color);
                     } else {
                         svg.setColor(Color.BLACK);
                     }
