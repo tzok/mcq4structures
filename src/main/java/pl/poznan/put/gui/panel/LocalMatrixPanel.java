@@ -49,7 +49,7 @@ public class LocalMatrixPanel extends JPanel {
                 component.setBackground(Color.WHITE);
                 component.setForeground(Color.BLACK);
             } else {
-                component.setBackground(Colors.COLORS[column - 1]);
+                component.setBackground(Colors.DISTINCT_COLORS[column]);
             }
             return component;
         }

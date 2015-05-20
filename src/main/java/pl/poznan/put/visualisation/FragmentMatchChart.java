@@ -47,7 +47,7 @@ public class FragmentMatchChart {
 
             String displayName = angle.getLongDisplayName();
             dataset.addSeries(displayName, data);
-            renderer.setSeriesPaint(i, Colors.COLORS[i]);
+            renderer.setSeriesPaint(i, Colors.DISTINCT_COLORS[i]);
             i++;
         }
 
