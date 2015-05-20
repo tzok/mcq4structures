@@ -1,8 +1,5 @@
 package pl.poznan.put.comparison;
 
-import java.awt.BasicStroke;
-import java.awt.FontMetrics;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,20 +15,16 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.apache.batik.dom.svg.SVGDOMImplementation;
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.util.SVGConstants;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.stat.StatUtils;
 import org.biojava.bio.structure.jama.Matrix;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
+import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.gui.DialogCluster;
 import pl.poznan.put.gui.GlobalComparisonFrame;
 import pl.poznan.put.gui.Surface3D;
@@ -41,8 +34,8 @@ import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
-import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.MDS;
+import pl.poznan.put.visualisation.SVGDrawer;
 
 public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Visualizable, Tabular {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalComparisonResult.class);
@@ -171,7 +164,17 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
             return;
         }
 
-        GlobalComparisonFrame frame = new GlobalComparisonFrame(this);
+        List<NamedPoint> points = new ArrayList<>();
+        double[][] xyMatrix = MDS.multidimensionalScaling(distanceMatrix.getArray(), 2);
+
+        for (int i = 0; i < xyMatrix.length; i++) {
+            String name = names.get(i);
+            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
+            points.add(new NamedPoint(name, point));
+        }
+
+        SVGDocument document = SVGDrawer.drawPoints(points);
+        GlobalComparisonFrame frame = new GlobalComparisonFrame(document);
         frame.setVisible(true);
     }
 
@@ -258,59 +261,5 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         }
 
         return new DefaultTableModel(values, columnNames);
-    }
-
-    public SVGDocument toSVG() {
-        SVGDocument document = SVGHelper.emptyDocument();
-        SVGGraphics2D svg = new SVGGraphics2D(document);
-        FontMetrics metrics = SVGHelper.getFontMetrics(svg);
-        int em = metrics.charWidth('m');
-        svg.setStroke(new BasicStroke(em / 5.0f));
-
-        double[][] points = MDS.multidimensionalScaling(distanceMatrix.getArray(), 2);
-        double ratio = 32.0 * em / GlobalComparisonResultMatrix.calculateMaxDistance(points);
-
-        for (int i = 0; i < points.length; i++) {
-            int x = (int) Math.round(ratio * points[i][0]);
-            int y = (int) Math.round(ratio * points[i][1]);
-            svg.drawOval(x, y, em, em);
-        }
-
-        Element root = svg.getRoot(document.getDocumentElement());
-        addTitleTagToEveryDatapoint(document);
-        GlobalComparisonResultMatrix.setBoundingBox(document, root);
-
-        return document;
-    }
-
-    private static void setBoundingBox(SVGDocument document, Element root) {
-        Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
-        root.setAttribute("viewBox", boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
-    }
-
-    private void addTitleTagToEveryDatapoint(SVGDocument document) {
-        NodeList childNodes = document.getElementsByTagName(SVGConstants.SVG_CIRCLE_TAG);
-
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            Element circle = (Element) childNodes.item(i);
-            Element title = document.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, SVGConstants.SVG_TITLE_TAG);
-            title.setTextContent(names.get(i));
-            circle.appendChild(title);
-        }
-    }
-
-    private static double calculateMaxDistance(double[][] points) {
-        List<Double> distances = new ArrayList<>();
-
-        for (int i = 0; i < points.length; i++) {
-            Vector2D vi = new Vector2D(points[i]);
-
-            for (int j = i + 1; j < points.length; j++) {
-                Vector2D vj = new Vector2D(points[j]);
-                distances.add(vi.distance(vj));
-            }
-        }
-
-        return Collections.max(distances);
     }
 }

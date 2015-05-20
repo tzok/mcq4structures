@@ -7,18 +7,14 @@ import java.io.OutputStream;
 
 import javax.swing.JFileChooser;
 
-import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.swing.JSVGCanvas;
-import org.apache.batik.transcoder.Transcoder;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.svg2svg.SVGTranscoder;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.types.ExportFormat;
+import pl.poznan.put.utility.svg.Format;
+import pl.poznan.put.utility.svg.SVGHelper;
 
 public abstract class SVGComponent extends JSVGCanvas implements Exportable {
     private final JFileChooser chooser = new JFileChooser();
@@ -29,8 +25,8 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
         setSVGDocument(svg);
 
         Element rootElement = svg.getDocumentElement();
-        svgWidth = (int) Math.ceil(Double.parseDouble(rootElement.getAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "width")));
-        svgHeight = (int) Math.ceil(Double.parseDouble(rootElement.getAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "height")));
+        svgWidth = (int) Math.ceil(Double.parseDouble(rootElement.getAttribute("width")));
+        svgHeight = (int) Math.ceil(Double.parseDouble(rootElement.getAttribute("height")));
         setPreferredSize(new Dimension(svgWidth, svgHeight));
     }
 
@@ -44,14 +40,7 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
 
     @Override
     public void export(OutputStream stream) throws IOException {
-        try {
-            TranscoderInput input = new TranscoderInput(svgDocument);
-            TranscoderOutput output = new TranscoderOutput(stream);
-            Transcoder transcoder = new SVGTranscoder();
-            transcoder.transcode(input, output);
-        } catch (TranscoderException e) {
-            throw new IOException("Failed to save SVG image", e);
-        }
+        SVGHelper.export(svgDocument, stream, Format.SVG, null);
     }
 
     @Override

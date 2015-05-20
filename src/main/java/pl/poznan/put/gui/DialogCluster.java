@@ -13,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -29,8 +28,7 @@ import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.utility.InvalidInputException;
-import pl.poznan.put.utility.PartitionalClustering;
+import pl.poznan.put.visualisation.PartitionalClustering;
 
 public class DialogCluster extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -127,16 +125,12 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 assert arg0 != null;
 
-                try {
-                    Object source = arg0.getSource();
-                    Visualizable visualizable = getVisualizable();
-                    if (source.equals(buttonVisualize)) {
-                        visualizable.visualize();
-                    } else { // source.equals(buttonVisualize3D)
-                        visualizable.visualize3D();
-                    }
-                } catch (InvalidInputException e) {
-                    JOptionPane.showMessageDialog(DialogCluster.this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                Object source = arg0.getSource();
+                Visualizable visualizable = getVisualizable();
+                if (source.equals(buttonVisualize)) {
+                    visualizable.visualize();
+                } else { // source.equals(buttonVisualize3D)
+                    visualizable.visualize3D();
                 }
             }
         };
@@ -163,7 +157,7 @@ public class DialogCluster extends JDialog {
         setTitle("MCQ4Structures: clustering method");
     }
 
-    Visualizable getVisualizable() throws InvalidInputException {
+    Visualizable getVisualizable() {
         double[][] matrix = comparisonGlobal.getDistanceMatrix().getArray();
 
         if (hierarchical.isSelected()) {

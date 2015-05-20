@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.StatUtils;
@@ -197,10 +196,10 @@ public class ModelsComparisonResult {
 
             if (matches.size() > 0) {
                 int width = maxWidth + blockWidth * matches.get(0).size();
-                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "width", Integer.toString(width));
+                root.setAttributeNS(null, "width", Integer.toString(width));
 
                 int height = fontHeight * models.size();
-                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "height", Integer.toString(height));
+                root.setAttributeNS(null, "height", Integer.toString(height));
             }
 
             return document;
