@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import javax.swing.JFileChooser;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
@@ -25,9 +26,18 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
         setSVGDocument(svg);
 
         Element rootElement = svg.getDocumentElement();
-        svgWidth = (int) Math.ceil(Double.parseDouble(rootElement.getAttribute("width")));
-        svgHeight = (int) Math.ceil(Double.parseDouble(rootElement.getAttribute("height")));
-        setPreferredSize(new Dimension(svgWidth, svgHeight));
+        String widthAttribute = rootElement.getAttribute("width");
+        String heightAttribute = rootElement.getAttribute("height");
+
+        if (!StringUtils.isBlank(widthAttribute) && !StringUtils.isBlank(heightAttribute)) {
+            svgWidth = (int) Math.ceil(Double.parseDouble(widthAttribute));
+            svgHeight = (int) Math.ceil(Double.parseDouble(heightAttribute));
+            setPreferredSize(new Dimension(svgWidth, svgHeight));
+        } else {
+            Dimension preferredSize = getPreferredSize();
+            svgWidth = preferredSize.width;
+            svgHeight = preferredSize.height;
+        }
     }
 
     public int getSvgWidth() {
