@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
-import java.util.Map.Entry;
 
 public class ClusterPrototypes implements Iterable<Integer> {
     private static final Random RANDOM = new Random();
@@ -20,8 +20,7 @@ public class ClusterPrototypes implements Iterable<Integer> {
         Set<Integer> setMedoids = new HashSet<>();
         setMedoids.add(ClusterPrototypes.RANDOM.nextInt(matrix.length));
         List<Heap> listHeaps = Heap.fromMatrix(matrix);
-        assert listHeaps.size() == matrix.length : "listHeaps.size() = "
-                + listHeaps.size() + ", matrix.length = " + matrix.length;
+        assert listHeaps.size() == matrix.length : "listHeaps.size() = " + listHeaps.size() + ", matrix.length = " + matrix.length;
 
         for (int i = 1; i < k; i++) {
             LinkedHashMap<Integer, Double> mapElementNearest = new LinkedHashMap<>();

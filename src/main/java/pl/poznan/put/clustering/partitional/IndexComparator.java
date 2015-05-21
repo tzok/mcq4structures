@@ -5,7 +5,7 @@ import java.util.Comparator;
 /**
  * This comparator contains an array of doubles, but returns the *indices* of
  * values.
- * 
+ *
  * @author tzok
  */
 public class IndexComparator implements Comparator<Integer> {
@@ -13,7 +13,7 @@ public class IndexComparator implements Comparator<Integer> {
 
     public IndexComparator(double[] row) {
         super();
-        this.row = row;
+        this.row = row.clone();
     }
 
     @Override
