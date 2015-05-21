@@ -31,7 +31,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.Heap;
-import pl.poznan.put.gui.ColorbarFrame;
 import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -281,9 +280,11 @@ public class ModelsComparisonResult {
         }
 
         @Override
-        public void visualize() {
-            ColorbarFrame frame = new ColorbarFrame(this);
-            frame.setVisible(true);
+        public SVGDocument visualize() {
+            return null;
+            // FIXME
+            // ColorbarFrame frame = new ColorbarFrame(this);
+            // frame.setVisible(true);
         }
 
         @Override

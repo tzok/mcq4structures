@@ -26,7 +26,6 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.gui.DialogCluster;
-import pl.poznan.put.gui.GlobalComparisonFrame;
 import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
@@ -157,11 +156,9 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     }
 
     @Override
-    // TODO: Do not use javax.swing here, propagate error through exceptions
-    public void visualize() {
+    public SVGDocument visualize() {
         if (!isMatrixValid()) {
-            JOptionPane.showMessageDialog(null, "Results cannot be visualized. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            throw new IllegalArgumentException("Results cannot be visualized. Some structures could not be compared.");
         }
 
         List<NamedPoint> points = new ArrayList<>();
@@ -173,9 +170,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
             points.add(new NamedPoint(name, point));
         }
 
-        SVGDocument document = SVGDrawer.drawPoints(points);
-        GlobalComparisonFrame frame = new GlobalComparisonFrame(document);
-        frame.setVisible(true);
+        return SVGDrawer.drawPoints(points);
     }
 
     @Override

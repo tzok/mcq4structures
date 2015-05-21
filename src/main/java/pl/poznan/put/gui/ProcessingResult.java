@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.w3c.dom.svg.SVGDocument;
+
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
@@ -51,8 +53,8 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
     }
 
     @Override
-    public void visualize() {
-        visualizable.visualize();
+    public SVGDocument visualize() {
+        return visualizable.visualize();
     }
 
     @Override

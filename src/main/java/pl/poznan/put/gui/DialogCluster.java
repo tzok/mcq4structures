@@ -17,6 +17,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import org.w3c.dom.svg.SVGDocument;
+
 import pl.poznan.put.clustering.hierarchical.HierarchicalClusterer;
 import pl.poznan.put.clustering.hierarchical.HierarchicalClusteringResult;
 import pl.poznan.put.clustering.hierarchical.Linkage;
@@ -161,6 +163,7 @@ public class DialogCluster extends JDialog {
         double[][] matrix = comparisonGlobal.getDistanceMatrix().getArray();
 
         if (hierarchical.isSelected()) {
+            @SuppressWarnings("unused")
             final HierarchicalClusteringResult clustering = HierarchicalClusterer.cluster(matrix, (Linkage) linkage.getSelectedItem());
 
             return new Visualizable() {
@@ -170,9 +173,12 @@ public class DialogCluster extends JDialog {
                 }
 
                 @Override
-                public void visualize() {
-                    DendrogramFrame dendrogramFrame = new DendrogramFrame(clustering, comparisonGlobal.getNames());
-                    dendrogramFrame.setVisible(true);
+                public SVGDocument visualize() {
+                    return null;
+                    // FIXME
+                    // DendrogramFrame dendrogramFrame = new
+                    // DendrogramFrame(clustering, comparisonGlobal.getNames());
+                    // dendrogramFrame.setVisible(true);
                 }
             };
         }

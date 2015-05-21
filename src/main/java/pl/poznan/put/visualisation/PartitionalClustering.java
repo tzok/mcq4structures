@@ -15,7 +15,6 @@ import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ColoredNamedPoint;
-import pl.poznan.put.gui.GlobalComparisonFrame;
 import pl.poznan.put.interfaces.Visualizable;
 
 public class PartitionalClustering implements Visualizable {
@@ -62,7 +61,7 @@ public class PartitionalClustering implements Visualizable {
     }
 
     @Override
-    public void visualize() {
+    public SVGDocument visualize() {
         List<ColoredNamedPoint> points = new ArrayList<>();
         double[][] xyMatrix = MDS.multidimensionalScaling(matrix.getDistanceMatrix().getArray(), 2);
 
@@ -73,9 +72,7 @@ public class PartitionalClustering implements Visualizable {
             points.add(new ColoredNamedPoint(color, name, point));
         }
 
-        SVGDocument document = SVGDrawer.drawPoints(points);
-        GlobalComparisonFrame frame = new GlobalComparisonFrame(document);
-        frame.setVisible(true);
+        return SVGDrawer.drawPoints(points);
     }
 
     private Color getClusterColor(int index) {
