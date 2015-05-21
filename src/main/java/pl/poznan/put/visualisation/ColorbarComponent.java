@@ -2,11 +2,11 @@ package pl.poznan.put.visualisation;
 
 import java.io.File;
 
-import pl.poznan.put.comparison.ModelsComparisonResult;
+import org.w3c.dom.svg.SVGDocument;
 
 public class ColorbarComponent extends SVGComponent {
-    public ColorbarComponent(ModelsComparisonResult.SelectedAngle result) {
-        super(result.toSVG(0, Math.PI));
+    public ColorbarComponent(SVGDocument document) {
+        super(document);
     }
 
     @Override
