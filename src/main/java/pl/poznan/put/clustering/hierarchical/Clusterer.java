@@ -21,7 +21,7 @@ public final class Clusterer {
     public Clusterer(List<String> names, double[][] matrix, Linkage linkage) {
         super();
         this.names = names;
-        this.matrix = matrix;
+        this.matrix = matrix.clone();
         this.linkage = linkage;
     }
 
@@ -98,7 +98,7 @@ public final class Clusterer {
             break;
 
         default:
-            throw new RuntimeException("Unknown type of linkage for hierarchical clustering: " + linkage);
+            throw new IllegalArgumentException("Unknown type of linkage for hierarchical clustering: " + linkage);
         }
 
         return delta;

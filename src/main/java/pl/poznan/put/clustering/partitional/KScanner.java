@@ -5,7 +5,11 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class KScanner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KScanner.class);
     private static final int THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 2;
 
     public static ScoredClusteringResult parallelScan(
@@ -27,13 +31,8 @@ public class KScanner {
 
             try {
                 result = ecs.take().get();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                continue;
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException e) {
+                KScanner.LOGGER.warn("Failed to cluster the data", e);
                 continue;
             }
 

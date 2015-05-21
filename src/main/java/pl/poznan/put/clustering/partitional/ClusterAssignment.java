@@ -38,7 +38,7 @@ public class ClusterAssignment {
     public ClusterAssignment(int[] assignments,
             Map<Integer, List<Integer>> assignedToPrototype) {
         super();
-        this.assignments = assignments;
+        this.assignments = assignments.clone();
         this.assignedToPrototype = assignedToPrototype;
     }
 

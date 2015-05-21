@@ -13,7 +13,7 @@ public class IndexComparator implements Comparator<Integer> {
 
     public IndexComparator(double[] row) {
         super();
-        this.row = row;
+        this.row = row.clone();
     }
 
     @Override
