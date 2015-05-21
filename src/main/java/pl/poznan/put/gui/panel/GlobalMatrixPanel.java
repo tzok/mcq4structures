@@ -72,6 +72,7 @@ public class GlobalMatrixPanel extends JPanel {
 
     public void setStructures(List<PdbModel> structures) {
         this.structures = structures;
+        visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false, "");
     }
 
@@ -129,7 +130,7 @@ public class GlobalMatrixPanel extends JPanel {
                     tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
                     visualization.setSVGDocument(document);
                     updateHeader(true, matrix.getMeasureName());
-                    callback.complete(new ProcessingResult(matrix));
+                    callback.complete(new ProcessingResult(matrix, Collections.singletonList(document)));
                 }
             });
 

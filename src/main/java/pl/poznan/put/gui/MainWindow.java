@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.comparison.GlobalComparisonMeasure;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
@@ -41,6 +42,8 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.utility.svg.Format;
+import pl.poznan.put.utility.svg.SVGHelper;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
@@ -58,6 +61,7 @@ public class MainWindow extends JFrame {
     private final JMenu menuFile = new JMenu("File");
     private final JMenuItem itemOpen = new JMenuItem("Open structure(s)", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_OPEN)));
     private final JMenuItem itemSave = new JMenuItem("Save results", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_SAVE)));
+    private final JMenuItem itemSaveVisualization = new JMenuItem("Save visualization", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_SAVE)));
     private final JCheckBoxMenuItem checkBoxManager = new StayOpenCheckBoxMenuItem("View structure manager", false);
     private final JMenuItem itemExit = new JMenuItem("Exit");
 
@@ -68,7 +72,6 @@ public class MainWindow extends JFrame {
     private final JRadioButtonMenuItem radioLocalMulti = new StayOpenRadioButtonMenuItem("Local distances (multiple)", false);
     private final JMenuItem itemSelectStructuresCompare = new JMenuItem("Select structures to compare");
     private final JMenuItem itemComputeDistances = new JMenuItem("Compute distance(s)");
-    private final JMenuItem itemVisualise = new JMenuItem("Visualise results");
     private final JMenuItem itemVisualise3D = new JMenuItem("Visualise results in 3D");
     private final JMenuItem itemCluster = new JMenuItem("Cluster results");
 
@@ -91,7 +94,8 @@ public class MainWindow extends JFrame {
     private final SequenceAlignmentPanel panelResultsAlignSeq = new SequenceAlignmentPanel();
     private final StructureAlignmentPanel panelResultsAlignStruc = new StructureAlignmentPanel();
 
-    private final PdbChooser pdbChooser = PdbChooser.getInstance();
+    private final JFileChooser fileChooser = new JFileChooser();
+
     private final DialogManager dialogManager;
     private final DialogSelectStructures dialogStructures;
     private final DialogSelectChains dialogChains;
@@ -142,8 +146,8 @@ public class MainWindow extends JFrame {
 
     private void createMenu() {
         itemSave.setEnabled(false);
+        itemSaveVisualization.setEnabled(false);
         itemComputeDistances.setEnabled(false);
-        itemVisualise.setEnabled(false);
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
         itemComputeAlign.setEnabled(false);
@@ -164,6 +168,7 @@ public class MainWindow extends JFrame {
         menuFile.setMnemonic(KeyEvent.VK_F);
         menuFile.add(itemOpen);
         menuFile.add(itemSave);
+        menuFile.add(itemSaveVisualization);
         menuFile.addSeparator();
         menuFile.add(checkBoxManager);
         menuFile.addSeparator();
@@ -180,7 +185,6 @@ public class MainWindow extends JFrame {
         menuDistanceMeasure.add(itemSelectStructuresCompare);
         menuDistanceMeasure.addSeparator();
         menuDistanceMeasure.add(itemComputeDistances);
-        menuDistanceMeasure.add(itemVisualise);
         menuDistanceMeasure.add(itemVisualise3D);
         menuDistanceMeasure.add(itemCluster);
         menuBar.add(menuDistanceMeasure);
@@ -216,6 +220,13 @@ public class MainWindow extends JFrame {
             }
         });
 
+        itemSaveVisualization.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveVisualizations();
+            }
+        });
+
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -238,7 +249,6 @@ public class MainWindow extends JFrame {
                 assert arg0 != null;
 
                 Object source = arg0.getSource();
-                itemVisualise.setEnabled(false);
                 itemVisualise3D.setEnabled(false);
                 itemCluster.setEnabled(false);
 
@@ -290,15 +300,6 @@ public class MainWindow extends JFrame {
                     compareLocalPair();
                 } else { // radioLocalMulti.isSelected() == true
                     compareLocalMulti();
-                }
-            }
-        });
-
-        itemVisualise.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (currentResult.canVisualize()) {
-                    currentResult.visualize();
                 }
             }
         });
@@ -419,8 +420,8 @@ public class MainWindow extends JFrame {
         }
 
         itemSave.setEnabled(false);
+        itemSaveVisualization.setEnabled(false);
         itemComputeDistances.setEnabled(true);
-        itemVisualise.setEnabled(false);
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 
@@ -444,8 +445,8 @@ public class MainWindow extends JFrame {
 
         if (source.equals(itemSelectStructuresCompare)) {
             itemSave.setEnabled(false);
+            itemSaveVisualization.setEnabled(false);
             itemComputeDistances.setEnabled(true);
-            itemVisualise.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
@@ -454,8 +455,8 @@ public class MainWindow extends JFrame {
             layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
         } else if (source.equals(itemSelectStructuresAlign)) {
             itemSave.setEnabled(false);
+            itemSaveVisualization.setEnabled(false);
             itemComputeDistances.setEnabled(false);
-            itemVisualise.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
@@ -487,8 +488,8 @@ public class MainWindow extends JFrame {
 
         if (source.equals(itemSelectStructuresCompare)) {
             itemSave.setEnabled(false);
+            itemSaveVisualization.setEnabled(false);
             itemComputeDistances.setEnabled(true);
-            itemVisualise.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(false);
@@ -497,8 +498,8 @@ public class MainWindow extends JFrame {
             layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
         } else if (source.equals(itemSelectStructuresAlign)) {
             itemSave.setEnabled(false);
+            itemSaveVisualization.setEnabled(false);
             itemComputeDistances.setEnabled(false);
-            itemVisualise.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
             itemComputeAlign.setEnabled(true);
@@ -510,24 +511,50 @@ public class MainWindow extends JFrame {
 
     private void saveResults() {
         if (currentResult.canExport()) {
-            pdbChooser.setSelectedFile(currentResult.suggestName());
-            int option = pdbChooser.showSaveDialog(MainWindow.this);
+            File suggestedName = currentResult.suggestName();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setSelectedFile(suggestedName);
 
-            if (option == JFileChooser.APPROVE_OPTION) {
-                try (OutputStream stream = new FileOutputStream(pdbChooser.getSelectedFile())) {
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                try (OutputStream stream = new FileOutputStream(fileChooser.getSelectedFile())) {
                     currentResult.export(stream);
                     JOptionPane.showMessageDialog(MainWindow.this, "Successfully exported the results!", "Information", JOptionPane.INFORMATION_MESSAGE);
-                } catch (IOException exception) {
-                    JOptionPane.showMessageDialog(MainWindow.this, "Failed to export results, reason: " + exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(MainWindow.this, "Failed to export the results, reason: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
+            }
+        }
+    }
+
+    private void saveVisualizations() {
+        if (currentResult.canVisualize()) {
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                List<SVGDocument> visualizations = currentResult.getVisualizations();
+                File directory = fileChooser.getSelectedFile();
+
+                for (int i = 0; i < visualizations.size(); i++) {
+                    String filename = visualizations.size() > 1 ? String.format("visualization-%d.svg", i) : "visualization.svg";
+                    SVGDocument document = visualizations.get(i);
+
+                    try (OutputStream stream = new FileOutputStream(new File(directory, filename))) {
+                        SVGHelper.export(document, stream, Format.SVG, null);
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(MainWindow.this, "Failed to export the visualizations, reason: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
+                JOptionPane.showMessageDialog(MainWindow.this, "Successfully exported the visualizations!", "Information", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
 
     private void updateMenuEnabledStates() {
         itemSave.setEnabled(currentResult.canExport());
+        itemSaveVisualization.setEnabled(currentResult.canVisualize());
         itemCluster.setEnabled(currentResult.canCluster());
-        itemVisualise.setEnabled(currentResult.canVisualize());
         itemVisualise3D.setEnabled(currentResult.canVisualize());
 
         if (currentResult.canExport()) {

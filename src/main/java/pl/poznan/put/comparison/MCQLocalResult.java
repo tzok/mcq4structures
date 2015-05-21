@@ -79,14 +79,7 @@ public class MCQLocalResult extends LocalComparisonResult {
 
     @Override
     public SVGDocument visualize() {
-        if (selectionMatch.size() == 0) {
-            throw new IllegalArgumentException("Cannot visualize an empty result");
-        }
-        return null;
-        // FIXME
-        // LocalComparisonFrame comparisonFrame = new
-        // LocalComparisonFrame(selectionMatch);
-        // comparisonFrame.setVisible(true);
+        throw new IllegalArgumentException("Invalid usage, please use visualize() on FragmentMatch instances");
     }
 
     @Override

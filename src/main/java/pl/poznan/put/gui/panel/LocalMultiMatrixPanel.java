@@ -81,6 +81,7 @@ public class LocalMultiMatrixPanel extends JPanel {
 
     public void setFragments(List<PdbCompactFragment> fragments) {
         this.fragments = fragments;
+        visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false);
     }
 
@@ -126,7 +127,7 @@ public class LocalMultiMatrixPanel extends JPanel {
             visualization.setSVGDocument(document);
             updateHeader(true);
 
-            return new ProcessingResult(selectedAngle);
+            return new ProcessingResult(selectedAngle, Collections.singletonList(document));
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMultiMatrixPanel.LOGGER.error(message, e);

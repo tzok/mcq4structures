@@ -3,14 +3,13 @@ package pl.poznan.put.gui.panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
@@ -21,18 +20,22 @@ import javax.swing.table.TableCellRenderer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.SelectionFactory;
+import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.visualisation.ChartComponent;
 
 public class LocalMatrixPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalMatrixPanel.class);
@@ -57,7 +60,8 @@ public class LocalMatrixPanel extends JPanel {
 
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
-    private final JProgressBar progressBar = new JProgressBar();
+    private final JScrollPane scrollPane = new JScrollPane(tableMatrix);
+    private final JTabbedPane tabbedPane = new JTabbedPane();
 
     private Pair<PdbModel, PdbModel> structures;
     private Pair<List<PdbChain>, List<PdbChain>> chains;
@@ -73,27 +77,27 @@ public class LocalMatrixPanel extends JPanel {
 
         tableMatrix.setDefaultRenderer(Object.class, colorsRenderer);
 
-        progressBar.setStringPainted(true);
-        progressBar.setMaximum(1);
-
         JPanel panelInfo = new JPanel(new BorderLayout());
         panelInfo.add(labelInfoMatrix, BorderLayout.CENTER);
 
-        JPanel panelProgressBar = new JPanel();
-        panelProgressBar.setLayout(new BoxLayout(panelProgressBar, BoxLayout.X_AXIS));
-        panelProgressBar.add(new JLabel("Progress in computing:"));
-        panelProgressBar.add(progressBar);
+        tabbedPane.add("Results", scrollPane);
 
         add(panelInfo, BorderLayout.NORTH);
-        add(new JScrollPane(tableMatrix), BorderLayout.CENTER);
-        add(panelProgressBar, BorderLayout.SOUTH);
+        add(tabbedPane, BorderLayout.CENTER);
     }
 
     public void setStructuresAndChains(Pair<PdbModel, PdbModel> structures,
             Pair<List<PdbChain>, List<PdbChain>> chains) {
         this.structures = structures;
         this.chains = chains;
+        removeAllButFirstTab();
         updateHeader(false);
+    }
+
+    private void removeAllButFirstTab() {
+        while (tabbedPane.getComponentCount() > 1) {
+            tabbedPane.remove(1);
+        }
     }
 
     public void updateHeader(boolean readyResults) {
@@ -129,24 +133,32 @@ public class LocalMatrixPanel extends JPanel {
 
     public ProcessingResult compareAndDisplayTable(
             List<MasterTorsionAngleType> selectedAngles) {
-        progressBar.setValue(0);
-
         try {
             StructureSelection selectionL = SelectionFactory.create(StructureManager.getName(structures.getLeft()), chains.getLeft());
             StructureSelection selectionR = SelectionFactory.create(StructureManager.getName(structures.getRight()), chains.getRight());
             MCQ mcq = new MCQ(selectedAngles);
             MCQLocalResult result = (MCQLocalResult) mcq.comparePair(selectionL, selectionR);
+            SelectionMatch selectionMatch = result.getSelectionMatch();
+            removeAllButFirstTab();
+
+            List<SVGDocument> visualizations = new ArrayList<>();
+
+            for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+                SVGDocument svgDocument = fragmentMatch.visualize(1024, 576);
+                String title = fragmentMatch.toString();
+                ChartComponent component = new ChartComponent(svgDocument);
+                tabbedPane.add(title, component);
+                visualizations.add(svgDocument);
+            }
 
             tableMatrix.setModel(result.asDisplayableTableModel());
             updateHeader(true);
 
-            return new ProcessingResult(result);
+            return new ProcessingResult(result, visualizations);
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMatrixPanel.LOGGER.error(message, e);
             JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            progressBar.setValue(1);
         }
 
         return ProcessingResult.emptyInstance();

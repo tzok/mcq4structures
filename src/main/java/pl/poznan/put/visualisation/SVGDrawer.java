@@ -60,9 +60,9 @@ public class SVGDrawer {
         }
 
         Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
-        root.setAttributeNS(null, "viewBox", boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
-        root.setAttributeNS(null, "width", Double.toString(boundingBox.getWidth()));
-        root.setAttributeNS(null, "height", Double.toString(boundingBox.getHeight()));
+        root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
+        root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
+        root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
         
         return document;
     }
