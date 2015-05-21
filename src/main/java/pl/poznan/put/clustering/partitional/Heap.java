@@ -9,8 +9,8 @@ public class Heap implements Iterable<Integer> {
     public static List<Heap> fromMatrix(double[][] matrix) {
         List<Heap> list = new ArrayList<>();
 
-        for (int i = 0; i < matrix.length; i++) {
-            list.add(new Heap(matrix[i]));
+        for (double[] element : matrix) {
+            list.add(new Heap(element));
         }
 
         return list;
@@ -21,7 +21,7 @@ public class Heap implements Iterable<Integer> {
     public Heap(double[] row) {
         super();
         IndexComparator comparator = new IndexComparator(row);
-        this.data = new PriorityQueue<>(row.length, comparator);
+        data = new PriorityQueue<>(row.length, comparator);
 
         for (int i = 0; i < row.length; i++) {
             data.add(i);

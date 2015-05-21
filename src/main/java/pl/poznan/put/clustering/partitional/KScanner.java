@@ -6,13 +6,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class KScanner {
+    private static final int THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 2;
+
     public static ScoredClusteringResult parallelScan(
             PrototypeBasedClusterer clusterer, double[][] matrix,
             ScoringFunction sf) {
-        int countThreads = Runtime.getRuntime().availableProcessors() * 2;
-        ExecutorService threadPool = Executors.newFixedThreadPool(countThreads);
-        ExecutorCompletionService<ScoredClusteringResult> ecs = new ExecutorCompletionService<>(
-                threadPool);
+        ExecutorService threadPool = Executors.newFixedThreadPool(KScanner.THREAD_COUNT);
+        ExecutorCompletionService<ScoredClusteringResult> ecs = new ExecutorCompletionService<>(threadPool);
 
         for (int i = 2; i <= matrix.length; i++) {
             ClusterCallable task = new ClusterCallable(clusterer, matrix, sf, i);
@@ -37,13 +37,10 @@ public class KScanner {
                 continue;
             }
 
-            double score = PAMSIL.getInstance().score(result.getPrototypes(),
-                    matrix);
+            double score = PAMSIL.getInstance().score(result.getPrototypes(), matrix);
 
             if (overallBest == null || score > overallBest.getScore()) {
-                overallBest = new ScoredClusteringResult(
-                        result.getPrototypes(), result.getScoringFunction(),
-                        score, score);
+                overallBest = new ScoredClusteringResult(result.getPrototypes(), result.getScoringFunction(), score, score);
             }
         }
 

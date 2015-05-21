@@ -9,8 +9,7 @@ public class PAMSIL implements ScoringFunction {
 
     @Override
     public double score(ClusterPrototypes medoids, double[][] matrix) {
-        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(
-                medoids, matrix);
+        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(medoids, matrix);
         double result = 0;
 
         for (int prototype : assignment.getPrototypes()) {

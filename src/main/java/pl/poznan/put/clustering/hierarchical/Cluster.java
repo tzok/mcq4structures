@@ -3,20 +3,25 @@ package pl.poznan.put.clustering.hierarchical;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HierarchicalCluster {
+public class Cluster {
     private final List<Integer> items;
 
-    HierarchicalCluster(List<Integer> items) {
+    Cluster(int item) {
+        super();
+        items = new ArrayList<>();
+        items.add(item);
+    }
+
+    Cluster(List<Integer> items) {
         super();
         this.items = items;
     }
 
-    public static HierarchicalCluster merge(HierarchicalCluster left,
-            HierarchicalCluster right) {
+    public static Cluster merge(Cluster left, Cluster right) {
         List<Integer> items = new ArrayList<>();
         items.addAll(left.items);
         items.addAll(right.items);
-        return new HierarchicalCluster(items);
+        return new Cluster(items);
     }
 
     public List<Integer> getItems() {

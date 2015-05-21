@@ -9,8 +9,13 @@ import org.slf4j.LoggerFactory;
 
 public class KMedoids implements PrototypeBasedClusterer {
     private static final Logger LOGGER = LoggerFactory.getLogger(KMedoids.class);
+    private static final int DEFAULT_RETRIES = 8;
 
     private final int retries;
+
+    public KMedoids() {
+        retries = KMedoids.DEFAULT_RETRIES;
+    }
 
     public KMedoids(int retries) {
         this.retries = retries;
@@ -19,7 +24,7 @@ public class KMedoids implements PrototypeBasedClusterer {
     /**
      * Find indices of objects that are best prototypes according to chosen
      * score.
-     * 
+     *
      * @param matrix
      *            Distance matrix.
      * @param sf
@@ -36,8 +41,7 @@ public class KMedoids implements PrototypeBasedClusterer {
         ClusterPrototypes overallBestMedoids = null;
 
         for (int trial = 0; trial < retries; trial++) {
-            ClusterPrototypes medoids = ClusterPrototypes.initializeRandomly(
-                    matrix, k);
+            ClusterPrototypes medoids = ClusterPrototypes.initializeRandomly(matrix, k);
             double score = sf.score(medoids, matrix);
 
             while (true) {
@@ -79,15 +83,11 @@ public class KMedoids implements PrototypeBasedClusterer {
         }
 
         assert overallBestMedoids != null;
-        double silhouette = PAMSIL.getInstance().score(overallBestMedoids,
-                matrix);
+        double silhouette = PAMSIL.getInstance().score(overallBestMedoids, matrix);
 
         DecimalFormat format = new DecimalFormat("0.000");
-        KMedoids.LOGGER.debug("Final score for clustering (k=" + k
-                + "): score=" + format.format(overallBestScore) + " PAMSIL="
-                + format.format(silhouette));
+        KMedoids.LOGGER.debug("Final score for clustering (k=" + k + "): score=" + format.format(overallBestScore) + " PAMSIL=" + format.format(silhouette));
 
-        return new ScoredClusteringResult(overallBestMedoids, sf,
-                overallBestScore, silhouette);
+        return new ScoredClusteringResult(overallBestMedoids, sf, overallBestScore, silhouette);
     }
 }
