@@ -72,7 +72,7 @@ public class PartitionalClustering implements Visualizable {
             points.add(new ColoredNamedPoint(color, name, point));
         }
 
-        return SVGDrawer.drawPoints(points);
+        return MDSDrawer.drawPoints(points);
     }
 
     private Color getClusterColor(int index) {

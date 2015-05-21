@@ -34,7 +34,7 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.visualisation.MDS;
-import pl.poznan.put.visualisation.SVGDrawer;
+import pl.poznan.put.visualisation.MDSDrawer;
 
 public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Visualizable, Tabular {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalComparisonResult.class);
@@ -170,7 +170,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
             points.add(new NamedPoint(name, point));
         }
 
-        return SVGDrawer.drawPoints(points);
+        return MDSDrawer.drawPoints(points);
     }
 
     @Override

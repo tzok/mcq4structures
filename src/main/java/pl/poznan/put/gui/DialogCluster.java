@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -19,8 +20,7 @@ import javax.swing.SpinnerNumberModel;
 
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.clustering.hierarchical.HierarchicalClusterer;
-import pl.poznan.put.clustering.hierarchical.HierarchicalClusteringResult;
+import pl.poznan.put.clustering.hierarchical.Clusterer;
 import pl.poznan.put.clustering.hierarchical.Linkage;
 import pl.poznan.put.clustering.partitional.KMedoids;
 import pl.poznan.put.clustering.partitional.KScanner;
@@ -33,41 +33,30 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.visualisation.PartitionalClustering;
 
 public class DialogCluster extends JDialog {
-    private static final long serialVersionUID = 1L;
+    private final JButton buttonVisualize = new JButton("Visualize");
+    private final JButton buttonClose = new JButton("Close");
+    private final JCheckBox findBestK = new JCheckBox("Find best k?", true);
+    private final JRadioButton hierarchical = new JRadioButton("hierarchical", true);
+    private final JRadioButton kmedoids = new JRadioButton("k-medoids", false);
+    private final JSpinner kspinner = new JSpinner(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
+    private final JComboBox<Linkage> linkageComboBox = new JComboBox<>(Linkage.values());
+    private final JComboBox<ScoringFunction> scoringFunction = new JComboBox<>(new ScoringFunction[] { PAM.getInstance(), PAMSIL.getInstance() });
 
-    JButton buttonVisualize;
-    JButton buttonVisualize3D;
-    GlobalComparisonResultMatrix comparisonGlobal;
-    JCheckBox findBestK;
-    JRadioButton hierarchical;
-    JSpinner kspinner;
-    JComboBox<Linkage> linkage;
-    JComboBox<ScoringFunction> scoringFunction;
+    private final GlobalComparisonResultMatrix comparisonGlobal;
 
     public DialogCluster(GlobalComparisonResultMatrix comparisonGlobal) {
         super();
-
         this.comparisonGlobal = comparisonGlobal;
 
-        hierarchical = new JRadioButton("hierarchical", true);
-        JRadioButton kmedoids = new JRadioButton("k-medoids", false);
+        setTitle("MCQ4Structures: clustering method");
+
+        scoringFunction.setEnabled(false);
+        findBestK.setEnabled(false);
+        kspinner.setEnabled(false);
+
         ButtonGroup group = new ButtonGroup();
         group.add(hierarchical);
         group.add(kmedoids);
-
-        linkage = new JComboBox<>(Linkage.values());
-        scoringFunction = new JComboBox<>(new ScoringFunction[] { PAM.getInstance(), PAMSIL.getInstance() });
-        scoringFunction.setEnabled(false);
-        findBestK = new JCheckBox("Find best k?", true);
-        findBestK.setEnabled(false);
-        kspinner = new JSpinner();
-        kspinner.setModel(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
-        kspinner.setEnabled(false);
-
-        buttonVisualize = new JButton("Visualize");
-        buttonVisualize3D = new JButton("Visualize in 3D");
-        buttonVisualize3D.setEnabled(false);
-        JButton buttonClose = new JButton("Close");
 
         Container container = getContentPane();
         container.setLayout(new GridBagLayout());
@@ -82,7 +71,7 @@ public class DialogCluster extends JDialog {
 
         c.gridx = 1;
         c.gridwidth = 3;
-        container.add(linkage, c);
+        container.add(linkageComboBox, c);
 
         c.gridx = 0;
         c.gridy = 1;
@@ -102,53 +91,14 @@ public class DialogCluster extends JDialog {
         c.gridy = 2;
         c.gridwidth = 1;
         container.add(buttonVisualize, c);
-        c.gridx = 1;
-        container.add(buttonVisualize3D, c);
         c.gridx = 3;
         container.add(buttonClose, c);
 
-        ActionListener radioActionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                boolean isHierarchical = hierarchical.isSelected();
-                linkage.setEnabled(isHierarchical);
-                scoringFunction.setEnabled(!isHierarchical);
-                findBestK.setEnabled(!isHierarchical);
-                kspinner.setEnabled(!isHierarchical && !findBestK.isSelected());
-                buttonVisualize3D.setEnabled(!isHierarchical);
-            }
-        };
-        hierarchical.addActionListener(radioActionListener);
-        kmedoids.addActionListener(radioActionListener);
-        findBestK.addActionListener(radioActionListener);
-
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                assert arg0 != null;
-
-                Object source = arg0.getSource();
-                Visualizable visualizable = getVisualizable();
-                if (source.equals(buttonVisualize)) {
-                    visualizable.visualize();
-                } else { // source.equals(buttonVisualize3D)
-                    visualizable.visualize3D();
-                }
-            }
-        };
-        buttonVisualize.addActionListener(listener);
-        buttonVisualize3D.addActionListener(listener);
-
-        buttonClose.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
-
         pack();
-        int width = getPreferredSize().width;
-        int height = getPreferredSize().height;
+
+        Dimension preferredSize = getPreferredSize();
+        int width = preferredSize.width;
+        int height = preferredSize.height;
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = screenSize.width - width;
@@ -156,35 +106,50 @@ public class DialogCluster extends JDialog {
         setSize(width, height);
         setLocation(x / 2, y / 2);
 
-        setTitle("MCQ4Structures: clustering method");
+        ActionListener radioActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                boolean isHierarchical = hierarchical.isSelected();
+                linkageComboBox.setEnabled(isHierarchical);
+                scoringFunction.setEnabled(!isHierarchical);
+                findBestK.setEnabled(!isHierarchical);
+                kspinner.setEnabled(!isHierarchical && !findBestK.isSelected());
+            }
+        };
+        hierarchical.addActionListener(radioActionListener);
+        kmedoids.addActionListener(radioActionListener);
+        findBestK.addActionListener(radioActionListener);
+
+        buttonVisualize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                Visualizable visualizable = getVisualizable();
+                SVGDocument document = visualizable.visualize();
+                SVGDialog dialog = new SVGDialog("Clustering visualization", document);
+                dialog.setVisible(true);
+            }
+        });
+
+        buttonClose.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
     }
 
-    Visualizable getVisualizable() {
+    public Visualizable getVisualizable() {
+        List<String> names = comparisonGlobal.getNames();
         double[][] matrix = comparisonGlobal.getDistanceMatrix().getArray();
 
         if (hierarchical.isSelected()) {
-            @SuppressWarnings("unused")
-            final HierarchicalClusteringResult clustering = HierarchicalClusterer.cluster(matrix, (Linkage) linkage.getSelectedItem());
-
-            return new Visualizable() {
-                @Override
-                public void visualize3D() {
-                    // TODO Auto-generated method stub
-                }
-
-                @Override
-                public SVGDocument visualize() {
-                    return null;
-                    // FIXME
-                    // DendrogramFrame dendrogramFrame = new
-                    // DendrogramFrame(clustering, comparisonGlobal.getNames());
-                    // dendrogramFrame.setVisible(true);
-                }
-            };
+            Linkage linkage = (Linkage) linkageComboBox.getSelectedItem();
+            Clusterer clusterer = new Clusterer(names, matrix, linkage);
+            return clusterer.cluster();
         }
 
         // FIXME
-        KMedoids clusterer = new KMedoids(1);
+        KMedoids clusterer = new KMedoids();
         ScoringFunction sf = (ScoringFunction) scoringFunction.getSelectedItem();
         ScoredClusteringResult result;
 

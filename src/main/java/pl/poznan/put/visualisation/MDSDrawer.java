@@ -16,7 +16,7 @@ import pl.poznan.put.datamodel.ColoredNamedPoint;
 import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-public class SVGDrawer {
+public class MDSDrawer {
     private static final int DESIRED_WIDTH = 320;
     private static final int CIRCLE_RADIUS = 8;
     private static final int LINE_WIDTH = 2;
@@ -25,9 +25,9 @@ public class SVGDrawer {
         SVGDocument document = SVGHelper.emptyDocument();
         SVGGraphics2D svg = new SVGGraphics2D(document);
 
-        svg.setStroke(new BasicStroke(SVGDrawer.LINE_WIDTH));
-        double maxDistance = SVGDrawer.calculateMaxDistance(points);
-        double scale = SVGDrawer.DESIRED_WIDTH / maxDistance;
+        svg.setStroke(new BasicStroke(MDSDrawer.LINE_WIDTH));
+        double maxDistance = MDSDrawer.calculateMaxDistance(points);
+        double scale = MDSDrawer.DESIRED_WIDTH / maxDistance;
 
         for (NamedPoint point : points) {
             NamedPoint scaled = point.scalarMultiply(scale);
@@ -37,10 +37,10 @@ public class SVGDrawer {
                 Color newValue = ((ColoredNamedPoint) point).getColor();
 
                 svg.setColor(newValue);
-                svg.fillOval((int) scaled.getX(), (int) scaled.getY(), SVGDrawer.CIRCLE_RADIUS, SVGDrawer.CIRCLE_RADIUS);
+                svg.fillOval((int) scaled.getX(), (int) scaled.getY(), MDSDrawer.CIRCLE_RADIUS, MDSDrawer.CIRCLE_RADIUS);
                 svg.setColor(oldValue);
             } else {
-                svg.drawOval((int) scaled.getX(), (int) scaled.getY(), SVGDrawer.CIRCLE_RADIUS, SVGDrawer.CIRCLE_RADIUS);
+                svg.drawOval((int) scaled.getX(), (int) scaled.getY(), MDSDrawer.CIRCLE_RADIUS, MDSDrawer.CIRCLE_RADIUS);
             }
         }
 
@@ -63,7 +63,7 @@ public class SVGDrawer {
         root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
         root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
         root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
-        
+
         return document;
     }
 
@@ -86,7 +86,7 @@ public class SVGDrawer {
         return maxDistance;
     }
 
-    private SVGDrawer() {
+    private MDSDrawer() {
         // empty constructor
     }
 }
