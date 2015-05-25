@@ -22,7 +22,7 @@ public class ResidueComparison {
         this.target = target;
         this.model = model;
         this.angleDeltas = angleDeltas;
-        this.angleSample = new AngleSample(extractValidDeltas());
+        angleSample = new AngleSample(extractValidDeltas());
     }
 
     private List<Angle> extractValidDeltas() {

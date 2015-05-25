@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.biojava.bio.structure.StructureException;
 
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
+import pl.poznan.put.comparison.global.GlobalComparator;
+import pl.poznan.put.comparison.global.GlobalResult;
+import pl.poznan.put.comparison.global.RMSDGlobalResult;
 import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.MCQMatcher;
@@ -17,7 +21,7 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 /**
  * Implementation of RMSD global similarity measure.
- * 
+ *
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class RMSD implements GlobalComparator {
@@ -27,16 +31,16 @@ public class RMSD implements GlobalComparator {
 
     public RMSD() {
         super();
-        this.filter = AtomFilter.ALL;
-        this.onlyHeavy = true;
-        this.angleTypes = mainAngleTypes();
+        filter = AtomFilter.ALL;
+        onlyHeavy = true;
+        angleTypes = RMSD.mainAngleTypes();
     }
 
     public RMSD(AtomFilter filter, boolean onlyHeavy) {
         super();
         this.filter = filter;
         this.onlyHeavy = onlyHeavy;
-        this.angleTypes = mainAngleTypes();
+        angleTypes = RMSD.mainAngleTypes();
     }
 
     private static List<MasterTorsionAngleType> mainAngleTypes() {
@@ -47,7 +51,7 @@ public class RMSD implements GlobalComparator {
     }
 
     @Override
-    public GlobalComparisonResult compareGlobally(StructureSelection s1,
+    public GlobalResult compareGlobally(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
@@ -67,5 +71,10 @@ public class RMSD implements GlobalComparator {
     @Override
     public String getName() {
         return "RMSD";
+    }
+
+    @Override
+    public boolean isAngularMeasure() {
+        return false;
     }
 }

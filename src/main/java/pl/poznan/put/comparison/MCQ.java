@@ -7,8 +7,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
+import pl.poznan.put.comparison.global.GlobalComparator;
+import pl.poznan.put.comparison.global.GlobalMatrix;
+import pl.poznan.put.comparison.global.GlobalResult;
+import pl.poznan.put.comparison.global.MCQGlobalResult;
+import pl.poznan.put.comparison.global.ParallelGlobalComparator;
+import pl.poznan.put.comparison.local.LocalComparator;
+import pl.poznan.put.comparison.local.LocalResult;
+import pl.poznan.put.comparison.local.MCQLocalResult;
+import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
@@ -30,17 +43,19 @@ import pl.poznan.put.utility.TabularExporter;
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
  * representation.
- * 
+ *
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class MCQ implements GlobalComparator, LocalComparator {
+    private final static Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
+
     private final List<MasterTorsionAngleType> angleTypes;
 
     public MCQ() {
         super();
-        this.angleTypes = new ArrayList<>();
-        this.angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-        this.angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+        angleTypes = new ArrayList<>();
+        angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
     }
 
     public MCQ(MoleculeType moleculeType) {
@@ -48,14 +63,14 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
         switch (moleculeType) {
         case PROTEIN:
-            this.angleTypes = Arrays.asList(ProteinTorsionAngleType.mainAngles());
+            angleTypes = Arrays.asList(ProteinTorsionAngleType.mainAngles());
             break;
         case RNA:
-            this.angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
+            angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
             break;
         case UNKNOWN:
         default:
-            this.angleTypes = Collections.emptyList();
+            angleTypes = Collections.emptyList();
             break;
         }
     }
@@ -71,7 +86,12 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public GlobalComparisonResult compareGlobally(StructureSelection target,
+    public boolean isAngularMeasure() {
+        return true;
+    }
+
+    @Override
+    public GlobalResult compareGlobally(StructureSelection target,
             StructureSelection model) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(target, model);
@@ -98,8 +118,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public LocalComparisonResult comparePair(StructureSelection s1,
-            StructureSelection s2) throws IncomparableStructuresException {
+    public LocalResult comparePair(StructureSelection s1, StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
         return new MCQLocalResult(matches, angleTypes);
@@ -137,8 +156,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
         List<StructureSelection> selections = new ArrayList<>();
 
-        for (int i = 0; i < args.length; i++) {
-            File file = new File(args[i]);
+        for (String arg : args) {
+            File file = new File(arg);
 
             if (!file.canRead()) {
                 System.err.println("Failed to open file: " + file);
@@ -149,18 +168,18 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        ParallelGlobalComparator comparator = new ParallelGlobalComparator(GlobalComparisonMeasure.MCQ, selections, new ParallelGlobalComparator.ProgressListener() {
+        ParallelGlobalComparator comparator = new ParallelGlobalComparator(new MCQ(), selections, new ParallelGlobalComparator.ProgressListener() {
             @Override
             public void setProgress(int progress) {
                 // do nothing
             }
 
             @Override
-            public void complete(GlobalComparisonResultMatrix matrix) {
+            public void complete(GlobalMatrix matrix) {
                 try {
                     TabularExporter.export(matrix.asExportableTableModel(), System.out);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    MCQ.LOGGER.error("Failed to output distance matrix", e);
                 }
             }
         });
