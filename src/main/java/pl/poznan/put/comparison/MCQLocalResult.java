@@ -17,9 +17,9 @@ import javax.swing.table.TableModel;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
-import pl.poznan.put.gui.LocalComparisonFrame;
 import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
@@ -78,14 +78,8 @@ public class MCQLocalResult extends LocalComparisonResult {
     }
 
     @Override
-    public void visualize() {
-        if (selectionMatch.size() == 0) {
-            JOptionPane.showMessageDialog(null, "Cannot visualize an empty result", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        LocalComparisonFrame comparisonFrame = new LocalComparisonFrame(selectionMatch);
-        comparisonFrame.setVisible(true);
+    public SVGDocument visualize() {
+        throw new IllegalArgumentException("Invalid usage, please use visualize() on FragmentMatch instances");
     }
 
     @Override

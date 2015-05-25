@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.StatUtils;
@@ -32,7 +31,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.Heap;
-import pl.poznan.put.gui.ColorbarFrame;
 import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -151,61 +149,6 @@ public class ModelsComparisonResult {
             return new DefaultTableModel(data, columnNames);
         }
 
-        public SVGDocument toSVG(double min, double max) {
-            SVGDocument document = SVGHelper.emptyDocument();
-            SVGGraphics2D svg = new SVGGraphics2D(document);
-            LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
-            FontMetrics metrics = SVGHelper.getFontMetrics(svg);
-
-            int fontHeight = (int) (Math.ceil(lineMetrics.getHeight()));
-            int blockWidth = fontHeight * 4 / 3;
-            int maxWidth = Integer.MIN_VALUE;
-
-            for (int i = 0; i < models.size(); i++) {
-                String modelName = models.get(i).getName();
-                svg.drawString(modelName, 0.0f, (i + 1) * fontHeight);
-                int width = metrics.stringWidth(modelName);
-
-                if (width > maxWidth) {
-                    maxWidth = width;
-                }
-            }
-
-            for (int i = 0; i < matches.size(); i++) {
-                FragmentMatch fragmentMatch = matches.get(i);
-
-                for (int j = 0; j < fragmentMatch.size(); j++) {
-                    ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
-                    TorsionAngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
-
-                    if (angleDelta.getState() == State.BOTH_VALID) {
-                        float[] rgba = colormap.getColor(0, 0, angleDelta.getDelta().getRadians(), min, max).toArray();
-                        Color color = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), new float[] { rgba[0], rgba[1], rgba[2] }, rgba[3]);
-                        svg.setColor(color);
-                    } else {
-                        svg.setColor(Color.BLACK);
-                    }
-
-                    svg.fillRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
-                    svg.setColor(Color.BLACK);
-                    svg.drawRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
-                }
-            }
-
-            Element root = document.getDocumentElement();
-            svg.getRoot(root);
-
-            if (matches.size() > 0) {
-                int width = maxWidth + blockWidth * matches.get(0).size();
-                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "width", Integer.toString(width));
-
-                int height = fontHeight * models.size();
-                root.setAttributeNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "height", Integer.toString(height));
-            }
-
-            return document;
-        }
-
         public ModelsComparisonStatistics calculateStatistics() {
             return calculateStatistics(MatchStatistics.DEFAULT_ANGLE_LIMITS, MatchStatistics.DEFAULT_PERCENTS_LIMITS);
         }
@@ -282,9 +225,59 @@ public class ModelsComparisonResult {
         }
 
         @Override
-        public void visualize() {
-            ColorbarFrame frame = new ColorbarFrame(this);
-            frame.setVisible(true);
+        public SVGDocument visualize() {
+            SVGDocument document = SVGHelper.emptyDocument();
+            SVGGraphics2D svg = new SVGGraphics2D(document);
+            LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
+            FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+
+            int fontHeight = (int) (Math.ceil(lineMetrics.getHeight()));
+            int blockWidth = fontHeight * 4 / 3;
+            int maxWidth = Integer.MIN_VALUE;
+
+            for (int i = 0; i < models.size(); i++) {
+                String modelName = models.get(i).getName();
+                svg.drawString(modelName, 0.0f, (i + 1) * fontHeight);
+                int width = metrics.stringWidth(modelName);
+
+                if (width > maxWidth) {
+                    maxWidth = width;
+                }
+            }
+
+            for (int i = 0; i < matches.size(); i++) {
+                FragmentMatch fragmentMatch = matches.get(i);
+
+                for (int j = 0; j < fragmentMatch.size(); j++) {
+                    ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
+                    TorsionAngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
+
+                    if (angleDelta.getState() == State.BOTH_VALID) {
+                        float[] rgba = colormap.getColor(0, 0, angleDelta.getDelta().getRadians(), 0, Math.PI).toArray();
+                        Color color = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), new float[] { rgba[0], rgba[1], rgba[2] }, rgba[3]);
+                        svg.setColor(color);
+                    } else {
+                        svg.setColor(Color.BLACK);
+                    }
+
+                    svg.fillRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
+                    svg.setColor(Color.BLACK);
+                    svg.drawRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
+                }
+            }
+
+            Element root = document.getDocumentElement();
+            svg.getRoot(root);
+
+            if (matches.size() > 0) {
+                int width = maxWidth + blockWidth * matches.get(0).size();
+                root.setAttributeNS(null, "width", Integer.toString(width));
+
+                int height = fontHeight * models.size();
+                root.setAttributeNS(null, "height", Integer.toString(height));
+            }
+
+            return document;
         }
 
         @Override

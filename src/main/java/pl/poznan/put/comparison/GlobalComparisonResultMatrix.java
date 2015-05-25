@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
@@ -14,13 +14,18 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.StatUtils;
-import org.biojava.bio.structure.jama.Matrix;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
+import pl.poznan.put.datamodel.DistanceMatrix;
+import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.gui.DialogCluster;
 import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Clusterable;
@@ -28,10 +33,10 @@ import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.ExportFormat;
-import pl.poznan.put.utility.InvalidInputException;
 import pl.poznan.put.utility.TabularExporter;
+import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.MDS;
-import pl.poznan.put.visualisation.MDSPlot;
+import pl.poznan.put.visualisation.MDSDrawer;
 
 public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Visualizable, Tabular {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalComparisonResult.class);
@@ -40,7 +45,7 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     private final List<String> names;
     private final int size;
     private final GlobalComparisonResult[][] resultsMatrix;
-    private final Matrix distanceMatrix;
+    private final double[][] matrix;
 
     public GlobalComparisonResultMatrix(GlobalComparator measureName,
             List<String> names, int size) {
@@ -49,26 +54,23 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         this.names = names;
         this.size = size;
 
-        GlobalComparisonResult[][] results = new GlobalComparisonResult[size][];
-        double[][] distances = new double[size][];
+        resultsMatrix = new GlobalComparisonResult[size][];
+        matrix = new double[size][];
 
         for (int i = 0; i < size; ++i) {
-            results[i] = new GlobalComparisonResult[size];
-            distances[i] = new double[size];
+            resultsMatrix[i] = new GlobalComparisonResult[size];
+            matrix[i] = new double[size];
         }
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i == j) {
-                    distances[i][j] = 0;
+                    matrix[i][j] = 0;
                 } else {
-                    distances[i][j] = Double.NaN;
+                    matrix[i][j] = Double.NaN;
                 }
             }
         }
-
-        this.resultsMatrix = results;
-        this.distanceMatrix = new Matrix(distances);
     }
 
     public String getMeasureName() {
@@ -79,14 +81,6 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         return size;
     }
 
-    public String getName(int index) {
-        return names.get(index);
-    }
-
-    public List<String> getNames() {
-        return Collections.unmodifiableList(names);
-    }
-
     public GlobalComparisonResult getResult(int i, int j) {
         return resultsMatrix[i][j];
     }
@@ -95,40 +89,76 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
         resultsMatrix[i][j] = resultsMatrix[j][i] = result;
 
         if (result instanceof MCQGlobalResult) {
-            distanceMatrix.set(i, j, ((MCQGlobalResult) result).getMeanDirection().getRadians());
-            distanceMatrix.set(j, i, ((MCQGlobalResult) result).getMeanDirection().getRadians());
+            matrix[i][j] = matrix[j][i] = ((MCQGlobalResult) result).getMeanDirection().getRadians();
         } else if (result instanceof RMSDGlobalResult) {
-            distanceMatrix.set(i, j, ((RMSDGlobalResult) result).getRMSD());
-            distanceMatrix.set(j, i, ((RMSDGlobalResult) result).getRMSD());
+            matrix[i][j] = matrix[j][i] = ((RMSDGlobalResult) result).getRMSD();
         } else {
             throw new IllegalArgumentException("Unsupported result type: " + result.getClass());
         }
     }
 
-    public Matrix getDistanceMatrix() {
-        return distanceMatrix;
+    public DistanceMatrix getDistanceMatrix() {
+        return new DistanceMatrix(names, matrix);
     }
 
-    private boolean isMatrixValid() {
-        for (int i = 0; i < distanceMatrix.getRowDimension(); i++) {
-            for (int j = 0; j < distanceMatrix.getColumnDimension(); j++) {
-                if (Double.isNaN(distanceMatrix.get(i, j))) {
-                    return false;
+    public DistanceMatrix getDistanceMatrixWithoutIncomparables() {
+        List<String> selectedNamesSubList = new ArrayList<>(names);
+        double[][] selectedSubMatrix = matrix.clone();
+        int maxErrorCount;
+
+        do {
+            maxErrorCount = Integer.MIN_VALUE;
+            int argmax = -1;
+
+            for (int i = 0; i < selectedSubMatrix.length; i++) {
+                assert selectedSubMatrix.length == selectedSubMatrix[i].length;
+                int errorCount = 0;
+
+                for (int j = 0; j < selectedSubMatrix.length; j++) {
+                    errorCount += Double.isNaN(selectedSubMatrix[i][j]) ? 1 : 0;
+                }
+
+                if (errorCount > maxErrorCount) {
+                    maxErrorCount = errorCount;
+                    argmax = i;
                 }
             }
+
+            if (maxErrorCount > 0) {
+                int[] selected = GlobalComparisonResultMatrix.selectAllButOne(argmax, selectedSubMatrix.length);
+                RealMatrix realMatrix = new Array2DRowRealMatrix(selectedSubMatrix);
+                RealMatrix subMatrix = realMatrix.getSubMatrix(selected, selected);
+                selectedSubMatrix = subMatrix.getData();
+                selectedNamesSubList.remove(argmax);
+            }
+        } while (maxErrorCount > 0);
+
+        return new DistanceMatrix(selectedNamesSubList, selectedSubMatrix);
+    }
+
+    private static int[] selectAllButOne(int excluded, int count) {
+        int[] selected = new int[count - 1];
+        for (int i = 0, j = 0; i < count; i++) {
+            if (i != excluded) {
+                selected[j++] = i;
+            }
         }
-        return true;
+        return selected;
     }
 
     @Override
-    // TODO: Do not use javax.swing here, propagate error through exceptions
     public void cluster() {
-        if (!isMatrixValid()) {
-            JOptionPane.showMessageDialog(null, "Results cannot be clustered. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
+        DistanceMatrix distanceMatrix = getDistanceMatrixWithoutIncomparables();
+        double[][] array = distanceMatrix.getMatrix();
+
+        if (array.length <= 1) {
+            String message = "Cannot cluster this distance matrix, because it contains zero valid comparisons";
+            GlobalComparisonResultMatrix.LOGGER.warn(message);
+            JOptionPane.showMessageDialog(null, message, "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        DialogCluster dialogClustering = new DialogCluster(this);
+        DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
         dialogClustering.setVisible(true);
     }
 
@@ -153,31 +183,31 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
     }
 
     @Override
-    // TODO: Do not use javax.swing here, propagate error through exceptions
-    public void visualize() {
-        if (!isMatrixValid()) {
-            JOptionPane.showMessageDialog(null, "Results cannot be visualized. Some structures could not be compared.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    public SVGDocument visualize() {
+        DistanceMatrix distanceMatrix = getDistanceMatrixWithoutIncomparables();
+        double[][] array = distanceMatrix.getMatrix();
+
+        if (array.length <= 1) {
+            GlobalComparisonResultMatrix.LOGGER.warn("Cannot visualize this distance matrix, because it contains zero valid comparisons");
+            return SVGHelper.emptyDocument();
         }
 
-        double[][] mds;
-        try {
-            mds = MDS.multidimensionalScaling(distanceMatrix.getArray(), 2);
-        } catch (InvalidInputException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+        List<NamedPoint> points = new ArrayList<>();
+        double[][] xyMatrix = MDS.multidimensionalScaling(array, 2);
+
+        for (int i = 0; i < xyMatrix.length; i++) {
+            String name = names.get(i);
+            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
+            points.add(new NamedPoint(name, point));
         }
 
-        MDSPlot plot = new MDSPlot(mds, names);
-        plot.setTitle("MCQ4Structures: global distance diagram (" + measure.getName() + ")");
-        plot.setVisible(true);
+        return MDSDrawer.drawPoints(points);
     }
 
     @Override
     public void visualize3D() {
         try {
             String name = measure.getName();
-            double[][] matrix = distanceMatrix.getArray();
             List<String> ticksX = names;
             List<String> ticksY = names;
             NavigableMap<Double, String> valueTickZ = prepareTicksZ();
@@ -205,7 +235,10 @@ public class GlobalComparisonResultMatrix implements Clusterable, Exportable, Vi
                 valueTickZ.put(radians, Long.toString(Math.round(Math.toDegrees(radians))) + Unicode.DEGREE);
             }
         } else if (measure instanceof RMSD) {
-            double max = StatUtils.max(distanceMatrix.getColumnPackedCopy());
+            double max = Double.NEGATIVE_INFINITY;
+            for (int i = 0; i < matrix.length; i++) {
+                max = Math.max(max, StatUtils.max(matrix[i]));
+            }
             for (double angstrom = 1.0; angstrom <= Math.ceil(max) + 1e-3; angstrom += 1.0) {
                 valueTickZ.put(angstrom, Long.toString(Math.round(angstrom)) + Unicode.ANGSTROM);
             }

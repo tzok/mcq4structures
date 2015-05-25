@@ -3,8 +3,6 @@ package pl.poznan.put.visualisation;
 import org.biojava.bio.structure.jama.EigenvalueDecomposition;
 import org.biojava.bio.structure.jama.Matrix;
 
-import pl.poznan.put.utility.InvalidInputException;
-
 /**
  * A utility class implementing a Multidimensional Scaling method.
  *
@@ -23,7 +21,7 @@ public final class MDS {
      * @return A matrix NxK, where for each row there are K coordinates.
      */
     public static double[][] multidimensionalScaling(double[][] distance,
-            int dimensions) throws InvalidInputException {
+            int dimensions) {
         MDS.checkSymmetry(distance);
 
         /*
@@ -87,7 +85,7 @@ public final class MDS {
             }
             // if L[max][max] < 0, then it's impossible to visualise
             if (l[max][max] < 0) {
-                throw new InvalidInputException("Cannot visualize specified structures in 2D");
+                throw new IllegalArgumentException("Cannot visualize specified structures in 2D");
             }
             maxima[i] = max;
             l[max][max] = Double.NEGATIVE_INFINITY;

@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
@@ -17,6 +18,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.comparison.GlobalComparisonMeasure;
@@ -27,6 +29,8 @@ import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.utility.svg.SVGHelper;
+import pl.poznan.put.visualisation.MatrixVisualizationComponent;
 
 public class GlobalMatrixPanel extends JPanel {
     public interface Callback {
@@ -38,6 +42,7 @@ public class GlobalMatrixPanel extends JPanel {
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar(0, 1);
+    private final MatrixVisualizationComponent visualization = new MatrixVisualizationComponent(SVGHelper.emptyDocument());
 
     private List<PdbModel> structures = Collections.emptyList();
 
@@ -56,13 +61,18 @@ public class GlobalMatrixPanel extends JPanel {
         JPanel panelProgressBar = new JPanel(new BorderLayout());
         panelProgressBar.add(progressBar, BorderLayout.CENTER);
 
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.add("Distance matrix", new JScrollPane(tableMatrix));
+        tabbedPane.add("Visualization", visualization);
+
         add(panelInfo, BorderLayout.NORTH);
-        add(new JScrollPane(tableMatrix), BorderLayout.CENTER);
+        add(tabbedPane, BorderLayout.CENTER);
         add(panelProgressBar, BorderLayout.SOUTH);
     }
 
     public void setStructures(List<PdbModel> structures) {
         this.structures = structures;
+        visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false, "");
     }
 
@@ -114,10 +124,13 @@ public class GlobalMatrixPanel extends JPanel {
 
                 @Override
                 public void complete(GlobalComparisonResultMatrix matrix) {
+                    SVGDocument document = matrix.visualize();
+
                     tableMatrix.setModel(matrix.asDisplayableTableModel());
                     tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
+                    visualization.setSVGDocument(document);
                     updateHeader(true, matrix.getMeasureName());
-                    callback.complete(new ProcessingResult(matrix));
+                    callback.complete(new ProcessingResult(matrix, Collections.singletonList(document)));
                 }
             });
 

@@ -5,12 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
@@ -18,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
@@ -30,6 +29,8 @@ import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.utility.svg.SVGHelper;
+import pl.poznan.put.visualisation.ColorbarComponent;
 
 public class LocalMultiMatrixPanel extends JPanel {
     private class PdbCompactFragmentWrapper {
@@ -54,7 +55,7 @@ public class LocalMultiMatrixPanel extends JPanel {
 
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
-    private final JProgressBar progressBar = new JProgressBar();
+    private final ColorbarComponent visualization = new ColorbarComponent(SVGHelper.emptyDocument());
 
     private List<PdbCompactFragment> fragments = Collections.emptyList();
 
@@ -67,24 +68,20 @@ public class LocalMultiMatrixPanel extends JPanel {
         labelInfoMatrix.setFont(UIManager.getFont("Label.font"));
         labelInfoMatrix.setOpaque(false);
 
-        progressBar.setStringPainted(true);
-        progressBar.setMaximum(1);
-
         JPanel panelInfo = new JPanel(new BorderLayout());
         panelInfo.add(labelInfoMatrix, BorderLayout.CENTER);
 
-        JPanel panelProgressBar = new JPanel();
-        panelProgressBar.setLayout(new BoxLayout(panelProgressBar, BoxLayout.X_AXIS));
-        panelProgressBar.add(new JLabel("Progress in computing:"));
-        panelProgressBar.add(progressBar);
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.add("Results", new JScrollPane(tableMatrix));
+        tabbedPane.add("Visualization", new JScrollPane(visualization));
 
         add(panelInfo, BorderLayout.NORTH);
-        add(new JScrollPane(tableMatrix), BorderLayout.CENTER);
-        add(panelProgressBar, BorderLayout.SOUTH);
+        add(tabbedPane, BorderLayout.CENTER);
     }
 
     public void setFragments(List<PdbCompactFragment> fragments) {
         this.fragments = fragments;
+        visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false);
     }
 
@@ -110,8 +107,6 @@ public class LocalMultiMatrixPanel extends JPanel {
     }
 
     public ProcessingResult compareAndDisplayTable() {
-        progressBar.setValue(0);
-
         try {
             PdbCompactFragment reference = selectReferenceStructure();
             if (reference == null) {
@@ -126,17 +121,17 @@ public class LocalMultiMatrixPanel extends JPanel {
             MCQ mcq = new MCQ(Collections.singletonList(selectedAngleType));
             ModelsComparisonResult result = mcq.compareModels(reference, fragments);
             SelectedAngle selectedAngle = result.selectAngle(selectedAngleType);
+            SVGDocument document = selectedAngle.visualize();
 
             tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
+            visualization.setSVGDocument(document);
             updateHeader(true);
 
-            return new ProcessingResult(selectedAngle);
+            return new ProcessingResult(selectedAngle, Collections.singletonList(document));
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMultiMatrixPanel.LOGGER.error(message, e);
             JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            progressBar.setValue(1);
         }
 
         return ProcessingResult.emptyInstance();
