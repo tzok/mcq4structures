@@ -25,13 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
-import pl.poznan.put.datamodel.DistanceMatrix;
 import pl.poznan.put.datamodel.NamedPoint;
-import pl.poznan.put.gui.window.DialogCluster;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.utility.svg.SVGHelper;
@@ -138,18 +137,8 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
     }
 
     @Override
-    public void cluster() {
-        double[][] array = distanceMatrixWithoutIncomparables.getMatrix();
-
-        if (array.length <= 1) {
-            String message = "Cannot cluster this distance matrix, because it contains zero valid comparisons";
-            GlobalMatrix.LOGGER.warn(message);
-            JOptionPane.showMessageDialog(null, message, "Warning", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        DialogCluster dialogClustering = new DialogCluster(distanceMatrixWithoutIncomparables);
-        dialogClustering.setVisible(true);
+    public DistanceMatrix getDataForClustering() {
+        return distanceMatrixWithoutIncomparables;
     }
 
     @Override

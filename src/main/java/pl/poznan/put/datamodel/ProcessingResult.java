@@ -11,6 +11,7 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 
@@ -66,8 +67,8 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
     }
 
     @Override
-    public void cluster() {
-        clusterable.cluster();
+    public DistanceMatrix getDataForClustering() {
+        return clusterable.getDataForClustering();
     }
 
     @Override

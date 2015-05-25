@@ -48,6 +48,7 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
@@ -383,7 +384,17 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 if (currentResult.canCluster()) {
-                    currentResult.cluster();
+                    DistanceMatrix distanceMatrix = currentResult.getDataForClustering();
+                    double[][] array = distanceMatrix.getMatrix();
+
+                    if (array.length <= 1) {
+                        String message = "Cannot cluster this distance matrix, because it contains zero valid comparisons";
+                        JOptionPane.showMessageDialog(null, message, "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
+                    dialogClustering.setVisible(true);
                 }
             }
         });
