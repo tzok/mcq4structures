@@ -36,7 +36,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.comparison.global.MeasureType;
+import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.RMSD;
+import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMatrixPanel;
@@ -99,8 +101,6 @@ public class MainWindow extends JFrame {
     }
 
     private final ActionListener radioActionListener = new ActionListener() {
-        private Object sourcePrev = radioGlobalMcq;
-
         @Override
         public void actionPerformed(ActionEvent arg0) {
             assert arg0 != null;
@@ -109,12 +109,9 @@ public class MainWindow extends JFrame {
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
 
-            boolean globalCurr = source.equals(radioGlobalMcq) || source.equals(radioGlobalRmsd);
-            boolean globalPrev = sourcePrev.equals(radioGlobalMcq) || sourcePrev.equals(radioGlobalRmsd);
-            if (!globalCurr || !globalPrev) {
+            if (!(source.equals(radioGlobalMcq) || source.equals(radioGlobalRmsd))) {
                 itemComputeDistances.setEnabled(false);
             }
-            sourcePrev = source;
         }
     };
     private final ActionListener radioAlignListener = new ActionListener() {
@@ -440,8 +437,8 @@ public class MainWindow extends JFrame {
     }
 
     private void compareGlobal() {
-        MeasureType measure = radioGlobalMcq.isSelected() ? MeasureType.MCQ : MeasureType.RMSD;
-        panelResultsGlobalMatrix.compareAndDisplayMatrix(measure, new GlobalMatrixPanel.Callback() {
+        GlobalComparator comparator = radioGlobalMcq.isSelected() ? new MCQ() : new RMSD();
+        panelResultsGlobalMatrix.compareAndDisplayMatrix(comparator, new GlobalMatrixPanel.Callback() {
             @Override
             public void complete(ProcessingResult processingResult) {
                 currentResult = processingResult;

@@ -11,9 +11,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.MCQGlobalResult;
 import pl.poznan.put.comparison.global.RMSDGlobalResult;
 import pl.poznan.put.comparison.local.MCQLocalResult;

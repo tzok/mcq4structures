@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.comparison.local.ModelsComparisonResult.SelectedAngle;
 import pl.poznan.put.datamodel.ProcessingResult;

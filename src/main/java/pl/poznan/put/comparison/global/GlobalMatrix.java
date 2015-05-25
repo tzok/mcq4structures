@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
+import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.RMSD;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.interfaces.Clusterable;
@@ -44,14 +46,14 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
     private final DistanceMatrix distanceMatrix;
     private final DistanceMatrix distanceMatrixWithoutIncomparables;
 
-    private final MeasureType measureType;
+    private final GlobalComparator comparator;
     private final List<String> names;
     private final GlobalResult[][] resultsMatrix;
 
-    public GlobalMatrix(MeasureType measureType, List<String> names,
+    public GlobalMatrix(GlobalComparator comparator, List<String> names,
             GlobalResult[][] resultsMatrix) {
         super();
-        this.measureType = measureType;
+        this.comparator = comparator;
         this.names = names;
         this.resultsMatrix = resultsMatrix.clone();
 
@@ -124,8 +126,8 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
         return selected;
     }
 
-    public MeasureType getMeasureType() {
-        return measureType;
+    public GlobalComparator getComparator() {
+        return comparator;
     }
 
     public DistanceMatrix getDistanceMatrix() {
@@ -156,7 +158,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
         String filename = sdf.format(new Date());
         filename += "-Global-";
-        filename += measureType.getName();
+        filename += comparator.getName();
         filename += ".csv";
         return new File(filename);
     }
@@ -185,7 +187,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
     @Override
     public void visualize3D() {
         try {
-            String name = measureType.getName();
+            String name = comparator.getName();
             double[][] matrix = distanceMatrix.getMatrix();
             List<String> ticksX = names;
             List<String> ticksY = names;
@@ -209,11 +211,11 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
         NavigableMap<Double, String> valueTickZ = new TreeMap<>();
         valueTickZ.put(0.0, "0");
 
-        if (measureType == MeasureType.MCQ) {
+        if (comparator instanceof MCQ) {
             for (double radians = Math.PI / 12.0; radians <= Math.PI + 1e-3; radians += Math.PI / 12.0) {
                 valueTickZ.put(radians, Long.toString(Math.round(Math.toDegrees(radians))) + Unicode.DEGREE);
             }
-        } else if (measureType == MeasureType.RMSD) {
+        } else if (comparator instanceof RMSD) {
             double[][] matrix = distanceMatrix.getMatrix();
             double max = Double.NEGATIVE_INFINITY;
 
@@ -225,7 +227,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
                 valueTickZ.put(angstrom, Long.toString(Math.round(angstrom)) + Unicode.ANGSTROM);
             }
         } else {
-            throw new IllegalArgumentException("Unknown measure: " + measureType.getName());
+            throw new IllegalArgumentException("Unknown measure: " + comparator.getName());
         }
         return valueTickZ;
     }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.biojava.bio.structure.StructureException;
 
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
 import pl.poznan.put.comparison.global.RMSDGlobalResult;

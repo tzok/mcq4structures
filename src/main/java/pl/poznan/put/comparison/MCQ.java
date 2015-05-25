@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.GlobalResult;
 import pl.poznan.put.comparison.global.MCQGlobalResult;
-import pl.poznan.put.comparison.global.MeasureType;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.LocalResult;
@@ -113,8 +113,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public LocalResult comparePair(StructureSelection s1,
-            StructureSelection s2) throws IncomparableStructuresException {
+    public LocalResult comparePair(StructureSelection s1, StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
         return new MCQLocalResult(matches, angleTypes);
@@ -164,7 +163,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        ParallelGlobalComparator comparator = new ParallelGlobalComparator(MeasureType.MCQ, selections, new ParallelGlobalComparator.ProgressListener() {
+        ParallelGlobalComparator comparator = new ParallelGlobalComparator(new MCQ(), selections, new ParallelGlobalComparator.ProgressListener() {
             @Override
             public void setProgress(int progress) {
                 // do nothing

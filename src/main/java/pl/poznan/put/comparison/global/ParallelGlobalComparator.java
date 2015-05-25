@@ -42,7 +42,7 @@ public class ParallelGlobalComparator extends Thread {
 
         @Override
         public SingleResult call() throws Exception {
-            GlobalResult comp = measureType.compareGlobally(s1, s2);
+            GlobalResult comp = comparator.compareGlobally(s1, s2);
             return new SingleResult(row, column, comp);
         }
     }
@@ -58,14 +58,14 @@ public class ParallelGlobalComparator extends Thread {
     private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     private final ExecutorCompletionService<CompareCallable.SingleResult> executor = new ExecutorCompletionService<>(threadPool);
 
-    private final MeasureType measureType;
+    private final GlobalComparator comparator;
     private final List<StructureSelection> structures;
     private final ProgressListener progressListener;
 
-    public ParallelGlobalComparator(MeasureType measureType,
+    public ParallelGlobalComparator(GlobalComparator comparator,
             List<StructureSelection> structures,
             ProgressListener progressListener) {
-        this.measureType = measureType;
+        this.comparator = comparator;
         this.structures = structures;
         this.progressListener = progressListener;
     }
@@ -77,7 +77,7 @@ public class ParallelGlobalComparator extends Thread {
 
         List<String> names = collectNames();
         GlobalResult[][] results = fillResultsMatrix();
-        GlobalMatrix matrix = new GlobalMatrix(measureType, names, results);
+        GlobalMatrix matrix = new GlobalMatrix(comparator, names, results);
 
         progressListener.complete(matrix);
     }

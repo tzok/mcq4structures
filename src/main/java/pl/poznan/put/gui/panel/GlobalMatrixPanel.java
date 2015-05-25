@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
+import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalMatrix;
-import pl.poznan.put.comparison.global.MeasureType;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.MatrixVisualizationComponent;
@@ -101,7 +101,7 @@ public class GlobalMatrixPanel extends JPanel {
         labelInfoMatrix.setText(builder.toString());
     }
 
-    public void compareAndDisplayMatrix(MeasureType measure,
+    public void compareAndDisplayMatrix(GlobalComparator measure,
             final Callback callback) {
         try {
             List<StructureSelection> selections = new ArrayList<>();
@@ -124,7 +124,7 @@ public class GlobalMatrixPanel extends JPanel {
 
                 @Override
                 public void complete(GlobalMatrix matrix) {
-                    MeasureType measureType = matrix.getMeasureType();
+                    GlobalComparator measureType = matrix.getComparator();
                     SVGDocument document = matrix.visualize();
 
                     tableMatrix.setModel(matrix.asDisplayableTableModel());
