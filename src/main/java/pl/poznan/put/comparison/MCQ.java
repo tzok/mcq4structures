@@ -12,6 +12,16 @@ import org.slf4j.LoggerFactory;
 
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.comparison.global.GlobalComparator;
+import pl.poznan.put.comparison.global.MeasureType;
+import pl.poznan.put.comparison.global.GlobalResult;
+import pl.poznan.put.comparison.global.GlobalMatrix;
+import pl.poznan.put.comparison.global.MCQGlobalResult;
+import pl.poznan.put.comparison.global.ParallelGlobalComparator;
+import pl.poznan.put.comparison.local.LocalComparator;
+import pl.poznan.put.comparison.local.LocalComparisonResult;
+import pl.poznan.put.comparison.local.MCQLocalResult;
+import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
@@ -76,7 +86,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public GlobalComparisonResult compareGlobally(StructureSelection target,
+    public GlobalResult compareGlobally(StructureSelection target,
             StructureSelection model) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(target, model);
@@ -154,14 +164,14 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        ParallelGlobalComparator comparator = new ParallelGlobalComparator(GlobalComparisonMeasure.MCQ, selections, new ParallelGlobalComparator.ProgressListener() {
+        ParallelGlobalComparator comparator = new ParallelGlobalComparator(MeasureType.MCQ, selections, new ParallelGlobalComparator.ProgressListener() {
             @Override
             public void setProgress(int progress) {
                 // do nothing
             }
 
             @Override
-            public void complete(GlobalComparisonResultMatrix matrix) {
+            public void complete(GlobalMatrix matrix) {
                 try {
                     TabularExporter.export(matrix.asExportableTableModel(), System.out);
                 } catch (IOException e) {

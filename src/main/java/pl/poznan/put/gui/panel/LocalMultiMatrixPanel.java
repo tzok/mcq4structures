@@ -20,8 +20,8 @@ import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.ModelsComparisonResult;
-import pl.poznan.put.comparison.ModelsComparisonResult.SelectedAngle;
+import pl.poznan.put.comparison.local.ModelsComparisonResult;
+import pl.poznan.put.comparison.local.ModelsComparisonResult.SelectedAngle;
 import pl.poznan.put.gui.ProcessingResult;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;

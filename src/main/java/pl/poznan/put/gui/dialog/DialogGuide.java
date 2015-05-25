@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -18,7 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DialogGuide extends JDialog {
+public class DialogGuide extends JDialog {
     private static final Logger LOGGER = LoggerFactory.getLogger(DialogGuide.class);
 
     public DialogGuide(Frame owner) {

@@ -1,14 +1,14 @@
-package pl.poznan.put.comparison;
+package pl.poznan.put.comparison.global;
 
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.utility.CommonNumberFormat;
 
-public class RMSDGlobalResult extends GlobalComparisonResult {
+public class RMSDGlobalResult extends GlobalResult {
     private final FragmentSuperimposer superimposer;
 
-    protected RMSDGlobalResult(String measureName, SelectionMatch matches,
+    public RMSDGlobalResult(String measureName, SelectionMatch matches,
             FragmentSuperimposer superimposer) {
         super(measureName, matches);
         this.superimposer = superimposer;
@@ -35,5 +35,10 @@ public class RMSDGlobalResult extends GlobalComparisonResult {
     @Override
     public String getExportName() {
         return Double.toString(superimposer.getRMSD());
+    }
+
+    @Override
+    public double asDouble() {
+        return superimposer.getRMSD();
     }
 }

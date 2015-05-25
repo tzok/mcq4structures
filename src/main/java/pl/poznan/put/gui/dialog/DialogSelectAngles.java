@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -19,7 +19,7 @@ import pl.poznan.put.gui.panel.TorsionAnglesPanel;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-final class DialogSelectAngles extends JDialog {
+public final class DialogSelectAngles extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
     private final List<MasterTorsionAngleType> selectedAngles = new ArrayList<>();

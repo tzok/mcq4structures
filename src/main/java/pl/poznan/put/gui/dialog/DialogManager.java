@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -25,11 +25,12 @@ import javax.swing.JTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.poznan.put.gui.PdbChooser;
 import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-final class DialogManager extends JDialog {
+public final class DialogManager extends JDialog {
     private static final Logger LOGGER = LoggerFactory.getLogger(DialogManager.class);
 
     private final DefaultListModel<File> model = new DefaultListModel<>();

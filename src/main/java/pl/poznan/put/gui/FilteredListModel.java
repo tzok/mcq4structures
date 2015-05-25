@@ -11,8 +11,8 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
     private static final long serialVersionUID = 1L;
 
-    boolean isProtein = true;
-    boolean isRNA = true;
+    public boolean isProtein = true;
+    public boolean isRNA = true;
     List<PdbCompactFragment> listProteins = new ArrayList<>();
     List<PdbCompactFragment> listRNAs = new ArrayList<>();
 

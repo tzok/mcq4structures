@@ -14,10 +14,10 @@ import org.junit.Test;
 
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.MCQGlobalResult;
-import pl.poznan.put.comparison.MCQLocalResult;
 import pl.poznan.put.comparison.RMSD;
-import pl.poznan.put.comparison.RMSDGlobalResult;
+import pl.poznan.put.comparison.global.MCQGlobalResult;
+import pl.poznan.put.comparison.global.RMSDGlobalResult;
+import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.ResidueComparison;

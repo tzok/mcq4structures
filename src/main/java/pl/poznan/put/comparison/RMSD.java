@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.biojava.bio.structure.StructureException;
 
+import pl.poznan.put.comparison.global.GlobalComparator;
+import pl.poznan.put.comparison.global.GlobalResult;
+import pl.poznan.put.comparison.global.RMSDGlobalResult;
 import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.MCQMatcher;
@@ -47,7 +50,7 @@ public class RMSD implements GlobalComparator {
     }
 
     @Override
-    public GlobalComparisonResult compareGlobally(StructureSelection s1,
+    public GlobalResult compareGlobally(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);

@@ -11,11 +11,11 @@ destdir="${tempdir}/${version}"
 mkdir "${destdir}"
 cp -r target/dependency "${normjar}" "${destdir}"
 cat << EOF > "${destdir}/start.bat"
-java -cp "${normjar#target/};dependency/*" pl.poznan.put.gui.Gui
+java -cp "${normjar#target/};dependency/*" pl.poznan.put.gui.MainWindow
 EOF
 cat << EOF > "${destdir}/start.sh"
 #! /bin/bash
-java -cp "${normjar#target/}:dependency/*" pl.poznan.put.gui.Gui
+java -cp "${normjar#target/}:dependency/*" pl.poznan.put.gui.MainWindow
 EOF
 chmod a+x "${destdir}/start.sh"
 

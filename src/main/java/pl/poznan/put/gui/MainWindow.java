@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
@@ -27,11 +28,22 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.comparison.GlobalComparisonMeasure;
+import pl.poznan.put.comparison.global.MeasureType;
+import pl.poznan.put.gui.dialog.DialogAbout;
+import pl.poznan.put.gui.dialog.DialogGuide;
+import pl.poznan.put.gui.dialog.DialogManager;
+import pl.poznan.put.gui.dialog.DialogSelectAngles;
+import pl.poznan.put.gui.dialog.DialogSelectChains;
+import pl.poznan.put.gui.dialog.DialogSelectChainsMultiple;
+import pl.poznan.put.gui.dialog.DialogSelectStructures;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
@@ -57,6 +69,39 @@ public class MainWindow extends JFrame {
     private static final String CARD_LOCAL_MATRIX = "CARD_LOCAL_MATRIX";
     private static final String CARD_LOCAL_MULTI_MATRIX = "CARD_LOCAL_MULTI_MATRIX";
     private static final String TITLE = "MCQ4Structures: computing similarity of 3D RNA / protein structures";
+
+    public static void main(final String[] args) {
+        final List<File> pdbs = new ArrayList<>();
+
+        for (String argument : args) {
+            File file = new File(argument);
+            if (file.canRead()) {
+                pdbs.add(file);
+            }
+        }
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                /*
+                 * Set L&F
+                 */
+                for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        try {
+                            UIManager.setLookAndFeel(info.getClassName());
+                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+                            // do nothing
+                        }
+                        break;
+                    }
+                }
+
+                MainWindow window = new MainWindow(pdbs);
+                window.setVisible(true);
+            }
+        });
+    }
 
     private final ActionListener radioActionListener = new ActionListener() {
         private Object sourcePrev = radioGlobalMcq;
@@ -390,7 +435,7 @@ public class MainWindow extends JFrame {
     }
 
     private void compareGlobal() {
-        GlobalComparisonMeasure measure = radioGlobalMcq.isSelected() ? GlobalComparisonMeasure.MCQ : GlobalComparisonMeasure.RMSD;
+        MeasureType measure = radioGlobalMcq.isSelected() ? MeasureType.MCQ : MeasureType.RMSD;
         panelResultsGlobalMatrix.compareAndDisplayMatrix(measure, new GlobalMatrixPanel.Callback() {
             @Override
             public void complete(ProcessingResult processingResult) {

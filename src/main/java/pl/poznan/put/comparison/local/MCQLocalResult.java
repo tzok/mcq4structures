@@ -1,4 +1,4 @@
-package pl.poznan.put.comparison;
+package pl.poznan.put.comparison.local;
 
 import java.io.File;
 import java.io.IOException;

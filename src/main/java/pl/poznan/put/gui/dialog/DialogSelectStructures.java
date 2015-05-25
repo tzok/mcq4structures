@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -29,7 +29,7 @@ import javax.swing.event.ListSelectionListener;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-final class DialogSelectStructures extends JDialog {
+public final class DialogSelectStructures extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
     private static final Dimension INITIAL_STRUCTURE_LIST_SIZE = new Dimension(320, 420);

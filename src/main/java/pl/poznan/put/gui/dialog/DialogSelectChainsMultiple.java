@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,6 +26,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import pl.poznan.put.gui.FilteredListModel;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -34,7 +35,7 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-final class DialogSelectChainsMultiple extends JDialog {
+public final class DialogSelectChainsMultiple extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
 

@@ -1,14 +1,14 @@
-package pl.poznan.put.comparison;
+package pl.poznan.put.comparison.global;
 
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.utility.AngleFormat;
 
-public class MCQGlobalResult extends GlobalComparisonResult {
+public class MCQGlobalResult extends GlobalResult {
     private final AngleSample angleSample;
 
-    protected MCQGlobalResult(String measureName, SelectionMatch matches,
+    public MCQGlobalResult(String measureName, SelectionMatch matches,
             AngleSample angleSample) {
         super(measureName, matches);
         this.angleSample = angleSample;
@@ -40,5 +40,10 @@ public class MCQGlobalResult extends GlobalComparisonResult {
     @Override
     public String getShortDisplayName() {
         return AngleFormat.formatDisplayShort(angleSample.getMeanDirection().getRadians());
+    }
+
+    @Override
+    public double asDouble() {
+        return angleSample.getMeanDirection().getRadians();
     }
 }

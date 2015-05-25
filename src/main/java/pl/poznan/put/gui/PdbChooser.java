@@ -9,7 +9,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-final class PdbChooser extends JFileChooser {
+public class PdbChooser extends JFileChooser {
     private static final PdbChooser INSTANCE = new PdbChooser();
 
     public static PdbChooser getInstance() {

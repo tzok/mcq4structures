@@ -1,4 +1,4 @@
-package pl.poznan.put.comparison;
+package pl.poznan.put.comparison.local;
 
 import java.awt.Color;
 import java.awt.FontMetrics;

@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,11 +30,11 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DialogAbout extends JDialog {
+public class DialogAbout extends JDialog {
     private static final long serialVersionUID = 1L;
     static final Logger LOGGER = LoggerFactory.getLogger(DialogAbout.class);
 
-    DialogAbout(Frame owner) {
+    public DialogAbout(Frame owner) {
         super(owner, true);
 
         JEditorPane editorPane = new JEditorPane();

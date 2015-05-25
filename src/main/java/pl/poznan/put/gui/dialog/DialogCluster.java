@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -29,6 +29,7 @@ import pl.poznan.put.clustering.partitional.PAMSIL;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.datamodel.DistanceMatrix;
+import pl.poznan.put.gui.SVGDialog;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.visualisation.PartitionalClustering;
 

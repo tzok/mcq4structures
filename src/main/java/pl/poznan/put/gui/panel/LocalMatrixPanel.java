@@ -24,7 +24,7 @@ import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.MCQLocalResult;
+import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.gui.ProcessingResult;
 import pl.poznan.put.matching.FragmentMatch;

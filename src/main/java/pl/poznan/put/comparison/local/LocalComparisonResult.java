@@ -1,4 +1,4 @@
-package pl.poznan.put.comparison;
+package pl.poznan.put.comparison.local;
 
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;

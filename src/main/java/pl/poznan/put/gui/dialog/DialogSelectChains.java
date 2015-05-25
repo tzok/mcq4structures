@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -23,7 +23,7 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-final class DialogSelectChains extends JDialog {
+public final class DialogSelectChains extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
     private static final Dimension INITIAL_MAIN_PANEL_SIZE = new Dimension(640, 480);

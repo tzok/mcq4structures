@@ -1,13 +1,13 @@
-package pl.poznan.put.comparison;
+package pl.poznan.put.comparison.global;
 
 import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.matching.SelectionMatch;
 
-public abstract class GlobalComparisonResult implements DisplayableExportable {
+public abstract class GlobalResult implements DisplayableExportable {
     private final String measureName;
     private final SelectionMatch matches;
 
-    protected GlobalComparisonResult(String measureName, SelectionMatch matches) {
+    protected GlobalResult(String measureName, SelectionMatch matches) {
         super();
         this.measureName = measureName;
         this.matches = matches;
@@ -28,4 +28,6 @@ public abstract class GlobalComparisonResult implements DisplayableExportable {
     public SelectionMatch getSelectionMatch() {
         return matches;
     }
+
+    public abstract double asDouble();
 }
