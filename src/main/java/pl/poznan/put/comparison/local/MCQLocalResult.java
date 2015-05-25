@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
@@ -30,7 +31,7 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 
-public class MCQLocalResult extends LocalComparisonResult {
+public class MCQLocalResult extends LocalResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQLocalResult.class);
 
     private final List<MasterTorsionAngleType> angleTypes;
@@ -42,7 +43,7 @@ public class MCQLocalResult extends LocalComparisonResult {
     }
 
     public List<MasterTorsionAngleType> getAngles() {
-        return angleTypes;
+        return Collections.unmodifiableList(angleTypes);
     }
 
     public List<String> getResidueLabels() {

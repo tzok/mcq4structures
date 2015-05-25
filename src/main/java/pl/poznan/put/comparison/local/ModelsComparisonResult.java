@@ -20,7 +20,6 @@ import javax.swing.table.TableModel;
 
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.stat.StatUtils;
 import org.jumpmind.symmetric.csv.CsvWriter;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.colors.colormaps.AbstractColorMap;
@@ -30,17 +29,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.clustering.partitional.Heap;
 import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.matching.stats.Histogram;
-import pl.poznan.put.matching.stats.MatchStatistics;
-import pl.poznan.put.matching.stats.ModelsComparisonStatistics;
-import pl.poznan.put.matching.stats.Percentiles;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
@@ -54,12 +48,19 @@ public class ModelsComparisonResult {
 
     public class SelectedAngle implements Exportable, Tabular, Visualizable {
         private final AbstractColorMap colormap = new ColorMapRedAndGreen();
-
-        private final MasterTorsionAngleType torsionAngle;
+        private final MasterTorsionAngleType angleType;
 
         private SelectedAngle(MasterTorsionAngleType torsionAngle) {
             super();
-            this.torsionAngle = torsionAngle;
+            this.angleType = torsionAngle;
+        }
+
+        public MasterTorsionAngleType getAngleType() {
+            return angleType;
+        }
+
+        public List<FragmentMatch> getFragmentMatches() {
+            return fragmentMatches;
         }
 
         @Override
@@ -78,9 +79,9 @@ public class ModelsComparisonResult {
                 csvWriter.write(residue.toString());
 
                 for (int j = 0; j < models.size(); j++) {
-                    FragmentMatch fragmentMatch = matches.get(j);
+                    FragmentMatch fragmentMatch = fragmentMatches.get(j);
                     ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-                    TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
+                    TorsionAngleDelta delta = residueComparison.getAngleDelta(angleType);
                     csvWriter.write(delta.toExportString());
                 }
 
@@ -134,9 +135,9 @@ public class ModelsComparisonResult {
                 data[i][0] = target.getResidues().get(i).toString();
 
                 for (int j = 0; j < models.size(); j++) {
-                    FragmentMatch fragmentMatch = matches.get(j);
+                    FragmentMatch fragmentMatch = fragmentMatches.get(j);
                     ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-                    TorsionAngleDelta delta = residueComparison.getAngleDelta(torsionAngle);
+                    TorsionAngleDelta delta = residueComparison.getAngleDelta(angleType);
 
                     if (delta == null) {
                         data[i][j + 1] = null;
@@ -149,67 +150,13 @@ public class ModelsComparisonResult {
             return new DefaultTableModel(data, columnNames);
         }
 
-        public ModelsComparisonStatistics calculateStatistics() {
-            return calculateStatistics(MatchStatistics.DEFAULT_ANGLE_LIMITS, MatchStatistics.DEFAULT_PERCENTS_LIMITS);
-        }
-
-        public ModelsComparisonStatistics calculateStatistics(
-                double[] angleLimits, double[] percentsLimits) {
-            List<MatchStatistics> statistics = new ArrayList<>();
-
-            for (FragmentMatch match : matches) {
-                List<Double> validDeltas = new ArrayList<>();
-                double[] validAngles = new double[angleLimits.length];
-
-                for (int i = 0; i < match.size(); i++) {
-                    ResidueComparison residueComparison = match.getResidueComparisons().get(i);
-                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(torsionAngle);
-
-                    if (angleDelta.getState() == State.BOTH_VALID) {
-                        double delta = angleDelta.getDelta().getRadians();
-                        validDeltas.add(delta);
-
-                        for (int j = 0; j < angleLimits.length; j++) {
-                            if (Double.compare(delta, angleLimits[j]) < 0) {
-                                validAngles[j] += 1.0;
-                            }
-                        }
-                    }
-                }
-
-                double[] validPercents = new double[percentsLimits.length];
-
-                if (validDeltas.size() > 0) {
-                    for (int i = 0; i < angleLimits.length; i++) {
-                        validAngles[i] /= validDeltas.size();
-                    }
-
-                    double[] values = new double[validDeltas.size()];
-                    for (int i = 0; i < validDeltas.size(); i++) {
-                        values[i] = validDeltas.get(i);
-                    }
-
-                    for (int i = 0; i < percentsLimits.length; i++) {
-                        validPercents[i] = StatUtils.percentile(values, percentsLimits[i]);
-                    }
-                }
-
-                Histogram histogram = new Histogram(angleLimits, validAngles);
-                Percentiles percentiles = new Percentiles(percentsLimits, validPercents);
-                MatchStatistics matchStatistics = new MatchStatistics(match, histogram, percentiles);
-                statistics.add(matchStatistics);
-            }
-
-            return new ModelsComparisonStatistics(statistics, angleLimits, percentsLimits);
-        }
-
         public Pair<Double, Double> getMinMax() {
             double min = Double.POSITIVE_INFINITY;
             double max = Double.NEGATIVE_INFINITY;
 
-            for (FragmentMatch match : matches) {
+            for (FragmentMatch match : fragmentMatches) {
                 for (ResidueComparison result : match.getResidueComparisons()) {
-                    double delta = result.getAngleDelta(torsionAngle).getDelta().getRadians();
+                    double delta = result.getAngleDelta(angleType).getDelta().getRadians();
 
                     if (delta < min) {
                         min = delta;
@@ -245,12 +192,12 @@ public class ModelsComparisonResult {
                 }
             }
 
-            for (int i = 0; i < matches.size(); i++) {
-                FragmentMatch fragmentMatch = matches.get(i);
+            for (int i = 0; i < fragmentMatches.size(); i++) {
+                FragmentMatch fragmentMatch = fragmentMatches.get(i);
 
                 for (int j = 0; j < fragmentMatch.size(); j++) {
                     ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
-                    TorsionAngleDelta angleDelta = comparison.getAngleDelta(torsionAngle);
+                    TorsionAngleDelta angleDelta = comparison.getAngleDelta(angleType);
 
                     if (angleDelta.getState() == State.BOTH_VALID) {
                         float[] rgba = colormap.getColor(0, 0, angleDelta.getDelta().getRadians(), 0, Math.PI).toArray();
@@ -269,8 +216,8 @@ public class ModelsComparisonResult {
             Element root = document.getDocumentElement();
             svg.getRoot(root);
 
-            if (matches.size() > 0) {
-                int width = maxWidth + blockWidth * matches.get(0).size();
+            if (fragmentMatches.size() > 0) {
+                int width = maxWidth + blockWidth * fragmentMatches.get(0).size();
                 root.setAttributeNS(null, "width", Integer.toString(width));
 
                 int height = fontHeight * models.size();
@@ -288,7 +235,7 @@ public class ModelsComparisonResult {
             }
 
             try {
-                String name = target.getName() + " " + torsionAngle.getExportName();
+                String name = target.getName() + " " + angleType.getExportName();
                 double[][] matrix = prepareMatrix();
                 List<String> ticksX = prepareTicksX();
                 List<String> ticksY = prepareTicksY();
@@ -314,12 +261,12 @@ public class ModelsComparisonResult {
 
             for (int i = 0; i < models.size(); i++) {
                 matrix[i] = new double[size];
-                FragmentMatch fragmentMatch = matches.get(i);
+                FragmentMatch fragmentMatch = fragmentMatches.get(i);
                 List<ResidueComparison> residueComparisons = fragmentMatch.getResidueComparisons();
 
                 for (int j = 0; j < size; j++) {
                     ResidueComparison residueComparison = residueComparisons.get(j);
-                    matrix[i][j] = residueComparison.getAngleDelta(torsionAngle).getDelta().getRadians();
+                    matrix[i][j] = residueComparison.getAngleDelta(angleType).getDelta().getRadians();
                 }
             }
 
@@ -345,14 +292,14 @@ public class ModelsComparisonResult {
 
     private final PdbCompactFragment target;
     private final List<PdbCompactFragment> models;
-    private final List<FragmentMatch> matches;
+    private final List<FragmentMatch> fragmentMatches;
 
-    public ModelsComparisonResult(PdbCompactFragment reference,
+    public ModelsComparisonResult(PdbCompactFragment target,
             List<PdbCompactFragment> models, List<FragmentMatch> matches) {
         super();
-        target = reference;
+        this.target = target;
         this.models = models;
-        this.matches = matches;
+        this.fragmentMatches = matches;
     }
 
     public PdbCompactFragment getTarget() {
@@ -368,31 +315,7 @@ public class ModelsComparisonResult {
     }
 
     public int getModelCount() {
-        return matches.size();
-    }
-
-    public FragmentMatch getFragmentMatch(int index) {
-        return matches.get(index);
-    }
-
-    public int[] createRanking() {
-        double[] fragmentAverages = new double[matches.size()];
-        int[] ranking = new int[matches.size()];
-
-        for (int i = 0; i < matches.size(); i++) {
-            FragmentMatch match = matches.get(i);
-            fragmentAverages[i] = match.getMeanDelta().getRadians();
-        }
-
-        Heap heap = new Heap(fragmentAverages);
-        int i = 0;
-
-        for (int next : heap) {
-            ranking[i] = next;
-            i++;
-        }
-
-        return ranking;
+        return fragmentMatches.size();
     }
 
     public ModelsComparisonResult.SelectedAngle selectAngle(

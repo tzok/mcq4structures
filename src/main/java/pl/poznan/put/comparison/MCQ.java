@@ -19,7 +19,7 @@ import pl.poznan.put.comparison.global.MCQGlobalResult;
 import pl.poznan.put.comparison.global.MeasureType;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.comparison.local.LocalComparator;
-import pl.poznan.put.comparison.local.LocalComparisonResult;
+import pl.poznan.put.comparison.local.LocalResult;
 import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.matching.FragmentMatch;
@@ -113,7 +113,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public LocalComparisonResult comparePair(StructureSelection s1,
+    public LocalResult comparePair(StructureSelection s1,
             StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
