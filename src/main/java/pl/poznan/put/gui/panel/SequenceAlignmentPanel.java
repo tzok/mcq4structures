@@ -14,7 +14,7 @@ import javax.swing.border.EmptyBorder;
 
 import pl.poznan.put.alignment.SequenceAligner;
 import pl.poznan.put.alignment.SequenceAlignment;
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class SequenceAlignmentPanel extends JPanel {

@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.window;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -37,13 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.comparison.global.MeasureType;
-import pl.poznan.put.gui.dialog.DialogAbout;
-import pl.poznan.put.gui.dialog.DialogGuide;
-import pl.poznan.put.gui.dialog.DialogManager;
-import pl.poznan.put.gui.dialog.DialogSelectAngles;
-import pl.poznan.put.gui.dialog.DialogSelectChains;
-import pl.poznan.put.gui.dialog.DialogSelectChainsMultiple;
-import pl.poznan.put.gui.dialog.DialogSelectStructures;
+import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;

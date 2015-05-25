@@ -1,4 +1,4 @@
-package pl.poznan.put.gui.dialog;
+package pl.poznan.put.gui.window;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,7 +26,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import pl.poznan.put.gui.FilteredListModel;
+import pl.poznan.put.gui.component.FilteredListModel;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -231,10 +231,10 @@ public final class DialogSelectChainsMultiple extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 boolean isRNA = checkRNA.isSelected();
                 boolean isProtein = checkProtein.isSelected();
-                modelAll.isRNA = isRNA;
-                modelAll.isProtein = isProtein;
-                modelSelected.isRNA = isRNA;
-                modelSelected.isProtein = isProtein;
+                modelAll.setRNA(isRNA);
+                modelAll.setProtein(isProtein);
+                modelSelected.setRNA(isRNA);
+                modelSelected.setProtein(isProtein);
 
                 listAll.updateUI();
                 listSelected.updateUI();

@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.datamodel;
 
 import java.io.File;
 import java.io.IOException;

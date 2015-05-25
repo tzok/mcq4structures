@@ -24,13 +24,13 @@ import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.MeasureType;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.datamodel.ProcessingResult;
+import pl.poznan.put.gui.component.MatrixVisualizationComponent;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.MatrixVisualizationComponent;
 
 public class GlobalMatrixPanel extends JPanel {
     public interface Callback {

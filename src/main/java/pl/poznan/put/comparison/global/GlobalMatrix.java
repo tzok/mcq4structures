@@ -27,8 +27,7 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.datamodel.DistanceMatrix;
 import pl.poznan.put.datamodel.NamedPoint;
-import pl.poznan.put.gui.Surface3D;
-import pl.poznan.put.gui.dialog.DialogCluster;
+import pl.poznan.put.gui.window.DialogCluster;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -38,6 +37,7 @@ import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.MDS;
 import pl.poznan.put.visualisation.MDSDrawer;
+import pl.poznan.put.visualisation.Surface3D;
 
 public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabular {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalResult.class);

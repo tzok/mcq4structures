@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.window;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -12,7 +12,7 @@ import javax.swing.JDialog;
 
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.visualisation.SVGComponent;
+import pl.poznan.put.gui.component.SVGComponent;
 
 public class SVGDialog extends JDialog {
     private final JButton buttonSave = new JButton("Save");

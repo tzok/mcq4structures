@@ -12,7 +12,6 @@ import org.jfree.chart.axis.NumberTick;
 import org.jfree.ui.RectangleEdge;
 
 public class TorsionAxis extends NumberAxis {
-    private static final long serialVersionUID = 1L;
     private List<String> ticksNames;
 
     public TorsionAxis(List<String> ticks) {

@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +9,18 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
-    private static final long serialVersionUID = 1L;
+    private final List<PdbCompactFragment> listProteins = new ArrayList<>();
+    private final List<PdbCompactFragment> listRNAs = new ArrayList<>();
 
-    public boolean isProtein = true;
-    public boolean isRNA = true;
-    List<PdbCompactFragment> listProteins = new ArrayList<>();
-    List<PdbCompactFragment> listRNAs = new ArrayList<>();
+    private boolean isProtein = true;
+    private boolean isRNA = true;
 
-    public FilteredListModel() {
+    public void setProtein(boolean isProtein) {
+        this.isProtein = isProtein;
+    }
+
+    public void setRNA(boolean isRNA) {
+        this.isRNA = isRNA;
     }
 
     @Override

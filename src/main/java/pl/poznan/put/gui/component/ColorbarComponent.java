@@ -1,4 +1,4 @@
-package pl.poznan.put.visualisation;
+package pl.poznan.put.gui.component;
 
 import java.io.File;
 

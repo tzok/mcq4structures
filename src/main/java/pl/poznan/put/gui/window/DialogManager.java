@@ -1,4 +1,4 @@
-package pl.poznan.put.gui.dialog;
+package pl.poznan.put.gui.window;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -25,7 +25,7 @@ import javax.swing.JTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.gui.PdbChooser;
+import pl.poznan.put.gui.component.PdbChooser;
 import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;

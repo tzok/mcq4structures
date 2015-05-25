@@ -1,4 +1,4 @@
-package pl.poznan.put.gui.dialog;
+package pl.poznan.put.gui.window;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

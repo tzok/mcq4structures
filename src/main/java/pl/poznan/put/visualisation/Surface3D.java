@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.visualisation;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;

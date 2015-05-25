@@ -20,7 +20,7 @@ import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;

@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
@@ -42,6 +41,7 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
+import pl.poznan.put.visualisation.Surface3D;
 
 public class ModelsComparisonResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelsComparisonResult.class);

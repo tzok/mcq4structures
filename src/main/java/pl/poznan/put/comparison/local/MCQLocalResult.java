@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
-import pl.poznan.put.gui.Surface3D;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
@@ -30,6 +29,7 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
+import pl.poznan.put.visualisation.Surface3D;
 
 public class MCQLocalResult extends LocalResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQLocalResult.class);

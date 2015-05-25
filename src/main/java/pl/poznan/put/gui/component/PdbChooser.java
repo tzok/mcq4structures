@@ -1,4 +1,4 @@
-package pl.poznan.put.gui;
+package pl.poznan.put.gui.component;
 
 import java.awt.Component;
 import java.io.File;

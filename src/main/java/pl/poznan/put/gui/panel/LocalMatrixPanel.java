@@ -26,7 +26,8 @@ import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.datamodel.ProcessingResult;
+import pl.poznan.put.gui.component.ChartComponent;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
@@ -35,7 +36,6 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.visualisation.ChartComponent;
 
 public class LocalMatrixPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalMatrixPanel.class);
