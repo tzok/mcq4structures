@@ -28,7 +28,7 @@ import pl.poznan.put.clustering.partitional.PAM;
 import pl.poznan.put.clustering.partitional.PAMSIL;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
-import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
+import pl.poznan.put.datamodel.DistanceMatrix;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.visualisation.PartitionalClustering;
 
@@ -42,11 +42,11 @@ public class DialogCluster extends JDialog {
     private final JComboBox<Linkage> linkageComboBox = new JComboBox<>(Linkage.values());
     private final JComboBox<ScoringFunction> scoringFunction = new JComboBox<>(new ScoringFunction[] { PAM.getInstance(), PAMSIL.getInstance() });
 
-    private final GlobalComparisonResultMatrix comparisonGlobal;
+    private final DistanceMatrix distanceMatrix;
 
-    public DialogCluster(GlobalComparisonResultMatrix comparisonGlobal) {
+    public DialogCluster(DistanceMatrix distanceMatrix) {
         super();
-        this.comparisonGlobal = comparisonGlobal;
+        this.distanceMatrix = distanceMatrix;
 
         setTitle("MCQ4Structures: clustering method");
 
@@ -139,12 +139,11 @@ public class DialogCluster extends JDialog {
     }
 
     public Visualizable getVisualizable() {
-        List<String> names = comparisonGlobal.getNames();
-        double[][] matrix = comparisonGlobal.getDistanceMatrix().getArray();
+        List<String> names = distanceMatrix.getNames();
 
         if (hierarchical.isSelected()) {
             Linkage linkage = (Linkage) linkageComboBox.getSelectedItem();
-            Clusterer clusterer = new Clusterer(names, matrix, linkage);
+            Clusterer clusterer = new Clusterer(names, distanceMatrix.getMatrix(), linkage);
             return clusterer.cluster();
         }
 
@@ -154,12 +153,12 @@ public class DialogCluster extends JDialog {
         ScoredClusteringResult result;
 
         if (findBestK.isSelected()) {
-            result = KScanner.parallelScan(clusterer, matrix, sf);
+            result = KScanner.parallelScan(clusterer, distanceMatrix.getMatrix(), sf);
         } else {
             int k = (int) kspinner.getValue();
-            result = clusterer.findPrototypes(matrix, sf, k);
+            result = clusterer.findPrototypes(distanceMatrix.getMatrix(), sf, k);
         }
 
-        return new PartitionalClustering(comparisonGlobal, result);
+        return new PartitionalClustering(distanceMatrix, result);
     }
 }

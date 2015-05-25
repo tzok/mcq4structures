@@ -10,11 +10,12 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.ClusterAssignment;
+import pl.poznan.put.clustering.partitional.ClusterPrototypes;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
-import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ColoredNamedPoint;
+import pl.poznan.put.datamodel.DistanceMatrix;
 import pl.poznan.put.interfaces.Visualizable;
 
 public class PartitionalClustering implements Visualizable {
@@ -23,25 +24,27 @@ public class PartitionalClustering implements Visualizable {
 
     private final ClusterAssignment assignment;
 
-    private final GlobalComparisonResultMatrix matrix;
+    private final DistanceMatrix distanceMatrix;
     private final ScoredClusteringResult clustering;
 
-    public PartitionalClustering(GlobalComparisonResultMatrix matrix,
+    public PartitionalClustering(DistanceMatrix distanceMatrix,
             ScoredClusteringResult clustering) {
-        this.matrix = matrix;
+        this.distanceMatrix = distanceMatrix;
         this.clustering = clustering;
 
-        assignment = ClusterAssignment.fromPrototypes(clustering.getPrototypes(), matrix.getDistanceMatrix().getArray());
+        ClusterPrototypes prototypes = clustering.getPrototypes();
+        assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix.getMatrix());
         analyzeClusterAssignment();
     }
 
     private void analyzeClusterAssignment() {
+        List<String> names = distanceMatrix.getNames();
         int index = 0;
 
         for (int prototype : assignment.getPrototypes()) {
             StringBuilder builder = new StringBuilder("Cluster: { ");
             for (int i : assignment.getAssignedTo(prototype)) {
-                builder.append(matrix.getName(i));
+                builder.append(names.get(i));
                 builder.append(", ");
             }
             builder.delete(builder.length() - 2, builder.length());
@@ -52,10 +55,6 @@ public class PartitionalClustering implements Visualizable {
         }
     }
 
-    public GlobalComparisonResultMatrix getMatrix() {
-        return matrix;
-    }
-
     public ScoringFunction getScoringFunction() {
         return clustering.getScoringFunction();
     }
@@ -63,7 +62,7 @@ public class PartitionalClustering implements Visualizable {
     @Override
     public SVGDocument visualize() {
         List<ColoredNamedPoint> points = new ArrayList<>();
-        double[][] xyMatrix = MDS.multidimensionalScaling(matrix.getDistanceMatrix().getArray(), 2);
+        double[][] xyMatrix = MDS.multidimensionalScaling(distanceMatrix.getMatrix(), 2);
 
         for (int i = 0; i < xyMatrix.length; i++) {
             Color color = getClusterColor(i);
@@ -82,7 +81,7 @@ public class PartitionalClustering implements Visualizable {
 
     private String getClusterDescription(int index) {
         int prototype = assignment.getCluster(index);
-        return matrix.getName(index) + "\n\n" + clusterText.get(prototype);
+        return distanceMatrix.getNames().get(index) + "\n\n" + clusterText.get(prototype);
     }
 
     @Override
