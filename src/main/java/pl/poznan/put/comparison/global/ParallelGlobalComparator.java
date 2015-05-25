@@ -27,15 +27,13 @@ public class ParallelGlobalComparator extends Thread {
             }
         }
 
-        private final GlobalComparator comparator;
         private final int row;
         private final int column;
         private final StructureSelection s1;
         private final StructureSelection s2;
 
-        public CompareCallable(GlobalComparator comparator,
-                List<StructureSelection> structures, int row, int column) {
-            this.comparator = comparator;
+        public CompareCallable(List<StructureSelection> structures, int row,
+                int column) {
             s1 = structures.get(row);
             s2 = structures.get(column);
             this.row = row;
@@ -44,7 +42,7 @@ public class ParallelGlobalComparator extends Thread {
 
         @Override
         public SingleResult call() throws Exception {
-            GlobalResult comp = comparator.compareGlobally(s1, s2);
+            GlobalResult comp = measureType.compareGlobally(s1, s2);
             return new SingleResult(row, column, comp);
         }
     }
@@ -60,14 +58,14 @@ public class ParallelGlobalComparator extends Thread {
     private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     private final ExecutorCompletionService<CompareCallable.SingleResult> executor = new ExecutorCompletionService<>(threadPool);
 
-    private final MeasureType measure;
+    private final MeasureType measureType;
     private final List<StructureSelection> structures;
     private final ProgressListener progressListener;
 
-    public ParallelGlobalComparator(MeasureType measure,
+    public ParallelGlobalComparator(MeasureType measureType,
             List<StructureSelection> structures,
             ProgressListener progressListener) {
-        this.measure = measure;
+        this.measureType = measureType;
         this.structures = structures;
         this.progressListener = progressListener;
     }
@@ -79,18 +77,17 @@ public class ParallelGlobalComparator extends Thread {
 
         List<String> names = collectNames();
         GlobalResult[][] results = fillResultsMatrix();
-        GlobalMatrix matrix = new GlobalMatrix(measure, names, results);
+        GlobalMatrix matrix = new GlobalMatrix(measureType, names, results);
 
         progressListener.complete(matrix);
     }
 
     private void submitAll() {
-        GlobalComparator comparator = measure.getComparator();
         int size = structures.size();
 
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
-                CompareCallable task = new CompareCallable(comparator, structures, i, j);
+                CompareCallable task = new CompareCallable(structures, i, j);
                 executor.submit(task);
             }
         }
