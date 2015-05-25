@@ -1,7 +1,6 @@
 #! /bin/bash
-#mvn clean package dependency:copy-dependencies
-fulljar=$(ls target/*-jar-with-dependencies.jar)
-normjar=${fulljar%-jar-with-dependencies.jar}.jar
+mvn clean package dependency:copy-dependencies
+normjar=$(ls target/mcq4structures-*.jar)
 version=${normjar#target/}
 version=${version%.jar}
 
@@ -11,11 +10,11 @@ destdir="${tempdir}/${version}"
 mkdir "${destdir}"
 cp -r target/dependency "${normjar}" "${destdir}"
 cat << EOF > "${destdir}/start.bat"
-java -cp "${normjar#target/};dependency/*" pl.poznan.put.gui.MainWindow
+java -cp "${normjar#target/};dependency/*" pl.poznan.put.gui.window.MainWindow
 EOF
 cat << EOF > "${destdir}/start.sh"
 #! /bin/bash
-java -cp "${normjar#target/}:dependency/*" pl.poznan.put.gui.MainWindow
+java -cp "${normjar#target/}:dependency/*" pl.poznan.put.gui.window.MainWindow
 EOF
 chmod a+x "${destdir}/start.sh"
 
