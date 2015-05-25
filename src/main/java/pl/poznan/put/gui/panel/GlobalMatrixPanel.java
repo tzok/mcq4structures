@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
-import pl.poznan.put.comparison.global.MeasureType;
 import pl.poznan.put.comparison.global.GlobalMatrix;
+import pl.poznan.put.comparison.global.MeasureType;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.gui.ProcessingResult;
 import pl.poznan.put.matching.SelectionFactory;

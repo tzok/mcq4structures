@@ -20,7 +20,7 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 /**
  * Implementation of RMSD global similarity measure.
- * 
+ *
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class RMSD implements GlobalComparator {
@@ -30,16 +30,16 @@ public class RMSD implements GlobalComparator {
 
     public RMSD() {
         super();
-        this.filter = AtomFilter.ALL;
-        this.onlyHeavy = true;
-        this.angleTypes = mainAngleTypes();
+        filter = AtomFilter.ALL;
+        onlyHeavy = true;
+        angleTypes = RMSD.mainAngleTypes();
     }
 
     public RMSD(AtomFilter filter, boolean onlyHeavy) {
         super();
         this.filter = filter;
         this.onlyHeavy = onlyHeavy;
-        this.angleTypes = mainAngleTypes();
+        angleTypes = RMSD.mainAngleTypes();
     }
 
     private static List<MasterTorsionAngleType> mainAngleTypes() {

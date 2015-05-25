@@ -10,7 +10,7 @@ public abstract class LocalComparisonResult implements Exportable, Visualizable,
 
     public LocalComparisonResult(SelectionMatch matches) {
         super();
-        this.selectionMatch = matches;
+        selectionMatch = matches;
     }
 
     public String getTargetName() {

@@ -54,7 +54,7 @@ public class SequenceAlignmentPanel extends JPanel {
     private void updateHeader(boolean readyResults) {
         StringBuilder builder = new StringBuilder();
         builder.append("<html>Structures selected for ");
-        builder.append((isGlobal ? "global" : "local"));
+        builder.append(isGlobal ? "global" : "local");
         builder.append(" sequence alignment: ");
 
         int i = 0;

@@ -231,7 +231,7 @@ public class ModelsComparisonResult {
             LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
             FontMetrics metrics = SVGHelper.getFontMetrics(svg);
 
-            int fontHeight = (int) (Math.ceil(lineMetrics.getHeight()));
+            int fontHeight = (int) Math.ceil(lineMetrics.getHeight());
             int blockWidth = fontHeight * 4 / 3;
             int maxWidth = Integer.MIN_VALUE;
 
@@ -350,7 +350,7 @@ public class ModelsComparisonResult {
     public ModelsComparisonResult(PdbCompactFragment reference,
             List<PdbCompactFragment> models, List<FragmentMatch> matches) {
         super();
-        this.target = reference;
+        target = reference;
         this.models = models;
         this.matches = matches;
     }

@@ -56,8 +56,8 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
         this.names = names;
         this.resultsMatrix = resultsMatrix.clone();
 
-        this.distanceMatrix = prepareDistanceMatrix();
-        this.distanceMatrixWithoutIncomparables = prepareDistanceMatrixWithoutIncomparables();
+        distanceMatrix = prepareDistanceMatrix();
+        distanceMatrixWithoutIncomparables = prepareDistanceMatrixWithoutIncomparables();
     }
 
     private DistanceMatrix prepareDistanceMatrix() {
@@ -228,8 +228,8 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
             double[][] matrix = distanceMatrix.getMatrix();
             double max = Double.NEGATIVE_INFINITY;
 
-            for (int i = 0; i < matrix.length; i++) {
-                max = Math.max(max, StatUtils.max(matrix[i]));
+            for (double[] element : matrix) {
+                max = Math.max(max, StatUtils.max(element));
             }
 
             for (double angstrom = 1.0; angstrom <= Math.ceil(max) + 1e-3; angstrom += 1.0) {

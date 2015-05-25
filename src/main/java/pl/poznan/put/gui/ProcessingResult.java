@@ -30,23 +30,23 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
         this.clusterable = clusterable;
         this.visualizable = visualizable;
         this.exportable = exportable;
-        this.visualizations = visualization;
+        visualizations = visualization;
     }
 
     public ProcessingResult(Object object, List<SVGDocument> visualization) {
         super();
-        this.clusterable = (Clusterable) (object instanceof Clusterable ? object : null);
-        this.visualizable = (Visualizable) (object instanceof Visualizable ? object : null);
-        this.exportable = (Exportable) (object instanceof Exportable ? object : null);
-        this.visualizations = visualization;
+        clusterable = (Clusterable) (object instanceof Clusterable ? object : null);
+        visualizable = (Visualizable) (object instanceof Visualizable ? object : null);
+        exportable = (Exportable) (object instanceof Exportable ? object : null);
+        visualizations = visualization;
     }
 
     public ProcessingResult(Object object) {
         super();
-        this.clusterable = (Clusterable) (object instanceof Clusterable ? object : null);
-        this.visualizable = (Visualizable) (object instanceof Visualizable ? object : null);
-        this.exportable = (Exportable) (object instanceof Exportable ? object : null);
-        this.visualizations = Collections.singletonList(SVGHelper.emptyDocument());
+        clusterable = (Clusterable) (object instanceof Clusterable ? object : null);
+        visualizable = (Visualizable) (object instanceof Visualizable ? object : null);
+        exportable = (Exportable) (object instanceof Exportable ? object : null);
+        visualizations = Collections.singletonList(SVGHelper.emptyDocument());
     }
 
     public boolean canCluster() {

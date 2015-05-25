@@ -53,7 +53,7 @@ public class FragmentMatch implements Visualizable {
         this.modelFragment = modelFragment;
         this.isTargetSmaller = isTargetSmaller;
         this.shift = shift;
-        this.fragmentComparison = comparison;
+        fragmentComparison = comparison;
     }
 
     public PdbCompactFragment getTargetFragment() {

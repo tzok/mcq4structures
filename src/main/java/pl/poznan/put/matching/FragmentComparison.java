@@ -69,10 +69,10 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
             int secondInvalidCount, int bothInvalidCount, int validCount,
             Angle meanDelta) {
         super();
-        this.residueComparisons = residueResults;
-        this.angleTypes = angles;
-        this.targetInvalidCount = firstInvalidCount;
-        this.modelInvalidCount = secondInvalidCount;
+        residueComparisons = residueResults;
+        angleTypes = angles;
+        targetInvalidCount = firstInvalidCount;
+        modelInvalidCount = secondInvalidCount;
         this.bothInvalidCount = bothInvalidCount;
         this.validCount = validCount;
         this.meanDelta = meanDelta;

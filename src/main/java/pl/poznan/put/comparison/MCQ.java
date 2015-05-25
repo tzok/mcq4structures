@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.comparison.global.GlobalComparator;
-import pl.poznan.put.comparison.global.MeasureType;
-import pl.poznan.put.comparison.global.GlobalResult;
 import pl.poznan.put.comparison.global.GlobalMatrix;
+import pl.poznan.put.comparison.global.GlobalResult;
 import pl.poznan.put.comparison.global.MCQGlobalResult;
+import pl.poznan.put.comparison.global.MeasureType;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.LocalComparisonResult;
@@ -43,7 +43,7 @@ import pl.poznan.put.utility.TabularExporter;
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
  * representation.
- * 
+ *
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class MCQ implements GlobalComparator, LocalComparator {
@@ -53,9 +53,9 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
     public MCQ() {
         super();
-        this.angleTypes = new ArrayList<>();
-        this.angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-        this.angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+        angleTypes = new ArrayList<>();
+        angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
     }
 
     public MCQ(MoleculeType moleculeType) {
@@ -63,14 +63,14 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
         switch (moleculeType) {
         case PROTEIN:
-            this.angleTypes = Arrays.asList(ProteinTorsionAngleType.mainAngles());
+            angleTypes = Arrays.asList(ProteinTorsionAngleType.mainAngles());
             break;
         case RNA:
-            this.angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
+            angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
             break;
         case UNKNOWN:
         default:
-            this.angleTypes = Collections.emptyList();
+            angleTypes = Collections.emptyList();
             break;
         }
     }
@@ -152,8 +152,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
         List<StructureSelection> selections = new ArrayList<>();
 
-        for (int i = 0; i < args.length; i++) {
-            File file = new File(args[i]);
+        for (String arg : args) {
+            File file = new File(arg);
 
             if (!file.canRead()) {
                 System.err.println("Failed to open file: " + file);
