@@ -1,7 +1,5 @@
 package pl.poznan.put;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -9,15 +7,16 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.MCQGlobalResult;
-import pl.poznan.put.comparison.MCQLocalResult;
 import pl.poznan.put.comparison.RMSD;
-import pl.poznan.put.comparison.RMSDGlobalResult;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
+import pl.poznan.put.comparison.global.MCQGlobalResult;
+import pl.poznan.put.comparison.global.RMSDGlobalResult;
+import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.ResidueComparison;
@@ -56,11 +55,11 @@ public class TestComparison {
     @Test
     public void testMCQGlobal() throws PdbParsingException, IncomparableStructuresException {
         List<PdbModel> models = parser.parse(pdb1EHZ);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model1 = models.get(0);
 
         models = parser.parse(pdb1EVV);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model2 = models.get(0);
 
         StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -70,25 +69,25 @@ public class TestComparison {
         MCQGlobalResult comparisonResult = (MCQGlobalResult) mcq.compareGlobally(selection1, selection2);
         SelectionMatch selectionMatch = comparisonResult.getSelectionMatch();
         List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
-        assertEquals(1, fragmentMatches.size());
+        Assert.assertEquals(1, fragmentMatches.size());
         FragmentMatch fragmentMatch = fragmentMatches.get(0);
 
-        assertEquals(3, fragmentMatch.getBothInvalidCount());
-        assertEquals(0, fragmentMatch.getTargetInvalidCount());
-        assertEquals(0, fragmentMatch.getModelInvalidCount());
-        assertEquals(605, fragmentMatch.getValidCount());
-        assertEquals(9.177053297, comparisonResult.getMeanDirection().getDegrees(), 0.1);
-        assertEquals(0.1601697957, comparisonResult.getMeanDirection().getRadians(), 0.01);
+        Assert.assertEquals(3, fragmentMatch.getBothInvalidCount());
+        Assert.assertEquals(0, fragmentMatch.getTargetInvalidCount());
+        Assert.assertEquals(0, fragmentMatch.getModelInvalidCount());
+        Assert.assertEquals(605, fragmentMatch.getValidCount());
+        Assert.assertEquals(9.177053297, comparisonResult.getMeanDirection().getDegrees(), 0.1);
+        Assert.assertEquals(0.1601697957, comparisonResult.getMeanDirection().getRadians(), 0.01);
     }
 
     @Test
     public void testMCQLocal() throws PdbParsingException, IncomparableStructuresException {
         List<PdbModel> models = parser.parse(pdb1EHZ);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model1 = models.get(0);
 
         models = parser.parse(pdb1EVV);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model2 = models.get(0);
 
         StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -98,12 +97,12 @@ public class TestComparison {
         MCQLocalResult comparisonResult = (MCQLocalResult) mcq.comparePair(selection1, selection2);
         SelectionMatch selectionMatch = comparisonResult.getSelectionMatch();
         List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
-        assertEquals(1, fragmentMatches.size());
+        Assert.assertEquals(1, fragmentMatches.size());
         FragmentMatch fragmentMatch = fragmentMatches.get(0);
 
         int i = 0;
         for (ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
-            assertEquals(TestComparison.LOCAL_MCQ_1EHZ_1EVV_RESULT_DEGREES[i], residueComparison.getMeanDirection().getDegrees(), 0.1);
+            Assert.assertEquals(TestComparison.LOCAL_MCQ_1EHZ_1EVV_RESULT_DEGREES[i], residueComparison.getMeanDirection().getDegrees(), 0.1);
             i += 1;
         }
     }
@@ -111,11 +110,11 @@ public class TestComparison {
     @Test
     public void testRMSD() throws PdbParsingException, IncomparableStructuresException {
         List<PdbModel> models = parser.parse(pdb1EHZ);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model1 = models.get(0);
 
         models = parser.parse(pdb1EVV);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model2 = models.get(0);
 
         StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -124,18 +123,18 @@ public class TestComparison {
         RMSD rmsd = new RMSD(AtomFilter.MAIN, true);
         RMSDGlobalResult comparisonResult = (RMSDGlobalResult) rmsd.compareGlobally(selection1, selection2);
 
-        assertEquals(76, comparisonResult.getAtomCount());
-        assertEquals(0.5934545967, comparisonResult.getRMSD(), 0.1);
+        Assert.assertEquals(76, comparisonResult.getAtomCount());
+        Assert.assertEquals(0.5934545967, comparisonResult.getRMSD(), 0.1);
     }
 
     @Test(expected = IncomparableStructuresException.class)
     public void testNoMatches() throws IncomparableStructuresException, PdbParsingException {
         List<PdbModel> models = parser.parse(pdb1EHZ);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model1 = models.get(0);
 
         models = parser.parse(pdb1EVV);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model2 = models.get(0);
 
         StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -148,11 +147,11 @@ public class TestComparison {
     @Test
     public void testRMSD_1ZO1_1ZO3() throws PdbParsingException, IncomparableStructuresException {
         List<PdbModel> models = parser.parse(pdb1ZO1);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model1 = models.get(0);
 
         models = parser.parse(pdb1ZO3);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model2 = models.get(0);
 
         StructureSelection s1 = SelectionFactory.create("1ZO1", model1);
@@ -165,11 +164,11 @@ public class TestComparison {
     @Test
     public void testMCQ_1TN1_1TN2() throws PdbParsingException, IncomparableStructuresException {
         List<PdbModel> models = parser.parse(pdb1TN1);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model1 = models.get(0);
 
         models = parser.parse(pdb1TN2);
-        assertEquals(1, models.size());
+        Assert.assertEquals(1, models.size());
         PdbModel model2 = models.get(0);
 
         StructureSelection s1 = SelectionFactory.create("1TN1", model1);
@@ -177,6 +176,6 @@ public class TestComparison {
 
         MCQ mcq = new MCQ();
         MCQGlobalResult comparisonResult = (MCQGlobalResult) mcq.compareGlobally(s1, s2);
-        assertEquals(0, comparisonResult.getMeanDirection().getRadians(), 0.1);
+        Assert.assertEquals(0, comparisonResult.getMeanDirection().getRadians(), 0.1);
     }
 }

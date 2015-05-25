@@ -1,14 +1,30 @@
 package pl.poznan.put.matching.stats;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import pl.poznan.put.comparison.local.ModelsComparisonResult;
+import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.CommonNumberFormat;
 
 public class ModelsComparisonStatistics {
+    public static ModelsComparisonStatistics calculate(
+            ModelsComparisonResult.SelectedAngle selectedAngle) {
+        List<MatchStatistics> statistics = new ArrayList<>();
+        MasterTorsionAngleType angleType = selectedAngle.getAngleType();
+
+        for (FragmentMatch fragmentMatch : selectedAngle.getFragmentMatches()) {
+            statistics.add(MatchStatistics.calculate(fragmentMatch, angleType));
+        }
+
+        return new ModelsComparisonStatistics(statistics, MatchStatistics.DEFAULT_ANGLE_LIMITS, MatchStatistics.DEFAULT_PERCENTS_LIMITS);
+    }
+
     private final List<MatchStatistics> statistics;
     private final double[] angleLimits;
     private final double[] percentsLimits;

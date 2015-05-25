@@ -15,8 +15,8 @@ import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ColoredNamedPoint;
-import pl.poznan.put.datamodel.DistanceMatrix;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.types.DistanceMatrix;
 
 public class PartitionalClustering implements Visualizable {
     private final Map<Integer, Color> clusterColor = new HashMap<>();

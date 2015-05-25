@@ -20,7 +20,7 @@ import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
@@ -36,13 +36,13 @@ public class StructureAlignmentPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);
 
     // @formatter:off
-    private static final String JMOL_SCRIPT = 
-            "frame 0.0\n" + 
-            "cartoon only\n" + 
-            "select model=1.1\n" + 
-            "color green\n" + 
-            "select model=1.2\n" + 
-            "color red";
+    private static final String JMOL_SCRIPT =
+            "frame 0.0\n" +
+                    "cartoon only\n" +
+                    "select model=1.1\n" +
+                    "color green\n" +
+                    "select model=1.2\n" +
+                    "color red";
     // @formatter:on
 
     private final JTextPane labelHeader = new JTextPane();

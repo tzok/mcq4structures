@@ -18,11 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.comparison.IncomparableStructuresException;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.ModelsComparisonResult;
-import pl.poznan.put.comparison.ModelsComparisonResult.SelectedAngle;
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
+import pl.poznan.put.comparison.local.ModelsComparisonResult;
+import pl.poznan.put.comparison.local.ModelsComparisonResult.SelectedAngle;
+import pl.poznan.put.datamodel.ProcessingResult;
+import pl.poznan.put.gui.component.ColorbarComponent;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -30,7 +31,6 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.ColorbarComponent;
 
 public class LocalMultiMatrixPanel extends JPanel {
     private class PdbCompactFragmentWrapper {

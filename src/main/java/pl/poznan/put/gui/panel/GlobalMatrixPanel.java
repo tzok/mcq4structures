@@ -21,16 +21,16 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
-import pl.poznan.put.comparison.GlobalComparisonMeasure;
-import pl.poznan.put.comparison.GlobalComparisonResultMatrix;
-import pl.poznan.put.comparison.ParallelGlobalComparator;
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.comparison.global.GlobalComparator;
+import pl.poznan.put.comparison.global.GlobalMatrix;
+import pl.poznan.put.comparison.global.ParallelGlobalComparator;
+import pl.poznan.put.datamodel.ProcessingResult;
+import pl.poznan.put.gui.component.MatrixVisualizationComponent;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.MatrixVisualizationComponent;
 
 public class GlobalMatrixPanel extends JPanel {
     public interface Callback {
@@ -101,7 +101,7 @@ public class GlobalMatrixPanel extends JPanel {
         labelInfoMatrix.setText(builder.toString());
     }
 
-    public void compareAndDisplayMatrix(GlobalComparisonMeasure measure,
+    public void compareAndDisplayMatrix(GlobalComparator measure,
             final Callback callback) {
         try {
             List<StructureSelection> selections = new ArrayList<>();
@@ -123,13 +123,14 @@ public class GlobalMatrixPanel extends JPanel {
                 }
 
                 @Override
-                public void complete(GlobalComparisonResultMatrix matrix) {
+                public void complete(GlobalMatrix matrix) {
+                    GlobalComparator measureType = matrix.getComparator();
                     SVGDocument document = matrix.visualize();
 
                     tableMatrix.setModel(matrix.asDisplayableTableModel());
                     tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
                     visualization.setSVGDocument(document);
-                    updateHeader(true, matrix.getMeasureName());
+                    updateHeader(true, measureType.getName());
                     callback.complete(new ProcessingResult(matrix, Collections.singletonList(document)));
                 }
             });

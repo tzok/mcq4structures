@@ -17,6 +17,8 @@ import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.types.ExportFormat;
 
 public class SelectionMatch implements Exportable {
+    private final List<String> residueLabels;
+
     private final StructureSelection target;
     private final StructureSelection model;
     private final List<FragmentMatch> fragmentMatches;
@@ -27,6 +29,16 @@ public class SelectionMatch implements Exportable {
         this.target = target;
         this.model = model;
         this.fragmentMatches = fragmentMatches;
+
+        residueLabels = makeResidueLabelsList();
+    }
+
+    private List<String> makeResidueLabelsList() {
+        List<String> result = new ArrayList<>();
+        for (FragmentMatch fragment : fragmentMatches) {
+            result.addAll(fragment.getResidueLabels());
+        }
+        return result;
     }
 
     public StructureSelection getTarget() {
@@ -42,11 +54,7 @@ public class SelectionMatch implements Exportable {
     }
 
     public List<String> getResidueLabels() {
-        List<String> result = new ArrayList<>();
-        for (FragmentMatch fragment : fragmentMatches) {
-            result.addAll(fragment.getResidueLabels());
-        }
-        return result;
+        return Collections.unmodifiableList(residueLabels);
     }
 
     public String toPDB(boolean onlyMatched) throws StructureException {

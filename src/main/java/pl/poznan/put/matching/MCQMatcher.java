@@ -15,8 +15,8 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
+import pl.poznan.put.torsion.TorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleValue;
 
 public class MCQMatcher implements StructureMatcher {
@@ -196,53 +196,6 @@ public class MCQMatcher implements StructureMatcher {
             if (j != -1 && matrix[i][j].isValid()) {
                 result.add(matrix[i][j]);
             }
-        }
-
-        return result;
-    }
-
-    @SuppressWarnings("unused")
-    private static List<FragmentMatch> assignGreedily(FragmentMatch[][] matrix) {
-        List<FragmentMatch> result = new ArrayList<>();
-        boolean[] usedi = new boolean[matrix.length];
-        boolean[] usedj = new boolean[matrix[0].length];
-
-        while (true) {
-            FragmentMatch minimum = null;
-            int mini = -1;
-            int minj = -1;
-
-            for (int i = 0; i < matrix.length; i++) {
-                if (usedi[i]) {
-                    continue;
-                }
-
-                for (int j = 0; j < matrix[i].length; j++) {
-                    if (usedj[j]) {
-                        continue;
-                    }
-
-                    FragmentMatch match = matrix[i][j];
-
-                    if (match == null) {
-                        continue;
-                    }
-
-                    if (minimum == null || match.getMeanDelta().getRadians() < minimum.getMeanDelta().getRadians()) {
-                        minimum = match;
-                        mini = i;
-                        minj = j;
-                    }
-                }
-            }
-
-            if (mini == -1 || minj == -1) {
-                break;
-            }
-
-            usedi[mini] = true;
-            usedj[minj] = true;
-            result.add(matrix[mini][minj]);
         }
 
         return result;

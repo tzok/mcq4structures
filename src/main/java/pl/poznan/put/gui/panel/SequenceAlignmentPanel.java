@@ -14,7 +14,7 @@ import javax.swing.border.EmptyBorder;
 
 import pl.poznan.put.alignment.SequenceAligner;
 import pl.poznan.put.alignment.SequenceAlignment;
-import pl.poznan.put.gui.ProcessingResult;
+import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class SequenceAlignmentPanel extends JPanel {
@@ -54,7 +54,7 @@ public class SequenceAlignmentPanel extends JPanel {
     private void updateHeader(boolean readyResults) {
         StringBuilder builder = new StringBuilder();
         builder.append("<html>Structures selected for ");
-        builder.append((isGlobal ? "global" : "local"));
+        builder.append(isGlobal ? "global" : "local");
         builder.append(" sequence alignment: ");
 
         int i = 0;
