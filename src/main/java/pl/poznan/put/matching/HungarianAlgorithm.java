@@ -167,12 +167,10 @@ public class HungarianAlgorithm {
             int minSlackWorker = -1, minSlackJob = -1;
             double minSlackValue = Double.POSITIVE_INFINITY;
             for (int j = 0; j < dim; j++) {
-                if (parentWorkerByCommittedJob[j] == -1) {
-                    if (minSlackValueByJob[j] < minSlackValue) {
-                        minSlackValue = minSlackValueByJob[j];
-                        minSlackWorker = minSlackWorkerByJob[j];
-                        minSlackJob = j;
-                    }
+                if (parentWorkerByCommittedJob[j] == -1 && minSlackValueByJob[j] < minSlackValue) {
+                    minSlackValue = minSlackValueByJob[j];
+                    minSlackWorker = minSlackWorkerByJob[j];
+                    minSlackJob = j;
                 }
             }
             if (minSlackValue > 0) {

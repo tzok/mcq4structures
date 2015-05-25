@@ -9,6 +9,8 @@ import javax.swing.JFileChooser;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
@@ -18,6 +20,8 @@ import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public abstract class SVGComponent extends JSVGCanvas implements Exportable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SVGComponent.class);
+
     private final JFileChooser chooser = new JFileChooser();
     private final int svgWidth;
     private final int svgHeight;
@@ -65,11 +69,9 @@ public abstract class SVGComponent extends JSVGCanvas implements Exportable {
         if (state == JFileChooser.APPROVE_OPTION) {
             try (OutputStream stream = new FileOutputStream(chooser.getSelectedFile())) {
                 export(stream);
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+            } catch (IOException e) {
+                SVGComponent.LOGGER.error("Failed to export SVG to file", e);
             }
         }
-
     }
 }

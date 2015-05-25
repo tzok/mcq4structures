@@ -73,7 +73,7 @@ public class Surface3D extends AbstractAnalysis {
             boolean showAllTicksY) {
         super();
         this.name = name;
-        this.matrix = matrix;
+        this.matrix = matrix.clone();
         this.ticksX = ticksX;
         this.ticksY = ticksY;
         this.labelX = labelX;
