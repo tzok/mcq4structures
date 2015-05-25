@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
-import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.RMSD;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.interfaces.Clusterable;
@@ -211,11 +209,11 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
         NavigableMap<Double, String> valueTickZ = new TreeMap<>();
         valueTickZ.put(0.0, "0");
 
-        if (comparator instanceof MCQ) {
+        if (comparator.isAngularMeasure()) {
             for (double radians = Math.PI / 12.0; radians <= Math.PI + 1e-3; radians += Math.PI / 12.0) {
                 valueTickZ.put(radians, Long.toString(Math.round(Math.toDegrees(radians))) + Unicode.DEGREE);
             }
-        } else if (comparator instanceof RMSD) {
+        } else {
             double[][] matrix = distanceMatrix.getMatrix();
             double max = Double.NEGATIVE_INFINITY;
 
@@ -226,9 +224,8 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
             for (double angstrom = 1.0; angstrom <= Math.ceil(max) + 1e-3; angstrom += 1.0) {
                 valueTickZ.put(angstrom, Long.toString(Math.round(angstrom)) + Unicode.ANGSTROM);
             }
-        } else {
-            throw new IllegalArgumentException("Unknown measure: " + comparator.getName());
         }
+
         return valueTickZ;
     }
 

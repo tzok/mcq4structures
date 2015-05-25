@@ -7,4 +7,6 @@ public interface GlobalComparator {
     GlobalResult compareGlobally(StructureSelection s1, StructureSelection s2) throws IncomparableStructuresException;
 
     String getName();
+    
+    boolean isAngularMeasure();
 }

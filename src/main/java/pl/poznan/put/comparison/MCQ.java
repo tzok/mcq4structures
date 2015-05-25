@@ -86,6 +86,11 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
+    public boolean isAngularMeasure() {
+        return true;
+    }
+
+    @Override
     public GlobalResult compareGlobally(StructureSelection target,
             StructureSelection model) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);

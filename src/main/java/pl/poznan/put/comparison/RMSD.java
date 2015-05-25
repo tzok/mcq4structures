@@ -72,4 +72,9 @@ public class RMSD implements GlobalComparator {
     public String getName() {
         return "RMSD";
     }
+
+    @Override
+    public boolean isAngularMeasure() {
+        return false;
+    }
 }
