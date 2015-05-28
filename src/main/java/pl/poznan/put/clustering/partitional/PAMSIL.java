@@ -8,8 +8,8 @@ public class PAMSIL implements ScoringFunction {
     }
 
     @Override
-    public double score(ClusterPrototypes medoids, double[][] matrix) {
-        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(medoids, matrix);
+    public double score(ClusterPrototypes prototypes, double[][] distanceMatrix) {
+        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix);
         double result = 0;
 
         for (int prototype : assignment.getPrototypes()) {
@@ -20,7 +20,7 @@ public class PAMSIL implements ScoringFunction {
             for (int j : assignment.getAssignedTo(prototype)) {
                 double aj = 0;
                 for (int i : assignment.getPrototypes()) {
-                    aj += matrix[j][i];
+                    aj += distanceMatrix[j][i];
                 }
                 aj /= assignment.getPrototypes().size();
 
@@ -33,7 +33,7 @@ public class PAMSIL implements ScoringFunction {
 
                     double bjk = 0;
                     for (int k : assignment.getAssignedTo(inner)) {
-                        bjk += matrix[j][k];
+                        bjk += distanceMatrix[j][k];
                     }
                     bjk /= assignment.getAssignedCount(inner);
 
