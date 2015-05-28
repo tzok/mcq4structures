@@ -130,4 +130,54 @@ public class TestHierarchical {
         assertEquals(1, merge.getRight());
         assertEquals(1075.0, merge.getDistance(), TestHierarchical.EPSILON);
     }
+    
+    @SuppressWarnings("static-method")
+    @Test
+    public void testAverage() {
+        Clusterer clusterer = new Clusterer(TestHierarchical.NAMES, TestHierarchical.DISTANCE_MATRIX, Linkage.AVERAGE);
+        HierarchicalClustering clustering = clusterer.cluster();
+        List<HierarchicalClusterMerge> merges = clustering.getMerges();
+        assertEquals(8, merges.size());
+        HierarchicalClusterMerge merge;
+
+        merge = merges.get(0);
+        assertEquals(0, merge.getLeft());
+        assertEquals(1, merge.getRight());
+        assertEquals(206.0, merge.getDistance(), TestHierarchical.EPSILON);
+
+        merge = merges.get(1);
+        assertEquals(0, merge.getLeft());
+        assertEquals(7, merge.getRight());
+        assertEquals(331.0, merge.getDistance(), TestHierarchical.EPSILON);
+
+        merge = merges.get(2);
+        assertEquals(3, merge.getLeft());
+        assertEquals(4, merge.getRight());
+        assertEquals(379.0, merge.getDistance(), TestHierarchical.EPSILON);
+
+        merge = merges.get(3);
+        assertEquals(1, merge.getLeft());
+        assertEquals(4, merge.getRight());
+        assertEquals(812.0, merge.getDistance(), TestHierarchical.EPSILON);
+
+        merge = merges.get(4);
+        assertEquals(1, merge.getLeft());
+        assertEquals(3, merge.getRight());
+        assertEquals(969.5, merge.getDistance(), TestHierarchical.EPSILON);
+
+        merge = merges.get(5);
+        assertEquals(1, merge.getLeft());
+        assertEquals(3, merge.getRight());
+        assertEquals(1200.0 + (1.0 / 3.0), merge.getDistance(), TestHierarchical.EPSILON);
+
+        merge = merges.get(6);
+        assertEquals(0, merge.getLeft());
+        assertEquals(1, merge.getRight());
+        assertEquals(1304.0, merge.getDistance(), TestHierarchical.EPSILON);
+
+        merge = merges.get(7);
+        assertEquals(0, merge.getLeft());
+        assertEquals(1, merge.getRight());
+        assertEquals(2469.5, merge.getDistance(), TestHierarchical.EPSILON);
+    }
 }
