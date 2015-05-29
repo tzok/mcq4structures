@@ -10,14 +10,14 @@ public class PAM implements ScoringFunction {
     }
 
     @Override
-    public double score(ClusterPrototypes medoids, double[][] matrix) {
-        List<Heap> asHeaps = Heap.fromMatrix(matrix);
+    public double score(ClusterPrototypes prototypes, double[][] distanceMatrix) {
+        List<Heap> asHeaps = Heap.fromMatrix(distanceMatrix);
         double result = 0;
 
-        for (int i = 0; i < matrix.length; i++) {
+        for (int i = 0; i < distanceMatrix.length; i++) {
             for (int closest : asHeaps.get(i)) {
-                if (medoids.isPrototype(closest)) {
-                    result += matrix[closest][i];
+                if (prototypes.isPrototype(closest)) {
+                    result += distanceMatrix[closest][i];
                     break;
                 }
             }
