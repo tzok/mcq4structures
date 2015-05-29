@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mdsj.MDSJ;
+
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.w3c.dom.svg.SVGDocument;
 
@@ -41,7 +43,7 @@ public class PartitionalClustering implements Visualizable {
         List<String> names = distanceMatrix.getNames();
         int index = 0;
 
-        for (int prototype : assignment.getPrototypes()) {
+        for (int prototype : assignment.getPrototypesIndices()) {
             StringBuilder builder = new StringBuilder("Cluster: { ");
             for (int i : assignment.getAssignedTo(prototype)) {
                 builder.append(names.get(i));
@@ -62,12 +64,13 @@ public class PartitionalClustering implements Visualizable {
     @Override
     public SVGDocument visualize() {
         List<ColoredNamedPoint> points = new ArrayList<>();
-        double[][] xyMatrix = MDS.multidimensionalScaling(distanceMatrix.getMatrix(), 2);
+        double[][] matrix = distanceMatrix.getMatrix();
+        double[][] xyMatrix = MDSJ.stressMinimization(matrix);
 
-        for (int i = 0; i < xyMatrix.length; i++) {
+        for (int i = 0; i < matrix.length; i++) {
             Color color = getClusterColor(i);
             String name = getClusterDescription(i);
-            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
+            Vector2D point = new Vector2D(xyMatrix[0][i], xyMatrix[1][i]);
             points.add(new ColoredNamedPoint(color, name, point));
         }
 
@@ -75,12 +78,12 @@ public class PartitionalClustering implements Visualizable {
     }
 
     private Color getClusterColor(int index) {
-        int prototype = assignment.getCluster(index);
+        int prototype = assignment.getPrototype(index);
         return clusterColor.get(prototype);
     }
 
     private String getClusterDescription(int index) {
-        int prototype = assignment.getCluster(index);
+        int prototype = assignment.getPrototype(index);
         return distanceMatrix.getNames().get(index) + "\n\n" + clusterText.get(prototype);
     }
 

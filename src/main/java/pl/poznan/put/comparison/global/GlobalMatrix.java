@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import mdsj.MDSJ;
+
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -34,7 +36,6 @@ import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.MDS;
 import pl.poznan.put.visualisation.MDSDrawer;
 import pl.poznan.put.visualisation.Surface3D;
 
@@ -171,11 +172,11 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
         }
 
         List<NamedPoint> points = new ArrayList<>();
-        double[][] xyMatrix = MDS.multidimensionalScaling(array, 2);
+        double[][] xyMatrix = MDSJ.stressMinimization(array);
 
-        for (int i = 0; i < xyMatrix.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             String name = names.get(i);
-            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
+            Vector2D point = new Vector2D(xyMatrix[0][i], xyMatrix[1][i]);
             points.add(new NamedPoint(name, point));
         }
 
