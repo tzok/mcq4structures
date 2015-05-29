@@ -79,7 +79,7 @@ public class KMedoids implements PrototypeBasedClusterer {
             double bestScore = score;
             ClusterPrototypes bestMedoids = prototypes;
 
-            for (int i : prototypes) {
+            for (int i : prototypes.getPrototypesIndices()) {
                 for (int j : nonmedoids) {
                     ClusterPrototypes swapped = prototypes.swap(i, j);
                     double newScore = scoringFunction.score(swapped, distanceMatrix);

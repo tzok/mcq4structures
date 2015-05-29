@@ -1,6 +1,7 @@
 package pl.poznan.put.clustering.partitional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,23 +43,15 @@ public class ClusterAssignment {
         this.assignedToPrototype = assignedToPrototype;
     }
 
-    public int getCluster(int index) {
+    public int getPrototype(int index) {
         return assignments[index];
     }
 
-    public Set<Integer> getPrototypes() {
-        return assignedToPrototype.keySet();
+    public Set<Integer> getPrototypesIndices() {
+        return Collections.unmodifiableSet(assignedToPrototype.keySet());
     }
 
-    public int getPrototypesCount() {
-        return assignedToPrototype.size();
-    }
-
-    public List<Integer> getAssignedTo(int prototype) {
-        return assignedToPrototype.get(prototype);
-    }
-
-    public int getAssignedCount(int prototype) {
-        return assignedToPrototype.get(prototype).size();
+    public List<Integer> getAssignedTo(int prototypeIndex) {
+        return Collections.unmodifiableList(assignedToPrototype.get(prototypeIndex));
     }
 }
