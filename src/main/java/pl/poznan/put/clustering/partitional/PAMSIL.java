@@ -1,52 +1,60 @@
 package pl.poznan.put.clustering.partitional;
 
 public class PAMSIL implements ScoringFunction {
-    private static final PAMSIL INSTANCE = new PAMSIL();
+    private static final PAMSIL SUM_INSTANCE = new PAMSIL();
 
     public static PAMSIL getInstance() {
-        return PAMSIL.INSTANCE;
+        return PAMSIL.SUM_INSTANCE;
     }
 
     @Override
-    public double score(ClusterPrototypes medoids, double[][] matrix) {
-        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(medoids, matrix);
-        double result = 0;
+    public double score(ClusterPrototypes prototypes, double[][] distanceMatrix) {
+        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix);
+        double result = 0.0;
 
-        for (int prototype : assignment.getPrototypes()) {
-            if (assignment.getAssignedCount(prototype) <= 1) {
+        for (int i = 0; i < distanceMatrix.length; i++) {
+            int myPrototype = assignment.getPrototype(i);
+
+            if (assignment.getAssignedTo(myPrototype).size() <= 1) {
                 continue;
             }
 
-            for (int j : assignment.getAssignedTo(prototype)) {
-                double aj = 0;
-                for (int i : assignment.getPrototypes()) {
-                    aj += matrix[j][i];
-                }
-                aj /= assignment.getPrototypes().size();
-
-                double bj = Double.POSITIVE_INFINITY;
-
-                for (int inner : assignment.getPrototypes()) {
-                    if (inner == prototype) {
-                        continue;
-                    }
-
-                    double bjk = 0;
-                    for (int k : assignment.getAssignedTo(inner)) {
-                        bjk += matrix[j][k];
-                    }
-                    bjk /= assignment.getAssignedCount(inner);
-
-                    if (bjk < bj) {
-                        bj = bjk;
-                    }
-                }
-
-                result += (bj - aj) / Math.max(aj, bj);
-            }
+            double ai = PAMSIL.averageDistanceToCluster(assignment, distanceMatrix[i], myPrototype);
+            double bi = PAMSIL.averageDistanceToNextClosestCluster(prototypes, assignment, distanceMatrix[i], myPrototype);
+            double si = (bi - ai) / Math.max(ai, bi);
+            result += si;
         }
 
         return result;
+    }
+
+    private static double averageDistanceToCluster(
+            ClusterAssignment assignment, double[] distanceVector, int prototype) {
+        double ai = 0.0;
+        for (int j : assignment.getAssignedTo(prototype)) {
+            ai += distanceVector[j];
+        }
+        return ai / assignment.getAssignedTo(prototype).size();
+    }
+
+    private static double averageDistanceToNextClosestCluster(
+            ClusterPrototypes prototypes, ClusterAssignment assignment,
+            double[] distanceVector, int myPrototype) {
+        double minDi = Double.POSITIVE_INFINITY;
+
+        for (int otherPrototype : prototypes.getPrototypesIndices()) {
+            if (otherPrototype == myPrototype) {
+                continue;
+            }
+
+            double di = PAMSIL.averageDistanceToCluster(assignment, distanceVector, otherPrototype);
+
+            if (di < minDi) {
+                minDi = di;
+            }
+        }
+
+        return minDi;
     }
 
     @Override
@@ -55,5 +63,6 @@ public class PAMSIL implements ScoringFunction {
     }
 
     private PAMSIL() {
+        // empty constructor
     }
 }

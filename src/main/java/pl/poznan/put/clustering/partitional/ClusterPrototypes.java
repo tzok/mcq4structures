@@ -1,14 +1,14 @@
 package pl.poznan.put.clustering.partitional;
 
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-public class ClusterPrototypes implements Iterable<Integer> {
+public class ClusterPrototypes {
     private static final Random RANDOM = new Random();
 
     public static synchronized void setSeed(long seed) {
@@ -78,13 +78,12 @@ public class ClusterPrototypes implements Iterable<Integer> {
         this.prototypes = prototypes;
     }
 
-    public boolean isPrototype(int index) {
-        return prototypes.contains(index);
+    public Set<Integer> getPrototypesIndices() {
+        return Collections.unmodifiableSet(prototypes);
     }
 
-    @Override
-    public Iterator<Integer> iterator() {
-        return prototypes.iterator();
+    public boolean isPrototype(int index) {
+        return prototypes.contains(index);
     }
 
     public ClusterPrototypes swap(int existing, int other) {
