@@ -16,7 +16,6 @@ import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
-import pl.poznan.put.torsion.TorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleValue;
 
 public class MCQMatcher implements StructureMatcher {
@@ -153,23 +152,10 @@ public class MCQMatcher implements StructureMatcher {
             PdbCompactFragment targetFragment, PdbResidue targetResidue,
             PdbCompactFragment modelFragment, PdbResidue modelResidue,
             MasterTorsionAngleType masterType) {
-        TorsionAngleValue targetValue = MCQMatcher.matchTorsionAngleType(masterType, targetFragment, targetResidue);
-        TorsionAngleValue modelValue = MCQMatcher.matchTorsionAngleType(masterType, modelFragment, modelResidue);
+
+        TorsionAngleValue targetValue = targetFragment.getTorsionAngleValue(targetResidue, masterType);
+        TorsionAngleValue modelValue = modelFragment.getTorsionAngleValue(modelResidue, masterType);
         return TorsionAngleDelta.subtractTorsionAngleValues(masterType, targetValue, modelValue);
-    }
-
-    private static TorsionAngleValue matchTorsionAngleType(
-            MasterTorsionAngleType masterType,
-            PdbCompactFragment compactFragment, PdbResidue residue) {
-        for (TorsionAngleType angleType : masterType.getAngleTypes()) {
-            TorsionAngleValue angleValue = compactFragment.getTorsionAngleValue(residue, angleType);
-            if (angleValue.isValid()) {
-                return angleValue;
-            }
-        }
-
-        TorsionAngleType firstAngleType = masterType.getAngleTypes().iterator().next();
-        return TorsionAngleValue.invalidInstance(firstAngleType);
     }
 
     private static List<FragmentMatch> assignFragments(FragmentMatch[][] matrix) {
