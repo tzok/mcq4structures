@@ -211,6 +211,13 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/mdsj-0.2.0.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>fr.lri.varna</groupId>
+			<artifactId>varna</artifactId>
+			<version>3.93</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/varna-3.93.jar</systemPath>
+		</dependency>
 
 		<dependency>
 			<groupId>pl.poznan.put</groupId>

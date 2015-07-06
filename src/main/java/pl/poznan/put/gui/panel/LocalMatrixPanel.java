@@ -29,6 +29,7 @@ import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.ChartComponent;
+import pl.poznan.put.gui.component.SecondaryStructureComponent;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
@@ -37,6 +38,7 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.visualisation.SecondaryStructureVisualizer;
 
 public class LocalMatrixPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalMatrixPanel.class);
@@ -150,6 +152,11 @@ public class LocalMatrixPanel extends JPanel {
                 String title = fragmentMatch.toString();
                 ChartComponent component = new ChartComponent(svgDocument);
                 tabbedPane.add(title, component);
+                visualizations.add(svgDocument);
+
+                svgDocument = SecondaryStructureVisualizer.visualize(fragmentMatch);
+                title += " (secondary structure)";
+                tabbedPane.add(title, new SecondaryStructureComponent(svgDocument));
                 visualizations.add(svgDocument);
             }
 
