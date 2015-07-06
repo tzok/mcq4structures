@@ -103,30 +103,8 @@ public class MainWindow extends JFrame {
     private final ActionListener radioActionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            assert arg0 != null;
-
-            Object source = arg0.getSource();
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-
-            if (!(source.equals(radioGlobalMcq) || source.equals(radioGlobalRmsd))) {
-                itemComputeDistances.setEnabled(false);
-            }
-        }
-    };
-    private final ActionListener radioAlignListener = new ActionListener() {
-        private boolean isSequencePrevious = true;
-
-        @Override
-        public void actionPerformed(ActionEvent arg0) {
-            assert arg0 != null;
-
-            Object source = arg0.getSource();
-            boolean isSequenceNow = source.equals(radioAlignSeqGlobal) || source.equals(radioAlignSeqLocal);
-            if (isSequenceNow != isSequencePrevious) {
-                itemComputeAlign.setEnabled(false);
-            }
-            isSequencePrevious = isSequenceNow;
         }
     };
     private final ActionListener selectActionListener = new ActionListener() {
@@ -166,7 +144,6 @@ public class MainWindow extends JFrame {
     private final JRadioButtonMenuItem radioLocal = new StayOpenRadioButtonMenuItem("Local distances (pair)", false);
     private final JRadioButtonMenuItem radioLocalMulti = new StayOpenRadioButtonMenuItem("Local distances (multiple)", false);
     private final JMenuItem itemSelectStructuresCompare = new JMenuItem("Select structures to compare");
-    private final JMenuItem itemComputeDistances = new JMenuItem("Compute distance(s)");
     private final JMenuItem itemVisualise3D = new JMenuItem("Visualise results in 3D");
     private final JMenuItem itemCluster = new JMenuItem("Cluster results");
 
@@ -175,7 +152,6 @@ public class MainWindow extends JFrame {
     private final JRadioButtonMenuItem radioAlignSeqLocal = new StayOpenRadioButtonMenuItem("Local sequence alignment", false);
     private final JRadioButtonMenuItem radioAlignStruc = new StayOpenRadioButtonMenuItem("3D structure alignment", false);
     private final JMenuItem itemSelectStructuresAlign = new JMenuItem("Select structures to align");
-    private final JMenuItem itemComputeAlign = new JMenuItem("Compute alignment");
 
     private final JMenu menuHelp = new JMenu("Help");
     private final JMenuItem itemGuide = new JMenuItem("Quick guide");
@@ -264,7 +240,6 @@ public class MainWindow extends JFrame {
         menuDistanceMeasure.addSeparator();
         menuDistanceMeasure.add(itemSelectStructuresCompare);
         menuDistanceMeasure.addSeparator();
-        menuDistanceMeasure.add(itemComputeDistances);
         menuDistanceMeasure.add(itemVisualise3D);
         menuDistanceMeasure.add(itemCluster);
         menuBar.add(menuDistanceMeasure);
@@ -276,7 +251,6 @@ public class MainWindow extends JFrame {
         menuAlignment.add(radioAlignStruc);
         menuAlignment.addSeparator();
         menuAlignment.add(itemSelectStructuresAlign);
-        menuAlignment.add(itemComputeAlign);
         menuBar.add(menuAlignment);
 
         menuHelp.setMnemonic(KeyEvent.VK_H);
@@ -290,10 +264,8 @@ public class MainWindow extends JFrame {
     private void initializeMenu() {
         itemSave.setEnabled(false);
         itemSaveVisualization.setEnabled(false);
-        itemComputeDistances.setEnabled(false);
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
-        itemComputeAlign.setEnabled(false);
 
         ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
@@ -317,8 +289,6 @@ public class MainWindow extends JFrame {
         itemSelectStructuresAlign.addActionListener(selectActionListener);
 
         radioAlignSeqGlobal.addActionListener(radioActionListener);
-        radioAlignSeqLocal.addActionListener(radioAlignListener);
-        radioAlignStruc.addActionListener(radioAlignListener);
 
         itemOpen.addActionListener(new ActionListener() {
             @Override
@@ -355,19 +325,6 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemComputeDistances.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (radioGlobalMcq.isSelected() || radioGlobalRmsd.isSelected()) {
-                    compareGlobal();
-                } else if (radioLocal.isSelected()) {
-                    compareLocalPair();
-                } else { // radioLocalMulti.isSelected() == true
-                    compareLocalMulti();
-                }
-            }
-        });
-
         itemVisualise3D.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -392,17 +349,6 @@ public class MainWindow extends JFrame {
 
                     DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
                     dialogClustering.setVisible(true);
-                }
-            }
-        });
-
-        itemComputeAlign.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (radioAlignSeqGlobal.isSelected() || radioAlignSeqLocal.isSelected()) {
-                    alignSequences();
-                } else {
-                    alignStructures();
                 }
             }
         });
@@ -476,12 +422,12 @@ public class MainWindow extends JFrame {
 
         itemSave.setEnabled(false);
         itemSaveVisualization.setEnabled(false);
-        itemComputeDistances.setEnabled(true);
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 
         panelResultsGlobalMatrix.setStructures(structures);
         layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+        compareGlobal();
     }
 
     private void selectChains(JMenuItem source) {
@@ -501,23 +447,21 @@ public class MainWindow extends JFrame {
         if (source.equals(itemSelectStructuresCompare)) {
             itemSave.setEnabled(false);
             itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(true);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(false);
 
             panelResultsLocalMatrix.setStructuresAndChains(structures, chains);
             layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
+            compareLocalPair();
         } else if (source.equals(itemSelectStructuresAlign)) {
             itemSave.setEnabled(false);
             itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(true);
 
             panelResultsAlignStruc.setStructuresAndChains(structures, chains);
             layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
+            alignStructures();
         }
     }
 
@@ -544,23 +488,21 @@ public class MainWindow extends JFrame {
         if (source.equals(itemSelectStructuresCompare)) {
             itemSave.setEnabled(false);
             itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(true);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(false);
 
             panelResultsLocalMultiMatrix.setFragments(fragments);
             layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
+            compareLocalMulti();
         } else if (source.equals(itemSelectStructuresAlign)) {
             itemSave.setEnabled(false);
             itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(true);
 
             panelResultsAlignSeq.setFragments(fragments, radioAlignSeqGlobal.isSelected());
             layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+            alignSequences();
         }
     }
 
