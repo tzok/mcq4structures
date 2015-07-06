@@ -22,6 +22,7 @@ import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.pdb.analysis.ResidueCollection;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
@@ -30,7 +31,7 @@ import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
-public class StructureSelection implements Exportable, Tabular {
+public class StructureSelection implements Exportable, Tabular, ResidueCollection {
     private static final int MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT = 3;
 
     private final List<PdbCompactFragment> compactFragments = new ArrayList<>();
@@ -94,6 +95,7 @@ public class StructureSelection implements Exportable, Tabular {
         return name;
     }
 
+    @Override
     public List<PdbResidue> getResidues() {
         return Collections.unmodifiableList(residues);
     }

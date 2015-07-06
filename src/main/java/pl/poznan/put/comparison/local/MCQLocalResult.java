@@ -98,7 +98,7 @@ public class MCQLocalResult extends LocalResult {
                 List<String> ticksY = MCQLocalResult.prepareTicksY(fragmentMatch);
                 NavigableMap<Double, String> valueTickZ = MCQLocalResult.prepareTicksZ();
                 String labelX = "Angle type";
-                String labelY = "Residue";
+                String labelY = "Secondary structure";
                 String labelZ = "Distance";
                 boolean showAllTicksX = true;
                 boolean showAllTicksY = false;
@@ -139,7 +139,7 @@ public class MCQLocalResult extends LocalResult {
     }
 
     private static List<String> prepareTicksY(FragmentMatch fragmentMatch) {
-        return fragmentMatch.getResidueLabels();
+        return fragmentMatch.generateLabels();
     }
 
     protected static NavigableMap<Double, String> prepareTicksZ() {

@@ -17,6 +17,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
 
@@ -27,6 +29,11 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
+import pl.poznan.put.structure.secondary.DotBracketSymbol;
+import pl.poznan.put.structure.secondary.formats.BpSeq;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
+import pl.poznan.put.structure.secondary.formats.InvalidSecondaryStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.AngleFormat;
@@ -34,6 +41,8 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.TorsionAxis;
 
 public class FragmentMatch implements Visualizable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FragmentMatch.class);
+
     public static FragmentMatch invalidInstance(
             PdbCompactFragment targetFragment, PdbCompactFragment modelFragment) {
         return new FragmentMatch(targetFragment, modelFragment, false, 0, FragmentComparison.invalidInstance());
@@ -133,14 +142,38 @@ public class FragmentMatch implements Visualizable {
         return targetFragment.getMoleculeType();
     }
 
-    public List<String> getResidueLabels() throws InvalidCircularValueException {
-        PdbCompactFragment target = isTargetSmaller ? targetFragment : targetFragment.shift(shift, modelFragment.size());
-        List<PdbResidue> targetResidues = target.getResidues();
-        List<String> result = new ArrayList<>();
+    public List<String> generateLabels() throws InvalidCircularValueException {
+        try {
+            return generateLabelsWithDotBracket();
+        } catch (InvalidSecondaryStructureException e) {
+            FragmentMatch.LOGGER.warn("Failed to extract canonical secondary structure", e);
+        }
+        return generateLabelsWithNameOnly();
+    }
 
-        for (int i = 0; i < target.size(); i++) {
+    public List<String> generateLabelsWithNameOnly() {
+        PdbCompactFragment target = isTargetSmaller ? targetFragment : targetFragment.shift(shift, modelFragment.size());
+        List<String> result = new ArrayList<>();
+        List<PdbResidue> targetResidues = target.getResidues();
+
+        for (int i = 0; i < targetResidues.size(); i++) {
             PdbResidue lname = targetResidues.get(i);
             result.add(lname.toString());
+        }
+
+        return result;
+    }
+
+    public List<String> generateLabelsWithDotBracket() throws InvalidSecondaryStructureException {
+        PdbCompactFragment target = isTargetSmaller ? targetFragment : targetFragment.shift(shift, modelFragment.size());
+        List<String> result = new ArrayList<>();
+        List<PdbResidue> targetResidues = target.getResidues();
+        BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+        DotBracket dotBracket = DotBracket.fromBpSeq(bpSeq);
+
+        for (int i = 0; i < targetResidues.size(); i++) {
+            DotBracketSymbol symbol = dotBracket.getSymbol(i);
+            result.add(Character.toString(symbol.getStructure()));
         }
 
         return result;
@@ -181,9 +214,9 @@ public class FragmentMatch implements Visualizable {
             i++;
         }
 
-        List<String> ticks = getResidueLabels();
+        List<String> ticks = generateLabels();
         ValueAxis domainAxis = new TorsionAxis(ticks);
-        domainAxis.setLabel("ResID");
+        domainAxis.setLabel("Secondary structure");
 
         NumberAxis rangeAxis = new NumberAxis();
         rangeAxis.setLabel("Angular distance");
