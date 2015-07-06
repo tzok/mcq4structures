@@ -36,6 +36,11 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
+import pl.poznan.put.structure.secondary.DotBracketSymbol;
+import pl.poznan.put.structure.secondary.formats.BpSeq;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
+import pl.poznan.put.structure.secondary.formats.InvalidSecondaryStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
@@ -184,11 +189,26 @@ public class ModelsComparisonResult {
 
             for (int i = 0; i < models.size(); i++) {
                 String modelName = models.get(i).getName();
-                svg.drawString(modelName, 0.0f, (i + 1) * fontHeight);
+                svg.drawString(modelName, 0.0f, (i + 2) * fontHeight);
                 int width = metrics.stringWidth(modelName);
 
                 if (width > maxWidth) {
                     maxWidth = width;
+                }
+            }
+
+            DotBracket dotBracket = null;
+            try {
+                BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+                dotBracket = DotBracket.fromBpSeq(bpSeq);
+            } catch (InvalidSecondaryStructureException e) {
+                ModelsComparisonResult.LOGGER.warn("Failed to extract canonical secondary structure", e);
+            }
+
+            if (dotBracket != null) {
+                for (int i = 0; i < dotBracket.getLength(); i++) {
+                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
+                    svg.drawString(Character.toString(symbol.getStructure()), maxWidth + i * blockWidth + blockWidth / 2, fontHeight - fontHeight / 6);
                 }
             }
 
@@ -207,9 +227,16 @@ public class ModelsComparisonResult {
                         svg.setColor(Color.BLACK);
                     }
 
-                    svg.fillRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
+                    svg.fillRect(maxWidth + j * blockWidth, (i + 1) * fontHeight, blockWidth, fontHeight);
                     svg.setColor(Color.BLACK);
-                    svg.drawRect(maxWidth + j * blockWidth, i * fontHeight, blockWidth, fontHeight);
+                    svg.drawRect(maxWidth + j * blockWidth, (i + 1) * fontHeight, blockWidth, fontHeight);
+                }
+            }
+
+            if (dotBracket != null) {
+                for (int i = 0; i < dotBracket.getLength(); i++) {
+                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
+                    svg.drawString(Character.toString(symbol.getStructure()), maxWidth + i * blockWidth + blockWidth / 2, (models.size() + 2) * fontHeight);
                 }
             }
 
@@ -220,7 +247,7 @@ public class ModelsComparisonResult {
                 int width = maxWidth + blockWidth * fragmentMatches.get(0).size();
                 root.setAttributeNS(null, "width", Integer.toString(width));
 
-                int height = fontHeight * models.size();
+                int height = fontHeight * (models.size() + 3);
                 root.setAttributeNS(null, "height", Integer.toString(height));
             }
 
