@@ -15,6 +15,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -91,6 +92,7 @@ public class LocalMatrixPanel extends JPanel {
         this.structures = structures;
         this.chains = chains;
         removeAllButFirstTab();
+        tableMatrix.setModel(new DefaultTableModel());
         updateHeader(false);
     }
 

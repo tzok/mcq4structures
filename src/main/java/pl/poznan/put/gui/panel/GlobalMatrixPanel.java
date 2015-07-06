@@ -15,6 +15,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,7 @@ public class GlobalMatrixPanel extends JPanel {
 
     public void setStructures(List<PdbModel> structures) {
         this.structures = structures;
+        tableMatrix.setModel(new DefaultTableModel());
         visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false, "");
     }

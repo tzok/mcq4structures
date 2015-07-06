@@ -13,6 +13,7 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,7 @@ public class LocalMultiMatrixPanel extends JPanel {
 
     public void setFragments(List<PdbCompactFragment> fragments) {
         this.fragments = fragments;
+        tableMatrix.setModel(new DefaultTableModel());
         visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false);
     }
