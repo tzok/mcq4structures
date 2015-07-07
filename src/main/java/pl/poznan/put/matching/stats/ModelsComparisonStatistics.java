@@ -45,8 +45,10 @@ public class ModelsComparisonStatistics {
         return statistics.get(index);
     }
 
-    public TableModel histogramsAsTableModel() {
+    public TableModel histogramsAsTableModel(boolean isDisplayable) {
         String[] columnNames = new String[angleLimits.length + 1];
+        columnNames[0] = isDisplayable ? "" : null;
+
         for (int i = 0; i < angleLimits.length; i++) {
             columnNames[i + 1] = AngleFormat.formatDisplayLong(angleLimits[i]);
         }
@@ -67,6 +69,7 @@ public class ModelsComparisonStatistics {
 
     public TableModel percentilesAsTableModel(boolean isDisplayable) {
         String[] columnNames = new String[percentsLimits.length + 1];
+        columnNames[0] = isDisplayable ? "" : null;
         for (int i = 0; i < percentsLimits.length; i++) {
             columnNames[i + 1] = CommonNumberFormat.formatDouble(percentsLimits[i]) + "%";
         }
