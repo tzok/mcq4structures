@@ -36,7 +36,7 @@ public class SelectionMatch implements Exportable {
     private List<String> makeResidueLabelsList() {
         List<String> result = new ArrayList<>();
         for (FragmentMatch fragment : fragmentMatches) {
-            result.addAll(fragment.generateLabelsWithNameOnly());
+            result.addAll(fragment.generateLabelsWithResidueNames());
         }
         return result;
     }

@@ -2,7 +2,6 @@ package pl.poznan.put.comparison.local;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.color.ColorSpace;
 import java.awt.font.LineMetrics;
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +18,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.util.SVGConstants;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jumpmind.symmetric.csv.CsvWriter;
 import org.jzy3d.analysis.AnalysisLauncher;
-import org.jzy3d.colors.colormaps.AbstractColorMap;
-import org.jzy3d.colors.colormaps.ColorMapRedAndGreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -34,6 +32,7 @@ import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
@@ -46,13 +45,13 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
+import pl.poznan.put.visualisation.ColorMapWrapper;
 import pl.poznan.put.visualisation.Surface3D;
 
 public class ModelsComparisonResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelsComparisonResult.class);
 
     public class SelectedAngle implements Exportable, Tabular, Visualizable {
-        private final AbstractColorMap colormap = new ColorMapRedAndGreen();
         private final MasterTorsionAngleType angleType;
 
         private SelectedAngle(MasterTorsionAngleType torsionAngle) {
@@ -181,15 +180,94 @@ public class ModelsComparisonResult {
             SVGDocument document = SVGHelper.emptyDocument();
             SVGGraphics2D svg = new SVGGraphics2D(document);
             LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
-            FontMetrics metrics = SVGHelper.getFontMetrics(svg);
 
-            int fontHeight = (int) Math.ceil(lineMetrics.getHeight());
-            int blockWidth = fontHeight * 4 / 3;
+            int unitHeight = (int) Math.ceil(lineMetrics.getHeight());
+            int unitWidth = unitHeight * 4 / 3;
+            int maxWidth = drawModelsNames(svg, unitHeight);
+
+            DotBracket dotBracket = getDotBracketOrNull();
+            drawDotBracket(svg, dotBracket, unitWidth, maxWidth, unitHeight - unitHeight / 6);
+            drawColorBars(svg, unitHeight, unitWidth, maxWidth);
+            drawDotBracket(svg, dotBracket, unitWidth, maxWidth, (models.size() + 2) * unitHeight);
+            finalizeSvg(document, svg, unitHeight, unitWidth, maxWidth);
+
+            return document;
+        }
+
+        private void finalizeSvg(SVGDocument document, SVGGraphics2D svg,
+                int unitHeight, int unitWidth, int maxWidth) {
+            Element root = document.getDocumentElement();
+            svg.getRoot(root);
+
+            if (fragmentMatches.size() > 0) {
+                int width = maxWidth + unitWidth * fragmentMatches.get(0).size();
+                int height = unitHeight * (models.size() + 3);
+                root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Integer.toString(width));
+                root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Integer.toString(height));
+            }
+        }
+
+        private void drawColorBars(SVGGraphics2D svg, int unitHeight,
+                int unitWidth, int maxWidth) {
+            for (int i = 0; i < fragmentMatches.size(); i++) {
+                FragmentMatch fragmentMatch = fragmentMatches.get(i);
+
+                for (int j = 0; j < fragmentMatch.size(); j++) {
+                    ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
+                    int x = maxWidth + j * unitWidth;
+                    int y = (i + 1) * unitHeight;
+                    drawColorBarUnit(svg, comparison, x, y, unitHeight, unitWidth);
+                }
+            }
+        }
+
+        private void drawColorBarUnit(SVGGraphics2D svg,
+                ResidueComparison comparison, int x, int y, int height,
+                int width) {
+            TorsionAngleDelta angleDelta = comparison.getAngleDelta(angleType);
+
+            if (angleDelta.getState() == State.BOTH_VALID) {
+                Color color = ColorMapWrapper.getColor(angleDelta.getDelta().getRadians(), 0, Math.PI);
+                svg.setColor(color);
+            } else {
+                svg.setColor(Color.BLACK);
+            }
+
+            svg.fillRect(x, y, width, height);
+            svg.setColor(Color.BLACK);
+            svg.drawRect(x, y, width, height);
+        }
+
+        private DotBracket getDotBracketOrNull() {
+            DotBracket dotBracket = null;
+            if (target.getMoleculeType() == MoleculeType.RNA) {
+                try {
+                    BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+                    dotBracket = DotBracket.fromBpSeq(bpSeq);
+                } catch (InvalidSecondaryStructureException e) {
+                    ModelsComparisonResult.LOGGER.warn("Failed to extract canonical secondary structure", e);
+                }
+            }
+            return dotBracket;
+        }
+
+        private void drawDotBracket(SVGGraphics2D svg, DotBracket dotBracket,
+                int blockWidth, int leftMargin, int topPosition) {
+            if (dotBracket != null) {
+                for (int i = 0; i < dotBracket.getLength(); i++) {
+                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
+                    svg.drawString(Character.toString(symbol.getStructure()), leftMargin + i * blockWidth + blockWidth / 2, topPosition);
+                }
+            }
+        }
+
+        private int drawModelsNames(SVGGraphics2D svg, int unitHeight) {
+            FontMetrics metrics = SVGHelper.getFontMetrics(svg);
             int maxWidth = Integer.MIN_VALUE;
 
             for (int i = 0; i < models.size(); i++) {
                 String modelName = models.get(i).getName();
-                svg.drawString(modelName, 0.0f, (i + 2) * fontHeight);
+                svg.drawString(modelName, 0.0f, (i + 2) * unitHeight);
                 int width = metrics.stringWidth(modelName);
 
                 if (width > maxWidth) {
@@ -197,61 +275,7 @@ public class ModelsComparisonResult {
                 }
             }
 
-            DotBracket dotBracket = null;
-            try {
-                BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
-                dotBracket = DotBracket.fromBpSeq(bpSeq);
-            } catch (InvalidSecondaryStructureException e) {
-                ModelsComparisonResult.LOGGER.warn("Failed to extract canonical secondary structure", e);
-            }
-
-            if (dotBracket != null) {
-                for (int i = 0; i < dotBracket.getLength(); i++) {
-                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
-                    svg.drawString(Character.toString(symbol.getStructure()), maxWidth + i * blockWidth + blockWidth / 2, fontHeight - fontHeight / 6);
-                }
-            }
-
-            for (int i = 0; i < fragmentMatches.size(); i++) {
-                FragmentMatch fragmentMatch = fragmentMatches.get(i);
-
-                for (int j = 0; j < fragmentMatch.size(); j++) {
-                    ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
-                    TorsionAngleDelta angleDelta = comparison.getAngleDelta(angleType);
-
-                    if (angleDelta.getState() == State.BOTH_VALID) {
-                        float[] rgba = colormap.getColor(0, 0, angleDelta.getDelta().getRadians(), 0, Math.PI).toArray();
-                        Color color = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), new float[] { rgba[0], rgba[1], rgba[2] }, rgba[3]);
-                        svg.setColor(color);
-                    } else {
-                        svg.setColor(Color.BLACK);
-                    }
-
-                    svg.fillRect(maxWidth + j * blockWidth, (i + 1) * fontHeight, blockWidth, fontHeight);
-                    svg.setColor(Color.BLACK);
-                    svg.drawRect(maxWidth + j * blockWidth, (i + 1) * fontHeight, blockWidth, fontHeight);
-                }
-            }
-
-            if (dotBracket != null) {
-                for (int i = 0; i < dotBracket.getLength(); i++) {
-                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
-                    svg.drawString(Character.toString(symbol.getStructure()), maxWidth + i * blockWidth + blockWidth / 2, (models.size() + 2) * fontHeight);
-                }
-            }
-
-            Element root = document.getDocumentElement();
-            svg.getRoot(root);
-
-            if (fragmentMatches.size() > 0) {
-                int width = maxWidth + blockWidth * fragmentMatches.get(0).size();
-                root.setAttributeNS(null, "width", Integer.toString(width));
-
-                int height = fontHeight * (models.size() + 3);
-                root.setAttributeNS(null, "height", Integer.toString(height));
-            }
-
-            return document;
+            return maxWidth;
         }
 
         @Override

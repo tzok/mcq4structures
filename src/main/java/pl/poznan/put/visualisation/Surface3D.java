@@ -15,7 +15,6 @@ import org.jzy3d.chart.controllers.mouse.camera.ICameraMouseController;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
-import org.jzy3d.colors.colormaps.ColorMapRedAndGreen;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
@@ -116,7 +115,7 @@ public class Surface3D extends AbstractAnalysis {
         OrthonormalGrid orthonormalGrid = new OrthonormalGrid(rangeX, ticksX.size(), rangeY, ticksY.size());
 
         Shape surface = Builder.buildOrthonormal(orthonormalGrid, mapper);
-        surface.setColorMapper(new ColorMapper(new ColorMapRedAndGreen(), minZ, maxZ, new Color(1, 1, 1, .5f)));
+        surface.setColorMapper(new ColorMapper(ColorMapWrapper.getJzy3dColorMap(), minZ, maxZ, new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(true);
         surface.setWireframeColor(Color.GRAY);

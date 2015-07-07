@@ -25,6 +25,9 @@ import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.structure.secondary.formats.InvalidSecondaryStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.types.ExportFormat;
@@ -92,13 +95,29 @@ public class MCQLocalResult extends LocalResult {
 
         try {
             for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+                PdbCompactFragment target = fragmentMatch.getTargetFragment();
+                List<String> ticksY = null;
+                String labelY = null;
+
+                if (target.getMoleculeType() == MoleculeType.RNA) {
+                    try {
+                        ticksY = fragmentMatch.generateLabelsWithDotBracket();
+                        labelY = "Secondary structure";
+                    } catch (InvalidSecondaryStructureException e) {
+                        MCQLocalResult.LOGGER.warn("Failed to extract canonical secondary structure", e);
+                    }
+                }
+
+                if (ticksY == null) {
+                    ticksY = fragmentMatch.generateLabelsWithResidueNames();
+                    labelY = "ResID";
+                }
+
                 String name = fragmentMatch.toString();
                 double[][] matrix = prepareMatrix(fragmentMatch);
                 List<String> ticksX = prepareTicksX();
-                List<String> ticksY = MCQLocalResult.prepareTicksY(fragmentMatch);
                 NavigableMap<Double, String> valueTickZ = MCQLocalResult.prepareTicksZ();
                 String labelX = "Angle type";
-                String labelY = "Secondary structure";
                 String labelZ = "Distance";
                 boolean showAllTicksX = true;
                 boolean showAllTicksY = false;
@@ -136,10 +155,6 @@ public class MCQLocalResult extends LocalResult {
             ticksX.add(angleType.getExportName());
         }
         return ticksX;
-    }
-
-    private static List<String> prepareTicksY(FragmentMatch fragmentMatch) {
-        return fragmentMatch.generateLabels();
     }
 
     protected static NavigableMap<Double, String> prepareTicksZ() {

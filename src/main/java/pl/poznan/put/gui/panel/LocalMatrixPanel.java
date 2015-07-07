@@ -34,6 +34,7 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
@@ -154,10 +155,12 @@ public class LocalMatrixPanel extends JPanel {
                 tabbedPane.add(title, component);
                 visualizations.add(svgDocument);
 
-                svgDocument = SecondaryStructureVisualizer.visualize(fragmentMatch);
-                title += " (secondary structure)";
-                tabbedPane.add(title, new SecondaryStructureComponent(svgDocument));
-                visualizations.add(svgDocument);
+                if (fragmentMatch.getTargetFragment().getMoleculeType() == MoleculeType.RNA) {
+                    svgDocument = SecondaryStructureVisualizer.visualize(fragmentMatch);
+                    title += " (secondary structure)";
+                    tabbedPane.add(title, new SecondaryStructureComponent(svgDocument));
+                    visualizations.add(svgDocument);
+                }
             }
 
             tableMatrix.setModel(result.asDisplayableTableModel());

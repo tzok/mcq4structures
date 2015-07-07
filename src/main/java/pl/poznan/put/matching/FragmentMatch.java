@@ -23,7 +23,6 @@ import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
 
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -142,16 +141,7 @@ public class FragmentMatch implements Visualizable {
         return targetFragment.getMoleculeType();
     }
 
-    public List<String> generateLabels() throws InvalidCircularValueException {
-        try {
-            return generateLabelsWithDotBracket();
-        } catch (InvalidSecondaryStructureException e) {
-            FragmentMatch.LOGGER.warn("Failed to extract canonical secondary structure", e);
-        }
-        return generateLabelsWithNameOnly();
-    }
-
-    public List<String> generateLabelsWithNameOnly() {
+    public List<String> generateLabelsWithResidueNames() {
         PdbCompactFragment target = isTargetSmaller ? targetFragment : targetFragment.shift(shift, modelFragment.size());
         List<String> result = new ArrayList<>();
         List<PdbResidue> targetResidues = target.getResidues();
@@ -187,7 +177,58 @@ public class FragmentMatch implements Visualizable {
     public SVGDocument visualize(int width, int height) {
         DefaultXYDataset dataset = new DefaultXYDataset();
         XYItemRenderer renderer = new DefaultXYItemRenderer();
+        addAllDataPoints(dataset, renderer);
 
+        ValueAxis domainAxis = prepareDomainAxis();
+        NumberAxis rangeAxis = new NumberAxis();
+        rangeAxis.setLabel("Angular distance");
+        rangeAxis.setRange(0, Math.PI);
+        rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
+        rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
+
+        Plot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
+        JFreeChart chart = new JFreeChart(plot);
+
+        SVGDocument document = SVGHelper.emptyDocument();
+        SVGGraphics2D graphics = new SVGGraphics2D(document);
+        graphics.setSVGCanvasSize(new Dimension(width, height));
+        chart.draw(graphics, new Rectangle(width, height));
+
+        SVGSVGElement root = document.getRootElement();
+        graphics.getRoot(root);
+
+        Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
+        root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
+        root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
+        root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
+
+        return document;
+    }
+
+    private ValueAxis prepareDomainAxis() {
+        ValueAxis domainAxis = null;
+
+        if (targetFragment.getMoleculeType() == MoleculeType.RNA) {
+            try {
+                List<String> ticks = generateLabelsWithDotBracket();
+                domainAxis = new TorsionAxis(ticks, 0, 12);
+                domainAxis.setLabel("Secondary structure");
+            } catch (InvalidSecondaryStructureException e) {
+                FragmentMatch.LOGGER.warn("Failed to extract canonical secondary structure", e);
+            }
+        }
+
+        if (domainAxis == null) {
+            List<String> ticks = generateLabelsWithResidueNames();
+            domainAxis = new TorsionAxis(ticks, -Math.PI / 4, 6);
+            domainAxis.setLabel("ResID");
+        }
+
+        return domainAxis;
+    }
+
+    private void addAllDataPoints(DefaultXYDataset dataset,
+            XYItemRenderer renderer) {
         int i = 0;
         for (MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
             double[][] data = new double[2][];
@@ -213,34 +254,6 @@ public class FragmentMatch implements Visualizable {
             renderer.setSeriesPaint(i, Colors.DISTINCT_COLORS[i]);
             i++;
         }
-
-        List<String> ticks = generateLabels();
-        ValueAxis domainAxis = new TorsionAxis(ticks);
-        domainAxis.setLabel("Secondary structure");
-
-        NumberAxis rangeAxis = new NumberAxis();
-        rangeAxis.setLabel("Angular distance");
-        rangeAxis.setRange(0, Math.PI);
-        rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-        rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
-
-        Plot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
-        JFreeChart chart = new JFreeChart(plot);
-
-        SVGDocument document = SVGHelper.emptyDocument();
-        SVGGraphics2D graphics = new SVGGraphics2D(document);
-        graphics.setSVGCanvasSize(new Dimension(width, height));
-        chart.draw(graphics, new Rectangle(width, height));
-
-        SVGSVGElement root = document.getRootElement();
-        graphics.getRoot(root);
-
-        Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
-        root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
-        root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
-        root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
-
-        return document;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package pl.poznan.put.visualisation;
 
-import java.awt.Color;
-import java.awt.color.ColorSpace;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +8,6 @@ import java.util.List;
 
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
-import org.jzy3d.colors.colormaps.AbstractColorMap;
-import org.jzy3d.colors.colormaps.ColorMapRedAndGreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
@@ -90,14 +86,7 @@ public class SecondaryStructureVisualizer {
         try {
             tempFile = File.createTempFile("mcq4structures", ".svg");
 
-            AbstractColorMap colorMap = new ColorMapRedAndGreen();
-            ModeleColorMap modelColorMap = new ModeleColorMap();
-
-            for (double d = 0; d <= Math.PI; d += Math.PI / 36) {
-                float[] rgba = colorMap.getColor(0, 0, d, 0, Math.PI).toArray();
-                Color color = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), new float[] { rgba[0], rgba[1], rgba[2] }, rgba[3]);
-                modelColorMap.addColor(d, color);
-            }
+            ModeleColorMap modelColorMap = ColorMapWrapper.getVarnaColorMap(0, Math.PI);
 
             VARNAConfig config = new VARNAConfig();
             config._cm = modelColorMap;
