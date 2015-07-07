@@ -29,6 +29,7 @@ import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.ChartComponent;
+import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.gui.component.SecondaryStructureComponent;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.SelectionFactory;
@@ -151,16 +152,23 @@ public class LocalMatrixPanel extends JPanel {
             for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
                 SVGDocument svgDocument = fragmentMatch.visualize(1024, 576);
                 String title = fragmentMatch.toString();
-                ChartComponent component = new ChartComponent(svgDocument);
+                SVGComponent component = new ChartComponent(svgDocument);
                 tabbedPane.add(title, component);
                 visualizations.add(svgDocument);
 
                 if (fragmentMatch.getTargetFragment().getMoleculeType() == MoleculeType.RNA) {
                     svgDocument = SecondaryStructureVisualizer.visualize(fragmentMatch);
-                    title += " (secondary structure)";
-                    tabbedPane.add(title, new SecondaryStructureComponent(svgDocument));
+                    title = fragmentMatch.toString() + " (secondary structure)";
+                    component = new SecondaryStructureComponent(svgDocument);
+                    tabbedPane.add(title, component);
                     visualizations.add(svgDocument);
                 }
+
+                svgDocument = fragmentMatch.visualizePercentiles(1024, 576);
+                title = fragmentMatch.toString() + " (percentiles)";
+                component = new ChartComponent(svgDocument);
+                tabbedPane.add(title, component);
+                visualizations.add(svgDocument);
             }
 
             tableMatrix.setModel(result.asDisplayableTableModel());

@@ -17,6 +17,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.XYDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
@@ -25,6 +26,7 @@ import org.w3c.dom.svg.SVGSVGElement;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.matching.stats.MatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
@@ -177,7 +179,8 @@ public class FragmentMatch implements Visualizable {
     public SVGDocument visualize(int width, int height) {
         DefaultXYDataset dataset = new DefaultXYDataset();
         XYItemRenderer renderer = new DefaultXYItemRenderer();
-        addAllDataPoints(dataset, renderer);
+
+        prepareDataset(dataset, renderer);
 
         ValueAxis domainAxis = prepareDomainAxis();
         NumberAxis rangeAxis = new NumberAxis();
@@ -186,23 +189,7 @@ public class FragmentMatch implements Visualizable {
         rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
         rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
 
-        Plot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
-        JFreeChart chart = new JFreeChart(plot);
-
-        SVGDocument document = SVGHelper.emptyDocument();
-        SVGGraphics2D graphics = new SVGGraphics2D(document);
-        graphics.setSVGCanvasSize(new Dimension(width, height));
-        chart.draw(graphics, new Rectangle(width, height));
-
-        SVGSVGElement root = document.getRootElement();
-        graphics.getRoot(root);
-
-        Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
-        root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
-        root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
-        root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
-
-        return document;
+        return plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
     }
 
     private ValueAxis prepareDomainAxis() {
@@ -227,7 +214,7 @@ public class FragmentMatch implements Visualizable {
         return domainAxis;
     }
 
-    private void addAllDataPoints(DefaultXYDataset dataset,
+    private void prepareDataset(DefaultXYDataset dataset,
             XYItemRenderer renderer) {
         int i = 0;
         for (MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
@@ -256,8 +243,71 @@ public class FragmentMatch implements Visualizable {
         }
     }
 
+    private static SVGDocument plotAsSvg(int width, int height,
+            XYDataset dataset, XYItemRenderer renderer, ValueAxis domainAxis,
+            ValueAxis rangeAxis) {
+        Plot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
+        JFreeChart chart = new JFreeChart(plot);
+
+        SVGDocument document = SVGHelper.emptyDocument();
+        SVGGraphics2D graphics = new SVGGraphics2D(document);
+        graphics.setSVGCanvasSize(new Dimension(width, height));
+        chart.draw(graphics, new Rectangle(width, height));
+
+        SVGSVGElement root = document.getRootElement();
+        graphics.getRoot(root);
+
+        Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
+        root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
+        root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
+        root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
+        return document;
+    }
+
     @Override
     public void visualize3D() {
         // do nothing
+    }
+
+    public SVGDocument visualizePercentiles(int width, int height) {
+        DefaultXYDataset dataset = new DefaultXYDataset();
+        XYItemRenderer renderer = new DefaultXYItemRenderer();
+        preparePercentilesDataset(dataset, renderer);
+
+        NumberAxis domainAxis = new NumberAxis();
+        domainAxis.setLabel("Percentile");
+        domainAxis.setRange(0, 100);
+
+        NumberAxis rangeAxis = new NumberAxis();
+        rangeAxis.setLabel("Angular distance");
+        rangeAxis.setRange(0, Math.PI);
+        rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
+        rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
+
+        return plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
+    }
+
+    private void preparePercentilesDataset(DefaultXYDataset dataset,
+            XYItemRenderer renderer) {
+        double[] percents = MatchStatistics.PERCENTS_FROM_1_TO_100;
+        List<MasterTorsionAngleType> angleTypes = fragmentComparison.getAngleTypes();
+
+        for (int j = 0; j < angleTypes.size(); j++) {
+            MasterTorsionAngleType masterType = angleTypes.get(j);
+            MatchStatistics statistics = MatchStatistics.calculate(this, masterType, new double[0], percents);
+
+            double[][] data = new double[2][];
+            data[0] = new double[percents.length];
+            data[1] = new double[percents.length];
+
+            for (int i = 0; i < percents.length; i++) {
+                data[0][i] = percents[i];
+                data[1][i] = statistics.getAngleThresholdForGivenPercentile(percents[i]);
+            }
+
+            String displayName = masterType.getLongDisplayName();
+            dataset.addSeries(displayName, data);
+            renderer.setSeriesPaint(j, Colors.DISTINCT_COLORS[j]);
+        }
     }
 }
