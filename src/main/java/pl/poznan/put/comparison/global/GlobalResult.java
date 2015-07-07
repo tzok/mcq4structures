@@ -5,12 +5,12 @@ import pl.poznan.put.matching.SelectionMatch;
 
 public abstract class GlobalResult implements DisplayableExportable {
     private final String measureName;
-    private final SelectionMatch matches;
+    private final SelectionMatch selectionMatch;
 
     protected GlobalResult(String measureName, SelectionMatch matches) {
         super();
         this.measureName = measureName;
-        this.matches = matches;
+        this.selectionMatch = matches;
     }
 
     public String getMeasureName() {
@@ -18,15 +18,15 @@ public abstract class GlobalResult implements DisplayableExportable {
     }
 
     public String getTargetName() {
-        return matches.getTarget().getName();
+        return selectionMatch.getTarget().getName();
     }
 
     public String getModelName() {
-        return matches.getModel().getName();
+        return selectionMatch.getModel().getName();
     }
 
     public SelectionMatch getSelectionMatch() {
-        return matches;
+        return selectionMatch;
     }
 
     public abstract double asDouble();

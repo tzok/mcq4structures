@@ -7,11 +7,26 @@ import pl.poznan.put.utility.CommonNumberFormat;
 
 public class RMSDGlobalResult extends GlobalResult {
     private final FragmentSuperimposer superimposer;
+    private final String longDisplayName;
 
     public RMSDGlobalResult(String measureName, SelectionMatch matches,
             FragmentSuperimposer superimposer) {
         super(measureName, matches);
         this.superimposer = superimposer;
+        this.longDisplayName = prepareLongDisplayName();
+    }
+
+    private String prepareLongDisplayName() {
+        SelectionMatch selectionMatch = getSelectionMatch();
+        int validCount = selectionMatch.getResidueLabels().size();
+
+        StringBuilder builder = new StringBuilder("<html>");
+        builder.append(getShortDisplayName());
+        builder.append("<br>");
+        builder.append(validCount);
+        builder.append("<br>");
+        builder.append("</html>");
+        return builder.toString();
     }
 
     public int getAtomCount() {
@@ -24,12 +39,12 @@ public class RMSDGlobalResult extends GlobalResult {
 
     @Override
     public String getLongDisplayName() {
-        return CommonNumberFormat.formatDouble(superimposer.getRMSD()) + Unicode.ANGSTROM;
+        return longDisplayName;
     }
 
     @Override
     public String getShortDisplayName() {
-        return getLongDisplayName();
+        return CommonNumberFormat.formatDouble(superimposer.getRMSD()) + Unicode.ANGSTROM;
     }
 
     @Override

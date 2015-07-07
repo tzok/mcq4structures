@@ -47,8 +47,7 @@ public class FragmentSuperimposer {
         this.atomFilter = atomFilter;
         this.onlyHeavy = onlyHeavy;
 
-        int matchesCount = selectionMatch.size();
-
+        int matchesCount = selectionMatch.getFragmentCount();
         if (matchesCount == 0) {
             throw new IllegalArgumentException("Failed to superimpose, because the set of structural matches is empty");
         }
@@ -164,7 +163,7 @@ public class FragmentSuperimposer {
         double distance = 0.0;
         double count = 0.0;
 
-        for (int i = 0; i < selectionMatch.size(); i++) {
+        for (int i = 0; i < selectionMatch.getFragmentCount(); i++) {
             for (int j = 0; j < matchAtomsModel[i].length; j++) {
                 Atom l = matchAtomsTarget[i][j];
                 Atom r = (Atom) matchAtomsModel[i][j].clone();

@@ -26,7 +26,7 @@ import org.w3c.dom.svg.SVGSVGElement;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.matching.stats.MatchStatistics;
+import pl.poznan.put.matching.stats.SingleMatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
@@ -114,8 +114,8 @@ public class FragmentMatch implements Visualizable {
         return fragmentComparison.getMismatchCount();
     }
 
-    public int size() {
-        return fragmentComparison.size();
+    public int getTotalCount() {
+        return fragmentComparison.getTotalCount();
     }
 
     public boolean isValid() {
@@ -219,8 +219,8 @@ public class FragmentMatch implements Visualizable {
         int i = 0;
         for (MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
             double[][] data = new double[2][];
-            data[0] = new double[fragmentComparison.size()];
-            data[1] = new double[fragmentComparison.size()];
+            data[0] = new double[fragmentComparison.getTotalCount()];
+            data[1] = new double[fragmentComparison.getTotalCount()];
 
             int j = 0;
             for (ResidueComparison residue : fragmentComparison.getResidueComparisons()) {
@@ -289,12 +289,14 @@ public class FragmentMatch implements Visualizable {
 
     private void preparePercentilesDataset(DefaultXYDataset dataset,
             XYItemRenderer renderer) {
-        double[] percents = MatchStatistics.PERCENTS_FROM_1_TO_100;
+        String name = modelFragment.getName();
+        double[] percents = SingleMatchStatistics.PERCENTS_FROM_1_TO_100;
         List<MasterTorsionAngleType> angleTypes = fragmentComparison.getAngleTypes();
 
         for (int j = 0; j < angleTypes.size(); j++) {
             MasterTorsionAngleType masterType = angleTypes.get(j);
-            MatchStatistics statistics = MatchStatistics.calculate(this, masterType, new double[0], percents);
+            AngleDeltaIterator angleDeltaIterator = new TypedDeltaIterator(this, masterType);
+            SingleMatchStatistics statistics = SingleMatchStatistics.calculate(name, angleDeltaIterator, new double[0], percents);
 
             double[][] data = new double[2][];
             data[0] = new double[percents.length];

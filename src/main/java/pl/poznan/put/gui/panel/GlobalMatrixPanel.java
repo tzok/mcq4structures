@@ -1,6 +1,7 @@
 package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +135,7 @@ public class GlobalMatrixPanel extends JPanel {
                     tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
                     visualization.setSVGDocument(document);
                     updateHeader(true, measureType.getName());
+                    updateRowHeights();
                     callback.complete(new ProcessingResult(matrix, Collections.singletonList(document)));
                 }
             });
@@ -142,6 +145,24 @@ public class GlobalMatrixPanel extends JPanel {
             String message = "Failed to compare structures";
             GlobalMatrixPanel.LOGGER.error(message, e);
             JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void updateRowHeights() {
+        if (tableMatrix.getColumnCount() <= 1) {
+            return;
+        }
+
+        int rowHeight = tableMatrix.getRowHeight();
+
+        for (int row = 0; row < tableMatrix.getRowCount(); row++) {
+            TableCellRenderer cellRenderer = tableMatrix.getCellRenderer(row, 1);
+            Component comp = tableMatrix.prepareRenderer(cellRenderer, row, 1);
+            rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+        }
+
+        for (int row = 0; row < tableMatrix.getRowCount(); row++) {
+            tableMatrix.setRowHeight(row, rowHeight);
         }
     }
 }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.NavigableMap;
 
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -27,10 +26,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
+import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.MatchCollection;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
@@ -51,7 +52,7 @@ import pl.poznan.put.visualisation.Surface3D;
 public class ModelsComparisonResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelsComparisonResult.class);
 
-    public class SelectedAngle implements Exportable, Tabular, Visualizable {
+    public class SelectedAngle implements Exportable, Tabular, Visualizable, MatchCollection {
         private final MasterTorsionAngleType angleType;
 
         private SelectedAngle(MasterTorsionAngleType torsionAngle) {
@@ -63,6 +64,7 @@ public class ModelsComparisonResult {
             return angleType;
         }
 
+        @Override
         public List<FragmentMatch> getFragmentMatches() {
             return fragmentMatches;
         }
@@ -151,7 +153,7 @@ public class ModelsComparisonResult {
                 }
             }
 
-            return new DefaultTableModel(data, columnNames);
+            return new NonEditableDefaultTableModel(data, columnNames);
         }
 
         public Pair<Double, Double> getMinMax() {
@@ -200,7 +202,7 @@ public class ModelsComparisonResult {
             svg.getRoot(root);
 
             if (fragmentMatches.size() > 0) {
-                int width = maxWidth + unitWidth * fragmentMatches.get(0).size();
+                int width = maxWidth + unitWidth * fragmentMatches.get(0).getTotalCount();
                 int height = unitHeight * (models.size() + 3);
                 root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Integer.toString(width));
                 root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Integer.toString(height));
@@ -212,7 +214,7 @@ public class ModelsComparisonResult {
             for (int i = 0; i < fragmentMatches.size(); i++) {
                 FragmentMatch fragmentMatch = fragmentMatches.get(i);
 
-                for (int j = 0; j < fragmentMatch.size(); j++) {
+                for (int j = 0; j < fragmentMatch.getTotalCount(); j++) {
                     ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
                     int x = maxWidth + j * unitWidth;
                     int y = (i + 1) * unitHeight;

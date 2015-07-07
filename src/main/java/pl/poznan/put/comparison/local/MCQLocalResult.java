@@ -12,7 +12,6 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.jzy3d.analysis.AnalysisLauncher;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
+import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
@@ -207,6 +207,6 @@ public class MCQLocalResult extends LocalResult {
             }
         }
 
-        return new DefaultTableModel(data, columnNames);
+        return new NonEditableDefaultTableModel(data, columnNames);
     }
 }

@@ -22,10 +22,11 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
-import pl.poznan.put.comparison.local.ModelsComparisonResult.SelectedAngle;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.ColorbarComponent;
-import pl.poznan.put.matching.stats.ModelsComparisonStatistics;
+import pl.poznan.put.matching.AngleDeltaIteratorFactory;
+import pl.poznan.put.matching.TypedDeltaIteratorFactory;
+import pl.poznan.put.matching.stats.MultiMatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -133,8 +134,9 @@ public class LocalMultiMatrixPanel extends JPanel {
 
             MCQ mcq = new MCQ(Collections.singletonList(selectedAngleType));
             ModelsComparisonResult result = mcq.compareModels(reference, fragments);
-            SelectedAngle selectedAngle = result.selectAngle(selectedAngleType);
-            ModelsComparisonStatistics statistics = ModelsComparisonStatistics.calculate(selectedAngle);
+            ModelsComparisonResult.SelectedAngle selectedAngle = result.selectAngle(selectedAngleType);
+            AngleDeltaIteratorFactory iteratorFactory = new TypedDeltaIteratorFactory(selectedAngleType);
+            MultiMatchStatistics statistics = MultiMatchStatistics.calculate(iteratorFactory, selectedAngle);
             SVGDocument document = selectedAngle.visualize();
 
             tableMatrix.setModel(selectedAngle.asDisplayableTableModel());

@@ -96,7 +96,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(target, model);
 
-        if (matches == null || matches.size() == 0) {
+        if (matches == null || matches.getFragmentCount() == 0) {
             throw new IncomparableStructuresException("No matching fragments found");
         }
 

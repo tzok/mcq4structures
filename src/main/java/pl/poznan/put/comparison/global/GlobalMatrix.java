@@ -12,7 +12,6 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import mdsj.MDSJ;
@@ -28,6 +27,7 @@ import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.datamodel.NamedPoint;
+import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -265,11 +265,11 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
                 if (result == null) {
                     values[i][j + 1] = "Failed";
                 } else {
-                    values[i][j + 1] = isDisplay ? result.getShortDisplayName() : result.getExportName();
+                    values[i][j + 1] = isDisplay ? result.getLongDisplayName() : result.getExportName();
                 }
             }
         }
 
-        return new DefaultTableModel(values, columnNames);
+        return new NonEditableDefaultTableModel(values, columnNames);
     }
 }

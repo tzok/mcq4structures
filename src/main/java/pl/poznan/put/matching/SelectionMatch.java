@@ -16,7 +16,7 @@ import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.types.ExportFormat;
 
-public class SelectionMatch implements Exportable {
+public class SelectionMatch implements Exportable, MatchCollection {
     private final List<String> residueLabels;
 
     private final StructureSelection target;
@@ -49,8 +49,13 @@ public class SelectionMatch implements Exportable {
         return model;
     }
 
+    @Override
     public List<FragmentMatch> getFragmentMatches() {
         return Collections.unmodifiableList(fragmentMatches);
+    }
+
+    public int getFragmentCount() {
+        return fragmentMatches.size();
     }
 
     public List<String> getResidueLabels() {
@@ -92,9 +97,5 @@ public class SelectionMatch implements Exportable {
         filename.append(model.getName());
         filename.append(".pdb");
         return new File(filename.toString());
-    }
-
-    public int size() {
-        return fragmentMatches.size();
     }
 }

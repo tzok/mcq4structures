@@ -6,13 +6,10 @@ import java.util.Set;
 
 import org.apache.commons.math3.stat.StatUtils;
 
-import pl.poznan.put.matching.FragmentMatch;
-import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngleDelta.State;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.matching.AngleDeltaIterator;
 
-public class MatchStatistics {
+public class SingleMatchStatistics {
     public static final double[] DEFAULT_PERCENTS_LIMITS = new double[] { 95.0, 75.0, 50.0, 25.0 };
     public static final double[] DEFAULT_ANGLE_LIMITS = new double[] { Math.toRadians(15), Math.toRadians(30), Math.toRadians(45), Math.toRadians(60) };
     // @formatter:off
@@ -30,23 +27,22 @@ public class MatchStatistics {
     };
     // @formatter:on
 
-    public static MatchStatistics calculate(FragmentMatch fragmentMatch,
-            MasterTorsionAngleType angleType) {
-        return MatchStatistics.calculate(fragmentMatch, angleType, MatchStatistics.DEFAULT_ANGLE_LIMITS, MatchStatistics.DEFAULT_PERCENTS_LIMITS);
+    public static SingleMatchStatistics calculate(String name,
+            AngleDeltaIterator angleDeltaIterator) {
+        return SingleMatchStatistics.calculate(name, angleDeltaIterator, SingleMatchStatistics.DEFAULT_ANGLE_LIMITS, SingleMatchStatistics.DEFAULT_PERCENTS_LIMITS);
     }
 
-    public static MatchStatistics calculate(FragmentMatch fragmentMatch,
-            MasterTorsionAngleType angleType, double[] angleLimits,
+    public static SingleMatchStatistics calculate(String name,
+            AngleDeltaIterator angleDeltaIterator, double[] angleLimits,
             double[] percentsLimits) {
         List<Double> validDeltas = new ArrayList<>();
         double[] validDeltasCountRatio = new double[angleLimits.length];
 
-        for (int i = 0; i < fragmentMatch.size(); i++) {
-            ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-            TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(angleType);
+        while (angleDeltaIterator.hasNext()) {
+            Angle angle = angleDeltaIterator.next();
 
-            if (angleDelta.getState() == State.BOTH_VALID) {
-                double delta = angleDelta.getDelta().getRadians();
+            if (angle.isValid()) {
+                double delta = angle.getRadians();
                 validDeltas.add(delta);
 
                 for (int j = 0; j < angleLimits.length; j++) {
@@ -63,7 +59,9 @@ public class MatchStatistics {
             for (int i = 0; i < angleLimits.length; i++) {
                 validDeltasCountRatio[i] /= validDeltas.size();
             }
+        }
 
+        if (validDeltas.size() > 0) {
             double[] values = new double[validDeltas.size()];
             for (int i = 0; i < validDeltas.size(); i++) {
                 values[i] = validDeltas.get(i);
@@ -76,23 +74,23 @@ public class MatchStatistics {
 
         Histogram histogram = new Histogram(angleLimits, validDeltasCountRatio);
         Percentiles percentiles = new Percentiles(percentsLimits, validPercents);
-        return new MatchStatistics(fragmentMatch, histogram, percentiles);
+        return new SingleMatchStatistics(name, histogram, percentiles);
     }
 
-    private final FragmentMatch match;
+    private final String name;
     private final Histogram histogram;
     private final Percentiles percentiles;
 
-    public MatchStatistics(FragmentMatch match, Histogram histogram,
+    public SingleMatchStatistics(String name, Histogram histogram,
             Percentiles percentiles) {
         super();
-        this.match = match;
+        this.name = name;
         this.histogram = histogram;
         this.percentiles = percentiles;
     }
 
-    public FragmentMatch getMatch() {
-        return match;
+    public String getName() {
+        return name;
     }
 
     public Set<Double> getAvailableThresholds() {
@@ -108,7 +106,7 @@ public class MatchStatistics {
     }
 
     public double getAngleThresholdForGivenPercentile(double percentile) {
-        assert percentile >= 0.0 && percentile <= 100.0;
+        assert percentile > 0.0 && percentile <= 100.0;
         return percentiles.getPercentile(percentile);
     }
 }
