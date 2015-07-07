@@ -55,10 +55,10 @@ public class ModelsComparisonStatistics {
         for (int i = 0; i < statistics.size(); i++) {
             MatchStatistics match = statistics.get(i);
             data[i] = new String[angleLimits.length + 1];
-            data[i][0] = match.getMatch().getModelFragment().toString();
+            data[i][0] = match.getMatch().getModelFragment().getName();
 
             for (int j = 0; j < angleLimits.length; j++) {
-                data[i][j + 1] = CommonNumberFormat.formatDouble(match.getRatioOfDeltasBelowThreshold(angleLimits[j]));
+                data[i][j + 1] = CommonNumberFormat.formatDouble(100.0 * match.getRatioOfDeltasBelowThreshold(angleLimits[j])) + "%";
             }
         }
 
@@ -75,7 +75,7 @@ public class ModelsComparisonStatistics {
         for (int i = 0; i < statistics.size(); i++) {
             MatchStatistics match = statistics.get(i);
             data[i] = new String[percentsLimits.length + 1];
-            data[i][0] = match.getMatch().getModelFragment().toString();
+            data[i][0] = match.getMatch().getModelFragment().getName();
 
             for (int j = 0; j < percentsLimits.length; j++) {
                 double angle = match.getAngleThresholdForGivenPercentile(percentsLimits[j]);

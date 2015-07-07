@@ -25,6 +25,7 @@ import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.comparison.local.ModelsComparisonResult.SelectedAngle;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.ColorbarComponent;
+import pl.poznan.put.matching.stats.ModelsComparisonStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -56,6 +57,8 @@ public class LocalMultiMatrixPanel extends JPanel {
 
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
+    private final JTable histogramMatrix = new JTable();
+    private final JTable percentileMatrix = new JTable();
     private final ColorbarComponent visualization = new ColorbarComponent(SVGHelper.emptyDocument());
 
     private List<PdbCompactFragment> fragments = Collections.emptyList();
@@ -69,11 +72,16 @@ public class LocalMultiMatrixPanel extends JPanel {
         labelInfoMatrix.setFont(UIManager.getFont("Label.font"));
         labelInfoMatrix.setOpaque(false);
 
+        histogramMatrix.setAutoCreateRowSorter(true);
+        percentileMatrix.setAutoCreateRowSorter(true);
+
         JPanel panelInfo = new JPanel(new BorderLayout());
         panelInfo.add(labelInfoMatrix, BorderLayout.CENTER);
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Results", new JScrollPane(tableMatrix));
+        tabbedPane.add("Histograms", new JScrollPane(histogramMatrix));
+        tabbedPane.add("Percentiles", new JScrollPane(percentileMatrix));
         tabbedPane.add("Visualization", new JScrollPane(visualization));
 
         add(panelInfo, BorderLayout.NORTH);
@@ -82,7 +90,10 @@ public class LocalMultiMatrixPanel extends JPanel {
 
     public void setFragments(List<PdbCompactFragment> fragments) {
         this.fragments = fragments;
-        tableMatrix.setModel(new DefaultTableModel());
+        DefaultTableModel emptyDataModel = new DefaultTableModel();
+        tableMatrix.setModel(emptyDataModel);
+        histogramMatrix.setModel(emptyDataModel);
+        percentileMatrix.setModel(emptyDataModel);
         visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false);
     }
@@ -123,9 +134,12 @@ public class LocalMultiMatrixPanel extends JPanel {
             MCQ mcq = new MCQ(Collections.singletonList(selectedAngleType));
             ModelsComparisonResult result = mcq.compareModels(reference, fragments);
             SelectedAngle selectedAngle = result.selectAngle(selectedAngleType);
+            ModelsComparisonStatistics statistics = ModelsComparisonStatistics.calculate(selectedAngle);
             SVGDocument document = selectedAngle.visualize();
 
             tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
+            histogramMatrix.setModel(statistics.histogramsAsTableModel());
+            percentileMatrix.setModel(statistics.percentilesAsTableModel(true));
             visualization.setSVGDocument(document);
             updateHeader(true);
 
