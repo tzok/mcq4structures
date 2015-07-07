@@ -138,7 +138,7 @@ public class LocalMultiMatrixPanel extends JPanel {
             SVGDocument document = selectedAngle.visualize();
 
             tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
-            histogramMatrix.setModel(statistics.histogramsAsTableModel());
+            histogramMatrix.setModel(statistics.histogramsAsTableModel(true));
             percentileMatrix.setModel(statistics.percentilesAsTableModel(true));
             visualization.setSVGDocument(document);
             updateHeader(true);
