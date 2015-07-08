@@ -3,7 +3,9 @@ package pl.poznan.put.matching;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections4.map.DefaultedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +38,36 @@ public class MCQMatcher implements StructureMatcher {
         }
 
         FragmentMatch[][] matrix = fillMatchingMatrix(target, model);
+        MCQMatcher.filterMatchingMatrix(matrix);
         List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
         return new SelectionMatch(target, model, fragmentMatches);
+    }
+
+    private static void filterMatchingMatrix(FragmentMatch[][] matrix) {
+        Map<PdbCompactFragment, Integer> fragmentMaxCount = new DefaultedMap<>(Integer.MIN_VALUE);
+
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                PdbCompactFragment target = matrix[i][j].getTargetFragment();
+                PdbCompactFragment model = matrix[i][j].getModelFragment();
+                int count = matrix[i][j].getResidueCount();
+                fragmentMaxCount.put(target, Math.max(count, fragmentMaxCount.get(target)));
+                fragmentMaxCount.put(model, Math.max(count, fragmentMaxCount.get(model)));
+            }
+        }
+
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                PdbCompactFragment target = matrix[i][j].getTargetFragment();
+                PdbCompactFragment model = matrix[i][j].getModelFragment();
+                int count = matrix[i][j].getResidueCount();
+                int maxCount = Math.max(fragmentMaxCount.get(target), fragmentMaxCount.get(model));
+
+                if (count < maxCount * 0.9) {
+                    matrix[i][j] = FragmentMatch.invalidInstance(target, model);
+                }
+            }
+        }
     }
 
     private FragmentMatch[][] fillMatchingMatrix(StructureSelection target,
