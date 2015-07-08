@@ -63,18 +63,36 @@ public class PartitionalClustering implements Visualizable {
 
     @Override
     public SVGDocument visualize() {
-        List<ColoredNamedPoint> points = new ArrayList<>();
         double[][] matrix = distanceMatrix.getMatrix();
-        double[][] xyMatrix = MDSJ.stressMinimization(matrix);
+        // TODO: decide which MDS implementation to use
+        // List<ColoredNamedPoint> points = drawWithMDSJ(matrix);
+        List<ColoredNamedPoint> points = drawWithOwnMDS(matrix);
+        return MDSDrawer.drawPoints(points);
+    }
 
+    private List<ColoredNamedPoint> drawWithOwnMDS(double[][] matrix) {
+        List<ColoredNamedPoint> points = new ArrayList<>();
+        double[][] xyMatrix = MDS.multidimensionalScaling(matrix, 2);
+        for (int i = 0; i < matrix.length; i++) {
+            Color color = getClusterColor(i);
+            String name = getClusterDescription(i);
+            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
+            points.add(new ColoredNamedPoint(color, name, point));
+        }
+        return points;
+    }
+
+    @SuppressWarnings("unused")
+    private List<ColoredNamedPoint> drawWithMDSJ(double[][] matrix) {
+        List<ColoredNamedPoint> points = new ArrayList<>();
+        double[][] xyMatrix = MDSJ.stressMinimization(matrix);
         for (int i = 0; i < matrix.length; i++) {
             Color color = getClusterColor(i);
             String name = getClusterDescription(i);
             Vector2D point = new Vector2D(xyMatrix[0][i], xyMatrix[1][i]);
             points.add(new ColoredNamedPoint(color, name, point));
         }
-
-        return MDSDrawer.drawPoints(points);
+        return points;
     }
 
     private Color getClusterColor(int index) {
