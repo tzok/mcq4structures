@@ -23,7 +23,7 @@ import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.gui.component.ColorbarComponent;
+import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.matching.AngleDeltaIteratorFactory;
 import pl.poznan.put.matching.TypedDeltaIteratorFactory;
 import pl.poznan.put.matching.stats.MultiMatchStatistics;
@@ -60,7 +60,7 @@ public class LocalMultiMatrixPanel extends JPanel {
     private final JTable tableMatrix = new JTable();
     private final JTable histogramMatrix = new JTable();
     private final JTable percentileMatrix = new JTable();
-    private final ColorbarComponent visualization = new ColorbarComponent(SVGHelper.emptyDocument());
+    private final SVGComponent visualization = new SVGComponent(SVGHelper.emptyDocument(), "colorbar");
 
     private List<PdbCompactFragment> fragments = Collections.emptyList();
 
@@ -145,7 +145,7 @@ public class LocalMultiMatrixPanel extends JPanel {
             visualization.setSVGDocument(document);
             updateHeader(true);
 
-            return new ProcessingResult(selectedAngle, Collections.singletonList(document));
+            return new ProcessingResult(selectedAngle);
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMultiMatrixPanel.LOGGER.error(message, e);

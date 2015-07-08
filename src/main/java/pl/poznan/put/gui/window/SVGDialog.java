@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -23,12 +22,7 @@ public class SVGDialog extends JDialog {
         setTitle(title);
         setLayout(new BorderLayout());
 
-        svgComponent = new SVGComponent(document) {
-            @Override
-            public File suggestName() {
-                return new File("result.svg");
-            }
-        };
+        svgComponent = new SVGComponent(document, "result");
 
         add(buttonSave, BorderLayout.NORTH);
         add(svgComponent, BorderLayout.CENTER);

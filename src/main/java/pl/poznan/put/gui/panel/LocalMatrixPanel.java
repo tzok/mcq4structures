@@ -3,7 +3,6 @@ package pl.poznan.put.gui.panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -28,9 +27,7 @@ import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.gui.component.ChartComponent;
 import pl.poznan.put.gui.component.SVGComponent;
-import pl.poznan.put.gui.component.SecondaryStructureComponent;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
@@ -147,34 +144,29 @@ public class LocalMatrixPanel extends JPanel {
             SelectionMatch selectionMatch = result.getSelectionMatch();
             removeAllButFirstTab();
 
-            List<SVGDocument> visualizations = new ArrayList<>();
-
             for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
                 SVGDocument svgDocument = fragmentMatch.visualize(1024, 576);
                 String title = fragmentMatch.toString();
-                SVGComponent component = new ChartComponent(svgDocument);
+                SVGComponent component = new SVGComponent(svgDocument, "chart");
                 tabbedPane.add(title, component);
-                visualizations.add(svgDocument);
 
                 if (fragmentMatch.getTargetFragment().getMoleculeType() == MoleculeType.RNA) {
                     svgDocument = SecondaryStructureVisualizer.visualize(fragmentMatch);
                     title = fragmentMatch.toString() + " (secondary structure)";
-                    component = new SecondaryStructureComponent(svgDocument);
+                    component = new SVGComponent(svgDocument, "secondary");
                     tabbedPane.add(title, component);
-                    visualizations.add(svgDocument);
                 }
 
                 svgDocument = fragmentMatch.visualizePercentiles(1024, 576);
                 title = fragmentMatch.toString() + " (percentiles)";
-                component = new ChartComponent(svgDocument);
+                component = new SVGComponent(svgDocument, "percentiles");
                 tabbedPane.add(title, component);
-                visualizations.add(svgDocument);
             }
 
             tableMatrix.setModel(result.asDisplayableTableModel());
             updateHeader(true);
 
-            return new ProcessingResult(result, visualizations);
+            return new ProcessingResult(result);
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMatrixPanel.LOGGER.error(message, e);

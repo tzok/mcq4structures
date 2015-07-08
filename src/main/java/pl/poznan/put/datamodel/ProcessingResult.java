@@ -3,8 +3,6 @@ package pl.poznan.put.datamodel;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.List;
 
 import org.w3c.dom.svg.SVGDocument;
 
@@ -13,33 +11,22 @@ import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.types.ExportFormat;
-import pl.poznan.put.utility.svg.SVGHelper;
 
 public class ProcessingResult implements Clusterable, Visualizable, Exportable {
     public static ProcessingResult emptyInstance() {
-        return new ProcessingResult(null, null, null, Collections.singletonList(SVGHelper.emptyDocument()));
+        return new ProcessingResult(null, null, null);
     }
 
     private final Clusterable clusterable;
     private final Visualizable visualizable;
     private final Exportable exportable;
-    private final List<SVGDocument> visualizations;
 
     public ProcessingResult(Clusterable clusterable, Visualizable visualizable,
-            Exportable exportable, List<SVGDocument> visualization) {
+            Exportable exportable) {
         super();
         this.clusterable = clusterable;
         this.visualizable = visualizable;
         this.exportable = exportable;
-        visualizations = visualization;
-    }
-
-    public ProcessingResult(Object object, List<SVGDocument> visualization) {
-        super();
-        clusterable = (Clusterable) (object instanceof Clusterable ? object : null);
-        visualizable = (Visualizable) (object instanceof Visualizable ? object : null);
-        exportable = (Exportable) (object instanceof Exportable ? object : null);
-        visualizations = visualization;
     }
 
     public ProcessingResult(Object object) {
@@ -47,7 +34,6 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
         clusterable = (Clusterable) (object instanceof Clusterable ? object : null);
         visualizable = (Visualizable) (object instanceof Visualizable ? object : null);
         exportable = (Exportable) (object instanceof Exportable ? object : null);
-        visualizations = Collections.singletonList(SVGHelper.emptyDocument());
     }
 
     public boolean canCluster() {
@@ -60,10 +46,6 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
 
     public boolean canExport() {
         return exportable != null;
-    }
-
-    public List<SVGDocument> getVisualizations() {
-        return visualizations;
     }
 
     @Override

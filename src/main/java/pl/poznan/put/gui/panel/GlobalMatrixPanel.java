@@ -28,7 +28,7 @@ import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.gui.component.MatrixVisualizationComponent;
+import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
@@ -45,7 +45,7 @@ public class GlobalMatrixPanel extends JPanel {
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar(0, 1);
-    private final MatrixVisualizationComponent visualization = new MatrixVisualizationComponent(SVGHelper.emptyDocument());
+    private final SVGComponent visualization = new SVGComponent(SVGHelper.emptyDocument(), "matrix");
 
     private List<PdbModel> structures = Collections.emptyList();
 
@@ -136,7 +136,7 @@ public class GlobalMatrixPanel extends JPanel {
                     visualization.setSVGDocument(document);
                     updateHeader(true, measureType.getName());
                     updateRowHeights();
-                    callback.complete(new ProcessingResult(matrix, Collections.singletonList(document)));
+                    callback.complete(new ProcessingResult(matrix));
                 }
             });
 
