@@ -44,6 +44,7 @@ import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
 import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
+import pl.poznan.put.gui.panel.TorsionAngleValuesMatrixPanel;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
@@ -57,6 +58,7 @@ public class MainWindow extends JFrame {
     private static final String RESOURCE_ICON_OPEN = "/toolbarButtonGraphics/general/Open16.gif";
     private static final String RESOURCE_ICON_SAVE = "/toolbarButtonGraphics/general/Save16.gif";
 
+    private static final String CARD_TORSION = "CARD_TORSION";
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
     private static final String CARD_GLOBAL_MATRIX = "CARD_GLOBAL_MATRIX";
@@ -110,7 +112,9 @@ public class MainWindow extends JFrame {
             assert e != null;
             JMenuItem source = (JMenuItem) e.getSource();
 
-            if (source.equals(itemSelectStructuresCompare)) {
+            if (source.equals(itemSelectStructureTorsionAngles)) {
+                selectSingleStructure();
+            } else if (source.equals(itemSelectStructuresCompare)) {
                 if (radioLocal.isSelected()) {
                     selectChains(source);
                 } else if (radioLocalMulti.isSelected()) {
@@ -134,6 +138,9 @@ public class MainWindow extends JFrame {
     private final JCheckBoxMenuItem checkBoxManager = new StayOpenCheckBoxMenuItem("View structure manager", false);
     private final JMenuItem itemExit = new JMenuItem("Exit");
 
+    private final JMenu menuTorsionAngles = new JMenu("Torsion angles");
+    private final JMenuItem itemSelectStructureTorsionAngles = new JMenuItem("Select structure to represent in torsion angle space");
+
     private final JMenu menuDistanceMeasure = new JMenu("Distance measure");
     private final JRadioButtonMenuItem radioGlobalMcq = new StayOpenRadioButtonMenuItem("Global MCQ", true);
     private final JRadioButtonMenuItem radioGlobalRmsd = new StayOpenRadioButtonMenuItem("Global RMSD", false);
@@ -155,6 +162,7 @@ public class MainWindow extends JFrame {
 
     private final CardLayout layoutCards = new CardLayout();
     private final JPanel panelCards = new JPanel();
+    private final TorsionAngleValuesMatrixPanel panelTorsionAngles = new TorsionAngleValuesMatrixPanel();
     private final GlobalMatrixPanel panelResultsGlobalMatrix = new GlobalMatrixPanel();
     private final LocalMatrixPanel panelResultsLocalMatrix = new LocalMatrixPanel();
     private final LocalMultiMatrixPanel panelResultsLocalMultiMatrix = new LocalMultiMatrixPanel();
@@ -188,6 +196,7 @@ public class MainWindow extends JFrame {
 
         panelCards.setLayout(layoutCards);
         panelCards.add(new JPanel());
+        panelCards.add(panelTorsionAngles, MainWindow.CARD_TORSION);
         panelCards.add(panelResultsGlobalMatrix, MainWindow.CARD_GLOBAL_MATRIX);
         panelCards.add(panelResultsLocalMatrix, MainWindow.CARD_LOCAL_MATRIX);
         panelCards.add(panelResultsLocalMultiMatrix, MainWindow.CARD_LOCAL_MULTI_MATRIX);
@@ -225,6 +234,10 @@ public class MainWindow extends JFrame {
         menuFile.addSeparator();
         menuFile.add(itemExit);
         menuBar.add(menuFile);
+
+        menuTorsionAngles.setMnemonic(KeyEvent.VK_T);
+        menuTorsionAngles.add(itemSelectStructureTorsionAngles);
+        menuBar.add(menuTorsionAngles);
 
         menuDistanceMeasure.setMnemonic(KeyEvent.VK_D);
         menuDistanceMeasure.add(new JLabel("    Select distance type:"));
@@ -279,6 +292,7 @@ public class MainWindow extends JFrame {
         radioLocal.addActionListener(radioActionListener);
         radioLocalMulti.addActionListener(radioActionListener);
 
+        itemSelectStructureTorsionAngles.addActionListener(selectActionListener);
         itemSelectStructuresCompare.addActionListener(selectActionListener);
         itemSelectStructuresAlign.addActionListener(selectActionListener);
 
@@ -394,6 +408,21 @@ public class MainWindow extends JFrame {
         currentResult = panelResultsLocalMultiMatrix.compareAndDisplayTable();
         layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
         updateMenuEnabledStates();
+    }
+
+    private void selectSingleStructure() {
+        itemSave.setEnabled(false);
+
+        List<String> names = StructureManager.getAllNames();
+        String[] selectionValues = names.toArray(new String[names.size()]);
+        String name = (String) JOptionPane.showInputDialog(this, "Select structure", "Represent structure in torsion angle space", JOptionPane.QUESTION_MESSAGE, null, selectionValues, null);
+
+        if (name != null) {
+            PdbModel structure = StructureManager.getStructure(name);
+            currentResult = panelTorsionAngles.calculateTorsionAngles(structure);
+            layoutCards.show(panelCards, MainWindow.CARD_TORSION);
+            updateMenuEnabledStates();
+        }
     }
 
     private void selectStructures() {

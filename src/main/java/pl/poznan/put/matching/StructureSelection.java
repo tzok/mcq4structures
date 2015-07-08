@@ -201,7 +201,7 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
                 for (MasterTorsionAngleType angleType : allAngleTypes) {
                     TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, angleType);
                     double radians = angleValue.getValue().getRadians();
-                    row.add(isDisplayable ? AngleFormat.formatDisplayLong(radians) : AngleFormat.formatExport(radians));
+                    row.add(isDisplayable ? AngleFormat.formatDisplayShort(radians) : AngleFormat.formatExport(radians));
                 }
 
                 data[i] = row.toArray(new String[row.size()]);
@@ -212,7 +212,7 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
         return new DefaultTableModel(data, columns.toArray(new String[columns.size()]));
     }
 
-    private Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
+    public Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
         Set<MasterTorsionAngleType> commonTypes = new LinkedHashSet<>();
 
         for (PdbCompactFragment compactFragment : compactFragments) {

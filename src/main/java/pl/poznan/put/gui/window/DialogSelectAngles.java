@@ -15,7 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import pl.poznan.put.gui.panel.TorsionAnglesPanel;
+import pl.poznan.put.gui.panel.TorsionAngleTypesPanel;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
@@ -34,8 +34,8 @@ public final class DialogSelectAngles extends JDialog {
         }
     };
 
-    private final TorsionAnglesPanel panelAnglesRNA = new TorsionAnglesPanel(MoleculeType.RNA, checkBoxListener);
-    private final TorsionAnglesPanel panelAnglesProtein = new TorsionAnglesPanel(MoleculeType.PROTEIN, checkBoxListener);
+    private final TorsionAngleTypesPanel panelAnglesRNA = new TorsionAngleTypesPanel(MoleculeType.RNA, checkBoxListener);
+    private final TorsionAngleTypesPanel panelAnglesProtein = new TorsionAngleTypesPanel(MoleculeType.PROTEIN, checkBoxListener);
 
     private int chosenOption;
 
