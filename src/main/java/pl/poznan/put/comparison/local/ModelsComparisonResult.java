@@ -202,7 +202,7 @@ public class ModelsComparisonResult {
             svg.getRoot(root);
 
             if (fragmentMatches.size() > 0) {
-                int width = maxWidth + unitWidth * fragmentMatches.get(0).getTotalCount();
+                int width = maxWidth + unitWidth * fragmentMatches.get(0).getResidueCount();
                 int height = unitHeight * (models.size() + 3);
                 root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Integer.toString(width));
                 root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Integer.toString(height));
@@ -214,7 +214,7 @@ public class ModelsComparisonResult {
             for (int i = 0; i < fragmentMatches.size(); i++) {
                 FragmentMatch fragmentMatch = fragmentMatches.get(i);
 
-                for (int j = 0; j < fragmentMatch.getTotalCount(); j++) {
+                for (int j = 0; j < fragmentMatch.getResidueCount(); j++) {
                     ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
                     int x = maxWidth + j * unitWidth;
                     int y = (i + 1) * unitHeight;

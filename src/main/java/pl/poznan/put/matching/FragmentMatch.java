@@ -114,8 +114,8 @@ public class FragmentMatch implements Visualizable {
         return fragmentComparison.getMismatchCount();
     }
 
-    public int getTotalCount() {
-        return fragmentComparison.getTotalCount();
+    public int getResidueCount() {
+        return fragmentComparison.getResidueCount();
     }
 
     public boolean isValid() {
@@ -219,8 +219,8 @@ public class FragmentMatch implements Visualizable {
         int i = 0;
         for (MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
             double[][] data = new double[2][];
-            data[0] = new double[fragmentComparison.getTotalCount()];
-            data[1] = new double[fragmentComparison.getTotalCount()];
+            data[0] = new double[fragmentComparison.getResidueCount()];
+            data[1] = new double[fragmentComparison.getResidueCount()];
 
             int j = 0;
             for (ResidueComparison residue : fragmentComparison.getResidueComparisons()) {
