@@ -6,10 +6,10 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class Clusterer {
-    public static List<Cluster> initialClusterAssignment(int n) {
+    public static List<Cluster> initialClusterAssignment(List<String> names) {
         List<Cluster> clusters = new ArrayList<>();
-        for (int i = 0; i < n; ++i) {
-            clusters.add(new Cluster(i));
+        for (int i = 0; i < names.size(); ++i) {
+            clusters.add(new Cluster(i, names.get(i)));
         }
         return clusters;
     }
@@ -26,7 +26,7 @@ public final class Clusterer {
     }
 
     public HierarchicalClustering cluster() {
-        List<Cluster> clusters = Clusterer.initialClusterAssignment(matrix.length);
+        List<Cluster> clusters = Clusterer.initialClusterAssignment(names);
         List<HierarchicalClusterMerge> merges = new ArrayList<>();
 
         while (clusters.size() > 1) {
