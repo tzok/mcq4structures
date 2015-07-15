@@ -51,7 +51,7 @@ public class HierarchicalClustering implements Visualizable {
         /*
          * Initialize positions of all dendrogram leaves
          */
-        List<Cluster> clusters = Clusterer.initialClusterAssignment(names.size());
+        List<Cluster> clusters = Clusterer.initialClusterAssignment(names);
         Map<Cluster, Pair<Integer, Integer>> mapCoords = new HashMap<>();
         LineMetrics lineMetrics = SVGHelper.getLineMetrics(graphics);
         int fontHeight = (int) Math.ceil(lineMetrics.getHeight());
@@ -133,7 +133,7 @@ public class HierarchicalClustering implements Visualizable {
     }
 
     private Cluster getFinalCluster() {
-        List<Cluster> clusters = Clusterer.initialClusterAssignment(names.size());
+        List<Cluster> clusters = Clusterer.initialClusterAssignment(names);
 
         for (HierarchicalClusterMerge merge : merges) {
             Cluster left = clusters.get(merge.getLeft());
