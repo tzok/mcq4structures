@@ -1,14 +1,10 @@
 package pl.poznan.put.visualisation;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mdsj.MDSJ;
-
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.ClusterAssignment;
@@ -16,9 +12,9 @@ import pl.poznan.put.clustering.partitional.ClusterPrototypes;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.constant.Colors;
-import pl.poznan.put.datamodel.ColoredNamedPoint;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
+import pl.poznan.put.visualisation.MDSDrawer.ColorProvider;
 
 public class PartitionalClustering implements Visualizable {
     private final Map<Integer, Color> clusterColor = new HashMap<>();
@@ -63,46 +59,13 @@ public class PartitionalClustering implements Visualizable {
 
     @Override
     public SVGDocument visualize() {
-        double[][] matrix = distanceMatrix.getMatrix();
-        // TODO: decide which MDS implementation to use
-        // List<ColoredNamedPoint> points = drawWithMDSJ(matrix);
-        List<ColoredNamedPoint> points = drawWithOwnMDS(matrix);
-        return MDSDrawer.drawPoints(points);
-    }
-
-    private List<ColoredNamedPoint> drawWithOwnMDS(double[][] matrix) {
-        List<ColoredNamedPoint> points = new ArrayList<>();
-        double[][] xyMatrix = MDS.multidimensionalScaling(matrix, 2);
-        for (int i = 0; i < matrix.length; i++) {
-            Color color = getClusterColor(i);
-            String name = getClusterDescription(i);
-            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
-            points.add(new ColoredNamedPoint(color, name, point));
-        }
-        return points;
-    }
-
-    @SuppressWarnings("unused")
-    private List<ColoredNamedPoint> drawWithMDSJ(double[][] matrix) {
-        List<ColoredNamedPoint> points = new ArrayList<>();
-        double[][] xyMatrix = MDSJ.stressMinimization(matrix);
-        for (int i = 0; i < matrix.length; i++) {
-            Color color = getClusterColor(i);
-            String name = getClusterDescription(i);
-            Vector2D point = new Vector2D(xyMatrix[0][i], xyMatrix[1][i]);
-            points.add(new ColoredNamedPoint(color, name, point));
-        }
-        return points;
-    }
-
-    private Color getClusterColor(int index) {
-        int prototype = assignment.getPrototype(index);
-        return clusterColor.get(prototype);
-    }
-
-    private String getClusterDescription(int index) {
-        int prototype = assignment.getPrototype(index);
-        return distanceMatrix.getNames().get(index) + "\n\n" + clusterText.get(prototype);
+        return MDSDrawer.scale2DAndVisualizePoints(distanceMatrix, new ColorProvider() {
+            @Override
+            public Color getColor(int index) {
+                int prototype = assignment.getPrototype(index);
+                return clusterColor.get(prototype);
+            }
+        });
     }
 
     @Override

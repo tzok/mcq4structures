@@ -204,13 +204,7 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.7</version>
 		</dependency>
-		<dependency>
-			<groupId>org</groupId>
-			<artifactId>mdsj</artifactId>
-			<version>0.2.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/mdsj-0.2.0.jar</systemPath>
-		</dependency>
+
 		<dependency>
 			<groupId>fr.lri.varna</groupId>
 			<artifactId>varna</artifactId>
@@ -222,7 +216,7 @@
 		<dependency>
 			<groupId>pl.poznan.put</groupId>
 			<artifactId>clustering</artifactId>
-			<version>1.2</version>
+			<version>1.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>pl.poznan.put</groupId>
