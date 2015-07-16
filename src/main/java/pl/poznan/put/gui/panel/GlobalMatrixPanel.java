@@ -132,10 +132,10 @@ public class GlobalMatrixPanel extends JPanel {
                     SVGDocument document = matrix.visualize();
 
                     tableMatrix.setModel(matrix.asDisplayableTableModel());
-                    tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
+                    updateRowHeights();
+
                     visualization.setSVGDocument(document);
                     updateHeader(true, measureType.getName());
-                    updateRowHeights();
                     callback.complete(new ProcessingResult(matrix));
                 }
             });
