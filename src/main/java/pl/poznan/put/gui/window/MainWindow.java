@@ -479,7 +479,7 @@ public class MainWindow extends JFrame {
     }
 
     private void selectChainsMultiple(JMenuItem source) {
-        if (dialogChainsMultiple.showDialog() != DialogSelectChainsMultiple.OK) {
+        if (dialogChainsMultiple.showDialog(source.equals(itemSelectStructuresCompare)) != DialogSelectChainsMultiple.OK) {
             return;
         }
 

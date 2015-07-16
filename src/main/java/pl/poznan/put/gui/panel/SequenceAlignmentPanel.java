@@ -71,7 +71,7 @@ public class SequenceAlignmentPanel extends JPanel {
         if (readyResults) {
             builder.append("<br>");
             builder.append(isGlobal ? "Global" : "Local");
-            builder.append("sequence alignment results:");
+            builder.append(" sequence alignment results:");
         }
 
         builder.append("</html>");
