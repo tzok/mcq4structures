@@ -1,21 +1,8 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularOperationException;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
@@ -24,12 +11,14 @@ import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.torsion.TorsionAngleValue;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.List;
 
 public class TorsionAngleValuesMatrixPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(TorsionAngleValuesMatrixPanel.class);
@@ -65,17 +54,7 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
         tableMatrix.setModel(selection.asDisplayableTableModel());
 
         for (MasterTorsionAngleType masterType : selection.getCommonTorsionAngleTypes()) {
-            List<Angle> angles = new ArrayList<>();
-
-            for (PdbCompactFragment fragment : selection.getCompactFragments()) {
-                for (PdbResidue residue : fragment.getResidues()) {
-                    TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, masterType);
-                    Angle angle = angleValue.getValue();
-                    if (angle.isValid()) {
-                        angles.add(angle);
-                    }
-                }
-            }
+            List<Angle> angles = selection.getValidTorsionAngleValues(masterType);
 
             if (angles.isEmpty()) {
                 continue;
