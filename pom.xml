@@ -47,7 +47,7 @@
         <dependency>
             <groupId>pl.poznan.put</groupId>
             <artifactId>mcq4structures</artifactId>
-            <version>1.2-rc1</version>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 </project>
