@@ -85,8 +85,8 @@ public class SecondaryStructureVisualizer {
 
         try {
             tempFile = File.createTempFile("mcq4structures", ".svg");
-
-            ModeleColorMap modelColorMap = ColorMapWrapper.getVarnaColorMap(0, Math.PI);
+            double max = 0; for (double d : angleDeltas) { max = d > max ? d : max; }
+            ModeleColorMap modelColorMap = ColorMapWrapper.getVarnaColorMap(0, max);
 
             VARNAConfig config = new VARNAConfig();
             config._cm = modelColorMap;

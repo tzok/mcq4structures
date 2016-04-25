@@ -1,15 +1,6 @@
 package pl.poznan.put.visualisation;
 
-import java.awt.Color;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
@@ -17,17 +8,17 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
-
-import pl.poznan.put.clustering.hierarchical.Cluster;
-import pl.poznan.put.clustering.hierarchical.Clusterer;
-import pl.poznan.put.clustering.hierarchical.HierarchicalClusterMerge;
-import pl.poznan.put.clustering.hierarchical.HierarchicalClustering;
-import pl.poznan.put.clustering.hierarchical.Linkage;
+import pl.poznan.put.clustering.hierarchical.*;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ColoredNamedPoint;
 import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
+
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.*;
+import java.util.List;
 
 public class MDSDrawer {
     public static interface ColorProvider {
@@ -148,7 +139,7 @@ public class MDSDrawer {
     }
 
     private static void createAndAddTextElements(SVGDocument document,
-            Element svgRoot, List<? extends NamedPoint> points) {
+                                                 Element svgRoot, List<? extends NamedPoint> points) {
         double maxDistance = MDSDrawer.calculateMaxDistance(points);
         double scale = MDSDrawer.DESIRED_WIDTH / maxDistance;
 
@@ -178,7 +169,7 @@ public class MDSDrawer {
     }
 
     private static void createAndAddLinearGradients(SVGDocument document,
-            Element svgRoot, List<? extends NamedPoint> points) {
+                                                    Element svgRoot, List<? extends NamedPoint> points) {
         Element defs = document.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, SVGConstants.SVG_DEFS_TAG);
 
         for (NamedPoint point : points) {

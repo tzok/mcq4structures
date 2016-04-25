@@ -1,5 +1,11 @@
 package pl.poznan.put.matching;
 
+import org.apache.commons.io.IOUtils;
+import org.biojava.nbio.structure.StructureException;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
+import pl.poznan.put.types.ExportFormat;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,13 +15,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.biojava.bio.structure.StructureException;
-
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
-import pl.poznan.put.types.ExportFormat;
-
 public class SelectionMatch implements Exportable, MatchCollection {
     private final List<String> residueLabels;
 
@@ -24,7 +23,7 @@ public class SelectionMatch implements Exportable, MatchCollection {
     private final List<FragmentMatch> fragmentMatches;
 
     public SelectionMatch(StructureSelection target, StructureSelection model,
-            List<FragmentMatch> fragmentMatches) {
+                          List<FragmentMatch> fragmentMatches) {
         super();
         this.target = target;
         this.model = model;

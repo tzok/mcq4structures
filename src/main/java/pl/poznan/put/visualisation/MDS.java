@@ -1,7 +1,7 @@
 package pl.poznan.put.visualisation;
 
-import org.biojava.bio.structure.jama.EigenvalueDecomposition;
-import org.biojava.bio.structure.jama.Matrix;
+import org.biojava.nbio.structure.jama.EigenvalueDecomposition;
+import org.biojava.nbio.structure.jama.Matrix;
 
 /**
  * A utility class implementing a Multidimensional Scaling method.
@@ -14,14 +14,12 @@ public final class MDS {
      * creates a map of points in N-dimensions whose mutual distances correspond
      * to the given input matrix.
      *
-     * @param distance
-     *            A distance matrix, NxN.
-     * @param dimensions
-     *            Desired number of dimensions, K.
+     * @param distance   A distance matrix, NxN.
+     * @param dimensions Desired number of dimensions, K.
      * @return A matrix NxK, where for each row there are K coordinates.
      */
     public static double[][] multidimensionalScaling(double[][] distance,
-            int dimensions) {
+                                                     int dimensions) {
         MDS.checkSymmetry(distance);
 
         /*

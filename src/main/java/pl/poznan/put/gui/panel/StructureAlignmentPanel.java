@@ -1,25 +1,10 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-
 import org.apache.commons.lang3.tuple.Pair;
-import org.biojava.bio.structure.StructureException;
-import org.biojava.bio.structure.align.gui.jmol.JmolPanel;
+import org.biojava.nbio.structure.StructureException;
+import org.biojava.nbio.structure.align.gui.jmol.JmolPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
@@ -31,6 +16,13 @@ import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class StructureAlignmentPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);
@@ -83,7 +75,7 @@ public class StructureAlignmentPanel extends JPanel {
     }
 
     public void setStructuresAndChains(Pair<PdbModel, PdbModel> structures,
-            Pair<List<PdbChain>, List<PdbChain>> chains) {
+                                       Pair<List<PdbChain>, List<PdbChain>> chains) {
         this.structures = structures;
         this.chains = chains;
 
