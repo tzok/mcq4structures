@@ -1,5 +1,11 @@
 package pl.poznan.put.matching;
 
+import org.apache.commons.io.IOUtils;
+import org.biojava.nbio.structure.StructureException;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
+import pl.poznan.put.types.ExportFormat;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,14 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.biojava.bio.structure.StructureException;
-
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
-import pl.poznan.put.types.ExportFormat;
-
-public class SelectionMatch implements Exportable {
+public class SelectionMatch implements Exportable, MatchCollection {
     private final List<String> residueLabels;
 
     private final StructureSelection target;
@@ -24,7 +23,7 @@ public class SelectionMatch implements Exportable {
     private final List<FragmentMatch> fragmentMatches;
 
     public SelectionMatch(StructureSelection target, StructureSelection model,
-            List<FragmentMatch> fragmentMatches) {
+                          List<FragmentMatch> fragmentMatches) {
         super();
         this.target = target;
         this.model = model;
@@ -36,7 +35,7 @@ public class SelectionMatch implements Exportable {
     private List<String> makeResidueLabelsList() {
         List<String> result = new ArrayList<>();
         for (FragmentMatch fragment : fragmentMatches) {
-            result.addAll(fragment.getResidueLabels());
+            result.addAll(fragment.generateLabelsWithResidueNames());
         }
         return result;
     }
@@ -49,8 +48,13 @@ public class SelectionMatch implements Exportable {
         return model;
     }
 
+    @Override
     public List<FragmentMatch> getFragmentMatches() {
         return Collections.unmodifiableList(fragmentMatches);
+    }
+
+    public int getFragmentCount() {
+        return fragmentMatches.size();
     }
 
     public List<String> getResidueLabels() {
@@ -92,9 +96,5 @@ public class SelectionMatch implements Exportable {
         filename.append(model.getName());
         filename.append(".pdb");
         return new File(filename.toString());
-    }
-
-    public int size() {
-        return fragmentMatches.size();
     }
 }

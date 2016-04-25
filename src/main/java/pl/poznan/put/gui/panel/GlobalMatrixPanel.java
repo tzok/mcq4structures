@@ -1,6 +1,7 @@
 package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +15,8 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +27,7 @@ import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.gui.component.MatrixVisualizationComponent;
+import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
@@ -42,7 +44,7 @@ public class GlobalMatrixPanel extends JPanel {
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar(0, 1);
-    private final MatrixVisualizationComponent visualization = new MatrixVisualizationComponent(SVGHelper.emptyDocument());
+    private final SVGComponent visualization = new SVGComponent(SVGHelper.emptyDocument(), "matrix");
 
     private List<PdbModel> structures = Collections.emptyList();
 
@@ -72,6 +74,7 @@ public class GlobalMatrixPanel extends JPanel {
 
     public void setStructures(List<PdbModel> structures) {
         this.structures = structures;
+        tableMatrix.setModel(new DefaultTableModel());
         visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false, "");
     }
@@ -128,10 +131,11 @@ public class GlobalMatrixPanel extends JPanel {
                     SVGDocument document = matrix.visualize();
 
                     tableMatrix.setModel(matrix.asDisplayableTableModel());
-                    tableMatrix.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
+                    updateRowHeights();
+
                     visualization.setSVGDocument(document);
                     updateHeader(true, measureType.getName());
-                    callback.complete(new ProcessingResult(matrix, Collections.singletonList(document)));
+                    callback.complete(new ProcessingResult(matrix));
                 }
             });
 
@@ -140,6 +144,24 @@ public class GlobalMatrixPanel extends JPanel {
             String message = "Failed to compare structures";
             GlobalMatrixPanel.LOGGER.error(message, e);
             JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void updateRowHeights() {
+        if (tableMatrix.getColumnCount() <= 1) {
+            return;
+        }
+
+        int rowHeight = tableMatrix.getRowHeight();
+
+        for (int row = 0; row < tableMatrix.getRowCount(); row++) {
+            TableCellRenderer cellRenderer = tableMatrix.getCellRenderer(row, 1);
+            Component comp = tableMatrix.prepareRenderer(cellRenderer, row, 1);
+            rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+        }
+
+        for (int row = 0; row < tableMatrix.getRowCount(); row++) {
+            tableMatrix.setRowHeight(row, rowHeight);
         }
     }
 }

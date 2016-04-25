@@ -13,6 +13,7 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +22,11 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
-import pl.poznan.put.comparison.local.ModelsComparisonResult.SelectedAngle;
 import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.gui.component.ColorbarComponent;
+import pl.poznan.put.gui.component.SVGComponent;
+import pl.poznan.put.matching.AngleDeltaIteratorFactory;
+import pl.poznan.put.matching.TypedDeltaIteratorFactory;
+import pl.poznan.put.matching.stats.MultiMatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -55,7 +58,9 @@ public class LocalMultiMatrixPanel extends JPanel {
 
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
-    private final ColorbarComponent visualization = new ColorbarComponent(SVGHelper.emptyDocument());
+    private final JTable histogramMatrix = new JTable();
+    private final JTable percentileMatrix = new JTable();
+    private final SVGComponent visualization = new SVGComponent(SVGHelper.emptyDocument(), "colorbar");
 
     private List<PdbCompactFragment> fragments = Collections.emptyList();
 
@@ -68,11 +73,16 @@ public class LocalMultiMatrixPanel extends JPanel {
         labelInfoMatrix.setFont(UIManager.getFont("Label.font"));
         labelInfoMatrix.setOpaque(false);
 
+        histogramMatrix.setAutoCreateRowSorter(true);
+        percentileMatrix.setAutoCreateRowSorter(true);
+
         JPanel panelInfo = new JPanel(new BorderLayout());
         panelInfo.add(labelInfoMatrix, BorderLayout.CENTER);
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Results", new JScrollPane(tableMatrix));
+        tabbedPane.add("Histograms", new JScrollPane(histogramMatrix));
+        tabbedPane.add("Percentiles", new JScrollPane(percentileMatrix));
         tabbedPane.add("Visualization", new JScrollPane(visualization));
 
         add(panelInfo, BorderLayout.NORTH);
@@ -81,6 +91,10 @@ public class LocalMultiMatrixPanel extends JPanel {
 
     public void setFragments(List<PdbCompactFragment> fragments) {
         this.fragments = fragments;
+        DefaultTableModel emptyDataModel = new DefaultTableModel();
+        tableMatrix.setModel(emptyDataModel);
+        histogramMatrix.setModel(emptyDataModel);
+        percentileMatrix.setModel(emptyDataModel);
         visualization.setSVGDocument(SVGHelper.emptyDocument());
         updateHeader(false);
     }
@@ -120,14 +134,18 @@ public class LocalMultiMatrixPanel extends JPanel {
 
             MCQ mcq = new MCQ(Collections.singletonList(selectedAngleType));
             ModelsComparisonResult result = mcq.compareModels(reference, fragments);
-            SelectedAngle selectedAngle = result.selectAngle(selectedAngleType);
+            ModelsComparisonResult.SelectedAngle selectedAngle = result.selectAngle(selectedAngleType);
+            AngleDeltaIteratorFactory iteratorFactory = new TypedDeltaIteratorFactory(selectedAngleType);
+            MultiMatchStatistics statistics = MultiMatchStatistics.calculate(iteratorFactory, selectedAngle);
             SVGDocument document = selectedAngle.visualize();
 
             tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
+            histogramMatrix.setModel(statistics.histogramsAsTableModel(true));
+            percentileMatrix.setModel(statistics.percentilesAsTableModel(true));
             visualization.setSVGDocument(document);
             updateHeader(true);
 
-            return new ProcessingResult(selectedAngle, Collections.singletonList(document));
+            return new ProcessingResult(selectedAngle);
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMultiMatrixPanel.LOGGER.error(message, e);

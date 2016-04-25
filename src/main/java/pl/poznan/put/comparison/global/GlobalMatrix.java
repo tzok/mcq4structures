@@ -12,10 +12,8 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.StatUtils;
@@ -25,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.constant.Unicode;
-import pl.poznan.put.datamodel.NamedPoint;
+import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -34,7 +32,6 @@ import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.MDS;
 import pl.poznan.put.visualisation.MDSDrawer;
 import pl.poznan.put.visualisation.Surface3D;
 
@@ -170,16 +167,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
             return SVGHelper.emptyDocument();
         }
 
-        List<NamedPoint> points = new ArrayList<>();
-        double[][] xyMatrix = MDS.multidimensionalScaling(array, 2);
-
-        for (int i = 0; i < xyMatrix.length; i++) {
-            String name = names.get(i);
-            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
-            points.add(new NamedPoint(name, point));
-        }
-
-        return MDSDrawer.drawPoints(points);
+        return MDSDrawer.scale2DAndVisualizePoints(distanceMatrixWithoutIncomparables);
     }
 
     @Override
@@ -264,11 +252,11 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
                 if (result == null) {
                     values[i][j + 1] = "Failed";
                 } else {
-                    values[i][j + 1] = isDisplay ? result.getShortDisplayName() : result.getExportName();
+                    values[i][j + 1] = isDisplay ? result.getLongDisplayName() : result.getExportName();
                 }
             }
         }
 
-        return new DefaultTableModel(values, columnNames);
+        return new NonEditableDefaultTableModel(values, columnNames);
     }
 }

@@ -12,12 +12,15 @@ import org.jfree.chart.axis.NumberTick;
 import org.jfree.ui.RectangleEdge;
 
 public class TorsionAxis extends NumberAxis {
-    private List<String> ticksNames;
+    private final List<String> ticksNames;
+    private final double ticksRotation;
 
-    public TorsionAxis(List<String> ticks) {
+    public TorsionAxis(List<String> ticksNames, double ticksRotation,
+            int fontSize) {
         super();
-        ticksNames = ticks;
-        setTickLabelFont(new Font(Font.DIALOG, Font.PLAIN, 8));
+        this.ticksNames = ticksNames;
+        this.ticksRotation = ticksRotation;
+        setTickLabelFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
     }
 
     @Override
@@ -38,7 +41,7 @@ public class TorsionAxis extends NumberAxis {
             NumberTick nt = visibleIntegerTicks.get(i);
             int index = (int) nt.getValue();
             if (index < ticksNames.size()) {
-                result.add(new NumberTick(index, ticksNames.get(index), nt.getTextAnchor(), nt.getRotationAnchor(), Math.PI / 4));
+                result.add(new NumberTick(index, ticksNames.get(index), nt.getTextAnchor(), nt.getRotationAnchor(), ticksRotation));
             }
         }
         return result;

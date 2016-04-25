@@ -3,7 +3,6 @@ package pl.poznan.put.gui.panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -15,6 +14,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,15 +27,17 @@ import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.gui.component.ChartComponent;
+import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.visualisation.SecondaryStructureVisualizer;
 
 public class LocalMatrixPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalMatrixPanel.class);
@@ -91,6 +93,7 @@ public class LocalMatrixPanel extends JPanel {
         this.structures = structures;
         this.chains = chains;
         removeAllButFirstTab();
+        tableMatrix.setModel(new DefaultTableModel());
         updateHeader(false);
     }
 
@@ -141,20 +144,29 @@ public class LocalMatrixPanel extends JPanel {
             SelectionMatch selectionMatch = result.getSelectionMatch();
             removeAllButFirstTab();
 
-            List<SVGDocument> visualizations = new ArrayList<>();
-
             for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
                 SVGDocument svgDocument = fragmentMatch.visualize(1024, 576);
                 String title = fragmentMatch.toString();
-                ChartComponent component = new ChartComponent(svgDocument);
+                SVGComponent component = new SVGComponent(svgDocument, "chart");
                 tabbedPane.add(title, component);
-                visualizations.add(svgDocument);
+
+                if (fragmentMatch.getTargetFragment().getMoleculeType() == MoleculeType.RNA) {
+                    svgDocument = SecondaryStructureVisualizer.visualize(fragmentMatch);
+                    title = fragmentMatch.toString() + " (secondary structure)";
+                    component = new SVGComponent(svgDocument, "secondary");
+                    tabbedPane.add(title, component);
+                }
+
+                svgDocument = fragmentMatch.visualizePercentiles(1024, 576);
+                title = fragmentMatch.toString() + " (percentiles)";
+                component = new SVGComponent(svgDocument, "percentiles");
+                tabbedPane.add(title, component);
             }
 
             tableMatrix.setModel(result.asDisplayableTableModel());
             updateHeader(true);
 
-            return new ProcessingResult(result, visualizations);
+            return new ProcessingResult(result);
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMatrixPanel.LOGGER.error(message, e);

@@ -17,16 +17,24 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.XYDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
 
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.matching.stats.SingleMatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
+import pl.poznan.put.structure.secondary.DotBracketSymbol;
+import pl.poznan.put.structure.secondary.formats.BpSeq;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
+import pl.poznan.put.structure.secondary.formats.InvalidSecondaryStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.AngleFormat;
@@ -34,6 +42,8 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.TorsionAxis;
 
 public class FragmentMatch implements Visualizable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FragmentMatch.class);
+
     public static FragmentMatch invalidInstance(
             PdbCompactFragment targetFragment, PdbCompactFragment modelFragment) {
         return new FragmentMatch(targetFragment, modelFragment, false, 0, FragmentComparison.invalidInstance());
@@ -104,8 +114,8 @@ public class FragmentMatch implements Visualizable {
         return fragmentComparison.getMismatchCount();
     }
 
-    public int size() {
-        return fragmentComparison.size();
+    public int getResidueCount() {
+        return fragmentComparison.getResidueCount();
     }
 
     public boolean isValid() {
@@ -133,14 +143,29 @@ public class FragmentMatch implements Visualizable {
         return targetFragment.getMoleculeType();
     }
 
-    public List<String> getResidueLabels() throws InvalidCircularValueException {
+    public List<String> generateLabelsWithResidueNames() {
         PdbCompactFragment target = isTargetSmaller ? targetFragment : targetFragment.shift(shift, modelFragment.size());
-        List<PdbResidue> targetResidues = target.getResidues();
         List<String> result = new ArrayList<>();
+        List<PdbResidue> targetResidues = target.getResidues();
 
-        for (int i = 0; i < target.size(); i++) {
+        for (int i = 0; i < targetResidues.size(); i++) {
             PdbResidue lname = targetResidues.get(i);
             result.add(lname.toString());
+        }
+
+        return result;
+    }
+
+    public List<String> generateLabelsWithDotBracket() throws InvalidSecondaryStructureException {
+        PdbCompactFragment target = isTargetSmaller ? targetFragment : targetFragment.shift(shift, modelFragment.size());
+        List<String> result = new ArrayList<>();
+        List<PdbResidue> targetResidues = target.getResidues();
+        BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+        DotBracket dotBracket = DotBracket.fromBpSeq(bpSeq);
+
+        for (int i = 0; i < targetResidues.size(); i++) {
+            DotBracketSymbol symbol = dotBracket.getSymbol(i);
+            result.add(Character.toString(symbol.getStructure()));
         }
 
         return result;
@@ -155,11 +180,47 @@ public class FragmentMatch implements Visualizable {
         DefaultXYDataset dataset = new DefaultXYDataset();
         XYItemRenderer renderer = new DefaultXYItemRenderer();
 
+        prepareDataset(dataset, renderer);
+
+        ValueAxis domainAxis = prepareDomainAxis();
+        NumberAxis rangeAxis = new NumberAxis();
+        rangeAxis.setLabel("Angular distance");
+        rangeAxis.setRange(0, Math.PI);
+        rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
+        rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
+
+        return plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
+    }
+
+    private ValueAxis prepareDomainAxis() {
+        ValueAxis domainAxis = null;
+
+        if (targetFragment.getMoleculeType() == MoleculeType.RNA) {
+            try {
+                List<String> ticks = generateLabelsWithDotBracket();
+                domainAxis = new TorsionAxis(ticks, 0, 12);
+                domainAxis.setLabel("Secondary structure");
+            } catch (InvalidSecondaryStructureException e) {
+                FragmentMatch.LOGGER.warn("Failed to extract canonical secondary structure", e);
+            }
+        }
+
+        if (domainAxis == null) {
+            List<String> ticks = generateLabelsWithResidueNames();
+            domainAxis = new TorsionAxis(ticks, -Math.PI / 4, 6);
+            domainAxis.setLabel("ResID");
+        }
+
+        return domainAxis;
+    }
+
+    private void prepareDataset(DefaultXYDataset dataset,
+            XYItemRenderer renderer) {
         int i = 0;
         for (MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
             double[][] data = new double[2][];
-            data[0] = new double[fragmentComparison.size()];
-            data[1] = new double[fragmentComparison.size()];
+            data[0] = new double[fragmentComparison.getResidueCount()];
+            data[1] = new double[fragmentComparison.getResidueCount()];
 
             int j = 0;
             for (ResidueComparison residue : fragmentComparison.getResidueComparisons()) {
@@ -180,17 +241,11 @@ public class FragmentMatch implements Visualizable {
             renderer.setSeriesPaint(i, Colors.DISTINCT_COLORS[i]);
             i++;
         }
+    }
 
-        List<String> ticks = getResidueLabels();
-        ValueAxis domainAxis = new TorsionAxis(ticks);
-        domainAxis.setLabel("ResID");
-
-        NumberAxis rangeAxis = new NumberAxis();
-        rangeAxis.setLabel("Angular distance");
-        rangeAxis.setRange(0, Math.PI);
-        rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-        rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
-
+    private static SVGDocument plotAsSvg(int width, int height,
+            XYDataset dataset, XYItemRenderer renderer, ValueAxis domainAxis,
+            ValueAxis rangeAxis) {
         Plot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
         JFreeChart chart = new JFreeChart(plot);
 
@@ -206,12 +261,55 @@ public class FragmentMatch implements Visualizable {
         root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
         root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
         root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
-
         return document;
     }
 
     @Override
     public void visualize3D() {
         // do nothing
+    }
+
+    public SVGDocument visualizePercentiles(int width, int height) {
+        DefaultXYDataset dataset = new DefaultXYDataset();
+        XYItemRenderer renderer = new DefaultXYItemRenderer();
+        preparePercentilesDataset(dataset, renderer);
+
+        NumberAxis domainAxis = new NumberAxis();
+        domainAxis.setLabel("Percentile");
+        domainAxis.setRange(0, 100);
+
+        NumberAxis rangeAxis = new NumberAxis();
+        rangeAxis.setLabel("Angular distance");
+        rangeAxis.setRange(0, Math.PI);
+        rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
+        rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
+
+        return plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
+    }
+
+    private void preparePercentilesDataset(DefaultXYDataset dataset,
+            XYItemRenderer renderer) {
+        String name = modelFragment.getName();
+        double[] percents = SingleMatchStatistics.PERCENTS_FROM_1_TO_100;
+        List<MasterTorsionAngleType> angleTypes = fragmentComparison.getAngleTypes();
+
+        for (int j = 0; j < angleTypes.size(); j++) {
+            MasterTorsionAngleType masterType = angleTypes.get(j);
+            AngleDeltaIterator angleDeltaIterator = new TypedDeltaIterator(this, masterType);
+            SingleMatchStatistics statistics = SingleMatchStatistics.calculate(name, angleDeltaIterator, new double[0], percents);
+
+            double[][] data = new double[2][];
+            data[0] = new double[percents.length];
+            data[1] = new double[percents.length];
+
+            for (int i = 0; i < percents.length; i++) {
+                data[0][i] = percents[i];
+                data[1][i] = statistics.getAngleThresholdForGivenPercentile(percents[i]);
+            }
+
+            String displayName = masterType.getLongDisplayName();
+            dataset.addSeries(displayName, data);
+            renderer.setSeriesPaint(j, Colors.DISTINCT_COLORS[j]);
+        }
     }
 }

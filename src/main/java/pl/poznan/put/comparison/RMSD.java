@@ -1,11 +1,6 @@
 package pl.poznan.put.comparison;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.biojava.bio.structure.StructureException;
-
+import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
@@ -18,6 +13,10 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Implementation of RMSD global similarity measure.
@@ -52,11 +51,11 @@ public class RMSD implements GlobalComparator {
 
     @Override
     public GlobalResult compareGlobally(StructureSelection s1,
-            StructureSelection s2) throws IncomparableStructuresException {
+                                        StructureSelection s2) throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
 
-        if (matches == null || matches.size() == 0) {
+        if (matches == null || matches.getFragmentCount() == 0) {
             throw new IncomparableStructuresException("No matching fragments found");
         }
 

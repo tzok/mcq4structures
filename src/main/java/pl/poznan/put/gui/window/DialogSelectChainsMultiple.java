@@ -54,6 +54,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
     private final JButton buttonDeselectAll = new JButton("<- Deselect all");
 
     private int chosenOption;
+    private boolean isFragmentsSizeConstrained;
     private List<PdbCompactFragment> selectedChains = new ArrayList<>();
 
     public DialogSelectChainsMultiple(Frame owner) {
@@ -148,7 +149,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
                     ListSelectionModel source = (ListSelectionModel) arg0.getSource();
                     if (source.equals(listAll.getSelectionModel())) {
                         buttonSelect.setEnabled(!listAll.isSelectionEmpty());
-                    } else { // source.equals(listSelected)
+                    } else if (source.equals(listSelected)) {
                         buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
                     }
 
@@ -161,12 +162,12 @@ public final class DialogSelectChainsMultiple extends JDialog {
 
         ActionListener actionListenerSelectDeselect = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(ActionEvent evt) {
                 List<PdbCompactFragment> values;
                 boolean isSelect;
 
-                if (arg0 != null) {
-                    Object source = arg0.getSource();
+                if (evt != null) {
+                    Object source = evt.getSource();
                     if (source.equals(buttonSelect)) {
                         values = listAll.getSelectedValuesList();
                         isSelect = true;
@@ -184,7 +185,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
                     for (PdbCompactFragment f : values) {
                         assert f != null;
                         if (isSelect) {
-                            if (modelSelected.canAddElement(f)) {
+                            if (modelSelected.canAddElement(f, isFragmentsSizeConstrained)) {
                                 modelAll.removeElement(f);
                                 modelSelected.addElement(f);
                             }
@@ -252,7 +253,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
         buttonOk.setEnabled(modelSelected.getSize() >= 2);
     }
 
-    public int showDialog() {
+    public int showDialog(boolean fragmentsMustBeSameSize) {
         List<PdbCompactFragment> fragments = new ArrayList<>();
 
         for (PdbModel structure : StructureManager.getAllStructures()) {
@@ -287,8 +288,22 @@ public final class DialogSelectChainsMultiple extends JDialog {
         listAll.updateUI();
         listSelected.updateUI();
         chosenOption = DialogSelectChainsMultiple.CANCEL;
+        isFragmentsSizeConstrained = fragmentsMustBeSameSize;
 
+        deselectAll();
         setVisible(true);
         return chosenOption;
+    }
+
+    private void deselectAll() {
+        for (PdbCompactFragment f : modelSelected.getElements()) {
+            modelAll.addElement(f);
+            modelSelected.removeElement(f);
+        }
+
+        listAll.clearSelection();
+        listSelected.clearSelection();
+        listAll.updateUI();
+        listSelected.updateUI();
     }
 }

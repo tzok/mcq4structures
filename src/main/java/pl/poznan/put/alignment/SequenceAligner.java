@@ -1,32 +1,28 @@
 package pl.poznan.put.alignment;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.biojava3.alignment.Alignments;
-import org.biojava3.alignment.Alignments.PairwiseSequenceScorerType;
-import org.biojava3.alignment.SimpleSubstitutionMatrix;
-import org.biojava3.alignment.SubstitutionMatrixHelper;
-import org.biojava3.alignment.template.AlignedSequence;
-import org.biojava3.alignment.template.Profile;
-import org.biojava3.alignment.template.SubstitutionMatrix;
-import org.biojava3.core.sequence.ProteinSequence;
-import org.biojava3.core.sequence.RNASequence;
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.compound.NucleotideCompound;
-import org.biojava3.core.sequence.compound.RNACompoundSet;
-import org.biojava3.core.sequence.template.AbstractCompound;
-import org.biojava3.core.sequence.template.AbstractSequence;
+import org.biojava.nbio.alignment.Alignments;
+import org.biojava.nbio.alignment.Alignments.PairwiseSequenceScorerType;
+import org.biojava.nbio.core.alignment.matrices.SimpleSubstitutionMatrix;
+import org.biojava.nbio.core.alignment.matrices.SubstitutionMatrixHelper;
+import org.biojava.nbio.core.alignment.template.AlignedSequence;
+import org.biojava.nbio.core.alignment.template.Profile;
+import org.biojava.nbio.core.alignment.template.SubstitutionMatrix;
+import org.biojava.nbio.core.exceptions.CompoundNotFoundException;
+import org.biojava.nbio.core.sequence.ProteinSequence;
+import org.biojava.nbio.core.sequence.RNASequence;
+import org.biojava.nbio.core.sequence.compound.AminoAcidCompound;
+import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
+import org.biojava.nbio.core.sequence.compound.RNACompoundSet;
+import org.biojava.nbio.core.sequence.template.AbstractCompound;
+import org.biojava.nbio.core.sequence.template.AbstractSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 
 public final class SequenceAligner {
     private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAligner.class);
@@ -47,8 +43,8 @@ public final class SequenceAligner {
         substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix() : SequenceAligner.getProteinSubstitutionMatrix();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public SequenceAlignment align() {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public SequenceAlignment align() throws CompoundNotFoundException {
         if (fragments.size() == 0) {
             return null;
         }

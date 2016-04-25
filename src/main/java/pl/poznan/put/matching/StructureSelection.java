@@ -1,31 +1,31 @@
 package pl.poznan.put.matching;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-
 import org.apache.commons.collections4.CollectionUtils;
-
+import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
+import pl.poznan.put.pdb.PdbResidueIdentifier;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.torsion.TorsionAngleType;
+import pl.poznan.put.pdb.analysis.ResidueCollection;
+import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
+import pl.poznan.put.rna.torsion.RNATorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
-public class StructureSelection implements Exportable, Tabular {
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
+
+public class StructureSelection implements Exportable, Tabular, ResidueCollection {
     private static final int MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT = 3;
 
     private final List<PdbCompactFragment> compactFragments = new ArrayList<>();
@@ -89,8 +89,40 @@ public class StructureSelection implements Exportable, Tabular {
         return name;
     }
 
+    public List<Angle> getValidTorsionAngleValues(MasterTorsionAngleType masterType) {
+        List<Angle> angles = new ArrayList<>();
+
+        for (PdbCompactFragment fragment : compactFragments) {
+            for (PdbResidue residue : fragment.getResidues()) {
+                TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, masterType);
+                Angle angle = angleValue.getValue();
+                if (angle.isValid()) {
+                    angles.add(angle);
+                }
+            }
+        }
+
+        return angles;
+    }
+
+    @Override
     public List<PdbResidue> getResidues() {
         return Collections.unmodifiableList(residues);
+    }
+
+    @Override
+    public PdbResidue findResidue(char chainIdentifier, int residueNumber, char insertionCode) {
+        return findResidue(new PdbResidueIdentifier(chainIdentifier, residueNumber, insertionCode));
+    }
+
+    @Override
+    public PdbResidue findResidue(PdbResidueIdentifier query) {
+        for (PdbResidue residue : residues) {
+            if (query.equals(residue.getResidueIdentifier())) {
+                return residue;
+            }
+        }
+        throw new IllegalArgumentException("Failed to find residue: " + query);
     }
 
     public List<PdbCompactFragment> getCompactFragments() {
@@ -168,11 +200,11 @@ public class StructureSelection implements Exportable, Tabular {
     }
 
     private TableModel asTableModel(boolean isDisplayable) {
-        Set<TorsionAngleType> allAngleTypes = commonTorsionAngleTypes();
+        Set<MasterTorsionAngleType> allAngleTypes = getCommonTorsionAngleTypes();
         Set<String> columns = new LinkedHashSet<>();
         columns.add("Residue");
 
-        for (TorsionAngleType angleType : allAngleTypes) {
+        for (MasterTorsionAngleType angleType : allAngleTypes) {
             columns.add(isDisplayable ? angleType.getLongDisplayName() : angleType.getExportName());
         }
 
@@ -191,10 +223,10 @@ public class StructureSelection implements Exportable, Tabular {
                 List<String> row = new ArrayList<>();
                 row.add(residue.toString());
 
-                for (TorsionAngleType angleType : allAngleTypes) {
+                for (MasterTorsionAngleType angleType : allAngleTypes) {
                     TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, angleType);
                     double radians = angleValue.getValue().getRadians();
-                    row.add(isDisplayable ? AngleFormat.formatDisplayLong(radians) : AngleFormat.formatExport(radians));
+                    row.add(isDisplayable ? AngleFormat.formatDisplayShort(radians) : AngleFormat.formatExport(radians));
                 }
 
                 data[i] = row.toArray(new String[row.size()]);
@@ -205,12 +237,29 @@ public class StructureSelection implements Exportable, Tabular {
         return new DefaultTableModel(data, columns.toArray(new String[columns.size()]));
     }
 
-    private Set<TorsionAngleType> commonTorsionAngleTypes() {
-        Set<TorsionAngleType> set = new LinkedHashSet<>();
+    public Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
+        Set<MasterTorsionAngleType> commonTypes = new LinkedHashSet<>();
+
         for (PdbCompactFragment compactFragment : compactFragments) {
-            set.addAll(compactFragment.commonTorsionAngleTypes());
+            MoleculeType moleculeType = compactFragment.getMoleculeType();
+            Collection<? extends MasterTorsionAngleType> angleTypes;
+
+            switch (moleculeType) {
+                case PROTEIN:
+                    angleTypes = Arrays.asList(ProteinTorsionAngleType.values());
+                    break;
+                case RNA:
+                    angleTypes = Arrays.asList(RNATorsionAngleType.values());
+                    break;
+                case UNKNOWN:
+                default:
+                    throw new IllegalArgumentException("Unknown molecule type: " + moleculeType);
+            }
+
+            commonTypes.addAll(angleTypes);
         }
-        return set;
+
+        return commonTypes;
     }
 
     public int size() {

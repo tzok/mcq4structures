@@ -25,7 +25,7 @@ import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleType;
 
-public class TorsionAnglesPanel extends JPanel {
+public class TorsionAngleTypesPanel extends JPanel {
     private final Map<JCheckBox, MasterTorsionAngleType> mapCheckBoxToMasterType = new LinkedHashMap<>();
 
     private final JPanel anglesPanel = new JPanel();
@@ -35,7 +35,7 @@ public class TorsionAnglesPanel extends JPanel {
 
     private final ActionListener checkBoxListener;
 
-    public TorsionAnglesPanel(MoleculeType moleculeType,
+    public TorsionAngleTypesPanel(MoleculeType moleculeType,
             ActionListener checkBoxListener) {
         super(new BorderLayout());
         this.checkBoxListener = checkBoxListener;

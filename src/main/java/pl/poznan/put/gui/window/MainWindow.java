@@ -34,7 +34,6 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
@@ -45,14 +44,13 @@ import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
 import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
+import pl.poznan.put.gui.panel.TorsionAngleValuesMatrixPanel;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.types.DistanceMatrix;
-import pl.poznan.put.utility.svg.Format;
-import pl.poznan.put.utility.svg.SVGHelper;
 import darrylbu.component.StayOpenCheckBoxMenuItem;
 import darrylbu.component.StayOpenRadioButtonMenuItem;
 
@@ -60,6 +58,7 @@ public class MainWindow extends JFrame {
     private static final String RESOURCE_ICON_OPEN = "/toolbarButtonGraphics/general/Open16.gif";
     private static final String RESOURCE_ICON_SAVE = "/toolbarButtonGraphics/general/Save16.gif";
 
+    private static final String CARD_TORSION = "CARD_TORSION";
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
     private static final String CARD_GLOBAL_MATRIX = "CARD_GLOBAL_MATRIX";
@@ -103,30 +102,8 @@ public class MainWindow extends JFrame {
     private final ActionListener radioActionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            assert arg0 != null;
-
-            Object source = arg0.getSource();
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-
-            if (!(source.equals(radioGlobalMcq) || source.equals(radioGlobalRmsd))) {
-                itemComputeDistances.setEnabled(false);
-            }
-        }
-    };
-    private final ActionListener radioAlignListener = new ActionListener() {
-        private boolean isSequencePrevious = true;
-
-        @Override
-        public void actionPerformed(ActionEvent arg0) {
-            assert arg0 != null;
-
-            Object source = arg0.getSource();
-            boolean isSequenceNow = source.equals(radioAlignSeqGlobal) || source.equals(radioAlignSeqLocal);
-            if (isSequenceNow != isSequencePrevious) {
-                itemComputeAlign.setEnabled(false);
-            }
-            isSequencePrevious = isSequenceNow;
         }
     };
     private final ActionListener selectActionListener = new ActionListener() {
@@ -135,7 +112,9 @@ public class MainWindow extends JFrame {
             assert e != null;
             JMenuItem source = (JMenuItem) e.getSource();
 
-            if (source.equals(itemSelectStructuresCompare)) {
+            if (source.equals(itemSelectStructureTorsionAngles)) {
+                selectSingleStructure();
+            } else if (source.equals(itemSelectStructuresCompare)) {
                 if (radioLocal.isSelected()) {
                     selectChains(source);
                 } else if (radioLocalMulti.isSelected()) {
@@ -156,9 +135,11 @@ public class MainWindow extends JFrame {
     private final JMenu menuFile = new JMenu("File");
     private final JMenuItem itemOpen = new JMenuItem("Open structure(s)", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_OPEN)));
     private final JMenuItem itemSave = new JMenuItem("Save results", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_SAVE)));
-    private final JMenuItem itemSaveVisualization = new JMenuItem("Save visualization", new ImageIcon(getClass().getResource(MainWindow.RESOURCE_ICON_SAVE)));
     private final JCheckBoxMenuItem checkBoxManager = new StayOpenCheckBoxMenuItem("View structure manager", false);
     private final JMenuItem itemExit = new JMenuItem("Exit");
+
+    private final JMenu menuTorsionAngles = new JMenu("Torsion angles");
+    private final JMenuItem itemSelectStructureTorsionAngles = new JMenuItem("Select structure to represent in torsion angle space");
 
     private final JMenu menuDistanceMeasure = new JMenu("Distance measure");
     private final JRadioButtonMenuItem radioGlobalMcq = new StayOpenRadioButtonMenuItem("Global MCQ", true);
@@ -166,7 +147,6 @@ public class MainWindow extends JFrame {
     private final JRadioButtonMenuItem radioLocal = new StayOpenRadioButtonMenuItem("Local distances (pair)", false);
     private final JRadioButtonMenuItem radioLocalMulti = new StayOpenRadioButtonMenuItem("Local distances (multiple)", false);
     private final JMenuItem itemSelectStructuresCompare = new JMenuItem("Select structures to compare");
-    private final JMenuItem itemComputeDistances = new JMenuItem("Compute distance(s)");
     private final JMenuItem itemVisualise3D = new JMenuItem("Visualise results in 3D");
     private final JMenuItem itemCluster = new JMenuItem("Cluster results");
 
@@ -175,7 +155,6 @@ public class MainWindow extends JFrame {
     private final JRadioButtonMenuItem radioAlignSeqLocal = new StayOpenRadioButtonMenuItem("Local sequence alignment", false);
     private final JRadioButtonMenuItem radioAlignStruc = new StayOpenRadioButtonMenuItem("3D structure alignment", false);
     private final JMenuItem itemSelectStructuresAlign = new JMenuItem("Select structures to align");
-    private final JMenuItem itemComputeAlign = new JMenuItem("Compute alignment");
 
     private final JMenu menuHelp = new JMenu("Help");
     private final JMenuItem itemGuide = new JMenuItem("Quick guide");
@@ -183,6 +162,7 @@ public class MainWindow extends JFrame {
 
     private final CardLayout layoutCards = new CardLayout();
     private final JPanel panelCards = new JPanel();
+    private final TorsionAngleValuesMatrixPanel panelTorsionAngles = new TorsionAngleValuesMatrixPanel();
     private final GlobalMatrixPanel panelResultsGlobalMatrix = new GlobalMatrixPanel();
     private final LocalMatrixPanel panelResultsLocalMatrix = new LocalMatrixPanel();
     private final LocalMultiMatrixPanel panelResultsLocalMultiMatrix = new LocalMultiMatrixPanel();
@@ -216,6 +196,7 @@ public class MainWindow extends JFrame {
 
         panelCards.setLayout(layoutCards);
         panelCards.add(new JPanel());
+        panelCards.add(panelTorsionAngles, MainWindow.CARD_TORSION);
         panelCards.add(panelResultsGlobalMatrix, MainWindow.CARD_GLOBAL_MATRIX);
         panelCards.add(panelResultsLocalMatrix, MainWindow.CARD_LOCAL_MATRIX);
         panelCards.add(panelResultsLocalMultiMatrix, MainWindow.CARD_LOCAL_MULTI_MATRIX);
@@ -248,12 +229,15 @@ public class MainWindow extends JFrame {
         menuFile.setMnemonic(KeyEvent.VK_F);
         menuFile.add(itemOpen);
         menuFile.add(itemSave);
-        menuFile.add(itemSaveVisualization);
         menuFile.addSeparator();
         menuFile.add(checkBoxManager);
         menuFile.addSeparator();
         menuFile.add(itemExit);
         menuBar.add(menuFile);
+
+        menuTorsionAngles.setMnemonic(KeyEvent.VK_T);
+        menuTorsionAngles.add(itemSelectStructureTorsionAngles);
+        menuBar.add(menuTorsionAngles);
 
         menuDistanceMeasure.setMnemonic(KeyEvent.VK_D);
         menuDistanceMeasure.add(new JLabel("    Select distance type:"));
@@ -264,7 +248,6 @@ public class MainWindow extends JFrame {
         menuDistanceMeasure.addSeparator();
         menuDistanceMeasure.add(itemSelectStructuresCompare);
         menuDistanceMeasure.addSeparator();
-        menuDistanceMeasure.add(itemComputeDistances);
         menuDistanceMeasure.add(itemVisualise3D);
         menuDistanceMeasure.add(itemCluster);
         menuBar.add(menuDistanceMeasure);
@@ -276,7 +259,6 @@ public class MainWindow extends JFrame {
         menuAlignment.add(radioAlignStruc);
         menuAlignment.addSeparator();
         menuAlignment.add(itemSelectStructuresAlign);
-        menuAlignment.add(itemComputeAlign);
         menuBar.add(menuAlignment);
 
         menuHelp.setMnemonic(KeyEvent.VK_H);
@@ -289,11 +271,8 @@ public class MainWindow extends JFrame {
 
     private void initializeMenu() {
         itemSave.setEnabled(false);
-        itemSaveVisualization.setEnabled(false);
-        itemComputeDistances.setEnabled(false);
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
-        itemComputeAlign.setEnabled(false);
 
         ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
@@ -313,12 +292,11 @@ public class MainWindow extends JFrame {
         radioLocal.addActionListener(radioActionListener);
         radioLocalMulti.addActionListener(radioActionListener);
 
+        itemSelectStructureTorsionAngles.addActionListener(selectActionListener);
         itemSelectStructuresCompare.addActionListener(selectActionListener);
         itemSelectStructuresAlign.addActionListener(selectActionListener);
 
         radioAlignSeqGlobal.addActionListener(radioActionListener);
-        radioAlignSeqLocal.addActionListener(radioAlignListener);
-        radioAlignStruc.addActionListener(radioAlignListener);
 
         itemOpen.addActionListener(new ActionListener() {
             @Override
@@ -334,13 +312,6 @@ public class MainWindow extends JFrame {
             }
         });
 
-        itemSaveVisualization.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveVisualizations();
-            }
-        });
-
         checkBoxManager.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -352,19 +323,6 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
-            }
-        });
-
-        itemComputeDistances.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (radioGlobalMcq.isSelected() || radioGlobalRmsd.isSelected()) {
-                    compareGlobal();
-                } else if (radioLocal.isSelected()) {
-                    compareLocalPair();
-                } else { // radioLocalMulti.isSelected() == true
-                    compareLocalMulti();
-                }
             }
         });
 
@@ -392,17 +350,6 @@ public class MainWindow extends JFrame {
 
                     DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
                     dialogClustering.setVisible(true);
-                }
-            }
-        });
-
-        itemComputeAlign.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (radioAlignSeqGlobal.isSelected() || radioAlignSeqLocal.isSelected()) {
-                    alignSequences();
-                } else {
-                    alignStructures();
                 }
             }
         });
@@ -463,6 +410,21 @@ public class MainWindow extends JFrame {
         updateMenuEnabledStates();
     }
 
+    private void selectSingleStructure() {
+        itemSave.setEnabled(false);
+
+        List<String> names = StructureManager.getAllNames();
+        String[] selectionValues = names.toArray(new String[names.size()]);
+        String name = (String) JOptionPane.showInputDialog(this, "Select structure", "Represent structure in torsion angle space", JOptionPane.QUESTION_MESSAGE, null, selectionValues, null);
+
+        if (name != null) {
+            PdbModel structure = StructureManager.getStructure(name);
+            currentResult = panelTorsionAngles.calculateTorsionAngles(structure);
+            layoutCards.show(panelCards, MainWindow.CARD_TORSION);
+            updateMenuEnabledStates();
+        }
+    }
+
     private void selectStructures() {
         if (dialogStructures.showDialog() != DialogSelectStructures.OK) {
             return;
@@ -475,13 +437,12 @@ public class MainWindow extends JFrame {
         }
 
         itemSave.setEnabled(false);
-        itemSaveVisualization.setEnabled(false);
-        itemComputeDistances.setEnabled(true);
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 
         panelResultsGlobalMatrix.setStructures(structures);
         layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+        compareGlobal();
     }
 
     private void selectChains(JMenuItem source) {
@@ -500,29 +461,25 @@ public class MainWindow extends JFrame {
 
         if (source.equals(itemSelectStructuresCompare)) {
             itemSave.setEnabled(false);
-            itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(true);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(false);
 
             panelResultsLocalMatrix.setStructuresAndChains(structures, chains);
             layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
+            compareLocalPair();
         } else if (source.equals(itemSelectStructuresAlign)) {
             itemSave.setEnabled(false);
-            itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(true);
 
             panelResultsAlignStruc.setStructuresAndChains(structures, chains);
             layoutCards.show(panelCards, MainWindow.CARD_ALIGN_STRUC);
+            alignStructures();
         }
     }
 
     private void selectChainsMultiple(JMenuItem source) {
-        if (dialogChainsMultiple.showDialog() != DialogSelectChainsMultiple.OK) {
+        if (dialogChainsMultiple.showDialog(source.equals(itemSelectStructuresCompare)) != DialogSelectChainsMultiple.OK) {
             return;
         }
 
@@ -543,24 +500,20 @@ public class MainWindow extends JFrame {
 
         if (source.equals(itemSelectStructuresCompare)) {
             itemSave.setEnabled(false);
-            itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(true);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(false);
 
             panelResultsLocalMultiMatrix.setFragments(fragments);
             layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
+            compareLocalMulti();
         } else if (source.equals(itemSelectStructuresAlign)) {
             itemSave.setEnabled(false);
-            itemSaveVisualization.setEnabled(false);
-            itemComputeDistances.setEnabled(false);
             itemVisualise3D.setEnabled(false);
             itemCluster.setEnabled(false);
-            itemComputeAlign.setEnabled(true);
 
             panelResultsAlignSeq.setFragments(fragments, radioAlignSeqGlobal.isSelected());
             layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
+            alignSequences();
         }
     }
 
@@ -581,34 +534,8 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void saveVisualizations() {
-        if (currentResult.canVisualize()) {
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                List<SVGDocument> visualizations = currentResult.getVisualizations();
-                File directory = fileChooser.getSelectedFile();
-
-                for (int i = 0; i < visualizations.size(); i++) {
-                    String filename = visualizations.size() > 1 ? String.format("visualization-%d.svg", i) : "visualization.svg";
-                    SVGDocument document = visualizations.get(i);
-
-                    try (OutputStream stream = new FileOutputStream(new File(directory, filename))) {
-                        SVGHelper.export(document, stream, Format.SVG, null);
-                    } catch (IOException e) {
-                        JOptionPane.showMessageDialog(MainWindow.this, "Failed to export the visualizations, reason: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                }
-
-                JOptionPane.showMessageDialog(MainWindow.this, "Successfully exported the visualizations!", "Information", JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
-    }
-
     private void updateMenuEnabledStates() {
         itemSave.setEnabled(currentResult.canExport());
-        itemSaveVisualization.setEnabled(currentResult.canVisualize());
         itemCluster.setEnabled(currentResult.canCluster());
         itemVisualise3D.setEnabled(currentResult.canVisualize());
 

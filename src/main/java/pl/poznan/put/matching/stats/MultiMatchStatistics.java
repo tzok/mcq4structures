@@ -3,33 +3,36 @@ package pl.poznan.put.matching.stats;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import pl.poznan.put.comparison.local.ModelsComparisonResult;
+import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
+import pl.poznan.put.matching.AngleDeltaIterator;
+import pl.poznan.put.matching.AngleDeltaIteratorFactory;
 import pl.poznan.put.matching.FragmentMatch;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.matching.MatchCollection;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.CommonNumberFormat;
 
-public class ModelsComparisonStatistics {
-    public static ModelsComparisonStatistics calculate(
-            ModelsComparisonResult.SelectedAngle selectedAngle) {
-        List<MatchStatistics> statistics = new ArrayList<>();
-        MasterTorsionAngleType angleType = selectedAngle.getAngleType();
+public class MultiMatchStatistics {
+    public static MultiMatchStatistics calculate(
+            AngleDeltaIteratorFactory iteratorFactory,
+            MatchCollection matchesCollection) {
+        List<SingleMatchStatistics> statistics = new ArrayList<>();
 
-        for (FragmentMatch fragmentMatch : selectedAngle.getFragmentMatches()) {
-            statistics.add(MatchStatistics.calculate(fragmentMatch, angleType));
+        for (FragmentMatch fragmentMatch : matchesCollection.getFragmentMatches()) {
+            String name = fragmentMatch.getModelFragment().getName();
+            AngleDeltaIterator deltaIterator = iteratorFactory.createInstance(fragmentMatch);
+            statistics.add(SingleMatchStatistics.calculate(name, deltaIterator));
         }
 
-        return new ModelsComparisonStatistics(statistics, MatchStatistics.DEFAULT_ANGLE_LIMITS, MatchStatistics.DEFAULT_PERCENTS_LIMITS);
+        return new MultiMatchStatistics(statistics, SingleMatchStatistics.DEFAULT_ANGLE_LIMITS, SingleMatchStatistics.DEFAULT_PERCENTS_LIMITS);
     }
 
-    private final List<MatchStatistics> statistics;
+    private final List<SingleMatchStatistics> statistics;
     private final double[] angleLimits;
     private final double[] percentsLimits;
 
-    public ModelsComparisonStatistics(List<MatchStatistics> statistics,
+    public MultiMatchStatistics(List<SingleMatchStatistics> statistics,
             double[] angleLimits, double[] percentsLimits) {
         super();
         this.statistics = statistics;
@@ -41,41 +44,44 @@ public class ModelsComparisonStatistics {
         return statistics.size();
     }
 
-    public MatchStatistics getMatchStatistics(int index) {
+    public SingleMatchStatistics getMatchStatistics(int index) {
         return statistics.get(index);
     }
 
-    public TableModel histogramsAsTableModel() {
+    public TableModel histogramsAsTableModel(boolean isDisplayable) {
         String[] columnNames = new String[angleLimits.length + 1];
+        columnNames[0] = isDisplayable ? "" : null;
+
         for (int i = 0; i < angleLimits.length; i++) {
             columnNames[i + 1] = AngleFormat.formatDisplayLong(angleLimits[i]);
         }
 
         String[][] data = new String[statistics.size()][];
         for (int i = 0; i < statistics.size(); i++) {
-            MatchStatistics match = statistics.get(i);
+            SingleMatchStatistics match = statistics.get(i);
             data[i] = new String[angleLimits.length + 1];
-            data[i][0] = match.getMatch().getModelFragment().toString();
+            data[i][0] = match.getName();
 
             for (int j = 0; j < angleLimits.length; j++) {
-                data[i][j + 1] = CommonNumberFormat.formatDouble(match.getRatioOfDeltasBelowThreshold(angleLimits[j]));
+                data[i][j + 1] = CommonNumberFormat.formatDouble(100.0 * match.getRatioOfDeltasBelowThreshold(angleLimits[j])) + "%";
             }
         }
 
-        return new DefaultTableModel(data, columnNames);
+        return new NonEditableDefaultTableModel(data, columnNames);
     }
 
     public TableModel percentilesAsTableModel(boolean isDisplayable) {
         String[] columnNames = new String[percentsLimits.length + 1];
+        columnNames[0] = isDisplayable ? "" : null;
         for (int i = 0; i < percentsLimits.length; i++) {
             columnNames[i + 1] = CommonNumberFormat.formatDouble(percentsLimits[i]) + "%";
         }
 
         String[][] data = new String[statistics.size()][];
         for (int i = 0; i < statistics.size(); i++) {
-            MatchStatistics match = statistics.get(i);
+            SingleMatchStatistics match = statistics.get(i);
             data[i] = new String[percentsLimits.length + 1];
-            data[i][0] = match.getMatch().getModelFragment().toString();
+            data[i][0] = match.getName();
 
             for (int j = 0; j < percentsLimits.length; j++) {
                 double angle = match.getAngleThresholdForGivenPercentile(percentsLimits[j]);
@@ -87,6 +93,6 @@ public class ModelsComparisonStatistics {
             }
         }
 
-        return new DefaultTableModel(data, columnNames);
+        return new NonEditableDefaultTableModel(data, columnNames);
     }
 }

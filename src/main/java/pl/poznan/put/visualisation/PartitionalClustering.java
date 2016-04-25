@@ -1,12 +1,10 @@
 package pl.poznan.put.visualisation;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.w3c.dom.svg.SVGDocument;
 
 import pl.poznan.put.clustering.partitional.ClusterAssignment;
@@ -14,9 +12,9 @@ import pl.poznan.put.clustering.partitional.ClusterPrototypes;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.constant.Colors;
-import pl.poznan.put.datamodel.ColoredNamedPoint;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
+import pl.poznan.put.visualisation.MDSDrawer.ColorProvider;
 
 public class PartitionalClustering implements Visualizable {
     private final Map<Integer, Color> clusterColor = new HashMap<>();
@@ -41,7 +39,7 @@ public class PartitionalClustering implements Visualizable {
         List<String> names = distanceMatrix.getNames();
         int index = 0;
 
-        for (int prototype : assignment.getPrototypes()) {
+        for (int prototype : assignment.getPrototypesIndices()) {
             StringBuilder builder = new StringBuilder("Cluster: { ");
             for (int i : assignment.getAssignedTo(prototype)) {
                 builder.append(names.get(i));
@@ -61,27 +59,13 @@ public class PartitionalClustering implements Visualizable {
 
     @Override
     public SVGDocument visualize() {
-        List<ColoredNamedPoint> points = new ArrayList<>();
-        double[][] xyMatrix = MDS.multidimensionalScaling(distanceMatrix.getMatrix(), 2);
-
-        for (int i = 0; i < xyMatrix.length; i++) {
-            Color color = getClusterColor(i);
-            String name = getClusterDescription(i);
-            Vector2D point = new Vector2D(xyMatrix[i][0], xyMatrix[i][1]);
-            points.add(new ColoredNamedPoint(color, name, point));
-        }
-
-        return MDSDrawer.drawPoints(points);
-    }
-
-    private Color getClusterColor(int index) {
-        int prototype = assignment.getCluster(index);
-        return clusterColor.get(prototype);
-    }
-
-    private String getClusterDescription(int index) {
-        int prototype = assignment.getCluster(index);
-        return distanceMatrix.getNames().get(index) + "\n\n" + clusterText.get(prototype);
+        return MDSDrawer.scale2DAndVisualizePoints(distanceMatrix, new ColorProvider() {
+            @Override
+            public Color getColor(int index) {
+                int prototype = assignment.getPrototype(index);
+                return clusterColor.get(prototype);
+            }
+        });
     }
 
     @Override

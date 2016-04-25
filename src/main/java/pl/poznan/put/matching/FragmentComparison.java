@@ -110,7 +110,7 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
         return targetInvalidCount + modelInvalidCount;
     }
 
-    public int size() {
+    public int getResidueCount() {
         return residueComparisons.size();
     }
 

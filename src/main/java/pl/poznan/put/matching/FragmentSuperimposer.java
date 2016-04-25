@@ -1,17 +1,10 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.biojava.bio.structure.Atom;
-import org.biojava.bio.structure.Calc;
-import org.biojava.bio.structure.SVDSuperimposer;
-import org.biojava.bio.structure.StructureException;
-
+import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.Calc;
+import org.biojava.nbio.structure.SVDSuperimposer;
+import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.atom.AtomName;
 import pl.poznan.put.pdb.PdbAtomLine;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
@@ -19,12 +12,13 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.pdb.analysis.ResidueComponent;
-import pl.poznan.put.pdb.analysis.ResidueInformationProvider;
 import pl.poznan.put.protein.ProteinBackbone;
 import pl.poznan.put.protein.aminoacid.AminoAcidType;
 import pl.poznan.put.rna.Phosphate;
 import pl.poznan.put.rna.Ribose;
 import pl.poznan.put.rna.base.NucleobaseType;
+
+import java.util.*;
 
 public class FragmentSuperimposer {
     public enum AtomFilter {
@@ -42,14 +36,13 @@ public class FragmentSuperimposer {
     private final Atom[] totalAtomsModel;
 
     public FragmentSuperimposer(SelectionMatch selectionMatch,
-            AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
+                                AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
         super();
         this.selectionMatch = selectionMatch;
         this.atomFilter = atomFilter;
         this.onlyHeavy = onlyHeavy;
 
-        int matchesCount = selectionMatch.size();
-
+        int matchesCount = selectionMatch.getFragmentCount();
         if (matchesCount == 0) {
             throw new IllegalArgumentException("Failed to superimpose, because the set of structural matches is empty");
         }
@@ -105,13 +98,13 @@ public class FragmentSuperimposer {
 
     private List<AtomName> handleAtomFilter(MoleculeType moleculeType) {
         switch (moleculeType) {
-        case PROTEIN:
-            return handleAtomFilterForProtein();
-        case RNA:
-            return handleAtomFilterForRNA();
-        case UNKNOWN:
-        default:
-            return Collections.emptyList();
+            case PROTEIN:
+                return handleAtomFilterForProtein();
+            case RNA:
+                return handleAtomFilterForRNA();
+            case UNKNOWN:
+            default:
+                return Collections.emptyList();
         }
     }
 
@@ -119,42 +112,40 @@ public class FragmentSuperimposer {
         Set<AtomName> atomNames = new HashSet<>();
 
         switch (atomFilter) {
-        case ALL:
-            for (NucleobaseType nucleobaseType : NucleobaseType.values()) {
-                ResidueInformationProvider provider = nucleobaseType.getResidueComponent();
-                for (ResidueComponent component : provider.getAllMoleculeComponents()) {
-                    atomNames.addAll(component.getAtoms());
+            case ALL:
+                for (NucleobaseType nucleobaseType : NucleobaseType.values()) {
+                    for (ResidueComponent component : nucleobaseType.getAllMoleculeComponents()) {
+                        atomNames.addAll(component.getAtoms());
+                    }
                 }
-            }
-            return new ArrayList<>(atomNames);
-        case BACKBONE:
-            atomNames.addAll(Phosphate.getInstance().getAtoms());
-            atomNames.addAll(Ribose.getInstance().getAtoms());
-            return new ArrayList<>(atomNames);
-        case MAIN:
-            return Collections.singletonList(AtomName.P);
-        default:
-            return Collections.emptyList();
+                return new ArrayList<>(atomNames);
+            case BACKBONE:
+                atomNames.addAll(Phosphate.getInstance().getAtoms());
+                atomNames.addAll(Ribose.getInstance().getAtoms());
+                return new ArrayList<>(atomNames);
+            case MAIN:
+                return Collections.singletonList(AtomName.P);
+            default:
+                return Collections.emptyList();
         }
     }
 
     private List<AtomName> handleAtomFilterForProtein() {
         switch (atomFilter) {
-        case ALL:
-            Set<AtomName> atomNames = new HashSet<>();
-            for (AminoAcidType aminoAcidType : AminoAcidType.values()) {
-                ResidueInformationProvider provider = aminoAcidType.getResidueComponent();
-                for (ResidueComponent component : provider.getAllMoleculeComponents()) {
-                    atomNames.addAll(component.getAtoms());
+            case ALL:
+                Set<AtomName> atomNames = new HashSet<>();
+                for (AminoAcidType aminoAcidType : AminoAcidType.values()) {
+                    for (ResidueComponent component : aminoAcidType.getAllMoleculeComponents()) {
+                        atomNames.addAll(component.getAtoms());
+                    }
                 }
-            }
-            return new ArrayList<>(atomNames);
-        case BACKBONE:
-            return ProteinBackbone.getInstance().getAtoms();
-        case MAIN:
-            return Collections.singletonList(AtomName.C);
-        default:
-            return Collections.emptyList();
+                return new ArrayList<>(atomNames);
+            case BACKBONE:
+                return ProteinBackbone.getInstance().getAtoms();
+            case MAIN:
+                return Collections.singletonList(AtomName.C);
+            default:
+                return Collections.emptyList();
         }
     }
 
@@ -167,7 +158,7 @@ public class FragmentSuperimposer {
         double distance = 0.0;
         double count = 0.0;
 
-        for (int i = 0; i < selectionMatch.size(); i++) {
+        for (int i = 0; i < selectionMatch.getFragmentCount(); i++) {
             for (int j = 0; j < matchAtomsModel[i].length; j++) {
                 Atom l = matchAtomsTarget[i][j];
                 Atom r = (Atom) matchAtomsModel[i][j].clone();

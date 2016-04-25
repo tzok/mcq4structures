@@ -87,15 +87,18 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
         }
     }
 
-    public boolean canAddElement(PdbCompactFragment element) {
+    public boolean canAddElement(PdbCompactFragment element,
+            boolean isFragmentsSizeConstrained) {
         MoleculeType moleculeType = element.getMoleculeType();
         if (getSize() > 0 && getElementAt(0).getMoleculeType() != moleculeType) {
             return false;
         }
 
-        List<PdbCompactFragment> list = moleculeType == MoleculeType.RNA ? listRNAs : listProteins;
-        if (list.size() > 0 && list.get(0).size() != element.size()) {
-            return false;
+        if (isFragmentsSizeConstrained) {
+            List<PdbCompactFragment> list = moleculeType == MoleculeType.RNA ? listRNAs : listProteins;
+            if (list.size() > 0 && list.get(0).size() != element.size()) {
+                return false;
+            }
         }
 
         return true;
