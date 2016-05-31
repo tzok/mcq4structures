@@ -9,7 +9,7 @@ import java.util.Comparator;
  * @author tzok
  */
 public class IndexComparator implements Comparator<Integer> {
-    private double[] row;
+    private final double[] row;
 
     public IndexComparator(double[] row) {
         super();

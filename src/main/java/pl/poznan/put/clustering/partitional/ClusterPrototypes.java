@@ -1,12 +1,6 @@
 package pl.poznan.put.clustering.partitional;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class ClusterPrototypes {
     private static final Random RANDOM = new Random();
@@ -42,17 +36,16 @@ public class ClusterPrototypes {
             }
 
             Set<Integer> setCandidates = new HashSet<>();
-
             for (int j = 0; j < matrix.length; j++) {
                 setCandidates.add(j);
             }
-
             setCandidates.removeAll(setMedoids);
+
             double randomToken = ClusterPrototypes.RANDOM.nextDouble() * total;
 
-            for (Entry<Integer, Double> entry : mapElementNearest.entrySet()) {
-                if (randomToken < entry.getValue()) {
-                    setMedoids.add(entry.getKey());
+            for (Integer candidate : setCandidates) {
+                if (randomToken < mapElementNearest.get(candidate)) {
+                    setMedoids.add(candidate);
                     break;
                 }
             }

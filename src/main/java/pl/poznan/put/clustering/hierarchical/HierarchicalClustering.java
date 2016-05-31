@@ -1,6 +1,15 @@
 package pl.poznan.put.clustering.hierarchical;
 
-import java.awt.FontMetrics;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.util.SVGConstants;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.w3c.dom.Element;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.utility.svg.SVGHelper;
+
+import java.awt.*;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
@@ -8,22 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.util.SVGConstants;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
-import org.w3c.dom.Element;
-import org.w3c.dom.svg.SVGDocument;
-
-import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.utility.svg.SVGHelper;
-
 public class HierarchicalClustering implements Visualizable {
     private final List<String> names;
     private final List<HierarchicalClusterMerge> merges;
 
     public HierarchicalClustering(List<String> names,
-            List<HierarchicalClusterMerge> merges) {
+                                  List<HierarchicalClusterMerge> merges) {
         super();
         this.names = names;
         this.merges = merges;
@@ -66,7 +65,6 @@ public class HierarchicalClustering implements Visualizable {
         /*
          * Draw the dendrogram
          */
-        int xf = 0;
         double maxDistance = getMaxClusterDistance();
 
         for (HierarchicalClusterMerge merge : merges) {
@@ -81,8 +79,7 @@ public class HierarchicalClustering implements Visualizable {
             int x2 = coords.getLeft();
             int y2 = coords.getRight();
 
-            int shift = maxWidth + (int) (merge.getDistance() * (640 - maxWidth) / maxDistance);
-            xf = Math.max(shift, shift);
+            int xf = maxWidth + (int) (merge.getDistance() * (640 - maxWidth) / maxDistance);
 
             graphics.drawLine(x1, y1, xf, y1);
             graphics.drawLine(x2, y2, xf, y2);
@@ -108,8 +105,7 @@ public class HierarchicalClustering implements Visualizable {
         FontMetrics metrics = SVGHelper.getFontMetrics(graphics);
         int maxWidth = Integer.MIN_VALUE;
 
-        for (int i = 0; i < items.size(); i++) {
-            int item = items.get(i);
+        for (Integer item : items) {
             String name = names.get(item);
             int width = metrics.stringWidth(name);
 
