@@ -111,7 +111,7 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     }
 
     @Override
-    public PdbResidue findResidue(char chainIdentifier, int residueNumber, char insertionCode) {
+    public PdbResidue findResidue(String chainIdentifier, int residueNumber, String insertionCode) {
         return findResidue(new PdbResidueIdentifier(chainIdentifier, residueNumber, insertionCode));
     }
 

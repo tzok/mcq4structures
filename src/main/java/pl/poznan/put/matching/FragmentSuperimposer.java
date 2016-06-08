@@ -6,6 +6,7 @@ import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.SVDSuperimposer;
 import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.atom.AtomName;
+import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
 import pl.poznan.put.pdb.PdbAtomLine;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -36,7 +37,7 @@ public class FragmentSuperimposer {
     private final Atom[] totalAtomsModel;
 
     public FragmentSuperimposer(SelectionMatch selectionMatch,
-                                AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
+                                AtomFilter atomFilter, boolean onlyHeavy) throws StructureException, MmCifPdbIncompatibilityException {
         super();
         this.selectionMatch = selectionMatch;
         this.atomFilter = atomFilter;
@@ -59,7 +60,7 @@ public class FragmentSuperimposer {
         totalSuperimposer = new SVDSuperimposer(totalAtomsTarget, totalAtomsModel);
     }
 
-    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM) throws StructureException {
+    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM) throws StructureException, MmCifPdbIncompatibilityException {
         int i = 0;
 
         for (FragmentMatch fragment : selectionMatch.getFragmentMatches()) {
@@ -175,7 +176,7 @@ public class FragmentSuperimposer {
         return Math.sqrt(distance / count);
     }
 
-    public FragmentSuperposition getWhole() {
+    public FragmentSuperposition getWhole() throws MmCifPdbIncompatibilityException {
         StructureSelection target = selectionMatch.getTarget();
         StructureSelection model = selectionMatch.getModel();
         List<PdbCompactFragment> targetFragments = target.getCompactFragments();
@@ -205,7 +206,7 @@ public class FragmentSuperimposer {
         return new FragmentSuperposition(targetFragments, modelFragments);
     }
 
-    public FragmentSuperposition getMatched() {
+    public FragmentSuperposition getMatched() throws MmCifPdbIncompatibilityException {
         List<PdbCompactFragment> newFragmentsL = new ArrayList<>();
         List<PdbCompactFragment> newFragmentsR = new ArrayList<>();
 

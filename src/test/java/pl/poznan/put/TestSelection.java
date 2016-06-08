@@ -1,24 +1,19 @@
 package pl.poznan.put;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.PdbResidueIdentifier;
+import pl.poznan.put.pdb.analysis.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.PdbParsingException;
-import pl.poznan.put.pdb.PdbResidueIdentifier;
-import pl.poznan.put.pdb.analysis.PdbChain;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.pdb.analysis.PdbParser;
-import pl.poznan.put.pdb.analysis.PdbResidue;
 
 public class TestSelection {
     private final PdbParser parser = new PdbParser();
@@ -43,7 +38,7 @@ public class TestSelection {
 
         PdbChain chainB = null;
         for (PdbChain chain : chains) {
-            if (chain.getIdentifier() == 'B') {
+            if ("B".equals(chain.getIdentifier())) {
                 chainB = chain;
                 break;
             }
@@ -57,8 +52,8 @@ public class TestSelection {
 
         List<PdbResidue> residues = compactFragment.getResidues();
         int size = residues.size();
-        Assert.assertEquals(new PdbResidueIdentifier('B', 74, ' '), residues.get(size - 3).getResidueIdentifier());
-        Assert.assertEquals(new PdbResidueIdentifier('B', 77, 'A'), residues.get(size - 2).getResidueIdentifier());
-        Assert.assertEquals(new PdbResidueIdentifier('B', 76, ' '), residues.get(size - 1).getResidueIdentifier());
+        Assert.assertEquals(new PdbResidueIdentifier("B", 74, " "), residues.get(size - 3).getResidueIdentifier());
+        Assert.assertEquals(new PdbResidueIdentifier("B", 77, "A"), residues.get(size - 2).getResidueIdentifier());
+        Assert.assertEquals(new PdbResidueIdentifier("B", 76, " "), residues.get(size - 1).getResidueIdentifier());
     }
 }

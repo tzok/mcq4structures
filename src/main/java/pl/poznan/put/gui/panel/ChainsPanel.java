@@ -1,28 +1,16 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
-
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChainsPanel extends JPanel {
     private final DefaultComboBoxModel<PdbModel> structureComboBoxModel = new DefaultComboBoxModel<>();
@@ -109,13 +97,13 @@ public class ChainsPanel extends JPanel {
         PdbModel structure = (PdbModel) structureComboBox.getSelectedItem();
 
         if (structure != null) {
-            for (JPanel panel : new JPanel[] { rnaPanel, proteinPanel }) {
+            for (JPanel panel : new JPanel[]{rnaPanel, proteinPanel}) {
                 for (Component component : panel.getComponents()) {
                     if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
-                        char chainId = ((JCheckBox) component).getText().charAt(0);
+                        String chainId = ((JCheckBox) component).getText();
 
                         for (PdbChain chain : structure.getChains()) {
-                            if (chain.getIdentifier() == chainId) {
+                            if (chain.getIdentifier().equals(chainId)) {
                                 list.add(chain);
                                 break;
                             }
