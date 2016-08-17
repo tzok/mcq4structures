@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>pl.poznan.put</groupId>
     <artifactId>mcq4structures</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 
     <properties>
         <biojava.version>4.2.4</biojava.version>
