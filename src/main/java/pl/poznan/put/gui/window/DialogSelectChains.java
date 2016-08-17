@@ -18,17 +18,19 @@ public final class DialogSelectChains extends JDialog {
     public static final int OK = 1;
     private static final Dimension INITIAL_MAIN_PANEL_SIZE =
             new Dimension(640, 480);
-    private final ChainsPanel panelsChainsLeft =
-            new ChainsPanel(actionListener);
-    private final ChainsPanel panelsChainsRight =
-            new ChainsPanel(actionListener);
-    private final JButton buttonOk = new JButton("OK");
+
     private final ActionListener actionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             updateButtonOkState();
         }
     };
+
+    private final ChainsPanel panelsChainsLeft =
+            new ChainsPanel(actionListener);
+    private final ChainsPanel panelsChainsRight =
+            new ChainsPanel(actionListener);
+    private final JButton buttonOk = new JButton("OK");
     private final JButton buttonCancel = new JButton("Cancel");
 
     private List<PdbChain> chainsLeft = new ArrayList<>();

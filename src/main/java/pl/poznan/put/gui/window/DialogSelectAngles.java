@@ -18,18 +18,19 @@ public final class DialogSelectAngles extends JDialog {
     private final List<MasterTorsionAngleType> selectedAngles =
             new ArrayList<>();
 
-    private final JButton buttonOk = new JButton("OK");
-    private final JButton buttonCancel = new JButton("Cancel");
-    private final TorsionAngleTypesPanel panelAnglesRNA =
-            new TorsionAngleTypesPanel(MoleculeType.RNA, checkBoxListener);
-    private final TorsionAngleTypesPanel panelAnglesProtein =
-            new TorsionAngleTypesPanel(MoleculeType.PROTEIN, checkBoxListener);
     private final ActionListener checkBoxListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             setButtonOkState();
         }
     };
+
+    private final JButton buttonOk = new JButton("OK");
+    private final JButton buttonCancel = new JButton("Cancel");
+    private final TorsionAngleTypesPanel panelAnglesRNA =
+            new TorsionAngleTypesPanel(MoleculeType.RNA, checkBoxListener);
+    private final TorsionAngleTypesPanel panelAnglesProtein =
+            new TorsionAngleTypesPanel(MoleculeType.PROTEIN, checkBoxListener);
     private int chosenOption;
 
     public DialogSelectAngles(Frame owner) {
