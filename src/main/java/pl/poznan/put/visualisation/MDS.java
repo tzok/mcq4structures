@@ -9,6 +9,10 @@ import org.biojava.nbio.structure.jama.Matrix;
  * @author tzok
  */
 public final class MDS {
+    private MDS() {
+        // empty constructor
+    }
+
     /**
      * Calculate the Multidimensional Scaling. It gets a distance matrix and
      * creates a map of points in N-dimensions whose mutual distances correspond
@@ -16,6 +20,7 @@ public final class MDS {
      *
      * @param distance   A distance matrix, NxN.
      * @param dimensions Desired number of dimensions, K.
+     *
      * @return A matrix NxK, where for each row there are K coordinates.
      */
     public static double[][] multidimensionalScaling(double[][] distance,
@@ -60,14 +65,16 @@ public final class MDS {
         for (int i = 0; i < distance.length; ++i) {
             b[i] = new double[distance.length];
             for (int j = 0; j < distance.length; ++j) {
-                b[i][j] = -0.5 * (d[i][j] - meanRow[i] - meanColumn[j] + meanMatrix);
+                b[i][j] = -0.5 * (d[i][j] - meanRow[i] - meanColumn[j]
+                                  + meanMatrix);
             }
         }
 
         /*
          * decompose B = VDV^T (or else called KLK^T)
          */
-        EigenvalueDecomposition evd = new EigenvalueDecomposition(new Matrix(b));
+        EigenvalueDecomposition evd =
+                new EigenvalueDecomposition(new Matrix(b));
 
         /*
          * find maxima in L
@@ -83,7 +90,8 @@ public final class MDS {
             }
             // if L[max][max] < 0, then it's impossible to visualise
             if (l[max][max] < 0) {
-                throw new IllegalArgumentException("Cannot visualize specified structures in 2D");
+                throw new IllegalArgumentException(
+                        "Cannot visualize specified structures in 2D");
             }
             maxima[i] = max;
             l[max][max] = Double.NEGATIVE_INFINITY;
@@ -126,9 +134,5 @@ public final class MDS {
                 }
             }
         }
-    }
-
-    private MDS() {
-        // empty constructor
     }
 }

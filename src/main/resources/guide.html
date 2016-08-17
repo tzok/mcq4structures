@@ -1,8 +1,8 @@
 MCQ4Structures allows to:
 <ul>
-  <li>represent structure in torsion angle space</li>
-  <li>compute global or local distances between structures of RNAs/proteins</li>
-  <li>align sequences or 3D structures of RNAs/proteins.</li>
+    <li>represent structure in torsion angle space</li>
+    <li>compute global or local distances between structures of RNAs/proteins</li>
+    <li>align sequences or 3D structures of RNAs/proteins.</li>
 </ul>
 Here you can find basic instructions for using our tool in the above processes.
 
@@ -10,8 +10,9 @@ Here you can find basic instructions for using our tool in the above processes.
 <h1>Structure representation in torsion angle space</h1>
 A structure in PDB format can be represented as a table of torsion angle values in every residue. To calculate them, take the following steps:
 <ol>
-  <li>Open structure from file (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
-  <li>Select structure: <em><u>T</u>orsion angles &rarr; Select structure to represent in torsion angle space</em></li>
+    <li>Open structure from file (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
+    <li>Select structure: <em><u>T</u>orsion angles &rarr; Select structure to represent in torsion angle space</em>
+    </li>
 </ol>
 A table of torsion angle values will be displayed. You can save it in CSV format using menu item:
 <em><u>F</u>ile &rarr; Save results (CSV).</em>
@@ -22,133 +23,166 @@ Additionally, for every torsion angle type in a given structure, a histogram is 
 <h1>Global distance computation</h1>
 Global comparison can be performed either in torsion angle space (MCQ value determines the distance) or in Cartesian space (RMSD value shows the distance). In order to compare structures globally, take the following steps:
 <ol>
-  <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
-  <li>Select distance type: <em><u>D</u>istance measure &rarr; Global MCQ</em> or <em><u>D</u>istance measure &rarr; Global RMSD</em></li>
-  <li>Select structures to compare: <em><u>D</u>istance measure &rarr; Select structures to compare</em></li>
+    <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
+    <li>Select distance type: <em><u>D</u>istance measure &rarr; Global MCQ</em> or <em><u>D</u>istance measure &rarr;
+        Global RMSD</em></li>
+    <li>Select structures to compare: <em><u>D</u>istance measure &rarr; Select structures to compare</em></li>
 </ol>
 
 A distance matrix will appear. Every field contains the following information:
 <ul>
-  <li>Distance between structures (in degrees for MCQ and in Angstrom for RMSD)</li>
-  <li>Number of residues matched/aligned</li>
-  <li>Additionally, for MCQ only, percent of residues matched very well (with distance below 15 degrees)</li>
+    <li>Distance between structures (in degrees for MCQ and in Angstrom for RMSD)</li>
+    <li>Number of residues matched/aligned</li>
+    <li>Additionally, for MCQ only, percent of residues matched very well (with distance below 15 degrees)</li>
 </ul>
 
 <p>
-  You can save the distance matrix in CSV format with <em><u>F</u>ile &rarr; Save results (CSV).</em> The distance matrix is visualised automatically as well. Please note that this is only a scaling of the original distances into a 2D space, which may be imperfect and introduce error. The image can be stored using right-click popup menu <em>Save as SVG.</em>
+    You can save the distance matrix in CSV format with <em><u>F</u>ile &rarr; Save results (CSV).</em> The distance
+    matrix is visualised automatically as well. Please note that this is only a scaling of the original distances into a
+    2D space, which may be imperfect and introduce error. The image can be stored using right-click popup menu <em>Save
+    as SVG.</em>
 </p>
 
 <p>
-  The matrix can also be visualised in 3D (X and Y axes are representing structures, Z axis depicts distance value) with <em><u>D</u>istance measure &rarr; Visualise results in 3D.</em>
+    The matrix can also be visualised in 3D (X and Y axes are representing structures, Z axis depicts distance value)
+    with <em><u>D</u>istance measure &rarr; Visualise results in 3D.</em>
 </p>
 
 <p>
-  A clustering may also be applied with the use of <em><u>D</u>istance measure &rarr; Cluster results.</em> A hierarchical and partitional clustering algorithms are available, both with specific parameters. The resulting images (dendrogram or clusters as coloured points) can be saved using popup menu <em>Save as SVG.</em>
+    A clustering may also be applied with the use of <em><u>D</u>istance measure &rarr; Cluster results.</em> A
+    hierarchical and partitional clustering algorithms are available, both with specific parameters. The resulting
+    images (dendrogram or clusters as coloured points) can be saved using popup menu <em>Save as SVG.</em>
 </p>
 
 
 <h1>Local distance(s) computation between a pair of structures</h1>
 Local comparison is performed in torsion angle space. In order to compute a vector of local distances between a pair of structures, i.e. distances between the corresponding angles identified along the aligned structures, take the following steps:
 <ol>
-  <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
-  <li>Select comparison mode: <em><u>D</u>istance measure &rarr; Local distances (pair)</em></li>
-  <li>Select chains to compare: <em><u>D</u>istance measure &rarr; Select structures to compare</em></li>
-  <li>A torsion angle selector will appear, use it to decide on the torsion angles to be applied during comparison</li>
+    <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
+    <li>Select comparison mode: <em><u>D</u>istance measure &rarr; Local distances (pair)</em></li>
+    <li>Select chains to compare: <em><u>D</u>istance measure &rarr; Select structures to compare</em></li>
+    <li>A torsion angle selector will appear, use it to decide on the torsion angles to be applied during comparison
+    </li>
 </ol>
 
 <p>
-  A table of distances in torsion angle space will be shown. You can save it using menu item: <em><u>F</u>ile &rarr; Save results (CSV).</em>
+    A table of distances in torsion angle space will be shown. You can save it using menu item: <em><u>F</u>ile &rarr;
+    Save results (CSV).</em>
 </p>
 
 <p>
-  Every matched fragment will be visualised as a line chart. A distance on a given residue (X axis) is shown (Y axis). The X axis is labeled with secondary structure for RNA molecules and with residue identifier for proteins. The image can be saved by right-clicking and selecting <em>Save as SVG.</em>
+    Every matched fragment will be visualised as a line chart. A distance on a given residue (X axis) is shown (Y axis).
+    The X axis is labeled with secondary structure for RNA molecules and with residue identifier for proteins. The image
+    can be saved by right-clicking and selecting <em>Save as SVG.</em>
 </p>
 
 <p>
-  The percentile statistics of distances in torsion angle space are visualised on another chart. It shows the desired percent values (X axis) of distances (Y axis). For example, a value of 30&deg; for 60-th percentile means that 60% of distances are at most 30&deg;. This chart can also be saved using popup menu and selection of <em>Save as SVG</em>
+    The percentile statistics of distances in torsion angle space are visualised on another chart. It shows the desired
+    percent values (X axis) of distances (Y axis). For example, a value of 30&deg; for 60-th percentile means that 60%
+    of distances are at most 30&deg;. This chart can also be saved using popup menu and selection of <em>Save as
+    SVG</em>
 </p>
 
 <p>
-  RNA chains are additionally visualised with VARNA. Distances are colormapped using a white-red linear gradient. The image can be saved with popup menu option <em>Save as SVG</em>
+    RNA chains are additionally visualised with VARNA. Distances are colormapped using a white-red linear gradient. The
+    image can be saved with popup menu option <em>Save as SVG</em>
 </p>
 
 <p>
-  You may choose to visualise the table of distances in 3D with <em><u>D</u>istance measure &rarr; Visualise results in 3D.</em> The RNA secondary structure or protein residue ids (X axis) are plotted together with torsion angle types (Y axis). The Z axis depicts distances.
+    You may choose to visualise the table of distances in 3D with <em><u>D</u>istance measure &rarr; Visualise results
+    in 3D.</em> The RNA secondary structure or protein residue ids (X axis) are plotted together with torsion angle
+    types (Y axis). The Z axis depicts distances.
 </p>
 
 
 <h1>Local distance(s) computation between a set of structures</h1>
 For a single torsion angle type, a comparison can be done and visualized for a set of input structures. The only prerequisite is that they all must be of the same size. To achieve this, take the following steps:
 <ol>
-  <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
-  <li>Select comparison mode: <em><u>D</u>istance measure &rarr; Local distances (multiple)</em></li>
-  <li>Select chains to compare: <em><u>D</u>istance measure &rarr; Select structures to compare</em></li>
-  <li>From those, single out the reference structure (all other, called models, will be compared to this one)</li>
-  <li>A torsion angle selector will appear, use it to decide on a single torsion angle to be applied during comparison</li>
+    <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
+    <li>Select comparison mode: <em><u>D</u>istance measure &rarr; Local distances (multiple)</em></li>
+    <li>Select chains to compare: <em><u>D</u>istance measure &rarr; Select structures to compare</em></li>
+    <li>From those, single out the reference structure (all other, called models, will be compared to this one)</li>
+    <li>A torsion angle selector will appear, use it to decide on a single torsion angle to be applied during
+        comparison
+    </li>
 </ol>
 
 Three tables will be presented to you:
 <ul>
-  <li><b>Results</b> containing distances in torsion angle space for every residue</li>
-  <li><b>Histograms</b> showing models' names with the percentage of distances below thresholds 15&deg;, 30&deg;, 45&deg; and 60&deg;</li>
-  <li><b>Percentiles</b> showing thresholds for percentiles: 95-th, 75-th, 50-th and 25-th.
+    <li><b>Results</b> containing distances in torsion angle space for every residue</li>
+    <li><b>Histograms</b> showing models' names with the percentage of distances below thresholds 15&deg;, 30&deg;, 45&deg;
+        and 60&deg;</li>
+    <li><b>Percentiles</b> showing thresholds for percentiles: 95-th, 75-th, 50-th and 25-th.
 </ul>
 
 <p>
-  The last two tables are column-sortable. This way, you can rank models <em>optimistically</em> with histograms e.g. which model has the most residues aligned very well (with threshold 15&deg;), or <em>pesimistically</em> with percentiles e.g. which model has the least number of very severe mismatches (with 95-th percentile).
+    The last two tables are column-sortable. This way, you can rank models <em>optimistically</em> with histograms e.g.
+    which model has the most residues aligned very well (with threshold 15&deg;), or <em>pesimistically</em> with
+    percentiles e.g. which model has the least number of very severe mismatches (with 95-th percentile).
 </p>
 
 <p>
-  There is also a colorbar visualization with a white-red linear gradient. It depicts every residues as a rectangle coloured according to the distance in torsion angle space. The image is supplemented with secondary structure when RNA chains are compared. It can be saved using popup option <em>Save as SVG</em>
+    There is also a colorbar visualization with a white-red linear gradient. It depicts every residues as a rectangle
+    coloured according to the distance in torsion angle space. The image is supplemented with secondary structure when
+    RNA chains are compared. It can be saved using popup option <em>Save as SVG</em>
 </p>
 
 <p>
-  Additionally, a 3D visualisation is also available via <em><u>D</u>istance measure &rarr; Visualise results in 3D.</em> A model name (X axis) with protein residue identifier or RNA secondary structure (Y axis) is plotted against the distance in torsion angle space (Z axis).
+    Additionally, a 3D visualisation is also available via <em><u>D</u>istance measure &rarr; Visualise results in
+    3D.</em> A model name (X axis) with protein residue identifier or RNA secondary structure (Y axis) is plotted
+    against the distance in torsion angle space (Z axis).
 </p>
 
 
 <h1>Sequence alignment</h1>
 In order to perform sequence alignment (global or local) take the following steps:
 <ol>
-  <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
-  <li>Select alignment method:
-    <ul>
-      <li>Global sequence alignment (Smith-Waterman): <em><u>A</u>lignment &rarr; Global sequence alignment</em></li>
-      <li>Local sequence alignment (Needleman-Wunsch): <em><u>A</u>lignment &rarr; Local sequence alignment</em></li>
-    </ul>
-  </li>
-  <li>Select chains to align: <em><u>A</u>lignment &rarr; Select structures to align</em></li>
+    <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
+    <li>Select alignment method:
+        <ul>
+            <li>Global sequence alignment (Smith-Waterman): <em><u>A</u>lignment &rarr; Global sequence alignment</em>
+            </li>
+            <li>Local sequence alignment (Needleman-Wunsch): <em><u>A</u>lignment &rarr; Local sequence alignment</em>
+            </li>
+        </ul>
+    </li>
+    <li>Select chains to align: <em><u>A</u>lignment &rarr; Select structures to align</em></li>
 </ol>
 
 Sequence alignment is performed with the following parameters:
 <ul>
-  <li>Open penalty: 1</li>
-  <li>Extension penalty: 10</li>
-  <li>Substitution matrix for nucleic acids: NUC 4.4</li>
-  <li>Substitution matrix for proteins: BLOSUM62</li>
+    <li>Open penalty: 1</li>
+    <li>Extension penalty: 10</li>
+    <li>Substitution matrix for nucleic acids: NUC 4.4</li>
+    <li>Substitution matrix for proteins: BLOSUM62</li>
 </ul>
 
 <p>
-  In order to save the results of sequence alignment use <em><u>F</u>ile &rarr; Save results</em> . The results are saved to <em>TXT</em> file.
+    In order to save the results of sequence alignment use <em><u>F</u>ile &rarr; Save results</em> . The results are
+    saved to <em>TXT</em> file.
 </p>
 
 
 <h1>3D Structure alignment</h1>
 In order to perform 3D structure alignment take the following steps:
 <ol>
-  <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
-  <li>Select 3D structure alignment: <em><u>A</u>lignment &rarr; 3D structure alignment</em></li>
-  <li>Select structures and chain(s) to align: <em><u>A</u>lignment &rarr; Select structures to align</em></li>
+    <li>Open structure(s) from file(s) (in PDB format): <em><u>F</u>ile &rarr; Open structure(s)</em></li>
+    <li>Select 3D structure alignment: <em><u>A</u>lignment &rarr; 3D structure alignment</em></li>
+    <li>Select structures and chain(s) to align: <em><u>A</u>lignment &rarr; Select structures to align</em></li>
 </ol>
 
-<p>Two panels will be shown. The left one will contain both structures drawn together in total after alignment. The right one will contain only these residues that were aligned.</p>
+<p>Two panels will be shown. The left one will contain both structures drawn together in total after alignment. The
+    right one will contain only these residues that were aligned.</p>
 
 <p>
-  In order to save the results of 3D structure alignment use <em><u>F</u>ile &rarr; Save results</em> . The results are saved to <em>PDB</em> file.
+    In order to save the results of 3D structure alignment use <em><u>F</u>ile &rarr; Save results</em> . The results
+    are saved to <em>PDB</em> file.
 </p>
 
 
 <h1>Remarks</h1>
 <ol>
-  <li>If the open structure contains residues/atoms with more than one alternative position (coordinate set) only the first one is considered.</li>
+    <li>If the open structure contains residues/atoms with more than one alternative position (coordinate set) only the
+        first one is considered.
+    </li>
 </ol>

@@ -1,42 +1,35 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Toolkit;
+import pl.poznan.put.gui.panel.TorsionAngleTypesPanel;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-
-import pl.poznan.put.gui.panel.TorsionAngleTypesPanel;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
-
 public final class DialogSelectAngles extends JDialog {
     public static final int CANCEL = 0;
     public static final int OK = 1;
-    private final List<MasterTorsionAngleType> selectedAngles = new ArrayList<>();
+    private final List<MasterTorsionAngleType> selectedAngles =
+            new ArrayList<>();
 
     private final JButton buttonOk = new JButton("OK");
     private final JButton buttonCancel = new JButton("Cancel");
-
+    private final TorsionAngleTypesPanel panelAnglesRNA =
+            new TorsionAngleTypesPanel(MoleculeType.RNA, checkBoxListener);
+    private final TorsionAngleTypesPanel panelAnglesProtein =
+            new TorsionAngleTypesPanel(MoleculeType.PROTEIN, checkBoxListener);
     private final ActionListener checkBoxListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             setButtonOkState();
         }
     };
-
-    private final TorsionAngleTypesPanel panelAnglesRNA = new TorsionAngleTypesPanel(MoleculeType.RNA, checkBoxListener);
-    private final TorsionAngleTypesPanel panelAnglesProtein = new TorsionAngleTypesPanel(MoleculeType.PROTEIN, checkBoxListener);
-
     private int chosenOption;
 
     public DialogSelectAngles(Frame owner) {
@@ -89,7 +82,8 @@ public final class DialogSelectAngles extends JDialog {
     }
 
     private void setButtonOkState() {
-        boolean enabled = panelAnglesRNA.isAnySelected() || panelAnglesProtein.isAnySelected();
+        boolean enabled = panelAnglesRNA.isAnySelected() || panelAnglesProtein
+                .isAnySelected();
         buttonOk.setEnabled(enabled);
     }
 

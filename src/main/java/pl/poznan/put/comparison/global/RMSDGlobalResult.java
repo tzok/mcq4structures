@@ -10,7 +10,7 @@ public class RMSDGlobalResult extends GlobalResult {
     private final String longDisplayName;
 
     public RMSDGlobalResult(String measureName, SelectionMatch matches,
-            FragmentSuperimposer superimposer) {
+                            FragmentSuperimposer superimposer) {
         super(measureName, matches);
         this.superimposer = superimposer;
         this.longDisplayName = prepareLongDisplayName();
@@ -44,7 +44,8 @@ public class RMSDGlobalResult extends GlobalResult {
 
     @Override
     public String getShortDisplayName() {
-        return CommonNumberFormat.formatDouble(superimposer.getRMSD()) + Unicode.ANGSTROM;
+        return CommonNumberFormat.formatDouble(superimposer.getRMSD())
+               + Unicode.ANGSTROM;
     }
 
     @Override

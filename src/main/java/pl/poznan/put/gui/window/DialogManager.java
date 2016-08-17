@@ -1,9 +1,14 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Toolkit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.poznan.put.gui.component.PdbChooser;
+import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.structure.tertiary.StructureManager;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -11,27 +16,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import pl.poznan.put.gui.component.PdbChooser;
-import pl.poznan.put.pdb.PdbParsingException;
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
-
 public final class DialogManager extends JDialog {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DialogManager.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(DialogManager.class);
 
     private final DefaultListModel<File> model = new DefaultListModel<>();
 
@@ -39,7 +26,8 @@ public final class DialogManager extends JDialog {
         super(parent, "MCQ4Structures: structure manager");
 
         final JList<File> list = new JList<>(model);
-        list.setBorder(BorderFactory.createTitledBorder("List of open structures"));
+        list.setBorder(
+                BorderFactory.createTitledBorder("List of open structures"));
 
         JButton buttonOpen = new JButton("Open structure(s)");
         JButton buttonRemove = new JButton("Close selected structure(s)");
@@ -64,7 +52,8 @@ public final class DialogManager extends JDialog {
         add(panelFetch, BorderLayout.SOUTH);
         getRootPane().setDefaultButton(buttonFetch);
 
-        fieldPdbId.setPreferredSize(new Dimension(128, fieldPdbId.getPreferredSize().height));
+        fieldPdbId.setPreferredSize(
+                new Dimension(128, fieldPdbId.getPreferredSize().height));
         pack();
 
         Dimension size = getSize();
@@ -98,20 +87,21 @@ public final class DialogManager extends JDialog {
                 String pdbId = fieldPdbId.getText();
 
                 try {
-                    List<PdbModel> models = StructureManager.loadStructure(pdbId);
+                    List<PdbModel> models =
+                            StructureManager.loadStructure(pdbId);
                     File path = StructureManager.getFile(models.get(0));
                     model.addElement(path);
                 } catch (IOException | PdbParsingException e) {
-                    String message = "Failed to download and/or parse PDB file: " + pdbId;
+                    String message =
+                            "Failed to download and/or parse PDB file: "
+                            + pdbId;
                     DialogManager.LOGGER.error(message, e);
-                    JOptionPane.showMessageDialog(DialogManager.this, message, "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(DialogManager.this, message,
+                                                  "Error",
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
-    }
-
-    public Enumeration<File> getElements() {
-        return model.elements();
     }
 
     public void selectAndLoadStructures() {
@@ -127,10 +117,16 @@ public final class DialogManager extends JDialog {
                     model.addElement(file);
                 }
             } catch (IOException | PdbParsingException e) {
-                String message = "Failed to load and/or parse PDB file: " + file;
+                String message =
+                        "Failed to load and/or parse PDB file: " + file;
                 DialogManager.LOGGER.error(message, e);
-                JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, message, "Error",
+                                              JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    public Enumeration<File> getElements() {
+        return model.elements();
     }
 }

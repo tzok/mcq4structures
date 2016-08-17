@@ -1,7 +1,16 @@
 package pl.poznan.put.gui.component;
 
-import java.awt.Component;
-import java.awt.Dimension;
+import org.apache.batik.swing.JSVGCanvas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.types.ExportFormat;
+import pl.poznan.put.utility.svg.Format;
+import pl.poznan.put.utility.svg.SVGHelper;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -11,22 +20,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.swing.JFileChooser;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-
-import org.apache.batik.swing.JSVGCanvas;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.svg.SVGDocument;
-
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.types.ExportFormat;
-import pl.poznan.put.utility.svg.Format;
-import pl.poznan.put.utility.svg.SVGHelper;
-
 public class SVGComponent extends JSVGCanvas implements Exportable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SVGComponent.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SVGComponent.class);
 
     private final JPopupMenu popup = new JPopupMenu();
     private final JMenuItem saveAsSvg = new JMenuItem("Save as SVG");
@@ -75,12 +71,18 @@ public class SVGComponent extends JSVGCanvas implements Exportable {
         });
     }
 
-    public int getSvgWidth() {
-        return svgWidth;
-    }
+    public void selectFileAndExport() {
+        chooser.setSelectedFile(suggestName());
+        int state = chooser.showSaveDialog(getParent());
 
-    public int getSvgHeight() {
-        return svgHeight;
+        if (state == JFileChooser.APPROVE_OPTION) {
+            try (OutputStream stream = new FileOutputStream(
+                    chooser.getSelectedFile())) {
+                export(stream);
+            } catch (IOException e) {
+                SVGComponent.LOGGER.error("Failed to export SVG to file", e);
+            }
+        }
     }
 
     @Override
@@ -98,16 +100,11 @@ public class SVGComponent extends JSVGCanvas implements Exportable {
         return new File(name + ".svg");
     }
 
-    public void selectFileAndExport() {
-        chooser.setSelectedFile(suggestName());
-        int state = chooser.showSaveDialog(getParent());
+    public int getSvgWidth() {
+        return svgWidth;
+    }
 
-        if (state == JFileChooser.APPROVE_OPTION) {
-            try (OutputStream stream = new FileOutputStream(chooser.getSelectedFile())) {
-                export(stream);
-            } catch (IOException e) {
-                SVGComponent.LOGGER.error("Failed to export SVG to file", e);
-            }
-        }
+    public int getSvgHeight() {
+        return svgHeight;
     }
 }

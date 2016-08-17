@@ -1,17 +1,42 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class FragmentComparison implements Comparable<FragmentComparison> {
-    private static final FragmentComparison INVALID_INSTANCE = new FragmentComparison(Collections.<ResidueComparison> emptyList(), Collections.<MasterTorsionAngleType> emptyList(), 0, 0, 0, 0, Angle.invalidInstance());
+    private static final FragmentComparison INVALID_INSTANCE =
+            new FragmentComparison(Collections.<ResidueComparison>emptyList(),
+                                   Collections
+                                           .<MasterTorsionAngleType>emptyList(),
+                                   0, 0, 0, 0, Angle.invalidInstance());
+    private final List<ResidueComparison> residueComparisons;
+    private final List<MasterTorsionAngleType> angleTypes;
+    private final int targetInvalidCount;
+    private final int modelInvalidCount;
+    private final int bothInvalidCount;
+    private final int validCount;
+    private final Angle meanDelta;
+    public FragmentComparison(List<ResidueComparison> residueResults,
+                              List<MasterTorsionAngleType> angles,
+                              int firstInvalidCount, int secondInvalidCount,
+                              int bothInvalidCount, int validCount,
+                              Angle meanDelta) {
+        super();
+        residueComparisons = residueResults;
+        angleTypes = angles;
+        targetInvalidCount = firstInvalidCount;
+        modelInvalidCount = secondInvalidCount;
+        this.bothInvalidCount = bothInvalidCount;
+        this.validCount = validCount;
+        this.meanDelta = meanDelta;
+    }
 
     public static FragmentComparison invalidInstance() {
         return FragmentComparison.INVALID_INSTANCE;
@@ -19,7 +44,8 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
 
     public static FragmentComparison fromResidueComparisons(
             List<ResidueComparison> residueResults,
-            List<MasterTorsionAngleType> angleTypes) throws InvalidCircularValueException {
+            List<MasterTorsionAngleType> angleTypes)
+            throws InvalidCircularValueException {
         List<Angle> deltas = new ArrayList<>();
         int targetInvalid = 0;
         int modelInvalid = 0;
@@ -34,48 +60,28 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
                 }
 
                 switch (delta.getState()) {
-                case BOTH_INVALID:
-                    bothInvalid++;
-                    break;
-                case BOTH_VALID:
-                    deltas.add(delta.getDelta());
-                    break;
-                case TARGET_INVALID:
-                    targetInvalid++;
-                    break;
-                case MODEL_INVALID:
-                    modelInvalid++;
-                    break;
-                default:
-                    break;
+                    case BOTH_INVALID:
+                        bothInvalid++;
+                        break;
+                    case BOTH_VALID:
+                        deltas.add(delta.getDelta());
+                        break;
+                    case TARGET_INVALID:
+                        targetInvalid++;
+                        break;
+                    case MODEL_INVALID:
+                        modelInvalid++;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
 
         AngleSample sample = new AngleSample(deltas);
-        return new FragmentComparison(residueResults, angleTypes, targetInvalid, modelInvalid, bothInvalid, deltas.size(), sample.getMeanDirection());
-    }
-
-    private final List<ResidueComparison> residueComparisons;
-    private final List<MasterTorsionAngleType> angleTypes;
-    private final int targetInvalidCount;
-    private final int modelInvalidCount;
-    private final int bothInvalidCount;
-    private final int validCount;
-    private final Angle meanDelta;
-
-    public FragmentComparison(List<ResidueComparison> residueResults,
-            List<MasterTorsionAngleType> angles, int firstInvalidCount,
-            int secondInvalidCount, int bothInvalidCount, int validCount,
-            Angle meanDelta) {
-        super();
-        residueComparisons = residueResults;
-        angleTypes = angles;
-        targetInvalidCount = firstInvalidCount;
-        modelInvalidCount = secondInvalidCount;
-        this.bothInvalidCount = bothInvalidCount;
-        this.validCount = validCount;
-        this.meanDelta = meanDelta;
+        return new FragmentComparison(residueResults, angleTypes, targetInvalid,
+                                      modelInvalid, bothInvalid, deltas.size(),
+                                      sample.getMeanDirection());
     }
 
     public List<ResidueComparison> getResidueComparisons() {

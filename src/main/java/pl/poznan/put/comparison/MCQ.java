@@ -1,15 +1,7 @@
 package pl.poznan.put.comparison;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
@@ -40,6 +32,13 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.utility.TabularExporter;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Implementation of MCQ global similarity measure based on torsion angle
  * representation.
@@ -62,16 +61,17 @@ public class MCQ implements GlobalComparator, LocalComparator {
         super();
 
         switch (moleculeType) {
-        case PROTEIN:
-            angleTypes = Arrays.asList(ProteinTorsionAngleType.mainAngles());
-            break;
-        case RNA:
-            angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
-            break;
-        case UNKNOWN:
-        default:
-            angleTypes = Collections.emptyList();
-            break;
+            case PROTEIN:
+                angleTypes =
+                        Arrays.asList(ProteinTorsionAngleType.mainAngles());
+                break;
+            case RNA:
+                angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
+                break;
+            case UNKNOWN:
+            default:
+                angleTypes = Collections.emptyList();
+                break;
         }
     }
 
@@ -80,75 +80,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
         this.angleTypes = angleTypes;
     }
 
-    @Override
-    public String getName() {
-        return "MCQ";
-    }
-
-    @Override
-    public boolean isAngularMeasure() {
-        return true;
-    }
-
-    @Override
-    public GlobalResult compareGlobally(StructureSelection target,
-            StructureSelection model) throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(angleTypes);
-        SelectionMatch matches = matcher.matchSelections(target, model);
-
-        if (matches == null || matches.getFragmentCount() == 0) {
-            throw new IncomparableStructuresException("No matching fragments found");
-        }
-
-        List<Angle> deltas = new ArrayList<>();
-
-        for (FragmentMatch fragmentMatch : matches.getFragmentMatches()) {
-            for (ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
-                for (MasterTorsionAngleType angleType : angleTypes) {
-                    TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(angleType);
-
-                    if (angleDelta.getState() == State.BOTH_VALID) {
-                        deltas.add(angleDelta.getDelta());
-                    }
-                }
-            }
-        }
-
-        return new MCQGlobalResult(getName(), matches, new AngleSample(deltas));
-    }
-
-    @Override
-    public LocalResult comparePair(StructureSelection s1, StructureSelection s2) throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(angleTypes);
-        SelectionMatch matches = matcher.matchSelections(s1, s2);
-        return new MCQLocalResult(matches, angleTypes);
-    }
-
-    @Override
-    public ModelsComparisonResult compareModels(PdbCompactFragment target,
-            List<PdbCompactFragment> models) throws IncomparableStructuresException {
-        /*
-         * Sanity check
-         */
-        for (PdbCompactFragment fragment : models) {
-            if (fragment.getMoleculeType() != target.getMoleculeType() || fragment.size() != target.size()) {
-                throw new IncomparableStructuresException("All models must be of the same type and size as the reference structure");
-            }
-        }
-
-        MCQMatcher matcher = new MCQMatcher(angleTypes);
-        List<FragmentMatch> matches = new ArrayList<>();
-        List<PdbCompactFragment> modelsWithoutTarget = new ArrayList<>(models);
-        modelsWithoutTarget.remove(target);
-
-        for (PdbCompactFragment fragment : modelsWithoutTarget) {
-            matches.add(matcher.matchFragments(target, fragment));
-        }
-
-        return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
-    }
-
-    public static void main(String[] args) throws IOException, PdbParsingException, InterruptedException {
+    public static void main(String[] args)
+            throws IOException, PdbParsingException, InterruptedException {
         if (args.length < 2) {
             System.err.println("You must specify at least 2 structures");
             return;
@@ -168,23 +101,109 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
-        ParallelGlobalComparator comparator = new ParallelGlobalComparator(new MCQ(), selections, new ParallelGlobalComparator.ProgressListener() {
-            @Override
-            public void setProgress(int progress) {
-                // do nothing
-            }
+        ParallelGlobalComparator comparator =
+                new ParallelGlobalComparator(new MCQ(), selections,
+                                             new ParallelGlobalComparator
+                                                     .ProgressListener() {
+                                                 @Override
+                                                 public void setProgress(
+                                                         int progress) {
+                                                     // do nothing
+                                                 }
 
-            @Override
-            public void complete(GlobalMatrix matrix) {
-                try {
-                    TabularExporter.export(matrix.asExportableTableModel(), System.out);
-                } catch (IOException e) {
-                    MCQ.LOGGER.error("Failed to output distance matrix", e);
-                }
-            }
-        });
+                                                 @Override
+                                                 public void complete(
+                                                         GlobalMatrix matrix) {
+                                                     try {
+                                                         TabularExporter
+                                                                 .export(matrix.asExportableTableModel(),
+                                                                         System.out);
+                                                     } catch (IOException e) {
+                                                         MCQ.LOGGER
+                                                                 .error("Failed to output distance matrix",
+                                                                        e);
+                                                     }
+                                                 }
+                                             });
 
         comparator.start();
         comparator.join();
+    }
+
+    @Override
+    public GlobalResult compareGlobally(StructureSelection target,
+                                        StructureSelection model)
+            throws IncomparableStructuresException {
+        MCQMatcher matcher = new MCQMatcher(angleTypes);
+        SelectionMatch matches = matcher.matchSelections(target, model);
+
+        if (matches == null || matches.getFragmentCount() == 0) {
+            throw new IncomparableStructuresException(
+                    "No matching fragments found");
+        }
+
+        List<Angle> deltas = new ArrayList<>();
+
+        for (FragmentMatch fragmentMatch : matches.getFragmentMatches()) {
+            for (ResidueComparison residueComparison : fragmentMatch
+                    .getResidueComparisons()) {
+                for (MasterTorsionAngleType angleType : angleTypes) {
+                    TorsionAngleDelta angleDelta =
+                            residueComparison.getAngleDelta(angleType);
+
+                    if (angleDelta.getState() == State.BOTH_VALID) {
+                        deltas.add(angleDelta.getDelta());
+                    }
+                }
+            }
+        }
+
+        return new MCQGlobalResult(getName(), matches, new AngleSample(deltas));
+    }
+
+    @Override
+    public String getName() {
+        return "MCQ";
+    }
+
+    @Override
+    public boolean isAngularMeasure() {
+        return true;
+    }
+
+    @Override
+    public LocalResult comparePair(StructureSelection s1, StructureSelection s2)
+            throws IncomparableStructuresException {
+        MCQMatcher matcher = new MCQMatcher(angleTypes);
+        SelectionMatch matches = matcher.matchSelections(s1, s2);
+        return new MCQLocalResult(matches, angleTypes);
+    }
+
+    @Override
+    public ModelsComparisonResult compareModels(PdbCompactFragment target,
+                                                List<PdbCompactFragment> models)
+            throws IncomparableStructuresException {
+        /*
+         * Sanity check
+         */
+        for (PdbCompactFragment fragment : models) {
+            if (fragment.getMoleculeType() != target.getMoleculeType()
+                || fragment.size() != target.size()) {
+                throw new IncomparableStructuresException(
+                        "All models must be of the same type and size as the "
+                        + "reference structure");
+            }
+        }
+
+        MCQMatcher matcher = new MCQMatcher(angleTypes);
+        List<FragmentMatch> matches = new ArrayList<>();
+        List<PdbCompactFragment> modelsWithoutTarget = new ArrayList<>(models);
+        modelsWithoutTarget.remove(target);
+
+        for (PdbCompactFragment fragment : modelsWithoutTarget) {
+            matches.add(matcher.matchFragments(target, fragment));
+        }
+
+        return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
     }
 }

@@ -1,11 +1,5 @@
 package pl.poznan.put.visualisation;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.SortedSet;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.chart.Chart;
@@ -30,26 +24,33 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
-public class Surface3D extends AbstractAnalysis {
-    private final AWTChartComponentFactory factory = new AWTChartComponentFactory() {
-        @Override
-        public ICameraMouseController newMouseController(Chart c) {
-            return new AWTCameraMouseController(c) {
-                @Override
-                public void mouseDragged(MouseEvent e) {
-                    if (AWTMouseUtilities.isRightDown(e)) {
-                        return;
-                    }
-                    super.mouseDragged(e);
-                }
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.SortedSet;
 
+public class Surface3D extends AbstractAnalysis {
+    private final AWTChartComponentFactory factory =
+            new AWTChartComponentFactory() {
                 @Override
-                public void mouseWheelMoved(MouseWheelEvent e) {
-                    // do nothing
+                public ICameraMouseController newMouseController(Chart c) {
+                    return new AWTCameraMouseController(c) {
+                        @Override
+                        public void mouseDragged(MouseEvent e) {
+                            if (AWTMouseUtilities.isRightDown(e)) {
+                                return;
+                            }
+                            super.mouseDragged(e);
+                        }
+
+                        @Override
+                        public void mouseWheelMoved(MouseWheelEvent e) {
+                            // do nothing
+                        }
+                    };
                 }
             };
-        }
-    };
 
     private final double minZ;
     private final double maxZ;
@@ -67,9 +68,10 @@ public class Surface3D extends AbstractAnalysis {
     private final boolean showAllTicksY;
 
     public Surface3D(String name, double[][] matrix, List<String> ticksX,
-            List<String> ticksY, NavigableMap<Double, String> valueTickZ,
-            String labelX, String labelY, String labelZ, boolean showAllTicksX,
-            boolean showAllTicksY) {
+                     List<String> ticksY,
+                     NavigableMap<Double, String> valueTickZ, String labelX,
+                     String labelY, String labelZ, boolean showAllTicksX,
+                     boolean showAllTicksY) {
         super();
         this.name = name;
         this.matrix = matrix.clone();
@@ -82,7 +84,8 @@ public class Surface3D extends AbstractAnalysis {
         this.showAllTicksY = showAllTicksY;
 
         SortedSet<Double> sortedSet = valueTickZ.navigableKeySet();
-        double[] array = ArrayUtils.toPrimitive(sortedSet.toArray(new Double[sortedSet.size()]));
+        double[] array = ArrayUtils
+                .toPrimitive(sortedSet.toArray(new Double[sortedSet.size()]));
         StaticTickProvider staticTickProvider = new StaticTickProvider(array);
         TickLabelMap tickLabelMap = new TickLabelMap();
         tickLabelMap.getMap().putAll(valueTickZ);
@@ -104,18 +107,24 @@ public class Surface3D extends AbstractAnalysis {
         Mapper mapper = new Mapper() {
             @Override
             public double f(double x, double y) {
-                int i = Math.max(Math.min((int) Math.round(x), ticksX.size() - 1), 0);
-                int j = Math.max(Math.min((int) Math.round(y), ticksY.size() - 1), 0);
+                int i = Math.max(
+                        Math.min((int) Math.round(x), ticksX.size() - 1), 0);
+                int j = Math.max(
+                        Math.min((int) Math.round(y), ticksY.size() - 1), 0);
                 return matrix[i][j];
             }
         };
 
         Range rangeX = new Range(0, ticksX.size());
         Range rangeY = new Range(0, ticksY.size());
-        OrthonormalGrid orthonormalGrid = new OrthonormalGrid(rangeX, ticksX.size(), rangeY, ticksY.size());
+        OrthonormalGrid orthonormalGrid =
+                new OrthonormalGrid(rangeX, ticksX.size(), rangeY,
+                                    ticksY.size());
 
         Shape surface = Builder.buildOrthonormal(orthonormalGrid, mapper);
-        surface.setColorMapper(new ColorMapper(ColorMapWrapper.getJzy3dColorMap(), minZ, maxZ, new Color(1, 1, 1, .5f)));
+        surface.setColorMapper(
+                new ColorMapper(ColorMapWrapper.getJzy3dColorMap(), minZ, maxZ,
+                                new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(true);
         surface.setWireframeColor(Color.GRAY);
@@ -132,19 +141,10 @@ public class Surface3D extends AbstractAnalysis {
         axeLayout.setYAxeLabel(labelY);
         axeLayout.setZAxeLabel(labelZ);
 
-        chart.getView().setBoundManual(new BoundingBox3d(0, ticksX.size(), 0, ticksY.size(), (float) minZ, (float) maxZ));
+        chart.getView().setBoundManual(
+                new BoundingBox3d(0, ticksX.size(), 0, ticksY.size(),
+                                  (float) minZ, (float) maxZ));
         chart.addDrawable(surface);
-    }
-
-    private ITickRenderer createRendererXY(boolean isX) {
-        final List<String> ticks = isX ? ticksX : ticksY;
-        return new ITickRenderer() {
-            @Override
-            public String format(double x) {
-                int i = Math.max(Math.min((int) Math.floor(x), ticks.size() - 1), 0);
-                return ticks.get(i);
-            }
-        };
     }
 
     private ITickProvider createProviderXY(boolean isX, boolean showAllTicks) {
@@ -152,5 +152,17 @@ public class Surface3D extends AbstractAnalysis {
             return new RegularTickProvider(isX ? ticksX.size() : ticksY.size());
         }
         return new SmartTickProvider(isX ? ticksX.size() : ticksY.size());
+    }
+
+    private ITickRenderer createRendererXY(boolean isX) {
+        final List<String> ticks = isX ? ticksX : ticksY;
+        return new ITickRenderer() {
+            @Override
+            public String format(double x) {
+                int i = Math.max(
+                        Math.min((int) Math.floor(x), ticks.size() - 1), 0);
+                return ticks.get(i);
+            }
+        };
     }
 }

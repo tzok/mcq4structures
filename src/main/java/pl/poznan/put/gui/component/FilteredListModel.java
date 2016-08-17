@@ -1,12 +1,11 @@
 package pl.poznan.put.gui.component;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.AbstractListModel;
-
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
     private final List<PdbCompactFragment> listProteins = new ArrayList<>();
@@ -21,22 +20,6 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
 
     public void setRNA(boolean isRNA) {
         this.isRNA = isRNA;
-    }
-
-    @Override
-    public PdbCompactFragment getElementAt(int index) {
-        if (isRNA) {
-            if (index < listRNAs.size()) {
-                return listRNAs.get(index);
-            }
-            return listProteins.get(index - listRNAs.size());
-        }
-        return listProteins.get(index);
-    }
-
-    @Override
-    public int getSize() {
-        return (isRNA ? listRNAs.size() : 0) + (isProtein ? listProteins.size() : 0);
     }
 
     public List<PdbCompactFragment> getElements() {
@@ -57,6 +40,12 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
         return list;
     }
 
+    public void addElements(List<PdbCompactFragment> list) {
+        for (PdbCompactFragment element : list) {
+            addElement(element);
+        }
+    }
+
     public void addElement(PdbCompactFragment element) {
         MoleculeType moleculeType = element.getMoleculeType();
 
@@ -67,9 +56,9 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
         }
     }
 
-    public void addElements(List<PdbCompactFragment> list) {
+    public void removeElements(List<PdbCompactFragment> list) {
         for (PdbCompactFragment element : list) {
-            addElement(element);
+            removeElement(element);
         }
     }
 
@@ -81,26 +70,39 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
         }
     }
 
-    public void removeElements(List<PdbCompactFragment> list) {
-        for (PdbCompactFragment element : list) {
-            removeElement(element);
-        }
-    }
-
     public boolean canAddElement(PdbCompactFragment element,
-            boolean isFragmentsSizeConstrained) {
+                                 boolean isFragmentsSizeConstrained) {
         MoleculeType moleculeType = element.getMoleculeType();
-        if (getSize() > 0 && getElementAt(0).getMoleculeType() != moleculeType) {
+        if (getSize() > 0
+            && getElementAt(0).getMoleculeType() != moleculeType) {
             return false;
         }
 
         if (isFragmentsSizeConstrained) {
-            List<PdbCompactFragment> list = moleculeType == MoleculeType.RNA ? listRNAs : listProteins;
+            List<PdbCompactFragment> list =
+                    moleculeType == MoleculeType.RNA ? listRNAs : listProteins;
             if (list.size() > 0 && list.get(0).size() != element.size()) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    @Override
+    public int getSize() {
+        return (isRNA ? listRNAs.size() : 0) + (isProtein ? listProteins.size()
+                                                          : 0);
+    }
+
+    @Override
+    public PdbCompactFragment getElementAt(int index) {
+        if (isRNA) {
+            if (index < listRNAs.size()) {
+                return listRNAs.get(index);
+            }
+            return listProteins.get(index - listRNAs.size());
+        }
+        return listProteins.get(index);
     }
 }

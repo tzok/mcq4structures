@@ -23,9 +23,16 @@ import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-public class StructureSelection implements Exportable, Tabular, ResidueCollection {
+public class StructureSelection
+        implements Exportable, Tabular, ResidueCollection {
     private static final int MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT = 3;
 
     private final List<PdbCompactFragment> compactFragments = new ArrayList<>();
@@ -33,7 +40,8 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     private final String name;
     private final List<PdbResidue> residues;
 
-    public StructureSelection(String name, List<PdbResidue> residues) throws InvalidCircularValueException {
+    public StructureSelection(String name, List<PdbResidue> residues)
+            throws InvalidCircularValueException {
         super();
         this.name = name;
         this.residues = residues;
@@ -41,7 +49,8 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
         divideIntoCompactFragments();
     }
 
-    private void divideIntoCompactFragments() throws InvalidCircularValueException {
+    private void divideIntoCompactFragments()
+            throws InvalidCircularValueException {
         List<PdbResidue> candidates = new ArrayList<>();
 
         for (PdbResidue residue : residues) {
@@ -60,9 +69,14 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
             index = current.findConnectedResidueIndex(candidates);
 
             if (index == -1) {
-                if (currentFragmentResidues.size() > StructureSelection.MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT) {
-                    String fragmentName = generateFragmentName(currentFragmentResidues);
-                    PdbCompactFragment compactFragment = new PdbCompactFragment(fragmentName, currentFragmentResidues);
+                if (currentFragmentResidues.size()
+                    > StructureSelection
+                            .MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT) {
+                    String fragmentName =
+                            generateFragmentName(currentFragmentResidues);
+                    PdbCompactFragment compactFragment =
+                            new PdbCompactFragment(fragmentName,
+                                                   currentFragmentResidues);
                     compactFragments.add(compactFragment);
                 }
 
@@ -77,24 +91,28 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
 
         if (fragmentResidues.size() == 1) {
             PdbResidue residue = fragmentResidues.get(0);
-            return name + " " + residue.getChainIdentifier() + "." + residue.getResidueNumber();
+            return name + " " + residue.getChainIdentifier() + "." + residue
+                    .getResidueNumber();
         }
 
         PdbResidue first = fragmentResidues.get(0);
         PdbResidue last = fragmentResidues.get(fragmentResidues.size() - 1);
-        return name + " " + first.getChainIdentifier() + "." + first.getResidueNumber() + "-" + last.getResidueNumber();
+        return name + " " + first.getChainIdentifier() + "." + first
+                .getResidueNumber() + "-" + last.getResidueNumber();
     }
 
     public String getName() {
         return name;
     }
 
-    public List<Angle> getValidTorsionAngleValues(MasterTorsionAngleType masterType) {
+    public List<Angle> getValidTorsionAngleValues(
+            MasterTorsionAngleType masterType) {
         List<Angle> angles = new ArrayList<>();
 
         for (PdbCompactFragment fragment : compactFragments) {
             for (PdbResidue residue : fragment.getResidues()) {
-                TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, masterType);
+                TorsionAngleValue angleValue =
+                        fragment.getTorsionAngleValue(residue, masterType);
                 Angle angle = angleValue.getValue();
                 if (angle.isValid()) {
                     angles.add(angle);
@@ -111,8 +129,11 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     }
 
     @Override
-    public PdbResidue findResidue(String chainIdentifier, int residueNumber, String insertionCode) {
-        return findResidue(new PdbResidueIdentifier(chainIdentifier, residueNumber, insertionCode));
+    public PdbResidue findResidue(String chainIdentifier, int residueNumber,
+                                  String insertionCode) {
+        return findResidue(
+                new PdbResidueIdentifier(chainIdentifier, residueNumber,
+                                         insertionCode));
     }
 
     @Override
@@ -161,7 +182,8 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
             if (other.residues != null) {
                 return false;
             }
-        } else if (!CollectionUtils.isEqualCollection(residues, other.residues)) {
+        } else if (!CollectionUtils
+                .isEqualCollection(residues, other.residues)) {
             return false;
         }
         return true;
@@ -200,12 +222,14 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     }
 
     private TableModel asTableModel(boolean isDisplayable) {
-        Set<MasterTorsionAngleType> allAngleTypes = getCommonTorsionAngleTypes();
+        Set<MasterTorsionAngleType> allAngleTypes =
+                getCommonTorsionAngleTypes();
         Set<String> columns = new LinkedHashSet<>();
         columns.add("Residue");
 
         for (MasterTorsionAngleType angleType : allAngleTypes) {
-            columns.add(isDisplayable ? angleType.getLongDisplayName() : angleType.getExportName());
+            columns.add(isDisplayable ? angleType.getLongDisplayName()
+                                      : angleType.getExportName());
         }
 
         int rowCount = 0;
@@ -224,9 +248,12 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
                 row.add(residue.toString());
 
                 for (MasterTorsionAngleType angleType : allAngleTypes) {
-                    TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, angleType);
+                    TorsionAngleValue angleValue =
+                            fragment.getTorsionAngleValue(residue, angleType);
                     double radians = angleValue.getValue().getRadians();
-                    row.add(isDisplayable ? AngleFormat.formatDisplayShort(radians) : AngleFormat.formatExport(radians));
+                    row.add(isDisplayable ? AngleFormat
+                            .formatDisplayShort(radians)
+                                          : AngleFormat.formatExport(radians));
                 }
 
                 data[i] = row.toArray(new String[row.size()]);
@@ -234,7 +261,8 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
             }
         }
 
-        return new DefaultTableModel(data, columns.toArray(new String[columns.size()]));
+        return new DefaultTableModel(data, columns.toArray(
+                new String[columns.size()]));
     }
 
     public Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
@@ -246,14 +274,16 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
 
             switch (moleculeType) {
                 case PROTEIN:
-                    angleTypes = Arrays.asList(ProteinTorsionAngleType.values());
+                    angleTypes =
+                            Arrays.asList(ProteinTorsionAngleType.values());
                     break;
                 case RNA:
                     angleTypes = Arrays.asList(RNATorsionAngleType.values());
                     break;
                 case UNKNOWN:
                 default:
-                    throw new IllegalArgumentException("Unknown molecule type: " + moleculeType);
+                    throw new IllegalArgumentException(
+                            "Unknown molecule type: " + moleculeType);
             }
 
             commonTypes.addAll(angleTypes);

@@ -1,24 +1,8 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
@@ -35,33 +19,23 @@ import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.SVGHelper;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class LocalMultiMatrixPanel extends JPanel {
-    private class PdbCompactFragmentWrapper {
-        private final PdbCompactFragment fragment;
-
-        public PdbCompactFragmentWrapper(PdbCompactFragment fragment) {
-            super();
-            this.fragment = fragment;
-        }
-
-        public PdbCompactFragment getFragment() {
-            return fragment;
-        }
-
-        @Override
-        public String toString() {
-            return fragment.getName();
-        }
-    }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocalMultiMatrixPanel.class);
-
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(LocalMultiMatrixPanel.class);
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
     private final JTable histogramMatrix = new JTable();
     private final JTable percentileMatrix = new JTable();
-    private final SVGComponent visualization = new SVGComponent(SVGHelper.emptyDocument(), "colorbar");
-
+    private final SVGComponent visualization =
+            new SVGComponent(SVGHelper.emptyDocument(), "colorbar");
     private List<PdbCompactFragment> fragments = Collections.emptyList();
 
     public LocalMultiMatrixPanel() {
@@ -100,11 +74,14 @@ public class LocalMultiMatrixPanel extends JPanel {
     }
 
     public void updateHeader(boolean readyResults) {
-        StringBuilder builder = new StringBuilder("<html>Structures selected for local distance measure: ");
+        StringBuilder builder = new StringBuilder(
+                "<html>Structures selected for local distance measure: ");
         int i = 0;
 
         for (PdbCompactFragment c : fragments) {
-            builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
+            builder.append(
+                    "<span style=\"color: " + (i % 2 == 0 ? "blue" : "green")
+                    + "\">");
             builder.append(c.getName());
             builder.append("</span>, ");
             i++;
@@ -127,16 +104,21 @@ public class LocalMultiMatrixPanel extends JPanel {
                 return ProcessingResult.emptyInstance();
             }
 
-            MasterTorsionAngleType selectedAngleType = selectReferenceTorsionAngleType(reference);
+            MasterTorsionAngleType selectedAngleType =
+                    selectReferenceTorsionAngleType(reference);
             if (selectedAngleType == null) {
                 return ProcessingResult.emptyInstance();
             }
 
             MCQ mcq = new MCQ(Collections.singletonList(selectedAngleType));
-            ModelsComparisonResult result = mcq.compareModels(reference, fragments);
-            ModelsComparisonResult.SelectedAngle selectedAngle = result.selectAngle(selectedAngleType);
-            AngleDeltaIteratorFactory iteratorFactory = new TypedDeltaIteratorFactory(selectedAngleType);
-            MultiMatchStatistics statistics = MultiMatchStatistics.calculate(iteratorFactory, selectedAngle);
+            ModelsComparisonResult result =
+                    mcq.compareModels(reference, fragments);
+            ModelsComparisonResult.SelectedAngle selectedAngle =
+                    result.selectAngle(selectedAngleType);
+            AngleDeltaIteratorFactory iteratorFactory =
+                    new TypedDeltaIteratorFactory(selectedAngleType);
+            MultiMatchStatistics statistics = MultiMatchStatistics
+                    .calculate(iteratorFactory, selectedAngle);
             SVGDocument document = selectedAngle.visualize();
 
             tableMatrix.setModel(selectedAngle.asDisplayableTableModel());
@@ -149,10 +131,28 @@ public class LocalMultiMatrixPanel extends JPanel {
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMultiMatrixPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, message, "Error",
+                                          JOptionPane.ERROR_MESSAGE);
         }
 
         return ProcessingResult.emptyInstance();
+    }
+
+    private PdbCompactFragment selectReferenceStructure() {
+        PdbCompactFragmentWrapper[] fragmentArray =
+                new PdbCompactFragmentWrapper[fragments.size()];
+        for (int i = 0; i < fragments.size(); i++) {
+            fragmentArray[i] = new PdbCompactFragmentWrapper(fragments.get(i));
+        }
+        PdbCompactFragmentWrapper wrapper =
+                (PdbCompactFragmentWrapper) JOptionPane.showInputDialog(this,
+                                                                        "Select your reference structure",
+                                                                        "Reference structure",
+                                                                        JOptionPane.INFORMATION_MESSAGE,
+                                                                        null,
+                                                                        fragmentArray,
+                                                                        fragmentArray[0]);
+        return wrapper.getFragment();
     }
 
     private MasterTorsionAngleType selectReferenceTorsionAngleType(
@@ -162,30 +162,46 @@ public class LocalMultiMatrixPanel extends JPanel {
         AverageTorsionAngleType averageTorsionAngleType;
 
         switch (moleculeType) {
-        case PROTEIN:
-            mainAngles = ProteinTorsionAngleType.mainAngles();
-            averageTorsionAngleType = ProteinTorsionAngleType.getAverageOverMainAngles();
-            break;
-        case RNA:
-            mainAngles = RNATorsionAngleType.mainAngles();
-            averageTorsionAngleType = RNATorsionAngleType.getAverageOverMainAngles();
-            break;
-        case UNKNOWN:
-        default:
-            throw new IllegalArgumentException("Unknown molecule type: " + moleculeType);
+            case PROTEIN:
+                mainAngles = ProteinTorsionAngleType.mainAngles();
+                averageTorsionAngleType =
+                        ProteinTorsionAngleType.getAverageOverMainAngles();
+                break;
+            case RNA:
+                mainAngles = RNATorsionAngleType.mainAngles();
+                averageTorsionAngleType =
+                        RNATorsionAngleType.getAverageOverMainAngles();
+                break;
+            case UNKNOWN:
+            default:
+                throw new IllegalArgumentException(
+                        "Unknown molecule type: " + moleculeType);
         }
 
-        MasterTorsionAngleType[] anglesToSelectFrom = Arrays.copyOf(mainAngles, mainAngles.length + 1);
+        MasterTorsionAngleType[] anglesToSelectFrom =
+                Arrays.copyOf(mainAngles, mainAngles.length + 1);
         anglesToSelectFrom[mainAngles.length] = averageTorsionAngleType;
-        return (MasterTorsionAngleType) JOptionPane.showInputDialog(this, "Select torsion angle", "Torsion angle", JOptionPane.INFORMATION_MESSAGE, null, anglesToSelectFrom, averageTorsionAngleType);
+        return (MasterTorsionAngleType) JOptionPane
+                .showInputDialog(this, "Select torsion angle", "Torsion angle",
+                                 JOptionPane.INFORMATION_MESSAGE, null,
+                                 anglesToSelectFrom, averageTorsionAngleType);
     }
 
-    private PdbCompactFragment selectReferenceStructure() {
-        PdbCompactFragmentWrapper[] fragmentArray = new PdbCompactFragmentWrapper[fragments.size()];
-        for (int i = 0; i < fragments.size(); i++) {
-            fragmentArray[i] = new PdbCompactFragmentWrapper(fragments.get(i));
+    private class PdbCompactFragmentWrapper {
+        private final PdbCompactFragment fragment;
+
+        public PdbCompactFragmentWrapper(PdbCompactFragment fragment) {
+            super();
+            this.fragment = fragment;
         }
-        PdbCompactFragmentWrapper wrapper = (PdbCompactFragmentWrapper) JOptionPane.showInputDialog(this, "Select your reference structure", "Reference structure", JOptionPane.INFORMATION_MESSAGE, null, fragmentArray, fragmentArray[0]);
-        return wrapper.getFragment();
+
+        public PdbCompactFragment getFragment() {
+            return fragment;
+        }
+
+        @Override
+        public String toString() {
+            return fragment.getName();
+        }
     }
 }

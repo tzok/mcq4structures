@@ -1,8 +1,8 @@
 package pl.poznan.put.matching;
 
-import java.util.Iterator;
-
 import pl.poznan.put.circular.Angle;
+
+import java.util.Iterator;
 
 public interface AngleDeltaIterator extends Iterator<Angle> {
     // nothing new

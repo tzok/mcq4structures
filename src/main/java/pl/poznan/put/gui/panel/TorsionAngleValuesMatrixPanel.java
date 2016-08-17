@@ -21,7 +21,8 @@ import java.awt.*;
 import java.util.List;
 
 public class TorsionAngleValuesMatrixPanel extends JPanel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TorsionAngleValuesMatrixPanel.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TorsionAngleValuesMatrixPanel.class);
 
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
@@ -50,11 +51,14 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
         removeAllButFirstTab();
         updateHeader(structure);
 
-        StructureSelection selection = SelectionFactory.create(StructureManager.getName(structure), structure);
+        StructureSelection selection = SelectionFactory
+                .create(StructureManager.getName(structure), structure);
         tableMatrix.setModel(selection.asDisplayableTableModel());
 
-        for (MasterTorsionAngleType masterType : selection.getCommonTorsionAngleTypes()) {
-            List<Angle> angles = selection.getValidTorsionAngleValues(masterType);
+        for (MasterTorsionAngleType masterType : selection
+                .getCommonTorsionAngleTypes()) {
+            List<Angle> angles =
+                    selection.getValidTorsionAngleValues(masterType);
 
             if (angles.isEmpty()) {
                 continue;
@@ -66,10 +70,15 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
 
                 String title = masterType.getLongDisplayName();
                 SVGDocument svgDocument = histogram.finalizeDrawingAndGetSVG();
-                SVGComponent component = new SVGComponent(svgDocument, masterType.getExportName());
+                SVGComponent component = new SVGComponent(svgDocument,
+                                                          masterType
+                                                                  .getExportName());
                 tabbedPane.add(title, component);
-            } catch (InvalidCircularValueException | InvalidCircularOperationException e) {
-                TorsionAngleValuesMatrixPanel.LOGGER.warn("Failed to visualize torsion angles of type: " + masterType, e);
+            } catch (InvalidCircularValueException |
+                    InvalidCircularOperationException e) {
+                TorsionAngleValuesMatrixPanel.LOGGER
+                        .warn("Failed to visualize torsion angles of type: "
+                              + masterType, e);
             }
         }
 
@@ -84,7 +93,8 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
 
     public void updateHeader(PdbModel structure) {
         StringBuilder builder = new StringBuilder();
-        builder.append("<html>Structure selected for torsion angles calculation: <span style=\"color: blue\">");
+        builder.append(
+                "<html>Structure selected for torsion angles calculation: <span style=\"color: blue\">");
         builder.append(StructureManager.getName(structure));
         builder.append("</span></html>");
         labelInfoMatrix.setText(builder.toString());

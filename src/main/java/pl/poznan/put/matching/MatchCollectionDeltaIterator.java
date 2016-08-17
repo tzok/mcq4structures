@@ -1,12 +1,11 @@
 package pl.poznan.put.matching;
 
+import org.apache.commons.collections4.IteratorUtils;
+import pl.poznan.put.circular.Angle;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.apache.commons.collections4.IteratorUtils;
-
-import pl.poznan.put.circular.Angle;
 
 public class MatchCollectionDeltaIterator implements AngleDeltaIterator {
     private final Iterator<ResidueComparison> iterator;
@@ -14,8 +13,10 @@ public class MatchCollectionDeltaIterator implements AngleDeltaIterator {
     public MatchCollectionDeltaIterator(MatchCollection matchCollection) {
         super();
 
-        Collection<Iterator<? extends ResidueComparison>> iterators = new ArrayList<>();
-        for (FragmentMatch fragmentMatch : matchCollection.getFragmentMatches()) {
+        Collection<Iterator<? extends ResidueComparison>> iterators =
+                new ArrayList<>();
+        for (FragmentMatch fragmentMatch : matchCollection
+                .getFragmentMatches()) {
             iterators.add(fragmentMatch.getResidueComparisons().iterator());
         }
         iterator = IteratorUtils.chainedIterator(iterators);

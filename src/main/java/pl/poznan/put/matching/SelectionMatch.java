@@ -62,25 +62,31 @@ public class SelectionMatch implements Exportable, MatchCollection {
         return Collections.unmodifiableList(residueLabels);
     }
 
-    public String toPDB(boolean onlyMatched) throws StructureException, MmCifPdbIncompatibilityException {
-        if (fragmentMatches.size() == 0) {
-            return "";
-        }
-
-        FragmentSuperimposer superimposer = new FragmentSuperimposer(this, AtomFilter.ALL, true);
-        FragmentSuperposition superposition = onlyMatched ? superimposer.getMatched() : superimposer.getWhole();
-        return superposition.toPDB();
-    }
-
     @Override
     public void export(OutputStream stream) throws IOException {
         try {
             IOUtils.write(toPDB(false), stream, "UTF-8");
         } catch (StructureException e) {
-            throw new IOException("Failed to export the match to a PDB file", e);
+            throw new IOException("Failed to export the match to a PDB file",
+                                  e);
         } catch (MmCifPdbIncompatibilityException e) {
-            throw new IOException("Failed to export the match to a PDB file", e);
+            throw new IOException("Failed to export the match to a PDB file",
+                                  e);
         }
+    }
+
+    public String toPDB(boolean onlyMatched)
+            throws StructureException, MmCifPdbIncompatibilityException {
+        if (fragmentMatches.size() == 0) {
+            return "";
+        }
+
+        FragmentSuperimposer superimposer =
+                new FragmentSuperimposer(this, AtomFilter.ALL, true);
+        FragmentSuperposition superposition =
+                onlyMatched ? superimposer.getMatched()
+                            : superimposer.getWhole();
+        return superposition.toPDB();
     }
 
     @Override

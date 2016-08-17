@@ -1,18 +1,22 @@
 package pl.poznan.put.visualisation;
 
-import java.awt.Color;
-import java.awt.color.ColorSpace;
-
+import fr.orsay.lri.varna.models.rna.ModeleColorMap;
 import org.jzy3d.colors.colormaps.AbstractColorMap;
 import org.jzy3d.colors.colormaps.ColorMapWhiteRed;
 
-import fr.orsay.lri.varna.models.rna.ModeleColorMap;
+import java.awt.*;
+import java.awt.color.ColorSpace;
 
 public class ColorMapWrapper {
-    private static final AbstractColorMap JZY3D_COLOR_MAP = new ColorMapWhiteRed();
+    private static final AbstractColorMap JZY3D_COLOR_MAP =
+            new ColorMapWhiteRed();
 
     static {
         ColorMapWrapper.JZY3D_COLOR_MAP.setDirection(false);
+    }
+
+    private ColorMapWrapper() {
+        // empty constructor
     }
 
     public static AbstractColorMap getJzy3dColorMap() {
@@ -37,11 +41,10 @@ public class ColorMapWrapper {
     }
 
     public static Color getColor(double value, double min, double max) {
-        float[] rgba = ColorMapWrapper.JZY3D_COLOR_MAP.getColor(0, 0, value, min, max).toArray();
-        return new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), new float[] { rgba[0], rgba[1], rgba[2] }, rgba[3]);
-    }
-
-    private ColorMapWrapper() {
-        // empty constructor
+        float[] rgba =
+                ColorMapWrapper.JZY3D_COLOR_MAP.getColor(0, 0, value, min, max)
+                                               .toArray();
+        return new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB),
+                         new float[]{rgba[0], rgba[1], rgba[2]}, rgba[3]);
     }
 }

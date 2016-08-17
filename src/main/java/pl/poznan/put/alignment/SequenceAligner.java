@@ -22,25 +22,55 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class SequenceAligner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAligner.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SequenceAligner.class);
 
     private final List<PdbCompactFragment> fragments;
     private final boolean isGlobal;
     private final MoleculeType moleculeType;
     private final PairwiseSequenceScorerType type;
-    private final SubstitutionMatrix<? extends AbstractCompound> substitutionMatrix;
+    private final SubstitutionMatrix<? extends AbstractCompound>
+            substitutionMatrix;
 
-    public SequenceAligner(List<PdbCompactFragment> fragments, boolean isGlobal) {
+    public SequenceAligner(List<PdbCompactFragment> fragments,
+                           boolean isGlobal) {
         super();
         this.fragments = fragments;
         this.isGlobal = isGlobal;
 
         moleculeType = fragments.get(0).getMoleculeType();
-        type = isGlobal ? PairwiseSequenceScorerType.GLOBAL : PairwiseSequenceScorerType.LOCAL;
-        substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner.getRNASubstitutionMatrix() : SequenceAligner.getProteinSubstitutionMatrix();
+        type = isGlobal ? PairwiseSequenceScorerType.GLOBAL
+                        : PairwiseSequenceScorerType.LOCAL;
+        substitutionMatrix = moleculeType == MoleculeType.RNA ? SequenceAligner
+                .getRNASubstitutionMatrix() : SequenceAligner
+                                     .getProteinSubstitutionMatrix();
+    }
+
+    private static SubstitutionMatrix<NucleotideCompound>
+    getRNASubstitutionMatrix() {
+        try (InputStreamReader reader = new InputStreamReader(
+                SequenceAligner.class.getResourceAsStream(
+                        "/pl/poznan/put" + "/alignment/NUC44.txt"), "UTF-8")) {
+            return new SimpleSubstitutionMatrix<>(
+                    RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
+        } catch (IOException e) {
+            SequenceAligner.LOGGER
+                    .error("Failed to load substitution matrix for RNA", e);
+        }
+
+        // warning, the default will not work with MSA for RNAs!
+        return SubstitutionMatrixHelper.getNuc4_4();
+    }
+
+    private static SubstitutionMatrix<AminoAcidCompound> getProteinSubstitutionMatrix() {
+        return SubstitutionMatrixHelper.getBlosum62();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -50,7 +80,8 @@ public final class SequenceAligner {
         }
 
         List<AbstractSequence> sequences = new ArrayList<>();
-        Map<AbstractSequence, PdbCompactFragment> mapSequenceName = new HashMap<>();
+        Map<AbstractSequence, PdbCompactFragment> mapSequenceName =
+                new HashMap<>();
 
         for (PdbCompactFragment fragment : fragments) {
             String string = fragment.toSequence();
@@ -67,16 +98,20 @@ public final class SequenceAligner {
             mapSequenceName.put(sequence, fragment);
         }
 
-        Profile profile = Alignments.getMultipleSequenceAlignment(sequences, substitutionMatrix, type);
+        Profile profile = Alignments
+                .getMultipleSequenceAlignment(sequences, substitutionMatrix,
+                                              type);
 
         /*
          * Convert every sequence into an array of characters
          */
-        List<? extends AlignedSequence> alignedSequences = profile.getAlignedSequences();
+        List<? extends AlignedSequence> alignedSequences =
+                profile.getAlignedSequences();
         char[][] sequencesAsChars = new char[alignedSequences.size()][];
 
         for (int i = 0; i < alignedSequences.size(); i++) {
-            sequencesAsChars[i] = alignedSequences.get(i).toString().toCharArray();
+            sequencesAsChars[i] =
+                    alignedSequences.get(i).toString().toCharArray();
             assert sequencesAsChars[i].length == sequencesAsChars[0].length;
         }
 
@@ -89,10 +124,14 @@ public final class SequenceAligner {
             char[][] copy = new char[alignedSequences.size()][];
 
             for (int j = 0; j < alignedSequences.size(); j++) {
-                copy[j] = Arrays.copyOfRange(sequencesAsChars[j], i, Math.min(i + 60, sequencesAsChars[j].length));
+                copy[j] = Arrays.copyOfRange(sequencesAsChars[j], i,
+                                             Math.min(i + 60,
+                                                      sequencesAsChars[j]
+                                                              .length));
 
                 AlignedSequence alignedSequence = alignedSequences.get(j);
-                AbstractSequence sequence = (AbstractSequence) alignedSequence.getOriginalSequence();
+                AbstractSequence sequence = (AbstractSequence) alignedSequence
+                        .getOriginalSequence();
 
                 PdbCompactFragment fragment = mapSequenceName.get(sequence);
                 String name = fragment.getName();
@@ -120,20 +159,5 @@ public final class SequenceAligner {
 
         String alignment = builder.toString();
         return new SequenceAlignment(isGlobal, alignment);
-    }
-
-    private static SubstitutionMatrix<NucleotideCompound> getRNASubstitutionMatrix() {
-        try (InputStreamReader reader = new InputStreamReader(SequenceAligner.class.getResourceAsStream("/pl/poznan/put" + "/alignment/NUC44.txt"), "UTF-8")) {
-            return new SimpleSubstitutionMatrix<>(RNACompoundSet.getRNACompoundSet(), reader, "NUC44");
-        } catch (IOException e) {
-            SequenceAligner.LOGGER.error("Failed to load substitution matrix for RNA", e);
-        }
-
-        // warning, the default will not work with MSA for RNAs!
-        return SubstitutionMatrixHelper.getNuc4_4();
-    }
-
-    private static SubstitutionMatrix<AminoAcidCompound> getProteinSubstitutionMatrix() {
-        return SubstitutionMatrixHelper.getBlosum62();
     }
 }
