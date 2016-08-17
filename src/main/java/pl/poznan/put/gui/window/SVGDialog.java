@@ -1,17 +1,12 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.gui.component.SVGComponent;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-
-import org.w3c.dom.svg.SVGDocument;
-
-import pl.poznan.put.gui.component.SVGComponent;
 
 public class SVGDialog extends JDialog {
     private final JButton buttonSave = new JButton("Save");

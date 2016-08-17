@@ -6,6 +6,7 @@ import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.SVDSuperimposer;
 import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.atom.AtomName;
+import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
 import pl.poznan.put.pdb.PdbAtomLine;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -18,13 +19,13 @@ import pl.poznan.put.rna.Phosphate;
 import pl.poznan.put.rna.Ribose;
 import pl.poznan.put.rna.base.NucleobaseType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FragmentSuperimposer {
-    public enum AtomFilter {
-        ALL, BACKBONE, MAIN
-    }
-
     private final SelectionMatch selectionMatch;
     private final AtomFilter atomFilter;
     private final boolean onlyHeavy;
@@ -34,9 +35,9 @@ public class FragmentSuperimposer {
     private final SVDSuperimposer totalSuperimposer;
     private final Atom[] totalAtomsTarget;
     private final Atom[] totalAtomsModel;
-
     public FragmentSuperimposer(SelectionMatch selectionMatch,
-                                AtomFilter atomFilter, boolean onlyHeavy) throws StructureException {
+                                AtomFilter atomFilter, boolean onlyHeavy)
+            throws StructureException, MmCifPdbIncompatibilityException {
         super();
         this.selectionMatch = selectionMatch;
         this.atomFilter = atomFilter;
@@ -44,7 +45,9 @@ public class FragmentSuperimposer {
 
         int matchesCount = selectionMatch.getFragmentCount();
         if (matchesCount == 0) {
-            throw new IllegalArgumentException("Failed to superimpose, because the set of structural matches is empty");
+            throw new IllegalArgumentException(
+                    "Failed to superimpose, because the set of structural "
+                    + "matches is empty");
         }
 
         matchSuperimposer = new SVDSuperimposer[matchesCount];
@@ -56,17 +59,20 @@ public class FragmentSuperimposer {
 
         totalAtomsTarget = atomsT.toArray(new Atom[atomsT.size()]);
         totalAtomsModel = atomsM.toArray(new Atom[atomsM.size()]);
-        totalSuperimposer = new SVDSuperimposer(totalAtomsTarget, totalAtomsModel);
+        totalSuperimposer =
+                new SVDSuperimposer(totalAtomsTarget, totalAtomsModel);
     }
 
-    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM) throws StructureException {
+    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM)
+            throws StructureException, MmCifPdbIncompatibilityException {
         int i = 0;
 
         for (FragmentMatch fragment : selectionMatch.getFragmentMatches()) {
             List<Atom> atomsTarget = new ArrayList<>();
             List<Atom> atomsModel = new ArrayList<>();
 
-            for (ResidueComparison residueComparison : fragment.getResidueComparisons()) {
+            for (ResidueComparison residueComparison : fragment
+                    .getResidueComparisons()) {
                 PdbResidue target = residueComparison.getTarget();
                 PdbResidue model = residueComparison.getModel();
                 MoleculeType moleculeType = target.getMoleculeType();
@@ -89,9 +95,12 @@ public class FragmentSuperimposer {
             atomsT.addAll(atomsTarget);
             atomsM.addAll(atomsModel);
 
-            matchAtomsTarget[i] = atomsTarget.toArray(new Atom[atomsTarget.size()]);
-            matchAtomsModel[i] = atomsModel.toArray(new Atom[atomsModel.size()]);
-            matchSuperimposer[i] = new SVDSuperimposer(matchAtomsTarget[i], matchAtomsModel[i]);
+            matchAtomsTarget[i] =
+                    atomsTarget.toArray(new Atom[atomsTarget.size()]);
+            matchAtomsModel[i] =
+                    atomsModel.toArray(new Atom[atomsModel.size()]);
+            matchSuperimposer[i] = new SVDSuperimposer(matchAtomsTarget[i],
+                                                       matchAtomsModel[i]);
             i += 1;
         }
     }
@@ -108,13 +117,34 @@ public class FragmentSuperimposer {
         }
     }
 
+    private List<AtomName> handleAtomFilterForProtein() {
+        switch (atomFilter) {
+            case ALL:
+                Set<AtomName> atomNames = new HashSet<>();
+                for (AminoAcidType aminoAcidType : AminoAcidType.values()) {
+                    for (ResidueComponent component : aminoAcidType
+                            .getAllMoleculeComponents()) {
+                        atomNames.addAll(component.getAtoms());
+                    }
+                }
+                return new ArrayList<>(atomNames);
+            case BACKBONE:
+                return ProteinBackbone.getInstance().getAtoms();
+            case MAIN:
+                return Collections.singletonList(AtomName.C);
+            default:
+                return Collections.emptyList();
+        }
+    }
+
     private List<AtomName> handleAtomFilterForRNA() {
         Set<AtomName> atomNames = new HashSet<>();
 
         switch (atomFilter) {
             case ALL:
                 for (NucleobaseType nucleobaseType : NucleobaseType.values()) {
-                    for (ResidueComponent component : nucleobaseType.getAllMoleculeComponents()) {
+                    for (ResidueComponent component : nucleobaseType
+                            .getAllMoleculeComponents()) {
                         atomNames.addAll(component.getAtoms());
                     }
                 }
@@ -125,25 +155,6 @@ public class FragmentSuperimposer {
                 return new ArrayList<>(atomNames);
             case MAIN:
                 return Collections.singletonList(AtomName.P);
-            default:
-                return Collections.emptyList();
-        }
-    }
-
-    private List<AtomName> handleAtomFilterForProtein() {
-        switch (atomFilter) {
-            case ALL:
-                Set<AtomName> atomNames = new HashSet<>();
-                for (AminoAcidType aminoAcidType : AminoAcidType.values()) {
-                    for (ResidueComponent component : aminoAcidType.getAllMoleculeComponents()) {
-                        atomNames.addAll(component.getAtoms());
-                    }
-                }
-                return new ArrayList<>(atomNames);
-            case BACKBONE:
-                return ProteinBackbone.getInstance().getAtoms();
-            case MAIN:
-                return Collections.singletonList(AtomName.C);
             default:
                 return Collections.emptyList();
         }
@@ -175,7 +186,8 @@ public class FragmentSuperimposer {
         return Math.sqrt(distance / count);
     }
 
-    public FragmentSuperposition getWhole() {
+    public FragmentSuperposition getWhole()
+            throws MmCifPdbIncompatibilityException {
         StructureSelection target = selectionMatch.getTarget();
         StructureSelection model = selectionMatch.getModel();
         List<PdbCompactFragment> targetFragments = target.getCompactFragments();
@@ -194,26 +206,32 @@ public class FragmentSuperimposer {
                     modifiedAtoms.add(PdbAtomLine.fromBioJavaAtom(bioJavaAtom));
                 }
 
-                PdbResidueIdentifier identifier = residue.getResidueIdentifier();
+                PdbResidueIdentifier identifier =
+                        residue.getResidueIdentifier();
                 String residueName = residue.getDetectedResidueName();
-                modifiedResidues.add(new PdbResidue(identifier, residueName, modifiedAtoms, false));
+                modifiedResidues.add(new PdbResidue(identifier, residueName,
+                                                    modifiedAtoms, false));
             }
 
-            modelFragments.add(new PdbCompactFragment(fragment.getName(), modifiedResidues));
+            modelFragments.add(new PdbCompactFragment(fragment.getName(),
+                                                      modifiedResidues));
         }
 
         return new FragmentSuperposition(targetFragments, modelFragments);
     }
 
-    public FragmentSuperposition getMatched() {
+    public FragmentSuperposition getMatched()
+            throws MmCifPdbIncompatibilityException {
         List<PdbCompactFragment> newFragmentsL = new ArrayList<>();
         List<PdbCompactFragment> newFragmentsR = new ArrayList<>();
 
-        for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+        for (FragmentMatch fragmentMatch : selectionMatch
+                .getFragmentMatches()) {
             List<PdbResidue> matchedModelResiduesModified = new ArrayList<>();
             List<PdbResidue> matchedTargetResidues = new ArrayList<>();
 
-            for (ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
+            for (ResidueComparison residueComparison : fragmentMatch
+                    .getResidueComparisons()) {
                 matchedTargetResidues.add(residueComparison.getTarget());
 
                 PdbResidue model = residueComparison.getModel();
@@ -228,13 +246,25 @@ public class FragmentSuperimposer {
 
                 PdbResidueIdentifier identifier = model.getResidueIdentifier();
                 String residueName = model.getDetectedResidueName();
-                matchedModelResiduesModified.add(new PdbResidue(identifier, residueName, modifiedAtoms, false));
+                matchedModelResiduesModified
+                        .add(new PdbResidue(identifier, residueName,
+                                            modifiedAtoms, false));
             }
 
-            newFragmentsL.add(new PdbCompactFragment(fragmentMatch.getModelFragment().getName(), matchedTargetResidues));
-            newFragmentsR.add(new PdbCompactFragment(fragmentMatch.getTargetFragment().getName(), matchedModelResiduesModified));
+            newFragmentsL.add(new PdbCompactFragment(
+                    fragmentMatch.getModelFragment().getName(),
+                    matchedTargetResidues));
+            newFragmentsR.add(new PdbCompactFragment(
+                    fragmentMatch.getTargetFragment().getName(),
+                    matchedModelResiduesModified));
         }
 
         return new FragmentSuperposition(newFragmentsL, newFragmentsR);
+    }
+
+    public enum AtomFilter {
+        ALL,
+        BACKBONE,
+        MAIN
     }
 }

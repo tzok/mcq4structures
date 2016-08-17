@@ -1,27 +1,8 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalMatrix;
@@ -34,18 +15,23 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.utility.svg.SVGHelper;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class GlobalMatrixPanel extends JPanel {
-    public interface Callback {
-        void complete(ProcessingResult processingResult);
-    }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalMatrixPanel.class);
-
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GlobalMatrixPanel.class);
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
     private final JProgressBar progressBar = new JProgressBar(0, 1);
-    private final SVGComponent visualization = new SVGComponent(SVGHelper.emptyDocument(), "matrix");
-
+    private final SVGComponent visualization =
+            new SVGComponent(SVGHelper.emptyDocument(), "matrix");
     private List<PdbModel> structures = Collections.emptyList();
 
     public GlobalMatrixPanel() {
@@ -81,12 +67,15 @@ public class GlobalMatrixPanel extends JPanel {
 
     public void updateHeader(boolean readyResults, String measureName) {
         StringBuilder builder = new StringBuilder();
-        builder.append("<html>Structures selected for global distance measure: ");
+        builder.append(
+                "<html>Structures selected for global distance measure: ");
         int i = 0;
 
         for (PdbModel s : structures) {
             assert s != null;
-            builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
+            builder.append(
+                    "<span style=\"color: " + (i % 2 == 0 ? "blue" : "green")
+                    + "\">");
             builder.append(StructureManager.getName(s));
             builder.append("</span>, ");
             i++;
@@ -105,7 +94,7 @@ public class GlobalMatrixPanel extends JPanel {
     }
 
     public void compareAndDisplayMatrix(GlobalComparator measure,
-            final Callback callback) {
+                                        final Callback callback) {
         try {
             List<StructureSelection> selections = new ArrayList<>();
 
@@ -116,34 +105,53 @@ public class GlobalMatrixPanel extends JPanel {
             }
 
             progressBar.setMinimum(0);
-            progressBar.setMaximum(structures.size() * (structures.size() - 1) / 2);
+            progressBar.setMaximum(
+                    structures.size() * (structures.size() - 1) / 2);
             progressBar.setValue(0);
 
-            ParallelGlobalComparator comparator = new ParallelGlobalComparator(measure, selections, new ParallelGlobalComparator.ProgressListener() {
-                @Override
-                public void setProgress(int progress) {
-                    progressBar.setValue(progress);
-                }
+            ParallelGlobalComparator comparator =
+                    new ParallelGlobalComparator(measure, selections,
+                                                 new ParallelGlobalComparator
+                                                         .ProgressListener() {
+                                                     @Override
+                                                     public void setProgress(
+                                                             int progress) {
+                                                         progressBar.setValue(
+                                                                 progress);
+                                                     }
 
-                @Override
-                public void complete(GlobalMatrix matrix) {
-                    GlobalComparator measureType = matrix.getComparator();
-                    SVGDocument document = matrix.visualize();
+                                                     @Override
+                                                     public void complete(
+                                                             GlobalMatrix
+                                                                     matrix) {
+                                                         GlobalComparator
+                                                                 measureType =
+                                                                 matrix.getComparator();
+                                                         SVGDocument document =
+                                                                 matrix.visualize();
 
-                    tableMatrix.setModel(matrix.asDisplayableTableModel());
-                    updateRowHeights();
+                                                         tableMatrix.setModel(
+                                                                 matrix.asDisplayableTableModel());
+                                                         updateRowHeights();
 
-                    visualization.setSVGDocument(document);
-                    updateHeader(true, measureType.getName());
-                    callback.complete(new ProcessingResult(matrix));
-                }
-            });
+                                                         visualization
+                                                                 .setSVGDocument(
+                                                                         document);
+                                                         updateHeader(true,
+                                                                      measureType
+                                                                              .getName());
+                                                         callback.complete(
+                                                                 new ProcessingResult(
+                                                                         matrix));
+                                                     }
+                                                 });
 
             comparator.start();
         } catch (InvalidCircularValueException e) {
             String message = "Failed to compare structures";
             GlobalMatrixPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, message, "Error",
+                                          JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -155,7 +163,8 @@ public class GlobalMatrixPanel extends JPanel {
         int rowHeight = tableMatrix.getRowHeight();
 
         for (int row = 0; row < tableMatrix.getRowCount(); row++) {
-            TableCellRenderer cellRenderer = tableMatrix.getCellRenderer(row, 1);
+            TableCellRenderer cellRenderer =
+                    tableMatrix.getCellRenderer(row, 1);
             Component comp = tableMatrix.prepareRenderer(cellRenderer, row, 1);
             rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
         }
@@ -163,5 +172,9 @@ public class GlobalMatrixPanel extends JPanel {
         for (int row = 0; row < tableMatrix.getRowCount(); row++) {
             tableMatrix.setRowHeight(row, rowHeight);
         }
+    }
+
+    public interface Callback {
+        void complete(ProcessingResult processingResult);
     }
 }

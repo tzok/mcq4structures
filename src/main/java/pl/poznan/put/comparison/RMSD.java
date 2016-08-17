@@ -10,6 +10,7 @@ import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
@@ -35,6 +36,14 @@ public class RMSD implements GlobalComparator {
         angleTypes = RMSD.mainAngleTypes();
     }
 
+    private static List<MasterTorsionAngleType> mainAngleTypes() {
+        List<MasterTorsionAngleType> mainAngleTypes = new ArrayList<>();
+        mainAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        mainAngleTypes
+                .addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+        return mainAngleTypes;
+    }
+
     public RMSD(AtomFilter filter, boolean onlyHeavy) {
         super();
         this.filter = filter;
@@ -42,28 +51,28 @@ public class RMSD implements GlobalComparator {
         angleTypes = RMSD.mainAngleTypes();
     }
 
-    private static List<MasterTorsionAngleType> mainAngleTypes() {
-        List<MasterTorsionAngleType> mainAngleTypes = new ArrayList<>();
-        mainAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-        mainAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
-        return mainAngleTypes;
-    }
-
     @Override
     public GlobalResult compareGlobally(StructureSelection s1,
-                                        StructureSelection s2) throws IncomparableStructuresException {
+                                        StructureSelection s2)
+            throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(s1, s2);
 
         if (matches == null || matches.getFragmentCount() == 0) {
-            throw new IncomparableStructuresException("No matching fragments found");
+            throw new IncomparableStructuresException(
+                    "No matching fragments found");
         }
 
         try {
-            FragmentSuperimposer superimposer = new FragmentSuperimposer(matches, filter, onlyHeavy);
+            FragmentSuperimposer superimposer =
+                    new FragmentSuperimposer(matches, filter, onlyHeavy);
             return new RMSDGlobalResult(getName(), matches, superimposer);
         } catch (StructureException e) {
-            throw new IncomparableStructuresException("Failed to superimpose structures and calculate RMSD", e);
+            throw new IncomparableStructuresException(
+                    "Failed to superimpose structures and calculate RMSD", e);
+        } catch (MmCifPdbIncompatibilityException e) {
+            throw new IncomparableStructuresException(
+                    "Failed to superimpose structures and calculate RMSD", e);
         }
     }
 

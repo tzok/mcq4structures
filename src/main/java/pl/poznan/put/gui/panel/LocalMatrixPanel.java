@@ -1,27 +1,9 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.MCQLocalResult;
@@ -39,26 +21,43 @@ import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.visualisation.SecondaryStructureVisualizer;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.util.List;
+
 public class LocalMatrixPanel extends JPanel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocalMatrixPanel.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(LocalMatrixPanel.class);
 
-    private final TableCellRenderer colorsRenderer = new DefaultTableCellRenderer() {
-        private final TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
+    private final TableCellRenderer colorsRenderer =
+            new DefaultTableCellRenderer() {
+                private final TableCellRenderer defaultRenderer =
+                        new DefaultTableCellRenderer();
 
-        @Override
-        public Component getTableCellRendererComponent(JTable table,
-                Object value, boolean isSelected, boolean hasFocus, int row,
-                int column) {
-            Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (column == 0) {
-                component.setBackground(Color.WHITE);
-                component.setForeground(Color.BLACK);
-            } else {
-                component.setBackground(Colors.DISTINCT_COLORS[column]);
-            }
-            return component;
-        }
-    };
+                @Override
+                public Component getTableCellRendererComponent(JTable table,
+                                                               Object value,
+                                                               boolean isSelected,
+                                                               boolean hasFocus,
+                                                               int row,
+                                                               int column) {
+                    Component component = defaultRenderer
+                            .getTableCellRendererComponent(table, value,
+                                                           isSelected, hasFocus,
+                                                           row, column);
+                    if (column == 0) {
+                        component.setBackground(Color.WHITE);
+                        component.setForeground(Color.BLACK);
+                    } else {
+                        component.setBackground(Colors.DISTINCT_COLORS[column]);
+                    }
+                    return component;
+                }
+            };
 
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
@@ -89,7 +88,8 @@ public class LocalMatrixPanel extends JPanel {
     }
 
     public void setStructuresAndChains(Pair<PdbModel, PdbModel> structures,
-            Pair<List<PdbChain>, List<PdbChain>> chains) {
+                                       Pair<List<PdbChain>, List<PdbChain>>
+                                               chains) {
         this.structures = structures;
         this.chains = chains;
         removeAllButFirstTab();
@@ -108,7 +108,9 @@ public class LocalMatrixPanel extends JPanel {
         PdbModel right = structures.getRight();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("<html>Structures selected for local distance measure: <span style=\"color: blue\">");
+        builder.append(
+                "<html>Structures selected for local distance measure: <span "
+                + "style=\"color: blue\">");
         builder.append(StructureManager.getName(left));
         builder.append('.');
 
@@ -137,21 +139,29 @@ public class LocalMatrixPanel extends JPanel {
     public ProcessingResult compareAndDisplayTable(
             List<MasterTorsionAngleType> selectedAngles) {
         try {
-            StructureSelection selectionL = SelectionFactory.create(StructureManager.getName(structures.getLeft()), chains.getLeft());
-            StructureSelection selectionR = SelectionFactory.create(StructureManager.getName(structures.getRight()), chains.getRight());
+            StructureSelection selectionL = SelectionFactory
+                    .create(StructureManager.getName(structures.getLeft()),
+                            chains.getLeft());
+            StructureSelection selectionR = SelectionFactory
+                    .create(StructureManager.getName(structures.getRight()),
+                            chains.getRight());
             MCQ mcq = new MCQ(selectedAngles);
-            MCQLocalResult result = (MCQLocalResult) mcq.comparePair(selectionL, selectionR);
+            MCQLocalResult result =
+                    (MCQLocalResult) mcq.comparePair(selectionL, selectionR);
             SelectionMatch selectionMatch = result.getSelectionMatch();
             removeAllButFirstTab();
 
-            for (FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+            for (FragmentMatch fragmentMatch : selectionMatch
+                    .getFragmentMatches()) {
                 SVGDocument svgDocument = fragmentMatch.visualize(1024, 576);
                 String title = fragmentMatch.toString();
                 SVGComponent component = new SVGComponent(svgDocument, "chart");
                 tabbedPane.add(title, component);
 
-                if (fragmentMatch.getTargetFragment().getMoleculeType() == MoleculeType.RNA) {
-                    svgDocument = SecondaryStructureVisualizer.visualize(fragmentMatch);
+                if (fragmentMatch.getTargetFragment().getMoleculeType()
+                    == MoleculeType.RNA) {
+                    svgDocument = SecondaryStructureVisualizer
+                            .visualize(fragmentMatch);
                     title = fragmentMatch.toString() + " (secondary structure)";
                     component = new SVGComponent(svgDocument, "secondary");
                     tabbedPane.add(title, component);
@@ -170,7 +180,8 @@ public class LocalMatrixPanel extends JPanel {
         } catch (IncomparableStructuresException e) {
             String message = "Failed to compare structures";
             LocalMatrixPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, message, "Error",
+                                          JOptionPane.ERROR_MESSAGE);
         }
 
         return ProcessingResult.emptyInstance();

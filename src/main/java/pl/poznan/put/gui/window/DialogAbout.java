@@ -1,11 +1,14 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Toolkit;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -14,25 +17,9 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class DialogAbout extends JDialog {
-    private static final long serialVersionUID = 1L;
     static final Logger LOGGER = LoggerFactory.getLogger(DialogAbout.class);
+    private static final long serialVersionUID = 1L;
 
     public DialogAbout(Frame owner) {
         super(owner, true);
@@ -93,11 +80,14 @@ public class DialogAbout extends JDialog {
                     return;
                 }
 
-                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED && Desktop.isDesktopSupported()) {
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+                    && Desktop.isDesktopSupported()) {
                     try {
                         Desktop.getDesktop().browse(e.getURL().toURI());
                     } catch (IOException | URISyntaxException e1) {
-                        DialogAbout.LOGGER.error("Failed to browse URL: " + e.getURL(), e1);
+                        DialogAbout.LOGGER
+                                .error("Failed to browse URL: " + e.getURL(),
+                                       e1);
                     }
                 }
             }

@@ -1,19 +1,5 @@
 package pl.poznan.put.comparison.global;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-
-import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
-
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.StatUtils;
@@ -21,7 +7,6 @@ import org.jzy3d.analysis.AnalysisLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
 import pl.poznan.put.interfaces.Clusterable;
@@ -35,8 +20,23 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.MDSDrawer;
 import pl.poznan.put.visualisation.Surface3D;
 
-public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabular {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalResult.class);
+import javax.swing.*;
+import javax.swing.table.TableModel;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+
+public class GlobalMatrix
+        implements Clusterable, Exportable, Visualizable, Tabular {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GlobalResult.class);
 
     private final DistanceMatrix distanceMatrix;
     private final DistanceMatrix distanceMatrixWithoutIncomparables;
@@ -46,14 +46,15 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
     private final GlobalResult[][] resultsMatrix;
 
     public GlobalMatrix(GlobalComparator comparator, List<String> names,
-            GlobalResult[][] resultsMatrix) {
+                        GlobalResult[][] resultsMatrix) {
         super();
         this.comparator = comparator;
         this.names = names;
         this.resultsMatrix = resultsMatrix.clone();
 
         distanceMatrix = prepareDistanceMatrix();
-        distanceMatrixWithoutIncomparables = prepareDistanceMatrixWithoutIncomparables();
+        distanceMatrixWithoutIncomparables =
+                prepareDistanceMatrixWithoutIncomparables();
     }
 
     private DistanceMatrix prepareDistanceMatrix() {
@@ -100,9 +101,12 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
             }
 
             if (maxErrorCount > 0) {
-                int[] selected = GlobalMatrix.selectAllButOne(argmax, selectedSubMatrix.length);
-                RealMatrix realMatrix = new Array2DRowRealMatrix(selectedSubMatrix);
-                RealMatrix subMatrix = realMatrix.getSubMatrix(selected, selected);
+                int[] selected = GlobalMatrix
+                        .selectAllButOne(argmax, selectedSubMatrix.length);
+                RealMatrix realMatrix =
+                        new Array2DRowRealMatrix(selectedSubMatrix);
+                RealMatrix subMatrix =
+                        realMatrix.getSubMatrix(selected, selected);
                 selectedSubMatrix = subMatrix.getData();
                 selectedNamesSubList.remove(argmax);
             }
@@ -159,65 +163,6 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
     }
 
     @Override
-    public SVGDocument visualize() {
-        double[][] array = distanceMatrixWithoutIncomparables.getMatrix();
-
-        if (array.length <= 1) {
-            GlobalMatrix.LOGGER.warn("Cannot visualize this distance matrix, because it contains zero valid comparisons");
-            return SVGHelper.emptyDocument();
-        }
-
-        return MDSDrawer.scale2DAndVisualizePoints(distanceMatrixWithoutIncomparables);
-    }
-
-    @Override
-    public void visualize3D() {
-        try {
-            String name = comparator.getName();
-            double[][] matrix = distanceMatrix.getMatrix();
-            List<String> ticksX = names;
-            List<String> ticksY = names;
-            NavigableMap<Double, String> valueTickZ = prepareTicksZ();
-            String labelX = "";
-            String labelY = "";
-            String labelZ = "Distance";
-            boolean showAllTicksX = true;
-            boolean showAllTicksY = true;
-
-            Surface3D surface3d = new Surface3D(name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, showAllTicksX, showAllTicksY);
-            AnalysisLauncher.open(surface3d);
-        } catch (Exception e) {
-            String message = "Failed to visualize in 3D";
-            GlobalMatrix.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private NavigableMap<Double, String> prepareTicksZ() {
-        NavigableMap<Double, String> valueTickZ = new TreeMap<>();
-        valueTickZ.put(0.0, "0");
-
-        if (comparator.isAngularMeasure()) {
-            for (double radians = Math.PI / 12.0; radians <= Math.PI + 1e-3; radians += Math.PI / 12.0) {
-                valueTickZ.put(radians, Long.toString(Math.round(Math.toDegrees(radians))) + Unicode.DEGREE);
-            }
-        } else {
-            double[][] matrix = distanceMatrix.getMatrix();
-            double max = Double.NEGATIVE_INFINITY;
-
-            for (double[] element : matrix) {
-                max = Math.max(max, StatUtils.max(element));
-            }
-
-            for (double angstrom = 1.0; angstrom <= Math.ceil(max) + 1e-3; angstrom += 1.0) {
-                valueTickZ.put(angstrom, Long.toString(Math.round(angstrom)) + Unicode.ANGSTROM);
-            }
-        }
-
-        return valueTickZ;
-    }
-
-    @Override
     public TableModel asExportableTableModel() {
         return asTableModel(false);
     }
@@ -252,11 +197,82 @@ public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabu
                 if (result == null) {
                     values[i][j + 1] = "Failed";
                 } else {
-                    values[i][j + 1] = isDisplay ? result.getLongDisplayName() : result.getExportName();
+                    values[i][j + 1] = isDisplay ? result.getLongDisplayName()
+                                                 : result.getExportName();
                 }
             }
         }
 
         return new NonEditableDefaultTableModel(values, columnNames);
+    }
+
+    @Override
+    public SVGDocument visualize() {
+        double[][] array = distanceMatrixWithoutIncomparables.getMatrix();
+
+        if (array.length <= 1) {
+            GlobalMatrix.LOGGER
+                    .warn("Cannot visualize this distance matrix, because it "
+                          + "contains zero valid comparisons");
+            return SVGHelper.emptyDocument();
+        }
+
+        return MDSDrawer
+                .scale2DAndVisualizePoints(distanceMatrixWithoutIncomparables);
+    }
+
+    @Override
+    public void visualize3D() {
+        try {
+            String name = comparator.getName();
+            double[][] matrix = distanceMatrix.getMatrix();
+            List<String> ticksX = names;
+            List<String> ticksY = names;
+            NavigableMap<Double, String> valueTickZ = prepareTicksZ();
+            String labelX = "";
+            String labelY = "";
+            String labelZ = "Distance";
+            boolean showAllTicksX = true;
+            boolean showAllTicksY = true;
+
+            Surface3D surface3d =
+                    new Surface3D(name, matrix, ticksX, ticksY, valueTickZ,
+                                  labelX, labelY, labelZ, showAllTicksX,
+                                  showAllTicksY);
+            AnalysisLauncher.open(surface3d);
+        } catch (Exception e) {
+            String message = "Failed to visualize in 3D";
+            GlobalMatrix.LOGGER.error(message, e);
+            JOptionPane.showMessageDialog(null, message, "Error",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private NavigableMap<Double, String> prepareTicksZ() {
+        NavigableMap<Double, String> valueTickZ = new TreeMap<>();
+        valueTickZ.put(0.0, "0");
+
+        if (comparator.isAngularMeasure()) {
+            for (double radians = Math.PI / 12.0; radians <= Math.PI + 1e-3;
+                 radians += Math.PI / 12.0) {
+                valueTickZ.put(radians, Long.toString(
+                        Math.round(Math.toDegrees(radians))) + Unicode.DEGREE);
+            }
+        } else {
+            double[][] matrix = distanceMatrix.getMatrix();
+            double max = Double.NEGATIVE_INFINITY;
+
+            for (double[] element : matrix) {
+                max = Math.max(max, StatUtils.max(element));
+            }
+
+            for (double angstrom = 1.0; angstrom <= Math.ceil(max) + 1e-3;
+                 angstrom += 1.0) {
+                valueTickZ.put(angstrom, Long.toString(Math.round(angstrom))
+                                         + Unicode.ANGSTROM);
+            }
+        }
+
+        return valueTickZ;
     }
 }

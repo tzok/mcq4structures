@@ -15,7 +15,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class SequenceAlignmentPanel extends JPanel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAlignmentPanel.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SequenceAlignmentPanel.class);
 
     private final JTextPane labelHeader = new JTextPane();
     private final JTextArea textAreaAlignment = new JTextArea();
@@ -59,7 +60,9 @@ public class SequenceAlignmentPanel extends JPanel {
         int i = 0;
 
         for (PdbCompactFragment c : fragments) {
-            builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
+            builder.append(
+                    "<span style=\"color: " + (i % 2 == 0 ? "blue" : "green")
+                    + "\">");
             builder.append(c.getName());
             builder.append("</span>, ");
             i++;
@@ -87,7 +90,8 @@ public class SequenceAlignmentPanel extends JPanel {
         } catch (CompoundNotFoundException e) {
             String message = "Failed to align sequences";
             SequenceAlignmentPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, message, "Error",
+                                          JOptionPane.ERROR_MESSAGE);
         }
 
         return ProcessingResult.emptyInstance();

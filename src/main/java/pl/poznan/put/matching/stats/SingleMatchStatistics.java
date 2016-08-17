@@ -1,17 +1,19 @@
 package pl.poznan.put.matching.stats;
 
+import org.apache.commons.math3.stat.StatUtils;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.matching.AngleDeltaIterator;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.math3.stat.StatUtils;
-
-import pl.poznan.put.circular.Angle;
-import pl.poznan.put.matching.AngleDeltaIterator;
-
 public class SingleMatchStatistics {
-    public static final double[] DEFAULT_PERCENTS_LIMITS = new double[] { 95.0, 75.0, 50.0, 25.0 };
-    public static final double[] DEFAULT_ANGLE_LIMITS = new double[] { Math.toRadians(15), Math.toRadians(30), Math.toRadians(45), Math.toRadians(60) };
+    public static final double[] DEFAULT_PERCENTS_LIMITS =
+            new double[]{95.0, 75.0, 50.0, 25.0};
+    public static final double[] DEFAULT_ANGLE_LIMITS =
+            new double[]{Math.toRadians(15), Math.toRadians(30),
+                         Math.toRadians(45), Math.toRadians(60)};
     // @formatter:off
     public static final double[] PERCENTS_FROM_1_TO_100 = new double[] {
          1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
@@ -26,15 +28,32 @@ public class SingleMatchStatistics {
         91, 92, 93, 94, 95, 96, 97, 98, 99, 100
     };
     // @formatter:on
-
-    public static SingleMatchStatistics calculate(String name,
-            AngleDeltaIterator angleDeltaIterator) {
-        return SingleMatchStatistics.calculate(name, angleDeltaIterator, SingleMatchStatistics.DEFAULT_ANGLE_LIMITS, SingleMatchStatistics.DEFAULT_PERCENTS_LIMITS);
+    private final String name;
+    private final Histogram histogram;
+    private final Percentiles percentiles;
+    public SingleMatchStatistics(String name, Histogram histogram,
+                                 Percentiles percentiles) {
+        super();
+        this.name = name;
+        this.histogram = histogram;
+        this.percentiles = percentiles;
     }
 
     public static SingleMatchStatistics calculate(String name,
-            AngleDeltaIterator angleDeltaIterator, double[] angleLimits,
-            double[] percentsLimits) {
+                                                  AngleDeltaIterator
+                                                          angleDeltaIterator) {
+        return SingleMatchStatistics.calculate(name, angleDeltaIterator,
+                                               SingleMatchStatistics
+                                                       .DEFAULT_ANGLE_LIMITS,
+                                               SingleMatchStatistics
+                                                       .DEFAULT_PERCENTS_LIMITS);
+    }
+
+    public static SingleMatchStatistics calculate(String name,
+                                                  AngleDeltaIterator
+                                                          angleDeltaIterator,
+                                                  double[] angleLimits,
+                                                  double[] percentsLimits) {
         List<Double> validDeltas = new ArrayList<>();
         double[] validDeltasCountRatio = new double[angleLimits.length];
 
@@ -68,25 +87,15 @@ public class SingleMatchStatistics {
             }
 
             for (int i = 0; i < percentsLimits.length; i++) {
-                validPercents[i] = StatUtils.percentile(values, percentsLimits[i]);
+                validPercents[i] =
+                        StatUtils.percentile(values, percentsLimits[i]);
             }
         }
 
         Histogram histogram = new Histogram(angleLimits, validDeltasCountRatio);
-        Percentiles percentiles = new Percentiles(percentsLimits, validPercents);
+        Percentiles percentiles =
+                new Percentiles(percentsLimits, validPercents);
         return new SingleMatchStatistics(name, histogram, percentiles);
-    }
-
-    private final String name;
-    private final Histogram histogram;
-    private final Percentiles percentiles;
-
-    public SingleMatchStatistics(String name, Histogram histogram,
-            Percentiles percentiles) {
-        super();
-        this.name = name;
-        this.histogram = histogram;
-        this.percentiles = percentiles;
     }
 
     public String getName() {

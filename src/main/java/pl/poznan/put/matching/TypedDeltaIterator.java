@@ -1,16 +1,16 @@
 package pl.poznan.put.matching;
 
-import java.util.Iterator;
-
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import java.util.Iterator;
 
 public class TypedDeltaIterator implements AngleDeltaIterator {
     private final Iterator<ResidueComparison> iterator;
     private final MasterTorsionAngleType masterType;
 
     public TypedDeltaIterator(FragmentMatch fragmentMatch,
-            MasterTorsionAngleType masterType) {
+                              MasterTorsionAngleType masterType) {
         super();
         this.iterator = fragmentMatch.getResidueComparisons().iterator();
         this.masterType = masterType;

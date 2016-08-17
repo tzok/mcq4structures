@@ -1,25 +1,6 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-
 import org.w3c.dom.svg.SVGDocument;
-
 import pl.poznan.put.clustering.hierarchical.Clusterer;
 import pl.poznan.put.clustering.hierarchical.Linkage;
 import pl.poznan.put.clustering.partitional.KMedoids;
@@ -32,15 +13,25 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.visualisation.PartitionalClustering;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
 public class DialogCluster extends JDialog {
     private final JButton buttonVisualize = new JButton("Visualize");
     private final JButton buttonClose = new JButton("Close");
     private final JCheckBox findBestK = new JCheckBox("Find best k?", true);
-    private final JRadioButton hierarchical = new JRadioButton("hierarchical", true);
+    private final JRadioButton hierarchical =
+            new JRadioButton("hierarchical", true);
     private final JRadioButton kmedoids = new JRadioButton("k-medoids", false);
-    private final JSpinner kspinner = new JSpinner(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
-    private final JComboBox<Linkage> linkageComboBox = new JComboBox<>(Linkage.values());
-    private final JComboBox<ScoringFunction> scoringFunction = new JComboBox<>(new ScoringFunction[] { PAM.getInstance(), PAMSIL.getInstance() });
+    private final JSpinner kspinner =
+            new JSpinner(new SpinnerNumberModel(2, 2, Integer.MAX_VALUE, 1));
+    private final JComboBox<Linkage> linkageComboBox =
+            new JComboBox<>(Linkage.values());
+    private final JComboBox<ScoringFunction> scoringFunction = new JComboBox<>(
+            new ScoringFunction[]{PAM.getInstance(), PAMSIL.getInstance()});
 
     private final DistanceMatrix distanceMatrix;
 
@@ -125,7 +116,8 @@ public class DialogCluster extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 Visualizable visualizable = getVisualizable();
                 SVGDocument document = visualizable.visualize();
-                SVGDialog dialog = new SVGDialog("Clustering visualization", document);
+                SVGDialog dialog =
+                        new SVGDialog("Clustering visualization", document);
                 dialog.setVisible(true);
             }
         });
@@ -143,20 +135,25 @@ public class DialogCluster extends JDialog {
 
         if (hierarchical.isSelected()) {
             Linkage linkage = (Linkage) linkageComboBox.getSelectedItem();
-            Clusterer clusterer = new Clusterer(names, distanceMatrix.getMatrix(), linkage);
+            Clusterer clusterer =
+                    new Clusterer(names, distanceMatrix.getMatrix(), linkage);
             return clusterer.cluster();
         }
 
         // FIXME
         KMedoids clusterer = new KMedoids();
-        ScoringFunction sf = (ScoringFunction) scoringFunction.getSelectedItem();
+        ScoringFunction sf =
+                (ScoringFunction) scoringFunction.getSelectedItem();
         ScoredClusteringResult result;
 
         if (findBestK.isSelected()) {
-            result = KScanner.parallelScan(clusterer, distanceMatrix.getMatrix(), sf);
+            result =
+                    KScanner.parallelScan(clusterer, distanceMatrix.getMatrix(),
+                                          sf);
         } else {
             int k = (int) kspinner.getValue();
-            result = clusterer.findPrototypes(distanceMatrix.getMatrix(), sf, k);
+            result =
+                    clusterer.findPrototypes(distanceMatrix.getMatrix(), sf, k);
         }
 
         return new PartitionalClustering(distanceMatrix, result);

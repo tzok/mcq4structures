@@ -1,21 +1,5 @@
 package pl.poznan.put.comparison.local;
 
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.font.LineMetrics;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.NavigableMap;
-
-import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
-
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
-
 import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -40,7 +23,9 @@ import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
 import pl.poznan.put.structure.secondary.DotBracketSymbol;
 import pl.poznan.put.structure.secondary.formats.BpSeq;
 import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.InvalidSecondaryStructureException;
+import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
+import pl.poznan.put.structure.secondary.pseudoknots.BpSeqToDotBracketConverter;
+import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
@@ -49,15 +34,63 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.ColorMapWrapper;
 import pl.poznan.put.visualisation.Surface3D;
 
-public class ModelsComparisonResult {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModelsComparisonResult.class);
+import javax.swing.*;
+import javax.swing.table.TableModel;
+import java.awt.*;
+import java.awt.font.LineMetrics;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.NavigableMap;
 
-    public class SelectedAngle implements Exportable, Tabular, Visualizable, MatchCollection {
+public class ModelsComparisonResult {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ModelsComparisonResult.class);
+    private final PdbCompactFragment target;
+    private final List<PdbCompactFragment> models;
+    private final List<FragmentMatch> fragmentMatches;
+    public ModelsComparisonResult(final PdbCompactFragment target,
+                                  final List<PdbCompactFragment> models,
+                                  final List<FragmentMatch> matches) {
+        super();
+        this.target = target;
+        this.models = models;
+        this.fragmentMatches = matches;
+    }
+
+    public PdbCompactFragment getTarget() {
+        return target;
+    }
+
+    public PdbCompactFragment getModel(final int index) {
+        return models.get(index);
+    }
+
+    public int getTargetSize() {
+        return target.size();
+    }
+
+    public int getModelCount() {
+        return fragmentMatches.size();
+    }
+
+    public ModelsComparisonResult.SelectedAngle selectAngle(
+            final MasterTorsionAngleType torsionAngle) {
+        return new ModelsComparisonResult.SelectedAngle(torsionAngle);
+    }
+
+    public final class SelectedAngle
+            implements Exportable, Tabular, Visualizable, MatchCollection {
         private final MasterTorsionAngleType angleType;
 
-        private SelectedAngle(MasterTorsionAngleType torsionAngle) {
+        private SelectedAngle(final MasterTorsionAngleType torsionAngle) {
             super();
-            this.angleType = torsionAngle;
+            angleType = torsionAngle;
         }
 
         public MasterTorsionAngleType getAngleType() {
@@ -70,8 +103,9 @@ public class ModelsComparisonResult {
         }
 
         @Override
-        public void export(OutputStream stream) throws IOException {
-            CsvWriter csvWriter = new CsvWriter(stream, ',', Charset.forName("UTF-8"));
+        public void export(final OutputStream stream) throws IOException {
+            CsvWriter csvWriter =
+                    new CsvWriter(stream, ',', Charset.forName("UTF-8"));
             csvWriter.write(null);
 
             for (PdbCompactFragment model : models) {
@@ -86,8 +120,10 @@ public class ModelsComparisonResult {
 
                 for (int j = 0; j < models.size(); j++) {
                     FragmentMatch fragmentMatch = fragmentMatches.get(j);
-                    ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-                    TorsionAngleDelta delta = residueComparison.getAngleDelta(angleType);
+                    ResidueComparison residueComparison =
+                            fragmentMatch.getResidueComparisons().get(i);
+                    TorsionAngleDelta delta =
+                            residueComparison.getAngleDelta(angleType);
                     csvWriter.write(delta.toExportString());
                 }
 
@@ -110,7 +146,7 @@ public class ModelsComparisonResult {
 
             for (PdbCompactFragment model : models) {
                 builder.append('-');
-                builder.append(model.toString());
+                builder.append(model);
             }
 
             builder.append(".csv");
@@ -127,7 +163,7 @@ public class ModelsComparisonResult {
             return asTableModel(true);
         }
 
-        private TableModel asTableModel(boolean isDisplay) {
+        private TableModel asTableModel(final boolean isDisplay) {
             String[] columnNames = new String[models.size() + 1];
             columnNames[0] = isDisplay ? "" : null;
             for (int i = 0; i < models.size(); i++) {
@@ -142,13 +178,16 @@ public class ModelsComparisonResult {
 
                 for (int j = 0; j < models.size(); j++) {
                     FragmentMatch fragmentMatch = fragmentMatches.get(j);
-                    ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-                    TorsionAngleDelta delta = residueComparison.getAngleDelta(angleType);
+                    ResidueComparison residueComparison =
+                            fragmentMatch.getResidueComparisons().get(i);
+                    TorsionAngleDelta delta =
+                            residueComparison.getAngleDelta(angleType);
 
                     if (delta == null) {
                         data[i][j + 1] = null;
                     } else {
-                        data[i][j + 1] = isDisplay ? delta.toDisplayString() : delta.toExportString();
+                        data[i][j + 1] = isDisplay ? delta.toDisplayString()
+                                                   : delta.toExportString();
                     }
                 }
             }
@@ -162,7 +201,8 @@ public class ModelsComparisonResult {
 
             for (FragmentMatch match : fragmentMatches) {
                 for (ResidueComparison result : match.getResidueComparisons()) {
-                    double delta = result.getAngleDelta(angleType).getDelta().getRadians();
+                    double delta = result.getAngleDelta(angleType).getDelta()
+                                         .getRadians();
 
                     if (delta < min) {
                         min = delta;
@@ -188,82 +228,18 @@ public class ModelsComparisonResult {
             int maxWidth = drawModelsNames(svg, unitHeight);
 
             DotBracket dotBracket = getDotBracketOrNull();
-            drawDotBracket(svg, dotBracket, unitWidth, maxWidth, unitHeight - unitHeight / 6);
+            drawDotBracket(svg, dotBracket, unitWidth, maxWidth,
+                           unitHeight - unitHeight / 6);
             drawColorBars(svg, unitHeight, unitWidth, maxWidth);
-            drawDotBracket(svg, dotBracket, unitWidth, maxWidth, (models.size() + 2) * unitHeight);
+            drawDotBracket(svg, dotBracket, unitWidth, maxWidth,
+                           (models.size() + 2) * unitHeight);
             finalizeSvg(document, svg, unitHeight, unitWidth, maxWidth);
 
             return document;
         }
 
-        private void finalizeSvg(SVGDocument document, SVGGraphics2D svg,
-                int unitHeight, int unitWidth, int maxWidth) {
-            Element root = document.getDocumentElement();
-            svg.getRoot(root);
-
-            if (fragmentMatches.size() > 0) {
-                int width = maxWidth + unitWidth * fragmentMatches.get(0).getResidueCount();
-                int height = unitHeight * (models.size() + 3);
-                root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Integer.toString(width));
-                root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Integer.toString(height));
-            }
-        }
-
-        private void drawColorBars(SVGGraphics2D svg, int unitHeight,
-                int unitWidth, int maxWidth) {
-            for (int i = 0; i < fragmentMatches.size(); i++) {
-                FragmentMatch fragmentMatch = fragmentMatches.get(i);
-
-                for (int j = 0; j < fragmentMatch.getResidueCount(); j++) {
-                    ResidueComparison comparison = fragmentMatch.getResidueComparisons().get(j);
-                    int x = maxWidth + j * unitWidth;
-                    int y = (i + 1) * unitHeight;
-                    drawColorBarUnit(svg, comparison, x, y, unitHeight, unitWidth);
-                }
-            }
-        }
-
-        private void drawColorBarUnit(SVGGraphics2D svg,
-                ResidueComparison comparison, int x, int y, int height,
-                int width) {
-            TorsionAngleDelta angleDelta = comparison.getAngleDelta(angleType);
-
-            if (angleDelta.getState() == State.BOTH_VALID) {
-                Color color = ColorMapWrapper.getColor(angleDelta.getDelta().getRadians(), 0, Math.PI);
-                svg.setColor(color);
-            } else {
-                svg.setColor(Color.BLACK);
-            }
-
-            svg.fillRect(x, y, width, height);
-            svg.setColor(Color.BLACK);
-            svg.drawRect(x, y, width, height);
-        }
-
-        private DotBracket getDotBracketOrNull() {
-            DotBracket dotBracket = null;
-            if (target.getMoleculeType() == MoleculeType.RNA) {
-                try {
-                    BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
-                    dotBracket = DotBracket.fromBpSeq(bpSeq);
-                } catch (InvalidSecondaryStructureException e) {
-                    ModelsComparisonResult.LOGGER.warn("Failed to extract canonical secondary structure", e);
-                }
-            }
-            return dotBracket;
-        }
-
-        private void drawDotBracket(SVGGraphics2D svg, DotBracket dotBracket,
-                int blockWidth, int leftMargin, int topPosition) {
-            if (dotBracket != null) {
-                for (int i = 0; i < dotBracket.getLength(); i++) {
-                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
-                    svg.drawString(Character.toString(symbol.getStructure()), leftMargin + i * blockWidth + blockWidth / 2, topPosition);
-                }
-            }
-        }
-
-        private int drawModelsNames(SVGGraphics2D svg, int unitHeight) {
+        private int drawModelsNames(final SVGGraphics2D svg,
+                                    final int unitHeight) {
             FontMetrics metrics = SVGHelper.getFontMetrics(svg);
             int maxWidth = Integer.MIN_VALUE;
 
@@ -280,31 +256,127 @@ public class ModelsComparisonResult {
             return maxWidth;
         }
 
+        private DotBracket getDotBracketOrNull() {
+            DotBracket dotBracket = null;
+            if (target.getMoleculeType() == MoleculeType.RNA) {
+                try {
+                    BpSeqToDotBracketConverter converter =
+                            new BpSeqToDotBracketConverter(new MinGain(), 1);
+                    BpSeq bpSeq = CanonicalStructureExtractor
+                            .getCanonicalSecondaryStructure(target);
+                    dotBracket = converter.convert(bpSeq);
+                } catch (InvalidStructureException e) {
+                    ModelsComparisonResult.LOGGER
+                            .warn("Failed to extract canonical secondary "
+                                  + "structure", e);
+                }
+            }
+            return dotBracket;
+        }
+
+        private void drawDotBracket(final SVGGraphics2D svg,
+                                    final DotBracket dotBracket,
+                                    final int blockWidth, final int leftMargin,
+                                    final int topPosition) {
+            if (dotBracket != null) {
+                for (int i = 0; i < dotBracket.getLength(); i++) {
+                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
+                    svg.drawString(Character.toString(symbol.getStructure()),
+                                   leftMargin + i * blockWidth + blockWidth / 2,
+                                   topPosition);
+                }
+            }
+        }
+
+        private void drawColorBars(final SVGGraphics2D svg,
+                                   final int unitHeight, final int unitWidth,
+                                   final int maxWidth) {
+            for (int i = 0; i < fragmentMatches.size(); i++) {
+                FragmentMatch fragmentMatch = fragmentMatches.get(i);
+
+                for (int j = 0; j < fragmentMatch.getResidueCount(); j++) {
+                    ResidueComparison comparison =
+                            fragmentMatch.getResidueComparisons().get(j);
+                    int x = maxWidth + j * unitWidth;
+                    int y = (i + 1) * unitHeight;
+                    drawColorBarUnit(svg, comparison, x, y, unitHeight,
+                                     unitWidth);
+                }
+            }
+        }
+
+        private void finalizeSvg(final SVGDocument document,
+                                 final SVGGraphics2D svg, final int unitHeight,
+                                 final int unitWidth, final int maxWidth) {
+            Element root = document.getDocumentElement();
+            svg.getRoot(root);
+
+            if (fragmentMatches.size() > 0) {
+                int width = maxWidth + unitWidth * fragmentMatches.get(0)
+                                                                  .getResidueCount();
+                int height = unitHeight * (models.size() + 3);
+                root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE,
+                                    Integer.toString(width));
+                root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE,
+                                    Integer.toString(height));
+            }
+        }
+
+        private void drawColorBarUnit(final SVGGraphics2D svg,
+                                      final ResidueComparison comparison,
+                                      final int x, final int y,
+                                      final int height, final int width) {
+            TorsionAngleDelta angleDelta = comparison.getAngleDelta(angleType);
+
+            if (angleDelta.getState() == State.BOTH_VALID) {
+                Color color = ColorMapWrapper
+                        .getColor(angleDelta.getDelta().getRadians(), 0,
+                                  Math.PI);
+                svg.setColor(color);
+            } else {
+                svg.setColor(Color.BLACK);
+            }
+
+            svg.fillRect(x, y, width, height);
+            svg.setColor(Color.BLACK);
+            svg.drawRect(x, y, width, height);
+        }
+
         @Override
         public void visualize3D() {
             if (models.size() < 1) {
-                JOptionPane.showMessageDialog(null, "At least one model is required for 3D visualization", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,
+                                              "At least one model is required"
+                                              + " for 3D visualization",
+                                              "Error",
+                                              JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             try {
-                String name = target.getName() + " " + angleType.getExportName();
+                String name =
+                        target.getName() + " " + angleType.getExportName();
                 double[][] matrix = prepareMatrix();
                 List<String> ticksX = prepareTicksX();
                 List<String> ticksY = prepareTicksY();
-                NavigableMap<Double, String> valueTickZ = MCQLocalResult.prepareTicksZ();
+                NavigableMap<Double, String> valueTickZ =
+                        MCQLocalResult.prepareTicksZ();
                 String labelX = "Model";
                 String labelY = "Residue";
                 String labelZ = "Distance";
                 boolean showAllTicksX = true;
                 boolean showAllTicksY = false;
 
-                Surface3D surface3d = new Surface3D(name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, showAllTicksX, showAllTicksY);
+                Surface3D surface3d =
+                        new Surface3D(name, matrix, ticksX, ticksY, valueTickZ,
+                                      labelX, labelY, labelZ, showAllTicksX,
+                                      showAllTicksY);
                 AnalysisLauncher.open(surface3d);
             } catch (Exception e) {
                 String message = "Failed to visualize in 3D";
                 ModelsComparisonResult.LOGGER.error(message, e);
-                JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, message, "Error",
+                                              JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -315,11 +387,14 @@ public class ModelsComparisonResult {
             for (int i = 0; i < models.size(); i++) {
                 matrix[i] = new double[size];
                 FragmentMatch fragmentMatch = fragmentMatches.get(i);
-                List<ResidueComparison> residueComparisons = fragmentMatch.getResidueComparisons();
+                List<ResidueComparison> residueComparisons =
+                        fragmentMatch.getResidueComparisons();
 
                 for (int j = 0; j < size; j++) {
-                    ResidueComparison residueComparison = residueComparisons.get(j);
-                    matrix[i][j] = residueComparison.getAngleDelta(angleType).getDelta().getRadians();
+                    ResidueComparison residueComparison =
+                            residueComparisons.get(j);
+                    matrix[i][j] = residueComparison.getAngleDelta(angleType)
+                                                    .getDelta().getRadians();
                 }
             }
 
@@ -341,38 +416,5 @@ public class ModelsComparisonResult {
             }
             return ticksY;
         }
-    }
-
-    private final PdbCompactFragment target;
-    private final List<PdbCompactFragment> models;
-    private final List<FragmentMatch> fragmentMatches;
-
-    public ModelsComparisonResult(PdbCompactFragment target,
-            List<PdbCompactFragment> models, List<FragmentMatch> matches) {
-        super();
-        this.target = target;
-        this.models = models;
-        this.fragmentMatches = matches;
-    }
-
-    public PdbCompactFragment getTarget() {
-        return target;
-    }
-
-    public PdbCompactFragment getModel(int index) {
-        return models.get(index);
-    }
-
-    public int getTargetSize() {
-        return target.size();
-    }
-
-    public int getModelCount() {
-        return fragmentMatches.size();
-    }
-
-    public ModelsComparisonResult.SelectedAngle selectAngle(
-            MasterTorsionAngleType torsionAngle) {
-        return new ModelsComparisonResult.SelectedAngle(torsionAngle);
     }
 }

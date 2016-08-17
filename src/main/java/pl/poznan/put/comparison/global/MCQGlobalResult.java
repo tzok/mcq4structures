@@ -14,7 +14,7 @@ public class MCQGlobalResult extends GlobalResult {
     private final String longDisplayName;
 
     public MCQGlobalResult(String measureName, SelectionMatch selectionMatch,
-            AngleSample angleSample) {
+                           AngleSample angleSample) {
         super(measureName, selectionMatch);
         this.angleSample = angleSample;
         this.longDisplayName = prepareLongDisplayName();
@@ -22,11 +22,14 @@ public class MCQGlobalResult extends GlobalResult {
 
     private String prepareLongDisplayName() {
         SelectionMatch selectionMatch = getSelectionMatch();
-        AngleDeltaIterator angleDeltaIterator = new MatchCollectionDeltaIterator(selectionMatch);
-        SingleMatchStatistics statistics = SingleMatchStatistics.calculate("", angleDeltaIterator);
+        AngleDeltaIterator angleDeltaIterator =
+                new MatchCollectionDeltaIterator(selectionMatch);
+        SingleMatchStatistics statistics =
+                SingleMatchStatistics.calculate("", angleDeltaIterator);
 
         int validCount = selectionMatch.getResidueLabels().size();
-        double percentBelow15Deg = 100.0 * statistics.getRatioOfDeltasBelowThreshold(Math.toRadians(30));
+        double percentBelow15Deg = 100.0 * statistics
+                .getRatioOfDeltasBelowThreshold(Math.toRadians(30));
 
         StringBuilder builder = new StringBuilder("<html>");
         builder.append(getShortDisplayName());
@@ -53,18 +56,20 @@ public class MCQGlobalResult extends GlobalResult {
     }
 
     @Override
-    public String getExportName() {
-        return AngleFormat.formatExport(angleSample.getMeanDirection().getRadians());
-    }
-
-    @Override
     public String getLongDisplayName() {
         return longDisplayName;
     }
 
     @Override
     public String getShortDisplayName() {
-        return AngleFormat.formatDisplayShort(angleSample.getMeanDirection().getRadians());
+        return AngleFormat.formatDisplayShort(
+                angleSample.getMeanDirection().getRadians());
+    }
+
+    @Override
+    public String getExportName() {
+        return AngleFormat
+                .formatExport(angleSample.getMeanDirection().getRadians());
     }
 
     @Override

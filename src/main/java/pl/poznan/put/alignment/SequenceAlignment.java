@@ -1,5 +1,10 @@
 package pl.poznan.put.alignment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.types.ExportFormat;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,14 +14,9 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.types.ExportFormat;
-
 public class SequenceAlignment implements Exportable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAlignment.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SequenceAlignment.class);
 
     private final boolean isGlobal;
     private final String alignment;
@@ -43,9 +43,15 @@ public class SequenceAlignment implements Exportable {
             writer.write("\n\n");
             writer.write(alignment);
         } catch (UnsupportedEncodingException e) {
-            SequenceAlignment.LOGGER.error("Failed to export sequence alignment", e);
+            SequenceAlignment.LOGGER
+                    .error("Failed to export sequence alignment", e);
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public ExportFormat getExportFormat() {
+        return ExportFormat.TXT;
     }
 
     @Override
@@ -56,10 +62,5 @@ public class SequenceAlignment implements Exportable {
         filename.append(isGlobal ? "-GSA-" : "-LSA-");
         filename.append(".txt");
         return new File(filename.toString());
-    }
-
-    @Override
-    public ExportFormat getExportFormat() {
-        return ExportFormat.TXT;
     }
 }

@@ -10,6 +10,7 @@ import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -25,7 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StructureAlignmentPanel extends JPanel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(StructureAlignmentPanel.class);
 
     // @formatter:off
     private static final String JMOL_SCRIPT =
@@ -58,9 +60,11 @@ public class StructureAlignmentPanel extends JPanel {
         panelJmolRight.executeCmd("background darkgray; save state state_init");
 
         JPanel panelInfo = new JPanel(new GridLayout(1, 3));
-        panelInfo.add(new JLabel("Whole structures (Jmol view)", SwingConstants.CENTER));
+        panelInfo.add(new JLabel("Whole structures (Jmol view)",
+                                 SwingConstants.CENTER));
         panelInfo.add(labelStatus);
-        panelInfo.add(new JLabel("Aligned fragments (Jmol view)", SwingConstants.CENTER));
+        panelInfo.add(new JLabel("Aligned fragments (Jmol view)",
+                                 SwingConstants.CENTER));
 
         JPanel panelMain = new JPanel(new BorderLayout());
         panelMain.add(labelHeader, BorderLayout.NORTH);
@@ -75,7 +79,8 @@ public class StructureAlignmentPanel extends JPanel {
     }
 
     public void setStructuresAndChains(Pair<PdbModel, PdbModel> structures,
-                                       Pair<List<PdbChain>, List<PdbChain>> chains) {
+                                       Pair<List<PdbChain>, List<PdbChain>>
+                                               chains) {
         this.structures = structures;
         this.chains = chains;
 
@@ -90,7 +95,9 @@ public class StructureAlignmentPanel extends JPanel {
         PdbModel right = structures.getRight();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("<html>Structures selected for 3D structure alignment: <span style=\"color: blue\">");
+        builder.append(
+                "<html>Structures selected for 3D structure alignment: <span "
+                + "style=\"color: blue\">");
         builder.append(StructureManager.getName(left));
         builder.append('.');
 
@@ -120,20 +127,28 @@ public class StructureAlignmentPanel extends JPanel {
         labelStatus.setText("Computing...");
 
         List<MasterTorsionAngleType> torsionAngleTypes = new ArrayList<>();
-        torsionAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-        torsionAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+        torsionAngleTypes
+                .addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        torsionAngleTypes
+                .addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
 
         String nameLeft = StructureManager.getName(structures.getLeft());
         String nameRight = StructureManager.getName(structures.getRight());
 
-        StructureSelection left = SelectionFactory.create(nameLeft, chains.getLeft());
-        StructureSelection right = SelectionFactory.create(nameRight, chains.getRight());
+        StructureSelection left =
+                SelectionFactory.create(nameLeft, chains.getLeft());
+        StructureSelection right =
+                SelectionFactory.create(nameRight, chains.getRight());
 
         MCQMatcher matcher = new MCQMatcher(torsionAngleTypes);
         SelectionMatch selectionMatch = matcher.matchSelections(left, right);
 
         if (selectionMatch.getFragmentCount() == 0) {
-            JOptionPane.showMessageDialog(this, "The selected structures have no matching fragments in common", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                                          "The selected structures have no "
+                                          + "matching fragments in common",
+                                          "Warning",
+                                          JOptionPane.WARNING_MESSAGE);
             return ProcessingResult.emptyInstance();
         }
 
@@ -145,9 +160,17 @@ public class StructureAlignmentPanel extends JPanel {
             updateHeader(true);
             return new ProcessingResult(selectionMatch);
         } catch (StructureException e) {
-            String message = "Failed to align structures: " + nameLeft + " and " + nameRight;
+            String message = "Failed to align structures: " + nameLeft + " and "
+                             + nameRight;
             StructureAlignmentPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, message, "Error",
+                                          JOptionPane.ERROR_MESSAGE);
+        } catch (MmCifPdbIncompatibilityException e) {
+            String message = "Failed to align structures: " + nameLeft + " and "
+                             + nameRight;
+            StructureAlignmentPanel.LOGGER.error(message, e);
+            JOptionPane.showMessageDialog(this, message, "Error",
+                                          JOptionPane.ERROR_MESSAGE);
         } finally {
             labelStatus.setText("Computation finished");
         }
