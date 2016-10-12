@@ -2,7 +2,7 @@ package pl.poznan.put.datamodel;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Collections;
 import java.util.Set;
 

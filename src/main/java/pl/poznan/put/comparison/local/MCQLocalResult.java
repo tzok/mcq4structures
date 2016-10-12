@@ -19,7 +19,7 @@ import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.visualisation.Surface3D;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.IOException;
@@ -158,8 +158,7 @@ public class MCQLocalResult extends LocalResult {
                     } catch (InvalidStructureException e) {
                         MCQLocalResult.LOGGER
                                 .warn("Failed to extract canonical secondary "
-                                      + "structure",
-                                      e);
+                                      + "structure", e);
                     }
                 }
 

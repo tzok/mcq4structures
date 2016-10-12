@@ -1,8 +1,8 @@
 package pl.poznan.put.gui.component;
 
-import javax.swing.*;
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.Component;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;

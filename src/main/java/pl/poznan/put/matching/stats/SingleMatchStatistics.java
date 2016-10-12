@@ -31,6 +31,7 @@ public class SingleMatchStatistics {
     private final String name;
     private final Histogram histogram;
     private final Percentiles percentiles;
+
     public SingleMatchStatistics(String name, Histogram histogram,
                                  Percentiles percentiles) {
         super();

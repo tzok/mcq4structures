@@ -8,9 +8,15 @@ import pl.poznan.put.alignment.SequenceAlignment;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.util.Collections;
 import java.util.List;
 

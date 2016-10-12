@@ -34,9 +34,10 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.ColorMapWrapper;
 import pl.poznan.put.visualisation.Surface3D;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.font.LineMetrics;
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +55,7 @@ public class ModelsComparisonResult {
     private final PdbCompactFragment target;
     private final List<PdbCompactFragment> models;
     private final List<FragmentMatch> fragmentMatches;
+
     public ModelsComparisonResult(final PdbCompactFragment target,
                                   final List<PdbCompactFragment> models,
                                   final List<FragmentMatch> matches) {

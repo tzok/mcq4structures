@@ -5,7 +5,8 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTick;
 import org.jfree.ui.RectangleEdge;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;

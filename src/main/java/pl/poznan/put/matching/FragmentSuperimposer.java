@@ -35,6 +35,7 @@ public class FragmentSuperimposer {
     private final SVDSuperimposer totalSuperimposer;
     private final Atom[] totalAtomsTarget;
     private final Atom[] totalAtomsModel;
+
     public FragmentSuperimposer(SelectionMatch selectionMatch,
                                 AtomFilter atomFilter, boolean onlyHeavy)
             throws StructureException, MmCifPdbIncompatibilityException {

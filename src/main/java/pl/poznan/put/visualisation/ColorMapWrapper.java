@@ -2,17 +2,17 @@ package pl.poznan.put.visualisation;
 
 import fr.orsay.lri.varna.models.rna.ModeleColorMap;
 import org.jzy3d.colors.colormaps.AbstractColorMap;
-import org.jzy3d.colors.colormaps.ColorMapWhiteRed;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.color.ColorSpace;
 
 public class ColorMapWrapper {
     private static final AbstractColorMap JZY3D_COLOR_MAP =
-            new ColorMapWhiteRed();
+            new ColorMapRainbow();
 
     static {
-        ColorMapWrapper.JZY3D_COLOR_MAP.setDirection(false);
+        ColorMapWrapper.JZY3D_COLOR_MAP.setDirection(true);
     }
 
     private ColorMapWrapper() {
@@ -24,7 +24,7 @@ public class ColorMapWrapper {
     }
 
     public static ModeleColorMap getVarnaColorMap(double min, double max) {
-        ModeleColorMap colorMap = ModeleColorMap.redColorMap();
+        ModeleColorMap colorMap = ModeleColorMap.viennaColorMap();
         colorMap.rescale(min, max);
         return colorMap;
     }

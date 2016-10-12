@@ -23,6 +23,7 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
     private final int bothInvalidCount;
     private final int validCount;
     private final Angle meanDelta;
+
     public FragmentComparison(List<ResidueComparison> residueResults,
                               List<MasterTorsionAngleType> angles,
                               int firstInvalidCount, int secondInvalidCount,
