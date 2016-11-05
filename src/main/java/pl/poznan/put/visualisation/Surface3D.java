@@ -1,8 +1,14 @@
 package pl.poznan.put.visualisation;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.controllers.keyboard.screenshot
+        .AWTScreenshotKeyController;
+import org.jzy3d.chart.controllers.keyboard.screenshot.IScreenshotKeyController;
+import org.jzy3d.chart.controllers.keyboard.screenshot
+        .IScreenshotKeyController.IScreenshotEventListener;
 import org.jzy3d.chart.controllers.mouse.AWTMouseUtilities;
 import org.jzy3d.chart.controllers.mouse.camera.AWTCameraMouseController;
 import org.jzy3d.chart.controllers.mouse.camera.ICameraMouseController;
@@ -26,6 +32,8 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.SortedSet;
@@ -49,6 +57,32 @@ public class Surface3D extends AbstractAnalysis {
                             // do nothing
                         }
                     };
+                }
+
+                @Override
+                public IScreenshotKeyController newScreenshotKeyController(
+                        final Chart chart) {
+                    String nowAsIso = DateFormatUtils.ISO_DATETIME_FORMAT
+                            .format(new Date());
+                    File tmpdir =
+                            new File(System.getProperty("java.io.tmpdir"));
+                    File screenshot = new File(tmpdir, nowAsIso + ".png");
+                    AWTScreenshotKeyController controller =
+                            new AWTScreenshotKeyController(chart, screenshot
+                                    .getAbsolutePath());
+                    controller.addListener(new IScreenshotEventListener() {
+                        @Override
+                        public void doneScreenshot(final String s) {
+                            System.out.println("Screenshot: " + s);
+                        }
+
+                        @Override
+                        public void failedScreenshot(final String s,
+                                                     final Exception e) {
+                            System.err.println("Failed to save screenshot");
+                        }
+                    });
+                    return controller;
                 }
             };
 
