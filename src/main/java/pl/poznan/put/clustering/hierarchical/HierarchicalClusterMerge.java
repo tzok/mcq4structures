@@ -7,7 +7,7 @@ public class HierarchicalClusterMerge {
     private final double distance;
 
     public HierarchicalClusterMerge(Pair<Integer, Integer> indices,
-            double distance) {
+                                    double distance) {
         super();
         this.indices = indices;
         this.distance = distance;

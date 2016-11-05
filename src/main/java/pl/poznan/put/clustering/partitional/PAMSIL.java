@@ -3,13 +3,19 @@ package pl.poznan.put.clustering.partitional;
 public class PAMSIL implements ScoringFunction {
     private static final PAMSIL SUM_INSTANCE = new PAMSIL();
 
+    private PAMSIL() {
+        // empty constructor
+    }
+
     public static PAMSIL getInstance() {
         return PAMSIL.SUM_INSTANCE;
     }
 
     @Override
-    public double score(ClusterPrototypes prototypes, double[][] distanceMatrix) {
-        ClusterAssignment assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix);
+    public double score(ClusterPrototypes prototypes,
+                        double[][] distanceMatrix) {
+        ClusterAssignment assignment =
+                ClusterAssignment.fromPrototypes(prototypes, distanceMatrix);
         double result = 0.0;
 
         for (int i = 0; i < distanceMatrix.length; i++) {
@@ -19,8 +25,13 @@ public class PAMSIL implements ScoringFunction {
                 continue;
             }
 
-            double ai = PAMSIL.averageDistanceToCluster(assignment, distanceMatrix[i], myPrototype);
-            double bi = PAMSIL.averageDistanceToNextClosestCluster(prototypes, assignment, distanceMatrix[i], myPrototype);
+            double ai = PAMSIL.averageDistanceToCluster(assignment,
+                                                        distanceMatrix[i],
+                                                        myPrototype);
+            double bi = PAMSIL.averageDistanceToNextClosestCluster(prototypes,
+                                                                   assignment,
+                                                                   distanceMatrix[i],
+                                                                   myPrototype);
             double si = (bi - ai) / Math.max(ai, bi);
             result += si;
         }
@@ -28,8 +39,9 @@ public class PAMSIL implements ScoringFunction {
         return result;
     }
 
-    private static double averageDistanceToCluster(
-            ClusterAssignment assignment, double[] distanceVector, int prototype) {
+    private static double averageDistanceToCluster(ClusterAssignment assignment,
+                                                   double[] distanceVector,
+                                                   int prototype) {
         double ai = 0.0;
         for (int j : assignment.getAssignedTo(prototype)) {
             ai += distanceVector[j];
@@ -47,7 +59,9 @@ public class PAMSIL implements ScoringFunction {
                 continue;
             }
 
-            double di = PAMSIL.averageDistanceToCluster(assignment, distanceVector, otherPrototype);
+            double di =
+                    PAMSIL.averageDistanceToCluster(assignment, distanceVector,
+                                                    otherPrototype);
 
             if (di < minDi) {
                 minDi = di;
@@ -60,9 +74,5 @@ public class PAMSIL implements ScoringFunction {
     @Override
     public String toString() {
         return "PAMSIL";
-    }
-
-    private PAMSIL() {
-        // empty constructor
     }
 }

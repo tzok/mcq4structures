@@ -1,9 +1,9 @@
 package pl.poznan.put.clustering.hierarchical;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.collections4.CollectionUtils;
 
 public class Cluster {
     private final List<Integer> items;
@@ -29,25 +29,12 @@ public class Cluster {
         return new Cluster(items, left.getName() + ", " + right.getName());
     }
 
-    public List<Integer> getItems() {
-        return items;
-    }
-
     public String getName() {
         return name;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("items = ");
-        for (int i : items) {
-            builder.append(i);
-            builder.append(", ");
-        }
-        builder.delete(builder.length() - 2, builder.length());
-        builder.append('\n');
-        return builder.toString();
+    public List<Integer> getItems() {
+        return items;
     }
 
     @Override
@@ -86,5 +73,18 @@ public class Cluster {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("items = ");
+        for (int i : items) {
+            builder.append(i);
+            builder.append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length());
+        builder.append('\n');
+        return builder.toString();
     }
 }

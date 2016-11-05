@@ -79,7 +79,8 @@ public class HierarchicalClustering implements Visualizable {
             int x2 = coords.getLeft();
             int y2 = coords.getRight();
 
-            int xf = maxWidth + (int) (merge.getDistance() * (640 - maxWidth) / maxDistance);
+            int xf = maxWidth + (int) (merge.getDistance() * (640 - maxWidth)
+                                       / maxDistance);
 
             graphics.drawLine(x1, y1, xf, y1);
             graphics.drawLine(x2, y2, xf, y2);
@@ -94,38 +95,16 @@ public class HierarchicalClustering implements Visualizable {
         Element documentElement = document.getDocumentElement();
         Element root = graphics.getRoot(documentElement);
         Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
-        root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, boundingBox.getMinX() + " " + boundingBox.getMinY() + " " + boundingBox.getWidth() + " " + boundingBox.getHeight());
-        root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
-        root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
+        root.setAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE,
+                            boundingBox.getMinX() + " " + boundingBox.getMinY()
+                            + " " + boundingBox.getWidth() + " " + boundingBox
+                                    .getHeight());
+        root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE,
+                            Double.toString(boundingBox.getWidth()));
+        root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE,
+                            Double.toString(boundingBox.getHeight()));
 
         return document;
-    }
-
-    private int getMaxNameDrawnWidth(SVGGraphics2D graphics, List<Integer> items) {
-        FontMetrics metrics = SVGHelper.getFontMetrics(graphics);
-        int maxWidth = Integer.MIN_VALUE;
-
-        for (Integer item : items) {
-            String name = names.get(item);
-            int width = metrics.stringWidth(name);
-
-            if (width > maxWidth) {
-                maxWidth = width;
-            }
-        }
-
-        return maxWidth;
-    }
-
-    private void drawNames(SVGGraphics2D graphics, List<Integer> items) {
-        LineMetrics lineMetrics = SVGHelper.getLineMetrics(graphics);
-        int fontHeight = (int) Math.ceil(lineMetrics.getHeight());
-
-        for (int i = 0; i < items.size(); i++) {
-            int item = items.get(i);
-            String name = names.get(item);
-            graphics.drawString(name, 0, (i + 1) * fontHeight);
-        }
     }
 
     private Cluster getFinalCluster() {
@@ -144,6 +123,34 @@ public class HierarchicalClustering implements Visualizable {
         return clusters.get(0);
     }
 
+    private void drawNames(SVGGraphics2D graphics, List<Integer> items) {
+        LineMetrics lineMetrics = SVGHelper.getLineMetrics(graphics);
+        int fontHeight = (int) Math.ceil(lineMetrics.getHeight());
+
+        for (int i = 0; i < items.size(); i++) {
+            int item = items.get(i);
+            String name = names.get(item);
+            graphics.drawString(name, 0, (i + 1) * fontHeight);
+        }
+    }
+
+    private int getMaxNameDrawnWidth(SVGGraphics2D graphics,
+                                     List<Integer> items) {
+        FontMetrics metrics = SVGHelper.getFontMetrics(graphics);
+        int maxWidth = Integer.MIN_VALUE;
+
+        for (Integer item : items) {
+            String name = names.get(item);
+            int width = metrics.stringWidth(name);
+
+            if (width > maxWidth) {
+                maxWidth = width;
+            }
+        }
+
+        return maxWidth;
+    }
+
     private double getMaxClusterDistance() {
         double maxDistance = Double.NEGATIVE_INFINITY;
 
@@ -158,6 +165,7 @@ public class HierarchicalClustering implements Visualizable {
 
     @Override
     public void visualize3D() {
-        throw new NotImplementedException("3D visualization is not supported for hierarchical clustering");
+        throw new NotImplementedException(
+                "3D visualization is not supported for hierarchical clustering");
     }
 }

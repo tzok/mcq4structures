@@ -8,8 +8,17 @@ import java.util.Map;
 import java.util.Set;
 
 public class ClusterAssignment {
-    public static ClusterAssignment fromPrototypes(
-            ClusterPrototypes prototypes, double[][] matrix) {
+    private final int[] assignments;
+    private final Map<Integer, List<Integer>> assignedToPrototype;
+    public ClusterAssignment(int[] assignments,
+                             Map<Integer, List<Integer>> assignedToPrototype) {
+        super();
+        this.assignments = assignments.clone();
+        this.assignedToPrototype = assignedToPrototype;
+    }
+
+    public static ClusterAssignment fromPrototypes(ClusterPrototypes prototypes,
+                                                   double[][] matrix) {
         int[] assignments = new int[matrix.length];
         Map<Integer, List<Integer>> assignedToPrototype = new HashMap<>();
         List<Heap> binaryHeaps = Heap.fromMatrix(matrix);
@@ -33,16 +42,6 @@ public class ClusterAssignment {
         return new ClusterAssignment(assignments, assignedToPrototype);
     }
 
-    private final int[] assignments;
-    private final Map<Integer, List<Integer>> assignedToPrototype;
-
-    public ClusterAssignment(int[] assignments,
-            Map<Integer, List<Integer>> assignedToPrototype) {
-        super();
-        this.assignments = assignments.clone();
-        this.assignedToPrototype = assignedToPrototype;
-    }
-
     public int getPrototype(int index) {
         return assignments[index];
     }
@@ -52,6 +51,7 @@ public class ClusterAssignment {
     }
 
     public List<Integer> getAssignedTo(int prototypeIndex) {
-        return Collections.unmodifiableList(assignedToPrototype.get(prototypeIndex));
+        return Collections
+                .unmodifiableList(assignedToPrototype.get(prototypeIndex));
     }
 }
