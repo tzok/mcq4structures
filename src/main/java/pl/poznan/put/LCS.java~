@@ -1,0 +1,51 @@
+package pl.poznan.put;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.RMSD;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
+import pl.poznan.put.comparison.global.MCQGlobalResult;
+import pl.poznan.put.comparison.global.RMSDGlobalResult;
+import pl.poznan.put.comparison.local.MCQLocalResult;
+import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
+import pl.poznan.put.matching.ResidueComparison;
+import pl.poznan.put.matching.SelectionFactory;
+import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.pdb.analysis.PdbParser;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+public class LCS {
+    
+    public static void main(String[] args)
+            throws PdbParsingException, IncomparableStructuresException {
+        List<PdbModel> models = parser.parse(pdb1TN1);
+        Assert.assertEquals(1, models.size());
+        PdbModel model1 = models.get(0);
+
+        models = parser.parse(pdb1TN2);
+        Assert.assertEquals(1, models.size());
+        PdbModel model2 = models.get(0);
+
+        StructureSelection s1 = SelectionFactory.create("1TN1", model1);
+        StructureSelection s2 = SelectionFactory.create("1TN2", model2);
+
+        MCQ mcq = new MCQ();
+        MCQGlobalResult comparisonResult =
+                (MCQGlobalResult) mcq.compareGlobally(s1, s2);
+        Assert.assertEquals(0, comparisonResult.getMeanDirection().getRadians(),
+                            0.1);
+    }
+}
