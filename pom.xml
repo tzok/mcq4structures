@@ -5,6 +5,8 @@
     <artifactId>mcq4structures</artifactId>
     <version>1.2.1</version>
 
+    <packaging>jar</packaging>
+
     <properties>
         <biojava.version>4.2.4</biojava.version>
     </properties>

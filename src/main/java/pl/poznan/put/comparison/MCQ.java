@@ -31,6 +31,7 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.utility.TabularExporter;
+import pl.poznan.put.utility.AngleFormat;
 
 import java.io.File;
 import java.io.IOException;

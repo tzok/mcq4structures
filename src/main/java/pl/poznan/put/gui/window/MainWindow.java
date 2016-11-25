@@ -5,6 +5,7 @@ import darrylbu.component.StayOpenRadioButtonMenuItem;
 import org.apache.commons.lang3.tuple.Pair;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
+import pl.poznan.put.comparison.LCS;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
@@ -88,6 +89,8 @@ public class MainWindow extends JFrame {
             new StayOpenRadioButtonMenuItem("Global MCQ", true);
     private final JRadioButtonMenuItem radioGlobalRmsd =
             new StayOpenRadioButtonMenuItem("Global RMSD", false);
+    private final JRadioButtonMenuItem radioGlobalLcs =
+            new StayOpenRadioButtonMenuItem("Global LCS", false);
     private final JRadioButtonMenuItem radioLocal =
             new StayOpenRadioButtonMenuItem("Local distances (pair)", false);
     private final JRadioButtonMenuItem radioLocalMulti =
@@ -229,6 +232,7 @@ public class MainWindow extends JFrame {
         menuDistanceMeasure.add(new JLabel("    Select distance type:"));
         menuDistanceMeasure.add(radioGlobalMcq);
         menuDistanceMeasure.add(radioGlobalRmsd);
+        menuDistanceMeasure.add(radioGlobalLcs);
         menuDistanceMeasure.add(radioLocal);
         menuDistanceMeasure.add(radioLocalMulti);
         menuDistanceMeasure.addSeparator();
@@ -263,6 +267,7 @@ public class MainWindow extends JFrame {
         ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
         group.add(radioGlobalRmsd);
+        group.add(radioGlobalLcs);
         group.add(radioLocal);
         group.add(radioLocalMulti);
 
@@ -275,6 +280,7 @@ public class MainWindow extends JFrame {
     private void registerMenuActionListeners() {
         radioGlobalMcq.addActionListener(radioActionListener);
         radioGlobalRmsd.addActionListener(radioActionListener);
+        radioGlobalLcs.addActionListener(radioActionListener);
         radioLocal.addActionListener(radioActionListener);
         radioLocalMulti.addActionListener(radioActionListener);
 
@@ -486,8 +492,11 @@ public class MainWindow extends JFrame {
     }
 
     private void compareGlobal() {
+
         GlobalComparator comparator =
-                radioGlobalMcq.isSelected() ? new MCQ() : new RMSD();
+                (radioGlobalMcq.isSelected() ? new MCQ() :
+                 radioGlobalRmsd.isSelected() ? new RMSD() : 
+                                                new LCS());
         panelResultsGlobalMatrix.compareAndDisplayMatrix(comparator,
                                                          new GlobalMatrixPanel.Callback() {
                                                              @Override

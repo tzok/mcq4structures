@@ -171,52 +171,40 @@ public class LCS implements GlobalComparator {
         /*System.out.print(model.getResidues().subList(1,model.getResidues().size()));*/
         double maxMcqVal = 0.0;
         int longest = 0;
+        boolean found = false;
         RefinementResult maxRefinementResult = new RefinementResult(matches, new AngleSample(deltas), model, target);  
         if (angleSample.getMeanDirection().getRadians()<mcqValue) {
 
             return new LCSGlobalResult(getName(), matches, new AngleSample(deltas), model, target);
         }
         else{
+            int s;
+            int  l = 0;
+            int p = model.getResidues().size()-1;
+            while (l <= p){
+                s = (l + p) / 2;
+                found = false;
+                for(int j=0; j+s<=model.getResidues().size(); j++){
+                    List<PdbResidue> fragmentResidues = model.getResidues().subList(j,j+s);
+                    StructureSelection model1 = new StructureSelection(model.getName(), fragmentResidues);
+                    RefinementResult localRefinementResult = refinement(target, model1);
+                    if (localRefinementResult.getSample().getMeanDirection().getRadians()<=mcqValue && longest<=localRefinementResult.getMatch().getResidueLabels().size()){
+                        longest=localRefinementResult.getMatch().getResidueLabels().size();
+                        maxRefinementResult = localRefinementResult;
+                                found = true;
+                    }
+                }
+                if (found == true){
+                    l = s + 1;
+                }
+                else{
+                    p = s - 1; 
+                }
 
-            /*
-            List<PdbResidue> fragmentResidues = model.getResidues().subList(1,model.getResidues().size());
-            StructureSelection model1 = new StructureSelection(model.getName(), fragmentResidues);
-            return compareGlobally(target, model1);
-            */
-            
-            for(int i=0; i<model.getResidues().size(); i++){
-            	List<PdbResidue> fragmentResidues = model.getResidues().subList(i,model.getResidues().size());
-                StructureSelection model1 = new StructureSelection(model.getName(), fragmentResidues);
-                RefinementResult localRefinementResult = refinement(target, model1);
-		if (localRefinementResult.getSample().getMeanDirection().getRadians()<mcqValue && longest<localRefinementResult.getMatch().getResidueLabels().size()){
-                    longest=localRefinementResult.getMatch().getResidueLabels().size();
-                    maxRefinementResult = localRefinementResult;
-                    break;
-                    /*return new LCSGlobalResult(getName(), localRefinementResult.getMatch(), localRefinementResult.getSample(), localRefinementResult.getModel(), localRefinementResult.getTarget());*/
-                }
-            }
-            
-            for(int i=0; i<model.getResidues().size(); i++){
-                if ((model.getResidues().size()-i)<longest){
-                break;
-                }
-            	List<PdbResidue> fragmentResidues = model.getResidues().subList(0,(model.getResidues().size()-i));
-                StructureSelection model1 = new StructureSelection(model.getName(), fragmentResidues);
-                RefinementResult localRefinementResult = refinement(target, model1);
-		if (localRefinementResult.getSample().getMeanDirection().getRadians()<mcqValue && longest<localRefinementResult.getMatch().getResidueLabels().size()){
-                    longest=localRefinementResult.getMatch().getResidueLabels().size();
-                    maxRefinementResult = localRefinementResult;
-                    break;
-                    /*return new LCSGlobalResult(getName(), localRefinementResult.getMatch(), localRefinementResult.getSample(), localRefinementResult.getModel(), localRefinementResult.getTarget());*/
-                }
-                
-            }
-            
-            return new LCSGlobalResult(getName(), maxRefinementResult.getMatch(), maxRefinementResult.getSample(), maxRefinementResult.getModel(), maxRefinementResult.getTarget());    
-            
+            }   
+            return new LCSGlobalResult(getName(), maxRefinementResult.getMatch(), maxRefinementResult.getSample(), maxRefinementResult.getModel(), maxRefinementResult.getTarget());
         }
     }
-    
     public class RefinementResult{
         SelectionMatch selectionMatch;
         AngleSample angleSample;
