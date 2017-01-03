@@ -378,15 +378,15 @@ public class MainWindow extends JFrame {
                     currentResult.export(stream);
                     JOptionPane.showMessageDialog(MainWindow.this,
                                                   "Successfully exported the "
-                                                  + "results!",
-                                                  "Information",
+                                                  + "results!", "Information",
                                                   JOptionPane
                                                           .INFORMATION_MESSAGE);
                 } catch (IOException e) {
                     JOptionPane.showMessageDialog(MainWindow.this,
                                                   "Failed to export the "
-                                                  + "results, reason: "
-                                                  + e.getMessage(), "Error",
+                                                  + "results, reason: " + e
+                                                          .getMessage(),
+                                                  "Error",
                                                   JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -578,9 +578,9 @@ public class MainWindow extends JFrame {
 
         for (PdbCompactFragment c : fragments) {
             if (type != c.getMoleculeType()) {
-                JOptionPane.showMessageDialog(this,
-                                              "Cannot align/compare "
-                                              + "structures: different types",
+                JOptionPane.showMessageDialog(this, "Cannot align/compare "
+                                                    + "structures: different "
+                                                    + "types",
                                               "Error",
                                               JOptionPane.ERROR_MESSAGE);
                 return;
