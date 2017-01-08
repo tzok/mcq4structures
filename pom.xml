@@ -295,13 +295,13 @@
         <dependency>
             <groupId>pl.poznan.put</groupId>
             <artifactId>BioCommons</artifactId>
-            <version>2.0.1</version>
+            <version>2.0.2</version>
         </dependency>
 
         <dependency>
             <groupId>pl.poznan.put</groupId>
             <artifactId>TzokCommons</artifactId>
-            <version>1.4.3</version>
+            <version>1.4.4</version>
         </dependency>
 
         <!-- Test scope -->
