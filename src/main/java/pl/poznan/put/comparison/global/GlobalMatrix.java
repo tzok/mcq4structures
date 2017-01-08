@@ -20,7 +20,7 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.MDSDrawer;
 import pl.poznan.put.visualisation.Surface3D;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.IOException;

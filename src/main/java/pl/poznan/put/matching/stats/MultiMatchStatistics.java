@@ -16,6 +16,7 @@ public class MultiMatchStatistics {
     private final List<SingleMatchStatistics> statistics;
     private final double[] angleLimits;
     private final double[] percentsLimits;
+
     public MultiMatchStatistics(List<SingleMatchStatistics> statistics,
                                 double[] angleLimits, double[] percentsLimits) {
         super();

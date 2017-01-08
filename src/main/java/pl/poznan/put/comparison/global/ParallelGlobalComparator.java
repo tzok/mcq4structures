@@ -20,6 +20,7 @@ public class ParallelGlobalComparator extends Thread {
     private final ProgressListener progressListener;
     private ThreadPoolExecutor threadPool;
     private ExecutorCompletionService<CompareCallable.SingleResult> executor;
+
     public ParallelGlobalComparator(GlobalComparator comparator,
                                     List<StructureSelection> structures,
                                     ProgressListener progressListener) {
@@ -116,6 +117,7 @@ public class ParallelGlobalComparator extends Thread {
         private final int column;
         private final StructureSelection s1;
         private final StructureSelection s2;
+
         public CompareCallable(List<StructureSelection> structures, int row,
                                int column) {
             s1 = structures.get(row);

@@ -1,6 +1,7 @@
 package pl.poznan.put.gui.component;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
@@ -9,8 +10,11 @@ import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -87,7 +91,8 @@ public class SVGComponent extends JSVGCanvas implements Exportable {
 
     @Override
     public void export(OutputStream stream) throws IOException {
-        SVGHelper.export(svgDocument, stream, Format.SVG, null);
+        byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
+        IOUtils.write(bytes, stream);
     }
 
     @Override

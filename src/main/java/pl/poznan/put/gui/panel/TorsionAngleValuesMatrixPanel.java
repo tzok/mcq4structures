@@ -15,9 +15,14 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.List;
 
 public class TorsionAngleValuesMatrixPanel extends JPanel {
@@ -94,7 +99,8 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
     public void updateHeader(PdbModel structure) {
         StringBuilder builder = new StringBuilder();
         builder.append(
-                "<html>Structure selected for torsion angles calculation: <span style=\"color: blue\">");
+                "<html>Structure selected for torsion angles calculation: "
+                + "<span style=\"color: blue\">");
         builder.append(StructureManager.getName(structure));
         builder.append("</span></html>");
         labelInfoMatrix.setText(builder.toString());

@@ -10,7 +10,7 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.visualisation.MDSDrawer.ColorProvider;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class PartitionalClustering implements Visualizable {
             builder.delete(builder.length() - 2, builder.length());
             builder.append(" }");
 
-            clusterColor.put(prototype, Colors.DISTINCT_COLORS[index++]);
+            clusterColor.put(prototype, Colors.getDistinctColors()[index++]);
             clusterText.put(prototype, builder.toString());
         }
     }

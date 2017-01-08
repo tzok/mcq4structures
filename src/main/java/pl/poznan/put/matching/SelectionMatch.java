@@ -4,7 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
-import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
+import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.types.ExportFormat;
 
 import java.io.File;
@@ -69,14 +69,14 @@ public class SelectionMatch implements Exportable, MatchCollection {
         } catch (StructureException e) {
             throw new IOException("Failed to export the match to a PDB file",
                                   e);
-        } catch (MmCifPdbIncompatibilityException e) {
+        } catch (CifPdbIncompatibilityException e) {
             throw new IOException("Failed to export the match to a PDB file",
                                   e);
         }
     }
 
     public String toPDB(boolean onlyMatched)
-            throws StructureException, MmCifPdbIncompatibilityException {
+            throws StructureException, CifPdbIncompatibilityException {
         if (fragmentMatches.size() == 0) {
             return "";
         }

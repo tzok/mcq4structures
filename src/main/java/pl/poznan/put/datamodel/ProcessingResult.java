@@ -15,6 +15,7 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
     private final Clusterable clusterable;
     private final Visualizable visualizable;
     private final Exportable exportable;
+
     public ProcessingResult(Clusterable clusterable, Visualizable visualizable,
                             Exportable exportable) {
         super();

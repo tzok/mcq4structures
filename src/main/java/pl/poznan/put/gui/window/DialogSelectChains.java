@@ -6,8 +6,16 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -18,19 +26,17 @@ public final class DialogSelectChains extends JDialog {
     public static final int OK = 1;
     private static final Dimension INITIAL_MAIN_PANEL_SIZE =
             new Dimension(640, 480);
-
+    private final JButton buttonOk = new JButton("OK");
     private final ActionListener actionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             updateButtonOkState();
         }
     };
-
     private final ChainsPanel panelsChainsLeft =
             new ChainsPanel(actionListener);
     private final ChainsPanel panelsChainsRight =
             new ChainsPanel(actionListener);
-    private final JButton buttonOk = new JButton("OK");
     private final JButton buttonCancel = new JButton("Cancel");
 
     private List<PdbChain> chainsLeft = new ArrayList<>();

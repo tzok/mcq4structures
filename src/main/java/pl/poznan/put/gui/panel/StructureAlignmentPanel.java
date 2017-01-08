@@ -10,7 +10,7 @@ import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
+import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -18,9 +18,15 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -165,7 +171,7 @@ public class StructureAlignmentPanel extends JPanel {
             StructureAlignmentPanel.LOGGER.error(message, e);
             JOptionPane.showMessageDialog(this, message, "Error",
                                           JOptionPane.ERROR_MESSAGE);
-        } catch (MmCifPdbIncompatibilityException e) {
+        } catch (CifPdbIncompatibilityException e) {
             String message = "Failed to align structures: " + nameLeft + " and "
                              + nameRight;
             StructureAlignmentPanel.LOGGER.error(message, e);

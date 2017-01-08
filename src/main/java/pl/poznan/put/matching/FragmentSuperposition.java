@@ -33,7 +33,8 @@ public class FragmentSuperposition {
             builder.append(fragment.toPdb());
         }
         builder.append(
-                "ENDMDL                                                                          \n");
+                "ENDMDL                                                      "
+                + "                    \n");
         return builder.toString();
     }
 }

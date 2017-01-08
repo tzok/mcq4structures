@@ -69,7 +69,8 @@ public final class SequenceAligner {
         return SubstitutionMatrixHelper.getNuc4_4();
     }
 
-    private static SubstitutionMatrix<AminoAcidCompound> getProteinSubstitutionMatrix() {
+    private static SubstitutionMatrix<AminoAcidCompound>
+    getProteinSubstitutionMatrix() {
         return SubstitutionMatrixHelper.getBlosum62();
     }
 

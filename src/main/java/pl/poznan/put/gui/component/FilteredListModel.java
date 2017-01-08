@@ -3,7 +3,7 @@ package pl.poznan.put.gui.component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
-import javax.swing.*;
+import javax.swing.AbstractListModel;
 import java.util.ArrayList;
 import java.util.List;
 

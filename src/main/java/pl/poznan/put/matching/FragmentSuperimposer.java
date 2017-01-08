@@ -6,7 +6,7 @@ import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.SVDSuperimposer;
 import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.atom.AtomName;
-import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
+import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.pdb.PdbAtomLine;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -35,9 +35,10 @@ public class FragmentSuperimposer {
     private final SVDSuperimposer totalSuperimposer;
     private final Atom[] totalAtomsTarget;
     private final Atom[] totalAtomsModel;
+
     public FragmentSuperimposer(SelectionMatch selectionMatch,
                                 AtomFilter atomFilter, boolean onlyHeavy)
-            throws StructureException, MmCifPdbIncompatibilityException {
+            throws StructureException, CifPdbIncompatibilityException {
         super();
         this.selectionMatch = selectionMatch;
         this.atomFilter = atomFilter;
@@ -64,7 +65,7 @@ public class FragmentSuperimposer {
     }
 
     private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM)
-            throws StructureException, MmCifPdbIncompatibilityException {
+            throws StructureException, CifPdbIncompatibilityException {
         int i = 0;
 
         for (FragmentMatch fragment : selectionMatch.getFragmentMatches()) {
@@ -187,7 +188,7 @@ public class FragmentSuperimposer {
     }
 
     public FragmentSuperposition getWhole()
-            throws MmCifPdbIncompatibilityException {
+            throws CifPdbIncompatibilityException {
         StructureSelection target = selectionMatch.getTarget();
         StructureSelection model = selectionMatch.getModel();
         List<PdbCompactFragment> targetFragments = target.getCompactFragments();
@@ -221,7 +222,7 @@ public class FragmentSuperimposer {
     }
 
     public FragmentSuperposition getMatched()
-            throws MmCifPdbIncompatibilityException {
+            throws CifPdbIncompatibilityException {
         List<PdbCompactFragment> newFragmentsL = new ArrayList<>();
         List<PdbCompactFragment> newFragmentsR = new ArrayList<>();
 

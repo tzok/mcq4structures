@@ -20,9 +20,26 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.types.DistanceMatrix;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import java.awt.*;
+import javax.swing.UnsupportedLookAndFeelException;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -360,13 +377,16 @@ public class MainWindow extends JFrame {
                         fileChooser.getSelectedFile())) {
                     currentResult.export(stream);
                     JOptionPane.showMessageDialog(MainWindow.this,
-                                                  "Successfully exported the results!",
-                                                  "Information",
-                                                  JOptionPane.INFORMATION_MESSAGE);
+                                                  "Successfully exported the "
+                                                  + "results!", "Information",
+                                                  JOptionPane
+                                                          .INFORMATION_MESSAGE);
                 } catch (IOException e) {
                     JOptionPane.showMessageDialog(MainWindow.this,
-                                                  "Failed to export the results, reason: "
-                                                  + e.getMessage(), "Error",
+                                                  "Failed to export the "
+                                                  + "results, reason: " + e
+                                                          .getMessage(),
+                                                  "Error",
                                                   JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -451,8 +471,7 @@ public class MainWindow extends JFrame {
             JOptionPane.showMessageDialog(MainWindow.this,
                                           "At least two structures must be "
                                           + "selected to compute global "
-                                          + "distance",
-                                          "Information",
+                                          + "distance", "Information",
                                           JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -549,8 +568,7 @@ public class MainWindow extends JFrame {
         if (dialogChainsMultiple.getChains().size() < 2) {
             JOptionPane.showMessageDialog(this,
                                           "You have to select at least two "
-                                          + "chains",
-                                          "Warning",
+                                          + "chains", "Warning",
                                           JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -560,8 +578,9 @@ public class MainWindow extends JFrame {
 
         for (PdbCompactFragment c : fragments) {
             if (type != c.getMoleculeType()) {
-                JOptionPane.showMessageDialog(this,
-                                              "Cannot align/compare structures: different types",
+                JOptionPane.showMessageDialog(this, "Cannot align/compare "
+                                                    + "structures: different "
+                                                    + "types",
                                               "Error",
                                               JOptionPane.ERROR_MESSAGE);
                 return;

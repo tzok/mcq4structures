@@ -19,7 +19,7 @@ import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -36,7 +36,8 @@ import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.TorsionAxis;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ public class FragmentMatch implements Visualizable {
     private final boolean isTargetSmaller;
     private final int shift;
     private final FragmentComparison fragmentComparison;
+
     public FragmentMatch(final PdbCompactFragment targetFragment,
                          final PdbCompactFragment modelFragment,
                          final boolean isTargetSmaller, final int shift,
@@ -194,7 +196,7 @@ public class FragmentMatch implements Visualizable {
 
             String displayName = angle.getLongDisplayName();
             dataset.addSeries(displayName, data);
-            renderer.setSeriesPaint(i, Colors.DISTINCT_COLORS[i]);
+            renderer.setSeriesPaint(i, Colors.getDistinctColors()[i]);
             i++;
         }
     }
@@ -335,7 +337,7 @@ public class FragmentMatch implements Visualizable {
 
             String displayName = masterType.getLongDisplayName();
             dataset.addSeries(displayName, data);
-            renderer.setSeriesPaint(j, Colors.DISTINCT_COLORS[j]);
+            renderer.setSeriesPaint(j, Colors.getDistinctColors()[j]);
         }
     }
 }
