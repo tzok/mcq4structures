@@ -1,6 +1,5 @@
 package pl.poznan.put.mcq.cli;
 
-import org.apache.batik.transcoder.TranscodingHints;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -36,7 +35,6 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,6 +51,7 @@ public class App {
     private final List<PdbModel> models = new ArrayList<PdbModel>();
     private final List<StructureSelection> selections =
             new ArrayList<StructureSelection>();
+
     public App(String[] args)
             throws ParseException, McqProcessingException, IOException,
                    PdbParsingException {
@@ -62,8 +61,8 @@ public class App {
         options.addOption("a", "angle", true,
                           "(optional for " + Mode.TARGET_MODELS
                           + " mode) torsion angle to be used for comparison. "
-                          + "One of: "
-                          + Arrays.toString(RNATorsionAngleType.mainAngles())
+                          + "One of: " + Arrays
+                                  .toString(RNATorsionAngleType.mainAngles())
                           + " or default: " + DEFAULT_ANGLE_TYPE
                                   .getShortDisplayName());
 
@@ -234,23 +233,17 @@ public class App {
             File svgFile = File.createTempFile(
                     target.getName() + "_" + Integer.toString(i + 1) + "_",
                     ".svg");
-            OutputStream stream = new FileOutputStream(svgFile);
-            try {
-                SVGDocument svgDocument = selectedAngleResults.visualize();
-                SVGHelper.export(svgDocument, stream, Format.SVG,
-                                 Collections.<TranscodingHints.Key,
-                                         Object>emptyMap());
-                System.err.println(
-                        "Colorbar for fragment " + Integer.toString(i + 1)
-                        + " is available here: " + svgFile);
-            } finally {
-                IOUtils.closeQuietly(stream);
-            }
+            SVGDocument svgDocument = selectedAngleResults.visualize();
+            byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
+            FileUtils.writeByteArrayToFile(svgFile, bytes);
+            System.err.println(
+                    "Colorbar for fragment " + Integer.toString(i + 1)
+                    + " is available here: " + svgFile);
 
             File csvFile = File.createTempFile(
                     target.getName() + "_" + Integer.toString(i + 1) + "_",
                     ".csv");
-            stream = new FileOutputStream(csvFile);
+            FileOutputStream stream = new FileOutputStream(csvFile);
             try {
                 selectedAngleResults.export(stream);
                 System.err.println(
@@ -282,17 +275,10 @@ public class App {
                         "mcq-" + masterType.getExportName() + "-", ".svg");
                 SVGDocument svgDocument = histogram.finalizeDrawingAndGetSVG();
 
-                OutputStream stream = new FileOutputStream(outputFile);
-                try {
-                    SVGHelper.export(svgDocument, stream, Format.SVG,
-                                     Collections.<TranscodingHints.Key,
-                                             Object>emptyMap());
-                    System.err.println(
-                            "Histogram for " + masterType.getExportName()
-                            + " is available here: " + outputFile);
-                } finally {
-                    IOUtils.closeQuietly(stream);
-                }
+                byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
+                FileUtils.writeByteArrayToFile(outputFile, bytes);
+                System.err.println("Histogram for " + masterType.getExportName()
+                                   + " is available here: " + outputFile);
             } catch (InvalidCircularValueException e) {
                 throw new McqProcessingException(
                         "Failed to visualize torsion angles of type: "
