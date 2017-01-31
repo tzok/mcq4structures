@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>pl.poznan.put</groupId>
     <artifactId>mcq-cli</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
     <name>mcq-cli</name>
 
