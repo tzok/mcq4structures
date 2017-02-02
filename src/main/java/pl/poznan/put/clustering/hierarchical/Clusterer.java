@@ -1,23 +1,14 @@
 package pl.poznan.put.clustering.hierarchical;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 public final class Clusterer {
-    public static List<Cluster> initialClusterAssignment(List<String> names) {
-        List<Cluster> clusters = new ArrayList<>();
-        for (int i = 0; i < names.size(); ++i) {
-            clusters.add(new Cluster(i, names.get(i)));
-        }
-        return clusters;
-    }
-
     private final List<String> names;
     private final double[][] matrix;
     private final Linkage linkage;
-
     public Clusterer(List<String> names, double[][] matrix, Linkage linkage) {
         super();
         this.names = names;
@@ -60,45 +51,55 @@ public final class Clusterer {
         return new HierarchicalClustering(names, merges);
     }
 
+    public static List<Cluster> initialClusterAssignment(List<String> names) {
+        List<Cluster> clusters = new ArrayList<>();
+        for (int i = 0; i < names.size(); ++i) {
+            clusters.add(new Cluster(i, names.get(i)));
+        }
+        return clusters;
+    }
+
     private double getClusterDelta(Cluster c1, Cluster c2) {
         double delta = 0;
 
         switch (linkage) {
-        case SINGLE:
-            delta = Double.POSITIVE_INFINITY;
-            for (int m : c1.getItems()) {
-                for (int n : c2.getItems()) {
-                    if (matrix[m][n] < delta) {
-                        delta = matrix[m][n];
+            case SINGLE:
+                delta = Double.POSITIVE_INFINITY;
+                for (int m : c1.getItems()) {
+                    for (int n : c2.getItems()) {
+                        if (matrix[m][n] < delta) {
+                            delta = matrix[m][n];
+                        }
                     }
                 }
-            }
-            break;
+                break;
 
-        case COMPLETE:
-            delta = Double.NEGATIVE_INFINITY;
-            for (int m : c1.getItems()) {
-                for (int n : c2.getItems()) {
-                    if (matrix[m][n] > delta) {
-                        delta = matrix[m][n];
+            case COMPLETE:
+                delta = Double.NEGATIVE_INFINITY;
+                for (int m : c1.getItems()) {
+                    for (int n : c2.getItems()) {
+                        if (matrix[m][n] > delta) {
+                            delta = matrix[m][n];
+                        }
                     }
                 }
-            }
-            break;
+                break;
 
-        case AVERAGE:
-            int count = 0;
-            for (int m : c1.getItems()) {
-                for (int n : c2.getItems()) {
-                    delta += matrix[m][n];
-                    count++;
+            case AVERAGE:
+                int count = 0;
+                for (int m : c1.getItems()) {
+                    for (int n : c2.getItems()) {
+                        delta += matrix[m][n];
+                        count++;
+                    }
                 }
-            }
-            delta /= count;
-            break;
+                delta /= count;
+                break;
 
-        default:
-            throw new IllegalArgumentException("Unknown type of linkage for hierarchical clustering: " + linkage);
+            default:
+                throw new IllegalArgumentException(
+                        "Unknown type of linkage for hierarchical clustering: "
+                        + linkage);
         }
 
         return delta;

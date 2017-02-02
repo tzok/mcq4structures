@@ -7,7 +7,8 @@ public class ScoredClusteringResult {
     private final double silhouette;
 
     public ScoredClusteringResult(ClusterPrototypes prototypes,
-            ScoringFunction scoringFunction, double score, double silhouette) {
+                                  ScoringFunction scoringFunction, double score,
+                                  double silhouette) {
         super();
         this.prototypes = prototypes;
         this.scoringFunction = scoringFunction;

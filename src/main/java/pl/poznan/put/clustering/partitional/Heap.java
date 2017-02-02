@@ -6,16 +6,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public class Heap implements Iterable<Integer> {
-    public static List<Heap> fromMatrix(double[][] matrix) {
-        List<Heap> list = new ArrayList<>();
-
-        for (double[] element : matrix) {
-            list.add(new Heap(element));
-        }
-
-        return list;
-    }
-
     private final PriorityQueue<Integer> data;
 
     public Heap(double[] row) {
@@ -26,6 +16,16 @@ public class Heap implements Iterable<Integer> {
         for (int i = 0; i < row.length; i++) {
             data.add(i);
         }
+    }
+
+    public static List<Heap> fromMatrix(double[][] matrix) {
+        List<Heap> list = new ArrayList<>();
+
+        for (double[] element : matrix) {
+            list.add(new Heap(element));
+        }
+
+        return list;
     }
 
     @Override

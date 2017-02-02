@@ -1,14 +1,6 @@
 package pl.poznan.put.test;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
-
 import pl.poznan.put.clustering.hierarchical.Clusterer;
 import pl.poznan.put.clustering.hierarchical.HierarchicalClusterMerge;
 import pl.poznan.put.clustering.hierarchical.HierarchicalClustering;
@@ -18,6 +10,13 @@ import pl.poznan.put.clustering.partitional.KMedoids;
 import pl.poznan.put.clustering.partitional.PAM;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestHierarchicalPartitional {
     // @formatter:off
@@ -41,7 +40,10 @@ public class TestHierarchicalPartitional {
     @SuppressWarnings("static-method")
     @Test
     public void testHierarchicalComplete() {
-        Clusterer clusterer = new Clusterer(TestHierarchicalPartitional.NAMES, TestHierarchicalPartitional.DISTANCE_MATRIX, Linkage.COMPLETE);
+        Clusterer clusterer = new Clusterer(TestHierarchicalPartitional.NAMES,
+                                            TestHierarchicalPartitional
+                                                    .DISTANCE_MATRIX,
+                                            Linkage.COMPLETE);
         HierarchicalClustering clustering = clusterer.cluster();
         List<HierarchicalClusterMerge> merges = clustering.getMerges();
         assertEquals(8, merges.size());
@@ -50,48 +52,59 @@ public class TestHierarchicalPartitional {
         merge = merges.get(0);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(206.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(206.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(1);
         assertEquals(4, merge.getLeft());
         assertEquals(5, merge.getRight());
-        assertEquals(379.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(379.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(2);
         assertEquals(0, merge.getLeft());
         assertEquals(5, merge.getRight());
-        assertEquals(429.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(429.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(3);
         assertEquals(1, merge.getLeft());
         assertEquals(5, merge.getRight());
-        assertEquals(963.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(963.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(4);
         assertEquals(1, merge.getLeft());
         assertEquals(3, merge.getRight());
-        assertEquals(1131.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(1131.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(5);
         assertEquals(1, merge.getLeft());
         assertEquals(3, merge.getRight());
-        assertEquals(1307.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(1307.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(6);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(1504.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(1504.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(7);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(3273.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(3273.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
     }
 
     @SuppressWarnings("static-method")
     @Test
     public void testHierarchicalSingle() {
-        Clusterer clusterer = new Clusterer(TestHierarchicalPartitional.NAMES, TestHierarchicalPartitional.DISTANCE_MATRIX, Linkage.SINGLE);
+        Clusterer clusterer = new Clusterer(TestHierarchicalPartitional.NAMES,
+                                            TestHierarchicalPartitional
+                                                    .DISTANCE_MATRIX,
+                                            Linkage.SINGLE);
         HierarchicalClustering clustering = clusterer.cluster();
         List<HierarchicalClusterMerge> merges = clustering.getMerges();
         assertEquals(8, merges.size());
@@ -100,48 +113,59 @@ public class TestHierarchicalPartitional {
         merge = merges.get(0);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(206.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(206.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(1);
         assertEquals(0, merge.getLeft());
         assertEquals(7, merge.getRight());
-        assertEquals(233.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(233.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(2);
         assertEquals(3, merge.getLeft());
         assertEquals(4, merge.getRight());
-        assertEquals(379.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(379.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(3);
         assertEquals(1, merge.getLeft());
         assertEquals(4, merge.getRight());
-        assertEquals(671.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(671.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(4);
         assertEquals(1, merge.getLeft());
         assertEquals(3, merge.getRight());
-        assertEquals(808.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(808.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(5);
         assertEquals(1, merge.getLeft());
         assertEquals(2, merge.getRight());
-        assertEquals(996.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(996.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(6);
         assertEquals(1, merge.getLeft());
         assertEquals(2, merge.getRight());
-        assertEquals(1059.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(1059.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(7);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(1075.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(1075.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
     }
 
     @SuppressWarnings("static-method")
     @Test
     public void testHierarchicalAverage() {
-        Clusterer clusterer = new Clusterer(TestHierarchicalPartitional.NAMES, TestHierarchicalPartitional.DISTANCE_MATRIX, Linkage.AVERAGE);
+        Clusterer clusterer = new Clusterer(TestHierarchicalPartitional.NAMES,
+                                            TestHierarchicalPartitional
+                                                    .DISTANCE_MATRIX,
+                                            Linkage.AVERAGE);
         HierarchicalClustering clustering = clusterer.cluster();
         List<HierarchicalClusterMerge> merges = clustering.getMerges();
         assertEquals(8, merges.size());
@@ -150,42 +174,50 @@ public class TestHierarchicalPartitional {
         merge = merges.get(0);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(206.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(206.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(1);
         assertEquals(0, merge.getLeft());
         assertEquals(7, merge.getRight());
-        assertEquals(331.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(331.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(2);
         assertEquals(3, merge.getLeft());
         assertEquals(4, merge.getRight());
-        assertEquals(379.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(379.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(3);
         assertEquals(1, merge.getLeft());
         assertEquals(4, merge.getRight());
-        assertEquals(812.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(812.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(4);
         assertEquals(1, merge.getLeft());
         assertEquals(3, merge.getRight());
-        assertEquals(969.5, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(969.5, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(5);
         assertEquals(1, merge.getLeft());
         assertEquals(3, merge.getRight());
-        assertEquals(1200.0 + (1.0 / 3.0), merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(1200.0 + (1.0 / 3.0), merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(6);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(1304.0, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(1304.0, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
 
         merge = merges.get(7);
         assertEquals(0, merge.getLeft());
         assertEquals(1, merge.getRight());
-        assertEquals(2469.5, merge.getDistance(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(2469.5, merge.getDistance(),
+                     TestHierarchicalPartitional.EPSILON);
     }
 
     @SuppressWarnings("static-method")
@@ -193,17 +225,23 @@ public class TestHierarchicalPartitional {
     public void testMedoidsWithK2() {
         KMedoids kmedoids = new KMedoids();
         ScoringFunction scoringFunction = PAM.getInstance();
-        ClusterPrototypes initialPrototypes = ClusterPrototypes.initializeLinearly(2);
-        ScoredClusteringResult clusteringResult = kmedoids.findPrototypes(TestHierarchicalPartitional.DISTANCE_MATRIX, scoringFunction, initialPrototypes);
+        ClusterPrototypes initialPrototypes =
+                ClusterPrototypes.initializeLinearly(2);
+        ScoredClusteringResult clusteringResult = kmedoids.findPrototypes(
+                TestHierarchicalPartitional.DISTANCE_MATRIX, scoringFunction,
+                initialPrototypes);
         ClusterPrototypes prototypes = clusteringResult.getPrototypes();
 
-        List<Integer> prototypesIndices = new ArrayList<>(prototypes.getPrototypesIndices());
+        List<Integer> prototypesIndices =
+                new ArrayList<>(prototypes.getPrototypesIndices());
         Collections.sort(prototypesIndices);
 
         assertEquals(2, (int) prototypesIndices.get(0));
         assertEquals(6, (int) prototypesIndices.get(1));
-        assertEquals(-4830.0, clusteringResult.getScore(), TestHierarchicalPartitional.EPSILON);
-        assertEquals(6.293843727, clusteringResult.getSilhouette(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(-4830.0, clusteringResult.getScore(),
+                     TestHierarchicalPartitional.EPSILON);
+        assertEquals(6.293843727, clusteringResult.getSilhouette(),
+                     TestHierarchicalPartitional.EPSILON);
     }
 
     @SuppressWarnings("static-method")
@@ -211,17 +249,23 @@ public class TestHierarchicalPartitional {
     public void testMedoidsWithK3() {
         KMedoids kmedoids = new KMedoids();
         ScoringFunction scoringFunction = PAM.getInstance();
-        ClusterPrototypes initialPrototypes = ClusterPrototypes.initializeLinearly(3);
-        ScoredClusteringResult clusteringResult = kmedoids.findPrototypes(TestHierarchicalPartitional.DISTANCE_MATRIX, scoringFunction, initialPrototypes);
+        ClusterPrototypes initialPrototypes =
+                ClusterPrototypes.initializeLinearly(3);
+        ScoredClusteringResult clusteringResult = kmedoids.findPrototypes(
+                TestHierarchicalPartitional.DISTANCE_MATRIX, scoringFunction,
+                initialPrototypes);
         ClusterPrototypes prototypes = clusteringResult.getPrototypes();
 
-        List<Integer> prototypesIndices = new ArrayList<>(prototypes.getPrototypesIndices());
+        List<Integer> prototypesIndices =
+                new ArrayList<>(prototypes.getPrototypesIndices());
         Collections.sort(prototypesIndices);
 
         assertEquals(2, (int) prototypesIndices.get(0));
         assertEquals(6, (int) prototypesIndices.get(1));
         assertEquals(8, (int) prototypesIndices.get(2));
-        assertEquals(-3595.0, clusteringResult.getScore(), TestHierarchicalPartitional.EPSILON);
-        assertEquals(4.537467647, clusteringResult.getSilhouette(), TestHierarchicalPartitional.EPSILON);
+        assertEquals(-3595.0, clusteringResult.getScore(),
+                     TestHierarchicalPartitional.EPSILON);
+        assertEquals(4.537467647, clusteringResult.getSilhouette(),
+                     TestHierarchicalPartitional.EPSILON);
     }
 }

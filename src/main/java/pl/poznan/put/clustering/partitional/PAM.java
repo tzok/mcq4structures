@@ -5,12 +5,16 @@ import java.util.List;
 public class PAM implements ScoringFunction {
     private static final PAM INSTANCE = new PAM();
 
+    private PAM() {
+    }
+
     public static PAM getInstance() {
         return PAM.INSTANCE;
     }
 
     @Override
-    public double score(ClusterPrototypes prototypes, double[][] distanceMatrix) {
+    public double score(ClusterPrototypes prototypes,
+                        double[][] distanceMatrix) {
         List<Heap> asHeaps = Heap.fromMatrix(distanceMatrix);
         double result = 0;
 
@@ -29,8 +33,5 @@ public class PAM implements ScoringFunction {
     @Override
     public String toString() {
         return "PAM";
-    }
-
-    private PAM() {
     }
 }
