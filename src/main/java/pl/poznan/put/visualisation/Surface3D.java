@@ -62,8 +62,9 @@ public class Surface3D extends AbstractAnalysis {
                 @Override
                 public IScreenshotKeyController newScreenshotKeyController(
                         final Chart chart) {
-                    String nowAsIso = DateFormatUtils.ISO_DATETIME_FORMAT
-                            .format(new Date());
+                    String nowAsIso =
+                            DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
+                                    .format(new Date());
                     File tmpdir =
                             new File(System.getProperty("java.io.tmpdir"));
                     File screenshot = new File(tmpdir, nowAsIso + ".png");
@@ -77,8 +78,8 @@ public class Surface3D extends AbstractAnalysis {
                         }
 
                         @Override
-                        public void failedScreenshot(final String s,
-                                                     final Exception e) {
+                        public void failedScreenshot(
+                                final String s, final Exception e) {
                             System.err.println("Failed to save screenshot");
                         }
                     });
@@ -101,11 +102,11 @@ public class Surface3D extends AbstractAnalysis {
     private final boolean showAllTicksX;
     private final boolean showAllTicksY;
 
-    public Surface3D(String name, double[][] matrix, List<String> ticksX,
-                     List<String> ticksY,
-                     NavigableMap<Double, String> valueTickZ, String labelX,
-                     String labelY, String labelZ, boolean showAllTicksX,
-                     boolean showAllTicksY) {
+    public Surface3D(
+            String name, double[][] matrix, List<String> ticksX,
+            List<String> ticksY, NavigableMap<Double, String> valueTickZ,
+            String labelX, String labelY, String labelZ, boolean showAllTicksX,
+            boolean showAllTicksY) {
         super();
         this.name = name;
         this.matrix = matrix.clone();
