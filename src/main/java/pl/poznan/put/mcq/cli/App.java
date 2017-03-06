@@ -35,6 +35,7 @@ import pl.poznan.put.utility.svg.SVGHelper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -134,8 +135,8 @@ public class App {
                     "Unreadable file provided: " + pdbPath);
         }
 
-        List<PdbModel> pdbModels =
-                parser.parse(FileUtils.readFileToString(file));
+        List<PdbModel> pdbModels = parser.parse(
+                FileUtils.readFileToString(file, Charset.defaultCharset()));
 
         if (pdbModels.isEmpty()) {
             throw new McqProcessingException(
