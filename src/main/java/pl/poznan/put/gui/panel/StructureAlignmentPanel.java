@@ -10,7 +10,7 @@ import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.MmCifPdbIncompatibilityException;
+import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -171,7 +171,7 @@ public class StructureAlignmentPanel extends JPanel {
             StructureAlignmentPanel.LOGGER.error(message, e);
             JOptionPane.showMessageDialog(this, message, "Error",
                                           JOptionPane.ERROR_MESSAGE);
-        } catch (MmCifPdbIncompatibilityException e) {
+        } catch (CifPdbIncompatibilityException e) {
             String message = "Failed to align structures: " + nameLeft + " and "
                              + nameRight;
             StructureAlignmentPanel.LOGGER.error(message, e);
