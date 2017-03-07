@@ -22,12 +22,10 @@
             <url>http://www.jzy3d.org/maven/releases</url>
         </repository>
 
-<!--
         <repository>
             <id>TUDelft</id>
             <url>http://simulation.tudelft.nl/maven/</url>
         </repository>
--->
     </repositories>
 
     <dependencies>
