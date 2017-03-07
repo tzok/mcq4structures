@@ -156,7 +156,7 @@ public class LCS implements GlobalComparator {
                 for (MasterTorsionAngleType angleType : angleTypes) {
                     TorsionAngleDelta angleDelta =
                             residueComparison.getAngleDelta(angleType);
-
+                            
                     if (angleDelta.getState() == State.BOTH_VALID) {
                         deltas.add(angleDelta.getDelta());
                     }
@@ -180,18 +180,18 @@ public class LCS implements GlobalComparator {
         else{
             int s;
             int  l = 0;
-            int p = model.getResidues().size()-1;
+            int p = target.getResidues().size()-1;
             while (l <= p){
                 s = (l + p) / 2;
                 found = false;
-                for(int j=0; j+s<=model.getResidues().size(); j++){
-                    List<PdbResidue> fragmentResidues = model.getResidues().subList(j,j+s);
-                    StructureSelection model1 = new StructureSelection(model.getName(), fragmentResidues);
-                    RefinementResult localRefinementResult = refinement(target, model1);
+                for(int j=0; j+s<=target.getResidues().size(); j++){
+                    List<PdbResidue> fragmentResidues = target.getResidues().subList(j,j+s);
+                    StructureSelection target1 = new StructureSelection(target.getName(), fragmentResidues);
+                    RefinementResult localRefinementResult = refinement(model, target1);
                     if (localRefinementResult.getSample().getMeanDirection().getRadians()<=mcqValue && longest<=localRefinementResult.getMatch().getResidueLabels().size()){
                         longest=localRefinementResult.getMatch().getResidueLabels().size();
                         maxRefinementResult = localRefinementResult;
-                                found = true;
+                        found = true;
                     }
                 }
                 if (found == true){
@@ -201,7 +201,9 @@ public class LCS implements GlobalComparator {
                     p = s - 1; 
                 }
 
-            }   
+            } 
+            
+            
             return new LCSGlobalResult(getName(), maxRefinementResult.getMatch(), maxRefinementResult.getSample(), maxRefinementResult.getModel(), maxRefinementResult.getTarget());
         }
     }
@@ -210,11 +212,14 @@ public class LCS implements GlobalComparator {
         AngleSample angleSample;
         StructureSelection model;
         StructureSelection target;
+
+
         public RefinementResult(SelectionMatch match, AngleSample sample, StructureSelection s1, StructureSelection s2){
             selectionMatch = match;
             angleSample = sample;
             model = s1;
             target = s2;
+
          }
          public SelectionMatch getMatch(){
             return selectionMatch;
@@ -228,13 +233,16 @@ public class LCS implements GlobalComparator {
         }
         public StructureSelection getTarget(){
             return target;
-        }    
+        }
+
+        
     }
 
 
     
     public RefinementResult refinement(StructureSelection target,
-                                        StructureSelection model)
+                                        StructureSelection model
+                                        )
             throws IncomparableStructuresException {
         MCQMatcher matcher = new MCQMatcher(angleTypes);
         SelectionMatch matches = matcher.matchSelections(target, model);
