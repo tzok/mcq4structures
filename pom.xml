@@ -30,7 +30,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.3</version>
         </dependency>
 
         <dependency>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>fr.lri.varna</groupId>
             <artifactId>varna</artifactId>
-            <version>3.93-p1</version>
+            <version>3.93</version>
         </dependency>
 
         <dependency>
@@ -162,7 +162,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.24</version>
+            <version>1.7.25</version>
         </dependency>
 
         <dependency>
@@ -316,8 +316,8 @@
                 <version>2.3</version>
                 <configuration>
                     <excludes>
-                        <exclude>xml-apis:xml-apis</exclude>
-                        <exclude>xml-apis:xml-apis-ext</exclude>
+                        <exclude>xml-apis</exclude>
+                        <exclude>fr.lri.varna</exclude>
                     </excludes>
                 </configuration>
             </plugin>
