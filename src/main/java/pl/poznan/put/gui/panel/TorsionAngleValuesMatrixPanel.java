@@ -28,10 +28,10 @@ import java.util.List;
 public class TorsionAngleValuesMatrixPanel extends JPanel {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(TorsionAngleValuesMatrixPanel.class);
+    private static final long serialVersionUID = -59286774381464603L;
 
     private final JTextPane labelInfoMatrix = new JTextPane();
     private final JTable tableMatrix = new JTable();
-    private final JScrollPane scrollPane = new JScrollPane(tableMatrix);
     private final JTabbedPane tabbedPane = new JTabbedPane();
 
     public TorsionAngleValuesMatrixPanel() {
@@ -46,13 +46,15 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
         JPanel panelInfo = new JPanel(new BorderLayout());
         panelInfo.add(labelInfoMatrix, BorderLayout.CENTER);
 
+        JScrollPane scrollPane = new JScrollPane(tableMatrix);
         tabbedPane.add("Torsion angles", scrollPane);
 
         add(panelInfo, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);
     }
 
-    public ProcessingResult calculateTorsionAngles(PdbModel structure) {
+    public final ProcessingResult calculateTorsionAngles(
+            final PdbModel structure) {
         removeAllButFirstTab();
         updateHeader(structure);
 
@@ -60,7 +62,7 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
                 .create(StructureManager.getName(structure), structure);
         tableMatrix.setModel(selection.asDisplayableTableModel());
 
-        for (MasterTorsionAngleType masterType : selection
+        for (final MasterTorsionAngleType masterType : selection
                 .getCommonTorsionAngleTypes()) {
             List<Angle> angles =
                     selection.getValidTorsionAngleValues(masterType);
@@ -70,11 +72,10 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
             }
 
             try {
+                String title = masterType.getLongDisplayName();
                 AngularHistogram histogram = new AngularHistogram(angles);
                 histogram.draw();
-
-                String title = masterType.getLongDisplayName();
-                SVGDocument svgDocument = histogram.finalizeDrawingAndGetSVG();
+                SVGDocument svgDocument = histogram.finalizeDrawing();
                 SVGComponent component = new SVGComponent(svgDocument,
                                                           masterType
                                                                   .getExportName());
@@ -82,8 +83,8 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
             } catch (InvalidCircularValueException |
                     InvalidCircularOperationException e) {
                 TorsionAngleValuesMatrixPanel.LOGGER
-                        .warn("Failed to visualize torsion angles of type: "
-                              + masterType, e);
+                        .warn("Failed to visualize torsion angles of type: {}",
+                              masterType, e);
             }
         }
 
@@ -96,7 +97,7 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
         }
     }
 
-    public void updateHeader(PdbModel structure) {
+    public final void updateHeader(final PdbModel structure) {
         StringBuilder builder = new StringBuilder();
         builder.append(
                 "<html>Structure selected for torsion angles calculation: "

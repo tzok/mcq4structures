@@ -26,9 +26,10 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
 import pl.poznan.put.structure.secondary.DotBracketSymbol;
 import pl.poznan.put.structure.secondary.formats.BpSeq;
+import pl.poznan.put.structure.secondary.formats.Converter;
 import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.pseudoknots.BpSeqToDotBracketConverter;
+import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
@@ -51,10 +52,11 @@ public class FragmentMatch implements Visualizable {
     private final int shift;
     private final FragmentComparison fragmentComparison;
 
-    public FragmentMatch(final PdbCompactFragment targetFragment,
-                         final PdbCompactFragment modelFragment,
-                         final boolean isTargetSmaller, final int shift,
-                         final FragmentComparison comparison) {
+    public FragmentMatch(
+            final PdbCompactFragment targetFragment,
+            final PdbCompactFragment modelFragment,
+            final boolean isTargetSmaller, final int shift,
+            final FragmentComparison comparison) {
         super();
         this.targetFragment = targetFragment;
         this.modelFragment = modelFragment;
@@ -170,8 +172,8 @@ public class FragmentMatch implements Visualizable {
                          rangeAxis);
     }
 
-    private void prepareDataset(DefaultXYDataset dataset,
-                                XYItemRenderer renderer) {
+    private void prepareDataset(
+            DefaultXYDataset dataset, XYItemRenderer renderer) {
         int i = 0;
         for (MasterTorsionAngleType angle : fragmentComparison
                 .getAngleTypes()) {
@@ -225,11 +227,9 @@ public class FragmentMatch implements Visualizable {
         return domainAxis;
     }
 
-    private static SVGDocument plotAsSvg(int width, int height,
-                                         XYDataset dataset,
-                                         XYItemRenderer renderer,
-                                         ValueAxis domainAxis,
-                                         ValueAxis rangeAxis) {
+    private static SVGDocument plotAsSvg(
+            int width, int height, XYDataset dataset, XYItemRenderer renderer,
+            ValueAxis domainAxis, ValueAxis rangeAxis) {
         Plot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
         JFreeChart chart = new JFreeChart(plot);
 
@@ -263,8 +263,7 @@ public class FragmentMatch implements Visualizable {
         BpSeq bpSeq = CanonicalStructureExtractor
                 .getCanonicalSecondaryStructure(target);
 
-        BpSeqToDotBracketConverter converter =
-                new BpSeqToDotBracketConverter(new MinGain(), 0);
+        Converter converter = new LevelByLevelConverter(new MinGain(), 0);
         DotBracket dotBracket = converter.convert(bpSeq);
 
         for (int i = 0; i < targetResidues.size(); i++) {
@@ -310,8 +309,8 @@ public class FragmentMatch implements Visualizable {
                          rangeAxis);
     }
 
-    private void preparePercentilesDataset(DefaultXYDataset dataset,
-                                           XYItemRenderer renderer) {
+    private void preparePercentilesDataset(
+            DefaultXYDataset dataset, XYItemRenderer renderer) {
         String name = modelFragment.getName();
         double[] percents = SingleMatchStatistics.PERCENTS_FROM_1_TO_100;
         List<MasterTorsionAngleType> angleTypes =

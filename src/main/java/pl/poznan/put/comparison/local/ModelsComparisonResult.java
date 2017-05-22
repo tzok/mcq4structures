@@ -5,8 +5,10 @@ import org.apache.batik.util.SVGConstants;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jumpmind.symmetric.csv.CsvWriter;
 import org.jzy3d.analysis.AnalysisLauncher;
+import org.jzy3d.analysis.IAnalysis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
@@ -22,13 +24,13 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
 import pl.poznan.put.structure.secondary.DotBracketSymbol;
 import pl.poznan.put.structure.secondary.formats.BpSeq;
+import pl.poznan.put.structure.secondary.formats.Converter;
 import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.pseudoknots.BpSeqToDotBracketConverter;
+import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.ColorMapWrapper;
@@ -37,8 +39,11 @@ import pl.poznan.put.visualisation.Surface3D;
 import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Shape;
 import java.awt.font.LineMetrics;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -58,32 +63,32 @@ public class ModelsComparisonResult {
 
     public ModelsComparisonResult(final PdbCompactFragment target,
                                   final List<PdbCompactFragment> models,
-                                  final List<FragmentMatch> matches) {
+                                  final List<FragmentMatch> fragmentMatches) {
         super();
         this.target = target;
-        this.models = models;
-        this.fragmentMatches = matches;
+        this.models = new ArrayList<>(models);
+        this.fragmentMatches = new ArrayList<>(fragmentMatches);
     }
 
-    public PdbCompactFragment getTarget() {
+    public final PdbCompactFragment getTarget() {
         return target;
     }
 
-    public PdbCompactFragment getModel(final int index) {
+    public final PdbCompactFragment getModel(final int index) {
         return models.get(index);
     }
 
-    public int getTargetSize() {
+    private final int getTargetSize() {
         return target.size();
     }
 
-    public int getModelCount() {
+    public final int getModelCount() {
         return fragmentMatches.size();
     }
 
-    public ModelsComparisonResult.SelectedAngle selectAngle(
+    public final SelectedAngle selectAngle(
             final MasterTorsionAngleType torsionAngle) {
-        return new ModelsComparisonResult.SelectedAngle(torsionAngle);
+        return new SelectedAngle(torsionAngle);
     }
 
     public final class SelectedAngle
@@ -106,25 +111,25 @@ public class ModelsComparisonResult {
 
         @Override
         public void export(final OutputStream stream) throws IOException {
-            CsvWriter csvWriter =
+            final CsvWriter csvWriter =
                     new CsvWriter(stream, ',', Charset.forName("UTF-8"));
             csvWriter.write(null);
 
-            for (PdbCompactFragment model : models) {
+            for (final PdbCompactFragment model : models) {
                 csvWriter.write(model.toString());
             }
 
             csvWriter.endRecord();
 
             for (int i = 0; i < target.size(); i++) {
-                PdbResidue residue = target.getResidues().get(i);
+                final PdbResidue residue = target.getResidues().get(i);
                 csvWriter.write(residue.toString());
 
                 for (int j = 0; j < models.size(); j++) {
-                    FragmentMatch fragmentMatch = fragmentMatches.get(j);
-                    ResidueComparison residueComparison =
+                    final FragmentMatch fragmentMatch = fragmentMatches.get(j);
+                    final ResidueComparison residueComparison =
                             fragmentMatch.getResidueComparisons().get(i);
-                    TorsionAngleDelta delta =
+                    final TorsionAngleDelta delta =
                             residueComparison.getAngleDelta(angleType);
                     csvWriter.write(delta.toExportString());
                 }
@@ -142,11 +147,13 @@ public class ModelsComparisonResult {
 
         @Override
         public File suggestName() {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
-            StringBuilder builder = new StringBuilder(sdf.format(new Date()));
+            final SimpleDateFormat sdf =
+                    new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+            final StringBuilder builder =
+                    new StringBuilder(sdf.format(new Date()));
             builder.append("-Local-Distance-Multi");
 
-            for (PdbCompactFragment model : models) {
+            for (final PdbCompactFragment model : models) {
                 builder.append('-');
                 builder.append(model);
             }
@@ -166,23 +173,23 @@ public class ModelsComparisonResult {
         }
 
         private TableModel asTableModel(final boolean isDisplay) {
-            String[] columnNames = new String[models.size() + 1];
+            final String[] columnNames = new String[models.size() + 1];
             columnNames[0] = isDisplay ? "" : null;
             for (int i = 0; i < models.size(); i++) {
                 columnNames[i + 1] = models.get(i).getName();
             }
 
-            String[][] data = new String[target.size()][];
+            final String[][] data = new String[target.size()][];
 
             for (int i = 0; i < target.size(); i++) {
                 data[i] = new String[models.size() + 1];
                 data[i][0] = target.getResidues().get(i).toString();
 
                 for (int j = 0; j < models.size(); j++) {
-                    FragmentMatch fragmentMatch = fragmentMatches.get(j);
-                    ResidueComparison residueComparison =
+                    final FragmentMatch fragmentMatch = fragmentMatches.get(j);
+                    final ResidueComparison residueComparison =
                             fragmentMatch.getResidueComparisons().get(i);
-                    TorsionAngleDelta delta =
+                    final TorsionAngleDelta delta =
                             residueComparison.getAngleDelta(angleType);
 
                     if (delta == null) {
@@ -201,10 +208,12 @@ public class ModelsComparisonResult {
             double min = Double.POSITIVE_INFINITY;
             double max = Double.NEGATIVE_INFINITY;
 
-            for (FragmentMatch match : fragmentMatches) {
-                for (ResidueComparison result : match.getResidueComparisons()) {
-                    double delta = result.getAngleDelta(angleType).getDelta()
-                                         .getRadians();
+            for (final FragmentMatch match : fragmentMatches) {
+                for (final ResidueComparison result : match
+                        .getResidueComparisons()) {
+                    final double delta =
+                            result.getAngleDelta(angleType).getDelta()
+                                  .getRadians();
 
                     if (delta < min) {
                         min = delta;
@@ -221,34 +230,39 @@ public class ModelsComparisonResult {
 
         @Override
         public SVGDocument visualize() {
-            SVGDocument document = SVGHelper.emptyDocument();
-            SVGGraphics2D svg = new SVGGraphics2D(document);
-            LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
+            final SVGDocument document = SVGHelper.emptyDocument();
+            final SVGGraphics2D svg = new SVGGraphics2D(document);
+            svg.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
 
-            int unitHeight = (int) Math.ceil(lineMetrics.getHeight());
-            int unitWidth = unitHeight * 4 / 3;
-            int maxWidth = drawModelsNames(svg, unitHeight);
+            final LineMetrics lineMetrics = SVGHelper.getLineMetrics(svg);
 
-            DotBracket dotBracket = getDotBracketOrNull();
+            final float descent = lineMetrics.getDescent();
+            final float unitHeight = lineMetrics.getHeight();
+            final float unitWidth = (unitHeight * 3.0f) / 4.0f;
+            final float maxWidth = drawModelsNames(svg, unitHeight, descent);
+
+            final DotBracket dotBracket = getDotBracketOrNull();
             drawDotBracket(svg, dotBracket, unitWidth, maxWidth,
-                           unitHeight - unitHeight / 6);
-            drawColorBars(svg, unitHeight, unitWidth, maxWidth);
+                           unitHeight - descent);
+            drawColorBars(svg, unitWidth, unitHeight, maxWidth);
             drawDotBracket(svg, dotBracket, unitWidth, maxWidth,
-                           (models.size() + 2) * unitHeight);
-            finalizeSvg(document, svg, unitHeight, unitWidth, maxWidth);
+                           ((models.size() + 2) * unitHeight) - descent);
+            finalizeSvg(document, svg, unitWidth, unitHeight, maxWidth);
 
             return document;
         }
 
-        private int drawModelsNames(final SVGGraphics2D svg,
-                                    final int unitHeight) {
-            FontMetrics metrics = SVGHelper.getFontMetrics(svg);
-            int maxWidth = Integer.MIN_VALUE;
+        private float drawModelsNames(final SVGGraphics2D svg,
+                                      final float unitHeight,
+                                      final float descent) {
+            final FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+            float maxWidth = Integer.MIN_VALUE;
 
             for (int i = 0; i < models.size(); i++) {
-                String modelName = models.get(i).getName();
-                svg.drawString(modelName, 0.0f, (i + 2) * unitHeight);
-                int width = metrics.stringWidth(modelName);
+                final String modelName = models.get(i).getName();
+                svg.drawString(modelName, 0.0f,
+                               ((i + 2) * unitHeight) - descent);
+                final float width = metrics.stringWidth(modelName);
 
                 if (width > maxWidth) {
                     maxWidth = width;
@@ -262,15 +276,15 @@ public class ModelsComparisonResult {
             DotBracket dotBracket = null;
             if (target.getMoleculeType() == MoleculeType.RNA) {
                 try {
-                    BpSeqToDotBracketConverter converter =
-                            new BpSeqToDotBracketConverter(new MinGain(), 1);
-                    BpSeq bpSeq = CanonicalStructureExtractor
+                    final Converter converter =
+                            new LevelByLevelConverter(new MinGain(), 1);
+                    final BpSeq bpSeq = CanonicalStructureExtractor
                             .getCanonicalSecondaryStructure(target);
                     dotBracket = converter.convert(bpSeq);
-                } catch (InvalidStructureException e) {
+                } catch (final InvalidStructureException e) {
                     ModelsComparisonResult.LOGGER
-                            .warn("Failed to extract canonical secondary "
-                                  + "structure", e);
+                            .warn("Failed to extract canonical secondary " +
+                                  "structure", e);
                 }
             }
             return dotBracket;
@@ -278,104 +292,111 @@ public class ModelsComparisonResult {
 
         private void drawDotBracket(final SVGGraphics2D svg,
                                     final DotBracket dotBracket,
-                                    final int blockWidth, final int leftMargin,
-                                    final int topPosition) {
+                                    final float unitWidth,
+                                    final float leftShift,
+                                    final float topShift) {
             if (dotBracket != null) {
+                final FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+
                 for (int i = 0; i < dotBracket.getLength(); i++) {
-                    DotBracketSymbol symbol = dotBracket.getSymbol(i);
-                    svg.drawString(Character.toString(symbol.getStructure()),
-                                   leftMargin + i * blockWidth + blockWidth / 2,
-                                   topPosition);
+                    final DotBracketSymbol symbol = dotBracket.getSymbol(i);
+                    final String s = Character.toString(symbol.getStructure());
+                    final float stringWidth = metrics.stringWidth(s);
+                    svg.drawString(s, (leftShift + (i * unitWidth) +
+                                       (unitWidth / 2)) - (stringWidth / 2),
+                                   topShift);
                 }
             }
         }
 
         private void drawColorBars(final SVGGraphics2D svg,
-                                   final int unitHeight, final int unitWidth,
-                                   final int maxWidth) {
+                                   final float unitWidth,
+                                   final float unitHeight,
+                                   final float leftShift) {
             for (int i = 0; i < fragmentMatches.size(); i++) {
-                FragmentMatch fragmentMatch = fragmentMatches.get(i);
+                final FragmentMatch fragmentMatch = fragmentMatches.get(i);
 
                 for (int j = 0; j < fragmentMatch.getResidueCount(); j++) {
-                    ResidueComparison comparison =
+                    final ResidueComparison comparison =
                             fragmentMatch.getResidueComparisons().get(j);
-                    int x = maxWidth + j * unitWidth;
-                    int y = (i + 1) * unitHeight;
+                    final float x = leftShift + (j * unitWidth);
+                    final float y = (i + 1) * unitHeight;
                     drawColorBarUnit(svg, comparison, x, y, unitHeight,
                                      unitWidth);
                 }
             }
         }
 
-        private void finalizeSvg(final SVGDocument document,
-                                 final SVGGraphics2D svg, final int unitHeight,
-                                 final int unitWidth, final int maxWidth) {
-            Element root = document.getDocumentElement();
+        private void finalizeSvg(final Document document,
+                                 final SVGGraphics2D svg, final float unitWidth,
+                                 final float unitHeight,
+                                 final float leftShift) {
+            final Element root = document.getDocumentElement();
             svg.getRoot(root);
 
-            if (fragmentMatches.size() > 0) {
-                int width = maxWidth + unitWidth * fragmentMatches.get(0)
-                                                                  .getResidueCount();
-                int height = unitHeight * (models.size() + 3);
+            if (!fragmentMatches.isEmpty()) {
+                final FragmentMatch fragmentMatch = fragmentMatches.get(0);
+                final float width = leftShift + (unitWidth * fragmentMatch
+                        .getResidueCount());
+                final float height = unitHeight * (models.size() + 3);
                 root.setAttributeNS(null, SVGConstants.SVG_WIDTH_ATTRIBUTE,
-                                    Integer.toString(width));
+                                    Float.toString(width));
                 root.setAttributeNS(null, SVGConstants.SVG_HEIGHT_ATTRIBUTE,
-                                    Integer.toString(height));
+                                    Float.toString(height));
             }
         }
 
         private void drawColorBarUnit(final SVGGraphics2D svg,
                                       final ResidueComparison comparison,
-                                      final int x, final int y,
-                                      final int height, final int width) {
-            TorsionAngleDelta angleDelta = comparison.getAngleDelta(angleType);
+                                      final float x, final float y,
+                                      final float height, final float width) {
+            final TorsionAngleDelta angleDelta =
+                    comparison.getAngleDelta(angleType);
 
-            if (angleDelta.getState() == State.BOTH_VALID) {
-                Color color = ColorMapWrapper
-                        .getColor(angleDelta.getDelta().getRadians(), 0,
-                                  Math.PI);
+            if (angleDelta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
+                final Color color = ColorMapWrapper
+                        .getColor(angleDelta.getDelta().getRadians());
                 svg.setColor(color);
             } else {
                 svg.setColor(Color.BLACK);
             }
 
-            svg.fillRect(x, y, width, height);
+            final Shape shape = new Rectangle2D.Float(x, y, width, height);
+            svg.fill(shape);
             svg.setColor(Color.BLACK);
-            svg.drawRect(x, y, width, height);
+            svg.draw(shape);
         }
 
         @Override
         public void visualize3D() {
             if (models.size() < 1) {
                 JOptionPane.showMessageDialog(null,
-                                              "At least one model is required"
-                                              + " for 3D visualization",
-                                              "Error",
+                                              "At least one model is required" +
+                                              " for 3D visualization", "Error",
                                               JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             try {
-                String name =
-                        target.getName() + " " + angleType.getExportName();
-                double[][] matrix = prepareMatrix();
-                List<String> ticksX = prepareTicksX();
-                List<String> ticksY = prepareTicksY();
-                NavigableMap<Double, String> valueTickZ =
+                final String name = String.format("%s %s", target.getName(),
+                                                  angleType.getExportName());
+                final double[][] matrix = prepareMatrix();
+                final List<String> ticksX = prepareTicksX();
+                final List<String> ticksY = prepareTicksY();
+                final NavigableMap<Double, String> valueTickZ =
                         MCQLocalResult.prepareTicksZ();
-                String labelX = "Model";
-                String labelY = "Residue";
-                String labelZ = "Distance";
-                boolean showAllTicksX = true;
-                boolean showAllTicksY = false;
+                final String labelX = "Model";
+                final String labelY = "Residue";
+                final String labelZ = "Distance";
+                final boolean showAllTicksX = true;
+                final boolean showAllTicksY = false;
 
-                Surface3D surface3d =
+                final IAnalysis surface3d =
                         new Surface3D(name, matrix, ticksX, ticksY, valueTickZ,
-                                      labelX, labelY, labelZ, showAllTicksX,
-                                      showAllTicksY);
+                                      labelX, labelY, labelZ, true, false);
                 AnalysisLauncher.open(surface3d);
-            } catch (Exception e) {
-                String message = "Failed to visualize in 3D";
+            } catch (final Exception e) {
+                final String message = "Failed to visualize in 3D";
                 ModelsComparisonResult.LOGGER.error(message, e);
                 JOptionPane.showMessageDialog(null, message, "Error",
                                               JOptionPane.ERROR_MESSAGE);
@@ -383,17 +404,17 @@ public class ModelsComparisonResult {
         }
 
         private double[][] prepareMatrix() {
-            int size = getTargetSize();
-            double[][] matrix = new double[models.size()][];
+            final int size = getTargetSize();
+            final double[][] matrix = new double[models.size()][];
 
             for (int i = 0; i < models.size(); i++) {
                 matrix[i] = new double[size];
-                FragmentMatch fragmentMatch = fragmentMatches.get(i);
-                List<ResidueComparison> residueComparisons =
+                final FragmentMatch fragmentMatch = fragmentMatches.get(i);
+                final List<ResidueComparison> residueComparisons =
                         fragmentMatch.getResidueComparisons();
 
                 for (int j = 0; j < size; j++) {
-                    ResidueComparison residueComparison =
+                    final ResidueComparison residueComparison =
                             residueComparisons.get(j);
                     matrix[i][j] = residueComparison.getAngleDelta(angleType)
                                                     .getDelta().getRadians();
@@ -404,16 +425,16 @@ public class ModelsComparisonResult {
         }
 
         private List<String> prepareTicksX() {
-            List<String> ticksX = new ArrayList<>();
-            for (PdbCompactFragment model : models) {
+            final List<String> ticksX = new ArrayList<>();
+            for (final PdbCompactFragment model : models) {
                 ticksX.add(model.getName());
             }
             return ticksX;
         }
 
         private List<String> prepareTicksY() {
-            List<String> ticksY = new ArrayList<>();
-            for (PdbResidue residue : target.getResidues()) {
+            final List<String> ticksY = new ArrayList<>();
+            for (final PdbResidue residue : target.getResidues()) {
                 ticksY.add(residue.toString());
             }
             return ticksY;
