@@ -1,6 +1,7 @@
 package pl.poznan.put.mcq.cli;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -18,6 +19,7 @@ import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
+import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
@@ -41,7 +43,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class App {
+@SuppressWarnings({"UseOfSystemOutOrSystemErr", "CallToSystemExit"})
+public final class App {
     private static final MasterTorsionAngleType DEFAULT_ANGLE_TYPE =
             new AverageTorsionAngleType(MoleculeType.RNA,
                                         RNATorsionAngleType.mainAngles());
@@ -49,38 +52,33 @@ public class App {
     private final Mode mode;
     private final MasterTorsionAngleType angleType;
     private final PdbParser parser = new PdbParser(false);
-    private final List<PdbModel> models = new ArrayList<PdbModel>();
-    private final List<StructureSelection> selections =
-            new ArrayList<StructureSelection>();
+    private final List<PdbModel> models = new ArrayList<>();
+    private final List<StructureSelection> selections = new ArrayList<>();
 
-    public App(String[] args)
+    private App(final String[] args)
             throws ParseException, McqProcessingException, IOException,
                    PdbParsingException {
-        options.addOption("m", "mode", true,
-                          "(required) mode of operation, one of: " + Arrays
-                                  .toString(Mode.values()));
-        options.addOption("a", "angle", true,
-                          "(optional for " + Mode.TARGET_MODELS
-                          + " mode) torsion angle to be used for comparison. "
-                          + "One of: " + Arrays
-                                  .toString(RNATorsionAngleType.mainAngles())
-                          + " or default: " + DEFAULT_ANGLE_TYPE
-                                  .getShortDisplayName());
+        super();
+        options.addOption("m", "mode", true, String.format(
+                "(required) mode of operation, one of: %s",
+                Arrays.toString(Mode.values())));
+        options.addOption("a", "angle", true, String.format(
+                "(optional for %s mode) torsion angle to be used for " +
+                "comparison. One of: %s or default: %s", Mode.TARGET_MODELS,
+                Arrays.toString(RNATorsionAngleType.mainAngles()),
+                App.DEFAULT_ANGLE_TYPE.getShortDisplayName()));
 
-        DefaultParser parser = new DefaultParser();
-        CommandLine commandLine = parser.parse(options, args);
+        final CommandLineParser commandLineParser = new DefaultParser();
+        final CommandLine commandLine = commandLineParser.parse(options, args);
 
         if (!commandLine.hasOption('m')) {
             printHelp();
             System.exit(1);
         }
 
-        if (commandLine.hasOption('a')) {
-            angleType = RNATorsionAngleType
-                    .valueOf(commandLine.getOptionValue('a'));
-        } else {
-            angleType = DEFAULT_ANGLE_TYPE;
-        }
+        angleType = commandLine.hasOption('a') ? RNATorsionAngleType
+                .valueOf(commandLine.getOptionValue('a'))
+                                               : App.DEFAULT_ANGLE_TYPE;
 
         mode = Mode.valueOf(commandLine.getOptionValue('m'));
 
@@ -88,54 +86,54 @@ public class App {
     }
 
     private void printHelp() {
-        HelpFormatter helpFormatter = new HelpFormatter();
+        final HelpFormatter helpFormatter = new HelpFormatter();
         helpFormatter.printHelp("mcq-cli", options);
     }
 
-    private void loadAllModels(String[] arguments)
+    private void loadAllModels(final String[] arguments)
             throws McqProcessingException, IOException, PdbParsingException {
         switch (mode) {
             case SINGLE:
                 if (arguments.length != 1) {
                     throw new McqProcessingException(
-                            "In SINGLE mode you need to provide exactly 1 "
-                            + "structure");
+                            "In SINGLE mode you need to provide exactly 1 " +
+                            "structure");
                 }
                 loadSingleModel(arguments[0]);
                 break;
             case MULTIPLE:
                 if (arguments.length < 2) {
                     throw new McqProcessingException(
-                            "In MULTIPLE mode you need to provide at least 2 "
-                            + "structures");
+                            "In MULTIPLE mode you need to provide at least 2 " +
+                            "structures");
                 }
-                for (String argument : arguments) {
+                for (final String argument : arguments) {
                     loadSingleModel(argument);
                 }
                 break;
             case TARGET_MODELS:
                 if (arguments.length < 2) {
                     throw new McqProcessingException(
-                            "In TARGET_MODELS mode you need to provide at "
-                            + "least 2 structures");
+                            "In TARGET_MODELS mode you need to provide at " +
+                            "least 2 structures");
                 }
-                for (String argument : arguments) {
+                for (final String argument : arguments) {
                     loadSingleModel(argument);
                 }
                 break;
         }
     }
 
-    private void loadSingleModel(String pdbPath)
+    private void loadSingleModel(final String pdbPath)
             throws McqProcessingException, IOException, PdbParsingException {
-        File file = new File(pdbPath);
+        final File file = new File(pdbPath);
 
         if (!file.canRead()) {
             throw new McqProcessingException(
                     "Unreadable file provided: " + pdbPath);
         }
 
-        List<PdbModel> pdbModels = parser.parse(
+        final List<PdbModel> pdbModels = parser.parse(
                 FileUtils.readFileToString(file, Charset.defaultCharset()));
 
         if (pdbModels.isEmpty()) {
@@ -143,8 +141,8 @@ public class App {
                     "Invalid PDB file (0 models): " + pdbPath);
         } else if (pdbModels.size() > 1) {
             System.err.println(
-                    "WARNING: Multiple models found in a single PDB file. "
-                    + "Only the first one will be processed");
+                    "WARNING: Multiple models found in a single PDB file. " +
+                    "Only the first one will be processed");
         }
 
         PdbModel firstModel = pdbModels.get(0);
@@ -155,10 +153,10 @@ public class App {
                                        firstModel));
     }
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
             throws ParseException, McqProcessingException, PdbParsingException,
                    IOException, IncomparableStructuresException {
-        App app = new App(args);
+        final App app = new App(args);
         app.run();
     }
 
@@ -178,31 +176,21 @@ public class App {
     }
 
     private void runSingle() throws IOException, McqProcessingException {
-        PdbModel model = models.get(0);
-        StructureSelection selection = SelectionFactory.create("model", model);
+        final PdbModel model = models.get(0);
+        final StructureSelection selection =
+                SelectionFactory.create("model", model);
         selection.export(System.out);
-        drawTorsionAnglesHistograms(selection);
+        App.drawTorsionAnglesHistograms(selection);
     }
 
     private void runMultiple() {
-        GlobalComparator comparator = new MCQ(MoleculeType.RNA);
-        ParallelGlobalComparator.ProgressListener progressListener =
-                new ParallelGlobalComparator.ProgressListener() {
-                    public void setProgress(int progress) {
-                    }
-
-                    public void complete(GlobalMatrix matrix) {
-                        try {
-                            matrix.export(System.out);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-        ParallelGlobalComparator parallelComparator =
+        final GlobalComparator comparator = new MCQ(MoleculeType.RNA);
+        final ParallelGlobalComparator.ProgressListener progressListener =
+                new MyProgressListener();
+        final ParallelGlobalComparator parallelComparator =
                 new ParallelGlobalComparator(comparator, selections,
                                              progressListener);
-        parallelComparator.run();
+        parallelComparator.start();
     }
 
     private void runTargetModels()
@@ -210,46 +198,47 @@ public class App {
                    IOException {
         sanityCheck();
 
-        MCQ mcq = new MCQ(Collections.singletonList(angleType));
-        StructureSelection target = selections.get(0);
-        List<PdbCompactFragment> targetFragments = target.getCompactFragments();
+        final LocalComparator mcq =
+                new MCQ(Collections.singletonList(angleType));
+        final StructureSelection target = selections.get(0);
+        final List<PdbCompactFragment> targetFragments =
+                target.getCompactFragments();
 
         for (int i = 0; i < targetFragments.size(); i++) {
-            PdbCompactFragment targetFragment = targetFragments.get(i);
-            List<PdbCompactFragment> modelFragments =
-                    new ArrayList<PdbCompactFragment>();
+            final PdbCompactFragment targetFragment = targetFragments.get(i);
+            final List<PdbCompactFragment> modelFragments = new ArrayList<>();
 
             for (int j = 1; j < selections.size(); j++) {
-                StructureSelection model = selections.get(j);
-                List<PdbCompactFragment> compactFragments =
+                final StructureSelection model = selections.get(j);
+                final List<PdbCompactFragment> compactFragments =
                         model.getCompactFragments();
                 modelFragments.add(compactFragments.get(i));
             }
 
-            ModelsComparisonResult comparisonResult =
+            final ModelsComparisonResult comparisonResult =
                     mcq.compareModels(targetFragment, modelFragments);
-            ModelsComparisonResult.SelectedAngle selectedAngleResults =
+            final ModelsComparisonResult.SelectedAngle selectedAngleResults =
                     comparisonResult.selectAngle(angleType);
 
-            File svgFile = File.createTempFile(
-                    target.getName() + "_" + Integer.toString(i + 1) + "_",
+            final File svgFile = File.createTempFile(
+                    target.getName() + '_' + Integer.toString(i + 1) + '_',
                     ".svg");
-            SVGDocument svgDocument = selectedAngleResults.visualize();
-            byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
+            final SVGDocument svgDocument = selectedAngleResults.visualize();
+            final byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
             FileUtils.writeByteArrayToFile(svgFile, bytes);
             System.err.println(
-                    "Colorbar for fragment " + Integer.toString(i + 1)
-                    + " is available here: " + svgFile);
+                    "Colorbar for fragment " + Integer.toString(i + 1) +
+                    " is available here: " + svgFile);
 
-            File csvFile = File.createTempFile(
-                    target.getName() + "_" + Integer.toString(i + 1) + "_",
+            final File csvFile = File.createTempFile(
+                    target.getName() + '_' + Integer.toString(i + 1) + '_',
                     ".csv");
-            FileOutputStream stream = new FileOutputStream(csvFile);
+            final FileOutputStream stream = new FileOutputStream(csvFile);
             try {
                 selectedAngleResults.export(stream);
                 System.err.println(
-                        "Results for fragment " + Integer.toString(i + 1)
-                        + " are available here: " + csvFile);
+                        "Results for fragment " + Integer.toString(i + 1) +
+                        " are available here: " + csvFile);
             } finally {
                 IOUtils.closeQuietly(stream);
             }
@@ -257,11 +246,12 @@ public class App {
         }
     }
 
-    private void drawTorsionAnglesHistograms(StructureSelection selection)
+    private static void drawTorsionAnglesHistograms(
+            final StructureSelection selection)
             throws IOException, McqProcessingException {
-        for (MasterTorsionAngleType masterType : selection
+        for (final MasterTorsionAngleType masterType : selection
                 .getCommonTorsionAngleTypes()) {
-            List<Angle> angles =
+            final List<Angle> angles =
                     selection.getValidTorsionAngleValues(masterType);
 
             if (angles.isEmpty()) {
@@ -269,64 +259,62 @@ public class App {
             }
 
             try {
-                AngularHistogram histogram = new AngularHistogram(angles);
+                final AngularHistogram histogram = new AngularHistogram(angles);
                 histogram.draw();
 
-                File outputFile = File.createTempFile(
-                        "mcq-" + masterType.getExportName() + "-", ".svg");
-                SVGDocument svgDocument = histogram.finalizeDrawingAndGetSVG();
+                final File outputFile = File.createTempFile(
+                        "mcq-" + masterType.getExportName() + '-', ".svg");
+                final SVGDocument svgDocument = histogram.finalizeDrawing();
 
-                byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
+                final byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
                 FileUtils.writeByteArrayToFile(outputFile, bytes);
-                System.err.println("Histogram for " + masterType.getExportName()
-                                   + " is available here: " + outputFile);
-            } catch (InvalidCircularValueException e) {
+                System.err.println(
+                        "Histogram for " + masterType.getExportName() +
+                        " is available here: " + outputFile);
+            } catch (final InvalidCircularValueException |
+                    InvalidCircularOperationException e) {
                 throw new McqProcessingException(
-                        "Failed to visualize torsion angles of type: "
-                        + masterType, e);
-            } catch (InvalidCircularOperationException e) {
-                throw new McqProcessingException(
-                        "Failed to visualize torsion angles of type: "
-                        + masterType, e);
+                        "Failed to visualize torsion angles of type: " +
+                        masterType, e);
             }
         }
     }
 
     private void sanityCheck() throws McqProcessingException {
-        StructureSelection target = selections.get(0);
-        List<PdbCompactFragment> targetFragments = target.getCompactFragments();
-        int targetSize = targetFragments.size();
+        final StructureSelection target = selections.get(0);
+        final List<PdbCompactFragment> targetFragments =
+                target.getCompactFragments();
+        final int targetSize = targetFragments.size();
 
         for (int i = 1; i < selections.size(); i++) {
-            StructureSelection model = selections.get(i);
-            int modelSize = model.getCompactFragments().size();
+            final StructureSelection model = selections.get(i);
+            final int modelSize = model.getCompactFragments().size();
 
             if (targetSize != modelSize) {
                 throw new McqProcessingException(
-                        "The number of fragments in " + target.getName() + " ("
-                        + targetSize + ") and " + model.getName() + " ("
-                        + modelSize + ") does not match");
+                        "The number of fragments in " + target.getName() +
+                        " (" + targetSize + ") and " + model.getName() + " (" +
+                        modelSize + ") does not match");
             }
         }
 
         for (int i = 0; i < targetSize; i++) {
-            PdbCompactFragment targetFragment = targetFragments.get(i);
-            int targetFragmentSize = targetFragment.size();
+            final PdbCompactFragment targetFragment = targetFragments.get(i);
+            final int targetFragmentSize = targetFragment.size();
 
             for (int j = 1; j < selections.size(); j++) {
-                StructureSelection model = selections.get(j);
-                List<PdbCompactFragment> modelFragments =
+                final StructureSelection model = selections.get(j);
+                final List<PdbCompactFragment> modelFragments =
                         model.getCompactFragments();
-                PdbCompactFragment modelFragment = modelFragments.get(i);
-                int modelFragmentSize = modelFragment.size();
+                final PdbCompactFragment modelFragment = modelFragments.get(i);
+                final int modelFragmentSize = modelFragment.size();
 
                 if (targetFragmentSize != modelFragmentSize) {
                     throw new McqProcessingException(
-                            "The size of fragment " + Integer.toString(i + 1)
-                            + " does not match for target " + target.getName()
-                            + " (" + targetFragmentSize + ") and model " + model
-                                    .getName() + " (" + modelFragmentSize
-                            + ")");
+                            "The size of fragment " + Integer.toString(i + 1) +
+                            " does not match for target " + target.getName() +
+                            " (" + targetFragmentSize + ") and model " +
+                            model.getName() + " (" + modelFragmentSize + ')');
                 }
             }
         }
@@ -336,5 +324,20 @@ public class App {
         SINGLE,
         MULTIPLE,
         TARGET_MODELS
+    }
+
+    private static class MyProgressListener
+            implements ParallelGlobalComparator.ProgressListener {
+        public void setProgress(final int progress) {
+            // do nothing
+        }
+
+        public final void complete(final GlobalMatrix matrix) {
+            try {
+                matrix.export(System.out);
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
