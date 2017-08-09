@@ -2,6 +2,8 @@ package pl.poznan.put;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pl.poznan.put.matching.SelectionFactory;
+import pl.poznan.put.matching.SelectionQuery;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbChain;
@@ -11,7 +13,10 @@ import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.utility.ResourcesHelper;
 
+import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class SelectionTest {
     private final PdbParser parser = new PdbParser();
@@ -20,11 +25,11 @@ public class SelectionTest {
     public final void testResidueBonds_74_77A_76() throws Exception {
         final String pdb1OB5 = ResourcesHelper.loadResource("1OB5.pdb");
         final List<PdbModel> models = parser.parse(pdb1OB5);
-        Assert.assertEquals(1, models.size());
+        assertEquals(1, models.size());
         final PdbModel model = models.get(0);
 
         final List<PdbChain> chains = model.getChains();
-        Assert.assertEquals(7, chains.size());
+        assertEquals(7, chains.size());
 
         PdbChain chainB = null;
         for (final PdbChain chain : chains) {
@@ -39,16 +44,62 @@ public class SelectionTest {
                 .divideIntoCompactFragments("B", chainB.getResidues());
         final List<PdbCompactFragment> compactFragments =
                 selection.getCompactFragments();
-        Assert.assertEquals(1, compactFragments.size());
+        assertEquals(1, compactFragments.size());
         final PdbCompactFragment compactFragment = compactFragments.get(0);
 
         final List<PdbResidue> residues = compactFragment.getResidues();
         final int size = residues.size();
-        Assert.assertEquals(new PdbResidueIdentifier("B", 74, " "),
-                            residues.get(size - 3).getResidueIdentifier());
-        Assert.assertEquals(new PdbResidueIdentifier("B", 77, "A"),
-                            residues.get(size - 2).getResidueIdentifier());
-        Assert.assertEquals(new PdbResidueIdentifier("B", 76, " "),
-                            residues.get(size - 1).getResidueIdentifier());
+        assertEquals(new PdbResidueIdentifier("B", 74, " "),
+                     residues.get(size - 3).getResidueIdentifier());
+        assertEquals(new PdbResidueIdentifier("B", 77, "A"),
+                     residues.get(size - 2).getResidueIdentifier());
+        assertEquals(new PdbResidueIdentifier("B", 76, " "),
+                     residues.get(size - 1).getResidueIdentifier());
+    }
+
+    @Test
+    public final void testSelectionQueryICode() throws Exception {
+        final String pdb1FJG = ResourcesHelper.loadResource("1FJG.pdb");
+        final List<PdbModel> models = parser.parse(pdb1FJG);
+        assertEquals(1, models.size());
+        final PdbModel model = models.get(0);
+
+        final SelectionQuery selectionQuery = SelectionQuery.parse("A:190A:12");
+        final PdbCompactFragment compactFragment = selectionQuery.apply(model);
+        assertEquals(12, compactFragment.size());
+
+        for (final PdbResidue residue : compactFragment.getResidues()) {
+            assertEquals(190, residue.getResidueNumber());
+        }
+    }
+
+    @Test
+    public final void testSelectionQueryGap() throws Exception {
+        final String pdb1FJG = ResourcesHelper.loadResource("1FJG_5_10.pdb");
+        final List<PdbModel> models = parser.parse(pdb1FJG);
+        assertEquals(1, models.size());
+        final PdbModel model = models.get(0);
+
+        final StructureSelection autoSelection =
+                SelectionFactory.create("", model);
+        final List<PdbCompactFragment> autoFragments =
+                autoSelection.getCompactFragments();
+        assertEquals(2, autoFragments.size());
+
+        final SelectionQuery selectionQuery = SelectionQuery.parse("A:5:6");
+        final StructureSelection manualSelection = SelectionFactory
+                .select("", model, Collections.singleton(selectionQuery));
+        final List<PdbCompactFragment> manualFragments =
+                manualSelection.getCompactFragments();
+        assertEquals(1, manualFragments.size());
+
+        final List<PdbResidue> autoResidues = autoSelection.getResidues();
+        final List<PdbResidue> manualResidues = manualSelection.getResidues();
+        assertEquals(6, autoResidues.size());
+        assertEquals(6, manualResidues.size());
+
+        for (int i = 0; i < 5; i++) {
+            assertEquals(autoResidues.get(i), manualResidues.get(i));
+        }
     }
 }

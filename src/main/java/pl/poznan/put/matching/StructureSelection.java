@@ -1,8 +1,6 @@
 package pl.poznan.put.matching;
 
-import org.apache.commons.collections4.CollectionUtils;
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
@@ -29,52 +27,40 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class StructureSelection
         implements Exportable, Tabular, ResidueCollection {
     private static final int MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT = 3;
 
-    private final List<PdbCompactFragment> compactFragments = new ArrayList<>();
+    public static StructureSelection divideIntoCompactFragments(
+            final String name, final Iterable<PdbResidue> residues) {
+        final List<PdbResidue> candidates = new ArrayList<>();
 
-    private final String name;
-    private final List<PdbResidue> residues;
-
-    public StructureSelection(String name, List<PdbResidue> residues)
-            throws InvalidCircularValueException {
-        super();
-        this.name = name;
-        this.residues = residues;
-
-        divideIntoCompactFragments();
-    }
-
-    private void divideIntoCompactFragments()
-            throws InvalidCircularValueException {
-        List<PdbResidue> candidates = new ArrayList<>();
-
-        for (PdbResidue residue : residues) {
+        for (final PdbResidue residue : residues) {
             if (!residue.isMissing()) {
                 candidates.add(residue);
             }
         }
 
+        final List<PdbCompactFragment> compactFragments = new ArrayList<>();
         List<PdbResidue> currentFragmentResidues = new ArrayList<>();
         int index = 0;
 
-        while (candidates.size() > 0) {
-            PdbResidue current = candidates.get(index);
+        while (!candidates.isEmpty()) {
+            final PdbResidue current = candidates.get(index);
             currentFragmentResidues.add(current);
             candidates.remove(index);
             index = current.findConnectedResidueIndex(candidates);
 
             if (index == -1) {
-                if (currentFragmentResidues.size()
-                    > StructureSelection
-                            .MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT) {
-                    String fragmentName =
-                            generateFragmentName(currentFragmentResidues);
-                    PdbCompactFragment compactFragment =
+                if (currentFragmentResidues.size() >=
+                    StructureSelection.MINIMUM_RESIDUES_IN_A_COMPACT_FRAGMENT) {
+                    final String fragmentName = StructureSelection
+                            .generateFragmentName(name,
+                                                  currentFragmentResidues);
+                    final PdbCompactFragment compactFragment =
                             new PdbCompactFragment(fragmentName,
                                                    currentFragmentResidues);
                     compactFragments.add(compactFragment);
@@ -84,36 +70,59 @@ public class StructureSelection
                 index = 0;
             }
         }
+
+        return new StructureSelection(name, compactFragments);
     }
 
-    private String generateFragmentName(List<PdbResidue> fragmentResidues) {
-        assert fragmentResidues.size() > 0;
+    private static String generateFragmentName(final String name,
+                                               final List<PdbResidue>
+                                                       fragmentResidues) {
+        assert !fragmentResidues.isEmpty();
 
         if (fragmentResidues.size() == 1) {
-            PdbResidue residue = fragmentResidues.get(0);
-            return name + " " + residue.getChainIdentifier() + "." + residue
-                    .getResidueNumber();
+            final PdbResidue residue = fragmentResidues.get(0);
+            return String.format("%s %s.%d", name, residue.getChainIdentifier(),
+                                 residue.getResidueNumber());
         }
 
-        PdbResidue first = fragmentResidues.get(0);
-        PdbResidue last = fragmentResidues.get(fragmentResidues.size() - 1);
-        return name + " " + first.getChainIdentifier() + "." + first
-                .getResidueNumber() + "-" + last.getResidueNumber();
+        final PdbResidue first = fragmentResidues.get(0);
+        final PdbResidue last =
+                fragmentResidues.get(fragmentResidues.size() - 1);
+        return String.format("%s %s.%d-%d", name, first.getChainIdentifier(),
+                             first.getResidueNumber(), last.getResidueNumber());
     }
 
-    public String getName() {
+    private final List<PdbCompactFragment> compactFragments;
+
+    private final String name;
+    private final List<PdbResidue> residues;
+
+    public StructureSelection(final String name,
+                              final Collection<PdbCompactFragment>
+                                      compactFragments) {
+        super();
+        this.name = name;
+        this.compactFragments = new ArrayList<>(compactFragments);
+
+        residues = new ArrayList<>();
+        for (final PdbCompactFragment compactFragment : compactFragments) {
+            residues.addAll(compactFragment.getResidues());
+        }
+    }
+
+    public final String getName() {
         return name;
     }
 
-    public List<Angle> getValidTorsionAngleValues(
-            MasterTorsionAngleType masterType) {
-        List<Angle> angles = new ArrayList<>();
+    public final List<Angle> getValidTorsionAngleValues(
+            final MasterTorsionAngleType masterType) {
+        final List<Angle> angles = new ArrayList<>();
 
-        for (PdbCompactFragment fragment : compactFragments) {
-            for (PdbResidue residue : fragment.getResidues()) {
-                TorsionAngleValue angleValue =
+        for (final PdbCompactFragment fragment : compactFragments) {
+            for (final PdbResidue residue : fragment.getResidues()) {
+                final TorsionAngleValue angleValue =
                         fragment.getTorsionAngleValue(residue, masterType);
-                Angle angle = angleValue.getValue();
+                final Angle angle = angleValue.getValue();
                 if (angle.isValid()) {
                     angles.add(angle);
                 }
@@ -124,21 +133,22 @@ public class StructureSelection
     }
 
     @Override
-    public List<PdbResidue> getResidues() {
+    public final List<PdbResidue> getResidues() {
         return Collections.unmodifiableList(residues);
     }
 
     @Override
-    public PdbResidue findResidue(String chainIdentifier, int residueNumber,
-                                  String insertionCode) {
+    public final PdbResidue findResidue(final String chainIdentifier,
+                                        final int residueNumber,
+                                        final String insertionCode) {
         return findResidue(
                 new PdbResidueIdentifier(chainIdentifier, residueNumber,
                                          insertionCode));
     }
 
     @Override
-    public PdbResidue findResidue(PdbResidueIdentifier query) {
-        for (PdbResidue residue : residues) {
+    public final PdbResidue findResidue(final PdbResidueIdentifier query) {
+        for (final PdbResidue residue : residues) {
             if (query.equals(residue.getResidueIdentifier())) {
                 return residue;
             }
@@ -146,111 +156,92 @@ public class StructureSelection
         throw new IllegalArgumentException("Failed to find residue: " + query);
     }
 
-    public List<PdbCompactFragment> getCompactFragments() {
+    public final List<PdbCompactFragment> getCompactFragments() {
         return Collections.unmodifiableList(compactFragments);
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (name == null ? 0 : name.hashCode());
-        result = prime * result + (residues == null ? 0 : residues.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public final boolean equals(final Object o) {
+        if (this == o) {
             return true;
         }
-        if (obj == null) {
+        if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        StructureSelection other = (StructureSelection) obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (residues == null) {
-            if (other.residues != null) {
-                return false;
-            }
-        } else if (!CollectionUtils
-                .isEqualCollection(residues, other.residues)) {
-            return false;
-        }
-        return true;
+        final StructureSelection other = (StructureSelection) o;
+        return Objects.equals(name, other.name) &&
+               Objects.equals(residues, other.residues);
     }
 
     @Override
-    public String toString() {
-        PdbResidue first = residues.get(0);
-        PdbResidue last = residues.get(residues.size() - 1);
-        return first + " - " + last + " (count: " + residues.size() + ")";
+    public final int hashCode() {
+        return Objects.hash(name, residues);
     }
 
     @Override
-    public void export(OutputStream stream) throws IOException {
-        TabularExporter.export(asExportableTableModel(), stream);
+    public final String toString() {
+        final PdbResidue first = residues.get(0);
+        final PdbResidue last = residues.get(residues.size() - 1);
+        return String
+                .format("%s - %s (count: %d)", first, last, residues.size());
     }
 
     @Override
-    public ExportFormat getExportFormat() {
+    public final void export(final OutputStream outputStream)
+            throws IOException {
+        TabularExporter.export(asExportableTableModel(), outputStream);
+    }
+
+    @Override
+    public final ExportFormat getExportFormat() {
         return ExportFormat.CSV;
     }
 
     @Override
-    public File suggestName() {
+    public final File suggestName() {
         return new File(name + ".csv");
     }
 
     @Override
-    public TableModel asExportableTableModel() {
+    public final TableModel asExportableTableModel() {
         return asTableModel(false);
     }
 
     @Override
-    public TableModel asDisplayableTableModel() {
+    public final TableModel asDisplayableTableModel() {
         return asTableModel(true);
     }
 
-    private TableModel asTableModel(boolean isDisplayable) {
-        Set<MasterTorsionAngleType> allAngleTypes =
+    private TableModel asTableModel(final boolean isDisplayable) {
+        final Set<MasterTorsionAngleType> allAngleTypes =
                 getCommonTorsionAngleTypes();
-        Set<String> columns = new LinkedHashSet<>();
+        final Collection<String> columns = new LinkedHashSet<>();
         columns.add("Residue");
 
-        for (MasterTorsionAngleType angleType : allAngleTypes) {
+        for (final MasterTorsionAngleType angleType : allAngleTypes) {
             columns.add(isDisplayable ? angleType.getLongDisplayName()
                                       : angleType.getExportName());
         }
 
         int rowCount = 0;
 
-        for (PdbCompactFragment fragment : compactFragments) {
-            List<PdbResidue> fragmentResidues = fragment.getResidues();
+        for (final PdbCompactFragment fragment : compactFragments) {
+            final List<PdbResidue> fragmentResidues = fragment.getResidues();
             rowCount += fragmentResidues.size();
         }
 
-        String[][] data = new String[rowCount][];
+        final String[][] data = new String[rowCount][];
         int i = 0;
 
-        for (PdbCompactFragment fragment : compactFragments) {
-            for (PdbResidue residue : fragment.getResidues()) {
-                List<String> row = new ArrayList<>();
+        for (final PdbCompactFragment fragment : compactFragments) {
+            for (final PdbResidue residue : fragment.getResidues()) {
+                final List<String> row = new ArrayList<>();
                 row.add(residue.toString());
 
-                for (MasterTorsionAngleType angleType : allAngleTypes) {
-                    TorsionAngleValue angleValue =
+                for (final MasterTorsionAngleType angleType : allAngleTypes) {
+                    final TorsionAngleValue angleValue =
                             fragment.getTorsionAngleValue(residue, angleType);
-                    double radians = angleValue.getValue().getRadians();
+                    final double radians = angleValue.getValue().getRadians();
                     row.add(isDisplayable ? AngleFormat
                             .formatDisplayShort(radians)
                                           : AngleFormat.formatExport(radians));
@@ -265,12 +256,12 @@ public class StructureSelection
                 new String[columns.size()]));
     }
 
-    public Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
-        Set<MasterTorsionAngleType> commonTypes = new LinkedHashSet<>();
+    public final Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
+        final Set<MasterTorsionAngleType> commonTypes = new LinkedHashSet<>();
 
-        for (PdbCompactFragment compactFragment : compactFragments) {
-            MoleculeType moleculeType = compactFragment.getMoleculeType();
-            Collection<? extends MasterTorsionAngleType> angleTypes;
+        for (final PdbCompactFragment compactFragment : compactFragments) {
+            final MoleculeType moleculeType = compactFragment.getMoleculeType();
+            final Collection<? extends MasterTorsionAngleType> angleTypes;
 
             switch (moleculeType) {
                 case PROTEIN:
@@ -292,7 +283,7 @@ public class StructureSelection
         return commonTypes;
     }
 
-    public int size() {
+    public final int size() {
         return residues.size();
     }
 }

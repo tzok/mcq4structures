@@ -2,10 +2,12 @@ package pl.poznan.put.matching;
 
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public final class SelectionFactory {
@@ -22,7 +24,23 @@ public final class SelectionFactory {
                                             final Iterable<PdbChain> chains) {
         final List<PdbResidue> residues =
                 SelectionFactory.getAllResidues(chains);
-        return new StructureSelection(name, residues);
+        return StructureSelection.divideIntoCompactFragments(name, residues);
+    }
+
+    public static StructureSelection select(final String name,
+                                            final PdbModel structure,
+                                            final Collection<SelectionQuery>
+                                                    selectionQueries) {
+        final List<PdbCompactFragment> compactFragments =
+                new ArrayList<>(selectionQueries.size());
+
+        for (final SelectionQuery selectionQuery : selectionQueries) {
+            final PdbCompactFragment compactFragment =
+                    selectionQuery.apply(structure);
+            compactFragments.add(compactFragment);
+        }
+
+        return new StructureSelection(name, compactFragments);
     }
 
     private static List<PdbResidue> getAllResidues(
@@ -34,9 +52,10 @@ public final class SelectionFactory {
         return residues;
     }
 
-    private static List<PdbResidue> getAllResidues(final PdbChain chain) {
+    private static Collection<PdbResidue> getAllResidues(final PdbChain chain) {
         final List<PdbResidue> chainResidues = chain.getResidues();
-        final List<PdbResidue> residues = new ArrayList<>(chainResidues.size());
+        final Collection<PdbResidue> residues =
+                new ArrayList<>(chainResidues.size());
 
         for (final PdbResidue residue : chainResidues) {
             if (residue.getMoleculeType() != MoleculeType.UNKNOWN) {
@@ -44,16 +63,5 @@ public final class SelectionFactory {
             }
         }
         return residues;
-    }
-
-    public static StructureSelection create(final String name,
-                                            final PdbChain chain) {
-        final List<PdbResidue> residues =
-                SelectionFactory.getAllResidues(chain);
-        return new StructureSelection(name, residues);
-    }
-
-    public static StructureSelection select(final Iterable<SelectionQuery> selectionQueries) {
-        return null;
     }
 }
