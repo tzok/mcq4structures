@@ -19,23 +19,23 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class DialogSelectChainsMultiple extends JDialog {
-    public static final int CANCEL = 0;
+    private static final long serialVersionUID = -5562038332587512308L;
+
+    private static final int CANCEL = 0;
     public static final int OK = 1;
 
     private final FilteredListModel modelAll = new FilteredListModel();
@@ -46,19 +46,17 @@ public final class DialogSelectChainsMultiple extends JDialog {
     private final ListCellRenderer<? super PdbCompactFragment> renderer =
             listAll.getCellRenderer();
     private final JButton buttonOk = new JButton("OK");
-    private final JButton buttonCancel = new JButton("Cancel");
     private final JCheckBox checkRNA = new JCheckBox("RNAs", true);
     private final JCheckBox checkProtein = new JCheckBox("proteins", true);
     private final JButton buttonSelect = new JButton("Select ->");
     private final JButton buttonSelectAll = new JButton("Select all ->");
     private final JButton buttonDeselect = new JButton("<- Deselect");
-    private final JButton buttonDeselectAll = new JButton("<- Deselect all");
 
     private int chosenOption;
     private boolean isFragmentsSizeConstrained;
     private List<PdbCompactFragment> selectedChains = new ArrayList<>();
 
-    public DialogSelectChainsMultiple(Frame owner) {
+    public DialogSelectChainsMultiple(final Frame owner) {
         super(owner, true);
         setTitle("MCQ4Structures: multiple chain selection");
         setButtonOkState();
@@ -69,33 +67,26 @@ public final class DialogSelectChainsMultiple extends JDialog {
         buttonSelect.setEnabled(false);
         buttonDeselect.setEnabled(false);
 
-        ListCellRenderer<PdbCompactFragment> pdbCellRenderer =
-                new ListCellRenderer<PdbCompactFragment>() {
-                    @Override
-                    public Component getListCellRendererComponent(
-                            JList<? extends PdbCompactFragment> list,
-                            PdbCompactFragment value, int index,
-                            boolean isSelected, boolean cellHasFocus) {
-                        JLabel label = (JLabel) renderer
-                                .getListCellRendererComponent(list, value,
-                                                              index, isSelected,
-                                                              cellHasFocus);
+        final ListCellRenderer<PdbCompactFragment> pdbCellRenderer =
+                (list, value, index, isSelected, cellHasFocus) -> {
+                    final JLabel label = (JLabel) renderer
+                            .getListCellRendererComponent(list, value, index,
+                                                          isSelected,
+                                                          cellHasFocus);
 
-                        if (value != null) {
-                            boolean isRNA =
-                                    value.getMoleculeType() == MoleculeType.RNA;
-                            label.setText(value.getName());
-                            label.setBackground(
-                                    isRNA ? Color.CYAN : Color.YELLOW);
-                        }
-
-                        return label;
+                    if (value != null) {
+                        final boolean isRNA =
+                                value.getMoleculeType() == MoleculeType.RNA;
+                        label.setText(value.getName());
+                        label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
                     }
+
+                    return label;
                 };
         listAll.setCellRenderer(pdbCellRenderer);
         listSelected.setCellRenderer(pdbCellRenderer);
 
-        JPanel panelButtons = new JPanel();
+        final JPanel panelButtons = new JPanel();
         panelButtons.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -115,9 +106,10 @@ public final class DialogSelectChainsMultiple extends JDialog {
         constraints.gridy++;
         panelButtons.add(buttonDeselect, constraints);
         constraints.gridy++;
+        final JButton buttonDeselectAll = new JButton("<- Deselect all");
         panelButtons.add(buttonDeselectAll, constraints);
 
-        JPanel panelMain = new JPanel();
+        final JPanel panelMain = new JPanel();
         panelMain.setLayout(new GridBagLayout());
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -135,89 +127,82 @@ public final class DialogSelectChainsMultiple extends JDialog {
         constraints.fill = GridBagConstraints.BOTH;
         panelMain.add(new JScrollPane(listSelected), constraints);
 
-        JPanel panelOkCancel = new JPanel();
+        final JPanel panelOkCancel = new JPanel();
         panelOkCancel.add(buttonOk);
+        final JButton buttonCancel = new JButton("Cancel");
         panelOkCancel.add(buttonCancel);
 
         setLayout(new BorderLayout());
         add(panelMain, BorderLayout.CENTER);
-        add(panelOkCancel, BorderLayout.SOUTH);
+        add(panelOkCancel, BorderLayout.PAGE_END);
         pack();
 
-        Dimension size = getSize();
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = screenSize.width - size.width;
-        int y = screenSize.height - size.height;
+        final Dimension size = getSize();
+        final Dimension screenSize =
+                Toolkit.getDefaultToolkit().getScreenSize();
+        final int x = screenSize.width - size.width;
+        final int y = screenSize.height - size.height;
         setLocation(x / 2, y / 2);
 
-        ListSelectionListener listSelectionListener =
-                new ListSelectionListener() {
-                    @Override
-                    public void valueChanged(ListSelectionEvent arg0) {
-                        if (arg0 != null) {
-                            ListSelectionModel source =
-                                    (ListSelectionModel) arg0.getSource();
-                            if (source.equals(listAll.getSelectionModel())) {
-                                buttonSelect.setEnabled(
-                                        !listAll.isSelectionEmpty());
-                            } else if (source.equals(listSelected)) {
-                                buttonDeselect.setEnabled(
-                                        !listSelected.isSelectionEmpty());
-                            }
+        final ListSelectionListener listSelectionListener = arg0 -> {
+            if (arg0 != null) {
+                final ListSelectionModel source =
+                        (ListSelectionModel) arg0.getSource();
+                if (source.equals(listAll.getSelectionModel())) {
+                    buttonSelect.setEnabled(!listAll.isSelectionEmpty());
+                } else if (source.equals(listSelected)) {
+                    buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
+                }
 
-                            setButtonOkState();
-                        }
-                    }
-                };
+                setButtonOkState();
+            }
+        };
         listAll.getSelectionModel()
                .addListSelectionListener(listSelectionListener);
         listSelected.getSelectionModel()
                     .addListSelectionListener(listSelectionListener);
 
-        ActionListener actionListenerSelectDeselect = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                List<PdbCompactFragment> values;
-                boolean isSelect;
+        final ActionListener actionListenerSelectDeselect = evt -> {
 
-                if (evt != null) {
-                    Object source = evt.getSource();
-                    if (source.equals(buttonSelect)) {
-                        values = listAll.getSelectedValuesList();
-                        isSelect = true;
-                    } else if (source.equals(buttonSelectAll)) {
-                        values = modelAll.getElements();
-                        isSelect = true;
-                    } else if (source.equals(buttonDeselect)) {
-                        values = listSelected.getSelectedValuesList();
-                        isSelect = false;
-                    } else { // source.equals(buttonDeselectAll)
-                        values = modelSelected.getElements();
-                        isSelect = false;
-                    }
-
-                    for (PdbCompactFragment f : values) {
-                        assert f != null;
-                        if (isSelect) {
-                            if (modelSelected.canAddElement(f,
-                                                            isFragmentsSizeConstrained)) {
-                                modelAll.removeElement(f);
-                                modelSelected.addElement(f);
-                            }
-                        } else {
-                            modelAll.addElement(f);
-                            modelSelected.removeElement(f);
-                        }
-                    }
-
-                    listAll.clearSelection();
-                    listSelected.clearSelection();
-
-                    listAll.updateUI();
-                    listSelected.updateUI();
-
-                    setButtonOkState();
+            if (evt != null) {
+                final List<PdbCompactFragment> values;
+                final boolean isSelect;
+                final Object source = evt.getSource();
+                if (source.equals(buttonSelect)) {
+                    values = listAll.getSelectedValuesList();
+                    isSelect = true;
+                } else if (source.equals(buttonSelectAll)) {
+                    values = modelAll.getElements();
+                    isSelect = true;
+                } else if (source.equals(buttonDeselect)) {
+                    values = listSelected.getSelectedValuesList();
+                    isSelect = false;
+                } else { // source.equals(buttonDeselectAll)
+                    values = modelSelected.getElements();
+                    isSelect = false;
                 }
+
+                for (final PdbCompactFragment compactFragment : values) {
+                    assert compactFragment != null;
+                    if (isSelect) {
+                        if (modelSelected.canAddElement(compactFragment,
+                                                        isFragmentsSizeConstrained)) {
+                            modelAll.removeElement(compactFragment);
+                            modelSelected.addElement(compactFragment);
+                        }
+                    } else {
+                        modelAll.addElement(compactFragment);
+                        modelSelected.removeElement(compactFragment);
+                    }
+                }
+
+                listAll.clearSelection();
+                listSelected.clearSelection();
+
+                listAll.updateUI();
+                listSelected.updateUI();
+
+                setButtonOkState();
             }
         };
         buttonSelect.addActionListener(actionListenerSelectDeselect);
@@ -225,64 +210,55 @@ public final class DialogSelectChainsMultiple extends JDialog {
         buttonDeselect.addActionListener(actionListenerSelectDeselect);
         buttonDeselectAll.addActionListener(actionListenerSelectDeselect);
 
-        buttonOk.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectedChains = modelSelected.getSelectedElements();
-                chosenOption = DialogSelectChainsMultiple.OK;
-                dispose();
-            }
+        buttonOk.addActionListener(e -> {
+            selectedChains = modelSelected.getSelectedElements();
+            chosenOption = DialogSelectChainsMultiple.OK;
+            dispose();
         });
 
-        buttonCancel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                chosenOption = DialogSelectChainsMultiple.CANCEL;
-                dispose();
-            }
+        buttonCancel.addActionListener(arg0 -> {
+            chosenOption = DialogSelectChainsMultiple.CANCEL;
+            dispose();
         });
 
-        ActionListener checkBoxListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean isRNA = checkRNA.isSelected();
-                boolean isProtein = checkProtein.isSelected();
-                modelAll.setRNA(isRNA);
-                modelAll.setProtein(isProtein);
-                modelSelected.setRNA(isRNA);
-                modelSelected.setProtein(isProtein);
+        final ActionListener checkBoxListener = e -> {
+            final boolean isRNA = checkRNA.isSelected();
+            final boolean isProtein = checkProtein.isSelected();
+            modelAll.setRNA(isRNA);
+            modelAll.setProtein(isProtein);
+            modelSelected.setRNA(isRNA);
+            modelSelected.setProtein(isProtein);
 
-                listAll.updateUI();
-                listSelected.updateUI();
-            }
+            listAll.updateUI();
+            listSelected.updateUI();
         };
         checkRNA.addActionListener(checkBoxListener);
         checkProtein.addActionListener(checkBoxListener);
     }
 
-    public void setButtonOkState() {
+    private void setButtonOkState() {
         buttonOk.setEnabled(modelSelected.getSize() >= 2);
     }
 
     public List<PdbCompactFragment> getChains() {
-        return selectedChains;
+        return Collections.unmodifiableList(selectedChains);
     }
 
-    public int showDialog(boolean fragmentsMustBeSameSize) {
-        List<PdbCompactFragment> fragments = new ArrayList<>();
+    public int showDialog(final boolean fragmentsSameSize) {
+        final List<PdbCompactFragment> fragments = new ArrayList<>();
 
-        for (PdbModel structure : StructureManager.getAllStructures()) {
-            for (PdbChain chain : structure.getChains()) {
-                String name = StructureManager.getName(structure) + "." + chain
-                        .getIdentifier();
-                StructureSelection selection =
-                        SelectionFactory.create(name, chain);
+        for (final PdbModel structure : StructureManager.getAllStructures()) {
+            for (final PdbChain chain : structure.getChains()) {
+                final String name = String.format("%s.%s", StructureManager
+                        .getName(structure), chain.getIdentifier());
+                final StructureSelection selection = SelectionFactory
+                        .create(name, Collections.singleton(chain));
                 fragments.addAll(selection.getCompactFragments());
             }
         }
 
-        List<PdbCompactFragment> listL = modelAll.getElements();
-        List<PdbCompactFragment> listR = modelSelected.getElements();
+        final List<PdbCompactFragment> listL = modelAll.getElements();
+        final List<PdbCompactFragment> listR = modelSelected.getElements();
 
         /*
          * Refresh data -> if some structure was removed from StructureManager,
@@ -305,7 +281,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
         listAll.updateUI();
         listSelected.updateUI();
         chosenOption = DialogSelectChainsMultiple.CANCEL;
-        isFragmentsSizeConstrained = fragmentsMustBeSameSize;
+        isFragmentsSizeConstrained = fragmentsSameSize;
 
         deselectAll();
         setVisible(true);
@@ -313,9 +289,10 @@ public final class DialogSelectChainsMultiple extends JDialog {
     }
 
     private void deselectAll() {
-        for (PdbCompactFragment f : modelSelected.getElements()) {
-            modelAll.addElement(f);
-            modelSelected.removeElement(f);
+        for (final PdbCompactFragment compactFragment : modelSelected
+                .getElements()) {
+            modelAll.addElement(compactFragment);
+            modelSelected.removeElement(compactFragment);
         }
 
         listAll.clearSelection();

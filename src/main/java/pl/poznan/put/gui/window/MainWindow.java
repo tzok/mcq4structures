@@ -34,13 +34,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -53,6 +51,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainWindow extends JFrame {
+    private static final long serialVersionUID = -3740118742781268073L;
+
     private static final String RESOURCE_ICON_OPEN =
             "/toolbarButtonGraphics/general/Open16.gif";
     private static final String RESOURCE_ICON_SAVE =
@@ -66,8 +66,9 @@ public class MainWindow extends JFrame {
     private static final String CARD_LOCAL_MULTI_MATRIX =
             "CARD_LOCAL_MULTI_MATRIX";
     private static final String TITLE =
-            "MCQ4Structures: computing similarity of 3D RNA / protein "
-            + "structures";
+            "MCQ4Structures: computing similarity of 3D RNA / protein " +
+            "structures";
+
     private final JMenu menuFile = new JMenu("File");
     private final JMenuItem itemOpen = new JMenuItem("Open structure(s)",
                                                      new ImageIcon(getClass()
@@ -98,12 +99,9 @@ public class MainWindow extends JFrame {
     private final JMenuItem itemVisualise3D =
             new JMenuItem("Visualise results in 3D");
     private final JMenuItem itemCluster = new JMenuItem("Cluster results");
-    private final ActionListener radioActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent arg0) {
-            itemVisualise3D.setEnabled(false);
-            itemCluster.setEnabled(false);
-        }
+    private final ActionListener radioActionListener = arg0 -> {
+        itemVisualise3D.setEnabled(false);
+        itemCluster.setEnabled(false);
     };
     private final JMenu menuAlignment = new JMenu("Alignment");
     private final JRadioButtonMenuItem radioAlignSeqGlobal =
@@ -138,33 +136,30 @@ public class MainWindow extends JFrame {
     private final DialogSelectChainsMultiple dialogChainsMultiple;
     private final DialogSelectAngles dialogAngles;
     private ProcessingResult currentResult = ProcessingResult.emptyInstance();
-    private final ActionListener selectActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            assert e != null;
-            JMenuItem source = (JMenuItem) e.getSource();
+    private final ActionListener selectActionListener = e -> {
+        assert e != null;
+        JMenuItem source = (JMenuItem) e.getSource();
 
-            if (source.equals(itemSelectStructureTorsionAngles)) {
-                selectSingleStructure();
-            } else if (source.equals(itemSelectStructuresCompare)) {
-                if (radioLocal.isSelected()) {
-                    selectChains(source);
-                } else if (radioLocalMulti.isSelected()) {
-                    selectChainsMultiple(source);
-                } else {
-                    selectStructures();
-                }
+        if (source.equals(itemSelectStructureTorsionAngles)) {
+            selectSingleStructure();
+        } else if (source.equals(itemSelectStructuresCompare)) {
+            if (radioLocal.isSelected()) {
+                selectChains(source);
+            } else if (radioLocalMulti.isSelected()) {
+                selectChainsMultiple(source);
             } else {
-                if (radioAlignStruc.isSelected()) {
-                    selectChains(source);
-                } else {
-                    selectChainsMultiple(source);
-                }
+                selectStructures();
+            }
+        } else {
+            if (radioAlignStruc.isSelected()) {
+                selectChains(source);
+            } else {
+                selectChainsMultiple(source);
             }
         }
     };
 
-    public MainWindow(List<File> pdbs) {
+    public MainWindow(final List<File> pdbs) {
         super();
 
         dialogManager = new DialogManager(this);
@@ -195,22 +190,22 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(MainWindow.TITLE);
 
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Dimension size = toolkit.getScreenSize();
-        setSize(size.width * 3 / 4, size.height * 3 / 4);
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        final Dimension size = toolkit.getScreenSize();
+        setSize((size.width * 3) / 4, (size.height * 3) / 4);
         setLocation(size.width / 8, size.height / 8);
 
         dialogManager.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-                super.windowClosing(e);
+            public void windowClosing(final WindowEvent windowEvent) {
+                super.windowClosing(windowEvent);
                 checkBoxManager.setSelected(false);
             }
         });
     }
 
     private void createMenu() {
-        JMenuBar menuBar = new JMenuBar();
+        final JMenuBar menuBar = new JMenuBar();
 
         menuFile.setMnemonic(KeyEvent.VK_F);
         menuFile.add(itemOpen);
@@ -260,13 +255,13 @@ public class MainWindow extends JFrame {
         itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
 
-        ButtonGroup group = new ButtonGroup();
+        final ButtonGroup group = new ButtonGroup();
         group.add(radioGlobalMcq);
         group.add(radioGlobalRmsd);
         group.add(radioLocal);
         group.add(radioLocalMulti);
 
-        ButtonGroup groupAlign = new ButtonGroup();
+        final ButtonGroup groupAlign = new ButtonGroup();
         groupAlign.add(radioAlignSeqGlobal);
         groupAlign.add(radioAlignSeqLocal);
         groupAlign.add(radioAlignStruc);
@@ -285,108 +280,76 @@ public class MainWindow extends JFrame {
 
         radioAlignSeqGlobal.addActionListener(radioActionListener);
 
-        itemOpen.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dialogManager.selectAndLoadStructures();
+        itemOpen.addActionListener(
+                actionEvent -> dialogManager.selectAndLoadStructures());
+
+        itemSave.addActionListener(actionEvent -> saveResults());
+
+        checkBoxManager.addActionListener(actionEvent -> dialogManager
+                .setVisible(checkBoxManager.isSelected()));
+
+        itemExit.addActionListener(actionEvent -> dispatchEvent(
+                new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
+
+        itemVisualise3D.addActionListener(actionEvent -> {
+            if (currentResult.canVisualize()) {
+                currentResult.visualize3D();
             }
         });
 
-        itemSave.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveResults();
-            }
-        });
+        itemCluster.addActionListener(actionEvent -> {
+            if (currentResult.canCluster()) {
+                final DistanceMatrix distanceMatrix =
+                        currentResult.getDataForClustering();
+                final double[][] array = distanceMatrix.getMatrix();
 
-        checkBoxManager.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dialogManager.setVisible(checkBoxManager.isSelected());
-            }
-        });
-
-        itemExit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispatchEvent(new WindowEvent(MainWindow.this,
-                                              WindowEvent.WINDOW_CLOSING));
-            }
-        });
-
-        itemVisualise3D.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (currentResult.canVisualize()) {
-                    currentResult.visualize3D();
+                if (array.length <= 1) {
+                    final String message =
+                            "Cannot cluster this distance matrix, because" +
+                            " it contains zero valid comparisons";
+                    JOptionPane.showMessageDialog(null, message, "Warning",
+                                                  JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
+
+                final DialogCluster dialogClustering =
+                        new DialogCluster(distanceMatrix);
+                dialogClustering.setVisible(true);
             }
         });
 
-        itemCluster.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                if (currentResult.canCluster()) {
-                    DistanceMatrix distanceMatrix =
-                            currentResult.getDataForClustering();
-                    double[][] array = distanceMatrix.getMatrix();
-
-                    if (array.length <= 1) {
-                        String message =
-                                "Cannot cluster this distance matrix, because"
-                                + " it contains zero valid comparisons";
-                        JOptionPane.showMessageDialog(null, message, "Warning",
-                                                      JOptionPane
-                                                              .WARNING_MESSAGE);
-                        return;
-                    }
-
-                    DialogCluster dialogClustering =
-                            new DialogCluster(distanceMatrix);
-                    dialogClustering.setVisible(true);
-                }
-            }
+        itemGuide.addActionListener(actionEvent -> {
+            final DialogGuide dialog = new DialogGuide(this);
+            dialog.setVisible(true);
         });
 
-        itemGuide.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DialogGuide dialog = new DialogGuide(MainWindow.this);
-                dialog.setVisible(true);
-            }
-        });
-
-        itemAbout.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DialogAbout dialog = new DialogAbout(MainWindow.this);
-                dialog.setVisible(true);
-            }
+        itemAbout.addActionListener(actionEvent -> {
+            final DialogAbout dialog = new DialogAbout(this);
+            dialog.setVisible(true);
         });
     }
 
     private void saveResults() {
         if (currentResult.canExport()) {
-            File suggestedName = currentResult.suggestName();
+            final File suggestedName = currentResult.suggestName();
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
             fileChooser.setSelectedFile(suggestedName);
 
-            if (fileChooser.showSaveDialog(this)
-                == JFileChooser.APPROVE_OPTION) {
+            if (fileChooser.showSaveDialog(this) ==
+                JFileChooser.APPROVE_OPTION) {
                 try (OutputStream stream = new FileOutputStream(
                         fileChooser.getSelectedFile())) {
                     currentResult.export(stream);
-                    JOptionPane.showMessageDialog(MainWindow.this,
-                                                  "Successfully exported the "
-                                                  + "results!", "Information",
+                    JOptionPane.showMessageDialog(this,
+                                                  "Successfully exported the " +
+                                                  "results!", "Information",
                                                   JOptionPane
                                                           .INFORMATION_MESSAGE);
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(MainWindow.this,
-                                                  "Failed to export the "
-                                                  + "results, reason: " + e
-                                                          .getMessage(),
-                                                  "Error",
+                } catch (final IOException e) {
+                    JOptionPane.showMessageDialog(this,
+                                                  "Failed to export the " +
+                                                  "results, reason: " +
+                                                  e.getMessage(), "Error",
                                                   JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -396,53 +359,50 @@ public class MainWindow extends JFrame {
     public static void main(final String[] args) {
         final List<File> pdbs = new ArrayList<>();
 
-        for (String argument : args) {
-            File file = new File(argument);
+        for (final String argument : args) {
+            final File file = new File(argument);
             if (file.canRead()) {
                 pdbs.add(file);
             }
         }
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                /*
-                 * Set L&F
-                 */
-                for (LookAndFeelInfo info : UIManager
-                        .getInstalledLookAndFeels()) {
-                    if ("Nimbus".equals(info.getName())) {
-                        try {
-                            UIManager.setLookAndFeel(info.getClassName());
-                        } catch (ClassNotFoundException |
-                                InstantiationException |
-                                IllegalAccessException |
-                                UnsupportedLookAndFeelException e) {
-                            // do nothing
-                        }
-                        break;
+        SwingUtilities.invokeLater(() -> {
+            /*
+             * Set L&F
+             */
+            for (final UIManager.LookAndFeelInfo info : UIManager
+                    .getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    try {
+                        UIManager.setLookAndFeel(info.getClassName());
+                    } catch (ClassNotFoundException | InstantiationException
+                            | IllegalAccessException |
+                            UnsupportedLookAndFeelException ignored) {
+                        // do nothing
                     }
+                    break;
                 }
-
-                MainWindow window = new MainWindow(pdbs);
-                window.setVisible(true);
             }
+
+            final MainWindow window = new MainWindow(pdbs);
+            window.setVisible(true);
         });
     }
 
     private void selectSingleStructure() {
         itemSave.setEnabled(false);
 
-        List<String> names = StructureManager.getAllNames();
-        String[] selectionValues = names.toArray(new String[names.size()]);
-        String name = (String) JOptionPane
+        final List<String> names = StructureManager.getAllNames();
+        final String[] selectionValues =
+                names.toArray(new String[names.size()]);
+        final String name = (String) JOptionPane
                 .showInputDialog(this, "Select structure",
                                  "Represent structure in torsion angle space",
                                  JOptionPane.QUESTION_MESSAGE, null,
                                  selectionValues, null);
 
         if (name != null) {
-            PdbModel structure = StructureManager.getStructure(name);
+            final PdbModel structure = StructureManager.getStructure(name);
             currentResult =
                     panelTorsionAngles.calculateTorsionAngles(structure);
             layoutCards.show(panelCards, MainWindow.CARD_TORSION);
@@ -456,8 +416,8 @@ public class MainWindow extends JFrame {
         itemVisualise3D.setEnabled(currentResult.canVisualize());
 
         if (currentResult.canExport()) {
-            itemSave.setText(
-                    "Save results (" + currentResult.getExportFormat() + ")");
+            itemSave.setText(String.format("Save results (%s)",
+                                           currentResult.getExportFormat()));
         }
     }
 
@@ -466,12 +426,12 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        List<PdbModel> structures = dialogStructures.getStructures();
+        final List<PdbModel> structures = dialogStructures.getStructures();
         if (structures.size() < 2) {
-            JOptionPane.showMessageDialog(MainWindow.this,
-                                          "At least two structures must be "
-                                          + "selected to compute global "
-                                          + "distance", "Information",
+            JOptionPane.showMessageDialog(this,
+                                          "At least two structures must be " +
+                                          "selected to compute global " +
+                                          "distance", "Information",
                                           JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -486,41 +446,36 @@ public class MainWindow extends JFrame {
     }
 
     private void compareGlobal() {
-        GlobalComparator comparator =
+        final GlobalComparator comparator =
                 radioGlobalMcq.isSelected() ? new MCQ() : new RMSD();
-        panelResultsGlobalMatrix.compareAndDisplayMatrix(comparator,
-                                                         new GlobalMatrixPanel.Callback() {
-                                                             @Override
-                                                             public void
-                                                             complete(
-                                                                     ProcessingResult processingResult) {
-                                                                 currentResult =
-                                                                         processingResult;
-                                                                 layoutCards
-                                                                         .show(panelCards,
-                                                                               MainWindow.CARD_GLOBAL_MATRIX);
-                                                                 updateMenuEnabledStates();
+        panelResultsGlobalMatrix
+                .compareAndDisplayMatrix(comparator, processingResult -> {
+                    currentResult = processingResult;
+                    layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+                    updateMenuEnabledStates();
 
-                                                             }
-                                                         });
+                });
     }
 
-    private void selectChains(JMenuItem source) {
+    private void selectChains(final JMenuItem source) {
         if (dialogChains.showDialog() != DialogSelectChains.OK) {
             return;
         }
 
-        Pair<PdbModel, PdbModel> structures = dialogChains.getStructures();
-        Pair<List<PdbChain>, List<PdbChain>> chains = dialogChains.getChains();
+        final Pair<PdbModel, PdbModel> structures =
+                dialogChains.getStructures();
+        final Pair<List<PdbChain>, List<PdbChain>> chains =
+                dialogChains.getChains();
 
-        if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
-            String message =
-                    "No chains specified for structure: " + StructureManager
-                            .getName(structures.getLeft()) + " or "
-                    + StructureManager.getName(structures.getRight());
-            JOptionPane
-                    .showMessageDialog(MainWindow.this, message, "Information",
-                                       JOptionPane.INFORMATION_MESSAGE);
+        if ((chains.getLeft().isEmpty()) || (chains.getRight().isEmpty())) {
+            final String message =
+                    String.format("No chains specified for structure: %s or %s",
+                                  StructureManager
+                                          .getName(structures.getLeft()),
+                                  StructureManager
+                                          .getName(structures.getRight()));
+            JOptionPane.showMessageDialog(this, message, "Information",
+                                          JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
@@ -558,30 +513,30 @@ public class MainWindow extends JFrame {
         updateMenuEnabledStates();
     }
 
-    private void selectChainsMultiple(JMenuItem source) {
+    private void selectChainsMultiple(final JMenuItem source) {
         if (dialogChainsMultiple
-                    .showDialog(source.equals(itemSelectStructuresCompare))
-            != DialogSelectChainsMultiple.OK) {
+                    .showDialog(source.equals(itemSelectStructuresCompare)) !=
+            DialogSelectChainsMultiple.OK) {
             return;
         }
 
         if (dialogChainsMultiple.getChains().size() < 2) {
             JOptionPane.showMessageDialog(this,
-                                          "You have to select at least two "
-                                          + "chains", "Warning",
+                                          "You have to select at least two " +
+                                          "chains", "Warning",
                                           JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
-        MoleculeType type = fragments.get(0).getMoleculeType();
+        final List<PdbCompactFragment> fragments =
+                dialogChainsMultiple.getChains();
+        final MoleculeType type = fragments.get(0).getMoleculeType();
 
-        for (PdbCompactFragment c : fragments) {
-            if (type != c.getMoleculeType()) {
-                JOptionPane.showMessageDialog(this, "Cannot align/compare "
-                                                    + "structures: different "
-                                                    + "types",
-                                              "Error",
+        for (final PdbCompactFragment fragment : fragments) {
+            if (type != fragment.getMoleculeType()) {
+                JOptionPane.showMessageDialog(this, "Cannot align/compare " +
+                                                    "structures: different " +
+                                                    "types", "Error",
                                               JOptionPane.ERROR_MESSAGE);
                 return;
             }
