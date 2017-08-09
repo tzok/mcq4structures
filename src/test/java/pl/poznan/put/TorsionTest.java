@@ -1,11 +1,8 @@
 package pl.poznan.put;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Test;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
@@ -13,18 +10,15 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleValue;
+import pl.poznan.put.utility.ResourcesHelper;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestTorsion {
+public class TorsionTest {
     // @formatter:off
-    private static final MasterTorsionAngleType[] ANGLE_TYPES_IN_FRABASE_ORDER = new MasterTorsionAngleType[] { 
+    private static final MasterTorsionAngleType[] ANGLE_TYPES_FRABASE_ORDER = {
             RNATorsionAngleType.ALPHA,
             RNATorsionAngleType.BETA,
             RNATorsionAngleType.GAMMA,
@@ -39,10 +33,10 @@ public class TestTorsion {
             RNATorsionAngleType.NU3,
             RNATorsionAngleType.NU4,
             RNATorsionAngleType.ETA,
-            RNATorsionAngleType.THETA            
+            RNATorsionAngleType.THETA
     };
-    
-    private static final double[][] TABLE_1EHZ = new double[][] {
+
+    private static final double[][] TABLE_1EHZ = {
         { Double.NaN, -128.1, 67.8, 82.9, -155.6, -68.6, -167.8, 16.1, 1.7, -23.4, 35.1, -35.2, 21.1, Double.NaN, -139.3 },
         { -67.4, -178.4, 53.8, 83.4, -145.1, -76.8, -163.8, 16.1, 1.6, -23.2, 34.8, -34.8, 20.9, 171.9, -144.6 },
         { -74.5, 169.7, 59.5, 80.7, -148.3, -80, -161.9, 14.6, 2.7, -25.1, 36.8, -36.1, 21.2, 160.2, -151.4 },
@@ -124,41 +118,33 @@ public class TestTorsion {
 
     private final PdbParser parser = new PdbParser();
 
-    private String pdb1EHZ;
-
-    @Before
-    public void loadPdbFile() throws URISyntaxException, IOException {
-        URI uri = getClass().getClassLoader().getResource(".").toURI();
-        File dir = new File(uri);
-        pdb1EHZ = FileUtils.readFileToString(
-                new File(dir, "../../src/test/resources/1EHZ.pdb"), "utf-8");
-    }
-
     @Test
-    public void test1EHZ() throws PdbParsingException {
-        List<PdbModel> models = parser.parse(pdb1EHZ);
+    public final void test1EHZ() throws Exception {
+        final String pdb1EHZ = ResourcesHelper.loadResource("1EHZ.pdb");
+        final List<PdbModel> models = parser.parse(pdb1EHZ);
         assertEquals(1, models.size());
-        PdbModel model = models.get(0);
-        StructureSelection selection = SelectionFactory.create("1EHZ", model);
-        List<PdbCompactFragment> compactFragments =
+        final PdbModel model = models.get(0);
+        final StructureSelection selection =
+                SelectionFactory.create("1EHZ", model);
+        final List<PdbCompactFragment> compactFragments =
                 selection.getCompactFragments();
         assertEquals(1, compactFragments.size());
-        PdbCompactFragment compactFragment = compactFragments.get(0);
-        List<PdbResidue> residues = compactFragment.getResidues();
-        assertEquals(TestTorsion.TABLE_1EHZ.length, residues.size());
+        final PdbCompactFragment compactFragment = compactFragments.get(0);
+        final List<PdbResidue> residues = compactFragment.getResidues();
+        assertEquals(TorsionTest.TABLE_1EHZ.length, residues.size());
 
-        for (int i = 0; i < TestTorsion.TABLE_1EHZ.length; i++) {
-            PdbResidue residue = residues.get(i);
+        for (int i = 0; i < TorsionTest.TABLE_1EHZ.length; i++) {
+            final PdbResidue residue = residues.get(i);
 
-            for (int j = 0; j < TestTorsion.ANGLE_TYPES_IN_FRABASE_ORDER.length;
+            for (int j = 0; j < TorsionTest.ANGLE_TYPES_FRABASE_ORDER.length;
                  j++) {
-                MasterTorsionAngleType masterType =
-                        TestTorsion.ANGLE_TYPES_IN_FRABASE_ORDER[j];
-                TorsionAngleValue torsionAngleValue = compactFragment
+                final MasterTorsionAngleType masterType =
+                        TorsionTest.ANGLE_TYPES_FRABASE_ORDER[j];
+                final TorsionAngleValue torsionAngleValue = compactFragment
                         .getTorsionAngleValue(residue, masterType);
-                double expected = TestTorsion.TABLE_1EHZ[i][j];
-                double actual = torsionAngleValue.getValue().getDegrees();
-                assertEquals("Error for (" + i + "," + j + ")", expected,
+                final double expected = TorsionTest.TABLE_1EHZ[i][j];
+                final double actual = torsionAngleValue.getValue().getDegrees();
+                assertEquals(String.format("Error for (%d,%d)", i, j), expected,
                              actual, 0.1);
             }
         }
