@@ -20,11 +20,6 @@
             <name>Jzy3d Releases</name>
             <url>http://www.jzy3d.org/maven/releases</url>
         </repository>
-
-        <repository>
-            <id>TUDelft</id>
-            <url>http://simulation.tudelft.nl/maven/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -44,12 +39,6 @@
             <groupId>fr.lri.varna</groupId>
             <artifactId>varna</artifactId>
             <version>3.93</version>
-        </dependency>
-
-        <dependency>
-            <groupId>jlfgr</groupId>
-            <artifactId>jlfgr</artifactId>
-            <version>1.0</version>
         </dependency>
 
         <dependency>

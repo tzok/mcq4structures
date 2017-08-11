@@ -21,7 +21,6 @@ import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.types.DistanceMatrix;
 
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -53,11 +52,6 @@ import java.util.List;
 public class MainWindow extends JFrame {
     private static final long serialVersionUID = -3740118742781268073L;
 
-    private static final String RESOURCE_ICON_OPEN =
-            "/toolbarButtonGraphics/general/Open16.gif";
-    private static final String RESOURCE_ICON_SAVE =
-            "/toolbarButtonGraphics/general/Save16.gif";
-
     private static final String CARD_TORSION = "CARD_TORSION";
     private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
     private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
@@ -70,14 +64,8 @@ public class MainWindow extends JFrame {
             "structures";
 
     private final JMenu menuFile = new JMenu("File");
-    private final JMenuItem itemOpen = new JMenuItem("Open structure(s)",
-                                                     new ImageIcon(getClass()
-                                                                           .getResource(
-                                                                                   MainWindow.RESOURCE_ICON_OPEN)));
-    private final JMenuItem itemSave = new JMenuItem("Save results",
-                                                     new ImageIcon(getClass()
-                                                                           .getResource(
-                                                                                   MainWindow.RESOURCE_ICON_SAVE)));
+    private final JMenuItem itemOpen = new JMenuItem("Open structure(s)");
+    private final JMenuItem itemSave = new JMenuItem("Save results");
     private final JCheckBoxMenuItem checkBoxManager =
             new StayOpenCheckBoxMenuItem("View structure manager", false);
     private final JMenuItem itemExit = new JMenuItem("Exit");
