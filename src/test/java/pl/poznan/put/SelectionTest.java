@@ -13,7 +13,6 @@ import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.utility.ResourcesHelper;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -87,8 +86,8 @@ public class SelectionTest {
         assertEquals(2, autoFragments.size());
 
         final SelectionQuery selectionQuery = SelectionQuery.parse("A:5:6");
-        final StructureSelection manualSelection = SelectionFactory
-                .select("", model, Collections.singleton(selectionQuery));
+        final StructureSelection manualSelection =
+                SelectionFactory.create("", model, selectionQuery);
         final List<PdbCompactFragment> manualFragments =
                 manualSelection.getCompactFragments();
         assertEquals(1, manualFragments.size());

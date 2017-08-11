@@ -11,10 +11,6 @@ import java.util.Collection;
 import java.util.List;
 
 public final class SelectionFactory {
-    private SelectionFactory() {
-        super();
-    }
-
     public static StructureSelection create(final String name,
                                             final PdbModel structure) {
         return SelectionFactory.create(name, structure.getChains());
@@ -27,12 +23,12 @@ public final class SelectionFactory {
         return StructureSelection.divideIntoCompactFragments(name, residues);
     }
 
-    public static StructureSelection select(final String name,
+    public static StructureSelection create(final String name,
                                             final PdbModel structure,
-                                            final Collection<SelectionQuery>
+                                            final SelectionQuery...
                                                     selectionQueries) {
         final List<PdbCompactFragment> compactFragments =
-                new ArrayList<>(selectionQueries.size());
+                new ArrayList<>(selectionQueries.length);
 
         for (final SelectionQuery selectionQuery : selectionQueries) {
             final PdbCompactFragment compactFragment =
@@ -64,4 +60,9 @@ public final class SelectionFactory {
         }
         return residues;
     }
+
+    private SelectionFactory() {
+        super();
+    }
+
 }
