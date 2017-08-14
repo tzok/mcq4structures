@@ -1,110 +1,95 @@
 package pl.poznan.put.matching;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.types.ExportFormat;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-
+@Data
+@NoArgsConstructor
+@XmlRootElement
 public class SelectionMatch implements Exportable, MatchCollection {
-    private final List<String> residueLabels;
+    @XmlElement private StructureSelection target;
+    @XmlElement private StructureSelection model;
+    @XmlElement private List<FragmentMatch> fragmentMatches;
+    @XmlTransient private List<String> residueLabels;
 
-    private final StructureSelection target;
-    private final StructureSelection model;
-    private final List<FragmentMatch> fragmentMatches;
-
-    public SelectionMatch(StructureSelection target, StructureSelection model,
-                          List<FragmentMatch> fragmentMatches) {
+    public SelectionMatch(final StructureSelection target,
+                          final StructureSelection model,
+                          final List<FragmentMatch> fragmentMatches) {
         super();
         this.target = target;
         this.model = model;
-        this.fragmentMatches = fragmentMatches;
-
-        residueLabels = makeResidueLabelsList();
+        this.fragmentMatches = new ArrayList<>(fragmentMatches);
+        makeResidueLabelsList();
     }
 
-    private List<String> makeResidueLabelsList() {
-        List<String> result = new ArrayList<>();
-        for (FragmentMatch fragment : fragmentMatches) {
+    public final void setFragmentMatches(
+            final List<FragmentMatch> fragmentMatches) {
+        this.fragmentMatches = new ArrayList<>(fragmentMatches);
+        makeResidueLabelsList();
+    }
+
+    private void makeResidueLabelsList() {
+        final List<String> result = new ArrayList<>();
+        for (final FragmentMatch fragment : fragmentMatches) {
             result.addAll(fragment.generateLabelsWithResidueNames());
         }
-        return result;
+        residueLabels = result;
     }
 
-    public StructureSelection getTarget() {
-        return target;
-    }
-
-    public StructureSelection getModel() {
-        return model;
-    }
 
     @Override
-    public List<FragmentMatch> getFragmentMatches() {
-        return Collections.unmodifiableList(fragmentMatches);
-    }
-
-    public int getFragmentCount() {
-        return fragmentMatches.size();
-    }
-
-    public List<String> getResidueLabels() {
-        return Collections.unmodifiableList(residueLabels);
-    }
-
-    @Override
-    public void export(OutputStream stream) throws IOException {
+    public final void export(final OutputStream stream) throws IOException {
         try {
             IOUtils.write(toPDB(false), stream, "UTF-8");
-        } catch (StructureException e) {
-            throw new IOException("Failed to export the match to a PDB file",
-                                  e);
-        } catch (CifPdbIncompatibilityException e) {
+        } catch (final StructureException | CifPdbIncompatibilityException e) {
             throw new IOException("Failed to export the match to a PDB file",
                                   e);
         }
     }
 
-    public String toPDB(boolean onlyMatched)
+    public final String toPDB(final boolean onlyMatched)
             throws StructureException, CifPdbIncompatibilityException {
-        if (fragmentMatches.size() == 0) {
+        if (fragmentMatches.isEmpty()) {
             return "";
         }
 
-        FragmentSuperimposer superimposer =
-                new FragmentSuperimposer(this, AtomFilter.ALL, true);
-        FragmentSuperposition superposition =
-                onlyMatched ? superimposer.getMatched()
-                            : superimposer.getWhole();
+        final FragmentSuperimposer fragmentSuperimposer =
+                new FragmentSuperimposer(this,
+                                         FragmentSuperimposer.AtomFilter.ALL,
+                                         true);
+        final FragmentSuperposition superposition =
+                onlyMatched ? fragmentSuperimposer.getMatched()
+                            : fragmentSuperimposer.getWhole();
         return superposition.toPDB();
     }
 
     @Override
-    public ExportFormat getExportFormat() {
+    public final ExportFormat getExportFormat() {
         return ExportFormat.PDB;
     }
 
     @Override
-    public File suggestName() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
-        StringBuilder filename = new StringBuilder();
-        filename.append(sdf.format(new Date()));
-        filename.append("-3DSTRA-");
-        filename.append(target.getName());
-        filename.append("-");
-        filename.append(model.getName());
-        filename.append(".pdb");
-        return new File(filename.toString());
+    public final File suggestName() {
+        return new File(String.format("%s-3DSTRA-%s-%s.pdb",
+                                      DateFormatUtils
+                                              .ISO_8601_EXTENDED_DATETIME_FORMAT
+                                              .format(new Date()),
+                                      target.getName(), model.getName()));
     }
 }

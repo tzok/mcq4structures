@@ -19,6 +19,7 @@ import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -29,7 +30,6 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.utility.TabularExporter;
 
 import java.io.File;
@@ -45,6 +45,7 @@ import java.util.List;
  *
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class MCQ implements GlobalComparator, LocalComparator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
 
@@ -77,7 +78,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
     public MCQ(final List<MasterTorsionAngleType> angleTypes) {
         super();
-        this.angleTypes = angleTypes;
+        this.angleTypes = new ArrayList<>(angleTypes);
     }
 
     public static void main(final String[] args)
@@ -102,45 +103,41 @@ public class MCQ implements GlobalComparator, LocalComparator {
             selections.add(SelectionFactory.create(file.getName(), structure));
         }
 
+        final ParallelGlobalComparator.ProgressListener progressListener =
+                new ParallelGlobalComparator.ProgressListener() {
+                    @Override
+                    public void setProgress(final int progress) {
+                        // do nothing
+                    }
+
+                    @Override
+                    public void complete(final GlobalMatrix matrix) {
+                        try {
+                            TabularExporter
+                                    .export(matrix.asExportableTableModel(),
+                                            System.out);
+                        } catch (final IOException e) {
+                            MCQ.LOGGER.error("Failed to output distance matrix",
+                                             e);
+                        }
+                    }
+                };
         final ParallelGlobalComparator comparator =
                 new ParallelGlobalComparator(new MCQ(), selections,
-                                             new ParallelGlobalComparator
-                                                     .ProgressListener() {
-                                                 @Override
-                                                 public void setProgress(
-                                                         final int progress) {
-                                                     // do nothing
-                                                 }
-
-                                                 @Override
-                                                 public void complete(
-                                                         final GlobalMatrix
-                                                                 matrix) {
-                                                     try {
-                                                         TabularExporter
-                                                                 .export(matrix.asExportableTableModel(),
-                                                                         System.out);
-                                                     } catch (final
-                                                     IOException e) {
-                                                         MCQ.LOGGER
-                                                                 .error("Failed to output distance matrix",
-                                                                        e);
-                                                     }
-                                                 }
-                                             });
+                                             progressListener);
 
         comparator.start();
         comparator.join();
     }
 
     @Override
-    public GlobalResult compareGlobally(final StructureSelection target,
-                                        final StructureSelection model)
+    public final GlobalResult compareGlobally(final StructureSelection s1,
+                                              final StructureSelection s2)
             throws IncomparableStructuresException {
-        final MCQMatcher matcher = new MCQMatcher(angleTypes);
-        final SelectionMatch matches = matcher.matchSelections(target, model);
+        final StructureMatcher matcher = new MCQMatcher(angleTypes);
+        final SelectionMatch matches = matcher.matchSelections(s1, s2);
 
-        if (matches.getFragmentCount() == 0) {
+        if (matches.getFragmentMatches().isEmpty()) {
             throw new IncomparableStructuresException(
                     "No matching fragments found");
         }
@@ -154,7 +151,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
                     final TorsionAngleDelta angleDelta =
                             residueComparison.getAngleDelta(angleType);
 
-                    if (angleDelta.getState() == State.BOTH_VALID) {
+                    if (angleDelta.getState() ==
+                        TorsionAngleDelta.State.BOTH_VALID) {
                         deltas.add(angleDelta.getDelta());
                     }
                 }
@@ -165,28 +163,27 @@ public class MCQ implements GlobalComparator, LocalComparator {
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return "MCQ";
     }
 
     @Override
-    public boolean isAngularMeasure() {
+    public final boolean isAngularMeasure() {
         return true;
     }
 
     @Override
-    public LocalResult comparePair(final StructureSelection s1,
-                                   final StructureSelection s2)
-            throws IncomparableStructuresException {
-        final MCQMatcher matcher = new MCQMatcher(angleTypes);
-        final SelectionMatch matches = matcher.matchSelections(s1, s2);
+    public final LocalResult comparePair(final StructureSelection target,
+                                         final StructureSelection model) {
+        final StructureMatcher matcher = new MCQMatcher(angleTypes);
+        final SelectionMatch matches = matcher.matchSelections(target, model);
         return new MCQLocalResult(matches, angleTypes);
     }
 
     @Override
-    public ModelsComparisonResult compareModels(final PdbCompactFragment target,
-                                                final
-                                                List<PdbCompactFragment> models)
+    public final ModelsComparisonResult compareModels(
+            final PdbCompactFragment target,
+            final List<PdbCompactFragment> models)
             throws IncomparableStructuresException {
         /*
          * Sanity check
@@ -200,12 +197,12 @@ public class MCQ implements GlobalComparator, LocalComparator {
             }
         }
 
-        final MCQMatcher matcher = new MCQMatcher(angleTypes);
-        final List<FragmentMatch> matches = new ArrayList<>();
+        final StructureMatcher matcher = new MCQMatcher(angleTypes);
         final List<PdbCompactFragment> modelsWithoutTarget =
                 new ArrayList<>(models);
         modelsWithoutTarget.remove(target);
 
+        final List<FragmentMatch> matches = new ArrayList<>();
         for (final PdbCompactFragment fragment : modelsWithoutTarget) {
             matches.add(matcher.matchFragments(target, fragment));
         }

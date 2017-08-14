@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ProcessingResult;
@@ -23,7 +22,6 @@ import pl.poznan.put.visualisation.AngleDeltaMapper;
 import pl.poznan.put.visualisation.RangeDifferenceMapper;
 import pl.poznan.put.visualisation.SecondaryStructureVisualizer;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -124,68 +122,57 @@ public class LocalMatrixPanel extends JPanel {
 
     public final ProcessingResult compareAndDisplayTable(
             final List<MasterTorsionAngleType> selectedAngles) {
-        try {
-            final StructureSelection selectionL = SelectionFactory
-                    .create(StructureManager.getName(structures.getLeft()),
-                            chains.getLeft());
-            final StructureSelection selectionR = SelectionFactory
-                    .create(StructureManager.getName(structures.getRight()),
-                            chains.getRight());
-            final MCQ mcq = new MCQ(selectedAngles);
-            final MCQLocalResult result =
-                    (MCQLocalResult) mcq.comparePair(selectionL, selectionR);
-            final SelectionMatch selectionMatch = result.getSelectionMatch();
-            removeAllButFirstTab();
+        final StructureSelection selectionL = SelectionFactory
+                .create(StructureManager.getName(structures.getLeft()),
+                        chains.getLeft());
+        final StructureSelection selectionR = SelectionFactory
+                .create(StructureManager.getName(structures.getRight()),
+                        chains.getRight());
+        final MCQ mcq = new MCQ(selectedAngles);
+        final MCQLocalResult result =
+                (MCQLocalResult) mcq.comparePair(selectionL, selectionR);
+        final SelectionMatch selectionMatch = result.getSelectionMatch();
+        removeAllButFirstTab();
 
-            for (final FragmentMatch fragmentMatch : selectionMatch
-                    .getFragmentMatches()) {
-                final SVGDocument chart = fragmentMatch.visualize(1024, 576);
-                final SVGComponent chartComponent =
-                        new SVGComponent(chart, "chart");
-                tabbedPane.add(fragmentMatch.toString(), chartComponent);
+        for (final FragmentMatch fragmentMatch : selectionMatch
+                .getFragmentMatches()) {
+            final SVGDocument chart = fragmentMatch.visualize(1024, 576);
+            final SVGComponent chartComponent =
+                    new SVGComponent(chart, "chart");
+            tabbedPane.add(fragmentMatch.toString(), chartComponent);
 
-                if (fragmentMatch.getTargetFragment().getMoleculeType() ==
-                    MoleculeType.RNA) {
-                    final SVGDocument angles = SecondaryStructureVisualizer
-                            .visualize(fragmentMatch,
-                                       AngleDeltaMapper.getInstance());
-                    final SVGComponent anglesComponent =
-                            new SVGComponent(angles, "secondary");
-                    tabbedPane.add(String.format(
-                            "%s (secondary structure, angles)", fragmentMatch),
-                                   anglesComponent);
+            if (fragmentMatch.getTargetFragment().getMoleculeType() ==
+                MoleculeType.RNA) {
+                final SVGDocument angles = SecondaryStructureVisualizer
+                        .visualize(fragmentMatch,
+                                   AngleDeltaMapper.getInstance());
+                final SVGComponent anglesComponent =
+                        new SVGComponent(angles, "secondary");
+                tabbedPane.add(String.format("%s (secondary structure, angles)",
+                                             fragmentMatch), anglesComponent);
 
-                    final SVGDocument ranges = SecondaryStructureVisualizer
-                            .visualize(fragmentMatch,
-                                       RangeDifferenceMapper.getInstance());
-                    final SVGComponent rangesComponent =
-                            new SVGComponent(ranges, "secondary");
-                    tabbedPane.add(String.format(
-                            "%s (secondary structure, ranges)", fragmentMatch),
-                                   rangesComponent);
+                final SVGDocument ranges = SecondaryStructureVisualizer
+                        .visualize(fragmentMatch,
+                                   RangeDifferenceMapper.getInstance());
+                final SVGComponent rangesComponent =
+                        new SVGComponent(ranges, "secondary");
+                tabbedPane.add(String.format("%s (secondary structure, ranges)",
+                                             fragmentMatch), rangesComponent);
 
-                }
-
-                final SVGDocument percentiles =
-                        fragmentMatch.visualizePercentiles(1024, 576);
-                final SVGComponent percentilesComponent =
-                        new SVGComponent(percentiles, "percentiles");
-                tabbedPane.add(fragmentMatch + " (percentiles)",
-                               percentilesComponent);
             }
 
-            tableMatrix.setModel(result.asDisplayableTableModel());
-            updateHeader(true);
-
-            return new ProcessingResult(result);
-        } catch (final IncomparableStructuresException e) {
-            final String message = "Failed to compare structures";
-            LocalMatrixPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error",
-                                          JOptionPane.ERROR_MESSAGE);
+            final SVGDocument percentiles =
+                    fragmentMatch.visualizePercentiles(1024, 576);
+            final SVGComponent percentilesComponent =
+                    new SVGComponent(percentiles, "percentiles");
+            tabbedPane.add(fragmentMatch + " (percentiles)",
+                           percentilesComponent);
         }
 
-        return ProcessingResult.emptyInstance();
+        tableMatrix.setModel(result.asDisplayableTableModel());
+        updateHeader(true);
+
+        return new ProcessingResult(result);
     }
 
     private static class ColorTableCellRenderer
