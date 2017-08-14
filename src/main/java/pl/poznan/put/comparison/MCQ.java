@@ -190,7 +190,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
          */
         for (final PdbCompactFragment fragment : models) {
             if ((fragment.getMoleculeType() != target.getMoleculeType()) ||
-                (fragment.size() != target.size())) {
+                (fragment.getResidues().size() !=
+                 target.getResidues().size())) {
                 throw new IncomparableStructuresException(
                         "All models must be of the same type and size as the " +
                         "reference structure");

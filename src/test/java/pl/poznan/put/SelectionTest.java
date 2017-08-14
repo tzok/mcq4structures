@@ -65,7 +65,7 @@ public class SelectionTest {
 
         final SelectionQuery selectionQuery = SelectionQuery.parse("A:190A:12");
         final PdbCompactFragment compactFragment = selectionQuery.apply(model);
-        assertEquals(12, compactFragment.size());
+        assertEquals(12, compactFragment.getResidues().size());
 
         for (final PdbResidue residue : compactFragment.getResidues()) {
             assertEquals(190, residue.getResidueNumber());

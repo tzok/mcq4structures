@@ -221,9 +221,11 @@ public class MCQMatcher implements StructureMatcher {
                                               final PdbCompactFragment f2) {
         final List<PdbResidue> targetResidues = f1.getResidues();
         final List<PdbResidue> modelResidues = f2.getResidues();
-        final boolean isTargetSmaller = f1.size() < f2.size();
-        final int sizeDifference = isTargetSmaller ? (f2.size() - f1.size())
-                                                   : (f1.size() - f2.size());
+        final int f1Size = f1.getResidues().size();
+        final int f2Size = f2.getResidues().size();
+        final boolean isTargetSmaller = f1Size < f2Size;
+        final int sizeDifference =
+                isTargetSmaller ? (f2Size - f1Size) : (f1Size - f2Size);
 
         FragmentComparison bestResult = null;
         int bestShift = 0;
@@ -233,7 +235,7 @@ public class MCQMatcher implements StructureMatcher {
                     new ArrayList<>();
 
             if (isTargetSmaller) {
-                for (int j = 0; j < f1.size(); j++) {
+                for (int j = 0; j < f1Size; j++) {
                     final PdbResidue targetResidue = targetResidues.get(j);
                     final PdbResidue modelResidue = modelResidues.get(j + i);
                     residueComparisons
@@ -241,7 +243,7 @@ public class MCQMatcher implements StructureMatcher {
                                                  modelResidue));
                 }
             } else {
-                for (int j = 0; j < f2.size(); j++) {
+                for (int j = 0; j < f2Size; j++) {
                     final PdbResidue targetResidue = targetResidues.get(j + i);
                     final PdbResidue modelResidue = modelResidues.get(j);
                     residueComparisons

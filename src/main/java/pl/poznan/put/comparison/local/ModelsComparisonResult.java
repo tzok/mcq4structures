@@ -78,10 +78,6 @@ public class ModelsComparisonResult {
         return models.get(index);
     }
 
-    private final int getTargetSize() {
-        return target.size();
-    }
-
     public final int getModelCount() {
         return fragmentMatches.size();
     }
@@ -121,7 +117,7 @@ public class ModelsComparisonResult {
 
             csvWriter.endRecord();
 
-            for (int i = 0; i < target.size(); i++) {
+            for (int i = 0; i < target.getResidues().size(); i++) {
                 final PdbResidue residue = target.getResidues().get(i);
                 csvWriter.write(residue.toString());
 
@@ -179,9 +175,9 @@ public class ModelsComparisonResult {
                 columnNames[i + 1] = models.get(i).getName();
             }
 
-            final String[][] data = new String[target.size()][];
+            final String[][] data = new String[target.getResidues().size()][];
 
-            for (int i = 0; i < target.size(); i++) {
+            for (int i = 0; i < target.getResidues().size(); i++) {
                 data[i] = new String[models.size() + 1];
                 data[i][0] = target.getResidues().get(i).toString();
 
@@ -404,7 +400,7 @@ public class ModelsComparisonResult {
         }
 
         private double[][] prepareMatrix() {
-            final int size = getTargetSize();
+            final int size = target.getResidues().size();
             final double[][] matrix = new double[models.size()][];
 
             for (int i = 0; i < models.size(); i++) {
