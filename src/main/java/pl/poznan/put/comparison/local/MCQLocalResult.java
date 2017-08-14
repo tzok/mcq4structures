@@ -1,5 +1,9 @@
 package pl.poznan.put.comparison.local;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,100 +25,96 @@ import pl.poznan.put.visualisation.Surface3D;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@XmlRootElement
 public class MCQLocalResult extends LocalResult {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(MCQLocalResult.class);
 
-    private final List<MasterTorsionAngleType> angleTypes;
+    @XmlElement private List<MasterTorsionAngleType> angleTypes;
 
-    public MCQLocalResult(SelectionMatch matches,
-                          List<MasterTorsionAngleType> angleTypes) {
-        super(matches);
-        this.angleTypes = angleTypes;
+    public MCQLocalResult(final SelectionMatch selectionMatch,
+                          final List<MasterTorsionAngleType> angleTypes) {
+        super(selectionMatch);
+        this.angleTypes = new ArrayList<>(angleTypes);
     }
 
-    public List<MasterTorsionAngleType> getAngles() {
-        return Collections.unmodifiableList(angleTypes);
-    }
-
-    public FragmentComparison asFragmentComparison() {
-        List<ResidueComparison> residueComparisons = new ArrayList<>();
-        for (FragmentMatch fragmentMatch : selectionMatch
-                .getFragmentMatches()) {
-            residueComparisons.addAll(fragmentMatch.getResidueComparisons());
-        }
+    public final FragmentComparison asFragmentComparison() {
+        final List<ResidueComparison> residueComparisons = new ArrayList<>();
+        selectionMatch.getFragmentMatches().forEach(
+                fragmentMatch -> residueComparisons
+                        .addAll(fragmentMatch.getResidueComparisons()));
         return FragmentComparison
                 .fromResidueComparisons(residueComparisons, angleTypes);
     }
 
     @Override
-    public void export(OutputStream stream) throws IOException {
+    public final void export(final OutputStream stream) throws IOException {
         TabularExporter.export(asExportableTableModel(), stream);
     }
 
     @Override
-    public ExportFormat getExportFormat() {
+    public final ExportFormat getExportFormat() {
         return ExportFormat.CSV;
     }
 
     @Override
-    public File suggestName() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
-        String filename = sdf.format(new Date());
-        filename += "-Local-Distance-";
-        filename += getTargetName() + "-" + getModelName();
-        filename += ".csv";
-        return new File(filename);
+    public final File suggestName() {
+        return new File(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
+                                .format(new Date()) + "-Local-Distance.csv");
     }
 
     @Override
-    public TableModel asExportableTableModel() {
+    public final TableModel asExportableTableModel() {
         return asTableModel(false);
     }
 
     @Override
-    public TableModel asDisplayableTableModel() {
+    public final TableModel asDisplayableTableModel() {
         return asTableModel(true);
     }
 
-    private TableModel asTableModel(boolean isDisplay) {
-        String[] columnNames = new String[angleTypes.size() + 1];
+    private TableModel asTableModel(final boolean isDisplay) {
+        final String[] columnNames = new String[angleTypes.size() + 1];
         columnNames[0] = isDisplay ? "" : null;
 
         for (int i = 0; i < angleTypes.size(); i++) {
-            MasterTorsionAngleType angle = angleTypes.get(i);
+            final MasterTorsionAngleType angle = angleTypes.get(i);
             columnNames[i + 1] = isDisplay ? angle.getLongDisplayName()
                                            : angle.getExportName();
         }
 
-        List<ResidueComparison> residueComparisons = new ArrayList<>();
-        for (FragmentMatch fragmentMatch : selectionMatch
+        final List<ResidueComparison> residueComparisons = new ArrayList<>();
+        for (final FragmentMatch fragmentMatch : selectionMatch
                 .getFragmentMatches()) {
             residueComparisons.addAll(fragmentMatch.getResidueComparisons());
         }
 
-        List<String> labels = getResidueLabels();
-        String[][] data = new String[residueComparisons.size()][];
+        final List<String> labels = selectionMatch.getResidueLabels();
+        final String[][] data = new String[residueComparisons.size()][];
 
         for (int i = 0; i < residueComparisons.size(); i++) {
-            ResidueComparison residueComparison = residueComparisons.get(i);
+            final ResidueComparison residueComparison =
+                    residueComparisons.get(i);
             data[i] = new String[angleTypes.size() + 1];
             data[i][0] = labels.get(i);
 
             for (int j = 0; j < angleTypes.size(); j++) {
-                MasterTorsionAngleType angle = angleTypes.get(j);
-                TorsionAngleDelta delta =
+                final MasterTorsionAngleType angle = angleTypes.get(j);
+                final TorsionAngleDelta delta =
                         residueComparison.getAngleDelta(angle);
                 data[i][j + 1] = delta.toString(isDisplay);
             }
@@ -123,31 +123,28 @@ public class MCQLocalResult extends LocalResult {
         return new NonEditableDefaultTableModel(data, columnNames);
     }
 
-    public List<String> getResidueLabels() {
-        return selectionMatch.getResidueLabels();
-    }
-
     @Override
-    public SVGDocument visualize() {
+    public final SVGDocument visualize() {
         throw new IllegalArgumentException(
-                "Invalid usage, please use visualize() on FragmentMatch "
-                + "instances");
+                "Invalid usage, please use visualize() on FragmentMatch " +
+                "instances");
     }
 
     @Override
-    public void visualize3D() {
+    public final void visualize3D() {
         if (angleTypes.size() <= 1) {
             JOptionPane.showMessageDialog(null,
-                                          "At least two torsion angle types "
-                                          + "are required for 3D visualization",
+                                          "At least two torsion angle types " +
+                                          "are required for 3D visualization",
                                           "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            for (FragmentMatch fragmentMatch : selectionMatch
+            for (final FragmentMatch fragmentMatch : selectionMatch
                     .getFragmentMatches()) {
-                PdbCompactFragment target = fragmentMatch.getTargetFragment();
+                final PdbCompactFragment target =
+                        fragmentMatch.getTargetFragment();
                 List<String> ticksY = null;
                 String labelY = null;
 
@@ -155,10 +152,10 @@ public class MCQLocalResult extends LocalResult {
                     try {
                         ticksY = fragmentMatch.generateLabelsWithDotBracket();
                         labelY = "Secondary structure";
-                    } catch (InvalidStructureException e) {
+                    } catch (final InvalidStructureException e) {
                         MCQLocalResult.LOGGER
-                                .warn("Failed to extract canonical secondary "
-                                      + "structure", e);
+                                .warn("Failed to extract canonical secondary " +
+                                      "structure", e);
                     }
                 }
 
@@ -167,41 +164,42 @@ public class MCQLocalResult extends LocalResult {
                     labelY = "ResID";
                 }
 
-                String name = fragmentMatch.toString();
-                double[][] matrix = prepareMatrix(fragmentMatch);
-                List<String> ticksX = prepareTicksX();
-                NavigableMap<Double, String> valueTickZ =
+                final String name = fragmentMatch.toString();
+                final double[][] matrix = prepareMatrix(fragmentMatch);
+                final List<String> ticksX = prepareTicksX();
+                final NavigableMap<Double, String> valueTickZ =
                         MCQLocalResult.prepareTicksZ();
-                String labelX = "Angle type";
-                String labelZ = "Distance";
-                boolean showAllTicksX = true;
-                boolean showAllTicksY = false;
+                final String labelX = "Angle type";
+                final String labelZ = "Distance";
+                final boolean showAllTicksX = true;
+                final boolean showAllTicksY = false;
 
-                Surface3D surface3d =
+                final Surface3D surface3d =
                         new Surface3D(name, matrix, ticksX, ticksY, valueTickZ,
                                       labelX, labelY, labelZ, showAllTicksX,
                                       showAllTicksY);
                 AnalysisLauncher.open(surface3d);
             }
-        } catch (Exception e) {
-            String message = "Failed to visualize in 3D";
+        } catch (final Exception e) {
+            final String message = "Failed to visualize in 3D";
             MCQLocalResult.LOGGER.error(message, e);
             JOptionPane.showMessageDialog(null, message, "Error",
                                           JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private double[][] prepareMatrix(FragmentMatch fragmentMatch) {
-        List<ResidueComparison> residueComparisons =
+    private double[][] prepareMatrix(final FragmentMatch fragmentMatch) {
+        final List<ResidueComparison> residueComparisons =
                 fragmentMatch.getResidueComparisons();
-        double[][] matrix = new double[angleTypes.size()][];
+        final double[][] matrix = new double[angleTypes.size()][];
 
         for (int i = 0; i < angleTypes.size(); i++) {
-            MasterTorsionAngleType angleType = angleTypes.get(i);
+            final MasterTorsionAngleType angleType = angleTypes.get(i);
             matrix[i] = new double[residueComparisons.size()];
 
             for (int j = 0; j < residueComparisons.size(); j++) {
-                ResidueComparison residueComparison = residueComparisons.get(j);
+                final ResidueComparison residueComparison =
+                        residueComparisons.get(j);
                 matrix[i][j] =
                         residueComparison.getAngleDelta(angleType).getDelta()
                                          .getRadians();
@@ -212,22 +210,22 @@ public class MCQLocalResult extends LocalResult {
     }
 
     private List<String> prepareTicksX() {
-        List<String> ticksX = new ArrayList<>();
-        for (MasterTorsionAngleType angleType : angleTypes) {
+        final List<String> ticksX = new ArrayList<>();
+        for (final MasterTorsionAngleType angleType : angleTypes) {
             ticksX.add(angleType.getExportName());
         }
         return ticksX;
     }
 
     protected static NavigableMap<Double, String> prepareTicksZ() {
-        NavigableMap<Double, String> valueTickZ = new TreeMap<>();
+        final NavigableMap<Double, String> valueTickZ = new TreeMap<>();
         valueTickZ.put(0.0, "0");
 
-        for (double radians = Math.PI / 12.0; radians <= Math.PI + 1e-3;
+        for (double radians = Math.PI / 12.0; radians <= (Math.PI + 1.0e-3);
              radians += Math.PI / 12.0) {
             valueTickZ.put(radians,
-                           Long.toString(Math.round(Math.toDegrees(radians)))
-                           + Unicode.DEGREE);
+                           Long.toString(Math.round(Math.toDegrees(radians))) +
+                           Unicode.DEGREE);
         }
 
         return valueTickZ;

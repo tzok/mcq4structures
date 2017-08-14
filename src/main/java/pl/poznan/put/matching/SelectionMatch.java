@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+
 public class SelectionMatch implements Exportable, MatchCollection {
     private final List<String> residueLabels;
 
