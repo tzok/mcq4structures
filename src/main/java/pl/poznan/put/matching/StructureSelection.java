@@ -160,8 +160,8 @@ public class StructureSelection
         for (final PdbCompactFragment fragment : compactFragments) {
             fragment.getResidues().stream().map(residue -> fragment
                     .getTorsionAngleValue(residue, masterType))
-                    .filter(TorsionAngleValue::isValid)
-                    .forEach(validValue -> angles.add(validValue.getValue()));
+                    .map(TorsionAngleValue::getValue).filter(Angle::isValid)
+                    .forEach(angles::add);
         }
 
         return angles;

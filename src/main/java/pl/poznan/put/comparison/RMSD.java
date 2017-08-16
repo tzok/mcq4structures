@@ -1,6 +1,5 @@
 package pl.poznan.put.comparison;
 
-import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
@@ -68,7 +67,7 @@ public class RMSD implements GlobalComparator {
             final FragmentSuperimposer superimposer =
                     new FragmentSuperimposer(matches, filter, onlyHeavy);
             return new RMSDGlobalResult(getName(), matches, superimposer);
-        } catch (final StructureException | CifPdbIncompatibilityException e) {
+        } catch (final CifPdbIncompatibilityException e) {
             throw new IncomparableStructuresException(
                     "Failed to superimpose structures and calculate RMSD", e);
         }
