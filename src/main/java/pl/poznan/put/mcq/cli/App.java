@@ -59,6 +59,7 @@ public final class App {
             throws ParseException, McqProcessingException, IOException,
                    PdbParsingException {
         super();
+
         options.addOption("m", "mode", true, String.format(
                 "(required) mode of operation, one of: %s",
                 Arrays.toString(Mode.values())));
@@ -300,14 +301,15 @@ public final class App {
 
         for (int i = 0; i < targetSize; i++) {
             final PdbCompactFragment targetFragment = targetFragments.get(i);
-            final int targetFragmentSize = targetFragment.size();
+            final int targetFragmentSize = targetFragment.getResidues().size();
 
             for (int j = 1; j < selections.size(); j++) {
                 final StructureSelection model = selections.get(j);
                 final List<PdbCompactFragment> modelFragments =
                         model.getCompactFragments();
                 final PdbCompactFragment modelFragment = modelFragments.get(i);
-                final int modelFragmentSize = modelFragment.size();
+                final int modelFragmentSize =
+                        modelFragment.getResidues().size();
 
                 if (targetFragmentSize != modelFragmentSize) {
                     throw new McqProcessingException(
