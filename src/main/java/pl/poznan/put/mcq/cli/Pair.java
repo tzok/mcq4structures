@@ -24,7 +24,9 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -97,6 +99,12 @@ public final class Pair {
 
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(System.out, result);
+
+        final File exportFile = result.suggestName();
+        try (final OutputStream stream = new FileOutputStream(exportFile)) {
+            result.export(stream);
+        }
+        System.err.println(exportFile);
     }
 
     private PdbModel loadStructure(final File file)
