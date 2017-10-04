@@ -4,27 +4,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class KScanner {
+public final class KScanner {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(KScanner.class);
     private static final int THREAD_COUNT =
             Runtime.getRuntime().availableProcessors() * 2;
 
+    private KScanner() {
+        super();
+    }
+
     public static ScoredClusteringResult parallelScan(
-            PrototypeBasedClusterer clusterer, double[][] matrix,
-            ScoringFunction scoringFunction) {
-        ExecutorService threadPool =
+            final PrototypeBasedClusterer clusterer, final double[][] matrix,
+            final ScoringFunction scoringFunction) {
+        final ExecutorService threadPool =
                 Executors.newFixedThreadPool(KScanner.THREAD_COUNT);
-        ExecutorCompletionService<ScoredClusteringResult> ecs =
+        final CompletionService<ScoredClusteringResult> ecs =
                 new ExecutorCompletionService<>(threadPool);
 
-        for (int i = 2; i <= matrix.length; i++) {
-            ClusterCallable task =
+        for (int i = 2; i <= Math.min(12, matrix.length); i++) {
+            final Callable<ScoredClusteringResult> task =
                     new ClusterCallable(clusterer, matrix, scoringFunction, i);
             ecs.submit(task);
         }
@@ -32,8 +37,8 @@ public class KScanner {
         threadPool.shutdown();
         ScoredClusteringResult overallBest = null;
 
-        for (int i = 2; i <= matrix.length; i++) {
-            ScoredClusteringResult result;
+        for (int i = 2; i <= Math.min(12, matrix.length); i++) {
+            final ScoredClusteringResult result;
 
             try {
                 result = ecs.take().get();
@@ -42,13 +47,13 @@ public class KScanner {
                 continue;
             }
 
-            PAMSIL pamsil = PAMSIL.getInstance();
-            ClusterPrototypes prototypes = result.getPrototypes();
-            double silhouette = pamsil.score(prototypes, matrix);
+            final PAMSIL pamsil = PAMSIL.getInstance();
+            final ClusterPrototypes prototypes = result.getPrototypes();
+            final double silhouette = pamsil.score(prototypes, matrix);
 
-            if (overallBest == null || silhouette > overallBest
-                    .getSilhouette()) {
-                double score = result.getScore();
+            if ((overallBest == null) ||
+                (silhouette > overallBest.getSilhouette())) {
+                final double score = result.getScore();
                 overallBest =
                         new ScoredClusteringResult(prototypes, scoringFunction,
                                                    score, silhouette);
@@ -59,16 +64,18 @@ public class KScanner {
         return overallBest;
     }
 
-    private static class ClusterCallable
+    private static final class ClusterCallable
             implements Callable<ScoredClusteringResult> {
         private final PrototypeBasedClusterer clusterer;
         private final double[][] distanceMatrix;
         private final ScoringFunction scoringFunction;
         private final int k;
 
-        public ClusterCallable(PrototypeBasedClusterer clusterer,
-                               double[][] distanceMatrix,
-                               ScoringFunction scoringFunction, int k) {
+        private ClusterCallable(final PrototypeBasedClusterer clusterer,
+                                final double[][] distanceMatrix,
+                                final ScoringFunction scoringFunction,
+                                final int k) {
+            super();
             this.clusterer = clusterer;
             this.distanceMatrix = distanceMatrix.clone();
             this.scoringFunction = scoringFunction;
