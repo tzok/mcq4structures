@@ -78,7 +78,7 @@ public final class SecondaryStructureVisualizer {
             tempFile = File.createTempFile("mcq4structures", ".svg");
 
             final ModeleColorMap modelColorMap =
-                    ColorMapWrapper.getVarnaColorMap();
+                    ColorMaps.getVarnaColorMap();
 
             final VARNAConfig config = new VARNAConfig();
             config._cm = modelColorMap;

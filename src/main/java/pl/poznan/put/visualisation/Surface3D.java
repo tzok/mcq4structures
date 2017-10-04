@@ -158,7 +158,7 @@ public class Surface3D extends AbstractAnalysis {
 
         Shape surface = Builder.buildOrthonormal(orthonormalGrid, mapper);
         surface.setColorMapper(
-                new ColorMapper(ColorMapWrapper.getJzy3dColorMap(), minZ, maxZ,
+                new ColorMapper(ColorMaps.getJzy3dColorMap(), minZ, maxZ,
                                 new Color(1, 1, 1, .5f)));
         surface.setFaceDisplayed(true);
         surface.setWireframeDisplayed(true);

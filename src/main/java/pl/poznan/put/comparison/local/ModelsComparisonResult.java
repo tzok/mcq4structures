@@ -33,7 +33,7 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.ColorMapWrapper;
+import pl.poznan.put.visualisation.ColorMaps;
 import pl.poznan.put.visualisation.Surface3D;
 
 import javax.swing.JOptionPane;
@@ -350,7 +350,7 @@ public class ModelsComparisonResult {
                     comparison.getAngleDelta(angleType);
 
             if (angleDelta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
-                final Color color = ColorMapWrapper
+                final Color color = ColorMaps
                         .getColor(angleDelta.getDelta().getRadians());
                 svg.setColor(color);
             } else {
