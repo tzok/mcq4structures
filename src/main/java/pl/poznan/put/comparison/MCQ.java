@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
         }
     }
 
-    public MCQ(final List<MasterTorsionAngleType> angleTypes) {
+    public MCQ(final Collection<MasterTorsionAngleType> angleTypes) {
         super();
         this.angleTypes = new ArrayList<>(angleTypes);
     }
