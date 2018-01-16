@@ -47,19 +47,6 @@ public final class ColorMaps {
         return map;
     }
 
-    public static Color getColor(final double radians) {
-        if (Math.toDegrees(radians) < 15.0) {
-            return ColorMaps.IDENTICAL;
-        }
-        if (Math.toDegrees(radians) < 30.0) {
-            return Color.YELLOW;
-        }
-        if (Math.toDegrees(radians) < 45.0) {
-            return Color.ORANGE;
-        }
-        return ColorMaps.OPPOSITE;
-    }
-
     private static final AbstractColorMap JZY3D_COLOR_MAP =
             new AbstractColorMap() {
                 private final org.jzy3d.colors.Color identical =

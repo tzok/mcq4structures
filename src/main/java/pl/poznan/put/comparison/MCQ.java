@@ -77,7 +77,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
         }
     }
 
-    public MCQ(final Collection<MasterTorsionAngleType> angleTypes) {
+    public MCQ(final Collection<? extends MasterTorsionAngleType> angleTypes) {
         super();
         this.angleTypes = new ArrayList<>(angleTypes);
     }

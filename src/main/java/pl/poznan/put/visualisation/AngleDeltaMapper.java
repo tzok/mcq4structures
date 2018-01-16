@@ -23,6 +23,29 @@ public final class AngleDeltaMapper implements ComparisonMapper {
         super();
     }
 
+    public static double map(final double degrees) {
+        if (degrees < 15.0) {
+            return 0.0;
+        }
+        if (degrees < 30.0) {
+            return 1.0 / 3.0;
+        }
+        if (degrees < 60.0) {
+            return 2.0 / 3.0;
+        }
+        return 1.0;
+    }
+
+    /**
+     * For each residue return a value in range [0; 1]. MCQ of angle
+     * differences < 15 degrees is a 0. MCQ of angle differences < 30 degrees
+     * is a 0.33. MCQ < 60 is a 0.66. The rest is 1.0.
+     *
+     * @param residueComparisons List of results of comparison for single
+     *                           residues.
+     * @param angleTypes         List of angle types available for each residue.
+     * @return
+     */
     @Override
     public Double[] map(final List<ResidueComparison> residueComparisons,
                         final List<MasterTorsionAngleType> angleTypes) {
@@ -47,16 +70,7 @@ public final class AngleDeltaMapper implements ComparisonMapper {
             final AngleSample sample = new AngleSample(deltas);
             final Angle meanDirection = sample.getMeanDirection();
             final double degrees = meanDirection.getDegrees360();
-
-            if (degrees < 15.0) {
-                result[i] = 0.0;
-            } else if (degrees < 30.0) {
-                result[i] = 1.0 / 3.0;
-            } else if (degrees < 60.0) {
-                result[i] = 2.0 / 3.0;
-            } else {
-                result[i] = 1.0;
-            }
+            result[i] = AngleDeltaMapper.map(degrees);
         }
 
         return result;

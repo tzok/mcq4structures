@@ -4,10 +4,11 @@ import org.apache.commons.collections4.map.DefaultedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.enums.RangeDifference;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.pdb.ChainNumberICode;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.torsion.range.RangeDifference;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
@@ -169,11 +170,13 @@ public class MCQMatcher implements StructureMatcher {
 
     private static TorsionAngleDelta calculateAverageOverDifferences(
             final PdbCompactFragment targetFragment,
-            final PdbResidue targetResidue,
+            final ChainNumberICode targetResidue,
             final PdbCompactFragment modelFragment,
-            final PdbResidue modelResidue,
+            final ChainNumberICode modelResidue,
             final AverageTorsionAngleType angleType) {
-        final List<Angle> angles = new ArrayList<>();
+        final List<Angle> targetAngles = new ArrayList<>();
+        final List<Angle> modelAngles = new ArrayList<>();
+        final List<Angle> deltas = new ArrayList<>();
         double value = 0.0;
 
         for (final MasterTorsionAngleType masterType : angleType
@@ -183,28 +186,34 @@ public class MCQMatcher implements StructureMatcher {
                                                   modelFragment, modelResidue,
                                                   masterType);
             if (delta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
-                angles.add(delta.getDelta());
+                targetAngles.add(delta.getTarget());
+                modelAngles.add(delta.getModel());
+                deltas.add(delta.getDelta());
                 value += delta.getRangeDifference().getValue();
             }
         }
 
-        if (angles.isEmpty()) {
+        if (deltas.isEmpty()) {
             return TorsionAngleDelta.bothInvalidInstance(angleType);
         }
 
-        final AngleSample angleSample = new AngleSample(angles);
+        final AngleSample targetSample = new AngleSample(targetAngles);
+        final AngleSample modelSample = new AngleSample(modelAngles);
+        final AngleSample deltaSample = new AngleSample(deltas);
         return new TorsionAngleDelta(angleType,
                                      TorsionAngleDelta.State.BOTH_VALID,
-                                     angleSample.getMeanDirection(),
+                                     targetSample.getMeanDirection(),
+                                     modelSample.getMeanDirection(),
+                                     deltaSample.getMeanDirection(),
                                      RangeDifference.fromValue((int) Math
-                                             .round(value / angles.size())));
+                                             .round(value / deltas.size())));
     }
 
     private static TorsionAngleDelta findAndSubtractTorsionAngles(
             final PdbCompactFragment targetFragment,
-            final PdbResidue targetResidue,
+            final ChainNumberICode targetResidue,
             final PdbCompactFragment modelFragment,
-            final PdbResidue modelResidue,
+            final ChainNumberICode modelResidue,
             final MasterTorsionAngleType masterType) {
 
         final TorsionAngleValue targetValue =

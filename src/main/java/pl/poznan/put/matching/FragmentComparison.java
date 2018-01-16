@@ -1,7 +1,7 @@
 package pl.poznan.put.matching;
 
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.enums.RangeDifference;
+import pl.poznan.put.torsion.range.RangeDifference;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;

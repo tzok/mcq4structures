@@ -1,6 +1,6 @@
 package pl.poznan.put.visualisation;
 
-import pl.poznan.put.circular.enums.RangeDifference;
+import pl.poznan.put.torsion.range.RangeDifference;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
