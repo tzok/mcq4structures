@@ -5,5 +5,5 @@ import pl.poznan.put.circular.Angle;
 import java.util.Iterator;
 
 public interface AngleDeltaIterator extends Iterator<Angle> {
-    // nothing new
+  // nothing new
 }

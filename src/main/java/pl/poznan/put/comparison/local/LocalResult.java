@@ -14,10 +14,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NoArgsConstructor
 @XmlRootElement
 public abstract class LocalResult implements Exportable, Visualizable, Tabular {
-    @XmlElement protected SelectionMatch selectionMatch;
+  @XmlElement protected SelectionMatch selectionMatch;
 
-    protected LocalResult(final SelectionMatch selectionMatch) {
-        super();
-        this.selectionMatch = selectionMatch;
-    }
+  protected LocalResult(final SelectionMatch selectionMatch) {
+    super();
+    this.selectionMatch = selectionMatch;
+  }
 }

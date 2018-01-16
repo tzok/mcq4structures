@@ -8,15 +8,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ColoredNamedPoint extends NamedPoint {
-    private final Set<Color> colors;
+  private final Set<Color> colors;
 
-    public ColoredNamedPoint(final Set<Color> colors, final String name,
-                             final Vector2D point) {
-        super(name, point);
-        this.colors = new HashSet<>(colors);
-    }
+  public ColoredNamedPoint(final Set<Color> colors, final String name, final Vector2D point) {
+    super(name, point);
+    this.colors = new HashSet<>(colors);
+  }
 
-    public final Set<Color> getColors() {
-        return Collections.unmodifiableSet(colors);
-    }
+  public final Set<Color> getColors() {
+    return Collections.unmodifiableSet(colors);
+  }
 }

@@ -15,52 +15,50 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class SequenceAlignment implements Exportable {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(SequenceAlignment.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAlignment.class);
 
-    private final boolean isGlobal;
-    private final String alignment;
+  private final boolean isGlobal;
+  private final String alignment;
 
-    public SequenceAlignment(boolean isGlobal, String alignment) {
-        this.isGlobal = isGlobal;
-        this.alignment = alignment;
+  public SequenceAlignment(boolean isGlobal, String alignment) {
+    this.isGlobal = isGlobal;
+    this.alignment = alignment;
+  }
+
+  public boolean isGlobal() {
+    return isGlobal;
+  }
+
+  @Override
+  public String toString() {
+    return alignment;
+  }
+
+  @Override
+  public void export(OutputStream stream) throws IOException {
+    try (Writer writer = new OutputStreamWriter(stream, "UTF-8")) {
+      writer.write(isGlobal ? "Global" : "Local");
+      writer.write(" sequence alignment: ");
+      writer.write("\n\n");
+      writer.write(alignment);
+    } catch (UnsupportedEncodingException e) {
+      SequenceAlignment.LOGGER.error("Failed to export sequence alignment", e);
+      throw new IOException(e);
     }
+  }
 
-    public boolean isGlobal() {
-        return isGlobal;
-    }
+  @Override
+  public ExportFormat getExportFormat() {
+    return ExportFormat.TXT;
+  }
 
-    @Override
-    public String toString() {
-        return alignment;
-    }
-
-    @Override
-    public void export(OutputStream stream) throws IOException {
-        try (Writer writer = new OutputStreamWriter(stream, "UTF-8")) {
-            writer.write(isGlobal ? "Global" : "Local");
-            writer.write(" sequence alignment: ");
-            writer.write("\n\n");
-            writer.write(alignment);
-        } catch (UnsupportedEncodingException e) {
-            SequenceAlignment.LOGGER
-                    .error("Failed to export sequence alignment", e);
-            throw new IOException(e);
-        }
-    }
-
-    @Override
-    public ExportFormat getExportFormat() {
-        return ExportFormat.TXT;
-    }
-
-    @Override
-    public File suggestName() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
-        StringBuilder filename = new StringBuilder();
-        filename.append(sdf.format(new Date()));
-        filename.append(isGlobal ? "-GSA-" : "-LSA-");
-        filename.append(".txt");
-        return new File(filename.toString());
-    }
+  @Override
+  public File suggestName() {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+    StringBuilder filename = new StringBuilder();
+    filename.append(sdf.format(new Date()));
+    filename.append(isGlobal ? "-GSA-" : "-LSA-");
+    filename.append(".txt");
+    return new File(filename.toString());
+  }
 }

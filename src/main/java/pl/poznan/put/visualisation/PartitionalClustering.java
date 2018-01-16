@@ -14,62 +14,63 @@ import java.util.List;
 import java.util.Map;
 
 public class PartitionalClustering implements Visualizable {
-    private final Map<Integer, Color> clusterColor = new HashMap<>();
-    private final Map<Integer, String> clusterText = new HashMap<>();
+  private final Map<Integer, Color> clusterColor = new HashMap<>();
+  private final Map<Integer, String> clusterText = new HashMap<>();
 
-    private final ClusterAssignment assignment;
+  private final ClusterAssignment assignment;
 
-    private final DistanceMatrix distanceMatrix;
-    private final ScoredClusteringResult clustering;
+  private final DistanceMatrix distanceMatrix;
+  private final ScoredClusteringResult clustering;
 
-    public PartitionalClustering(final DistanceMatrix distanceMatrix,
-                                 final ScoredClusteringResult clustering) {
-        super();
-        this.distanceMatrix = distanceMatrix;
-        this.clustering = clustering;
+  public PartitionalClustering(
+      final DistanceMatrix distanceMatrix, final ScoredClusteringResult clustering) {
+    super();
+    this.distanceMatrix = distanceMatrix;
+    this.clustering = clustering;
 
-        final ClusterPrototypes prototypes = clustering.getPrototypes();
-        assignment = ClusterAssignment
-                .fromPrototypes(prototypes, distanceMatrix.getMatrix());
-        analyzeClusterAssignment();
+    final ClusterPrototypes prototypes = clustering.getPrototypes();
+    assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix.getMatrix());
+    analyzeClusterAssignment();
+  }
+
+  private void analyzeClusterAssignment() {
+    final List<String> names = distanceMatrix.getNames();
+    int index = 0;
+
+    for (final int prototype : assignment.getPrototypesIndices()) {
+      final StringBuilder builder = new StringBuilder("{ ");
+      for (final int i : assignment.getAssignedTo(prototype)) {
+        builder.append(names.get(i)).append(", ");
+      }
+      builder.delete(builder.length() - 2, builder.length());
+      builder.append(" }");
+
+      clusterColor.put(prototype, ColorMaps.getDistinctColorPaired(index));
+      clusterText.put(prototype, builder.toString());
+      index++;
     }
+  }
 
-    private void analyzeClusterAssignment() {
-        final List<String> names = distanceMatrix.getNames();
-        int index = 0;
+  public final ScoringFunction getScoringFunction() {
+    return clustering.getScoringFunction();
+  }
 
-        for (final int prototype : assignment.getPrototypesIndices()) {
-            final StringBuilder builder = new StringBuilder("{ ");
-            for (final int i : assignment.getAssignedTo(prototype)) {
-                builder.append(names.get(i)).append(", ");
-            }
-            builder.delete(builder.length() - 2, builder.length());
-            builder.append(" }");
-
-            clusterColor
-                    .put(prototype, ColorMaps.getDistinctColorPaired(index));
-            clusterText.put(prototype, builder.toString());
-            index++;
-        }
-    }
-
-    public final ScoringFunction getScoringFunction() {
-        return clustering.getScoringFunction();
-    }
-
-    @Override
-    public final SVGDocument visualize() {
-        return MDSDrawer.scale2DAndVisualizePoints(distanceMatrix, index -> {
-            final int prototype = assignment.getPrototype(index);
-            return clusterColor.get(prototype);
-        }, index -> {
-            final int prototype = assignment.getPrototype(index);
-            return clusterText.get(prototype);
+  @Override
+  public final SVGDocument visualize() {
+    return MDSDrawer.scale2DAndVisualizePoints(
+        distanceMatrix,
+        index -> {
+          final int prototype = assignment.getPrototype(index);
+          return clusterColor.get(prototype);
+        },
+        index -> {
+          final int prototype = assignment.getPrototype(index);
+          return clusterText.get(prototype);
         });
-    }
+  }
 
-    @Override
-    public void visualize3D() {
-        // do nothing
-    }
+  @Override
+  public void visualize3D() {
+    // do nothing
+  }
 }

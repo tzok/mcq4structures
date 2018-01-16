@@ -5,25 +5,25 @@ import java.util.Map;
 import java.util.Set;
 
 public class Histogram {
-    private final Map<Double, Double> percentages = new HashMap<>();
+  private final Map<Double, Double> percentages = new HashMap<>();
 
-    public Histogram(double[] limits, double[] percentages) {
-        super();
+  public Histogram(double[] limits, double[] percentages) {
+    super();
 
-        assert limits.length == percentages.length;
-        for (int i = 0; i < limits.length; i++) {
-            this.percentages.put(limits[i], percentages[i]);
-        }
+    assert limits.length == percentages.length;
+    for (int i = 0; i < limits.length; i++) {
+      this.percentages.put(limits[i], percentages[i]);
     }
+  }
 
-    public Set<Double> getKeys() {
-        return percentages.keySet();
-    }
+  public Set<Double> getKeys() {
+    return percentages.keySet();
+  }
 
-    public Double getPercentage(Double key) {
-        if (!percentages.containsKey(key)) {
-            return Double.NaN;
-        }
-        return percentages.get(key);
+  public Double getPercentage(Double key) {
+    if (!percentages.containsKey(key)) {
+      return Double.NaN;
     }
+    return percentages.get(key);
+  }
 }
