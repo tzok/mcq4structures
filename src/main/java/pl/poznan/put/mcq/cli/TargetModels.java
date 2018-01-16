@@ -25,53 +25,50 @@ import java.util.List;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class TargetModels {
-    private static final Options OPTIONS =
-            new Options().addOption(Helper.OPTION_TARGET)
-                         .addOption(Helper.OPTION_MODELS);
+  private static final Options OPTIONS =
+      new Options().addOption(Helper.OPTION_TARGET).addOption(Helper.OPTION_MODELS);
 
-    public static void main(final String[] args)
-            throws ParseException, IOException, PdbParsingException,
-                   IncomparableStructuresException {
-        if (Helper.isHelpRequested(args)) {
-            Helper.printHelp("target-models", TargetModels.OPTIONS);
-            return;
-        }
-
-        final CommandLineParser parser = new DefaultParser();
-        final CommandLine commandLine =
-                parser.parse(TargetModels.OPTIONS, args);
-
-        final PdbModel target = Helper.loadStructure((File) commandLine
-                .getParsedOptionValue(Helper.OPTION_TARGET.getOpt()));
-        final PdbCompactFragment targetFragment =
-                new PdbCompactFragment("", target.getResidues());
-
-        final List<PdbCompactFragment> modelFragments = new ArrayList<>();
-
-        for (final File file : (File[]) commandLine
-                .getParsedOptionValue(Helper.OPTION_MODELS.getOpt())) {
-            final PdbModel model = Helper.loadStructure(file);
-            modelFragments.add(new PdbCompactFragment("", model.getResidues()));
-        }
-
-        final LocalComparator mcq = new MCQ(MoleculeType.RNA);
-        final ModelsComparisonResult.SelectedAngle result =
-                mcq.compareModels(targetFragment, modelFragments)
-                   .selectAngle(RNATorsionAngleType.getAverageOverMainAngles());
-
-        final ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writeValue(System.out, result);
-
-        final File exportFile = result.suggestName();
-
-        try (final OutputStream stream = new FileOutputStream(exportFile)) {
-            result.export(stream);
-        }
-
-        System.err.println(exportFile);
+  public static void main(final String[] args)
+      throws ParseException, IOException, PdbParsingException, IncomparableStructuresException {
+    if (Helper.isHelpRequested(args)) {
+      Helper.printHelp("target-models", TargetModels.OPTIONS);
+      return;
     }
 
-    private TargetModels() {
-        super();
+    final CommandLineParser parser = new DefaultParser();
+    final CommandLine commandLine = parser.parse(TargetModels.OPTIONS, args);
+
+    final PdbModel target =
+        Helper.loadStructure(
+            (File) commandLine.getParsedOptionValue(Helper.OPTION_TARGET.getOpt()));
+    final PdbCompactFragment targetFragment = new PdbCompactFragment("", target.getResidues());
+
+    final List<PdbCompactFragment> modelFragments = new ArrayList<>();
+
+    for (final File file :
+        (File[]) commandLine.getParsedOptionValue(Helper.OPTION_MODELS.getOpt())) {
+      final PdbModel model = Helper.loadStructure(file);
+      modelFragments.add(new PdbCompactFragment("", model.getResidues()));
     }
+
+    final LocalComparator mcq = new MCQ(MoleculeType.RNA);
+    final ModelsComparisonResult.SelectedAngle result =
+        mcq.compareModels(targetFragment, modelFragments)
+            .selectAngle(RNATorsionAngleType.getAverageOverMainAngles());
+
+    final ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.writeValue(System.out, result);
+
+    final File exportFile = result.suggestName();
+
+    try (final OutputStream stream = new FileOutputStream(exportFile)) {
+      result.export(stream);
+    }
+
+    System.err.println(exportFile);
+  }
+
+  private TargetModels() {
+    super();
+  }
 }
