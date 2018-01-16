@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings({"UseOfSystemOutOrSystemErr", "CallToSystemExit"})
+@Deprecated
 public final class App {
     private static final MasterTorsionAngleType DEFAULT_ANGLE_TYPE =
             new AverageTorsionAngleType(MoleculeType.RNA,
