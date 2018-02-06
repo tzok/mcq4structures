@@ -84,8 +84,31 @@ public class LCSGlobalResult extends GlobalResult {
         return builder.toString();
     }
 
+    public String cliOutput(StructureSelection model, StructureSelection target) {
+        SelectionMatch selectionMatch = getSelectionMatch();
+        AngleDeltaIterator angleDeltaIterator =
+                new MatchCollectionDeltaIterator(selectionMatch);
+        SingleMatchStatistics statistics =
+                SingleMatchStatistics.calculate("", angleDeltaIterator);
 
-    public Angle getMeanDirection() {
+        int validCount = selectionMatch.getResidueLabels().size();
+        int length = target.getResidues().size();
+        double coverage = (double) validCount / (double) length * 100.0;
+        PdbResidue s;
+        PdbResidue e;
+        PdbResidue s1;
+        PdbResidue e1;
+        s = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getTarget();
+        e = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1).getTarget();
+        s1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getModel();
+        e1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1).getModel();
+        String outputCli = getShortDisplayName() + validCount + String.format("%.4g%n", coverage) + "%" + target.getName() + s + e + model.getName() + s1 + e1;
+        return outputCli;
+
+    }
+
+
+        public Angle getMeanDirection() {
         return angleSample.getMeanDirection();
     }
 

@@ -61,7 +61,16 @@ public class LCS implements GlobalComparator {
         mcqValue = Math.toRadians(Double.parseDouble(JOptionPane.showInputDialog(frame, "MCQ value")));
 
     }
+    public LCS(double mcqVal) {
+        super();
+        angleTypes = new ArrayList<>();
+        angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+        angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
 
+
+        mcqValue =mcqVal;
+
+    }
     public LCS(MoleculeType moleculeType) {
         super();
 
