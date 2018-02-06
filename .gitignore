@@ -1,7 +1,10 @@
-mcq4structures.iml
+*~
+.classpath
+.project
 .settings
 .sonar
 bin
 certs
+mcq4structures.iml
 signed
 target
