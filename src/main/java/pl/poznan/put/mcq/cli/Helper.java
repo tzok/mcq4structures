@@ -51,6 +51,14 @@ public final class Helper {
           .required()
           .type(File.class)
           .build();
+  public static final Option MCQ_VALUE =
+          Option.builder("v")
+                  .longOpt("mcq-value")
+                  .numberOfArgs(1)
+                  .desc("Value of mcq threshold")
+                  .required()
+                  .type(Double.class)
+                  .build();
   public static final Option OPTION_MODELS =
       Option.builder("m")
           .longOpt("models")
