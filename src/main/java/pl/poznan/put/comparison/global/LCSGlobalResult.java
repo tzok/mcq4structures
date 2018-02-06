@@ -102,7 +102,15 @@ public class LCSGlobalResult extends GlobalResult {
         e = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1).getTarget();
         s1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getModel();
         e1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1).getModel();
-        String outputCli = getShortDisplayName() + validCount + String.format("%.4g%n", coverage) + "%" + target.getName() + s + e + model.getName() + s1 + e1;
+        String outputCli = "MCQ value: " +getShortDisplayName() + "\n"
+                            + "Number of residues: " + validCount + "\n"
+                            + "Coverage: " + String.valueOf(coverage) + "% \n"
+                            + "Target name: " + target.getName() + "\n"
+                            + "First target residue: " +  s + "\n"
+                            + "Last target residue: " + e + "\n"
+                            + "Model name: " + model.getName() + "\n"
+                            + "First model residue: " + s1 + "\n"
+                            + "Last model residue" + e1;
         return outputCli;
 
     }
