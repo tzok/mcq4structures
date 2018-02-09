@@ -34,6 +34,8 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.lang3.tuple.Pair;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.enums.ValueType;
 import pl.poznan.put.comparison.LCS;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
@@ -96,7 +98,7 @@ public class MainWindow extends JFrame {
   private final ActionListener radioActionListener =
       new ActionListener() {
         @Override
-        public void actionPerformed(ActionEvent arg0) {
+        public void actionPerformed(final ActionEvent arg0) {
           itemVisualise3D.setEnabled(false);
           itemCluster.setEnabled(false);
         }
@@ -131,9 +133,9 @@ public class MainWindow extends JFrame {
   private final ActionListener selectActionListener =
       new ActionListener() {
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
           assert e != null;
-          JMenuItem source = (JMenuItem) e.getSource();
+          final JMenuItem source = (JMenuItem) e.getSource();
 
           if (source.equals(itemSelectStructureTorsionAngles)) {
             selectSingleStructure();
@@ -155,7 +157,7 @@ public class MainWindow extends JFrame {
         }
       };
 
-  public MainWindow(List<File> pdbs) {
+  public MainWindow(final List<File> pdbs) {
     super();
 
     dialogManager = new DialogManager(this);
@@ -185,15 +187,15 @@ public class MainWindow extends JFrame {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle(MainWindow.TITLE);
 
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    Dimension size = toolkit.getScreenSize();
+    final Toolkit toolkit = Toolkit.getDefaultToolkit();
+    final Dimension size = toolkit.getScreenSize();
     setSize(size.width * 3 / 4, size.height * 3 / 4);
     setLocation(size.width / 8, size.height / 8);
 
     dialogManager.addWindowListener(
         new WindowAdapter() {
           @Override
-          public void windowClosing(WindowEvent e) {
+          public void windowClosing(final WindowEvent e) {
             super.windowClosing(e);
             checkBoxManager.setSelected(false);
           }
@@ -201,7 +203,7 @@ public class MainWindow extends JFrame {
   }
 
   private void createMenu() {
-    JMenuBar menuBar = new JMenuBar();
+    final JMenuBar menuBar = new JMenuBar();
 
     menuFile.setMnemonic(KeyEvent.VK_F);
     menuFile.add(itemOpen);
@@ -252,14 +254,14 @@ public class MainWindow extends JFrame {
     itemVisualise3D.setEnabled(false);
     itemCluster.setEnabled(false);
 
-    ButtonGroup group = new ButtonGroup();
+    final ButtonGroup group = new ButtonGroup();
     group.add(radioGlobalMcq);
     group.add(radioGlobalRmsd);
     group.add(radioGlobalLcs);
     group.add(radioLocal);
     group.add(radioLocalMulti);
 
-    ButtonGroup groupAlign = new ButtonGroup();
+    final ButtonGroup groupAlign = new ButtonGroup();
     groupAlign.add(radioAlignSeqGlobal);
     groupAlign.add(radioAlignSeqLocal);
     groupAlign.add(radioAlignStruc);
@@ -281,7 +283,7 @@ public class MainWindow extends JFrame {
     itemOpen.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
+          public void actionPerformed(final ActionEvent e) {
             dialogManager.selectAndLoadStructures();
           }
         });
@@ -289,7 +291,7 @@ public class MainWindow extends JFrame {
     itemSave.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
+          public void actionPerformed(final ActionEvent e) {
             saveResults();
           }
         });
@@ -297,7 +299,7 @@ public class MainWindow extends JFrame {
     checkBoxManager.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
+          public void actionPerformed(final ActionEvent e) {
             dialogManager.setVisible(checkBoxManager.isSelected());
           }
         });
@@ -305,7 +307,7 @@ public class MainWindow extends JFrame {
     itemExit.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
+          public void actionPerformed(final ActionEvent e) {
             dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
           }
         });
@@ -313,7 +315,7 @@ public class MainWindow extends JFrame {
     itemVisualise3D.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
+          public void actionPerformed(final ActionEvent e) {
             if (currentResult.canVisualize()) {
               currentResult.visualize3D();
             }
@@ -323,13 +325,13 @@ public class MainWindow extends JFrame {
     itemCluster.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent arg0) {
+          public void actionPerformed(final ActionEvent arg0) {
             if (currentResult.canCluster()) {
-              DistanceMatrix distanceMatrix = currentResult.getDataForClustering();
-              double[][] array = distanceMatrix.getMatrix();
+              final DistanceMatrix distanceMatrix = currentResult.getDataForClustering();
+              final double[][] array = distanceMatrix.getMatrix();
 
               if (array.length <= 1) {
-                String message =
+                final String message =
                     "Cannot cluster this distance matrix, because"
                         + " it contains zero valid comparisons";
                 JOptionPane.showMessageDialog(
@@ -337,7 +339,7 @@ public class MainWindow extends JFrame {
                 return;
               }
 
-              DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
+              final DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
               dialogClustering.setVisible(true);
             }
           }
@@ -346,8 +348,8 @@ public class MainWindow extends JFrame {
     itemGuide.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
-            DialogGuide dialog = new DialogGuide(MainWindow.this);
+          public void actionPerformed(final ActionEvent e) {
+            final DialogGuide dialog = new DialogGuide(MainWindow.this);
             dialog.setVisible(true);
           }
         });
@@ -355,8 +357,8 @@ public class MainWindow extends JFrame {
     itemAbout.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
-            DialogAbout dialog = new DialogAbout(MainWindow.this);
+          public void actionPerformed(final ActionEvent e) {
+            final DialogAbout dialog = new DialogAbout(MainWindow.this);
             dialog.setVisible(true);
           }
         });
@@ -364,7 +366,7 @@ public class MainWindow extends JFrame {
 
   private void saveResults() {
     if (currentResult.canExport()) {
-      File suggestedName = currentResult.suggestName();
+      final File suggestedName = currentResult.suggestName();
       fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
       fileChooser.setSelectedFile(suggestedName);
 
@@ -376,7 +378,7 @@ public class MainWindow extends JFrame {
               "Successfully exported the " + "results!",
               "Information",
               JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException e) {
+        } catch (final IOException e) {
           JOptionPane.showMessageDialog(
               MainWindow.this,
               "Failed to export the " + "results, reason: " + e.getMessage(),
@@ -390,8 +392,8 @@ public class MainWindow extends JFrame {
   public static void main(final String[] args) {
     final List<File> pdbs = new ArrayList<>();
 
-    for (String argument : args) {
-      File file = new File(argument);
+    for (final String argument : args) {
+      final File file = new File(argument);
       if (file.canRead()) {
         pdbs.add(file);
       }
@@ -404,7 +406,7 @@ public class MainWindow extends JFrame {
             /*
              * Set L&F
              */
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
               if ("Nimbus".equals(info.getName())) {
                 try {
                   UIManager.setLookAndFeel(info.getClassName());
@@ -418,7 +420,7 @@ public class MainWindow extends JFrame {
               }
             }
 
-            MainWindow window = new MainWindow(pdbs);
+            final MainWindow window = new MainWindow(pdbs);
             window.setVisible(true);
           }
         });
@@ -427,9 +429,9 @@ public class MainWindow extends JFrame {
   private void selectSingleStructure() {
     itemSave.setEnabled(false);
 
-    List<String> names = StructureManager.getAllNames();
-    String[] selectionValues = names.toArray(new String[names.size()]);
-    String name =
+    final List<String> names = StructureManager.getAllNames();
+    final String[] selectionValues = names.toArray(new String[names.size()]);
+    final String name =
         (String)
             JOptionPane.showInputDialog(
                 this,
@@ -441,7 +443,7 @@ public class MainWindow extends JFrame {
                 null);
 
     if (name != null) {
-      PdbModel structure = StructureManager.getStructure(name);
+      final PdbModel structure = StructureManager.getStructure(name);
       currentResult = panelTorsionAngles.calculateTorsionAngles(structure);
       layoutCards.show(panelCards, MainWindow.CARD_TORSION);
       updateMenuEnabledStates();
@@ -463,7 +465,7 @@ public class MainWindow extends JFrame {
       return;
     }
 
-    List<PdbModel> structures = dialogStructures.getStructures();
+    final List<PdbModel> structures = dialogStructures.getStructures();
     if (structures.size() < 2) {
       JOptionPane.showMessageDialog(
           MainWindow.this,
@@ -483,33 +485,37 @@ public class MainWindow extends JFrame {
   }
 
   private void compareGlobal() {
+    final GlobalComparator comparator;
+    if (radioGlobalLcs.isSelected()) {
+      final Angle threshold =
+          new Angle(
+              Double.parseDouble(JOptionPane.showInputDialog("MCQ threshold:")), ValueType.DEGREES);
+      comparator = new LCS(threshold);
+    } else if (radioGlobalMcq.isSelected()) {
+      comparator = new MCQ();
+    } else {
+      comparator = new RMSD();
+    }
 
-    GlobalComparator comparator =
-        (radioGlobalMcq.isSelected()
-            ? new MCQ()
-            : radioGlobalRmsd.isSelected() ? new RMSD() : new LCS());
     panelResultsGlobalMatrix.compareAndDisplayMatrix(
         comparator,
-        new GlobalMatrixPanel.Callback() {
-          @Override
-          public void complete(ProcessingResult processingResult) {
-            currentResult = processingResult;
-            layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
-            updateMenuEnabledStates();
-          }
+        processingResult -> {
+          currentResult = processingResult;
+          layoutCards.show(panelCards, MainWindow.CARD_GLOBAL_MATRIX);
+          updateMenuEnabledStates();
         });
   }
 
-  private void selectChains(JMenuItem source) {
+  private void selectChains(final JMenuItem source) {
     if (dialogChains.showDialog() != DialogSelectChains.OK) {
       return;
     }
 
-    Pair<PdbModel, PdbModel> structures = dialogChains.getStructures();
-    Pair<List<PdbChain>, List<PdbChain>> chains = dialogChains.getChains();
+    final Pair<PdbModel, PdbModel> structures = dialogChains.getStructures();
+    final Pair<List<PdbChain>, List<PdbChain>> chains = dialogChains.getChains();
 
     if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
-      String message =
+      final String message =
           "No chains specified for structure: "
               + StructureManager.getName(structures.getLeft())
               + " or "
@@ -552,7 +558,7 @@ public class MainWindow extends JFrame {
     updateMenuEnabledStates();
   }
 
-  private void selectChainsMultiple(JMenuItem source) {
+  private void selectChainsMultiple(final JMenuItem source) {
     if (dialogChainsMultiple.showDialog(source.equals(itemSelectStructuresCompare))
         != DialogSelectChainsMultiple.OK) {
       return;
@@ -567,10 +573,10 @@ public class MainWindow extends JFrame {
       return;
     }
 
-    List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
-    MoleculeType type = fragments.get(0).getMoleculeType();
+    final List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
+    final MoleculeType type = fragments.get(0).getMoleculeType();
 
-    for (PdbCompactFragment c : fragments) {
+    for (final PdbCompactFragment c : fragments) {
       if (type != c.getMoleculeType()) {
         JOptionPane.showMessageDialog(
             this,
