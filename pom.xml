@@ -14,7 +14,7 @@
 
     <properties>
         <batik.version>1.9.1</batik.version>
-        <biojava.version>5.0.0-alpha12</biojava.version>
+        <biojava.version>5.0.0-alpha15</biojava.version>
     </properties>
 
     <repositories>
