@@ -58,7 +58,7 @@
         <dependency>
             <groupId>pl.poznan.put</groupId>
             <artifactId>TzokCommons</artifactId>
-            <version>1.5-SNAPSHOT</version>
+            <version>1.5</version>
         </dependency>
 
         <dependency>
@@ -89,19 +89,20 @@
             </plugin>
 
             <plugin>
-                <groupId>external.atlassian.jgitflow</groupId>
-                <artifactId>jgitflow-maven-plugin</artifactId>
-                <version>1.0-m5.1</version>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.9.0</version>
                 <configuration>
-                    <flowInitContext>
-                        <masterBranchName>master</masterBranchName>
-                        <developBranchName>develop</developBranchName>
-                        <featureBranchPrefix>feature-</featureBranchPrefix>
-                        <releaseBranchPrefix>release-</releaseBranchPrefix>
-                        <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
-                        <versionTagPrefix>v</versionTagPrefix>
-                    </flowInitContext>
-                    <noDeploy>true</noDeploy>
+                    <gitFlowConfig>
+                        <productionBranch>master</productionBranch>
+                        <developmentBranch>develop</developmentBranch>
+                        <featureBranchPrefix>feature/</featureBranchPrefix>
+                        <releaseBranchPrefix>release/</releaseBranchPrefix>
+                        <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
+                        <supportBranchPrefix>support/</supportBranchPrefix>
+                        <versionTagPrefix></versionTagPrefix>
+                        <origin>origin</origin>
+                    </gitFlowConfig>
                 </configuration>
             </plugin>
 
