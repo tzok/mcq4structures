@@ -1,5 +1,13 @@
 package pl.poznan.put.matching;
 
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
 import org.jfree.chart.JFreeChart;
@@ -38,14 +46,31 @@ import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.TorsionAxis;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.List;
-
 public class FragmentMatch implements Visualizable {
   private static final Logger LOGGER = LoggerFactory.getLogger(FragmentMatch.class);
+
+  private static final NumberFormat NUMBER_FORMAT =
+      new NumberFormat() {
+        private static final long serialVersionUID = -5555343582625013384L;
+
+        @Override
+        public StringBuffer format(
+            final double v, final StringBuffer stringBuffer, final FieldPosition fieldPosition) {
+          return stringBuffer.append(AngleFormat.degreesRoundedToOne(v));
+        }
+
+        @Override
+        public StringBuffer format(
+            final long l, final StringBuffer stringBuffer, final FieldPosition fieldPosition) {
+          return stringBuffer.append(AngleFormat.degreesRoundedToOne(l));
+        }
+
+        @Override
+        public Number parse(final String s, final ParsePosition parsePosition) {
+          throw new UnsupportedOperationException("Unsupported");
+        }
+      };
+
   private final PdbCompactFragment targetFragment;
   private final PdbCompactFragment modelFragment;
   private final boolean isTargetSmaller;
@@ -161,7 +186,7 @@ public class FragmentMatch implements Visualizable {
     rangeAxis.setLabel("Angular distance");
     rangeAxis.setRange(0, Math.PI);
     rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-    rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
+    rangeAxis.setNumberFormatOverride(FragmentMatch.NUMBER_FORMAT);
 
     return FragmentMatch.plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
   }
@@ -300,7 +325,7 @@ public class FragmentMatch implements Visualizable {
     rangeAxis.setLabel("Angular distance");
     rangeAxis.setRange(0, Math.PI);
     rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-    rangeAxis.setNumberFormatOverride(AngleFormat.createInstance());
+    rangeAxis.setNumberFormatOverride(FragmentMatch.NUMBER_FORMAT);
 
     return FragmentMatch.plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
   }

@@ -1,19 +1,18 @@
 package pl.poznan.put.matching.stats;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.swing.table.TableModel;
 import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
 import pl.poznan.put.matching.AngleDeltaIterator;
 import pl.poznan.put.matching.AngleDeltaIteratorFactory;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MatchCollection;
 import pl.poznan.put.utility.AngleFormat;
-import pl.poznan.put.utility.CommonNumberFormat;
-
-import javax.annotation.Nonnull;
-import javax.swing.table.TableModel;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import pl.poznan.put.utility.TwoDigitsAfterDotNumberFormat;
 
 public final class MultiMatchStatistics {
   public static final class HistogramEntry implements Comparable<HistogramEntry> {
@@ -48,7 +47,7 @@ public final class MultiMatchStatistics {
 
     @Override
     public String toString() {
-      return CommonNumberFormat.formatDouble(100.0 * ratio) + '%';
+      return TwoDigitsAfterDotNumberFormat.formatDouble(100.0 * ratio) + '%';
     }
   }
 
@@ -100,8 +99,8 @@ public final class MultiMatchStatistics {
     @Override
     public String toString() {
       return isDisplayable
-          ? AngleFormat.formatDisplayShort(threshold)
-          : AngleFormat.formatExport(threshold);
+          ? AngleFormat.degreesRoundedToHundredth(threshold)
+          : AngleFormat.degrees(threshold);
     }
   }
 
@@ -163,7 +162,7 @@ public final class MultiMatchStatistics {
     columnNames[0] = isDisplayable ? "" : null;
 
     for (int i = 0; i < angleLimits.length; i++) {
-      columnNames[i + 1] = AngleFormat.formatDisplayLong(angleLimits[i]);
+      columnNames[i + 1] = AngleFormat.degreesRoundedToOne(angleLimits[i]);
     }
 
     final Object[][] data = new Object[statistics.size()][];
@@ -186,7 +185,7 @@ public final class MultiMatchStatistics {
     columnNames[0] = isDisplayable ? "" : null;
     for (int i = 0; i < percentsLimits.length; i++) {
       columnNames[i + 1] =
-          String.format("%s%%", CommonNumberFormat.formatDouble(percentsLimits[i]));
+          String.format("%s%%", TwoDigitsAfterDotNumberFormat.formatDouble(percentsLimits[i]));
     }
 
     final Object[][] data = new Object[statistics.size()][];

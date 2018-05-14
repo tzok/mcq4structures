@@ -1,27 +1,5 @@
 package pl.poznan.put.comparison.global;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.stat.StatUtils;
-import org.jzy3d.analysis.AnalysisLauncher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.constant.Unicode;
-import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
-import pl.poznan.put.interfaces.Clusterable;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.interfaces.Tabular;
-import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.types.DistanceMatrix;
-import pl.poznan.put.types.ExportFormat;
-import pl.poznan.put.utility.TabularExporter;
-import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.MDSDrawer;
-import pl.poznan.put.visualisation.Surface3D;
-
-import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,6 +10,27 @@ import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import javax.swing.JOptionPane;
+import javax.swing.table.TableModel;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.StatUtils;
+import org.jzy3d.analysis.AnalysisLauncher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.constant.Unicode;
+import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
+import pl.poznan.put.interfaces.Clusterable;
+import pl.poznan.put.interfaces.DistanceMatrix;
+import pl.poznan.put.interfaces.ExportFormat;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Tabular;
+import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.utility.TabularExporter;
+import pl.poznan.put.utility.svg.SVGHelper;
+import pl.poznan.put.visualisation.MDSDrawer;
+import pl.poznan.put.visualisation.Surface3D;
 
 public class GlobalMatrix implements Clusterable, Exportable, Visualizable, Tabular {
   private static final Logger LOGGER = LoggerFactory.getLogger(GlobalResult.class);

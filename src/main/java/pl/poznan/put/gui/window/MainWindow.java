@@ -1,7 +1,5 @@
 package pl.poznan.put.gui.window;
 
-import darrylbu.component.StayOpenCheckBoxMenuItem;
-import darrylbu.component.StayOpenRadioButtonMenuItem;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -41,18 +39,20 @@ import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
+import pl.poznan.put.gui.component.StayOpenCheckBoxMenuItem;
+import pl.poznan.put.gui.component.StayOpenRadioButtonMenuItem;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
 import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
 import pl.poznan.put.gui.panel.TorsionAngleValuesMatrixPanel;
+import pl.poznan.put.interfaces.DistanceMatrix;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
-import pl.poznan.put.types.DistanceMatrix;
 
 public class MainWindow extends JFrame {
   private static final String RESOURCE_ICON_OPEN = "/toolbarButtonGraphics/general/Open16.gif";

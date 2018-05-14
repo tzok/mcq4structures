@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +18,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.poznan.put.circular.Angle;
+import pl.poznan.put.interfaces.ExportFormat;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
@@ -30,7 +30,6 @@ import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleValue;
-import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
@@ -253,8 +252,8 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
           final double radians = angleValue.getValue().getRadians();
           row.add(
               isDisplayable
-                  ? AngleFormat.formatDisplayShort(radians)
-                  : AngleFormat.formatExport(radians));
+                  ? AngleFormat.degreesRoundedToHundredth(radians)
+                  : AngleFormat.degrees(radians));
         }
 
         data[i] = row.toArray(new String[row.size()]);

@@ -3,7 +3,7 @@ package pl.poznan.put.comparison.global;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.SelectionMatch;
-import pl.poznan.put.utility.CommonNumberFormat;
+import pl.poznan.put.utility.TwoDigitsAfterDotNumberFormat;
 
 public class RMSDGlobalResult extends GlobalResult {
   private final FragmentSuperimposer superimposer;
@@ -44,7 +44,7 @@ public class RMSDGlobalResult extends GlobalResult {
 
   @Override
   public String getShortDisplayName() {
-    return CommonNumberFormat.formatDouble(superimposer.getRMSD()) + Unicode.ANGSTROM;
+    return TwoDigitsAfterDotNumberFormat.formatDouble(superimposer.getRMSD()) + Unicode.ANGSTROM;
   }
 
   @Override

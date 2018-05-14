@@ -9,7 +9,7 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.matching.stats.SingleMatchStatistics;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.utility.AngleFormat;
-import pl.poznan.put.utility.CommonNumberFormat;
+import pl.poznan.put.utility.TwoDigitsAfterDotNumberFormat;
 
 public class LCSGlobalResult extends GlobalResult {
   private final AngleSample angleSample;
@@ -111,7 +111,7 @@ public class LCSGlobalResult extends GlobalResult {
         "MCQ value: %s\nNumber of residues: %d\nCoverage: %s%% \nTarget name: %s\nFirst target residue: %s\nLast target residue: %s\nModel name: %s\nFirst model residue: %s\nLast model residue: %s",
         getShortDisplayName(),
         validCount,
-        CommonNumberFormat.formatDouble(coverage),
+        TwoDigitsAfterDotNumberFormat.formatDouble(coverage),
         target.getName(),
         s,
         e,
@@ -140,12 +140,12 @@ public class LCSGlobalResult extends GlobalResult {
 
   @Override
   public String getShortDisplayName() {
-    return AngleFormat.formatDisplayShort(angleSample.getMeanDirection().getRadians());
+    return AngleFormat.degreesRoundedToOne(angleSample.getMeanDirection().getRadians());
   }
 
   @Override
   public String getExportName() {
-    return AngleFormat.formatExport(angleSample.getMeanDirection().getRadians());
+    return AngleFormat.degrees(angleSample.getMeanDirection().getRadians());
   }
 
   @Override

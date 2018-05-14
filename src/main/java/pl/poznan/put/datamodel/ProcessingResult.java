@@ -1,15 +1,14 @@
 package pl.poznan.put.datamodel;
 
-import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.interfaces.Clusterable;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.types.DistanceMatrix;
-import pl.poznan.put.types.ExportFormat;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.interfaces.Clusterable;
+import pl.poznan.put.interfaces.DistanceMatrix;
+import pl.poznan.put.interfaces.ExportFormat;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Visualizable;
 
 public class ProcessingResult implements Clusterable, Visualizable, Exportable {
   private final Clusterable clusterable;

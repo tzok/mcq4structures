@@ -1,5 +1,20 @@
 package pl.poznan.put.visualisation;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
@@ -28,24 +43,8 @@ import pl.poznan.put.clustering.hierarchical.Linkage;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ColoredNamedPoint;
 import pl.poznan.put.datamodel.NamedPoint;
-import pl.poznan.put.types.DistanceMatrix;
+import pl.poznan.put.interfaces.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.font.LineMetrics;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 public final class MDSDrawer {
   public interface ColorProvider {

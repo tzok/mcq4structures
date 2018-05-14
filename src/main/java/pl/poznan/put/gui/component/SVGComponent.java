@@ -1,18 +1,5 @@
 package pl.poznan.put.gui.component;
 
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.types.ExportFormat;
-import pl.poznan.put.utility.svg.Format;
-import pl.poznan.put.utility.svg.SVGHelper;
-
-import javax.swing.JFileChooser;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -23,6 +10,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.interfaces.ExportFormat;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.utility.svg.Format;
+import pl.poznan.put.utility.svg.SVGHelper;
 
 public class SVGComponent extends JSVGCanvas implements Exportable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SVGComponent.class);

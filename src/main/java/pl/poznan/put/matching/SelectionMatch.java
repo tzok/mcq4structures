@@ -1,23 +1,22 @@
 package pl.poznan.put.matching;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.biojava.nbio.structure.StructureException;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.pdb.CifPdbIncompatibilityException;
-import pl.poznan.put.types.ExportFormat;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.biojava.nbio.structure.StructureException;
+import pl.poznan.put.interfaces.ExportFormat;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 
 @Data
 @NoArgsConstructor

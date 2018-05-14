@@ -1,10 +1,5 @@
 package pl.poznan.put.alignment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.types.ExportFormat;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,6 +8,10 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.poznan.put.interfaces.ExportFormat;
+import pl.poznan.put.interfaces.Exportable;
 
 public class SequenceAlignment implements Exportable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAlignment.class);

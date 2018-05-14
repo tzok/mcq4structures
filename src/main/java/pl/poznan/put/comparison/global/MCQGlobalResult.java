@@ -7,7 +7,7 @@ import pl.poznan.put.matching.MatchCollectionDeltaIterator;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.stats.SingleMatchStatistics;
 import pl.poznan.put.utility.AngleFormat;
-import pl.poznan.put.utility.CommonNumberFormat;
+import pl.poznan.put.utility.TwoDigitsAfterDotNumberFormat;
 
 public class MCQGlobalResult extends GlobalResult {
   private final AngleSample angleSample;
@@ -34,7 +34,7 @@ public class MCQGlobalResult extends GlobalResult {
     builder.append("<br>");
     builder.append(validCount);
     builder.append("<br>");
-    builder.append(CommonNumberFormat.formatDouble(percentBelow15Deg));
+    builder.append(TwoDigitsAfterDotNumberFormat.formatDouble(percentBelow15Deg));
     builder.append('%');
     builder.append("</html>");
     return builder.toString();
@@ -60,12 +60,12 @@ public class MCQGlobalResult extends GlobalResult {
 
   @Override
   public String getShortDisplayName() {
-    return AngleFormat.formatDisplayShort(angleSample.getMeanDirection().getRadians());
+    return AngleFormat.degreesRoundedToHundredth(angleSample.getMeanDirection().getRadians());
   }
 
   @Override
   public String getExportName() {
-    return AngleFormat.formatExport(angleSample.getMeanDirection().getRadians());
+    return AngleFormat.degrees(angleSample.getMeanDirection().getRadians());
   }
 
   @Override

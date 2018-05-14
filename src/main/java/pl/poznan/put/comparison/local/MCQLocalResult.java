@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.gui.component.NonEditableDefaultTableModel;
+import pl.poznan.put.interfaces.ExportFormat;
 import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
@@ -19,7 +20,6 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.types.ExportFormat;
 import pl.poznan.put.utility.TabularExporter;
 import pl.poznan.put.visualisation.Surface3D;
 
