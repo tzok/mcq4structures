@@ -4,11 +4,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.keyboard.screenshot
-        .AWTScreenshotKeyController;
+import org.jzy3d.chart.controllers.keyboard.screenshot.AWTScreenshotKeyController;
 import org.jzy3d.chart.controllers.keyboard.screenshot.IScreenshotKeyController;
-import org.jzy3d.chart.controllers.keyboard.screenshot
-        .IScreenshotKeyController.IScreenshotEventListener;
+import org.jzy3d.chart.controllers.keyboard.screenshot.IScreenshotKeyController.IScreenshotEventListener;
 import org.jzy3d.chart.controllers.mouse.AWTMouseUtilities;
 import org.jzy3d.chart.controllers.mouse.camera.AWTCameraMouseController;
 import org.jzy3d.chart.controllers.mouse.camera.ICameraMouseController;
@@ -39,165 +37,162 @@ import java.util.NavigableMap;
 import java.util.SortedSet;
 
 public class Surface3D extends AbstractAnalysis {
-    private final AWTChartComponentFactory factory =
-            new AWTChartComponentFactory() {
-                @Override
-                public ICameraMouseController newMouseController(Chart c) {
-                    return new AWTCameraMouseController(c) {
-                        @Override
-                        public void mouseDragged(MouseEvent e) {
-                            if (AWTMouseUtilities.isRightDown(e)) {
-                                return;
-                            }
-                            super.mouseDragged(e);
-                        }
-
-                        @Override
-                        public void mouseWheelMoved(MouseWheelEvent e) {
-                            // do nothing
-                        }
-                    };
-                }
-
-                @Override
-                public IScreenshotKeyController newScreenshotKeyController(
-                        final Chart chart) {
-                    String nowAsIso =
-                            DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
-                                    .format(new Date());
-                    File tmpdir =
-                            new File(System.getProperty("java.io.tmpdir"));
-                    File screenshot = new File(tmpdir, nowAsIso + ".png");
-                    AWTScreenshotKeyController controller =
-                            new AWTScreenshotKeyController(chart, screenshot
-                                    .getAbsolutePath());
-                    controller.addListener(new IScreenshotEventListener() {
-                        @Override
-                        public void doneScreenshot(final String s) {
-                            System.out.println("Screenshot: " + s);
-                        }
-
-                        @Override
-                        public void failedScreenshot(
-                                final String s, final Exception e) {
-                            System.err.println("Failed to save screenshot");
-                        }
-                    });
-                    return controller;
-                }
-            };
-
-    private final double minZ;
-    private final double maxZ;
-    private final ITickProvider providerZ;
-    private final ITickRenderer rendererZ;
-
-    private final String name;
-    private final double[][] matrix;
-    private final List<String> ticksX;
-    private final List<String> ticksY;
-    private final String labelX;
-    private final String labelY;
-    private final String labelZ;
-    private final boolean showAllTicksX;
-    private final boolean showAllTicksY;
-
-    public Surface3D(
-            String name, double[][] matrix, List<String> ticksX,
-            List<String> ticksY, NavigableMap<Double, String> valueTickZ,
-            String labelX, String labelY, String labelZ, boolean showAllTicksX,
-            boolean showAllTicksY) {
-        super();
-        this.name = name;
-        this.matrix = matrix.clone();
-        this.ticksX = ticksX;
-        this.ticksY = ticksY;
-        this.labelX = labelX;
-        this.labelY = labelY;
-        this.labelZ = labelZ;
-        this.showAllTicksX = showAllTicksX;
-        this.showAllTicksY = showAllTicksY;
-
-        SortedSet<Double> sortedSet = valueTickZ.navigableKeySet();
-        double[] array = ArrayUtils
-                .toPrimitive(sortedSet.toArray(new Double[sortedSet.size()]));
-        StaticTickProvider staticTickProvider = new StaticTickProvider(array);
-        TickLabelMap tickLabelMap = new TickLabelMap();
-        tickLabelMap.getMap().putAll(valueTickZ);
-
-        minZ = sortedSet.first();
-        maxZ = sortedSet.last();
-        providerZ = staticTickProvider;
-        rendererZ = tickLabelMap;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void init() throws Exception {
-        // Define a function to plot
-        Mapper mapper = new Mapper() {
+  private final AWTChartComponentFactory factory =
+      new AWTChartComponentFactory() {
+        @Override
+        public ICameraMouseController newMouseController(Chart c) {
+          return new AWTCameraMouseController(c) {
             @Override
-            public double f(double x, double y) {
-                int i = Math.max(
-                        Math.min((int) Math.round(x), ticksX.size() - 1), 0);
-                int j = Math.max(
-                        Math.min((int) Math.round(y), ticksY.size() - 1), 0);
-                return matrix[i][j];
+            public void mouseDragged(MouseEvent e) {
+              if (AWTMouseUtilities.isRightDown(e)) {
+                return;
+              }
+              super.mouseDragged(e);
             }
-        };
 
-        Range rangeX = new Range(0, ticksX.size());
-        Range rangeY = new Range(0, ticksY.size());
-        OrthonormalGrid orthonormalGrid =
-                new OrthonormalGrid(rangeX, ticksX.size(), rangeY,
-                                    ticksY.size());
-
-        Shape surface = Builder.buildOrthonormal(orthonormalGrid, mapper);
-        surface.setColorMapper(
-                new ColorMapper(ColorMapWrapper.getJzy3dColorMap(), minZ, maxZ,
-                                new Color(1, 1, 1, .5f)));
-        surface.setFaceDisplayed(true);
-        surface.setWireframeDisplayed(true);
-        surface.setWireframeColor(Color.GRAY);
-
-        chart = new Chart(factory, Quality.Intermediate, "awt");
-        IAxeLayout axeLayout = chart.getAxeLayout();
-        axeLayout.setXTickProvider(createProviderXY(true, showAllTicksX));
-        axeLayout.setXTickRenderer(createRendererXY(true));
-        axeLayout.setYTickProvider(createProviderXY(false, showAllTicksY));
-        axeLayout.setYTickRenderer(createRendererXY(false));
-        axeLayout.setZTickProvider(providerZ);
-        axeLayout.setZTickRenderer(rendererZ);
-        axeLayout.setXAxeLabel(labelX);
-        axeLayout.setYAxeLabel(labelY);
-        axeLayout.setZAxeLabel(labelZ);
-
-        chart.getView().setBoundManual(
-                new BoundingBox3d(0, ticksX.size(), 0, ticksY.size(),
-                                  (float) minZ, (float) maxZ));
-        chart.addDrawable(surface);
-    }
-
-    private ITickProvider createProviderXY(boolean isX, boolean showAllTicks) {
-        if (showAllTicks) {
-            return new RegularTickProvider(isX ? ticksX.size() : ticksY.size());
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+              // do nothing
+            }
+          };
         }
-        return new SmartTickProvider(isX ? ticksX.size() : ticksY.size());
-    }
 
-    private ITickRenderer createRendererXY(boolean isX) {
-        final List<String> ticks = isX ? ticksX : ticksY;
-        return new ITickRenderer() {
-            @Override
-            public String format(double x) {
-                int i = Math.max(
-                        Math.min((int) Math.floor(x), ticks.size() - 1), 0);
-                return ticks.get(i);
-            }
+        @Override
+        public IScreenshotKeyController newScreenshotKeyController(final Chart chart) {
+          String nowAsIso = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date());
+          File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+          File screenshot = new File(tmpdir, nowAsIso + ".png");
+          AWTScreenshotKeyController controller =
+              new AWTScreenshotKeyController(chart, screenshot.getAbsolutePath());
+          controller.addListener(
+              new IScreenshotEventListener() {
+                @Override
+                public void doneScreenshot(final String s) {
+                  System.out.println("Screenshot: " + s);
+                }
+
+                @Override
+                public void failedScreenshot(final String s, final Exception e) {
+                  System.err.println("Failed to save screenshot");
+                }
+              });
+          return controller;
+        }
+      };
+
+  private final double minZ;
+  private final double maxZ;
+  private final ITickProvider providerZ;
+  private final ITickRenderer rendererZ;
+
+  private final String name;
+  private final double[][] matrix;
+  private final List<String> ticksX;
+  private final List<String> ticksY;
+  private final String labelX;
+  private final String labelY;
+  private final String labelZ;
+  private final boolean showAllTicksX;
+  private final boolean showAllTicksY;
+
+  public Surface3D(
+      String name,
+      double[][] matrix,
+      List<String> ticksX,
+      List<String> ticksY,
+      NavigableMap<Double, String> valueTickZ,
+      String labelX,
+      String labelY,
+      String labelZ,
+      boolean showAllTicksX,
+      boolean showAllTicksY) {
+    super();
+    this.name = name;
+    this.matrix = matrix.clone();
+    this.ticksX = ticksX;
+    this.ticksY = ticksY;
+    this.labelX = labelX;
+    this.labelY = labelY;
+    this.labelZ = labelZ;
+    this.showAllTicksX = showAllTicksX;
+    this.showAllTicksY = showAllTicksY;
+
+    SortedSet<Double> sortedSet = valueTickZ.navigableKeySet();
+    double[] array = ArrayUtils.toPrimitive(sortedSet.toArray(new Double[sortedSet.size()]));
+    StaticTickProvider staticTickProvider = new StaticTickProvider(array);
+    TickLabelMap tickLabelMap = new TickLabelMap();
+    tickLabelMap.getMap().putAll(valueTickZ);
+
+    minZ = sortedSet.first();
+    maxZ = sortedSet.last();
+    providerZ = staticTickProvider;
+    rendererZ = tickLabelMap;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public void init() throws Exception {
+    // Define a function to plot
+    Mapper mapper =
+        new Mapper() {
+          @Override
+          public double f(double x, double y) {
+            int i = Math.max(Math.min((int) Math.round(x), ticksX.size() - 1), 0);
+            int j = Math.max(Math.min((int) Math.round(y), ticksY.size() - 1), 0);
+            return matrix[i][j];
+          }
         };
+
+    Range rangeX = new Range(0, ticksX.size());
+    Range rangeY = new Range(0, ticksY.size());
+    OrthonormalGrid orthonormalGrid =
+        new OrthonormalGrid(rangeX, ticksX.size(), rangeY, ticksY.size());
+
+    Shape surface = Builder.buildOrthonormal(orthonormalGrid, mapper);
+    surface.setColorMapper(
+        new ColorMapper(ColorMaps.getJzy3dColorMap(), minZ, maxZ, new Color(1, 1, 1, .5f)));
+    surface.setFaceDisplayed(true);
+    surface.setWireframeDisplayed(true);
+    surface.setWireframeColor(Color.GRAY);
+
+    chart = new Chart(factory, Quality.Intermediate, "awt");
+    IAxeLayout axeLayout = chart.getAxeLayout();
+    axeLayout.setXTickProvider(createProviderXY(true, showAllTicksX));
+    axeLayout.setXTickRenderer(createRendererXY(true));
+    axeLayout.setYTickProvider(createProviderXY(false, showAllTicksY));
+    axeLayout.setYTickRenderer(createRendererXY(false));
+    axeLayout.setZTickProvider(providerZ);
+    axeLayout.setZTickRenderer(rendererZ);
+    axeLayout.setXAxeLabel(labelX);
+    axeLayout.setYAxeLabel(labelY);
+    axeLayout.setZAxeLabel(labelZ);
+
+    chart
+        .getView()
+        .setBoundManual(
+            new BoundingBox3d(0, ticksX.size(), 0, ticksY.size(), (float) minZ, (float) maxZ));
+    chart.addDrawable(surface);
+  }
+
+  private ITickProvider createProviderXY(boolean isX, boolean showAllTicks) {
+    if (showAllTicks) {
+      return new RegularTickProvider(isX ? ticksX.size() : ticksY.size());
     }
+    return new SmartTickProvider(isX ? ticksX.size() : ticksY.size());
+  }
+
+  private ITickRenderer createRendererXY(boolean isX) {
+    final List<String> ticks = isX ? ticksX : ticksY;
+    return new ITickRenderer() {
+      @Override
+      public String format(double x) {
+        int i = Math.max(Math.min((int) Math.floor(x), ticks.size() - 1), 0);
+        return ticks.get(i);
+      }
+    };
+  }
 }

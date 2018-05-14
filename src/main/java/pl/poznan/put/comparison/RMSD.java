@@ -1,14 +1,13 @@
 package pl.poznan.put.comparison;
 
-import org.biojava.nbio.structure.StructureException;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
 import pl.poznan.put.comparison.global.RMSDGlobalResult;
 import pl.poznan.put.matching.FragmentSuperimposer;
-import pl.poznan.put.matching.FragmentSuperimposer.AtomFilter;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
@@ -25,64 +24,59 @@ import java.util.List;
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 public class RMSD implements GlobalComparator {
-    private final AtomFilter filter;
-    private final boolean onlyHeavy;
-    private final List<MasterTorsionAngleType> angleTypes;
+  private final FragmentSuperimposer.AtomFilter filter;
+  private final boolean onlyHeavy;
+  private final List<MasterTorsionAngleType> angleTypes;
 
-    public RMSD() {
-        super();
-        filter = AtomFilter.ALL;
-        onlyHeavy = true;
-        angleTypes = RMSD.mainAngleTypes();
+  public RMSD() {
+    super();
+    filter = FragmentSuperimposer.AtomFilter.ALL;
+    onlyHeavy = true;
+    angleTypes = RMSD.mainAngleTypes();
+  }
+
+  private static List<MasterTorsionAngleType> mainAngleTypes() {
+    final List<MasterTorsionAngleType> mainAngleTypes = new ArrayList<>();
+    mainAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+    mainAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+    return mainAngleTypes;
+  }
+
+  public RMSD(final FragmentSuperimposer.AtomFilter filter, final boolean onlyHeavy) {
+    super();
+    this.filter = filter;
+    this.onlyHeavy = onlyHeavy;
+    angleTypes = RMSD.mainAngleTypes();
+  }
+
+  @Override
+  public final GlobalResult compareGlobally(
+      final StructureSelection s1, final StructureSelection s2)
+      throws IncomparableStructuresException {
+    final StructureMatcher matcher = new MCQMatcher(angleTypes);
+    final SelectionMatch matches = matcher.matchSelections(s1, s2);
+
+    if ((matches == null) || matches.getFragmentMatches().isEmpty()) {
+      throw new IncomparableStructuresException("No matching fragments found");
     }
 
-    private static List<MasterTorsionAngleType> mainAngleTypes() {
-        List<MasterTorsionAngleType> mainAngleTypes = new ArrayList<>();
-        mainAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-        mainAngleTypes
-                .addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
-        return mainAngleTypes;
+    try {
+      final FragmentSuperimposer superimposer =
+          new FragmentSuperimposer(matches, filter, onlyHeavy);
+      return new RMSDGlobalResult(getName(), matches, superimposer);
+    } catch (final CifPdbIncompatibilityException e) {
+      throw new IncomparableStructuresException(
+          "Failed to superimpose structures and calculate RMSD", e);
     }
+  }
 
-    public RMSD(AtomFilter filter, boolean onlyHeavy) {
-        super();
-        this.filter = filter;
-        this.onlyHeavy = onlyHeavy;
-        angleTypes = RMSD.mainAngleTypes();
-    }
+  @Override
+  public final String getName() {
+    return "RMSD";
+  }
 
-    @Override
-    public GlobalResult compareGlobally(StructureSelection s1,
-                                        StructureSelection s2)
-            throws IncomparableStructuresException {
-        MCQMatcher matcher = new MCQMatcher(angleTypes);
-        SelectionMatch matches = matcher.matchSelections(s1, s2);
-
-        if (matches == null || matches.getFragmentCount() == 0) {
-            throw new IncomparableStructuresException(
-                    "No matching fragments found");
-        }
-
-        try {
-            FragmentSuperimposer superimposer =
-                    new FragmentSuperimposer(matches, filter, onlyHeavy);
-            return new RMSDGlobalResult(getName(), matches, superimposer);
-        } catch (StructureException e) {
-            throw new IncomparableStructuresException(
-                    "Failed to superimpose structures and calculate RMSD", e);
-        } catch (CifPdbIncompatibilityException e) {
-            throw new IncomparableStructuresException(
-                    "Failed to superimpose structures and calculate RMSD", e);
-        }
-    }
-
-    @Override
-    public String getName() {
-        return "RMSD";
-    }
-
-    @Override
-    public boolean isAngularMeasure() {
-        return false;
-    }
+  @Override
+  public final boolean isAngularMeasure() {
+    return false;
+  }
 }

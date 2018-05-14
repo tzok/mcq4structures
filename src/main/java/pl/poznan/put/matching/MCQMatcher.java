@@ -4,15 +4,15 @@ import org.apache.commons.collections4.map.DefaultedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.exception.InvalidCircularValueException;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.pdb.ChainNumberICode;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngleDelta.State;
 import pl.poznan.put.torsion.TorsionAngleValue;
+import pl.poznan.put.torsion.range.RangeDifference;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,242 +20,228 @@ import java.util.List;
 import java.util.Map;
 
 public class MCQMatcher implements StructureMatcher {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(MCQMatcher.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MCQMatcher.class);
 
-    private List<MasterTorsionAngleType> angleTypes;
+  private final List<MasterTorsionAngleType> angleTypes;
 
-    public MCQMatcher(List<MasterTorsionAngleType> angleTypes) {
-        super();
-        this.angleTypes = angleTypes;
+  public MCQMatcher(final List<MasterTorsionAngleType> angleTypes) {
+    super();
+    this.angleTypes = new ArrayList<>(angleTypes);
+  }
+
+  @Override
+  public final SelectionMatch matchSelections(
+      final StructureSelection s1, final StructureSelection s2) {
+    if ((s1.getResidues().isEmpty()) || (s2.getResidues().isEmpty())) {
+      return new SelectionMatch(s1, s2, Collections.emptyList());
     }
 
-    @Override
-    public SelectionMatch matchSelections(StructureSelection target,
-                                          StructureSelection model)
-            throws InvalidCircularValueException {
-        if (target.size() == 0 || model.size() == 0) {
-            return new SelectionMatch(target, model,
-                                      Collections.<FragmentMatch>emptyList());
-        }
+    final FragmentMatch[][] matrix = fillMatchingMatrix(s1, s2);
+    MCQMatcher.filterMatchingMatrix(matrix);
+    final List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
+    return new SelectionMatch(s1, s2, fragmentMatches);
+  }
 
-        FragmentMatch[][] matrix = fillMatchingMatrix(target, model);
-        MCQMatcher.filterMatchingMatrix(matrix);
-        List<FragmentMatch> fragmentMatches =
-                MCQMatcher.assignFragments(matrix);
-        return new SelectionMatch(target, model, fragmentMatches);
+  private FragmentMatch[][] fillMatchingMatrix(
+      final StructureSelection target, final StructureSelection model) {
+    final List<PdbCompactFragment> targetFragments = target.getCompactFragments();
+    final List<PdbCompactFragment> modelFragments = model.getCompactFragments();
+    final FragmentMatch[][] matrix = new FragmentMatch[targetFragments.size()][];
+
+    for (int i = 0; i < targetFragments.size(); i++) {
+      matrix[i] = new FragmentMatch[modelFragments.size()];
     }
 
-    private FragmentMatch[][] fillMatchingMatrix(StructureSelection target,
-                                                 StructureSelection model)
-            throws InvalidCircularValueException {
-        List<PdbCompactFragment> targetFragments = target.getCompactFragments();
-        List<PdbCompactFragment> modelFragments = model.getCompactFragments();
-        FragmentMatch[][] matrix = new FragmentMatch[targetFragments.size()][];
+    for (int i = 0; i < targetFragments.size(); i++) {
+      final PdbCompactFragment fi = targetFragments.get(i);
+      for (int j = 0; j < modelFragments.size(); j++) {
+        final PdbCompactFragment fj = modelFragments.get(j);
+        matrix[i][j] =
+            (fi.getMoleculeType() == fj.getMoleculeType())
+                ? matchFragments(fi, fj)
+                : FragmentMatch.invalidInstance(fi, fj);
+      }
+    }
+    return matrix;
+  }
 
-        for (int i = 0; i < targetFragments.size(); i++) {
-            matrix[i] = new FragmentMatch[modelFragments.size()];
-        }
+  private static void filterMatchingMatrix(final FragmentMatch[][] matrix) {
+    final Map<PdbCompactFragment, Integer> fragmentMaxCount = new DefaultedMap<>(Integer.MIN_VALUE);
 
-        for (int i = 0; i < targetFragments.size(); i++) {
-            PdbCompactFragment fi = targetFragments.get(i);
-            for (int j = 0; j < modelFragments.size(); j++) {
-                PdbCompactFragment fj = modelFragments.get(j);
-                if (fi.getMoleculeType() == fj.getMoleculeType()) {
-                    matrix[i][j] = matchFragments(fi, fj);
-                } else {
-                    matrix[i][j] = FragmentMatch.invalidInstance(fi, fj);
-                }
-            }
-        }
-        return matrix;
+    for (final FragmentMatch[] matches : matrix) {
+      for (final FragmentMatch match : matches) {
+        final PdbCompactFragment target = match.getTargetFragment();
+        final PdbCompactFragment model = match.getModelFragment();
+        final int count = match.getResidueCount();
+        fragmentMaxCount.put(target, Math.max(count, fragmentMaxCount.get(target)));
+        fragmentMaxCount.put(model, Math.max(count, fragmentMaxCount.get(model)));
+      }
     }
 
-    private static void filterMatchingMatrix(FragmentMatch[][] matrix) {
-        Map<PdbCompactFragment, Integer> fragmentMaxCount =
-                new DefaultedMap<>(Integer.MIN_VALUE);
+    for (int i = 0; i < matrix.length; i++) {
+      for (int j = 0; j < matrix[i].length; j++) {
+        final PdbCompactFragment target = matrix[i][j].getTargetFragment();
+        final PdbCompactFragment model = matrix[i][j].getModelFragment();
+        final int count = matrix[i][j].getResidueCount();
+        final int maxCount = Math.max(fragmentMaxCount.get(target), fragmentMaxCount.get(model));
 
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                PdbCompactFragment target = matrix[i][j].getTargetFragment();
-                PdbCompactFragment model = matrix[i][j].getModelFragment();
-                int count = matrix[i][j].getResidueCount();
-                fragmentMaxCount.put(target, Math.max(count, fragmentMaxCount
-                        .get(target)));
-                fragmentMaxCount.put(model, Math.max(count, fragmentMaxCount
-                        .get(model)));
-            }
+        if (count < (maxCount * 0.9)) {
+          matrix[i][j] = FragmentMatch.invalidInstance(target, model);
         }
+      }
+    }
+  }
 
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                PdbCompactFragment target = matrix[i][j].getTargetFragment();
-                PdbCompactFragment model = matrix[i][j].getModelFragment();
-                int count = matrix[i][j].getResidueCount();
-                int maxCount = Math.max(fragmentMaxCount.get(target),
-                                        fragmentMaxCount.get(model));
+  private static List<FragmentMatch> assignFragments(final FragmentMatch[][] matrix) {
+    return MCQMatcher.assignHungarian(matrix);
+  }
 
-                if (count < maxCount * 0.9) {
-                    matrix[i][j] = FragmentMatch.invalidInstance(target, model);
-                }
-            }
-        }
+  private static List<FragmentMatch> assignHungarian(final FragmentMatch[][] matrix) {
+    final double[][] costMatrix = new double[matrix.length][];
+
+    for (int i = 0; i < matrix.length; i++) {
+      costMatrix[i] = new double[matrix[i].length];
+      for (int j = 0; j < matrix[i].length; j++) {
+        final Angle delta = matrix[i][j].getMeanDelta();
+        costMatrix[i][j] = delta.isValid() ? delta.getRadians() : Double.MAX_VALUE;
+      }
     }
 
-    private static List<FragmentMatch> assignFragments(
-            FragmentMatch[][] matrix) {
-        return MCQMatcher.assignHungarian(matrix);
+    final HungarianAlgorithm algorithm = new HungarianAlgorithm(costMatrix);
+    final int[] assignment = algorithm.execute();
+    final List<FragmentMatch> result = new ArrayList<>();
+
+    for (int i = 0; i < assignment.length; i++) {
+      final int j = assignment[i];
+      if ((j != -1) && matrix[i][j].isValid()) {
+        result.add(matrix[i][j]);
+      }
     }
 
-    private static List<FragmentMatch> assignHungarian(
-            FragmentMatch[][] matrix) {
-        double[][] costMatrix = new double[matrix.length][];
+    return result;
+  }
 
-        for (int i = 0; i < matrix.length; i++) {
-            costMatrix[i] = new double[matrix[i].length];
-            for (int j = 0; j < matrix[i].length; j++) {
-                Angle delta = matrix[i][j].getMeanDelta();
-                costMatrix[i][j] =
-                        delta.isValid() ? delta.getRadians() : Double.MAX_VALUE;
-            }
-        }
+  private ResidueComparison compareResidues(
+      final PdbCompactFragment targetFragment,
+      final PdbResidue targetResidue,
+      final PdbCompactFragment modelFragment,
+      final PdbResidue modelResidue) {
+    final List<TorsionAngleDelta> angleDeltas = new ArrayList<>();
 
-        HungarianAlgorithm algorithm = new HungarianAlgorithm(costMatrix);
-        int[] assignment = algorithm.execute();
-        List<FragmentMatch> result = new ArrayList<>();
+    for (final MasterTorsionAngleType masterType : angleTypes) {
+      final TorsionAngleDelta delta =
+          (masterType instanceof AverageTorsionAngleType)
+              ? MCQMatcher.calculateAverageOverDifferences(
+                  targetFragment,
+                  targetResidue,
+                  modelFragment,
+                  modelResidue,
+                  (AverageTorsionAngleType) masterType)
+              : MCQMatcher.findAndSubtractTorsionAngles(
+                  targetFragment, targetResidue, modelFragment, modelResidue, masterType);
 
-        for (int i = 0; i < assignment.length; i++) {
-            int j = assignment[i];
-            if (j != -1 && matrix[i][j].isValid()) {
-                result.add(matrix[i][j]);
-            }
-        }
+      angleDeltas.add(delta);
 
-        return result;
+      if (MCQMatcher.LOGGER.isTraceEnabled()) {
+        MCQMatcher.LOGGER.trace("{} vs {} = {}", targetResidue, modelResidue, delta);
+      }
     }
 
-    private ResidueComparison compareResidues(PdbCompactFragment targetFragment,
-                                              PdbResidue targetResidue,
-                                              PdbCompactFragment modelFragment,
-                                              PdbResidue modelResidue)
-            throws InvalidCircularValueException {
-        List<TorsionAngleDelta> angleDeltas = new ArrayList<>();
+    return new ResidueComparison(targetResidue, modelResidue, angleDeltas);
+  }
 
-        for (MasterTorsionAngleType masterType : angleTypes) {
-            TorsionAngleDelta delta;
+  private static TorsionAngleDelta calculateAverageOverDifferences(
+      final PdbCompactFragment targetFragment,
+      final ChainNumberICode targetResidue,
+      final PdbCompactFragment modelFragment,
+      final ChainNumberICode modelResidue,
+      final AverageTorsionAngleType angleType) {
+    final List<Angle> targetAngles = new ArrayList<>();
+    final List<Angle> modelAngles = new ArrayList<>();
+    final List<Angle> deltas = new ArrayList<>();
+    double value = 0.0;
 
-            if (masterType instanceof AverageTorsionAngleType) {
-                delta = MCQMatcher.calculateAverageOverTorsionAnglesDifferences(
-                        targetFragment, targetResidue, modelFragment,
-                        modelResidue, (AverageTorsionAngleType) masterType);
-            } else {
-                delta = MCQMatcher.findAndSubtractTorsionAngles(targetFragment,
-                                                                targetResidue,
-                                                                modelFragment,
-                                                                modelResidue,
-                                                                masterType);
-            }
-
-            angleDeltas.add(delta);
-
-            if (MCQMatcher.LOGGER.isTraceEnabled()) {
-                MCQMatcher.LOGGER
-                        .trace(targetResidue + " vs " + modelResidue + " = "
-                               + delta);
-            }
-        }
-
-        return new ResidueComparison(targetResidue, modelResidue, angleDeltas);
+    for (final MasterTorsionAngleType masterType : angleType.getConsideredAngles()) {
+      final TorsionAngleDelta delta =
+          MCQMatcher.findAndSubtractTorsionAngles(
+              targetFragment, targetResidue, modelFragment, modelResidue, masterType);
+      if (delta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
+        targetAngles.add(delta.getTarget());
+        modelAngles.add(delta.getModel());
+        deltas.add(delta.getDelta());
+        value += delta.getRangeDifference().getValue();
+      }
     }
 
-    private static TorsionAngleDelta
-    calculateAverageOverTorsionAnglesDifferences(
-            PdbCompactFragment targetFragment, PdbResidue targetResidue,
-            PdbCompactFragment modelFragment, PdbResidue modelResidue,
-            AverageTorsionAngleType averageTorsionAngleType) {
-        List<Angle> angles = new ArrayList<>();
-
-        for (MasterTorsionAngleType masterType : averageTorsionAngleType
-                .getConsideredAngles()) {
-            TorsionAngleDelta delta = MCQMatcher
-                    .findAndSubtractTorsionAngles(targetFragment, targetResidue,
-                                                  modelFragment, modelResidue,
-                                                  masterType);
-            if (delta.getState() == State.BOTH_VALID) {
-                angles.add(delta.getDelta());
-            }
-        }
-
-        if (angles.size() == 0) {
-            return TorsionAngleDelta
-                    .bothInvalidInstance(averageTorsionAngleType);
-        }
-
-        AngleSample angleSample = new AngleSample(angles);
-        return new TorsionAngleDelta(averageTorsionAngleType, State.BOTH_VALID,
-                                     angleSample.getMeanDirection());
+    if (deltas.isEmpty()) {
+      return TorsionAngleDelta.bothInvalidInstance(angleType);
     }
 
-    private static TorsionAngleDelta findAndSubtractTorsionAngles(
-            PdbCompactFragment targetFragment, PdbResidue targetResidue,
-            PdbCompactFragment modelFragment, PdbResidue modelResidue,
-            MasterTorsionAngleType masterType) {
+    final AngleSample targetSample = new AngleSample(targetAngles);
+    final AngleSample modelSample = new AngleSample(modelAngles);
+    final AngleSample deltaSample = new AngleSample(deltas);
+    return new TorsionAngleDelta(
+        angleType,
+        TorsionAngleDelta.State.BOTH_VALID,
+        targetSample.getMeanDirection(),
+        modelSample.getMeanDirection(),
+        deltaSample.getMeanDirection(),
+        RangeDifference.fromValue((int) Math.round(value / deltas.size())));
+  }
 
-        TorsionAngleValue targetValue =
-                targetFragment.getTorsionAngleValue(targetResidue, masterType);
-        TorsionAngleValue modelValue =
-                modelFragment.getTorsionAngleValue(modelResidue, masterType);
-        return TorsionAngleDelta
-                .subtractTorsionAngleValues(masterType, targetValue,
-                                            modelValue);
-    }
+  private static TorsionAngleDelta findAndSubtractTorsionAngles(
+      final PdbCompactFragment targetFragment,
+      final ChainNumberICode targetResidue,
+      final PdbCompactFragment modelFragment,
+      final ChainNumberICode modelResidue,
+      final MasterTorsionAngleType masterType) {
 
-    @Override
-    public FragmentMatch matchFragments(PdbCompactFragment targetFragment,
-                                        PdbCompactFragment modelFragment)
-            throws InvalidCircularValueException {
-        List<PdbResidue> targetResidues = targetFragment.getResidues();
-        List<PdbResidue> modelResidues = modelFragment.getResidues();
-        boolean isTargetSmaller = targetFragment.size() < modelFragment.size();
-        int sizeDifference =
-                isTargetSmaller ? modelFragment.size() - targetFragment.size()
-                                : targetFragment.size() - modelFragment.size();
+    final TorsionAngleValue targetValue =
+        targetFragment.getTorsionAngleValue(targetResidue, masterType);
+    final TorsionAngleValue modelValue =
+        modelFragment.getTorsionAngleValue(modelResidue, masterType);
+    return TorsionAngleDelta.subtractTorsionAngleValues(masterType, targetValue, modelValue);
+  }
 
-        FragmentComparison bestResult = null;
-        int bestShift = 0;
+  @Override
+  public final FragmentMatch matchFragments(
+      final PdbCompactFragment f1, final PdbCompactFragment f2) {
+    final List<PdbResidue> targetResidues = f1.getResidues();
+    final List<PdbResidue> modelResidues = f2.getResidues();
+    final int f1Size = f1.getResidues().size();
+    final int f2Size = f2.getResidues().size();
+    final boolean isTargetSmaller = f1Size < f2Size;
+    final int sizeDifference = isTargetSmaller ? (f2Size - f1Size) : (f1Size - f2Size);
 
-        for (int i = 0; i <= sizeDifference; i++) {
-            List<ResidueComparison> residueComparisons = new ArrayList<>();
+    FragmentComparison bestResult = null;
+    int bestShift = 0;
 
-            if (isTargetSmaller) {
-                for (int j = 0; j < targetFragment.size(); j++) {
-                    PdbResidue targetResidue = targetResidues.get(j);
-                    PdbResidue modelResidue = modelResidues.get(j + i);
-                    residueComparisons
-                            .add(compareResidues(targetFragment, targetResidue,
-                                                 modelFragment, modelResidue));
-                }
-            } else {
-                for (int j = 0; j < modelFragment.size(); j++) {
-                    PdbResidue targetResidue = targetResidues.get(j + i);
-                    PdbResidue modelResidue = modelResidues.get(j);
-                    residueComparisons
-                            .add(compareResidues(targetFragment, targetResidue,
-                                                 modelFragment, modelResidue));
-                }
-            }
+    for (int i = 0; i <= sizeDifference; i++) {
+      final List<ResidueComparison> residueComparisons = new ArrayList<>();
 
-            FragmentComparison fragmentResult = FragmentComparison
-                    .fromResidueComparisons(residueComparisons, angleTypes);
-
-            if (bestResult == null
-                || fragmentResult.compareTo(bestResult) < 0) {
-                bestResult = fragmentResult;
-                bestShift = i;
-            }
+      if (isTargetSmaller) {
+        for (int j = 0; j < f1Size; j++) {
+          final PdbResidue targetResidue = targetResidues.get(j);
+          final PdbResidue modelResidue = modelResidues.get(j + i);
+          residueComparisons.add(compareResidues(f1, targetResidue, f2, modelResidue));
         }
+      } else {
+        for (int j = 0; j < f2Size; j++) {
+          final PdbResidue targetResidue = targetResidues.get(j + i);
+          final PdbResidue modelResidue = modelResidues.get(j);
+          residueComparisons.add(compareResidues(f1, targetResidue, f2, modelResidue));
+        }
+      }
 
-        return new FragmentMatch(targetFragment, modelFragment, isTargetSmaller,
-                                 bestShift, bestResult);
+      final FragmentComparison fragmentResult =
+          FragmentComparison.fromResidueComparisons(residueComparisons, angleTypes);
+
+      if ((bestResult == null) || (fragmentResult.compareTo(bestResult) < 0)) {
+        bestResult = fragmentResult;
+        bestShift = i;
+      }
     }
+
+    return new FragmentMatch(f1, f2, isTargetSmaller, bestShift, bestResult);
+  }
 }

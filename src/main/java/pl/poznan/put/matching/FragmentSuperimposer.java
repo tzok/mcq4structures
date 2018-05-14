@@ -1,10 +1,7 @@
 package pl.poznan.put.matching;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.biojava.nbio.structure.Atom;
-import org.biojava.nbio.structure.Calc;
-import org.biojava.nbio.structure.SVDSuperimposer;
-import org.biojava.nbio.structure.StructureException;
+import org.biojava.nbio.structure.geometry.CalcPoint;
+import org.biojava.nbio.structure.geometry.SuperPositions;
 import pl.poznan.put.atom.AtomName;
 import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.pdb.PdbAtomLine;
@@ -19,253 +16,250 @@ import pl.poznan.put.rna.Phosphate;
 import pl.poznan.put.rna.Ribose;
 import pl.poznan.put.rna.base.NucleobaseType;
 
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class FragmentSuperimposer {
-    private final SelectionMatch selectionMatch;
-    private final AtomFilter atomFilter;
-    private final boolean onlyHeavy;
-    private final SVDSuperimposer[] matchSuperimposer;
-    private final Atom[][] matchAtomsTarget;
-    private final Atom[][] matchAtomsModel;
-    private final SVDSuperimposer totalSuperimposer;
-    private final Atom[] totalAtomsTarget;
-    private final Atom[] totalAtomsModel;
 
-    public FragmentSuperimposer(SelectionMatch selectionMatch,
-                                AtomFilter atomFilter, boolean onlyHeavy)
-            throws StructureException, CifPdbIncompatibilityException {
-        super();
-        this.selectionMatch = selectionMatch;
-        this.atomFilter = atomFilter;
-        this.onlyHeavy = onlyHeavy;
+  public enum AtomFilter {
+    ALL,
+    BACKBONE,
+    MAIN
+  }
 
-        int matchesCount = selectionMatch.getFragmentCount();
-        if (matchesCount == 0) {
-            throw new IllegalArgumentException(
-                    "Failed to superimpose, because the set of structural "
-                    + "matches is empty");
+  private final SelectionMatch selectionMatch;
+  private final AtomFilter atomFilter;
+  private final boolean onlyHeavy;
+
+  private final Matrix4d totalSuperposition;
+  private final Point3d[] totalAtomsTarget;
+  private final Point3d[] totalAtomsModel;
+  private final Matrix4d[] matchedSuperpositions;
+
+  public FragmentSuperimposer(
+      final SelectionMatch selectionMatch, final AtomFilter atomFilter, final boolean onlyHeavy)
+      throws CifPdbIncompatibilityException {
+    super();
+    this.selectionMatch = selectionMatch;
+    this.atomFilter = atomFilter;
+    this.onlyHeavy = onlyHeavy;
+
+    final int matchesCount = selectionMatch.getFragmentMatches().size();
+    if (matchesCount == 0) {
+      throw new IllegalArgumentException(
+          "Failed to superimpose, because the set of structural " + "matches is empty");
+    }
+
+    matchedSuperpositions = new Matrix4d[matchesCount];
+
+    final List<Point3d> atomsT = new ArrayList<>();
+    final List<Point3d> atomsM = new ArrayList<>();
+    filterAtoms(atomsT, atomsM);
+
+    totalAtomsTarget = atomsT.toArray(new Point3d[atomsT.size()]);
+    totalAtomsModel = atomsM.toArray(new Point3d[atomsM.size()]);
+
+    totalSuperposition = SuperPositions.superposeAndTransform(totalAtomsTarget, totalAtomsModel);
+  }
+
+  private void filterAtoms(
+      final Collection<Point3d> atomsTargetAll, final Collection<Point3d> atomsModelAll)
+      throws CifPdbIncompatibilityException {
+    final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
+
+    for (int i = 0, size = fragmentMatches.size(); i < size; i++) {
+      final FragmentMatch fragment = fragmentMatches.get(i);
+      final Collection<Point3d> atomsTargetMatch = new ArrayList<>();
+      final Collection<Point3d> atomsModelMatch = new ArrayList<>();
+
+      for (final ResidueComparison residueComparison : fragment.getResidueComparisons()) {
+        final PdbResidue target = residueComparison.getTarget();
+        final PdbResidue model = residueComparison.getModel();
+        final MoleculeType moleculeType = target.getMoleculeType();
+        final List<AtomName> atomNames = handleAtomFilter(moleculeType);
+
+        for (final AtomName name : atomNames) {
+          if (onlyHeavy && !name.getType().isHeavy()) {
+            continue;
+          }
+
+          if (!target.hasAtom(name) || !model.hasAtom(name)) {
+            continue;
+          }
+
+          // call PdbAtomLine.toPoint3d twice, because each time a
+          // new Point3d object is created and this is required
+          final PdbAtomLine atomTarget = target.findAtom(name);
+          atomsTargetMatch.add(atomTarget.toPoint3d());
+          atomsTargetAll.add(atomTarget.toPoint3d());
+
+          // the same as above
+          final PdbAtomLine atomModel = model.findAtom(name);
+          atomsModelMatch.add(atomModel.toPoint3d());
+          atomsModelAll.add(atomModel.toPoint3d());
+        }
+      }
+
+      final Point3d[] matchedAtomsTarget =
+          atomsTargetMatch.toArray(new Point3d[atomsTargetMatch.size()]);
+      final Point3d[] matchedAtomsModel =
+          atomsModelMatch.toArray(new Point3d[atomsModelMatch.size()]);
+      matchedSuperpositions[i] =
+          SuperPositions.superposeAndTransform(matchedAtomsTarget, matchedAtomsModel);
+    }
+  }
+
+  private List<AtomName> handleAtomFilter(final MoleculeType moleculeType) {
+    switch (moleculeType) {
+      case PROTEIN:
+        return handleAtomFilterForProtein();
+      case RNA:
+        return handleAtomFilterForRNA();
+      case UNKNOWN:
+      default:
+        return Collections.emptyList();
+    }
+  }
+
+  private List<AtomName> handleAtomFilterForProtein() {
+    switch (atomFilter) {
+      case ALL:
+        final Set<AtomName> atomNames = new HashSet<>();
+        for (final AminoAcidType aminoAcidType : AminoAcidType.values()) {
+          for (final ResidueComponent component : aminoAcidType.getAllMoleculeComponents()) {
+            atomNames.addAll(component.getAtoms());
+          }
+        }
+        return new ArrayList<>(atomNames);
+      case BACKBONE:
+        return ProteinBackbone.getInstance().getAtoms();
+      case MAIN:
+        return Collections.singletonList(AtomName.C);
+      default:
+        return Collections.emptyList();
+    }
+  }
+
+  private List<AtomName> handleAtomFilterForRNA() {
+    final Set<AtomName> atomNames = new HashSet<>();
+
+    switch (atomFilter) {
+      case ALL:
+        for (final NucleobaseType nucleobaseType : NucleobaseType.values()) {
+          for (final ResidueComponent component : nucleobaseType.getAllMoleculeComponents()) {
+            atomNames.addAll(component.getAtoms());
+          }
+        }
+        return new ArrayList<>(atomNames);
+      case BACKBONE:
+        atomNames.addAll(Phosphate.getInstance().getAtoms());
+        atomNames.addAll(Ribose.getInstance().getAtoms());
+        return new ArrayList<>(atomNames);
+      case MAIN:
+        return Collections.singletonList(AtomName.P);
+      default:
+        return Collections.emptyList();
+    }
+  }
+
+  public final int getAtomCount() {
+    assert totalAtomsTarget.length == totalAtomsModel.length;
+    return totalAtomsTarget.length;
+  }
+
+  public final double getRMSD() {
+    return CalcPoint.rmsd(totalAtomsTarget, totalAtomsModel);
+  }
+
+  public final FragmentSuperposition getWhole() {
+    final StructureSelection target = selectionMatch.getTarget();
+    final StructureSelection model = selectionMatch.getModel();
+    final List<PdbCompactFragment> targetFragments = target.getCompactFragments();
+    final List<PdbCompactFragment> modelFragments = new ArrayList<>();
+
+    for (final PdbCompactFragment fragment : model.getCompactFragments()) {
+      final List<PdbResidue> modifiedResidues = new ArrayList<>();
+
+      for (final PdbResidue residue : fragment.getResidues()) {
+        final List<PdbAtomLine> atoms = residue.getAtoms();
+        final Point3d[] points = new Point3d[atoms.size()];
+
+        for (int i = 0, size = atoms.size(); i < size; i++) {
+          final PdbAtomLine atom = atoms.get(i);
+          points[i] = new Point3d(atom.getX(), atom.getY(), atom.getZ());
         }
 
-        matchSuperimposer = new SVDSuperimposer[matchesCount];
-        matchAtomsTarget = new Atom[matchesCount][];
-        matchAtomsModel = new Atom[matchesCount][];
-        List<Atom> atomsT = new ArrayList<>();
-        List<Atom> atomsM = new ArrayList<>();
-        filterAtoms(atomsT, atomsM);
+        CalcPoint.transform(totalSuperposition, points);
+        final List<PdbAtomLine> modifiedAtoms = new ArrayList<>();
 
-        totalAtomsTarget = atomsT.toArray(new Atom[atomsT.size()]);
-        totalAtomsModel = atomsM.toArray(new Atom[atomsM.size()]);
-        totalSuperimposer =
-                new SVDSuperimposer(totalAtomsTarget, totalAtomsModel);
-    }
-
-    private void filterAtoms(List<Atom> atomsT, List<Atom> atomsM)
-            throws StructureException, CifPdbIncompatibilityException {
-        int i = 0;
-
-        for (FragmentMatch fragment : selectionMatch.getFragmentMatches()) {
-            List<Atom> atomsTarget = new ArrayList<>();
-            List<Atom> atomsModel = new ArrayList<>();
-
-            for (ResidueComparison residueComparison : fragment
-                    .getResidueComparisons()) {
-                PdbResidue target = residueComparison.getTarget();
-                PdbResidue model = residueComparison.getModel();
-                MoleculeType moleculeType = target.getMoleculeType();
-                List<AtomName> atomNames = handleAtomFilter(moleculeType);
-
-                for (AtomName name : atomNames) {
-                    if (onlyHeavy && !name.getType().isHeavy()) {
-                        continue;
-                    }
-
-                    if (!target.hasAtom(name) || !model.hasAtom(name)) {
-                        continue;
-                    }
-
-                    atomsTarget.add(target.findAtom(name).toBioJavaAtom());
-                    atomsModel.add(model.findAtom(name).toBioJavaAtom());
-                }
-            }
-
-            atomsT.addAll(atomsTarget);
-            atomsM.addAll(atomsModel);
-
-            matchAtomsTarget[i] =
-                    atomsTarget.toArray(new Atom[atomsTarget.size()]);
-            matchAtomsModel[i] =
-                    atomsModel.toArray(new Atom[atomsModel.size()]);
-            matchSuperimposer[i] = new SVDSuperimposer(matchAtomsTarget[i],
-                                                       matchAtomsModel[i]);
-            i += 1;
-        }
-    }
-
-    private List<AtomName> handleAtomFilter(MoleculeType moleculeType) {
-        switch (moleculeType) {
-            case PROTEIN:
-                return handleAtomFilterForProtein();
-            case RNA:
-                return handleAtomFilterForRNA();
-            case UNKNOWN:
-            default:
-                return Collections.emptyList();
-        }
-    }
-
-    private List<AtomName> handleAtomFilterForProtein() {
-        switch (atomFilter) {
-            case ALL:
-                Set<AtomName> atomNames = new HashSet<>();
-                for (AminoAcidType aminoAcidType : AminoAcidType.values()) {
-                    for (ResidueComponent component : aminoAcidType
-                            .getAllMoleculeComponents()) {
-                        atomNames.addAll(component.getAtoms());
-                    }
-                }
-                return new ArrayList<>(atomNames);
-            case BACKBONE:
-                return ProteinBackbone.getInstance().getAtoms();
-            case MAIN:
-                return Collections.singletonList(AtomName.C);
-            default:
-                return Collections.emptyList();
-        }
-    }
-
-    private List<AtomName> handleAtomFilterForRNA() {
-        Set<AtomName> atomNames = new HashSet<>();
-
-        switch (atomFilter) {
-            case ALL:
-                for (NucleobaseType nucleobaseType : NucleobaseType.values()) {
-                    for (ResidueComponent component : nucleobaseType
-                            .getAllMoleculeComponents()) {
-                        atomNames.addAll(component.getAtoms());
-                    }
-                }
-                return new ArrayList<>(atomNames);
-            case BACKBONE:
-                atomNames.addAll(Phosphate.getInstance().getAtoms());
-                atomNames.addAll(Ribose.getInstance().getAtoms());
-                return new ArrayList<>(atomNames);
-            case MAIN:
-                return Collections.singletonList(AtomName.P);
-            default:
-                return Collections.emptyList();
-        }
-    }
-
-    public int getAtomCount() {
-        assert totalAtomsTarget.length == totalAtomsModel.length;
-        return totalAtomsTarget.length;
-    }
-
-    public double getRMSD() {
-        double distance = 0.0;
-        double count = 0.0;
-
-        for (int i = 0; i < selectionMatch.getFragmentCount(); i++) {
-            for (int j = 0; j < matchAtomsModel[i].length; j++) {
-                Atom l = matchAtomsTarget[i][j];
-                Atom r = (Atom) matchAtomsModel[i][j].clone();
-                Calc.rotate(r, matchSuperimposer[i].getRotation());
-                Calc.shift(r, matchSuperimposer[i].getTranslation());
-
-                Vector3D vl = new Vector3D(l.getX(), l.getY(), l.getZ());
-                Vector3D vr = new Vector3D(r.getX(), r.getY(), r.getZ());
-                distance += vl.distance(vr);
-                count += 1.0;
-            }
+        for (int i = 0, size = atoms.size(); i < size; i++) {
+          final PdbAtomLine atom = atoms.get(i);
+          modifiedAtoms.add(atom.replaceCoordinates(points[i].x, points[i].y, points[i].z));
         }
 
-        return Math.sqrt(distance / count);
+        final PdbResidueIdentifier identifier = residue.getResidueIdentifier();
+        final String residueName = residue.getDetectedResidueName();
+        final PdbResidue modifiedResidue =
+            new PdbResidue(identifier, residueName, modifiedAtoms, false);
+        modifiedResidues.add(modifiedResidue);
+      }
+
+      modelFragments.add(new PdbCompactFragment(fragment.getName(), modifiedResidues));
     }
 
-    public FragmentSuperposition getWhole()
-            throws CifPdbIncompatibilityException {
-        StructureSelection target = selectionMatch.getTarget();
-        StructureSelection model = selectionMatch.getModel();
-        List<PdbCompactFragment> targetFragments = target.getCompactFragments();
-        List<PdbCompactFragment> modelFragments = new ArrayList<>();
+    return new FragmentSuperposition(targetFragments, modelFragments);
+  }
 
-        for (PdbCompactFragment fragment : model.getCompactFragments()) {
-            List<PdbResidue> modifiedResidues = new ArrayList<>();
+  public final FragmentSuperposition getMatched() {
+    final List<PdbCompactFragment> newFragmentsL = new ArrayList<>();
+    final List<PdbCompactFragment> newFragmentsR = new ArrayList<>();
+    final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
 
-            for (PdbResidue residue : fragment.getResidues()) {
-                List<PdbAtomLine> modifiedAtoms = new ArrayList<>();
+    for (int j = 0, size = fragmentMatches.size(); j < size; j++) {
+      final FragmentMatch fragmentMatch = fragmentMatches.get(j);
+      final List<PdbResidue> matchedModelResiduesModified = new ArrayList<>();
+      final List<PdbResidue> matchedTargetResidues = new ArrayList<>();
 
-                for (PdbAtomLine atom : residue.getAtoms()) {
-                    Atom bioJavaAtom = atom.toBioJavaAtom();
-                    Calc.rotate(bioJavaAtom, totalSuperimposer.getRotation());
-                    Calc.shift(bioJavaAtom, totalSuperimposer.getTranslation());
-                    modifiedAtoms.add(PdbAtomLine.fromBioJavaAtom(bioJavaAtom));
-                }
+      for (final ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
+        matchedTargetResidues.add(residueComparison.getTarget());
 
-                PdbResidueIdentifier identifier =
-                        residue.getResidueIdentifier();
-                String residueName = residue.getDetectedResidueName();
-                modifiedResidues.add(new PdbResidue(identifier, residueName,
-                                                    modifiedAtoms, false));
-            }
+        final PdbResidue model = residueComparison.getModel();
+        final List<PdbAtomLine> atoms = model.getAtoms();
+        final Point3d[] points = new Point3d[atoms.size()];
 
-            modelFragments.add(new PdbCompactFragment(fragment.getName(),
-                                                      modifiedResidues));
+        for (int i = 0; i < atoms.size(); i++) {
+          final PdbAtomLine atom = atoms.get(i);
+          points[i] = new Point3d(atom.getX(), atom.getY(), atom.getZ());
         }
 
-        return new FragmentSuperposition(targetFragments, modelFragments);
-    }
+        CalcPoint.transform(matchedSuperpositions[j], points);
+        final List<PdbAtomLine> modifiedAtoms = new ArrayList<>();
 
-    public FragmentSuperposition getMatched()
-            throws CifPdbIncompatibilityException {
-        List<PdbCompactFragment> newFragmentsL = new ArrayList<>();
-        List<PdbCompactFragment> newFragmentsR = new ArrayList<>();
-
-        for (FragmentMatch fragmentMatch : selectionMatch
-                .getFragmentMatches()) {
-            List<PdbResidue> matchedModelResiduesModified = new ArrayList<>();
-            List<PdbResidue> matchedTargetResidues = new ArrayList<>();
-
-            for (ResidueComparison residueComparison : fragmentMatch
-                    .getResidueComparisons()) {
-                matchedTargetResidues.add(residueComparison.getTarget());
-
-                PdbResidue model = residueComparison.getModel();
-                List<PdbAtomLine> modifiedAtoms = new ArrayList<>();
-
-                for (PdbAtomLine atom : model.getAtoms()) {
-                    Atom bioJavaAtom = atom.toBioJavaAtom();
-                    Calc.rotate(bioJavaAtom, totalSuperimposer.getRotation());
-                    Calc.shift(bioJavaAtom, totalSuperimposer.getTranslation());
-                    modifiedAtoms.add(PdbAtomLine.fromBioJavaAtom(bioJavaAtom));
-                }
-
-                PdbResidueIdentifier identifier = model.getResidueIdentifier();
-                String residueName = model.getDetectedResidueName();
-                matchedModelResiduesModified
-                        .add(new PdbResidue(identifier, residueName,
-                                            modifiedAtoms, false));
-            }
-
-            newFragmentsL.add(new PdbCompactFragment(
-                    fragmentMatch.getModelFragment().getName(),
-                    matchedTargetResidues));
-            newFragmentsR.add(new PdbCompactFragment(
-                    fragmentMatch.getTargetFragment().getName(),
-                    matchedModelResiduesModified));
+        for (int i = 0; i < atoms.size(); i++) {
+          final PdbAtomLine atom = atoms.get(i);
+          modifiedAtoms.add(atom.replaceCoordinates(points[i].x, points[i].y, points[i].z));
         }
 
-        return new FragmentSuperposition(newFragmentsL, newFragmentsR);
+        final PdbResidueIdentifier identifier = model.getResidueIdentifier();
+        final String residueName = model.getDetectedResidueName();
+        matchedModelResiduesModified.add(
+            new PdbResidue(identifier, residueName, modifiedAtoms, false));
+      }
+
+      newFragmentsL.add(
+          new PdbCompactFragment(
+              fragmentMatch.getModelFragment().getName(), matchedTargetResidues));
+      newFragmentsR.add(
+          new PdbCompactFragment(
+              fragmentMatch.getTargetFragment().getName(), matchedModelResiduesModified));
     }
 
-    public enum AtomFilter {
-        ALL,
-        BACKBONE,
-        MAIN
-    }
+    return new FragmentSuperposition(newFragmentsL, newFragmentsR);
+  }
 }

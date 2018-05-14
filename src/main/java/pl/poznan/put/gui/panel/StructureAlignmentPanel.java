@@ -9,6 +9,7 @@ import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.pdb.analysis.PdbChain;
@@ -32,155 +33,142 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StructureAlignmentPanel extends JPanel {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(StructureAlignmentPanel.class);
+  private static final long serialVersionUID = 4973837093762666112L;
 
-    // @formatter:off
-    private static final String JMOL_SCRIPT =
-            "frame 0.0\n" +
-                    "cartoon only\n" +
-                    "select model=1.1\n" +
-                    "color green\n" +
-                    "select model=1.2\n" +
-                    "color red";
-    // @formatter:on
+  private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);
 
-    private final JTextPane labelHeader = new JTextPane();
-    private final JLabel labelStatus = new JLabel("", SwingConstants.CENTER);
-    private final JmolPanel panelJmolLeft = new JmolPanel();
-    private final JmolPanel panelJmolRight = new JmolPanel();
+  // @formatter:off
+  private static final String JMOL_SCRIPT =
+      "frame 0.0\n"
+          + "cartoon only\n"
+          + "select model=1.1\n"
+          + "color green\n"
+          + "select model=1.2\n"
+          + "color red";
+  // @formatter:on
 
-    private Pair<PdbModel, PdbModel> structures;
-    private Pair<List<PdbChain>, List<PdbChain>> chains;
+  private final JTextPane labelHeader = new JTextPane();
+  private final JLabel labelStatus = new JLabel("", SwingConstants.CENTER);
+  private final JmolPanel panelJmolLeft = new JmolPanel();
+  private final JmolPanel panelJmolRight = new JmolPanel();
 
-    public StructureAlignmentPanel() {
-        super(new BorderLayout());
+  private Pair<PdbModel, PdbModel> structures;
+  private Pair<List<PdbChain>, List<PdbChain>> chains;
 
-        labelHeader.setBorder(new EmptyBorder(10, 10, 10, 0));
-        labelHeader.setContentType("text/html");
-        labelHeader.setEditable(false);
-        labelHeader.setFont(UIManager.getFont("Label.font"));
-        labelHeader.setOpaque(false);
+  public StructureAlignmentPanel() {
+    super(new BorderLayout());
 
-        panelJmolLeft.executeCmd("background lightgrey; save state state_init");
-        panelJmolRight.executeCmd("background darkgray; save state state_init");
+    labelHeader.setBorder(new EmptyBorder(10, 10, 10, 0));
+    labelHeader.setContentType("text/html");
+    labelHeader.setEditable(false);
+    labelHeader.setFont(UIManager.getFont("Label.font"));
+    labelHeader.setOpaque(false);
 
-        JPanel panelInfo = new JPanel(new GridLayout(1, 3));
-        panelInfo.add(new JLabel("Whole structures (Jmol view)",
-                                 SwingConstants.CENTER));
-        panelInfo.add(labelStatus);
-        panelInfo.add(new JLabel("Aligned fragments (Jmol view)",
-                                 SwingConstants.CENTER));
+    panelJmolLeft.executeCmd("background lightgrey; save state state_init");
+    panelJmolRight.executeCmd("background darkgray; save state state_init");
 
-        JPanel panelMain = new JPanel(new BorderLayout());
-        panelMain.add(labelHeader, BorderLayout.NORTH);
-        panelMain.add(panelInfo, BorderLayout.CENTER);
+    final JPanel panelInfo = new JPanel(new GridLayout(1, 3));
+    panelInfo.add(new JLabel("Whole structures (Jmol view)", SwingConstants.CENTER));
+    panelInfo.add(labelStatus);
+    panelInfo.add(new JLabel("Aligned fragments (Jmol view)", SwingConstants.CENTER));
 
-        JPanel panelJmols = new JPanel(new GridLayout(1, 2));
-        panelJmols.add(panelJmolLeft);
-        panelJmols.add(panelJmolRight);
+    final JPanel panelMain = new JPanel(new BorderLayout());
+    panelMain.add(labelHeader, BorderLayout.PAGE_START);
+    panelMain.add(panelInfo, BorderLayout.CENTER);
 
-        add(panelMain, BorderLayout.NORTH);
-        add(panelJmols, BorderLayout.CENTER);
+    final JPanel panelJmols = new JPanel(new GridLayout(1, 2));
+    panelJmols.add(panelJmolLeft);
+    panelJmols.add(panelJmolRight);
+
+    add(panelMain, BorderLayout.PAGE_START);
+    add(panelJmols, BorderLayout.CENTER);
+  }
+
+  public final void setStructuresAndChains(
+      final Pair<PdbModel, PdbModel> structures,
+      final Pair<List<PdbChain>, List<PdbChain>> chains) {
+    this.structures = structures;
+    this.chains = chains;
+
+    panelJmolLeft.executeCmd("restore state state_init");
+    panelJmolRight.executeCmd("restore state state_init");
+    labelStatus.setText("Ready");
+    updateHeader(false);
+  }
+
+  private void updateHeader(final boolean readyResults) {
+    final PdbModel left = structures.getLeft();
+    final PdbModel right = structures.getRight();
+
+    final StringBuilder builder = new StringBuilder();
+    builder.append(
+        "<html>Structures selected for 3D structure alignment: <span " + "style=\"color: blue\">");
+    builder.append(StructureManager.getName(left));
+    builder.append('.');
+
+    for (final PdbChain chain : chains.getLeft()) {
+      builder.append(chain.getIdentifier());
     }
 
-    public void setStructuresAndChains(Pair<PdbModel, PdbModel> structures,
-                                       Pair<List<PdbChain>, List<PdbChain>>
-                                               chains) {
-        this.structures = structures;
-        this.chains = chains;
+    builder.append("</span>, <span style=\"color: green\">");
+    builder.append(StructureManager.getName(right));
+    builder.append('.');
 
-        panelJmolLeft.executeCmd("restore state state_init");
-        panelJmolRight.executeCmd("restore state state_init");
-        labelStatus.setText("Ready");
-        updateHeader(false);
+    for (final PdbChain chain : chains.getRight()) {
+      builder.append(chain.getIdentifier());
     }
 
-    public void updateHeader(boolean readyResults) {
-        PdbModel left = structures.getLeft();
-        PdbModel right = structures.getRight();
+    builder.append("</span>");
 
-        StringBuilder builder = new StringBuilder();
-        builder.append(
-                "<html>Structures selected for 3D structure alignment: <span "
-                + "style=\"color: blue\">");
-        builder.append(StructureManager.getName(left));
-        builder.append('.');
-
-        for (PdbChain chain : chains.getLeft()) {
-            builder.append(chain.getIdentifier());
-        }
-
-        builder.append("</span>, <span style=\"color: green\">");
-        builder.append(StructureManager.getName(right));
-        builder.append('.');
-
-        for (PdbChain chain : chains.getRight()) {
-            builder.append(chain.getIdentifier());
-        }
-
-        builder.append("</span>");
-
-        if (readyResults) {
-            builder.append("<br>3D structure alignment results:");
-        }
-
-        builder.append("</html>");
-        labelHeader.setText(builder.toString());
+    if (readyResults) {
+      builder.append("<br>3D structure alignment results:");
     }
 
-    public ProcessingResult alignAndDisplayStructures() {
-        labelStatus.setText("Computing...");
+    builder.append("</html>");
+    labelHeader.setText(builder.toString());
+  }
 
-        List<MasterTorsionAngleType> torsionAngleTypes = new ArrayList<>();
-        torsionAngleTypes
-                .addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-        torsionAngleTypes
-                .addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+  public final ProcessingResult alignAndDisplayStructures() {
+    labelStatus.setText("Computing...");
 
-        String nameLeft = StructureManager.getName(structures.getLeft());
-        String nameRight = StructureManager.getName(structures.getRight());
+    final List<MasterTorsionAngleType> torsionAngleTypes = new ArrayList<>();
+    torsionAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+    torsionAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
 
-        StructureSelection left =
-                SelectionFactory.create(nameLeft, chains.getLeft());
-        StructureSelection right =
-                SelectionFactory.create(nameRight, chains.getRight());
+    final String nameLeft = StructureManager.getName(structures.getLeft());
+    final String nameRight = StructureManager.getName(structures.getRight());
 
-        MCQMatcher matcher = new MCQMatcher(torsionAngleTypes);
-        SelectionMatch selectionMatch = matcher.matchSelections(left, right);
+    final StructureSelection left = SelectionFactory.create(nameLeft, chains.getLeft());
+    final StructureSelection right = SelectionFactory.create(nameRight, chains.getRight());
 
-        if (selectionMatch.getFragmentCount() == 0) {
-            JOptionPane.showMessageDialog(this,
-                                          "The selected structures have no "
-                                          + "matching fragments in common",
-                                          "Warning",
-                                          JOptionPane.WARNING_MESSAGE);
-            return ProcessingResult.emptyInstance();
-        }
+    final StructureMatcher matcher = new MCQMatcher(torsionAngleTypes);
+    final SelectionMatch selectionMatch = matcher.matchSelections(left, right);
 
-        try {
-            panelJmolLeft.openStringInline(selectionMatch.toPDB(false));
-            panelJmolLeft.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);
-            panelJmolRight.openStringInline(selectionMatch.toPDB(true));
-            panelJmolRight.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);
-            updateHeader(true);
-            return new ProcessingResult(selectionMatch);
-        } catch (StructureException e) {
-            String message = "Failed to align structures: " + nameLeft + " and "
-                             + nameRight;
-            StructureAlignmentPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error",
-                                          JOptionPane.ERROR_MESSAGE);
-        } catch (CifPdbIncompatibilityException e) {
-            String message = "Failed to align structures: " + nameLeft + " and "
-                             + nameRight;
-            StructureAlignmentPanel.LOGGER.error(message, e);
-            JOptionPane.showMessageDialog(this, message, "Error",
-                                          JOptionPane.ERROR_MESSAGE);
-        } finally {
-            labelStatus.setText("Computation finished");
-        }
-
-        return ProcessingResult.emptyInstance();
+    if (selectionMatch.getFragmentMatches().isEmpty()) {
+      JOptionPane.showMessageDialog(
+          this,
+          "The selected structures have no " + "matching fragments in common",
+          "Warning",
+          JOptionPane.WARNING_MESSAGE);
+      return ProcessingResult.emptyInstance();
     }
+
+    try {
+      panelJmolLeft.openStringInline(selectionMatch.toPDB(false));
+      panelJmolLeft.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);
+      panelJmolRight.openStringInline(selectionMatch.toPDB(true));
+      panelJmolRight.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);
+      updateHeader(true);
+      return new ProcessingResult(selectionMatch);
+    } catch (final StructureException | CifPdbIncompatibilityException e) {
+      final String message =
+          String.format("Failed to align structures: %s and %s", nameLeft, nameRight);
+      StructureAlignmentPanel.LOGGER.error(message, e);
+      JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+      labelStatus.setText("Computation finished");
+    }
+
+    return ProcessingResult.emptyInstance();
+  }
 }

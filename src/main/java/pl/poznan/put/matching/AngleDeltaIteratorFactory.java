@@ -1,5 +1,5 @@
 package pl.poznan.put.matching;
 
 public interface AngleDeltaIteratorFactory {
-    AngleDeltaIterator createInstance(FragmentMatch fragmentMatch);
+  AngleDeltaIterator createInstance(FragmentMatch fragmentMatch);
 }

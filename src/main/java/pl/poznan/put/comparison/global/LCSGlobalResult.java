@@ -5,118 +5,151 @@ import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.matching.AngleDeltaIterator;
 import pl.poznan.put.matching.MatchCollectionDeltaIterator;
 import pl.poznan.put.matching.SelectionMatch;
+import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.matching.stats.SingleMatchStatistics;
-import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.utility.AngleFormat;
-import pl.poznan.put.utility.CommonNumberFormat;
-
-
-import java.util.List;
-import pl.poznan.put.matching.FragmentMatch;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.PdbParsingException;
-import pl.poznan.put.pdb.PdbResidueIdentifier;
-import pl.poznan.put.pdb.analysis.PdbChain;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-
-import java.lang.String;
-
+import pl.poznan.put.utility.AngleFormat;
+import pl.poznan.put.utility.TwoDigitsAfterDotNumberFormat;
 
 public class LCSGlobalResult extends GlobalResult {
-    private final AngleSample angleSample;
-    private final String longDisplayName;
+  private final AngleSample angleSample;
+  private final String longDisplayName;
 
+  public LCSGlobalResult(
+      final String measureName,
+      final SelectionMatch selectionMatch,
+      final AngleSample angleSample,
+      final StructureSelection model,
+      final StructureSelection target) {
+    super(measureName, selectionMatch);
+    this.angleSample = angleSample;
+    longDisplayName = prepareLongDisplayName(model, target);
+  }
 
-    public LCSGlobalResult(String measureName, SelectionMatch selectionMatch,
-                           AngleSample angleSample, StructureSelection model, StructureSelection target) {
-        super(measureName, selectionMatch);
-        this.angleSample = angleSample;
-        this.longDisplayName = prepareLongDisplayName(model, target);
+  private String prepareLongDisplayName(
+      final StructureSelection model, final StructureSelection target) {
+    final SelectionMatch selectionMatch = getSelectionMatch();
 
-    }
+    final int validCount = selectionMatch.getResidueLabels().size();
+    final int length = target.getResidues().size();
+    final double coverage = ((double) validCount / length) * 100.0;
+    final PdbResidue s;
+    final PdbResidue e;
+    final PdbResidue s1;
+    final PdbResidue e1;
+    s = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getTarget();
+    e =
+        selectionMatch
+            .getFragmentMatches()
+            .get(0)
+            .getResidueComparisons()
+            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
+            .getTarget();
+    s1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getModel();
+    e1 =
+        selectionMatch
+            .getFragmentMatches()
+            .get(0)
+            .getResidueComparisons()
+            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
+            .getModel();
 
-    private String prepareLongDisplayName(StructureSelection model, StructureSelection target) {
-        SelectionMatch selectionMatch = getSelectionMatch();
-        AngleDeltaIterator angleDeltaIterator =
-                new MatchCollectionDeltaIterator(selectionMatch);
-        SingleMatchStatistics statistics =
-                SingleMatchStatistics.calculate("", angleDeltaIterator);
+    final StringBuilder builder = new StringBuilder("<html>");
+    builder.append(getShortDisplayName());
+    builder.append("<br>");
+    builder.append(validCount);
+    builder.append("<br>");
+    builder.append(String.format("%.4g%n", coverage));
+    builder.append('%');
+    builder.append("<br>");
+    builder.append(target.getName());
+    builder.append("<br>");
+    builder.append(s);
+    builder.append("<br>");
+    builder.append(e);
+    builder.append("<br>");
+    builder.append(model.getName());
+    builder.append("<br>");
+    builder.append(s1);
+    builder.append("<br>");
+    builder.append(e1);
+    builder.append("<br>");
+    builder.append("</html>");
+    return builder.toString();
+  }
 
-        int validCount = selectionMatch.getResidueLabels().size();
-        int length =target.getResidues().size();
-        double coverage = (double)validCount/(double)length*100.0;
-        PdbResidue s;
-        PdbResidue e;
-        PdbResidue s1;
-        PdbResidue e1;
-        s = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getTarget();
-        e = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() -1).getTarget();
-        s1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getModel();
-        e1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() -1).getModel();
-        
+  public String cliOutput(final StructureSelection model, final StructureSelection target) {
+    final SelectionMatch selectionMatch = getSelectionMatch();
+    final AngleDeltaIterator angleDeltaIterator = new MatchCollectionDeltaIterator(selectionMatch);
+    final SingleMatchStatistics statistics =
+        SingleMatchStatistics.calculate("", angleDeltaIterator);
 
+    final int validCount = selectionMatch.getResidueLabels().size();
+    final int length = target.getResidues().size();
+    final double coverage = ((double) validCount / (double) length) * 100.0;
+    final PdbResidue s;
+    final PdbResidue e;
+    final PdbResidue s1;
+    final PdbResidue e1;
+    s = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getTarget();
+    e =
+        selectionMatch
+            .getFragmentMatches()
+            .get(0)
+            .getResidueComparisons()
+            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
+            .getTarget();
+    s1 = selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getModel();
+    e1 =
+        selectionMatch
+            .getFragmentMatches()
+            .get(0)
+            .getResidueComparisons()
+            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
+            .getModel();
+    return String.format(
+        "MCQ value: %s\nNumber of residues: %d\nCoverage: %s%% \nTarget name: %s\nFirst target residue: %s\nLast target residue: %s\nModel name: %s\nFirst model residue: %s\nLast model residue: %s",
+        getShortDisplayName(),
+        validCount,
+        TwoDigitsAfterDotNumberFormat.formatDouble(coverage),
+        target.getName(),
+        s,
+        e,
+        model.getName(),
+        s1,
+        e1);
+  }
 
-        StringBuilder builder = new StringBuilder("<html>");
-        builder.append(getShortDisplayName());
-        builder.append("<br>");
-        builder.append(validCount);
-        builder.append("<br>");
-        builder.append(String.format("%.4g%n", coverage));
-        builder.append('%');
-        builder.append("<br>");
-        builder.append(target.getName());
-        builder.append("<br>");
-        builder.append(s);
-        builder.append("<br>");
-        builder.append(e);
-        builder.append("<br>");
-        builder.append(model.getName());
-        builder.append("<br>");
-        builder.append(s1);
-        builder.append("<br>");
-        builder.append(e1);
-        builder.append("<br>");
-        builder.append("</html>");
-        return builder.toString();
-    }
+  public Angle getMeanDirection() {
+    return angleSample.getMeanDirection();
+  }
 
+  public Angle getMedianDirection() {
+    return angleSample.getMedianDirection();
+  }
 
-    public Angle getMeanDirection() {
-        return angleSample.getMeanDirection();
-    }
+  @Override
+  public String toString() {
+    return angleSample.toString();
+  }
 
-    public Angle getMedianDirection() {
-        return angleSample.getMedianDirection();
-    }
+  @Override
+  public String getLongDisplayName() {
+    return longDisplayName;
+  }
 
-    @Override
-    public String toString() {
-        return angleSample.toString();
-    }
+  @Override
+  public String getShortDisplayName() {
+    return AngleFormat.degreesRoundedToOne(angleSample.getMeanDirection().getRadians());
+  }
 
-    @Override
-    public String getLongDisplayName() {
-        return longDisplayName;
-    }
+  @Override
+  public String getExportName() {
+    return AngleFormat.degrees(angleSample.getMeanDirection().getRadians());
+  }
 
-    @Override
-    public String getShortDisplayName() {
-        return AngleFormat.formatDisplayShort(
-                angleSample.getMeanDirection().getRadians());
-    }
-
-    @Override
-    public String getExportName() {
-        return AngleFormat
-                .formatExport(angleSample.getMeanDirection().getRadians());
-    }
-
-    @Override
-    public double asDouble() {
-        return angleSample.getMeanDirection().getRadians();
-    }
+  @Override
+  public double asDouble() {
+    return angleSample.getMeanDirection().getRadians();
+  }
 }
