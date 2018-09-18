@@ -43,7 +43,7 @@ import pl.poznan.put.clustering.hierarchical.Linkage;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ColoredNamedPoint;
 import pl.poznan.put.datamodel.NamedPoint;
-import pl.poznan.put.interfaces.DistanceMatrix;
+import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public final class MDSDrawer {

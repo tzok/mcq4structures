@@ -1,14 +1,17 @@
 package pl.poznan.put.gui.window;
 
-import pl.poznan.put.gui.component.FilteredListModel;
-import pl.poznan.put.matching.SelectionFactory;
-import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.pdb.analysis.PdbChain;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
-
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -20,17 +23,14 @@ import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import pl.poznan.put.gui.component.FilteredListModel;
+import pl.poznan.put.matching.SelectionFactory;
+import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbChain;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.structure.tertiary.StructureManager;
 
 public final class DialogSelectChainsMultiple extends JDialog {
   private static final long serialVersionUID = -5562038332587512308L;
@@ -145,7 +145,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
             final ListSelectionModel source = (ListSelectionModel) arg0.getSource();
             if (source.equals(listAll.getSelectionModel())) {
               buttonSelect.setEnabled(!listAll.isSelectionEmpty());
-            } else if (source.equals(listSelected)) {
+            } else if (source.equals(listSelected.getSelectionModel())) {
               buttonDeselect.setEnabled(!listSelected.isSelectionEmpty());
             }
 
@@ -240,7 +240,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
   }
 
   public int showDialog(final boolean fragmentsSameSize) {
-    final List<PdbCompactFragment> fragments = new ArrayList<>();
+    final Collection<PdbCompactFragment> fragments = new ArrayList<>();
 
     for (final PdbModel structure : StructureManager.getAllStructures()) {
       for (final PdbChain chain : structure.getChains()) {
@@ -259,7 +259,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
      * Refresh data -> if some structure was removed from StructureManager,
      * removePair its chains as well
      */
-    List<PdbCompactFragment> list = new ArrayList<>(listL);
+    Collection<PdbCompactFragment> list = new ArrayList<>(listL);
     list.removeAll(fragments);
     modelAll.removeElements(list);
     list = new ArrayList<>(listR);

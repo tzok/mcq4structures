@@ -1,9 +1,8 @@
 package pl.poznan.put.visualisation;
 
 import fr.orsay.lri.varna.models.rna.ModeleColorMap;
-import org.jzy3d.colors.colormaps.AbstractColorMap;
-
 import java.awt.Color;
+import org.jzy3d.colors.colormaps.AbstractColorMap;
 
 public final class ColorMaps {
   // colors taken from YlOrRd palette on: http://colorbrewer2.org

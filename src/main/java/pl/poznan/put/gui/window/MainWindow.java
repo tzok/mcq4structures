@@ -46,12 +46,12 @@ import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
 import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
 import pl.poznan.put.gui.panel.TorsionAngleValuesMatrixPanel;
-import pl.poznan.put.interfaces.DistanceMatrix;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.types.DistanceMatrix;
 
 public class MainWindow extends JFrame {
   private static final String CARD_TORSION = "CARD_TORSION";
@@ -447,7 +447,7 @@ public class MainWindow extends JFrame {
     itemVisualise3D.setEnabled(currentResult.canVisualize());
 
     if (currentResult.canExport()) {
-      itemSave.setText("Save results (" + currentResult.getExportFormat() + ")");
+      itemSave.setText("Save results");
     }
   }
 

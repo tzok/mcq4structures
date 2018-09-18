@@ -25,8 +25,8 @@ import pl.poznan.put.clustering.partitional.PAMSIL;
 import pl.poznan.put.clustering.partitional.PrototypeBasedClusterer;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
-import pl.poznan.put.interfaces.DistanceMatrix;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.visualisation.PartitionalClustering;
 
 public class DialogCluster extends JDialog {

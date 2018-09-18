@@ -1,9 +1,8 @@
 package pl.poznan.put.visualisation;
 
+import java.util.List;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import java.util.List;
 
 /**
  * An interface for different methods which use information about residue comparison results and map

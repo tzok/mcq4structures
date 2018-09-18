@@ -1,13 +1,12 @@
 package pl.poznan.put.visualisation;
 
+import java.util.ArrayList;
+import java.util.List;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Map {@link TorsionAngleDelta} onto 0-1 scale. */
 public final class AngleDeltaMapper implements ComparisonMapper {
@@ -40,7 +39,7 @@ public final class AngleDeltaMapper implements ComparisonMapper {
    *
    * @param residueComparisons List of results of comparison for single residues.
    * @param angleTypes List of angle types available for each residue.
-   * @return
+   * @return An array of 0-1 values for each residue.
    */
   @Override
   public Double[] map(

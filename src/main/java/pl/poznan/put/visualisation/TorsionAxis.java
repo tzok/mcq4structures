@@ -1,17 +1,16 @@
 package pl.poznan.put.visualisation;
 
-import org.apache.commons.math3.util.Precision;
-import org.jfree.chart.axis.AxisState;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTick;
-import org.jfree.chart.ui.RectangleEdge;
-
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.math3.util.Precision;
+import org.jfree.chart.axis.AxisState;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTick;
+import org.jfree.chart.ui.RectangleEdge;
 
 public final class TorsionAxis extends NumberAxis {
   private static final long serialVersionUID = 688243119045973269L;

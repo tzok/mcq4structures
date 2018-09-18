@@ -1,39 +1,26 @@
 package pl.poznan.put.datamodel;
 
+import lombok.Data;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
+@Data
 public class NamedPoint {
-  protected final String name;
-  protected final Vector2D point;
+  private final String name;
+  private final Vector2D point;
 
-  public NamedPoint(String name, Vector2D point) {
-    super();
-    this.name = name;
-    this.point = point;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public double getX() {
+  public final double getX() {
     return point.getX();
   }
 
-  public double getY() {
+  public final double getY() {
     return point.getY();
   }
 
-  public double distance(NamedPoint other) {
+  public final double distance(final NamedPoint other) {
     return point.distance(other.point);
   }
 
-  public NamedPoint scalarMultiply(double a) {
+  public final NamedPoint scalarMultiply(final double a) {
     return new NamedPoint(name, point.scalarMultiply(a));
-  }
-
-  @Override
-  public String toString() {
-    return "NamedPoint [name=" + name + ", point=" + point + "]";
   }
 }

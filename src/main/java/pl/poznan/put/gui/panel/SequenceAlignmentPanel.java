@@ -1,13 +1,9 @@
 package pl.poznan.put.gui.panel;
 
-import org.biojava.nbio.core.exceptions.CompoundNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.poznan.put.alignment.SequenceAligner;
-import pl.poznan.put.alignment.SequenceAlignment;
-import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -15,10 +11,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.util.Collections;
-import java.util.List;
+import org.biojava.nbio.core.exceptions.CompoundNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.poznan.put.datamodel.ProcessingResult;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.sequence.alignment.SequenceAligner;
+import pl.poznan.put.sequence.alignment.SequenceAlignment;
 
 public class SequenceAlignmentPanel extends JPanel {
   private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAlignmentPanel.class);
@@ -40,14 +39,14 @@ public class SequenceAlignmentPanel extends JPanel {
     textAreaAlignment.setEditable(false);
     textAreaAlignment.setFont(new Font("Monospaced", Font.PLAIN, 20));
 
-    JPanel panel = new JPanel(new BorderLayout());
+    final JPanel panel = new JPanel(new BorderLayout());
     panel.add(labelHeader, BorderLayout.CENTER);
 
     add(panel, BorderLayout.NORTH);
     add(new JScrollPane(textAreaAlignment), BorderLayout.CENTER);
   }
 
-  public void setFragments(List<PdbCompactFragment> fragments, boolean isGlobal) {
+  public void setFragments(final List<PdbCompactFragment> fragments, final boolean isGlobal) {
     this.fragments = fragments;
     this.isGlobal = isGlobal;
 
@@ -55,15 +54,15 @@ public class SequenceAlignmentPanel extends JPanel {
     updateHeader(false);
   }
 
-  private void updateHeader(boolean readyResults) {
-    StringBuilder builder = new StringBuilder();
+  private void updateHeader(final boolean readyResults) {
+    final StringBuilder builder = new StringBuilder();
     builder.append("<html>Structures selected for ");
     builder.append(isGlobal ? "global" : "local");
     builder.append(" sequence alignment: ");
 
     int i = 0;
 
-    for (PdbCompactFragment c : fragments) {
+    for (final PdbCompactFragment c : fragments) {
       builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
       builder.append(c.getName());
       builder.append("</span>, ");
@@ -84,13 +83,13 @@ public class SequenceAlignmentPanel extends JPanel {
 
   public ProcessingResult alignAndDisplaySequences() {
     try {
-      SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
-      SequenceAlignment alignment = aligner.align();
+      final SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
+      final SequenceAlignment alignment = aligner.align();
       textAreaAlignment.setText(alignment.toString());
       updateHeader(true);
       return new ProcessingResult(alignment);
-    } catch (CompoundNotFoundException e) {
-      String message = "Failed to align sequences";
+    } catch (final CompoundNotFoundException e) {
+      final String message = "Failed to align sequences";
       SequenceAlignmentPanel.LOGGER.error(message, e);
       JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }

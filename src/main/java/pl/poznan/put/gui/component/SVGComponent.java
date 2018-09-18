@@ -18,7 +18,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.interfaces.ExportFormat;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
@@ -92,11 +91,6 @@ public class SVGComponent extends JSVGCanvas implements Exportable {
   public void export(OutputStream stream) throws IOException {
     byte[] bytes = SVGHelper.export(svgDocument, Format.SVG);
     IOUtils.write(bytes, stream);
-  }
-
-  @Override
-  public ExportFormat getExportFormat() {
-    return ExportFormat.SVG;
   }
 
   @Override

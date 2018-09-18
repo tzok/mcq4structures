@@ -1,13 +1,12 @@
 package pl.poznan.put.gui.component;
 
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-
-import javax.swing.AbstractListModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.swing.AbstractListModel;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
   private static final long serialVersionUID = 2878196330323395518L;

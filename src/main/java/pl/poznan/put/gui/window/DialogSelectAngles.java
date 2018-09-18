@@ -1,12 +1,5 @@
 package pl.poznan.put.gui.window;
 
-import pl.poznan.put.gui.panel.TorsionAngleTypesPanel;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -17,6 +10,12 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import pl.poznan.put.gui.panel.TorsionAngleTypesPanel;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 public final class DialogSelectAngles extends JDialog {
   public static final int CANCEL = 0;

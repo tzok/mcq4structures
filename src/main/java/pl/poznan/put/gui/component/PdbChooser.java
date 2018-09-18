@@ -1,12 +1,12 @@
 package pl.poznan.put.gui.component;
 
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Component;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class PdbChooser extends JFileChooser {
   private static final PdbChooser INSTANCE = new PdbChooser();

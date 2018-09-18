@@ -9,8 +9,8 @@ import pl.poznan.put.clustering.partitional.ClusterAssignment;
 import pl.poznan.put.clustering.partitional.ClusterPrototypes;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
-import pl.poznan.put.interfaces.DistanceMatrix;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.types.DistanceMatrix;
 
 public class PartitionalClustering implements Visualizable {
   private final Map<Integer, Color> clusterColor = new HashMap<>();
