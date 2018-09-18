@@ -1,4 +1,4 @@
-package pl.poznan.put.matching;
+package pl.poznan.put.visualisation;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -6,8 +6,8 @@ import java.awt.geom.Rectangle2D;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
 import org.jfree.chart.JFreeChart;
@@ -21,34 +21,25 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.Drawable;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
-import pl.poznan.put.circular.Angle;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.matching.AngleDeltaIterator;
+import pl.poznan.put.matching.FragmentComparison;
+import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.ResidueComparison;
+import pl.poznan.put.matching.TypedDeltaIterator;
 import pl.poznan.put.matching.stats.SingleMatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.DotBracketSymbol;
-import pl.poznan.put.structure.secondary.formats.BpSeq;
-import pl.poznan.put.structure.secondary.formats.Converter;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
-import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
-import pl.poznan.put.visualisation.TorsionAxis;
 
-public class FragmentMatch implements Visualizable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FragmentMatch.class);
-
+@Slf4j
+public class VisualizableFragmentMatch extends FragmentMatch implements Visualizable {
   private static final NumberFormat NUMBER_FORMAT =
       new NumberFormat() {
         private static final long serialVersionUID = -5555343582625013384L;
@@ -71,108 +62,23 @@ public class FragmentMatch implements Visualizable {
         }
       };
 
-  private final PdbCompactFragment targetFragment;
-  private final PdbCompactFragment modelFragment;
-  private final boolean isTargetSmaller;
-  private final int shift;
-  private final FragmentComparison fragmentComparison;
-
-  public FragmentMatch(
-      final PdbCompactFragment targetFragment,
-      final PdbCompactFragment modelFragment,
-      final boolean isTargetSmaller,
-      final int shift,
-      final FragmentComparison comparison) {
-    super();
-    this.targetFragment = targetFragment;
-    this.modelFragment = modelFragment;
-    this.isTargetSmaller = isTargetSmaller;
-    this.shift = shift;
-    fragmentComparison = comparison;
-  }
-
-  public static FragmentMatch invalidInstance(
-      final PdbCompactFragment targetFragment, final PdbCompactFragment modelFragment) {
-    return new FragmentMatch(
-        targetFragment, modelFragment, false, 0, FragmentComparison.invalidInstance());
-  }
-
-  public final PdbCompactFragment getTargetFragment() {
-    return targetFragment;
-  }
-
-  public final PdbCompactFragment getModelFragment() {
-    return modelFragment;
-  }
-
-  public final int getShift() {
-    return shift;
-  }
-
-  public final List<ResidueComparison> getResidueComparisons() {
-    return fragmentComparison.getResidueComparisons();
-  }
-
-  public final List<MasterTorsionAngleType> getAngleTypes() {
-    return fragmentComparison.getAngleTypes();
-  }
-
-  public final int getTargetInvalidCount() {
-    return fragmentComparison.getTargetInvalidCount();
-  }
-
-  public final int getModelInvalidCount() {
-    return fragmentComparison.getModelInvalidCount();
-  }
-
-  public final int getBothInvalidCount() {
-    return fragmentComparison.getBothInvalidCount();
-  }
-
-  public final int getValidCount() {
-    return fragmentComparison.getValidCount();
-  }
-
-  public final Angle getMeanDelta() {
-    return fragmentComparison.getMeanDelta();
-  }
-
-  public final int getMismatchCount() {
-    return fragmentComparison.getMismatchCount();
-  }
-
-  public final int getResidueCount() {
-    return fragmentComparison.getResidueCount();
-  }
-
-  public final boolean isValid() {
-    return fragmentComparison.isValid();
-  }
-
-  @Override
-  public final String toString() {
-    final PdbCompactFragment target;
-    final PdbCompactFragment model;
-
-    if (isTargetSmaller) {
-      target = targetFragment;
-      model = modelFragment.shift(shift, targetFragment.getResidues().size());
-    } else {
-      target = targetFragment.shift(shift, modelFragment.getResidues().size());
-      model = modelFragment;
-    }
-
-    return target.getName() + " & " + model.getName();
-  }
-
-  public final MoleculeType moleculeType() {
-    assert targetFragment.getMoleculeType() == modelFragment.getMoleculeType();
-    return targetFragment.getMoleculeType();
+  public VisualizableFragmentMatch(final FragmentMatch fragmentMatch) {
+    super(
+        fragmentMatch.getTargetFragment(),
+        fragmentMatch.getModelFragment(),
+        fragmentMatch.isTargetSmaller(),
+        fragmentMatch.getShift(),
+        fragmentMatch.getFragmentComparison());
   }
 
   @Override
   public final SVGDocument visualize() {
     return visualize(640, 480);
+  }
+
+  @Override
+  public void visualize3D() {
+    // do nothing
   }
 
   public final SVGDocument visualize(final int width, final int height) {
@@ -186,12 +92,14 @@ public class FragmentMatch implements Visualizable {
     rangeAxis.setLabel("Angular distance");
     rangeAxis.setRange(0, Math.PI);
     rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-    rangeAxis.setNumberFormatOverride(FragmentMatch.NUMBER_FORMAT);
+    rangeAxis.setNumberFormatOverride(VisualizableFragmentMatch.NUMBER_FORMAT);
 
-    return FragmentMatch.plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
+    return VisualizableFragmentMatch.plotAsSvg(
+        width, height, dataset, renderer, domainAxis, rangeAxis);
   }
 
   private void prepareDataset(final DefaultXYDataset dataset, final XYItemRenderer renderer) {
+    final FragmentComparison fragmentComparison = getFragmentComparison();
     int i = 0;
     for (final MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
       final double[][] data = new double[2][];
@@ -221,13 +129,13 @@ public class FragmentMatch implements Visualizable {
   private ValueAxis prepareDomainAxis() {
     ValueAxis domainAxis = null;
 
-    if (targetFragment.getMoleculeType() == MoleculeType.RNA) {
+    if (moleculeType() == MoleculeType.RNA) {
       try {
         final List<String> ticks = generateLabelsWithDotBracket();
         domainAxis = new TorsionAxis(ticks, 0, 12);
         domainAxis.setLabel("Secondary structure");
       } catch (final InvalidStructureException e) {
-        FragmentMatch.LOGGER.warn("Failed to extract canonical secondary structure", e);
+        VisualizableFragmentMatch.log.warn("Failed to extract canonical secondary structure", e);
       }
     }
 
@@ -275,43 +183,6 @@ public class FragmentMatch implements Visualizable {
     return document;
   }
 
-  public final List<String> generateLabelsWithDotBracket() throws InvalidStructureException {
-    final PdbCompactFragment target =
-        isTargetSmaller
-            ? targetFragment
-            : targetFragment.shift(shift, modelFragment.getResidues().size());
-    final List<String> result = new ArrayList<>();
-    final List<PdbResidue> targetResidues = target.getResidues();
-    final BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
-
-    final Converter converter = new LevelByLevelConverter(new MinGain(), 0);
-    final DotBracket dotBracket = converter.convert(bpSeq);
-
-    for (int i = 0; i < targetResidues.size(); i++) {
-      final DotBracketSymbol symbol = dotBracket.getSymbol(i);
-      result.add(Character.toString(symbol.getStructure()));
-    }
-
-    return result;
-  }
-
-  public final List<String> generateLabelsWithResidueNames() {
-    final PdbCompactFragment target =
-        isTargetSmaller
-            ? targetFragment
-            : targetFragment.shift(shift, modelFragment.getResidues().size());
-    final List<String> result = new ArrayList<>();
-    for (final PdbResidue lname : target.getResidues()) {
-      result.add(lname.toString());
-    }
-    return result;
-  }
-
-  @Override
-  public void visualize3D() {
-    // do nothing
-  }
-
   public final SVGDocument visualizePercentiles(final int width, final int height) {
     final DefaultXYDataset dataset = new DefaultXYDataset();
     final XYItemRenderer renderer = new DefaultXYItemRenderer();
@@ -325,16 +196,17 @@ public class FragmentMatch implements Visualizable {
     rangeAxis.setLabel("Angular distance");
     rangeAxis.setRange(0, Math.PI);
     rangeAxis.setTickUnit(new NumberTickUnit(Math.PI / 12.0));
-    rangeAxis.setNumberFormatOverride(FragmentMatch.NUMBER_FORMAT);
+    rangeAxis.setNumberFormatOverride(VisualizableFragmentMatch.NUMBER_FORMAT);
 
-    return FragmentMatch.plotAsSvg(width, height, dataset, renderer, domainAxis, rangeAxis);
+    return VisualizableFragmentMatch.plotAsSvg(
+        width, height, dataset, renderer, domainAxis, rangeAxis);
   }
 
   private void preparePercentilesDataset(
       final DefaultXYDataset dataset, final XYItemRenderer renderer) {
-    final String name = modelFragment.getName();
+    final String name = getModelFragment().getName();
     final double[] percents = SingleMatchStatistics.PERCENTS_FROM_1_TO_100;
-    final List<MasterTorsionAngleType> angleTypes = fragmentComparison.getAngleTypes();
+    final List<MasterTorsionAngleType> angleTypes = getFragmentComparison().getAngleTypes();
 
     for (int j = 0; j < angleTypes.size(); j++) {
       final MasterTorsionAngleType masterType = angleTypes.get(j);
