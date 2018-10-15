@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.swing.table.TableModel;
 import lombok.Data;
 import pl.poznan.put.matching.AngleDeltaIterator;
@@ -22,7 +21,7 @@ public final class MultiMatchStatistics {
     private final double ratio;
 
     @Override
-    public int compareTo(@Nonnull final HistogramEntry t) {
+    public int compareTo(final HistogramEntry t) {
       return Double.compare(ratio, t.ratio);
     }
 
@@ -51,7 +50,7 @@ public final class MultiMatchStatistics {
     private final boolean isDisplayable;
 
     @Override
-    public int compareTo(@Nonnull final PercentileEntry t) {
+    public int compareTo(final PercentileEntry t) {
       return Double.compare(threshold, t.threshold);
     }
 

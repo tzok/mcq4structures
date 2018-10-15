@@ -12,13 +12,63 @@
 
   <dependencies>
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>java3d</groupId>
+      <artifactId>vecmath</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>java3d</groupId>
+      <artifactId>vecmath</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-util</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.biojava</groupId>
+      <artifactId>biojava-structure</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.biojava</groupId>
       <artifactId>jcolorbrewer</artifactId>
     </dependency>
 
     <dependency>
+      <groupId>org.jumpmind.symmetric</groupId>
+      <artifactId>symmetric-csv</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>pl.poznan.put</groupId>
       <artifactId>BioCommons</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>pl.poznan.put</groupId>
+      <artifactId>circular</artifactId>
     </dependency>
 
     <dependency>
@@ -29,6 +79,11 @@
     <dependency>
       <groupId>pl.poznan.put</groupId>
       <artifactId>varna-tz</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis-ext</artifactId>
     </dependency>
 
     <dependency>
@@ -65,6 +120,14 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.7.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <usedDependencies>org.projectlombok:lombok</usedDependencies>
+        </configuration>
       </plugin>
 
       <plugin>

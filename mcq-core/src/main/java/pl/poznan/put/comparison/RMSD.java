@@ -12,7 +12,6 @@ import pl.poznan.put.matching.MCQMatcher;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
@@ -55,18 +54,12 @@ public class RMSD implements GlobalComparator {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(s1, s2);
 
-    if ((matches == null) || matches.getFragmentMatches().isEmpty()) {
+    if (matches.getFragmentMatches().isEmpty()) {
       throw new IncomparableStructuresException("No matching fragments found");
     }
 
-    try {
-      final FragmentSuperimposer superimposer =
-          new FragmentSuperimposer(matches, filter, onlyHeavy);
-      return new RMSDGlobalResult(getName(), matches, superimposer);
-    } catch (final CifPdbIncompatibilityException e) {
-      throw new IncomparableStructuresException(
-          "Failed to superimpose structures and calculate RMSD", e);
-    }
+    final FragmentSuperimposer superimposer = new FragmentSuperimposer(matches, filter, onlyHeavy);
+    return new RMSDGlobalResult(getName(), matches, superimposer);
   }
 
   @Override
