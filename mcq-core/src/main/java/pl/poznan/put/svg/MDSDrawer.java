@@ -12,26 +12,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.geometry.Vector;
-import org.apache.commons.math3.geometry.euclidean.twod.Euclidean2D;
 import org.apache.commons.math3.geometry.euclidean.twod.Segment;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHullGenerator2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
-import pl.poznan.put.constant.Colors;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
@@ -59,9 +50,10 @@ public final class MDSDrawer {
         distanceMatrix, MDSDrawer.COLOR_PROVIDER, MDSDrawer.NAME_PROVIDER);
   }
 
-  public static SVGDocument scale2DAndVisualizePoints(final DistanceMatrix distanceMatrix,
-                                                      final ColorProvider colorProvider,
-                                                      final NameProvider nameProvider) {
+  public static SVGDocument scale2DAndVisualizePoints(
+      final DistanceMatrix distanceMatrix,
+      final ColorProvider colorProvider,
+      final NameProvider nameProvider) {
     final SVGDocument document = SVGHelper.emptyDocument();
     final SVGGraphics2D graphics = new SVGGraphics2D(document);
     graphics.setFont(new Font("monospaced", Font.PLAIN, 10));
@@ -112,17 +104,7 @@ public final class MDSDrawer {
             (legendHeight + lineHeight) - (MDSDrawer.CIRCLE_DIAMETER / 2.0f));
         legendHeight += lineHeight;
 
-        if (indices.size() == 1) {
-          continue;
-        }
-        if (indices.size() == 2) {
-          //          final int p1 = indices.get(0);
-          //          final double x1 = scaledXYMatrix[p1][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          //          final double y1 = scaledXYMatrix[p1][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          //          final int p2 = indices.get(1);
-          //          final double x2 = scaledXYMatrix[p2][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          //          final double y2 = scaledXYMatrix[p2][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          //          graphics.draw(new Line2D.Double(x1, y1, x2, y2));
+        if (indices.size() <= 2) {
           continue;
         }
 
@@ -136,32 +118,6 @@ public final class MDSDrawer {
           final Vector2D end = segment.getEnd();
           path.lineTo(end.getX(), end.getY());
         }
-
-        //        final double[] is = new double[convexHull.size()];
-        //        final double[] xs = new double[convexHull.size()];
-        //        final double[] ys = new double[convexHull.size()];
-        //        int j = 0;
-        //
-        //        for (final Coord2d coord : convexHull) {
-        //          is[j] = j;
-        //          xs[j] = coord.x;
-        //          ys[j] = coord.y;
-        //          j++;
-        //        }
-
-        //        final UnivariateInterpolator interpolator = new SplineInterpolator();
-        //        final UnivariateFunction functionX = interpolator.interpolate(is, xs);
-        //        final UnivariateFunction functionY = interpolator.interpolate(is, ys);
-        //
-        //        final Path2D.Double path = new Path2D.Double();
-        //        path.moveTo(xs[0], ys[0]);
-        //        for (int i = 1; i < xs.length; i++) {
-        //          final double cx1 = functionX.value(i - 0.6666666666666666);
-        //          final double cy1 = functionY.value(i - 0.6666666666666666);
-        //          final double cx2 = functionX.value(i - 0.3333333333333333);
-        //          final double cy2 = functionY.value(i - 0.3333333333333333);
-        //          path.curveTo(cx1, cy1, cx2, cy2, xs[i], ys[i]);
-        //        }
 
         graphics.draw(path);
       }
@@ -236,153 +192,5 @@ public final class MDSDrawer {
     }
 
     return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
-  }
-
-  private static double[][] calculateScaledDistanceMatrix(
-      final double[][] originalDistanceMatrix, final double[][] scaledXYMatrix) {
-    final double[][] scaledDistanceMatrix = new double[originalDistanceMatrix.length][];
-
-    for (int i = 0; i < originalDistanceMatrix.length; i++) {
-      scaledDistanceMatrix[i] = new double[originalDistanceMatrix.length];
-    }
-
-    for (int i = 0; i < originalDistanceMatrix.length; i++) {
-      final Vector<Euclidean2D> pi = new Vector2D(scaledXYMatrix[i][0], scaledXYMatrix[i][1]);
-
-      for (int j = i + 1; j < originalDistanceMatrix.length; j++) {
-        final Vector<Euclidean2D> pj = new Vector2D(scaledXYMatrix[j][0], scaledXYMatrix[j][1]);
-        scaledDistanceMatrix[i][j] = pi.distance(pj);
-        scaledDistanceMatrix[j][i] = pi.distance(pj);
-      }
-    }
-    return scaledDistanceMatrix;
-  }
-
-  private static SVGDocument drawPoints(final List<? extends NamedPoint> points) {
-    final DOMImplementation dom = SVGDOMImplementation.getDOMImplementation();
-    final SVGDocument document =
-        (SVGDocument) dom.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
-    final Element svgRoot = document.getDocumentElement();
-
-    MDSDrawer.createAndAddLinearGradients(document, svgRoot, points);
-    MDSDrawer.createAndAddTextElements(document, svgRoot, points);
-
-    final Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(document);
-    svgRoot.setAttributeNS(
-        null,
-        SVGConstants.SVG_VIEW_BOX_ATTRIBUTE,
-        String.format(
-            "%s %s %s %s",
-            boundingBox.getMinX(),
-            boundingBox.getMinY(),
-            boundingBox.getWidth(),
-            boundingBox.getHeight()));
-    svgRoot.setAttributeNS(
-        null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Double.toString(boundingBox.getWidth()));
-    svgRoot.setAttributeNS(
-        null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
-    return document;
-  }
-
-  private static void createAndAddLinearGradients(
-      final Document document, final Node svgRoot, final Iterable<? extends NamedPoint> points) {
-    final Element defs =
-        document.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, SVGConstants.SVG_DEFS_TAG);
-
-    for (final NamedPoint point : points) {
-      if (point instanceof ColoredNamedPoint) {
-        final Set<Color> colors = ((ColoredNamedPoint) point).getColors();
-
-        if (colors.size() > 1) {
-          final Element linearGradient =
-              document.createElementNS(
-                  SVGDOMImplementation.SVG_NAMESPACE_URI, SVGConstants.SVG_LINEAR_GRADIENT_TAG);
-          linearGradient.setAttributeNS(
-              null, SVGConstants.SVG_ID_ATTRIBUTE, StringUtils.deleteWhitespace(point.getName()));
-          linearGradient.setAttributeNS(null, SVGConstants.SVG_X1_ATTRIBUTE, "0%");
-          linearGradient.setAttributeNS(null, SVGConstants.SVG_Y1_ATTRIBUTE, "0%");
-          linearGradient.setAttributeNS(null, SVGConstants.SVG_X2_ATTRIBUTE, "100%");
-          linearGradient.setAttributeNS(null, SVGConstants.SVG_Y2_ATTRIBUTE, "0%");
-
-          int i = 0;
-          final int step = 100 / (colors.size() - 1);
-
-          for (final Color color : colors) {
-            final Element stop =
-                document.createElementNS(
-                    SVGDOMImplementation.SVG_NAMESPACE_URI, SVGConstants.SVG_STOP_TAG);
-            stop.setAttributeNS(
-                null,
-                SVGConstants.SVG_OFFSET_ATTRIBUTE,
-                String.format("%s%%", Integer.toString(i * step)));
-            stop.setAttributeNS(
-                null,
-                SVGConstants.SVG_STYLE_ATTRIBUTE,
-                String.format("stop-color: %s; stop-opacity: 1", Colors.toSvgString(color)));
-            linearGradient.appendChild(stop);
-            i += 1;
-          }
-
-          defs.appendChild(linearGradient);
-        }
-      }
-    }
-
-    svgRoot.appendChild(defs);
-  }
-
-  private static void createAndAddTextElements(
-      final Document document, final Node svgRoot, final List<? extends NamedPoint> points) {
-    final double maxDistance = MDSDrawer.calculateMaxDistance(points);
-    final double scale = MDSDrawer.DESIRED_WIDTH / maxDistance;
-
-    for (final NamedPoint point : points) {
-      final NamedPoint scaled = point.scalarMultiply(scale);
-      final double x = scaled.getX();
-      final double y = scaled.getY();
-
-      final Element element =
-          document.createElementNS(
-              SVGDOMImplementation.SVG_NAMESPACE_URI, SVGConstants.SVG_TEXT_TAG);
-      element.setAttributeNS(null, SVGConstants.SVG_X_ATTRIBUTE, Double.toString(x));
-      element.setAttributeNS(null, SVGConstants.SVG_Y_ATTRIBUTE, Double.toString(y));
-      element.setAttributeNS(null, SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, "middle");
-
-      if (point instanceof ColoredNamedPoint) {
-        final Set<Color> colors = ((ColoredNamedPoint) point).getColors();
-
-        if (colors.size() == 1) {
-          element.setAttributeNS(
-              null, SVGConstants.SVG_FILL_ATTRIBUTE, Colors.toHexString(colors.iterator().next()));
-        } else if (colors.size() > 1) {
-          element.setAttributeNS(
-              null,
-              SVGConstants.SVG_FILL_ATTRIBUTE,
-              String.format("url(#%s)", StringUtils.deleteWhitespace(point.getName())));
-        }
-      }
-
-      element.setTextContent(point.getName());
-      svgRoot.appendChild(element);
-    }
-  }
-
-  private static double calculateMaxDistance(final List<? extends NamedPoint> points) {
-    double maxDistance = 0;
-
-    for (int i = 0; i < points.size(); i++) {
-      final NamedPoint pi = points.get(i);
-
-      for (int j = i + 1; j < points.size(); j++) {
-        final NamedPoint pj = points.get(j);
-        final double distance = pi.distance(pj);
-
-        if (distance > maxDistance) {
-          maxDistance = distance;
-        }
-      }
-    }
-
-    return maxDistance;
   }
 }
