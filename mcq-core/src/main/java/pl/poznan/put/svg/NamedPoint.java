@@ -1,4 +1,4 @@
-package pl.poznan.put.datamodel;
+package pl.poznan.put.svg;
 
 import lombok.Data;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;

@@ -1,4 +1,4 @@
-package pl.poznan.put.visualisation;
+package pl.poznan.put.svg;
 
 import org.biojava.nbio.structure.jama.EigenvalueDecomposition;
 import org.biojava.nbio.structure.jama.Matrix;

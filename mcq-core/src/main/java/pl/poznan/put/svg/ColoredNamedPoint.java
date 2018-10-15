@@ -1,4 +1,4 @@
-package pl.poznan.put.datamodel;
+package pl.poznan.put.svg;
 
 import java.awt.Color;
 import java.util.HashSet;

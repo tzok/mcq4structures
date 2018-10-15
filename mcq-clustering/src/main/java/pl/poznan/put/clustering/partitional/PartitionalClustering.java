@@ -1,23 +1,20 @@
-package pl.poznan.put.visualisation;
+package pl.poznan.put.clustering.partitional;
 
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.jcolorbrewer.ColorBrewer;
 import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.clustering.partitional.ClusterAssignment;
-import pl.poznan.put.clustering.partitional.ClusterPrototypes;
-import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
-import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.svg.MDSDrawer;
 import pl.poznan.put.types.DistanceMatrix;
 
 public class PartitionalClustering implements Visualizable {
   private final Map<Integer, Color> clusterColor = new HashMap<>();
   private final Map<Integer, String> clusterText = new HashMap<>();
-
   private final ClusterAssignment assignment;
-
   private final DistanceMatrix distanceMatrix;
   private final ScoredClusteringResult clustering;
 
@@ -34,9 +31,11 @@ public class PartitionalClustering implements Visualizable {
 
   private void analyzeClusterAssignment() {
     final List<String> names = distanceMatrix.getNames();
+    final Set<Integer> prototypes = assignment.getPrototypesIndices();
+    final Color[] colorPalette = ColorBrewer.Paired.getColorPalette(prototypes.size());
     int index = 0;
 
-    for (final int prototype : assignment.getPrototypesIndices()) {
+    for (final int prototype : prototypes) {
       final StringBuilder builder = new StringBuilder("{ ");
       for (final int i : assignment.getAssignedTo(prototype)) {
         builder.append(names.get(i)).append(", ");
@@ -44,7 +43,7 @@ public class PartitionalClustering implements Visualizable {
       builder.delete(builder.length() - 2, builder.length());
       builder.append(" }");
 
-      clusterColor.put(prototype, ColorMaps.getDistinctColorPaired(index));
+      clusterColor.put(prototype, colorPalette[index]);
       clusterText.put(prototype, builder.toString());
       index++;
     }
@@ -52,6 +51,14 @@ public class PartitionalClustering implements Visualizable {
 
   public final ScoringFunction getScoringFunction() {
     return clustering.getScoringFunction();
+  }
+
+  public ClusterAssignment getAssignment() {
+    return assignment;
+  }
+
+  public DistanceMatrix getDistanceMatrix() {
+    return distanceMatrix;
   }
 
   @Override

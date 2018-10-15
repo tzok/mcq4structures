@@ -31,8 +31,19 @@
     </dependency>
 
     <dependency>
+      <groupId>org.biojava</groupId>
+      <artifactId>jcolorbrewer</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>pl.poznan.put</groupId>
+      <artifactId>mcq-core</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>

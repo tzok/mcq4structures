@@ -1,48 +1,37 @@
-package pl.poznan.put.visualisation;
+package pl.poznan.put.svg;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Deque;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
-import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 import org.apache.commons.math3.geometry.Vector;
 import org.apache.commons.math3.geometry.euclidean.twod.Euclidean2D;
+import org.apache.commons.math3.geometry.euclidean.twod.Segment;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.apache.commons.math3.stat.StatUtils;
-import org.jzy3d.maths.Coord2d;
-import org.jzy3d.maths.algorithms.convexhull.ConvexHullFunction;
-import org.jzy3d.maths.algorithms.convexhull.GrahamScan;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHullGenerator2D;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
-import pl.poznan.put.clustering.hierarchical.Cluster;
-import pl.poznan.put.clustering.hierarchical.Clusterer;
-import pl.poznan.put.clustering.hierarchical.HierarchicalClusterMerge;
-import pl.poznan.put.clustering.hierarchical.HierarchicalClustering;
-import pl.poznan.put.clustering.hierarchical.Linkage;
 import pl.poznan.put.constant.Colors;
-import pl.poznan.put.datamodel.ColoredNamedPoint;
-import pl.poznan.put.datamodel.NamedPoint;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
@@ -70,25 +59,14 @@ public final class MDSDrawer {
         distanceMatrix, MDSDrawer.COLOR_PROVIDER, MDSDrawer.NAME_PROVIDER);
   }
 
-  public static SVGDocument scale2DAndVisualizePoints(
-      final DistanceMatrix distanceMatrix,
-      final ColorProvider colorProvider,
-      final NameProvider nameProvider) {
-    final double[][] originalDistanceMatrix = distanceMatrix.getMatrix();
-    final double[][] scaledXYMatrix = MDS.multidimensionalScaling(originalDistanceMatrix, 2);
-
+  public static SVGDocument scale2DAndVisualizePoints(final DistanceMatrix distanceMatrix,
+                                                      final ColorProvider colorProvider,
+                                                      final NameProvider nameProvider) {
     final SVGDocument document = SVGHelper.emptyDocument();
     final SVGGraphics2D graphics = new SVGGraphics2D(document);
     graphics.setFont(new Font("monospaced", Font.PLAIN, 10));
 
-    final Rectangle2D bounds = MDSDrawer.calculateBounds(scaledXYMatrix);
-
-    for (int i = 0; i < scaledXYMatrix.length; i++) {
-      scaledXYMatrix[i][0] =
-          (scaledXYMatrix[i][0] - bounds.getX()) * (MDSDrawer.DESIRED_WIDTH / bounds.getWidth());
-      scaledXYMatrix[i][1] =
-          (scaledXYMatrix[i][1] - bounds.getY()) * (MDSDrawer.DESIRED_WIDTH / bounds.getHeight());
-    }
+    final double[][] scaledXYMatrix = MDSDrawer.scaleTo2D(distanceMatrix);
 
     for (int i = 0; i < scaledXYMatrix.length; i++) {
       final double x = scaledXYMatrix[i][0];
@@ -138,42 +116,52 @@ public final class MDSDrawer {
           continue;
         }
         if (indices.size() == 2) {
-          final int p1 = indices.get(0);
-          final double x1 = scaledXYMatrix[p1][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          final double y1 = scaledXYMatrix[p1][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          final int p2 = indices.get(1);
-          final double x2 = scaledXYMatrix[p2][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          final double y2 = scaledXYMatrix[p2][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
-          graphics.draw(new Line2D.Double(x1, y1, x2, y2));
+          //          final int p1 = indices.get(0);
+          //          final double x1 = scaledXYMatrix[p1][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
+          //          final double y1 = scaledXYMatrix[p1][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
+          //          final int p2 = indices.get(1);
+          //          final double x2 = scaledXYMatrix[p2][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
+          //          final double y2 = scaledXYMatrix[p2][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0);
+          //          graphics.draw(new Line2D.Double(x1, y1, x2, y2));
           continue;
         }
 
-        final Deque<Coord2d> convexHull = MDSDrawer.calculateConvexHull(scaledXYMatrix, indices);
-        final double[] is = new double[convexHull.size()];
-        final double[] xs = new double[convexHull.size()];
-        final double[] ys = new double[convexHull.size()];
-        int j = 0;
-
-        for (final Coord2d coord : convexHull) {
-          is[j] = j;
-          xs[j] = coord.x;
-          ys[j] = coord.y;
-          j++;
-        }
-
-        final UnivariateInterpolator interpolator = new SplineInterpolator();
-        final UnivariateFunction functionX = interpolator.interpolate(is, xs);
-        final UnivariateFunction functionY = interpolator.interpolate(is, ys);
-
+        final ConvexHull2D convexHull = MDSDrawer.calculateConvexHull(scaledXYMatrix, indices);
+        final Segment[] segments = convexHull.getLineSegments();
         final Path2D.Double path = new Path2D.Double();
-        path.moveTo(xs[0], ys[0]);
-        for (int i = 1; i < xs.length; i++) {
-          final double cx1 = functionX.value(i - 0.6666666666666666);
-          final double cy1 = functionY.value(i - 0.6666666666666666);
-          final double cx2 = functionX.value(i - 0.3333333333333333);
-          final double cy2 = functionY.value(i - 0.3333333333333333);
-          path.curveTo(cx1, cy1, cx2, cy2, xs[i], ys[i]);
+
+        for (final Segment segment : segments) {
+          final Vector2D start = segment.getStart();
+          path.moveTo(start.getX(), start.getY());
+          final Vector2D end = segment.getEnd();
+          path.lineTo(end.getX(), end.getY());
         }
+
+        //        final double[] is = new double[convexHull.size()];
+        //        final double[] xs = new double[convexHull.size()];
+        //        final double[] ys = new double[convexHull.size()];
+        //        int j = 0;
+        //
+        //        for (final Coord2d coord : convexHull) {
+        //          is[j] = j;
+        //          xs[j] = coord.x;
+        //          ys[j] = coord.y;
+        //          j++;
+        //        }
+
+        //        final UnivariateInterpolator interpolator = new SplineInterpolator();
+        //        final UnivariateFunction functionX = interpolator.interpolate(is, xs);
+        //        final UnivariateFunction functionY = interpolator.interpolate(is, ys);
+        //
+        //        final Path2D.Double path = new Path2D.Double();
+        //        path.moveTo(xs[0], ys[0]);
+        //        for (int i = 1; i < xs.length; i++) {
+        //          final double cx1 = functionX.value(i - 0.6666666666666666);
+        //          final double cy1 = functionY.value(i - 0.6666666666666666);
+        //          final double cx2 = functionX.value(i - 0.3333333333333333);
+        //          final double cy2 = functionY.value(i - 0.3333333333333333);
+        //          path.curveTo(cx1, cy1, cx2, cy2, xs[i], ys[i]);
+        //        }
 
         graphics.draw(path);
       }
@@ -194,19 +182,33 @@ public final class MDSDrawer {
     return document;
   }
 
-  private static Deque<Coord2d> calculateConvexHull(
-      final double[][] scaledXYMatrix, final List<Integer> indices) {
-    final Coord2d[] points = new Coord2d[indices.size()];
-    for (int i = 0; i < indices.size(); i++) {
-      final int index = indices.get(i);
-      points[i] =
-          new Coord2d(
-              scaledXYMatrix[index][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0),
-              scaledXYMatrix[index][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0));
-    }
+  private static double[][] scaleTo2D(final DistanceMatrix distanceMatrix) {
+    final double[][] originalDistanceMatrix = distanceMatrix.getMatrix();
+    final double[][] scaledXYMatrix = MDS.multidimensionalScaling(originalDistanceMatrix, 2);
+    final Rectangle2D bounds = MDSDrawer.calculateBounds(scaledXYMatrix);
 
-    final ConvexHullFunction grahamScan = new GrahamScan();
-    return grahamScan.getConvexHull(points);
+    for (int i = 0; i < scaledXYMatrix.length; i++) {
+      scaledXYMatrix[i][0] =
+          (scaledXYMatrix[i][0] - bounds.getX()) * (MDSDrawer.DESIRED_WIDTH / bounds.getWidth());
+      scaledXYMatrix[i][1] =
+          (scaledXYMatrix[i][1] - bounds.getY()) * (MDSDrawer.DESIRED_WIDTH / bounds.getHeight());
+    }
+    return scaledXYMatrix;
+  }
+
+  private static ConvexHull2D calculateConvexHull(
+      final double[][] scaledXYMatrix, final Collection<Integer> indices) {
+    final List<Vector2D> points =
+        indices
+            .stream()
+            .map(
+                index ->
+                    new Vector2D(
+                        scaledXYMatrix[index][0] + (MDSDrawer.CIRCLE_DIAMETER / 2.0),
+                        scaledXYMatrix[index][1] + (MDSDrawer.CIRCLE_DIAMETER / 2.0)))
+            .collect(Collectors.toList());
+    final ConvexHullGenerator2D generator = new MonotoneChain();
+    return generator.generate(points);
   }
 
   private static Rectangle2D calculateBounds(final double[][] scaledXYMatrix) {
@@ -234,73 +236,6 @@ public final class MDSDrawer {
     }
 
     return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
-  }
-
-  public static SVGDocument scale2DAndVisualizePointsOld(
-      final DistanceMatrix distanceMatrix, final ColorProvider colorProvider) {
-    final double[][] originalDistanceMatrix = distanceMatrix.getMatrix();
-    final double[][] scaledXYMatrix = MDS.multidimensionalScaling(originalDistanceMatrix, 2);
-    final double[][] scaledDistanceMatrix =
-        MDSDrawer.calculateScaledDistanceMatrix(originalDistanceMatrix, scaledXYMatrix);
-
-    double maxDistance = Double.NEGATIVE_INFINITY;
-
-    for (final double[] element : scaledDistanceMatrix) {
-      maxDistance = Math.max(maxDistance, StatUtils.max(element));
-    }
-
-    final Clusterer clusterer =
-        new Clusterer(distanceMatrix.getNames(), scaledDistanceMatrix, Linkage.COMPLETE);
-    final HierarchicalClustering clustering = clusterer.cluster();
-    final List<Cluster> clusters = Clusterer.initialClusterAssignment(distanceMatrix.getNames());
-    final Map<Cluster, Vector2D> clusterCoords = new HashMap<>();
-    final Map<Cluster, Set<Color>> clusterColors = new HashMap<>();
-
-    for (int i = 0; i < clusters.size(); i++) {
-      final Cluster cluster = clusters.get(i);
-      clusterCoords.put(cluster, new Vector2D(scaledXYMatrix[i][0], scaledXYMatrix[i][1]));
-
-      final Set<Color> colors = new HashSet<>();
-      colors.add(colorProvider.getColor(i));
-      clusterColors.put(cluster, colors);
-    }
-
-    for (final HierarchicalClusterMerge merge : clustering.getMerges()) {
-      if (merge.getDistance() > (0.1 * maxDistance)) {
-        break;
-      }
-
-      final Cluster left = clusters.get(merge.getLeft());
-      final Cluster right = clusters.get(merge.getRight());
-      final Cluster merged = Cluster.merge(left, right);
-      clusters.remove(left);
-      clusters.remove(right);
-      clusters.add(merged);
-
-      final Vector2D leftCoords = clusterCoords.get(left);
-      final Vector2D rightCoords = clusterCoords.get(right);
-      final double x = (leftCoords.getX() + rightCoords.getX()) / 2.0;
-      final double y = (leftCoords.getY() + rightCoords.getY()) / 2.0;
-      final Vector2D mergedCoords = new Vector2D(x, y);
-      clusterCoords.put(merged, mergedCoords);
-
-      final Set<Color> leftColors = clusterColors.get(left);
-      final Set<Color> rightColors = clusterColors.get(right);
-      final Set<Color> mergedColors = new HashSet<>();
-      mergedColors.addAll(leftColors);
-      mergedColors.addAll(rightColors);
-      clusterColors.put(merged, mergedColors);
-    }
-
-    final List<NamedPoint> points = new ArrayList<>();
-    for (final Cluster cluster : clusters) {
-      final Set<Color> colors = clusterColors.get(cluster);
-      final String name = cluster.getName();
-      final Vector2D coords = clusterCoords.get(cluster);
-      points.add(new ColoredNamedPoint(colors, name, coords));
-    }
-
-    return MDSDrawer.drawPoints(points);
   }
 
   private static double[][] calculateScaledDistanceMatrix(
@@ -383,7 +318,7 @@ public final class MDSDrawer {
             stop.setAttributeNS(
                 null,
                 SVGConstants.SVG_STYLE_ATTRIBUTE,
-                String.format("stop-color: %s; " + "stop-opacity: 1", Colors.toSvgString(color)));
+                String.format("stop-color: %s; stop-opacity: 1", Colors.toSvgString(color)));
             linearGradient.appendChild(stop);
             i += 1;
           }
