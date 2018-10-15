@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -17,8 +18,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PatternOptionBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionQuery;
 import pl.poznan.put.matching.StructureSelection;
@@ -28,9 +27,8 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
+@Slf4j
 public final class Helper {
-  private static final Logger LOGGER = LoggerFactory.getLogger(Helper.class);
-
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq-cli-messages");
   private static final Options HELP_OPTIONS = PatternOptionBuilder.parsePattern("h");
 
@@ -107,11 +105,11 @@ public final class Helper {
     final List<? extends PdbModel> models = StructureManager.loadStructure(file);
 
     if (models.isEmpty()) {
-      Helper.LOGGER.error(Helper.getMessage("no.models.found.in.the.file"), file);
+      Helper.log.error(Helper.getMessage("no.models.found.in.the.file"), file);
     }
 
     if (models.size() > 1) {
-      Helper.LOGGER.warn(Helper.getMessage("more.than.1.model.found"));
+      Helper.log.warn(Helper.getMessage("more.than.1.model.found"));
     }
 
     return models.get(0);
