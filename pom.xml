@@ -97,18 +97,6 @@
 
       <dependency>
         <groupId>org.biojava</groupId>
-        <artifactId>biojava-alignment</artifactId>
-        <version>${biojava.version}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.biojava</groupId>
         <artifactId>biojava-core</artifactId>
         <version>${biojava.version}</version>
         <exclusions>
@@ -147,12 +135,6 @@
         <groupId>org.biojava</groupId>
         <artifactId>jcolorbrewer</artifactId>
         <version>5.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jfree</groupId>
-        <artifactId>jcommon</artifactId>
-        <version>1.0.24</version>
       </dependency>
 
       <dependency>

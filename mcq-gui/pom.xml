@@ -11,7 +11,6 @@
   <artifactId>mcq-gui</artifactId>
 
   <dependencies>
-
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -20,11 +19,6 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-collections4</artifactId>
     </dependency>
 
     <dependency>
@@ -53,8 +47,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>biojava-alignment</artifactId>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-util</artifactId>
     </dependency>
 
     <dependency>
@@ -74,17 +68,7 @@
 
     <dependency>
       <groupId>org.jfree</groupId>
-      <artifactId>jcommon</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jfree</groupId>
       <artifactId>jfreechart</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jumpmind.symmetric</groupId>
-      <artifactId>symmetric-csv</artifactId>
     </dependency>
 
     <dependency>
@@ -107,6 +91,7 @@
       <artifactId>mcq-clustering</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>pl.poznan.put</groupId>
       <artifactId>mcq-core</artifactId>
@@ -116,6 +101,11 @@
     <dependency>
       <groupId>pl.poznan.put</groupId>
       <artifactId>TzokCommons</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>pl.poznan.put</groupId>
+      <artifactId>varna-tz</artifactId>
     </dependency>
 
     <dependency>
@@ -131,6 +121,12 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -155,6 +151,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <usedDependencies>ch.qos.logback:logback-classic,org.projectlombok:lombok</usedDependencies>
+        </configuration>
       </plugin>
 
       <plugin>
