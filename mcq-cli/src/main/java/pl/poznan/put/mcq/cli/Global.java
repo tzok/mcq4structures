@@ -27,7 +27,7 @@ import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.ExecHelper;
 import pl.poznan.put.utility.svg.Format;
@@ -50,7 +50,7 @@ public final class Global {
     final CommandLineParser parser = new DefaultParser();
     final CommandLine commandLine = parser.parse(Global.OPTIONS, args);
     final List<StructureSelection> models = Helper.selectModels(commandLine);
-    final List<RNATorsionAngleType> angles = Helper.parseAngles(commandLine);
+    final List<MasterTorsionAngleType> angles = Helper.parseAngles(commandLine);
     final MCQ mcq = new MCQ(angles);
 
     final long size = models.size();
@@ -94,7 +94,7 @@ public final class Global {
         Listener.exportResults(directory, matrix);
         Listener.exportDrawing(directory, partitionalClustering);
         Listener.exportClustering(directory, partitionalClustering);
-        System.out.println("Results available in file: " + directory);
+        System.out.println("Results available in: " + directory);
       } catch (final IOException e) {
         System.err.println("Failed to store results");
         e.printStackTrace(System.err);

@@ -27,6 +27,7 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 @Slf4j
 public final class Helper {
@@ -186,9 +187,9 @@ public final class Helper {
     return StringUtils.isNotBlank(idCode) ? idCode : modelFile.getName();
   }
 
-  public static List<RNATorsionAngleType> parseAngles(final CommandLine commandLine) {
+  public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
     if (commandLine.hasOption(Helper.OPTION_ANGLES.getOpt())) {
-      final List<RNATorsionAngleType> angles = new ArrayList<>();
+      final List<MasterTorsionAngleType> angles = new ArrayList<>();
 
       for (final String angleName : commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt())) {
         angles.add(RNATorsionAngleType.valueOf(angleName));
@@ -197,9 +198,8 @@ public final class Helper {
       return angles;
     }
 
-    return Arrays.stream(RNATorsionAngleType.mainAngles())
-        .map(t -> (RNATorsionAngleType) t)
-        .collect(Collectors.toList());
+    // do not use Arrays.asList because it creates unmodifiable list and this one is modified further
+    return Arrays.stream(RNATorsionAngleType.mainAngles()).collect(Collectors.toList());
   }
 
   public static boolean isHelpRequested(final String[] args) throws ParseException {
