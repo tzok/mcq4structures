@@ -1,6 +1,12 @@
 package pl.poznan.put.mcq.cli;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -9,19 +15,12 @@ import org.apache.commons.cli.ParseException;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.LocalComparator;
-import pl.poznan.put.comparison.local.ModelsComparisonResult;
+import pl.poznan.put.comparison.local.SelectedAngle;
 import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class TargetModels {
@@ -52,7 +51,7 @@ public final class TargetModels {
     }
 
     final LocalComparator mcq = new MCQ(MoleculeType.RNA);
-    final ModelsComparisonResult.SelectedAngle result =
+    final SelectedAngle result =
         mcq.compareModels(targetFragment, modelFragments)
             .selectAngle(RNATorsionAngleType.getAverageOverMainAngles());
 

@@ -1,2 +1,2 @@
 #! /bin/bash
-exec java -cp $(dirname $0)/target/mcq-cli-1.2-SNAPSHOT-jar-with-dependencies.jar pl.poznan.put.mcq.cli.Global $@
+exec java -cp $(dirname $0)/target/mcq-cli-1.4.1-jar-with-dependencies.jar pl.poznan.put.mcq.cli.Global $@
