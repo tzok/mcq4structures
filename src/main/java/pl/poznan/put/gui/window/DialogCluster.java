@@ -27,7 +27,7 @@ import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
 import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
-import pl.poznan.put.visualisation.PartitionalClustering;
+import pl.poznan.put.clustering.partitional.PartitionalClustering;
 
 public class DialogCluster extends JDialog {
   private static final long serialVersionUID = -4544656737734548208L;

@@ -4,6 +4,7 @@ import fr.orsay.lri.varna.models.rna.ModeleColorMap;
 import java.awt.Color;
 import org.jzy3d.colors.colormaps.AbstractColorMap;
 
+@Deprecated
 public final class ColorMaps {
   // colors taken from YlOrRd palette on: http://colorbrewer2.org
   private static final Color IDENTICAL = Color.decode("#fef0d9");

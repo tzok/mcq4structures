@@ -3,80 +3,73 @@ package pl.poznan.put.datamodel;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
 
-@RequiredArgsConstructor
 public class ProcessingResult implements Clusterable, Visualizable, Exportable {
-  private final @Nullable Clusterable clusterable;
-  private final @Nullable Visualizable visualizable;
-  private final @Nullable Exportable exportable;
+  private final Object object;
 
   public ProcessingResult(final Object object) {
     super();
-    clusterable = (Clusterable) ((object instanceof Clusterable) ? object : null);
-    visualizable = (Visualizable) ((object instanceof Visualizable) ? object : null);
-    exportable = (Exportable) ((object instanceof Exportable) ? object : null);
+    this.object = object;
   }
 
   public static ProcessingResult emptyInstance() {
-    return new ProcessingResult(null, null, null);
+    return new ProcessingResult(new Object());
   }
 
   public final boolean canCluster() {
-    return clusterable != null;
+    return object instanceof Clusterable;
   }
 
   public final boolean canVisualize() {
-    return visualizable != null;
+    return object instanceof Visualizable;
   }
 
   public final boolean canExport() {
-    return exportable != null;
+    return object instanceof Exportable;
   }
 
   @Override
   public final DistanceMatrix getDataForClustering() {
-    if (clusterable == null) {
+    if (!(object instanceof Clusterable)) {
       throw new IllegalArgumentException("Processing result not clusterable");
     }
-    return clusterable.getDataForClustering();
+    return ((Clusterable) object).getDataForClustering();
   }
 
   @Override
   public final SVGDocument visualize() {
-    if (visualizable == null) {
+    if (!(object instanceof Visualizable)) {
       throw new IllegalArgumentException("Processing result not visualizable");
     }
-    return visualizable.visualize();
+    return ((Visualizable) object).visualize();
   }
 
   @Override
   public final void visualize3D() {
-    if (visualizable == null) {
+    if (!(object instanceof Visualizable)) {
       throw new IllegalArgumentException("Processing result not visualizable");
     }
-    visualizable.visualize3D();
+    ((Visualizable) object).visualize3D();
   }
 
   @Override
   public final void export(final OutputStream stream) throws IOException {
-    if (exportable == null) {
+    if (!(object instanceof Exportable)) {
       throw new IllegalArgumentException("Processing result not exportable");
     }
-    exportable.export(stream);
+    ((Exportable) object).export(stream);
   }
 
   @Override
   public final File suggestName() {
-    if (exportable == null) {
+    if (!(object instanceof Exportable)) {
       throw new IllegalArgumentException("Processing result not exportable");
     }
-    return exportable.suggestName();
+    return ((Exportable) object).suggestName();
   }
 }

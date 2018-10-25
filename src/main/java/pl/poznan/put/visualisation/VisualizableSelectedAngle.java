@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.local.SelectedAngle;
+import pl.poznan.put.comparison.mapping.AngleDeltaMapper;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;

@@ -1,0 +1,2 @@
+#! /bin/bash
+exec java -cp $(dirname $0)/target/mcq-gui-1.4-jar-with-dependencies.jar pl.poznan.put.gui.window.MainWindow $@

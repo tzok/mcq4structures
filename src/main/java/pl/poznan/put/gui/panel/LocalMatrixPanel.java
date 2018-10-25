@@ -19,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.MCQLocalResult;
+import pl.poznan.put.comparison.mapping.AngleDeltaMapper;
+import pl.poznan.put.comparison.mapping.RangeDifferenceMapper;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.SVGComponent;
@@ -31,10 +34,8 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.svg.SecondaryStructureVisualizer;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.visualisation.AngleDeltaMapper;
-import pl.poznan.put.visualisation.RangeDifferenceMapper;
-import pl.poznan.put.visualisation.SecondaryStructureVisualizer;
 import pl.poznan.put.visualisation.VisualizableFragmentMatch;
 
 public final class LocalMatrixPanel extends JPanel {
@@ -118,7 +119,7 @@ public final class LocalMatrixPanel extends JPanel {
   }
 
   public ProcessingResult compareAndDisplayTable(
-      final List<MasterTorsionAngleType> selectedAngles) {
+      final List<MasterTorsionAngleType> selectedAngles) throws IncomparableStructuresException {
     final StructureSelection selectionL =
         SelectionFactory.create(StructureManager.getName(structures.getLeft()), chains.getLeft());
     final StructureSelection selectionR =

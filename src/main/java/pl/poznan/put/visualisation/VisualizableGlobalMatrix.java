@@ -14,6 +14,7 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.svg.MDSDrawer;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
