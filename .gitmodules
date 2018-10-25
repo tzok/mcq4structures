@@ -14,3 +14,19 @@
 	path = mcq-gui
 	url = git@github.com:tzok/mcq4structures.git
 	branch = develop
+[submodule "circular"]
+	path = circular
+	url = git@github.com:tzok/Circular.git
+	branch = master
+[submodule "bio-commons"]
+	path = bio-commons
+	url = git@github.com:tzok/BioCommons.git
+	branch = master
+[submodule "tzok-commons"]
+	path = tzok-commons
+	url = git@github.com:tzok/TzokCommons.git
+	branch = master
+[submodule "varna-tz"]
+	path = varna-tz
+	url = git@github.com:tzok/varna-tz.git
+	branch = master

@@ -8,6 +8,10 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>circular</module>
+    <module>bio-commons</module>
+    <module>tzok-commons</module>
+    <module>varna-tz</module>
     <module>mcq-cli</module>
     <module>mcq-clustering</module>
     <module>mcq-core</module>
