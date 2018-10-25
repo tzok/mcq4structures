@@ -68,7 +68,7 @@ public final class Global {
   private static final class Listener implements ParallelGlobalComparator.ProgressListener {
     private final ProgressBar progressBar;
 
-    public Listener(final ProgressBar progressBar) {
+    private Listener(final ProgressBar progressBar) {
       super();
       this.progressBar = progressBar;
     }
@@ -80,20 +80,25 @@ public final class Global {
 
     @Override
     public void complete(final GlobalMatrix matrix) {
-      progressBar.close();
-
-      final PrototypeBasedClusterer clusterer = new KMedoids();
-      final double[][] rawMatrix = matrix.getDistanceMatrix().getMatrix();
-      final ScoredClusteringResult clustering =
-          KScanner.parallelScan(clusterer, rawMatrix, PAM.getInstance());
-      final PartitionalClustering partitionalClustering =
-          new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
-
       try {
+        progressBar.close();
+
         final File directory = ExecHelper.createRandomDirectory();
         Listener.exportResults(directory, matrix);
-        Listener.exportDrawing(directory, partitionalClustering);
-        Listener.exportClustering(directory, partitionalClustering);
+
+        final double[][] rawMatrix = matrix.getDistanceMatrix().getMatrix();
+
+        if (rawMatrix.length > 2) {
+          final PrototypeBasedClusterer clusterer = new KMedoids();
+          final ScoredClusteringResult clustering =
+              KScanner.parallelScan(clusterer, rawMatrix, PAM.getInstance());
+          final PartitionalClustering partitionalClustering =
+              new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
+
+          Listener.exportDrawing(directory, partitionalClustering);
+          Listener.exportClustering(directory, partitionalClustering);
+        }
+
         System.out.println("Results available in: " + directory);
       } catch (final IOException e) {
         System.err.println("Failed to store results");
