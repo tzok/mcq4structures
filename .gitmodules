@@ -4,7 +4,7 @@
 	branch = develop
 [submodule "mcq-core"]
 	path = mcq-core
-	url = git@github.com:tzok/mcq-common.git
+	url = git@github.com:tzok/mcq-core.git
 	branch = develop
 [submodule "mcq-clustering"]
 	path = mcq-clustering
