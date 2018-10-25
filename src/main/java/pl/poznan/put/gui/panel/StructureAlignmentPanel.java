@@ -1,5 +1,17 @@
 package pl.poznan.put.gui.panel;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.nbio.structure.StructureException;
 import org.biojava.nbio.structure.align.gui.jmol.JmolPanel;
@@ -19,20 +31,7 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-public class StructureAlignmentPanel extends JPanel {
+public final class StructureAlignmentPanel extends JPanel {
   private static final long serialVersionUID = 4973837093762666112L;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);
@@ -84,7 +83,7 @@ public class StructureAlignmentPanel extends JPanel {
     add(panelJmols, BorderLayout.CENTER);
   }
 
-  public final void setStructuresAndChains(
+  public void setStructuresAndChains(
       final Pair<PdbModel, PdbModel> structures,
       final Pair<List<PdbChain>, List<PdbChain>> chains) {
     this.structures = structures;
@@ -102,7 +101,7 @@ public class StructureAlignmentPanel extends JPanel {
 
     final StringBuilder builder = new StringBuilder();
     builder.append(
-        "<html>Structures selected for 3D structure alignment: <span " + "style=\"color: blue\">");
+        "<html>Structures selected for 3D structure alignment: <span style=\"color: blue\">");
     builder.append(StructureManager.getName(left));
     builder.append('.');
 
@@ -128,7 +127,7 @@ public class StructureAlignmentPanel extends JPanel {
     labelHeader.setText(builder.toString());
   }
 
-  public final ProcessingResult alignAndDisplayStructures() {
+  public ProcessingResult alignAndDisplayStructures() {
     labelStatus.setText("Computing...");
 
     final List<MasterTorsionAngleType> torsionAngleTypes = new ArrayList<>();
@@ -147,7 +146,7 @@ public class StructureAlignmentPanel extends JPanel {
     if (selectionMatch.getFragmentMatches().isEmpty()) {
       JOptionPane.showMessageDialog(
           this,
-          "The selected structures have no " + "matching fragments in common",
+          "The selected structures have no matching fragments in common",
           "Warning",
           JOptionPane.WARNING_MESSAGE);
       return ProcessingResult.emptyInstance();

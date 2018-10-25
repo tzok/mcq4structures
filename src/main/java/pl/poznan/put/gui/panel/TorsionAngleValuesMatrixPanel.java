@@ -1,7 +1,15 @@
 package pl.poznan.put.gui.panel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.awt.BorderLayout;
+import java.util.List;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularOperationException;
@@ -15,18 +23,8 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.util.List;
-
-public class TorsionAngleValuesMatrixPanel extends JPanel {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TorsionAngleValuesMatrixPanel.class);
+@Slf4j
+public final class TorsionAngleValuesMatrixPanel extends JPanel {
   private static final long serialVersionUID = -59286774381464603L;
 
   private final JTextPane labelInfoMatrix = new JTextPane();
@@ -42,40 +40,40 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
     labelInfoMatrix.setFont(UIManager.getFont("Label.font"));
     labelInfoMatrix.setOpaque(false);
 
-    JPanel panelInfo = new JPanel(new BorderLayout());
+    final JPanel panelInfo = new JPanel(new BorderLayout());
     panelInfo.add(labelInfoMatrix, BorderLayout.CENTER);
 
-    JScrollPane scrollPane = new JScrollPane(tableMatrix);
+    final JScrollPane scrollPane = new JScrollPane(tableMatrix);
     tabbedPane.add("Torsion angles", scrollPane);
 
-    add(panelInfo, BorderLayout.NORTH);
+    add(panelInfo, BorderLayout.PAGE_START);
     add(tabbedPane, BorderLayout.CENTER);
   }
 
-  public final ProcessingResult calculateTorsionAngles(final PdbModel structure) {
+  public ProcessingResult calculateTorsionAngles(final PdbModel structure) {
     removeAllButFirstTab();
     updateHeader(structure);
 
-    StructureSelection selection =
+    final StructureSelection selection =
         SelectionFactory.create(StructureManager.getName(structure), structure);
     tableMatrix.setModel(selection.asDisplayableTableModel());
 
     for (final MasterTorsionAngleType masterType : selection.getCommonTorsionAngleTypes()) {
-      List<Angle> angles = selection.getValidTorsionAngleValues(masterType);
+      final List<Angle> angles = selection.getValidTorsionAngleValues(masterType);
 
       if (angles.isEmpty()) {
         continue;
       }
 
       try {
-        String title = masterType.getLongDisplayName();
-        AngularHistogram histogram = new AngularHistogram(angles);
+        final String title = masterType.getLongDisplayName();
+        final AngularHistogram histogram = new AngularHistogram(angles);
         histogram.draw();
-        SVGDocument svgDocument = histogram.finalizeDrawing();
-        SVGComponent component = new SVGComponent(svgDocument, masterType.getExportName());
+        final SVGDocument svgDocument = histogram.finalizeDrawing();
+        final SVGComponent component = new SVGComponent(svgDocument, masterType.getExportName());
         tabbedPane.add(title, component);
-      } catch (InvalidCircularValueException | InvalidCircularOperationException e) {
-        TorsionAngleValuesMatrixPanel.LOGGER.warn(
+      } catch (final InvalidCircularValueException | InvalidCircularOperationException e) {
+        TorsionAngleValuesMatrixPanel.log.warn(
             "Failed to visualize torsion angles of type: {}", masterType, e);
       }
     }
@@ -89,13 +87,10 @@ public class TorsionAngleValuesMatrixPanel extends JPanel {
     }
   }
 
-  public final void updateHeader(final PdbModel structure) {
-    StringBuilder builder = new StringBuilder();
-    builder.append(
-        "<html>Structure selected for torsion angles calculation: "
-            + "<span style=\"color: blue\">");
-    builder.append(StructureManager.getName(structure));
-    builder.append("</span></html>");
-    labelInfoMatrix.setText(builder.toString());
+  private void updateHeader(final PdbModel structure) {
+    labelInfoMatrix.setText(
+        String.format(
+            "<html>Structure selected for torsion angles calculation: <span style=\"color: blue\">%s</span></html>",
+            StructureManager.getName(structure)));
   }
 }

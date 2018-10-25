@@ -5,74 +5,71 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.interfaces.Clusterable;
-import pl.poznan.put.interfaces.DistanceMatrix;
-import pl.poznan.put.interfaces.ExportFormat;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.types.DistanceMatrix;
 
 public class ProcessingResult implements Clusterable, Visualizable, Exportable {
-  private final Clusterable clusterable;
-  private final Visualizable visualizable;
-  private final Exportable exportable;
+  private final Object object;
 
-  public ProcessingResult(
-      Clusterable clusterable, Visualizable visualizable, Exportable exportable) {
+  public ProcessingResult(final Object object) {
     super();
-    this.clusterable = clusterable;
-    this.visualizable = visualizable;
-    this.exportable = exportable;
-  }
-
-  public ProcessingResult(Object object) {
-    super();
-    clusterable = (Clusterable) (object instanceof Clusterable ? object : null);
-    visualizable = (Visualizable) (object instanceof Visualizable ? object : null);
-    exportable = (Exportable) (object instanceof Exportable ? object : null);
+    this.object = object;
   }
 
   public static ProcessingResult emptyInstance() {
-    return new ProcessingResult(null, null, null);
+    return new ProcessingResult(new Object());
   }
 
-  public boolean canCluster() {
-    return clusterable != null;
+  public final boolean canCluster() {
+    return object instanceof Clusterable;
   }
 
-  public boolean canVisualize() {
-    return visualizable != null;
+  public final boolean canVisualize() {
+    return object instanceof Visualizable;
   }
 
-  public boolean canExport() {
-    return exportable != null;
-  }
-
-  @Override
-  public DistanceMatrix getDataForClustering() {
-    return clusterable.getDataForClustering();
+  public final boolean canExport() {
+    return object instanceof Exportable;
   }
 
   @Override
-  public SVGDocument visualize() {
-    return visualizable.visualize();
+  public final DistanceMatrix getDataForClustering() {
+    if (!(object instanceof Clusterable)) {
+      throw new IllegalArgumentException("Processing result not clusterable");
+    }
+    return ((Clusterable) object).getDataForClustering();
   }
 
   @Override
-  public void visualize3D() {
-    visualizable.visualize3D();
+  public final SVGDocument visualize() {
+    if (!(object instanceof Visualizable)) {
+      throw new IllegalArgumentException("Processing result not visualizable");
+    }
+    return ((Visualizable) object).visualize();
   }
 
   @Override
-  public void export(OutputStream stream) throws IOException {
-    exportable.export(stream);
+  public final void visualize3D() {
+    if (!(object instanceof Visualizable)) {
+      throw new IllegalArgumentException("Processing result not visualizable");
+    }
+    ((Visualizable) object).visualize3D();
   }
 
   @Override
-  public ExportFormat getExportFormat() {
-    return exportable.getExportFormat();
+  public final void export(final OutputStream stream) throws IOException {
+    if (!(object instanceof Exportable)) {
+      throw new IllegalArgumentException("Processing result not exportable");
+    }
+    ((Exportable) object).export(stream);
   }
 
   @Override
-  public File suggestName() {
-    return exportable.suggestName();
+  public final File suggestName() {
+    if (!(object instanceof Exportable)) {
+      throw new IllegalArgumentException("Processing result not exportable");
+    }
+    return ((Exportable) object).suggestName();
   }
 }

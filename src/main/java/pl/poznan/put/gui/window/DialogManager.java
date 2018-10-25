@@ -1,12 +1,13 @@
 package pl.poznan.put.gui.window;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.poznan.put.gui.component.PdbChooser;
-import pl.poznan.put.pdb.PdbParsingException;
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
-
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -17,14 +18,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.poznan.put.gui.component.PdbChooser;
+import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.structure.tertiary.StructureManager;
 
 public final class DialogManager extends JDialog {
   private static final long serialVersionUID = 8406487603428842396L;

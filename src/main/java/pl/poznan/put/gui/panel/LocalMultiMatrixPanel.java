@@ -1,5 +1,21 @@
 package pl.poznan.put.gui.panel;
 
+import java.awt.BorderLayout;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
@@ -20,25 +36,9 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.SVGHelper;
+import pl.poznan.put.visualisation.VisualizableSelectedAngle;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import java.awt.BorderLayout;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-public class LocalMultiMatrixPanel extends JPanel {
+public final class LocalMultiMatrixPanel extends JPanel {
   private static final long serialVersionUID = 1743569049211593671L;
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalMultiMatrixPanel.class);
 
@@ -75,7 +75,7 @@ public class LocalMultiMatrixPanel extends JPanel {
     add(tabbedPane, BorderLayout.CENTER);
   }
 
-  public final void setFragments(final List<PdbCompactFragment> fragments) {
+  public void setFragments(final List<PdbCompactFragment> fragments) {
     this.fragments = new ArrayList<>(fragments);
     final TableModel emptyDataModel = new DefaultTableModel();
     tableMatrix.setModel(emptyDataModel);
@@ -113,7 +113,7 @@ public class LocalMultiMatrixPanel extends JPanel {
     labelInfoMatrix.setText(builder.toString());
   }
 
-  public final ProcessingResult compareAndDisplayTable() {
+  public ProcessingResult compareAndDisplayTable() {
     try {
       final PdbCompactFragment reference = selectReferenceStructure();
       if (reference == null) {
@@ -127,8 +127,8 @@ public class LocalMultiMatrixPanel extends JPanel {
 
       final LocalComparator mcq = new MCQ(Collections.singletonList(selectedAngleType));
       final ModelsComparisonResult result = mcq.compareModels(reference, fragments);
-      final ModelsComparisonResult.SelectedAngle selectedAngle =
-          result.selectAngle(selectedAngleType);
+      final VisualizableSelectedAngle selectedAngle =
+          new VisualizableSelectedAngle(result.selectAngle(selectedAngleType));
       final AngleDeltaIteratorFactory iteratorFactory =
           new TypedDeltaIteratorFactory(selectedAngleType);
       final MultiMatchStatistics statistics =

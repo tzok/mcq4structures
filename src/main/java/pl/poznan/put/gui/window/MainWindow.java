@@ -36,6 +36,7 @@ import pl.poznan.put.circular.enums.ValueType;
 import pl.poznan.put.comparison.LCS;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.StayOpenCheckBoxMenuItem;
@@ -46,12 +47,12 @@ import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
 import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
 import pl.poznan.put.gui.panel.TorsionAngleValuesMatrixPanel;
-import pl.poznan.put.interfaces.DistanceMatrix;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.types.DistanceMatrix;
 
 public class MainWindow extends JFrame {
   private static final String CARD_TORSION = "CARD_TORSION";
@@ -365,13 +366,13 @@ public class MainWindow extends JFrame {
         try (OutputStream stream = new FileOutputStream(fileChooser.getSelectedFile())) {
           currentResult.export(stream);
           JOptionPane.showMessageDialog(
-              MainWindow.this,
+              this,
               "Successfully exported the " + "results!",
               "Information",
               JOptionPane.INFORMATION_MESSAGE);
         } catch (final IOException e) {
           JOptionPane.showMessageDialog(
-              MainWindow.this,
+              this,
               "Failed to export the " + "results, reason: " + e.getMessage(),
               "Error",
               JOptionPane.ERROR_MESSAGE);
@@ -447,7 +448,7 @@ public class MainWindow extends JFrame {
     itemVisualise3D.setEnabled(currentResult.canVisualize());
 
     if (currentResult.canExport()) {
-      itemSave.setText("Save results (" + currentResult.getExportFormat() + ")");
+      itemSave.setText("Save results");
     }
   }
 
@@ -459,8 +460,8 @@ public class MainWindow extends JFrame {
     final List<PdbModel> structures = dialogStructures.getStructures();
     if (structures.size() < 2) {
       JOptionPane.showMessageDialog(
-          MainWindow.this,
-          "At least two structures must be " + "selected to compute global " + "distance",
+          this,
+          "At least two structures must be selected to compute global distance",
           "Information",
           JOptionPane.INFORMATION_MESSAGE);
       return;
@@ -511,8 +512,7 @@ public class MainWindow extends JFrame {
               + StructureManager.getName(structures.getLeft())
               + " or "
               + StructureManager.getName(structures.getRight());
-      JOptionPane.showMessageDialog(
-          MainWindow.this, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(this, message, "Information", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
 
@@ -536,10 +536,14 @@ public class MainWindow extends JFrame {
   }
 
   private void compareLocalPair() {
-    if (dialogAngles.showDialog() == DialogSelectAngles.OK) {
-      currentResult = panelResultsLocalMatrix.compareAndDisplayTable(dialogAngles.getAngles());
-      layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
-      updateMenuEnabledStates();
+    try {
+      if (dialogAngles.showDialog() == DialogSelectAngles.OK) {
+        currentResult = panelResultsLocalMatrix.compareAndDisplayTable(dialogAngles.getAngles());
+        layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
+        updateMenuEnabledStates();
+      }
+    } catch (final IncomparableStructuresException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
 

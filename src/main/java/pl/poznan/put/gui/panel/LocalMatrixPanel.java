@@ -1,11 +1,28 @@
 package pl.poznan.put.gui.panel;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.util.List;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.MCQLocalResult;
+import pl.poznan.put.comparison.mapping.AngleDeltaMapper;
+import pl.poznan.put.comparison.mapping.RangeDifferenceMapper;
 import pl.poznan.put.constant.Colors;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.SVGComponent;
@@ -17,27 +34,11 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.svg.SecondaryStructureVisualizer;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.visualisation.AngleDeltaMapper;
-import pl.poznan.put.visualisation.RangeDifferenceMapper;
-import pl.poznan.put.visualisation.SecondaryStructureVisualizer;
+import pl.poznan.put.visualisation.VisualizableFragmentMatch;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.util.List;
-
-public class LocalMatrixPanel extends JPanel {
+public final class LocalMatrixPanel extends JPanel {
   private static final long serialVersionUID = -1143002202021225397L;
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalMatrixPanel.class);
 
@@ -69,7 +70,7 @@ public class LocalMatrixPanel extends JPanel {
     add(tabbedPane, BorderLayout.CENTER);
   }
 
-  public final void setStructuresAndChains(
+  public void setStructuresAndChains(
       final Pair<PdbModel, PdbModel> structures,
       final Pair<List<PdbChain>, List<PdbChain>> chains) {
     this.structures = structures;
@@ -117,8 +118,8 @@ public class LocalMatrixPanel extends JPanel {
     labelInfoMatrix.setText(builder.toString());
   }
 
-  public final ProcessingResult compareAndDisplayTable(
-      final List<MasterTorsionAngleType> selectedAngles) {
+  public ProcessingResult compareAndDisplayTable(
+      final List<MasterTorsionAngleType> selectedAngles) throws IncomparableStructuresException {
     final StructureSelection selectionL =
         SelectionFactory.create(StructureManager.getName(structures.getLeft()), chains.getLeft());
     final StructureSelection selectionR =
@@ -129,7 +130,9 @@ public class LocalMatrixPanel extends JPanel {
     removeAllButFirstTab();
 
     for (final FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
-      final SVGDocument chart = fragmentMatch.visualize(1024, 576);
+      final VisualizableFragmentMatch visualizableFragmentMatch =
+          new VisualizableFragmentMatch(fragmentMatch);
+      final SVGDocument chart = visualizableFragmentMatch.visualize(1024, 576);
       final SVGComponent chartComponent = new SVGComponent(chart, "chart");
       tabbedPane.add(fragmentMatch.toString(), chartComponent);
 
@@ -148,7 +151,7 @@ public class LocalMatrixPanel extends JPanel {
             String.format("%s (secondary structure, ranges)", fragmentMatch), rangesComponent);
       }
 
-      final SVGDocument percentiles = fragmentMatch.visualizePercentiles(1024, 576);
+      final SVGDocument percentiles = visualizableFragmentMatch.visualizePercentiles(1024, 576);
       final SVGComponent percentilesComponent = new SVGComponent(percentiles, "percentiles");
       tabbedPane.add(fragmentMatch + " (percentiles)", percentilesComponent);
     }

@@ -1,5 +1,12 @@
 package pl.poznan.put.visualisation;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.SortedSet;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jzy3d.analysis.AbstractAnalysis;
@@ -27,14 +34,6 @@ import org.jzy3d.plot3d.primitives.axes.layout.providers.StaticTickProvider;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
-
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.SortedSet;
 
 public class Surface3D extends AbstractAnalysis {
   private final AWTChartComponentFactory factory =
