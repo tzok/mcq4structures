@@ -7,10 +7,10 @@ public class ScoredClusteringResult {
   private final double silhouette;
 
   public ScoredClusteringResult(
-      ClusterPrototypes prototypes,
-      ScoringFunction scoringFunction,
-      double score,
-      double silhouette) {
+      final ClusterPrototypes prototypes,
+      final ScoringFunction scoringFunction,
+      final double score,
+      final double silhouette) {
     super();
     this.prototypes = prototypes;
     this.scoringFunction = scoringFunction;
@@ -18,19 +18,19 @@ public class ScoredClusteringResult {
     this.silhouette = silhouette;
   }
 
-  public ClusterPrototypes getPrototypes() {
+  public final ClusterPrototypes getPrototypes() {
     return prototypes;
   }
 
-  public ScoringFunction getScoringFunction() {
+  public final ScoringFunction getScoringFunction() {
     return scoringFunction;
   }
 
-  public double getScore() {
+  public final double getScore() {
     return score;
   }
 
-  public double getSilhouette() {
+  public final double getSilhouette() {
     return silhouette;
   }
 }

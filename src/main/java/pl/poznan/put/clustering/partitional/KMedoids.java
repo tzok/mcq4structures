@@ -1,8 +1,8 @@
 package pl.poznan.put.clustering.partitional;
 
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +13,12 @@ public class KMedoids implements PrototypeBasedClusterer {
   private final int retries;
 
   public KMedoids() {
+    super();
     retries = KMedoids.DEFAULT_RETRIES;
   }
 
-  public KMedoids(int retries) {
+  public KMedoids(final int retries) {
+    super();
     this.retries = retries;
   }
 
@@ -29,17 +31,19 @@ public class KMedoids implements PrototypeBasedClusterer {
    * @return Indices of objects found to be best prototypes for clustering.
    */
   @Override
-  public ScoredClusteringResult findPrototypes(
-      double[][] distanceMatrix, ScoringFunction scoringFunction, int clusterCount) {
+  public final ScoredClusteringResult findPrototypes(
+      final double[][] distanceMatrix,
+      final ScoringFunction scoringFunction,
+      final int clusterCount) {
     double overallBestScore = Double.NEGATIVE_INFINITY;
     ClusterPrototypes overallBestPrototypes = null;
 
     for (int trial = 0; trial < retries; trial++) {
-      ClusterPrototypes initialPrototypes =
+      final ClusterPrototypes initialPrototypes =
           ClusterPrototypes.initializeRandomly(distanceMatrix, clusterCount);
-      ScoredClusteringResult clusteringResult =
+      final ScoredClusteringResult clusteringResult =
           findPrototypes(distanceMatrix, scoringFunction, initialPrototypes);
-      double score = clusteringResult.getScore();
+      final double score = clusteringResult.getScore();
 
       if (score > overallBestScore) {
         overallBestScore = score;
@@ -48,32 +52,30 @@ public class KMedoids implements PrototypeBasedClusterer {
     }
     assert overallBestPrototypes != null;
 
-    PAMSIL pamsil = PAMSIL.getInstance();
-    double silhouette = pamsil.score(overallBestPrototypes, distanceMatrix);
+    final PAMSIL pamsil = PAMSIL.getInstance();
+    final double silhouette = pamsil.score(overallBestPrototypes, distanceMatrix);
 
-    DecimalFormat format = new DecimalFormat("0.000");
+    final DecimalFormat format = new DecimalFormat("0.000");
     KMedoids.LOGGER.debug(
-        "Final score for clustering (k="
-            + clusterCount
-            + "): score="
-            + format.format(overallBestScore)
-            + " PAMSIL="
-            + format.format(silhouette));
+        "Final score for clustering (k={}): score={} PAMSIL={}",
+        clusterCount,
+        format.format(overallBestScore),
+        format.format(silhouette));
 
     return new ScoredClusteringResult(
         overallBestPrototypes, scoringFunction, overallBestScore, silhouette);
   }
 
   @Override
-  public ScoredClusteringResult findPrototypes(
-      double[][] distanceMatrix,
-      ScoringFunction scoringFunction,
-      ClusterPrototypes initialPrototypes) {
+  public final ScoredClusteringResult findPrototypes(
+      final double[][] distanceMatrix,
+      final ScoringFunction scoringFunction,
+      final ClusterPrototypes initialPrototypes) {
     ClusterPrototypes prototypes = initialPrototypes;
     double score = scoringFunction.score(prototypes, distanceMatrix);
 
     while (true) {
-      Set<Integer> nonmedoids = new HashSet<>();
+      final Collection<Integer> nonmedoids = new HashSet<>();
 
       for (int i = 0; i < distanceMatrix.length; i++) {
         if (!prototypes.isPrototype(i)) {
@@ -84,10 +86,10 @@ public class KMedoids implements PrototypeBasedClusterer {
       double bestScore = score;
       ClusterPrototypes bestMedoids = prototypes;
 
-      for (int i : prototypes.getPrototypesIndices()) {
-        for (int j : nonmedoids) {
-          ClusterPrototypes swapped = prototypes.swap(i, j);
-          double newScore = scoringFunction.score(swapped, distanceMatrix);
+      for (final int i : prototypes.getPrototypesIndices()) {
+        for (final int j : nonmedoids) {
+          final ClusterPrototypes swapped = prototypes.swap(i, j);
+          final double newScore = scoringFunction.score(swapped, distanceMatrix);
 
           if (newScore > bestScore) {
             bestScore = newScore;
@@ -104,8 +106,8 @@ public class KMedoids implements PrototypeBasedClusterer {
       }
     }
 
-    PAMSIL pamsil = PAMSIL.getInstance();
-    double silhouette = pamsil.score(prototypes, distanceMatrix);
+    final PAMSIL pamsil = PAMSIL.getInstance();
+    final double silhouette = pamsil.score(prototypes, distanceMatrix);
     return new ScoredClusteringResult(prototypes, scoringFunction, score, silhouette);
   }
 }
