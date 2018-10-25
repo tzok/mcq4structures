@@ -2,3 +2,7 @@
 	path = mcq-cli
 	url = git@github.com:tzok/mcq-cli.git
 	branch = develop
+[submodule "mcq-core"]
+	path = mcq-core
+	url = git@github.com:tzok/mcq-common.git
+	branch = develop
