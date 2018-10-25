@@ -3,23 +3,15 @@ package pl.poznan.put.matching;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.range.RangeDifference;
 
+@EqualsAndHashCode
 public class FragmentComparison implements Comparable<FragmentComparison> {
-  private static final FragmentComparison INVALID_INSTANCE =
-      new FragmentComparison(
-          Collections.emptyList(),
-          Collections.emptyList(),
-          0,
-          0,
-          0,
-          0,
-          Angle.invalidInstance(),
-          RangeDifference.INVALID);
   private final List<ResidueComparison> residueComparisons;
   private final List<MasterTorsionAngleType> angleTypes;
   private final int targetInvalidCount;
@@ -30,40 +22,55 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
   private final RangeDifference meanRangeDiffrence;
 
   public FragmentComparison(
-      final List<ResidueComparison> residueResults,
-      final List<MasterTorsionAngleType> angles,
-      final int firstInvalidCount,
-      final int secondInvalidCount,
+      final List<ResidueComparison> residueComparisons,
+      final List<MasterTorsionAngleType> angleTypes,
+      final int targetInvalidCount,
+      final int modelInvalidCount,
       final int bothInvalidCount,
       final int validCount,
       final Angle meanDelta,
       final RangeDifference meanRangeDiffrence) {
     super();
-    residueComparisons = new ArrayList<>(residueResults);
-    angleTypes = new ArrayList<>(angles);
-    targetInvalidCount = firstInvalidCount;
-    modelInvalidCount = secondInvalidCount;
+    this.residueComparisons = new ArrayList<>(residueComparisons);
+    this.angleTypes = new ArrayList<>(angleTypes);
+    this.targetInvalidCount = targetInvalidCount;
+    this.modelInvalidCount = modelInvalidCount;
     this.bothInvalidCount = bothInvalidCount;
     this.validCount = validCount;
     this.meanDelta = meanDelta;
     this.meanRangeDiffrence = meanRangeDiffrence;
   }
 
-  public static FragmentComparison invalidInstance() {
-    return FragmentComparison.INVALID_INSTANCE;
+  private FragmentComparison(
+      final List<ResidueComparison> residueComparisons,
+      final List<MasterTorsionAngleType> angleTypes,
+      final int targetInvalidCount,
+      final int modelInvalidCount,
+      final int bothInvalidCount,
+      final int validCount) {
+    super();
+    this.residueComparisons = new ArrayList<>(residueComparisons);
+    this.angleTypes = new ArrayList<>(angleTypes);
+    this.targetInvalidCount = targetInvalidCount;
+    this.modelInvalidCount = modelInvalidCount;
+    this.bothInvalidCount = bothInvalidCount;
+    this.validCount = validCount;
+    meanDelta = Angle.invalidInstance();
+    meanRangeDiffrence = RangeDifference.INVALID;
   }
 
   public static FragmentComparison fromResidueComparisons(
-      final List<ResidueComparison> residueResults, final List<MasterTorsionAngleType> angleTypes) {
-    List<Angle> deltas = new ArrayList<>();
+      final List<ResidueComparison> residueComparisons,
+      final List<MasterTorsionAngleType> angleTypes) {
+    final List<Angle> deltas = new ArrayList<>();
     int targetInvalid = 0;
     int modelInvalid = 0;
     int bothInvalid = 0;
     double rangeValue = 0.0;
 
-    for (final ResidueComparison result : residueResults) {
+    for (final ResidueComparison result : residueComparisons) {
       for (final MasterTorsionAngleType angle : angleTypes) {
-        TorsionAngleDelta delta = result.getAngleDelta(angle);
+        final TorsionAngleDelta delta = result.getAngleDelta(angle);
 
         if (delta == null) {
           continue;
@@ -89,9 +96,14 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
       }
     }
 
-    AngleSample sample = new AngleSample(deltas);
+    if (deltas.isEmpty()) {
+      return FragmentComparison.invalidInstance(
+          residueComparisons, angleTypes, targetInvalid, modelInvalid, bothInvalid, 0);
+    }
+
+    final AngleSample sample = new AngleSample(deltas);
     return new FragmentComparison(
-        residueResults,
+        residueComparisons,
         angleTypes,
         targetInvalid,
         modelInvalid,
@@ -99,6 +111,22 @@ public class FragmentComparison implements Comparable<FragmentComparison> {
         deltas.size(),
         sample.getMeanDirection(),
         RangeDifference.fromValue((int) Math.round(rangeValue / deltas.size())));
+  }
+
+  public static FragmentComparison invalidInstance(
+      final List<ResidueComparison> residueComparisons,
+      final List<MasterTorsionAngleType> angleTypes,
+      final int targetInvalidCount,
+      final int modelInvalidCount,
+      final int bothInvalidCount,
+      final int validCount) {
+    return new FragmentComparison(
+        residueComparisons,
+        angleTypes,
+        targetInvalidCount,
+        modelInvalidCount,
+        bothInvalidCount,
+        validCount);
   }
 
   public final List<ResidueComparison> getResidueComparisons() {

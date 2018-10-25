@@ -180,7 +180,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
       if ((fragment.getMoleculeType() != target.getMoleculeType())
           || (fragment.getResidues().size() != target.getResidues().size())) {
         throw new IncomparableStructuresException(
-            "All models must be of the same type and size as the " + "reference structure");
+            "All models must be of the same type and size as the reference structure");
       }
     }
 

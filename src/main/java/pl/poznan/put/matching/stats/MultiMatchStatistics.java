@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import javax.swing.table.TableModel;
 import lombok.Data;
 import pl.poznan.put.matching.AngleDeltaIterator;
@@ -13,7 +12,7 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.MatchCollection;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
-import pl.poznan.put.utility.TwoDigitsAfterDotNumberFormat;
+import pl.poznan.put.utility.NumberFormatUtils;
 
 @Data
 public final class MultiMatchStatistics {
@@ -22,13 +21,13 @@ public final class MultiMatchStatistics {
     private final double ratio;
 
     @Override
-    public int compareTo(@Nonnull final HistogramEntry t) {
+    public int compareTo(final HistogramEntry t) {
       return Double.compare(ratio, t.ratio);
     }
 
     @Override
     public String toString() {
-      return TwoDigitsAfterDotNumberFormat.formatDouble(100.0 * ratio) + '%';
+      return NumberFormatUtils.threeDecimalDigits().format(100.0 * ratio) + '%';
     }
   }
 
@@ -51,7 +50,7 @@ public final class MultiMatchStatistics {
     private final boolean isDisplayable;
 
     @Override
-    public int compareTo(@Nonnull final PercentileEntry t) {
+    public int compareTo(final PercentileEntry t) {
       return Double.compare(threshold, t.threshold);
     }
 
@@ -150,8 +149,7 @@ public final class MultiMatchStatistics {
     //noinspection AssignmentToNull
     columnNames[0] = isDisplayable ? "" : null;
     for (int i = 0; i < percentsLimits.length; i++) {
-      columnNames[i + 1] =
-          String.format("%s%%", TwoDigitsAfterDotNumberFormat.formatDouble(percentsLimits[i]));
+      columnNames[i + 1] = NumberFormatUtils.threeDecimalDigits().format(percentsLimits[i]) + '%';
     }
 
     final Object[][] data = new Object[statistics.size()][];

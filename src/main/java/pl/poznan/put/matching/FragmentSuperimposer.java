@@ -11,7 +11,6 @@ import javax.vecmath.Point3d;
 import org.biojava.nbio.structure.geometry.CalcPoint;
 import org.biojava.nbio.structure.geometry.SuperPositions;
 import pl.poznan.put.atom.AtomName;
-import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.pdb.PdbAtomLine;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -42,8 +41,7 @@ public class FragmentSuperimposer {
   private final Matrix4d[] matchedSuperpositions;
 
   public FragmentSuperimposer(
-      final SelectionMatch selectionMatch, final AtomFilter atomFilter, final boolean onlyHeavy)
-      throws CifPdbIncompatibilityException {
+      final SelectionMatch selectionMatch, final AtomFilter atomFilter, final boolean onlyHeavy) {
     super();
     this.selectionMatch = selectionMatch;
     this.atomFilter = atomFilter;
@@ -52,7 +50,7 @@ public class FragmentSuperimposer {
     final int matchesCount = selectionMatch.getFragmentMatches().size();
     if (matchesCount == 0) {
       throw new IllegalArgumentException(
-          "Failed to superimpose, because the set of structural " + "matches is empty");
+          "Failed to superimpose, because the set of structural matches is empty");
     }
 
     matchedSuperpositions = new Matrix4d[matchesCount];
@@ -68,8 +66,7 @@ public class FragmentSuperimposer {
   }
 
   private void filterAtoms(
-      final Collection<Point3d> atomsTargetAll, final Collection<Point3d> atomsModelAll)
-      throws CifPdbIncompatibilityException {
+      final Collection<Point3d> atomsTargetAll, final Collection<Point3d> atomsModelAll) {
     final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
 
     for (int i = 0, size = fragmentMatches.size(); i < size; i++) {

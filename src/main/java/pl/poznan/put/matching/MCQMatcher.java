@@ -36,7 +36,7 @@ public class MCQMatcher implements StructureMatcher {
     }
 
     final FragmentMatch[][] matrix = fillMatchingMatrix(s1, s2);
-    MCQMatcher.filterMatchingMatrix(matrix);
+    filterMatchingMatrix(matrix);
     final List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
     return new SelectionMatch(s1, s2, fragmentMatches);
   }
@@ -58,13 +58,13 @@ public class MCQMatcher implements StructureMatcher {
         matrix[i][j] =
             (fi.getMoleculeType() == fj.getMoleculeType())
                 ? matchFragments(fi, fj)
-                : FragmentMatch.invalidInstance(fi, fj);
+                : FragmentMatch.invalidInstance(fi, fj, angleTypes);
       }
     }
     return matrix;
   }
 
-  private static void filterMatchingMatrix(final FragmentMatch[][] matrix) {
+  private void filterMatchingMatrix(final FragmentMatch[][] matrix) {
     final Map<PdbCompactFragment, Integer> fragmentMaxCount = new DefaultedMap<>(Integer.MIN_VALUE);
 
     for (final FragmentMatch[] matches : matrix) {
@@ -85,7 +85,7 @@ public class MCQMatcher implements StructureMatcher {
         final int maxCount = Math.max(fragmentMaxCount.get(target), fragmentMaxCount.get(model));
 
         if (count < (maxCount * 0.9)) {
-          matrix[i][j] = FragmentMatch.invalidInstance(target, model);
+          matrix[i][j] = FragmentMatch.invalidInstance(target, model, angleTypes);
         }
       }
     }
@@ -146,7 +146,15 @@ public class MCQMatcher implements StructureMatcher {
       }
     }
 
-    return new ResidueComparison(targetResidue, modelResidue, angleDeltas);
+    final boolean anyValid =
+        angleDeltas
+            .parallelStream()
+            .map(TorsionAngleDelta::getState)
+            .anyMatch(state -> state == TorsionAngleDelta.State.BOTH_VALID);
+
+    return anyValid
+        ? new ResidueComparison(targetResidue, modelResidue, angleDeltas)
+        : ResidueComparison.invalidInstance(targetResidue, modelResidue);
   }
 
   private static TorsionAngleDelta calculateAverageOverDifferences(
@@ -239,6 +247,10 @@ public class MCQMatcher implements StructureMatcher {
         bestResult = fragmentResult;
         bestShift = i;
       }
+    }
+
+    if (bestResult == null) {
+      return FragmentMatch.invalidInstance(f1, f2, angleTypes);
     }
 
     return new FragmentMatch(f1, f2, isTargetSmaller, bestShift, bestResult);

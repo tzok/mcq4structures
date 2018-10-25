@@ -7,69 +7,68 @@ import pl.poznan.put.matching.MatchCollectionDeltaIterator;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.stats.SingleMatchStatistics;
 import pl.poznan.put.utility.AngleFormat;
-import pl.poznan.put.utility.TwoDigitsAfterDotNumberFormat;
+import pl.poznan.put.utility.NumberFormatUtils;
 
 public class MCQGlobalResult extends GlobalResult {
   private final AngleSample angleSample;
   private final String longDisplayName;
 
   public MCQGlobalResult(
-      String measureName, SelectionMatch selectionMatch, AngleSample angleSample) {
+      final String measureName,
+      final SelectionMatch selectionMatch,
+      final AngleSample angleSample) {
     super(measureName, selectionMatch);
     this.angleSample = angleSample;
-    this.longDisplayName = prepareLongDisplayName();
+    longDisplayName = prepareLongDisplayName();
   }
 
   private String prepareLongDisplayName() {
-    SelectionMatch selectionMatch = getSelectionMatch();
-    AngleDeltaIterator angleDeltaIterator = new MatchCollectionDeltaIterator(selectionMatch);
-    SingleMatchStatistics statistics = SingleMatchStatistics.calculate("", angleDeltaIterator);
+    final SelectionMatch selectionMatch = getSelectionMatch();
+    final AngleDeltaIterator angleDeltaIterator = new MatchCollectionDeltaIterator(selectionMatch);
+    final SingleMatchStatistics statistics =
+        SingleMatchStatistics.calculate("", angleDeltaIterator);
 
-    int validCount = selectionMatch.getResidueLabels().size();
-    double percentBelow15Deg =
+    final int validCount = selectionMatch.getResidueLabels().size();
+    final double percentBelow15Deg =
         100.0 * statistics.getRatioOfDeltasBelowThreshold(Math.toRadians(30));
 
-    StringBuilder builder = new StringBuilder("<html>");
-    builder.append(getShortDisplayName());
-    builder.append("<br>");
-    builder.append(validCount);
-    builder.append("<br>");
-    builder.append(TwoDigitsAfterDotNumberFormat.formatDouble(percentBelow15Deg));
-    builder.append('%');
-    builder.append("</html>");
-    return builder.toString();
+    return String.format(
+        "<html>%s<br>%d<br>%s%%</html>",
+        getShortDisplayName(),
+        validCount,
+        NumberFormatUtils.threeDecimalDigits().format(percentBelow15Deg));
   }
 
-  public Angle getMeanDirection() {
+  public final Angle getMeanDirection() {
     return angleSample.getMeanDirection();
   }
 
-  public Angle getMedianDirection() {
+  public final Angle getMedianDirection() {
     return angleSample.getMedianDirection();
   }
 
   @Override
-  public String toString() {
+  public final String toString() {
     return angleSample.toString();
   }
 
   @Override
-  public String getLongDisplayName() {
+  public final String getLongDisplayName() {
     return longDisplayName;
   }
 
   @Override
-  public String getShortDisplayName() {
+  public final String getShortDisplayName() {
     return AngleFormat.degreesRoundedToHundredth(angleSample.getMeanDirection().getRadians());
   }
 
   @Override
-  public String getExportName() {
+  public final String getExportName() {
     return AngleFormat.degrees(angleSample.getMeanDirection().getRadians());
   }
 
   @Override
-  public double asDouble() {
+  public final double asDouble() {
     return angleSample.getMeanDirection().getRadians();
   }
 }

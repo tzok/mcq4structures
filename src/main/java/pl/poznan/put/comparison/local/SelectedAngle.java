@@ -3,14 +3,14 @@ package pl.poznan.put.comparison.local;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jumpmind.symmetric.csv.CsvWriter;
 import pl.poznan.put.interfaces.Exportable;
@@ -20,6 +20,13 @@ import pl.poznan.put.matching.MatchCollection;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
+import pl.poznan.put.structure.secondary.formats.BpSeq;
+import pl.poznan.put.structure.secondary.formats.Converter;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
+import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
+import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
+import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
@@ -33,29 +40,44 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
   private final List<FragmentMatch> fragmentMatches;
 
   @Override
-  public List<FragmentMatch> getFragmentMatches() {
+  public final List<FragmentMatch> getFragmentMatches() {
     return Collections.unmodifiableList(fragmentMatches);
   }
 
   @Override
-  public void export(final OutputStream stream) throws IOException {
-    final CsvWriter csvWriter = new CsvWriter(stream, ',', Charset.forName("UTF-8"));
+  public final void export(final OutputStream stream) throws IOException {
+    final CsvWriter csvWriter = new CsvWriter(stream, ',', StandardCharsets.UTF_8);
+
+    // first row
     csvWriter.write(null);
-
-    for (final PdbCompactFragment model : models) {
-      csvWriter.write(model.toString());
+    for (final PdbResidue residue : target.getResidues()) {
+      csvWriter.write(residue.toString());
     }
-
     csvWriter.endRecord();
 
-    for (int i = 0; i < target.getResidues().size(); i++) {
-      final PdbResidue residue = target.getResidues().get(i);
-      csvWriter.write(residue.toString());
+    try {
+      final BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+      final Converter converter = new LevelByLevelConverter(new MinGain(), 1);
+      final DotBracket dotBracket = converter.convert(bpSeq);
 
-      for (int j = 0; j < models.size(); j++) {
-        final FragmentMatch fragmentMatch = fragmentMatches.get(j);
-        final ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-        final TorsionAngleDelta delta = residueComparison.getAngleDelta(angleType);
+      // second row
+      csvWriter.write(null);
+      for (final char c : dotBracket.getStructure().toCharArray()) {
+        csvWriter.write(Character.toString(c));
+      }
+      csvWriter.endRecord();
+    } catch (final InvalidStructureException e) {
+      SelectedAngle.log.warn("Failed to extract secondary structure", e);
+    }
+
+    for (int i = 0; i < models.size(); i++) {
+      final PdbCompactFragment model = models.get(i);
+      final FragmentMatch match = fragmentMatches.get(i);
+      csvWriter.write(model.getName());
+
+      for (int j = 0; j < target.getResidues().size(); j++) {
+        final ResidueComparison comparison = match.getResidueComparisons().get(j);
+        final TorsionAngleDelta delta = comparison.getAngleDelta(angleType);
         csvWriter.write(delta.toExportString());
       }
 
@@ -66,9 +88,9 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
   }
 
   @Override
-  public File suggestName() {
-    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
-    final StringBuilder builder = new StringBuilder(sdf.format(new Date()));
+  public final File suggestName() {
+    final StringBuilder builder =
+        new StringBuilder(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()));
     builder.append("-Local-Distance-Multi");
 
     for (final PdbCompactFragment model : models) {
@@ -81,12 +103,12 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
   }
 
   @Override
-  public TableModel asExportableTableModel() {
+  public final TableModel asExportableTableModel() {
     return asTableModel(false);
   }
 
   @Override
-  public TableModel asDisplayableTableModel() {
+  public final TableModel asDisplayableTableModel() {
     return asTableModel(true);
   }
 
@@ -120,7 +142,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
     return new NonEditableDefaultTableModel(data, columnNames);
   }
 
-  public Pair<Double, Double> getMinMax() {
+  public final Pair<Double, Double> getMinMax() {
     double min = Double.POSITIVE_INFINITY;
     double max = Double.NEGATIVE_INFINITY;
 
