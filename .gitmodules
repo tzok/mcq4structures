@@ -10,3 +10,7 @@
 	path = mcq-clustering
 	url = git@github.com:tzok/mcq-clustering.git
 	branch = develop
+[submodule "mcq-gui"]
+	path = mcq-gui
+	url = git@github.com:tzok/mcq4structures.git
+	branch = develop
