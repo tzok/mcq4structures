@@ -1,16 +1,32 @@
 [submodule "mcq-cli"]
 	path = mcq-cli
-	url = git@github.com:tzok/mcq-cli.git
+	url = https://github.com/tzok/mcq-cli.git
 	branch = develop
 [submodule "mcq-core"]
 	path = mcq-core
-	url = git@github.com:tzok/mcq-core.git
+	url = https://github.com/tzok/mcq-core.git
 	branch = develop
 [submodule "mcq-clustering"]
 	path = mcq-clustering
-	url = git@github.com:tzok/mcq-clustering.git
+	url = https://github.com/tzok/mcq-clustering.git
 	branch = develop
 [submodule "mcq-gui"]
 	path = mcq-gui
-	url = git@github.com:tzok/mcq4structures.git
+	url = https://github.com/tzok/mcq4structures.git
 	branch = develop
+[submodule "circular"]
+	path = circular
+	url = https://github.com/tzok/Circular.git
+	branch = master
+[submodule "bio-commons"]
+	path = bio-commons
+	url = https://github.com/tzok/BioCommons.git
+	branch = master
+[submodule "tzok-commons"]
+	path = tzok-commons
+	url = https://github.com/tzok/TzokCommons.git
+	branch = master
+[submodule "varna-tz"]
+	path = varna-tz
+	url = https://github.com/tzok/varna-tz.git
+	branch = master
