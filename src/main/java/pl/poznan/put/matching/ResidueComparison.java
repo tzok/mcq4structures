@@ -22,8 +22,7 @@ public class ResidueComparison {
   private final Angle meanDirection;
   private final Angle medianDirection;
 
-  public ResidueComparison(
-      final PdbResidue target, final PdbResidue model, final List<TorsionAngleDelta> angleDeltas) {
+  public ResidueComparison(final PdbResidue target, final PdbResidue model, final List<TorsionAngleDelta> angleDeltas) {
     super();
     this.target = target;
     this.model = model;
@@ -44,12 +43,9 @@ public class ResidueComparison {
     medianDirection = Angle.invalidInstance();
   }
 
-  private List<Angle> extractValidDeltas() {
-    return angleDeltas
-        .stream()
-        .filter(delta -> delta.getState() == TorsionAngleDelta.State.BOTH_VALID)
-        .map(TorsionAngleDelta::getDelta)
-        .collect(Collectors.toList());
+  public final List<Angle> extractValidDeltas() {
+    return angleDeltas.stream().filter(delta -> delta.getState() == TorsionAngleDelta.State.BOTH_VALID)
+                      .map(TorsionAngleDelta::getDelta).collect(Collectors.toList());
   }
 
   public final PdbResidue getTarget() {
