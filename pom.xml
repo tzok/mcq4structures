@@ -20,8 +20,8 @@
 
   <properties>
     <batik.version>1.10</batik.version>
-    <biojava.version>5.1.1</biojava.version>
-    <jackson.version>2.9.7</jackson.version>
+    <biojava.version>5.2.0</biojava.version>
+    <jackson.version>2.9.8</jackson.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.7.25</slf4j.version>
   </properties>
@@ -175,7 +175,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.18.2</version>
+        <version>1.18.4</version>
       </dependency>
 
       <dependency>
