@@ -5,7 +5,7 @@
   <parent>
     <artifactId>mcq-parent</artifactId>
     <groupId>pl.poznan.put</groupId>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.5.1</version>
   </parent>
 
   <artifactId>mcq-gui</artifactId>
