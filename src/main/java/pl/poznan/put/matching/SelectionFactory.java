@@ -24,8 +24,7 @@ public final class SelectionFactory {
     final List<PdbCompactFragment> compactFragments = new ArrayList<>(selectionQueries.length);
 
     for (final SelectionQuery selectionQuery : selectionQueries) {
-      final PdbCompactFragment compactFragment = selectionQuery.apply(structure);
-      compactFragments.add(compactFragment);
+      compactFragments.addAll(selectionQuery.apply(structure));
     }
 
     return new StructureSelection(name, compactFragments);

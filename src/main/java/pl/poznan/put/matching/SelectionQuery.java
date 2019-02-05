@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Pair;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
@@ -12,7 +13,7 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 
 /**
  * Class which allow to parse a selection query of the following form CHAIN:NUMBER-ICODE:COUNT e.g.
- * A:1:5.
+ * A:1:5. Additionally, several selections can be supplied using plus operator like A:1:5+A:10:2
  */
 public final class SelectionQuery {
   // @formatter:off
@@ -38,82 +39,90 @@ public final class SelectionQuery {
   private static final Pattern PATTERN = Pattern.compile("(-?\\d+)(.*)");
 
   private final String originalQuery;
-  private final PdbResidueIdentifier identifier;
-  private final int count;
+  private final List<Pair<PdbResidueIdentifier, Integer>> identifierCountPairs;
 
   public static SelectionQuery parse(final String query) {
-    final String[] split = query.split(":");
+    final List<Pair<PdbResidueIdentifier, Integer>> pairs = new ArrayList<>();
 
-    if (split.length != 3) {
-      throw new InvalidQueryException(
-          "Selection Query must consist of three parts separated by"
-              + " colons. For example: A:1:5 means 5 residues starting "
-              + "from residue 1 from chain A.");
-    }
+    for (final String subquery : query.split("\\+")) {
+      final String[] split = subquery.split(":");
+      final Matcher matcher = SelectionQuery.PATTERN.matcher(split[1]);
 
-    final Matcher matcher = SelectionQuery.PATTERN.matcher(split[1]);
-    if (!matcher.matches() || (matcher.groupCount() != 2)) {
-      throw new InvalidQueryException(
-          String.format(
-              "Failed to parse second part as residue number "
-                  + "followed by optional insertion code: %s",
-              split[1]));
-    }
+      if (!matcher.matches() || (matcher.groupCount() != 2)) {
+        throw new InvalidQueryException(
+            String.format(
+                "Failed to parse second part as residue number "
+                    + "followed by optional insertion code: %s",
+                split[1]));
+      }
 
-    try {
-      final String chainIdentifier = split[0];
-      final int residueNumber = Integer.parseInt(matcher.group(1));
-      final String insertionCode = matcher.group(2).isEmpty() ? " " : matcher.group(2);
+      try {
+        final String chainIdentifier = split[0];
+        final int residueNumber = Integer.parseInt(matcher.group(1));
+        final String insertionCode = matcher.group(2).isEmpty() ? " " : matcher.group(2);
 
-      final PdbResidueIdentifier identifier =
-          new PdbResidueIdentifier(chainIdentifier, residueNumber, insertionCode);
+        final PdbResidueIdentifier identifier =
+            new PdbResidueIdentifier(chainIdentifier, residueNumber, insertionCode);
+        final int count = Integer.parseInt(split[2]);
 
-      final int count = Integer.parseInt(split[2]);
-
-      return new SelectionQuery(query, identifier, count);
-    } catch (final NumberFormatException e) {
-      throw new InvalidQueryException("Failed to parse given input as " + "integer number", e);
-    }
-  }
-
-  private SelectionQuery(
-      final String originalQuery, final PdbResidueIdentifier identifier, final int count) {
-    super();
-    this.originalQuery = originalQuery;
-    this.identifier = identifier;
-    this.count = count;
-  }
-
-  public PdbCompactFragment apply(final PdbModel model) {
-    final List<PdbResidue> selectedResidues = new ArrayList<>(count);
-
-    for (final PdbChain chain : model.getChains()) {
-      final String queryChainIdentifier = identifier.getChainIdentifier();
-      final String chainIdentifier = chain.getIdentifier();
-
-      if (queryChainIdentifier.equals(chainIdentifier)) {
-        boolean found = false;
-
-        for (final PdbResidue residue : chain.getResidues()) {
-          if (identifier.equals(residue.getResidueIdentifier())) {
-            found = true;
-          }
-          if (found) {
-            selectedResidues.add(residue);
-          }
-          if (selectedResidues.size() == count) {
-            break;
-          }
-        }
-
-        break;
+        pairs.add(Pair.of(identifier, count));
+      } catch (final NumberFormatException e) {
+        throw new InvalidQueryException("Failed to parse given input as integer number", e);
       }
     }
 
-    if (selectedResidues.size() != count) {
-      throw new IllegalArgumentException("Failed to create selection: " + originalQuery);
+    return new SelectionQuery(query, pairs);
+  }
+
+  private SelectionQuery(
+      final String originalQuery,
+      final List<Pair<PdbResidueIdentifier, Integer>> identifierCountPairs) {
+    super();
+    this.originalQuery = originalQuery;
+    this.identifierCountPairs = new ArrayList<>(identifierCountPairs);
+  }
+
+  public List<PdbCompactFragment> apply(final PdbModel model) {
+    final List<PdbCompactFragment> fragments = new ArrayList<>();
+
+    for (final Pair<PdbResidueIdentifier, Integer> pair : identifierCountPairs) {
+      final PdbResidueIdentifier identifier = pair.getKey();
+      final int count = pair.getValue();
+      final List<PdbResidue> selectedResidues = new ArrayList<>(count);
+
+      for (final PdbChain chain : model.getChains()) {
+        final String queryChainIdentifier = identifier.getChainIdentifier();
+        final String chainIdentifier = chain.getIdentifier();
+
+        if (queryChainIdentifier.equals(chainIdentifier)) {
+          boolean found = false;
+
+          for (final PdbResidue residue : chain.getResidues()) {
+            if (identifier.equals(residue.getResidueIdentifier())) {
+              found = true;
+            }
+            if (found) {
+              selectedResidues.add(residue);
+            }
+            if (selectedResidues.size() == count) {
+              break;
+            }
+          }
+
+          break;
+        }
+      }
+
+      if (selectedResidues.size() != count) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Failed to create selection from %s with %d. Created only %d residues",
+                identifier, count, selectedResidues.size()));
+      }
+
+      fragments.add(new PdbCompactFragment(originalQuery, selectedResidues));
     }
 
-    return new PdbCompactFragment(originalQuery, selectedResidues);
+    return fragments;
   }
 }

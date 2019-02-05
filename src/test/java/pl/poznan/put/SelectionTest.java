@@ -60,7 +60,9 @@ public class SelectionTest {
     final PdbModel model = models.get(0);
 
     final SelectionQuery selectionQuery = SelectionQuery.parse("A:190A:12");
-    final PdbCompactFragment compactFragment = selectionQuery.apply(model);
+    final List<PdbCompactFragment> compactFragments = selectionQuery.apply(model);
+    Assert.assertEquals(1, compactFragments.size());
+    final PdbCompactFragment compactFragment = compactFragments.get(0);
     Assert.assertEquals(12, compactFragment.getResidues().size());
 
     for (final PdbResidue residue : compactFragment.getResidues()) {
