@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -49,16 +50,20 @@ import pl.poznan.put.utility.svg.SVGHelper;
 
 @SuppressWarnings({"CallToSystemExit", "UseOfSystemOutOrSystemErr"})
 public final class Local {
-  private static final Options OPTIONS = new Options().addOption(Helper.OPTION_TARGET).addOption(Helper.OPTION_MODELS)
-                                                      .addOption(Helper.OPTION_SELECTION_TARGET)
-                                                      .addOption(Helper.OPTION_SELECTION_MODEL)
-                                                      .addOption(Helper.OPTION_ANGLES);
+  private static final Options OPTIONS =
+      new Options()
+          .addOption(Helper.OPTION_TARGET)
+          .addOption(Helper.OPTION_MODELS)
+          .addOption(Helper.OPTION_SELECTION_TARGET)
+          .addOption(Helper.OPTION_SELECTION_MODEL)
+          .addOption(Helper.OPTION_ANGLES);
 
   private Local() {
     super();
   }
 
-  public static void main(final String[] args) throws ParseException, IncomparableStructuresException {
+  public static void main(final String[] args)
+      throws ParseException, IncomparableStructuresException {
     if (Helper.isHelpRequested(args)) {
       Helper.printHelp("local", Local.OPTIONS);
       return;
@@ -71,15 +76,25 @@ public final class Local {
 
     // check for gaps
     final int expectedFragmentCount = target.getCompactFragments().size();
-    models.stream().filter(selection -> selection.getCompactFragments().size() != expectedFragmentCount)
-          .peek(model -> Local.printFragmentDetails(target, model)).findAny().ifPresent(selection -> System.exit(1));
+    models
+        .stream()
+        .filter(selection -> selection.getCompactFragments().size() != expectedFragmentCount)
+        .peek(model -> Local.printFragmentDetails(target, model))
+        .findAny()
+        .ifPresent(selection -> System.exit(1));
 
     // check for size
     final int expectedSize = target.getResidues().size();
-    models.parallelStream().filter(selection -> selection.getResidues().size() != expectedSize).peek(
-        selection -> System.err.printf("The following structure has different size (%d) than the target (%d)%n",
-                                       selection.getResidues().size(), expectedSize)).findAny()
-          .ifPresent(selection -> System.exit(1));
+    models
+        .parallelStream()
+        .filter(selection -> selection.getResidues().size() != expectedSize)
+        .peek(
+            selection ->
+                System.err.printf(
+                    "The following structure has different size (%d) than the target (%d)%n",
+                    selection.getResidues().size(), expectedSize))
+        .findAny()
+        .ifPresent(selection -> System.exit(1));
 
     // prepare MCQ instance
     final List<MasterTorsionAngleType> angleTypes = Helper.parseAngles(commandLine);
@@ -101,37 +116,60 @@ public final class Local {
 
       // rename
       targetFragment.setName(String.format("%s %s", target.getName(), targetFragment.getName()));
-      IntStream.range(0, models.size()).forEach(j -> modelFragments.get(j).setName(
-          String.format("%s %s", models.get(j).getName(), modelFragments.get(j).getName())));
+      IntStream.range(0, models.size())
+          .forEach(
+              j ->
+                  modelFragments
+                      .get(j)
+                      .setName(
+                          String.format(
+                              "%s %s", models.get(j).getName(), modelFragments.get(j).getName())));
 
-      final ModelsComparisonResult comparisonResult = mcq.compareModels(targetFragment, modelFragments);
+      final ModelsComparisonResult comparisonResult =
+          mcq.compareModels(targetFragment, modelFragments);
       final File directory = Local.exportResults(comparisonResult);
       System.out.println("Partial results are available in: " + directory);
 
       for (int j = 0; j < comparisonResult.getFragmentMatches().size(); j++) {
         final FragmentMatch match = comparisonResult.getFragmentMatches().get(j);
-        partialDifferences.get(j).addAll(
-            match.getResidueComparisons().stream().map(ResidueComparison::extractValidDeltas)
-                 .flatMap(Collection::stream).collect(Collectors.toList()));
+        partialDifferences
+            .get(j)
+            .addAll(
+                match
+                    .getResidueComparisons()
+                    .stream()
+                    .map(ResidueComparison::extractValidDeltas)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList()));
       }
     }
 
     final Set<Pair<Double, StructureSelection>> ranking = new TreeSet<>();
-    final List<Angle> mcqs = partialDifferences.stream().map(AngleSample::new).map(AngleSample::getMeanDirection)
-                                               .collect(Collectors.toList());
-    IntStream.range(0, models.size()).forEach(i -> ranking.add(Pair.of(mcqs.get(i).getDegrees(), models.get(i))));
+    final List<Angle> mcqs =
+        partialDifferences
+            .stream()
+            .map(AngleSample::new)
+            .map(AngleSample::getMeanDirection)
+            .collect(Collectors.toList());
+    IntStream.range(0, models.size())
+        .forEach(i -> ranking.add(Pair.of(mcqs.get(i).getDegrees(), models.get(i))));
 
     for (final Pair<Double, StructureSelection> pair : ranking) {
-      System.out.printf("%s %s%n", pair.getValue().getName(), pair.getKey());
+      System.out.printf(Locale.US, "%s %.2f%n", pair.getValue().getName(), pair.getKey());
     }
   }
 
-  private static void printFragmentDetails(final StructureSelection target, final StructureSelection model) {
+  private static void printFragmentDetails(
+      final StructureSelection target, final StructureSelection model) {
     final StringBuilder builder = new StringBuilder();
     builder.append("Fragments in reference structure: (").append(target.getName()).append(")\n");
-    target.getCompactFragments().forEach(fragment -> builder.append("- ").append(fragment).append('\n'));
+    target
+        .getCompactFragments()
+        .forEach(fragment -> builder.append("- ").append(fragment).append('\n'));
     builder.append("Fragments in model: (").append(model.getName()).append(")\n");
-    model.getCompactFragments().forEach(fragment -> builder.append("- ").append(fragment).append('\n'));
+    model
+        .getCompactFragments()
+        .forEach(fragment -> builder.append("- ").append(fragment).append('\n'));
     System.err.println(builder);
 
     Local.printGapsDetails(target);
@@ -147,7 +185,8 @@ public final class Local {
       final PdbResidue current = residues.get(i);
 
       // skip check if any of the residues has icode
-      if (StringUtils.isNotBlank(previous.getInsertionCode()) || StringUtils.isNotBlank(current.getInsertionCode())) {
+      if (StringUtils.isNotBlank(previous.getInsertionCode())
+          || StringUtils.isNotBlank(current.getInsertionCode())) {
         continue;
       }
 
@@ -169,9 +208,13 @@ public final class Local {
           reason = "second residue lacks P atom";
         } else {
           final Bond.Length length = Bond.length(AtomType.O, AtomType.P);
-          reason = String.format("O3'-P distance is %.2f but should be [%.2f; %.2f]",
-                                 previous.findAtom(AtomName.O3p).distanceTo(current.findAtom(AtomName.P)),
-                                 length.getMin(), length.getMin());
+          reason =
+              String.format(
+                  Locale.US,
+                  "O3'-P distance is %.2f but should be [%.2f; %.2f]",
+                  previous.findAtom(AtomName.O3p).distanceTo(current.findAtom(AtomName.P)),
+                  length.getMin(),
+                  length.getMax());
         }
 
         if (!foundGaps) {
@@ -187,39 +230,48 @@ public final class Local {
     try {
       final File directory = ExecHelper.createRandomDirectory();
       Local.exportTable(directory, comparisonResult);
-      comparisonResult.getFragmentMatches().parallelStream()
-                      .forEach(fragmentMatch -> Local.exportModelResults(directory, fragmentMatch));
+      comparisonResult
+          .getFragmentMatches()
+          .parallelStream()
+          .forEach(fragmentMatch -> Local.exportModelResults(directory, fragmentMatch));
       return directory;
     } catch (final IOException e) {
       throw new IllegalArgumentException("Failed to export results", e);
     }
   }
 
-  private static void exportTable(final File directory, final ModelsComparisonResult comparisonResult)
-      throws IOException {
+  private static void exportTable(
+      final File directory, final ModelsComparisonResult comparisonResult) throws IOException {
     final File file = new File(directory, "table.csv");
     try (final OutputStream stream = new FileOutputStream(file)) {
-      final SelectedAngle selectedAngle = comparisonResult.selectAngle(RNATorsionAngleType.getAverageOverMainAngles());
+      final SelectedAngle selectedAngle =
+          comparisonResult.selectAngle(RNATorsionAngleType.getAverageOverMainAngles());
       selectedAngle.export(stream);
     }
   }
 
-  private static void exportModelResults(final File parentDirectory, final FragmentMatch fragmentMatch) {
+  private static void exportModelResults(
+      final File parentDirectory, final FragmentMatch fragmentMatch) {
     try {
       final String name = fragmentMatch.getModelFragment().getName();
       final File directory = new File(parentDirectory, name);
       FileUtils.forceMkdir(directory);
 
-      Local.exportSecondaryStructureImage(fragmentMatch, directory, "delta.svg", AngleDeltaMapper.getInstance());
-      Local.exportSecondaryStructureImage(fragmentMatch, directory, "range.svg", RangeDifferenceMapper.getInstance());
+      Local.exportSecondaryStructureImage(
+          fragmentMatch, directory, "delta.svg", AngleDeltaMapper.getInstance());
+      Local.exportSecondaryStructureImage(
+          fragmentMatch, directory, "range.svg", RangeDifferenceMapper.getInstance());
       Local.exportDifferences(fragmentMatch, directory);
     } catch (final IOException e) {
       throw new IllegalArgumentException("Failed to export results", e);
     }
   }
 
-  private static void exportSecondaryStructureImage(final FragmentMatch fragmentMatch, final File directory,
-                                                    final String filename, final ComparisonMapper deltaMapper)
+  private static void exportSecondaryStructureImage(
+      final FragmentMatch fragmentMatch,
+      final File directory,
+      final String filename,
+      final ComparisonMapper deltaMapper)
       throws IOException {
     final SVGDocument svg = SecondaryStructureVisualizer.visualize(fragmentMatch, deltaMapper);
     final File file = new File(directory, filename);
@@ -229,7 +281,8 @@ public final class Local {
     }
   }
 
-  private static void exportDifferences(final Exportable fragmentMatch, final File directory) throws IOException {
+  private static void exportDifferences(final Exportable fragmentMatch, final File directory)
+      throws IOException {
     final File file = new File(directory, "differences.csv");
     try (final OutputStream stream = new FileOutputStream(file)) {
       fragmentMatch.export(stream);
