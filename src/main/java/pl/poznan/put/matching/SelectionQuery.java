@@ -82,7 +82,7 @@ public final class SelectionQuery {
     this.identifierCountPairs = new ArrayList<>(identifierCountPairs);
   }
 
-  public List<PdbCompactFragment> apply(final PdbModel model) {
+  public List<PdbCompactFragment> apply(final PdbModel model) throws InvalidSelectionException {
     final List<PdbCompactFragment> fragments = new ArrayList<>();
 
     for (final Pair<PdbResidueIdentifier, Integer> pair : identifierCountPairs) {
@@ -114,9 +114,9 @@ public final class SelectionQuery {
       }
 
       if (selectedResidues.size() != count) {
-        throw new IllegalArgumentException(
+        throw new InvalidSelectionException(
             String.format(
-                "Failed to create selection from %s with %d. Created only %d residues",
+                "Failed to create selection starting at %s with %d residues. Was able to select only %d residues",
                 identifier, count, selectedResidues.size()));
       }
 

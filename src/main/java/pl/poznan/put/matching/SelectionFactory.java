@@ -21,13 +21,18 @@ public final class SelectionFactory {
 
   public static StructureSelection create(
       final String name, final PdbModel structure, final SelectionQuery... selectionQueries) {
-    final List<PdbCompactFragment> compactFragments = new ArrayList<>(selectionQueries.length);
+    try {
+      final List<PdbCompactFragment> compactFragments = new ArrayList<>(selectionQueries.length);
 
-    for (final SelectionQuery selectionQuery : selectionQueries) {
-      compactFragments.addAll(selectionQuery.apply(structure));
+      for (final SelectionQuery selectionQuery : selectionQueries) {
+        compactFragments.addAll(selectionQuery.apply(structure));
+      }
+
+      return new StructureSelection(name, compactFragments);
+    } catch (final InvalidSelectionException e) {
+      throw new IllegalArgumentException(
+          String.format("Failed to create selection in %s", name), e);
     }
-
-    return new StructureSelection(name, compactFragments);
   }
 
   private static List<PdbResidue> getAllResidues(final Iterable<PdbChain> chains) {
