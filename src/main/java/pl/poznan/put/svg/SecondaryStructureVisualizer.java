@@ -5,13 +5,20 @@ import fr.orsay.lri.varna.exceptions.ExceptionNAViewAlgorithm;
 import fr.orsay.lri.varna.exceptions.ExceptionUnmatchedClosingParentheses;
 import fr.orsay.lri.varna.exceptions.ExceptionWritingForbidden;
 import fr.orsay.lri.varna.models.VARNAConfig;
+import fr.orsay.lri.varna.models.rna.ModelBaseStyle;
+import fr.orsay.lri.varna.models.rna.ModeleBase;
 import fr.orsay.lri.varna.models.rna.ModeleColorMap;
 import fr.orsay.lri.varna.models.rna.RNA;
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
 import org.jcolorbrewer.ColorBrewer;
@@ -32,6 +39,7 @@ import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.utility.ResourcesHelper;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public final class SecondaryStructureVisualizer {
@@ -73,12 +81,19 @@ public final class SecondaryStructureVisualizer {
 
       final ModeleColorMap modelColorMap = SecondaryStructureVisualizer.colorMap();
       final VARNAConfig config = new VARNAConfig();
-      config._cm = modelColorMap;
-      config._drawColorMap = true;
 
       final RNA rna = new RNA();
       rna.setRNA(dotBracket.getSequence(), dotBracket.getStructure());
-      rna.setColorMapValues(mapped, modelColorMap);
+
+      final List<ModeleBase> listeBases = rna.get_listeBases();
+      IntStream.range(0, listeBases.size())
+          .forEach(
+              i -> {
+                final ModeleBase modeleBase = listeBases.get(i);
+                final ModelBaseStyle modelBaseStyle = modeleBase.getStyleBase();
+                modelBaseStyle.setBaseInnerColor(modelColorMap.getColorForValue(mapped[i]));
+              });
+
       rna.drawRNANAView(config);
       rna.saveRNASVG(tempFile.getAbsolutePath(), config);
 
@@ -100,12 +115,15 @@ public final class SecondaryStructureVisualizer {
       root.setAttributeNS(
           null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Double.toString(boundingBox.getHeight()));
 
-      return svgDocument;
+      final URI uri = ResourcesHelper.loadResourceUri("mcq-legend.svg");
+      final SVGDocument legend = SVGHelper.fromUri(uri);
+      return SVGHelper.merge(svgDocument, legend);
     } catch (final ExceptionUnmatchedClosingParentheses
         | ExceptionFileFormatOrSyntax
         | ExceptionWritingForbidden
         | ExceptionNAViewAlgorithm
-        | IOException e) {
+        | IOException
+        | URISyntaxException e) {
       SecondaryStructureVisualizer.LOGGER.error(
           "Failed to visualize secondary structure:\n{}", dotBracket, e);
     } finally {
