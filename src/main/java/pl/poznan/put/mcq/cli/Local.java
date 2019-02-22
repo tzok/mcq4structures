@@ -53,10 +53,10 @@ public final class Local {
   private static final Options OPTIONS =
       new Options()
           .addOption(Helper.OPTION_TARGET)
-          .addOption(Helper.OPTION_MODELS)
           .addOption(Helper.OPTION_SELECTION_TARGET)
           .addOption(Helper.OPTION_SELECTION_MODEL)
-          .addOption(Helper.OPTION_ANGLES);
+          .addOption(Helper.OPTION_ANGLES)
+          .addOption(Helper.OPTION_NAMES);
 
   private Local() {
     super();
@@ -71,14 +71,19 @@ public final class Local {
 
     final CommandLineParser parser = new DefaultParser();
     final CommandLine commandLine = parser.parse(Local.OPTIONS, args);
+
+    if (commandLine.getArgs().length < 1) {
+      System.err.println("No models provided for comparison");
+      System.exit(1);
+    }
+
     final StructureSelection target = Helper.selectTarget(commandLine);
     final List<StructureSelection> models = Helper.selectModels(commandLine);
 
     // check for gaps
-    final int expectedFragmentCount = target.getCompactFragments().size();
-    models
-        .stream()
-        .filter(selection -> selection.getCompactFragments().size() != expectedFragmentCount)
+    final int size = target.getCompactFragments().size();
+    models.stream()
+        .filter(selection -> selection.getCompactFragments().size() != size)
         .peek(model -> Local.printFragmentDetails(target, model))
         .findAny()
         .ifPresent(selection -> System.exit(1));
@@ -106,7 +111,7 @@ public final class Local {
       partialDifferences.add(new ArrayList<>());
     }
 
-    for (int i = 0; i < target.getCompactFragments().size(); i++) {
+    for (int i = 0; i < size; i++) {
       final PdbCompactFragment targetFragment = target.getCompactFragments().get(i);
 
       final List<PdbCompactFragment> modelFragments = new ArrayList<>();
@@ -115,15 +120,15 @@ public final class Local {
       }
 
       // rename
-      targetFragment.setName(String.format("%s %s", target.getName(), targetFragment.getName()));
-      IntStream.range(0, models.size())
-          .forEach(
-              j ->
-                  modelFragments
-                      .get(j)
-                      .setName(
-                          String.format(
-                              "%s %s", models.get(j).getName(), modelFragments.get(j).getName())));
+      if (size == 1) {
+        targetFragment.setName(target.getName());
+        IntStream.range(0, models.size())
+            .forEach(j -> modelFragments.get(j).setName(models.get(j).getName()));
+      } else {
+        Local.renameFragment(targetFragment, target);
+        IntStream.range(0, models.size())
+            .forEach(j -> Local.renameFragment(modelFragments.get(j), models.get(j)));
+      }
 
       final ModelsComparisonResult comparisonResult =
           mcq.compareModels(targetFragment, modelFragments);
@@ -135,9 +140,7 @@ public final class Local {
         partialDifferences
             .get(j)
             .addAll(
-                match
-                    .getResidueComparisons()
-                    .stream()
+                match.getResidueComparisons().stream()
                     .map(ResidueComparison::extractValidDeltas)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList()));
@@ -146,8 +149,7 @@ public final class Local {
 
     final Set<Pair<Double, StructureSelection>> ranking = new TreeSet<>();
     final List<Angle> mcqs =
-        partialDifferences
-            .stream()
+        partialDifferences.stream()
             .map(AngleSample::new)
             .map(AngleSample::getMeanDirection)
             .collect(Collectors.toList());
@@ -157,6 +159,11 @@ public final class Local {
     for (final Pair<Double, StructureSelection> pair : ranking) {
       System.out.printf(Locale.US, "%s %.2f%n", pair.getValue().getName(), pair.getKey());
     }
+  }
+
+  private static void renameFragment(
+      final PdbCompactFragment fragment, final StructureSelection selection) {
+    selection.setName(String.format("%s %s", selection.getName(), fragment.getName()));
   }
 
   private static void printFragmentDetails(

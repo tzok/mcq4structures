@@ -19,7 +19,6 @@ public final class Lcs {
   private static final Options OPTIONS =
       new Options()
           .addOption(Helper.OPTION_TARGET)
-          .addOption(Helper.OPTION_MODEL)
           .addOption(Helper.OPTION_SELECTION_TARGET)
           .addOption(Helper.OPTION_SELECTION_MODEL)
           .addOption(Helper.OPTION_MCQ_THRESHOLD);

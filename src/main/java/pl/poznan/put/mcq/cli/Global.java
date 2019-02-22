@@ -37,7 +37,6 @@ import pl.poznan.put.utility.svg.SVGHelper;
 public final class Global {
   private static final Options OPTIONS =
       new Options()
-          .addOption(Helper.OPTION_MODELS)
           .addOption(Helper.OPTION_SELECTION_MODEL)
           .addOption(Helper.OPTION_ANGLES);
 

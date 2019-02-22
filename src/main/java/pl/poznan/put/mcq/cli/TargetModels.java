@@ -24,8 +24,7 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class TargetModels {
-  private static final Options OPTIONS =
-      new Options().addOption(Helper.OPTION_TARGET).addOption(Helper.OPTION_MODELS);
+  private static final Options OPTIONS = new Options().addOption(Helper.OPTION_TARGET);
 
   public static void main(final String[] args)
       throws ParseException, IOException, PdbParsingException, IncomparableStructuresException {
@@ -44,8 +43,8 @@ public final class TargetModels {
 
     final List<PdbCompactFragment> modelFragments = new ArrayList<>();
 
-    for (final File file :
-        (File[]) commandLine.getParsedOptionValue(Helper.OPTION_MODELS.getOpt())) {
+    for (final String path : commandLine.getArgs()) {
+      final File file = new File(path);
       final PdbModel model = Helper.loadStructure(file);
       modelFragments.add(new PdbCompactFragment("", model.getResidues()));
     }
