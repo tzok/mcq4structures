@@ -7,6 +7,7 @@ Mean of Circular Quantities (MCQ) is a dissimilarity measure useful in compariso
 
 ```sh
 git clone https://github.com/RNA-Puzzles/mcq-parent
+cd mcq-parent
 git submodule update --init
 mvn install
 ```
