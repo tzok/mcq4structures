@@ -51,7 +51,14 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
     // first row
     csvWriter.write(null);
     for (final PdbResidue residue : target.getResidues()) {
-      csvWriter.write(residue.toString());
+      csvWriter.write(Integer.toString(residue.getResidueNumber()));
+    }
+    csvWriter.endRecord();
+
+    // second row
+    csvWriter.write(null);
+    for (final PdbResidue residue : target.getResidues()) {
+      csvWriter.write(Character.toString(residue.getOneLetterName()));
     }
     csvWriter.endRecord();
 
@@ -60,7 +67,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
       final Converter converter = new LevelByLevelConverter(new MinGain(), 1);
       final DotBracket dotBracket = converter.convert(bpSeq);
 
-      // second row
+      // third row
       csvWriter.write(null);
       for (final char c : dotBracket.getStructure().toCharArray()) {
         csvWriter.write(Character.toString(c));
