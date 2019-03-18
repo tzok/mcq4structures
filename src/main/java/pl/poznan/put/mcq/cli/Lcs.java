@@ -29,14 +29,12 @@ public final class Lcs {
    * @param args Arguments from command line. Required are "-t" for target, "-m" for model and "-v"
    *     for threshold value.
    * @throws ParseException If the arguments given in command line could not be parsed.
-   * @throws IOException If reading from any of given files was not possible.s
-   * @throws PdbParsingException If the given files could not be parsed.
    * @throws IncomparableStructuresException If the comparison procedure fails.
    */
   public static void main(final String[] args)
-      throws ParseException, IOException, PdbParsingException, IncomparableStructuresException {
+      throws ParseException, IncomparableStructuresException {
     if (Helper.isHelpRequested(args)) {
-      Helper.printHelp("lcs", Lcs.OPTIONS);
+      Helper.printHelp("mcq-lcs", Lcs.OPTIONS);
       return;
     }
 

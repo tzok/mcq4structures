@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # top xlabels e.g. G (
     xlabels = []
-    for i in range(1, len(rows[0])):
+    for i in range(2, len(rows[0])):
         xlabels.append('{}\n{}'.format(rows[1][i], rows[2][i]))
 
     # data and ylabels i.e. models names
@@ -34,9 +34,11 @@ if __name__ == '__main__':
     data = []
     for row in rows[3:]:
         ylabels.append(row[0].replace('_', '\\_'))
-        row = map(lambda x: float(x), row[1:])
+        row = map(lambda x: float(x), row[2:])
         row = map(lambda x: 0 if x < 15 else 1 if x < 30 else 2 if x < 60 else 3, row)
         data.append(list(row))
+    ylabels = list(reversed(ylabels))
+    data = list(reversed(data))
 
     # the plot itself
     fig, ax = plt.subplots()

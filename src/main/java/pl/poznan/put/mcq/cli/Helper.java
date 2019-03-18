@@ -207,7 +207,7 @@ public final class Helper {
 
   private static String modelName(final File modelFile, final PdbModel model) {
     final String idCode = model.getIdCode();
-    return StringUtils.isNotBlank(idCode) ? idCode : modelFile.getName();
+    return StringUtils.isNotBlank(idCode) ? idCode : modelFile.getName().replace(".pdb", "");
   }
 
   public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
@@ -235,7 +235,7 @@ public final class Helper {
   public static void printHelp(final String commandName, final Options options) {
     final String footer = Helper.getMessage("selection.query.syntax");
     final HelpFormatter helpFormatter = new HelpFormatter();
-    helpFormatter.printHelp(commandName, "", options, footer, true);
+    helpFormatter.printHelp(78, commandName, "", options, footer, true);
   }
 
   private static String getMessage(final String s) {

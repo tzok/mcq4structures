@@ -65,7 +65,7 @@ public final class Local {
   public static void main(final String[] args)
       throws ParseException, IncomparableStructuresException {
     if (Helper.isHelpRequested(args)) {
-      Helper.printHelp("local", Local.OPTIONS);
+      Helper.printHelp("mcq-local", Local.OPTIONS);
       return;
     }
 

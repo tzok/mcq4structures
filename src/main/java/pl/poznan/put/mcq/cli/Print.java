@@ -18,18 +18,17 @@ import pl.poznan.put.utility.NumberFormatUtils;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class Print {
-  private static final Options OPTIONS =
-      new Options().addOption(Helper.OPTION_TARGET).addOption(Helper.OPTION_SELECTION_TARGET);
+  private static final Options OPTIONS = new Options().addOption(Helper.OPTION_SELECTION_TARGET);
 
   public static void main(final String[] args) throws ParseException {
     if (Helper.isHelpRequested(args)) {
-      Helper.printHelp("print", Print.OPTIONS);
+      Helper.printHelp("mcq-print", Print.OPTIONS);
       return;
     }
 
     final CommandLineParser parser = new DefaultParser();
     final CommandLine commandLine = parser.parse(Print.OPTIONS, args);
-    final StructureSelection target = Helper.selectTarget(commandLine);
+    final StructureSelection target = Helper.selectModel(commandLine);
 
     final String angleDescription =
         Arrays.stream(RNATorsionAngleType.mainAngles())

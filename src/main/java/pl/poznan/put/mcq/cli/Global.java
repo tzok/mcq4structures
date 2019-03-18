@@ -42,7 +42,7 @@ public final class Global {
 
   public static void main(final String[] args) throws ParseException {
     if (Helper.isHelpRequested(args)) {
-      Helper.printHelp("global", Global.OPTIONS);
+      Helper.printHelp("mcq-global", Global.OPTIONS);
       return;
     }
 
