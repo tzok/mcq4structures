@@ -32,7 +32,7 @@ public class PartitionalClustering implements Visualizable {
   private void analyzeClusterAssignment() {
     final List<String> names = distanceMatrix.getNames();
     final Set<Integer> prototypes = assignment.getPrototypesIndices();
-    final Color[] colorPalette = ColorBrewer.Paired.getColorPalette(prototypes.size());
+    final Color[] colorPalette = ColorBrewer.Set1.getColorPalette(prototypes.size());
     int index = 0;
 
     for (final int prototype : prototypes) {
