@@ -3,12 +3,10 @@ package pl.poznan.put.mcq.cli;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -19,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PatternOptionBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionQuery;
 import pl.poznan.put.matching.StructureSelection;
@@ -29,6 +28,7 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
+@SuppressWarnings({"UseOfSystemOutOrSystemErr", "CallToSystemExit"})
 @Slf4j
 public final class Helper {
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq-cli-messages");
@@ -42,25 +42,9 @@ public final class Helper {
           .required()
           .type(File.class)
           .build();
-  public static final Option OPTION_MODEL =
-      Option.builder("m")
-          .longOpt("model")
-          .numberOfArgs(1)
-          .desc("Path to PDB file of the 3D RNA model")
-          .required()
-          .type(File.class)
-          .build();
-  public static final Option OPTION_MODELS =
-      Option.builder("m")
-          .longOpt("models")
-          .numberOfArgs(Option.UNLIMITED_VALUES)
-          .desc("Path to PDB files of the 3D RNA models (any number)")
-          .required()
-          .type(File.class)
-          .build();
   public static final Option OPTION_MCQ_THRESHOLD =
       Option.builder("v")
-          .longOpt("mcq-value")
+          .longOpt("mcq-threshold-value")
           .numberOfArgs(1)
           .desc("Value of MCQ threshold in degrees")
           .required()
@@ -68,34 +52,48 @@ public final class Helper {
   public static final Option OPTION_SELECTION_TARGET =
       Option.builder("T")
           .longOpt("selection-target")
-          .numberOfArgs(Option.UNLIMITED_VALUES)
+          .numberOfArgs(1)
           .desc("Selection query for native 3D RNA target")
           .type(String.class)
           .build();
   public static final Option OPTION_SELECTION_MODEL =
       Option.builder("M")
           .longOpt("selection-model")
-          .numberOfArgs(Option.UNLIMITED_VALUES)
+          .numberOfArgs(1)
           .desc("Selection query for 3D RNA model")
           .type(String.class)
           .build();
   public static final Option OPTION_ANGLES =
       Option.builder("a")
           .longOpt("angles")
-          .numberOfArgs(Option.UNLIMITED_VALUES)
+          .numberOfArgs(1)
           .desc(
               String.format(
-                  "Torsion angle types, select from: %s. Default is: %s",
-                  Arrays.toString(RNATorsionAngleType.values()),
-                  Arrays.toString(RNATorsionAngleType.mainAngles())))
-          .type(String[].class)
+                  "Torsion angle types (separated by comma without space), select from: %s. Default is: %s",
+                  Helper.arrayToString(RNATorsionAngleType.values()),
+                  Helper.arrayToString(RNATorsionAngleType.mainAngles())))
+          .type(String.class)
           .build();
-  public static final Option OPTION_SIMPLE =
-      Option.builder("s")
-          .longOpt("simple")
-          .hasArg(false)
-          .desc("A simple mode (show just MCQ in radians)")
+  public static final Option OPTION_NAMES =
+      Option.builder("n")
+          .longOpt("names")
+          .numberOfArgs(1)
+          .desc("Model names to be saved in output files (separated by comma without space)")
           .build();
+
+  private static String arrayToString(final Object[] values) {
+    if (values.length == 0) {
+      return "";
+    }
+
+    final StringBuilder builder = new StringBuilder(values[0].toString());
+
+    for (int i = 1; i < values.length; i++) {
+      builder.append(',').append(values[i]);
+    }
+
+    return builder.toString();
+  }
 
   /**
    * Load first PDB or PDBx/mmCIF model in a given file.
@@ -147,7 +145,7 @@ public final class Helper {
 
   public static StructureSelection selectModel(final CommandLine commandLine)
       throws ParseException {
-    final File modelFile = (File) commandLine.getParsedOptionValue(Helper.OPTION_MODEL.getOpt());
+    final File modelFile = new File(commandLine.getArgs()[0]);
     final PdbModel model = Helper.loadStructure(modelFile);
     final String selectionQuery =
         (String) commandLine.getParsedOptionValue(Helper.OPTION_SELECTION_MODEL.getOpt());
@@ -157,19 +155,44 @@ public final class Helper {
 
   public static List<StructureSelection> selectModels(final CommandLine commandLine)
       throws ParseException {
-    final String[] paths = commandLine.getOptionValues(Helper.OPTION_MODELS.getOpt());
+    final String[] paths = commandLine.getArgs();
     final String selectionQuery =
         (String) commandLine.getParsedOptionValue(Helper.OPTION_SELECTION_MODEL.getOpt());
 
+    final Map<String, String> pathToName = Helper.loadPathToNameMap(commandLine);
+
     return Arrays.stream(paths)
-        .map(File::new)
         .map(
-            file -> {
-              final PdbModel model = Helper.loadStructure(file);
-              final String name = Helper.modelName(file, model);
+            path -> {
+              final PdbModel model = Helper.loadStructure(new File(path));
+              final String name =
+                  pathToName.getOrDefault(path, Helper.modelName(new File(path), model));
               return Helper.select(model, name, selectionQuery);
             })
         .collect(Collectors.toList());
+  }
+
+  private static @NotNull Map<String, String> loadPathToNameMap(final CommandLine commandLine) {
+    final String names = commandLine.getOptionValue(Helper.OPTION_NAMES.getOpt(), "");
+
+    if (StringUtils.isBlank(names)) {
+      return Collections.emptyMap();
+    }
+
+    final String[] paths = commandLine.getArgs();
+    final String[] split = StringUtils.split(names, ',');
+
+    if (paths.length != split.length) {
+      Helper.log.warn(
+          "Number of model names ({}) is different than number of models ({})",
+          split.length,
+          paths.length);
+      return Collections.emptyMap();
+    }
+
+    return IntStream.range(0, paths.length)
+        .boxed()
+        .collect(Collectors.toMap(i -> paths[i], i -> split[i]));
   }
 
   public static StructureSelection selectTarget(final CommandLine commandLine)
@@ -184,7 +207,7 @@ public final class Helper {
 
   private static String modelName(final File modelFile, final PdbModel model) {
     final String idCode = model.getIdCode();
-    return StringUtils.isNotBlank(idCode) ? idCode : modelFile.getName();
+    return StringUtils.isNotBlank(idCode) ? idCode : modelFile.getName().replace(".pdb", "");
   }
 
   public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
@@ -198,7 +221,8 @@ public final class Helper {
       return angles;
     }
 
-    // do not use Arrays.asList because it creates unmodifiable list and this one is modified further
+    // do not use Arrays.asList because it creates unmodifiable list and this one is modified
+    // further
     return Arrays.stream(RNATorsionAngleType.mainAngles()).collect(Collectors.toList());
   }
 
@@ -211,7 +235,7 @@ public final class Helper {
   public static void printHelp(final String commandName, final Options options) {
     final String footer = Helper.getMessage("selection.query.syntax");
     final HelpFormatter helpFormatter = new HelpFormatter();
-    helpFormatter.printHelp(commandName, "", options, footer, true);
+    helpFormatter.printHelp(78, commandName, "", options, footer, true);
   }
 
   private static String getMessage(final String s) {

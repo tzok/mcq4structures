@@ -19,7 +19,6 @@ public final class Lcs {
   private static final Options OPTIONS =
       new Options()
           .addOption(Helper.OPTION_TARGET)
-          .addOption(Helper.OPTION_MODEL)
           .addOption(Helper.OPTION_SELECTION_TARGET)
           .addOption(Helper.OPTION_SELECTION_MODEL)
           .addOption(Helper.OPTION_MCQ_THRESHOLD);
@@ -30,14 +29,12 @@ public final class Lcs {
    * @param args Arguments from command line. Required are "-t" for target, "-m" for model and "-v"
    *     for threshold value.
    * @throws ParseException If the arguments given in command line could not be parsed.
-   * @throws IOException If reading from any of given files was not possible.s
-   * @throws PdbParsingException If the given files could not be parsed.
    * @throws IncomparableStructuresException If the comparison procedure fails.
    */
   public static void main(final String[] args)
-      throws ParseException, IOException, PdbParsingException, IncomparableStructuresException {
+      throws ParseException, IncomparableStructuresException {
     if (Helper.isHelpRequested(args)) {
-      Helper.printHelp("lcs", Lcs.OPTIONS);
+      Helper.printHelp("mcq-lcs", Lcs.OPTIONS);
       return;
     }
 

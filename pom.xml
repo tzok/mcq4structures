@@ -5,7 +5,7 @@
   <parent>
     <artifactId>mcq-parent</artifactId>
     <groupId>pl.poznan.put</groupId>
-    <version>1.4.1</version>
+    <version>1.6</version>
   </parent>
 
   <artifactId>mcq-cli</artifactId>
@@ -14,11 +14,6 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
     </dependency>
 
     <dependency>
