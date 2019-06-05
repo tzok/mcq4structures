@@ -134,7 +134,7 @@ public class FragmentMatch implements Exportable, Tabular {
             : targetFragment.shift(shift, modelFragment.getResidues().size());
     final List<String> result = new ArrayList<>();
     final List<PdbResidue> targetResidues = target.getResidues();
-    final BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+    final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
 
     final Converter converter = new LevelByLevelConverter(new MinGain(), 0);
     final DotBracket dotBracket = converter.convert(bpSeq);

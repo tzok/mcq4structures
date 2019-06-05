@@ -1,13 +1,5 @@
 package pl.poznan.put.comparison.local;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -21,15 +13,24 @@ import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.formats.BpSeq;
-import pl.poznan.put.structure.secondary.formats.Converter;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
+import pl.poznan.put.structure.secondary.formats.*;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
+import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
+
+import javax.swing.table.TableModel;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Data
 @Slf4j
@@ -50,6 +51,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
 
     // first row
     csvWriter.write(null);
+    csvWriter.write("MCQ");
     for (final PdbResidue residue : target.getResidues()) {
       csvWriter.write(Integer.toString(residue.getResidueNumber()));
     }
@@ -57,17 +59,19 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
 
     // second row
     csvWriter.write(null);
+    csvWriter.write(null);
     for (final PdbResidue residue : target.getResidues()) {
       csvWriter.write(Character.toString(residue.getOneLetterName()));
     }
     csvWriter.endRecord();
 
     try {
-      final BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+      final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
       final Converter converter = new LevelByLevelConverter(new MinGain(), 1);
       final DotBracket dotBracket = converter.convert(bpSeq);
 
       // third row
+      csvWriter.write(null);
       csvWriter.write(null);
       for (final char c : dotBracket.getStructure().toCharArray()) {
         csvWriter.write(Character.toString(c));
@@ -77,10 +81,17 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
       SelectedAngle.log.warn("Failed to extract secondary structure", e);
     }
 
-    for (int i = 0; i < models.size(); i++) {
-      final PdbCompactFragment model = models.get(i);
-      final FragmentMatch match = fragmentMatches.get(i);
+    final List<Pair<PdbCompactFragment, FragmentMatch>> sortedResults =
+        IntStream.range(0, models.size())
+            .mapToObj(i -> Pair.of(models.get(i), fragmentMatches.get(i)))
+            .sorted(Comparator.comparingDouble(t -> t.getValue().getMeanDelta().getRadians()))
+            .collect(Collectors.toList());
+
+    for (final Pair<PdbCompactFragment, FragmentMatch> pair : sortedResults) {
+      final PdbCompactFragment model = pair.getKey();
+      final FragmentMatch match = pair.getValue();
       csvWriter.write(model.getName());
+      csvWriter.write(AngleFormat.degreesRoundedToHundredth(match.getMeanDelta().getRadians()));
 
       for (int j = 0; j < target.getResidues().size(); j++) {
         final ResidueComparison comparison = match.getResidueComparisons().get(j);

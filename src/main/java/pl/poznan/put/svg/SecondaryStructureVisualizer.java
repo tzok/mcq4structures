@@ -9,16 +9,6 @@ import fr.orsay.lri.varna.models.rna.ModelBaseStyle;
 import fr.orsay.lri.varna.models.rna.ModeleBase;
 import fr.orsay.lri.varna.models.rna.ModeleColorMap;
 import fr.orsay.lri.varna.models.rna.RNA;
-import java.awt.Color;
-import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
-
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
 import org.jcolorbrewer.ColorBrewer;
@@ -31,16 +21,20 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.formats.BpSeq;
-import pl.poznan.put.structure.secondary.formats.Converter;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.DotBracketInterface;
-import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
+import pl.poznan.put.structure.secondary.formats.*;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.ResourcesHelper;
 import pl.poznan.put.utility.svg.SVGHelper;
+
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.stream.IntStream;
 
 public final class SecondaryStructureVisualizer {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryStructureVisualizer.class);
@@ -69,7 +63,7 @@ public final class SecondaryStructureVisualizer {
   private static DotBracket getTargetDotBracket(final FragmentMatch fragmentMatch)
       throws InvalidStructureException {
     final PdbCompactFragment target = fragmentMatch.getTargetFragment();
-    final BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+    final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
     return SecondaryStructureVisualizer.CONVERTER.convert(bpSeq);
   }
 
