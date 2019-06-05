@@ -15,6 +15,8 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
+import org.apache.commons.math3.util.FastMath;
+import org.jcolorbrewer.ColorBrewer;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.analysis.IAnalysis;
 import org.w3c.dom.Document;
@@ -180,7 +182,8 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
 
     if (angleDelta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
       final double normalized = AngleDeltaMapper.map(angleDelta.getDelta().getDegrees360());
-      final Color color = ColorMaps.getVarnaColorMap().getColorForValue(normalized);
+      final Color[] colors = ColorBrewer.YlOrRd.getColorPalette(4);
+      final Color color = colors[(int) FastMath.floor(normalized * 4.0)];
       svg.setColor(color);
     } else {
       svg.setColor(Color.BLACK);
