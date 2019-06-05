@@ -38,7 +38,8 @@ public final class Global {
   private static final Options OPTIONS =
       new Options()
           .addOption(Helper.OPTION_SELECTION_MODEL)
-          .addOption(Helper.OPTION_ANGLES);
+          .addOption(Helper.OPTION_ANGLES)
+          .addOption(Helper.OPTION_NAMES);
 
   public static void main(final String[] args) throws ParseException {
     if (Helper.isHelpRequested(args)) {
