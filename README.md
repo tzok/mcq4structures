@@ -3,6 +3,15 @@
 Mean of Circular Quantities (MCQ) is a dissimilarity measure useful in comparison of 3D protein and/or RNA structures. It calculates an average difference between corresponding torsion angle values (rotations around bonds). More information can be found in:
 > Zok, T., Popenda, M., & Szachniuk, M. (2014). MCQ4Structures to compute similarity of molecule structures. Central European Journal of Operations Research, 22(3), 457–473. https://doi.org/10.1007/s10100-013-0296-5
 
+## Installation
+
+```sh
+git clone https://github.com/RNA-Puzzles/mcq-parent
+cd mcq-parent
+git submodule update --init
+mvn install
+```
+
 ## Contents
 
 This project consists of a few subprojets:
