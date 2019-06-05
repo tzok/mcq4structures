@@ -102,7 +102,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
     if (target.getMoleculeType() == MoleculeType.RNA) {
       try {
         final Converter converter = new LevelByLevelConverter(new MinGain(), 1);
-        final BpSeq bpSeq = CanonicalStructureExtractor.getCanonicalSecondaryStructure(target);
+        final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
         dotBracket = converter.convert(bpSeq);
       } catch (final InvalidStructureException e) {
         VisualizableSelectedAngle.log.warn("Failed to extract canonical secondary structure", e);
