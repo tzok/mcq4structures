@@ -9,6 +9,8 @@ import java.util.NavigableMap;
 import java.util.SortedSet;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.jcolorbrewer.ColorBrewer;
+import org.jmol.c.PAL;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.controllers.keyboard.screenshot.AWTScreenshotKeyController;
@@ -20,6 +22,7 @@ import org.jzy3d.chart.controllers.mouse.camera.ICameraMouseController;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.AbstractColorMap;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
@@ -36,6 +39,42 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.TickLabelMap;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 public class Surface3D extends AbstractAnalysis {
+  private static final java.awt.Color[] PALETTE = ColorBrewer.YlOrRd.getColorPalette(4);
+  private static final java.awt.Color IDENTICAL = PALETTE[0];
+  private static final java.awt.Color SIMILAR = PALETTE[1];
+  private static final java.awt.Color DIFFERENT = PALETTE[2];
+  private static final java.awt.Color OPPOSITE = PALETTE[3];
+
+  private static final AbstractColorMap JZY3D_COLOR_MAP =
+      new AbstractColorMap() {
+        private final org.jzy3d.colors.Color identical =
+            new org.jzy3d.colors.Color(
+                IDENTICAL.getRed(), IDENTICAL.getGreen(), IDENTICAL.getBlue());
+        private final org.jzy3d.colors.Color similar =
+            new org.jzy3d.colors.Color(SIMILAR.getRed(), SIMILAR.getGreen(), SIMILAR.getBlue());
+        private final org.jzy3d.colors.Color different =
+            new org.jzy3d.colors.Color(
+                DIFFERENT.getRed(), DIFFERENT.getGreen(), DIFFERENT.getBlue());
+        private final org.jzy3d.colors.Color opposite =
+            new org.jzy3d.colors.Color(OPPOSITE.getRed(), OPPOSITE.getGreen(), OPPOSITE.getBlue());
+
+        @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
+        @Override
+        public org.jzy3d.colors.Color getColor(
+            final double x, final double y, final double z, final double zMin, final double zMax) {
+          final double zRel = processRelativeZValue(z, zMin, zMax);
+          if (zRel < 0.15) {
+            return identical;
+          } else if (zRel < 0.3) {
+            return similar;
+          } else if (zRel < 0.6) {
+            return different;
+          } else {
+            return opposite;
+          }
+        }
+      };
+
   private final AWTChartComponentFactory factory =
       new AWTChartComponentFactory() {
         @Override
@@ -152,8 +191,7 @@ public class Surface3D extends AbstractAnalysis {
         new OrthonormalGrid(rangeX, ticksX.size(), rangeY, ticksY.size());
 
     Shape surface = Builder.buildOrthonormal(orthonormalGrid, mapper);
-    surface.setColorMapper(
-        new ColorMapper(ColorMaps.getJzy3dColorMap(), minZ, maxZ, new Color(1, 1, 1, .5f)));
+    surface.setColorMapper(new ColorMapper(JZY3D_COLOR_MAP, minZ, maxZ, new Color(1, 1, 1, .5f)));
     surface.setFaceDisplayed(true);
     surface.setWireframeDisplayed(true);
     surface.setWireframeColor(Color.GRAY);
