@@ -1,17 +1,23 @@
 package pl.poznan.put.clustering.partitional;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.jcolorbrewer.ColorBrewer;
+import org.jumpmind.symmetric.csv.CsvWriter;
 import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.svg.MDSDrawer;
 import pl.poznan.put.types.DistanceMatrix;
 
-public class PartitionalClustering implements Visualizable {
+public class PartitionalClustering implements Visualizable, Exportable {
   private final Map<Integer, Color> clusterColor = new HashMap<>();
   private final Map<Integer, String> clusterText = new HashMap<>();
   private final ClusterAssignment assignment;
@@ -78,5 +84,30 @@ public class PartitionalClustering implements Visualizable {
   @Override
   public void visualize3D() {
     // do nothing
+  }
+
+  @Override
+  public void export(OutputStream stream) throws IOException {
+    final double[][] scaledXYMatrix = MDSDrawer.scaleTo2D(distanceMatrix);
+    final List<String> names = distanceMatrix.getNames();
+    final CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.UTF_8);
+    writer.writeRecord(new String[] {"Name", "X", "Y", "Label"});
+
+    for (int i = 0; i < scaledXYMatrix.length; i++) {
+      writer.writeRecord(
+          new String[] {
+            names.get(i),
+            Double.toString(scaledXYMatrix[i][0]),
+            Double.toString(scaledXYMatrix[i][1]),
+            clusterText.get(assignment.getPrototype(i))
+          });
+    }
+
+    writer.close();
+  }
+
+  @Override
+  public File suggestName() {
+    return new File("clustering.csv");
   }
 }
