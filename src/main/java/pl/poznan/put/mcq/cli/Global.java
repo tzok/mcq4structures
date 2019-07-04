@@ -90,13 +90,15 @@ public final class Global {
 
         if (rawMatrix.length > 2) {
           final PrototypeBasedClusterer clusterer = new KMedoids();
-          final ScoredClusteringResult clustering =
-              KScanner.parallelScan(clusterer, rawMatrix, PAM.getInstance());
-          final PartitionalClustering partitionalClustering =
-              new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
 
-          Listener.exportDrawing(directory, partitionalClustering);
-          Listener.exportClustering(directory, partitionalClustering);
+          for (int k = 2; k <= Math.min(12, rawMatrix.length); k++) {
+            final ScoredClusteringResult clustering =
+              clusterer.findPrototypes(rawMatrix, PAM.getInstance(), k);
+            final PartitionalClustering partitionalClustering =
+              new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
+            Listener.exportDrawing(directory, partitionalClustering, k);
+            Listener.exportClustering(directory, partitionalClustering, k);
+          }
         }
 
         System.out.println("Results available in: " + directory);
@@ -107,7 +109,7 @@ public final class Global {
     }
 
     private static void exportClustering(
-        final File directory, final PartitionalClustering clustering) throws IOException {
+        final File directory, final PartitionalClustering clustering, final int k) throws IOException {
       final ClusterAssignment assignment = clustering.getAssignment();
       final DistanceMatrix distanceMatrix = clustering.getDistanceMatrix();
       final List<String> names = distanceMatrix.getNames();
@@ -121,13 +123,18 @@ public final class Global {
         builder.append('\n');
       }
 
-      final File clusteringFile = new File(directory, "clustering.txt");
+      final File clusteringFile = new File(directory, String.format("clustering-%02d.txt", k));
       FileUtils.write(clusteringFile, builder.toString(), StandardCharsets.UTF_8);
+
+      try (final OutputStream stream =
+          new FileOutputStream(new File(directory, String.format("clustering-%02d.csv", k)))) {
+        clustering.export(stream);
+      }
     }
 
-    private static void exportDrawing(final File directory, final Visualizable clustering)
+    private static void exportDrawing(final File directory, final Visualizable clustering, final int k)
         throws IOException {
-      final File drawingFile = new File(directory, "clustering.svg");
+      final File drawingFile = new File(directory, String.format("clustering-%02d.svg", k));
       try (final OutputStream stream = new FileOutputStream(drawingFile)) {
         final SVGDocument document = clustering.visualize();
         final byte[] bytes = SVGHelper.export(document, Format.SVG);
