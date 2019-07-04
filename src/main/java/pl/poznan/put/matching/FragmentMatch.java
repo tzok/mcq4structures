@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.interfaces.Exportable;
@@ -34,6 +35,8 @@ import pl.poznan.put.utility.TabularExporter;
 @Data
 @Slf4j
 public class FragmentMatch implements Exportable, Tabular {
+  private static final Converter CONVERTER = new LevelByLevelConverter(new MinGain(), 1);
+
   private final PdbCompactFragment targetFragment;
   private final PdbCompactFragment modelFragment;
   private final boolean isTargetSmaller;
@@ -64,6 +67,11 @@ public class FragmentMatch implements Exportable, Tabular {
         0,
         FragmentComparison.invalidInstance(
             residueComparisons, angleTypes, 0, 0, bothInvalidCount, 0));
+  }
+
+  public final DotBracket getTargetDotBracket() throws InvalidStructureException {
+    final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(targetFragment);
+    return FragmentMatch.CONVERTER.convert(bpSeq);
   }
 
   public final List<ResidueComparison> getResidueComparisons() {
@@ -185,33 +193,45 @@ public class FragmentMatch implements Exportable, Tabular {
     final List<MasterTorsionAngleType> angleTypes = fragmentComparison.getAngleTypes();
     final int size = angleTypes.size();
 
-    final String[] columnNames = new String[(size * 2) + 1];
-    columnNames[0] = isDisplay ? "" : null;
+    final String[] columnNames = new String[(size * 2) + 2];
+    columnNames[0] = columnNames[1] = isDisplay ? "" : null;
 
     for (int i = 0; i < size; i++) {
       final MasterTorsionAngleType angle = angleTypes.get(i);
       final String angleName = isDisplay ? angle.getLongDisplayName() : angle.getExportName();
-      columnNames[i + 1] = angleName;
-      columnNames[size + i + 1] = angleName;
+      columnNames[i + 2] = angleName;
+      columnNames[size + i + 2] = angleName;
     }
 
     final List<ResidueComparison> residueComparisons = fragmentComparison.getResidueComparisons();
     final String[][] data = new String[residueComparisons.size()][];
+    final char[] dotBracket = dotBracketChars();
 
     for (int i = 0; i < residueComparisons.size(); i++) {
       final ResidueComparison residueComparison = residueComparisons.get(i);
-      data[i] = new String[(size * 2) + 1];
+      data[i] = new String[(size * 2) + 2];
       data[i][0] =
           String.format("%s / %s", residueComparison.getTarget(), residueComparison.getModel());
+      data[i][1] = String.valueOf(dotBracket[i]);
 
       for (int j = 0; j < size; j++) {
         final MasterTorsionAngleType angle = angleTypes.get(j);
         final TorsionAngleDelta delta = residueComparison.getAngleDelta(angle);
-        data[i][j + 1] = delta.toString(isDisplay);
-        data[i][size + j + 1] = delta.getRangeDifference().toString();
+        data[i][j + 2] = delta.toString(isDisplay);
+        data[i][size + j + 2] = delta.getRangeDifference().toString();
       }
     }
 
     return new NonEditableDefaultTableModel(data, columnNames);
+  }
+
+  private char[] dotBracketChars() {
+    try {
+      final DotBracket dotBracket = getTargetDotBracket();
+      return dotBracket.getStructure().toCharArray();
+    } catch (InvalidStructureException e) {
+      FragmentMatch.log.warn("Failed to extract 2D structure", e);
+    }
+    return StringUtils.repeat('.', targetFragment.getResidues().size()).toCharArray();
   }
 }

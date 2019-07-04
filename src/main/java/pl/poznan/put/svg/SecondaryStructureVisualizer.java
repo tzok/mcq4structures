@@ -19,10 +19,9 @@ import org.w3c.dom.svg.SVGSVGElement;
 import pl.poznan.put.comparison.mapping.ComparisonMapper;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.formats.*;
-import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
+import pl.poznan.put.structure.secondary.formats.DotBracketInterface;
+import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.ResourcesHelper;
 import pl.poznan.put.utility.svg.SVGHelper;
@@ -38,7 +37,6 @@ import java.util.stream.IntStream;
 
 public final class SecondaryStructureVisualizer {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryStructureVisualizer.class);
-  private static final Converter CONVERTER = new LevelByLevelConverter(new MinGain(), 1);
 
   private SecondaryStructureVisualizer() {
     super();
@@ -51,20 +49,13 @@ public final class SecondaryStructureVisualizer {
       final List<MasterTorsionAngleType> angleTypes = fragmentMatch.getAngleTypes();
       final Double[] mapped = mapper.map(residueComparisons, angleTypes);
 
-      final DotBracket dotBracket = SecondaryStructureVisualizer.getTargetDotBracket(fragmentMatch);
+      final DotBracket dotBracket = fragmentMatch.getTargetDotBracket();
       return SecondaryStructureVisualizer.visualize(dotBracket, mapped);
     } catch (final InvalidStructureException e) {
       SecondaryStructureVisualizer.LOGGER.error(
           "Failed to extract canonical secondary structure", e);
       return SVGHelper.emptyDocument();
     }
-  }
-
-  private static DotBracket getTargetDotBracket(final FragmentMatch fragmentMatch)
-      throws InvalidStructureException {
-    final PdbCompactFragment target = fragmentMatch.getTargetFragment();
-    final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
-    return SecondaryStructureVisualizer.CONVERTER.convert(bpSeq);
   }
 
   public static SVGDocument visualize(final DotBracketInterface dotBracket, final Double[] mapped) {

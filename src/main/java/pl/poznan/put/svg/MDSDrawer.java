@@ -35,7 +35,7 @@ public final class MDSDrawer {
     String getName(int index);
   }
 
-  private static final int DESIRED_WIDTH = 640;
+  private static final int DESIRED_WIDTH = 320;
   private static final int CIRCLE_DIAMETER = 10;
   private static final int MAX_CLUSTER_NAME = 64;
   private static final ColorProvider COLOR_PROVIDER = index -> Color.BLACK;
@@ -138,7 +138,7 @@ public final class MDSDrawer {
     return document;
   }
 
-  private static double[][] scaleTo2D(final DistanceMatrix distanceMatrix) {
+  public static double[][] scaleTo2D(final DistanceMatrix distanceMatrix) {
     final double[][] originalDistanceMatrix = distanceMatrix.getMatrix();
     final double[][] scaledXYMatrix = MDS.multidimensionalScaling(originalDistanceMatrix, 2);
     final Rectangle2D bounds = MDSDrawer.calculateBounds(scaledXYMatrix);
