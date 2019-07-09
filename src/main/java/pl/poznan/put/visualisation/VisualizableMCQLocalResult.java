@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,7 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
@@ -50,7 +52,13 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
 
         if (target.getMoleculeType() == MoleculeType.RNA) {
           try {
-            ticksY = fragmentMatch.generateLabelsWithDotBracket();
+            final DotBracket dotBracket = fragmentMatch.matchedSecondaryStructure();
+            ticksY =
+                dotBracket
+                    .getStructure()
+                    .chars()
+                    .mapToObj(i -> String.valueOf((char) i))
+                    .collect(Collectors.toList());
             labelY = "Secondary structure";
           } catch (final InvalidStructureException e) {
             VisualizableMCQLocalResult.log.warn(
@@ -59,7 +67,7 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
         }
 
         if (ticksY == null) {
-          ticksY = fragmentMatch.generateLabelsWithResidueNames();
+          ticksY = fragmentMatch.matchedResidueNames();
           labelY = "ResID";
         }
 

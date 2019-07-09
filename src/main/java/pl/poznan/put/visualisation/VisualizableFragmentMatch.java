@@ -7,6 +7,8 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
@@ -32,6 +34,7 @@ import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.TypedDeltaIterator;
 import pl.poznan.put.matching.stats.SingleMatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
@@ -131,7 +134,13 @@ public class VisualizableFragmentMatch extends FragmentMatch implements Visualiz
 
     if (moleculeType() == MoleculeType.RNA) {
       try {
-        final List<String> ticks = generateLabelsWithDotBracket();
+        final DotBracket dotBracket = matchedSecondaryStructure();
+        final List<String> ticks =
+            dotBracket
+                .getStructure()
+                .chars()
+                .mapToObj(i -> String.valueOf((char) i))
+                .collect(Collectors.toList());
         domainAxis = new TorsionAxis(ticks, 0, 12);
         domainAxis.setLabel("Secondary structure");
       } catch (final InvalidStructureException e) {
@@ -140,7 +149,7 @@ public class VisualizableFragmentMatch extends FragmentMatch implements Visualiz
     }
 
     if (domainAxis == null) {
-      final List<String> ticks = generateLabelsWithResidueNames();
+      final List<String> ticks = matchedResidueNames();
       domainAxis = new TorsionAxis(ticks, -Math.PI / 4, 6);
       domainAxis.setLabel("ResID");
     }
