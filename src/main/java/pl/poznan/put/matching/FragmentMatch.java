@@ -20,7 +20,6 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.DotBracketSymbol;
 import pl.poznan.put.structure.secondary.formats.BpSeq;
 import pl.poznan.put.structure.secondary.formats.Converter;
 import pl.poznan.put.structure.secondary.formats.DotBracket;
@@ -32,6 +31,7 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 import pl.poznan.put.utility.TabularExporter;
 
+/** Holds information about a match between two {@link PdbCompactFragment}. */
 @Data
 @Slf4j
 public class FragmentMatch implements Exportable, Tabular {
@@ -43,7 +43,16 @@ public class FragmentMatch implements Exportable, Tabular {
   private final int shift;
   private final FragmentComparison fragmentComparison;
 
-  public static FragmentMatch invalidInstance(
+  /**
+   * Construct an invalid instance i.e. one which will return {@link
+   * ResidueComparison#invalidInstance(PdbResidue, PdbResidue)} for all residue pairs.
+   *
+   * @param targetFragment First fragment.
+   * @param modelFragment Second fragment.
+   * @param angleTypes Torsion angle types.
+   * @return An instance representing an invalid comparison of fragments.
+   */
+  static FragmentMatch invalidInstance(
       final PdbCompactFragment targetFragment,
       final PdbCompactFragment modelFragment,
       final List<MasterTorsionAngleType> angleTypes) {
@@ -102,10 +111,6 @@ public class FragmentMatch implements Exportable, Tabular {
     return fragmentComparison.getMeanDelta();
   }
 
-  public final int getMismatchCount() {
-    return fragmentComparison.getMismatchCount();
-  }
-
   public final int getResidueCount() {
     return fragmentComparison.getResidueCount();
   }
@@ -135,36 +140,21 @@ public class FragmentMatch implements Exportable, Tabular {
     return targetFragment.getMoleculeType();
   }
 
-  public final List<String> generateLabelsWithDotBracket() throws InvalidStructureException {
+  public final DotBracket matchedSecondaryStructure() throws InvalidStructureException {
     final PdbCompactFragment target =
         isTargetSmaller
             ? targetFragment
             : targetFragment.shift(shift, modelFragment.getResidues().size());
-    final List<String> result = new ArrayList<>();
-    final List<PdbResidue> targetResidues = target.getResidues();
     final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
-
-    final Converter converter = new LevelByLevelConverter(new MinGain(), 0);
-    final DotBracket dotBracket = converter.convert(bpSeq);
-
-    for (int i = 0; i < targetResidues.size(); i++) {
-      final DotBracketSymbol symbol = dotBracket.getSymbol(i);
-      result.add(Character.toString(symbol.getStructure()));
-    }
-
-    return result;
+    return FragmentMatch.CONVERTER.convert(bpSeq);
   }
 
-  public final List<String> generateLabelsWithResidueNames() {
+  public final List<String> matchedResidueNames() {
     final PdbCompactFragment target =
         isTargetSmaller
             ? targetFragment
             : targetFragment.shift(shift, modelFragment.getResidues().size());
-    final List<String> result = new ArrayList<>();
-    for (final PdbResidue lname : target.getResidues()) {
-      result.add(lname.toString());
-    }
-    return result;
+    return target.getResidues().stream().map(PdbResidue::toString).collect(Collectors.toList());
   }
 
   @Override
