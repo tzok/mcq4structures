@@ -12,7 +12,7 @@
 	branch = develop
 [submodule "mcq-gui"]
 	path = mcq-gui
-	url = https://github.com/tzok/mcq4structures.git
+	url = https://github.com/tzok/mcq-gui.git
 	branch = develop
 [submodule "circular"]
 	path = circular
