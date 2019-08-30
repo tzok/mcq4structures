@@ -1,23 +1,24 @@
 package pl.poznan.put.comparison.mapping;
 
-import java.util.ArrayList;
-import java.util.List;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Map {@link TorsionAngleDelta} onto 0-1 scale. */
 public final class AngleDeltaMapper implements ComparisonMapper {
   private static final AngleDeltaMapper INSTANCE = new AngleDeltaMapper();
 
-  public static AngleDeltaMapper getInstance() {
-    return AngleDeltaMapper.INSTANCE;
-  }
-
   private AngleDeltaMapper() {
     super();
+  }
+
+  public static AngleDeltaMapper getInstance() {
+    return AngleDeltaMapper.INSTANCE;
   }
 
   public static double map(final double degrees) {
@@ -59,6 +60,11 @@ public final class AngleDeltaMapper implements ComparisonMapper {
           final Angle delta = angleDelta.getDelta();
           deltas.add(delta);
         }
+      }
+
+      if (deltas.isEmpty()) {
+        result[i] = 1.0;
+        continue;
       }
 
       final AngleSample sample = new AngleSample(deltas);
