@@ -1,24 +1,12 @@
 package pl.poznan.put.mcq.cli;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.atom.AtomName;
@@ -47,6 +35,19 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.ExecHelper;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @SuppressWarnings({"CallToSystemExit", "UseOfSystemOutOrSystemErr"})
 public final class Local {
@@ -80,13 +81,18 @@ public final class Local {
     final StructureSelection target = Helper.selectTarget(commandLine);
     final List<StructureSelection> models = Helper.selectModels(commandLine);
 
+    Local.printBondLengthViolations(models);
+
     // check for gaps
     final int size = target.getCompactFragments().size();
-    models.stream()
-        .filter(selection -> selection.getCompactFragments().size() != size)
-        .peek(model -> Local.printFragmentDetails(target, model))
-        .findAny()
-        .ifPresent(selection -> System.exit(1));
+    final List<StructureSelection> invalidModels =
+        models.stream()
+            .filter(selection -> selection.getCompactFragments().size() != size)
+            .collect(Collectors.toList());
+    if (!invalidModels.isEmpty()) {
+      Local.printFragmentDetails(target, invalidModels);
+      System.exit(1);
+    }
 
     // check for size
     final int expectedSize = target.getResidues().size();
@@ -167,24 +173,33 @@ public final class Local {
   }
 
   private static void printFragmentDetails(
-      final StructureSelection target, final StructureSelection model) {
+      final StructureSelection target, final List<StructureSelection> models) {
     final StringBuilder builder = new StringBuilder();
     builder.append("Fragments in reference structure: (").append(target.getName()).append(")\n");
     target
         .getCompactFragments()
         .forEach(fragment -> builder.append("- ").append(fragment).append('\n'));
-    builder.append("Fragments in model: (").append(model.getName()).append(")\n");
-    model
-        .getCompactFragments()
-        .forEach(fragment -> builder.append("- ").append(fragment).append('\n'));
-    System.err.println(builder);
 
-    Local.printGapsDetails(target);
-    Local.printGapsDetails(model);
+    Local.printGapsDetails(target, builder);
+    builder.append('\n');
+
+    for (final StructureSelection model : models) {
+      builder.append("Fragments in model: (").append(model.getName()).append(")\n");
+      model
+          .getCompactFragments()
+          .forEach(fragment -> builder.append("- ").append(fragment).append('\n'));
+
+      Local.printGapsDetails(model, builder);
+      builder.append('\n');
+    }
+
+    System.err.print(builder);
   }
 
-  private static void printGapsDetails(final StructureSelection target) {
-    final List<PdbResidue> residues = target.getResidues();
+  private static void printGapsDetails(
+      final StructureSelection selection, final StringBuilder builder) {
+
+    final List<PdbResidue> residues = selection.getResidues();
     boolean foundGaps = false;
 
     for (int i = 1; i < residues.size(); i++) {
@@ -225,10 +240,10 @@ public final class Local {
         }
 
         if (!foundGaps) {
-          System.err.printf("Found gaps: (%s)%n", target.getName());
+          builder.append(String.format("Found gaps: (%s)%n", selection.getName()));
           foundGaps = true;
         }
-        System.err.printf("- Between %s and %s: %s%n", previous, current, reason);
+        builder.append(String.format("- Between %s and %s: %s%n", previous, current, reason));
       }
     }
   }
@@ -294,5 +309,24 @@ public final class Local {
     try (final OutputStream stream = new FileOutputStream(file)) {
       fragmentMatch.export(stream);
     }
+  }
+
+  private static void printBondLengthViolations(final List<StructureSelection> selections) {
+    final StringBuilder builder = new StringBuilder();
+
+    for (final StructureSelection selection : selections) {
+      final List<String> violations = selection.findBondLengthViolations();
+
+      if (!violations.isEmpty()) {
+        builder
+            .append("Found bond length violations in ")
+            .append(selection.getName())
+            .append(":\n");
+        violations.forEach(violation -> builder.append("- ").append(violation).append('\n'));
+        builder.append('\n');
+      }
+    }
+
+    System.err.println(builder.toString());
   }
 }
