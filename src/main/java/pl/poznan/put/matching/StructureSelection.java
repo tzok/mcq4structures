@@ -1,19 +1,8 @@
 package pl.poznan.put.matching;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -29,10 +18,35 @@ import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
-public class StructureSelection implements Exportable, Tabular, ResidueCollection {
+public class StructureSelection
+    implements Exportable, Tabular, ResidueCollection, Comparable<StructureSelection> {
   private static final int MINIMUM_RESIDUES_IN_FRAGMENT = 3;
+  private List<PdbCompactFragment> compactFragments;
+  private String name;
+  private List<PdbResidue> residues;
+
+  public StructureSelection(
+      final String name, final Collection<PdbCompactFragment> compactFragments) {
+    super();
+    this.name = name;
+    this.compactFragments = new ArrayList<>(compactFragments);
+    residues = StructureSelection.collectResidues(compactFragments);
+  }
 
   public static StructureSelection divideIntoCompactFragments(
       final String name, final Iterable<PdbResidue> residues) {
@@ -88,28 +102,16 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
         name, first.getChainIdentifier(), first.getResidueNumber(), last.getResidueNumber());
   }
 
-  private List<PdbCompactFragment> compactFragments;
-  private String name;
-  private List<PdbResidue> residues;
-
-  public StructureSelection(
-      final String name, final Collection<PdbCompactFragment> compactFragments) {
-    super();
-    this.name = name;
-    this.compactFragments = new ArrayList<>(compactFragments);
-    residues = StructureSelection.collectResidues(compactFragments);
-  }
-
-  public final void setCompactFragments(final List<PdbCompactFragment> compactFragments) {
-    this.compactFragments = new ArrayList<>(compactFragments);
-    residues = StructureSelection.collectResidues(compactFragments);
-  }
-
   private static List<PdbResidue> collectResidues(
       final Iterable<PdbCompactFragment> compactFragments) {
     final List<PdbResidue> residues = new ArrayList<>();
     compactFragments.forEach(compactFragment -> residues.addAll(compactFragment.getResidues()));
     return residues;
+  }
+
+  public final void setCompactFragments(final List<PdbCompactFragment> compactFragments) {
+    this.compactFragments = new ArrayList<>(compactFragments);
+    residues = StructureSelection.collectResidues(compactFragments);
   }
 
   public final Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
@@ -141,9 +143,7 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     final List<Angle> angles = new ArrayList<>();
 
     for (final PdbCompactFragment fragment : compactFragments) {
-      fragment
-          .getResidues()
-          .stream()
+      fragment.getResidues().stream()
           .map(residue -> fragment.getTorsionAngleValue(residue, masterType))
           .map(TorsionAngleValue::getValue)
           .filter(Angle::isValid)
@@ -246,11 +246,16 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
                   : AngleFormat.degrees(radians));
         }
 
-        data[i] = row.toArray(new String[row.size()]);
+        data[i] = row.toArray(new String[0]);
         i += 1;
       }
     }
 
-    return new DefaultTableModel(data, columns.toArray(new String[columns.size()]));
+    return new DefaultTableModel(data, columns.toArray(new String[0]));
+  }
+
+  @Override
+  public int compareTo(@NotNull StructureSelection structureSelection) {
+    return name.compareTo(structureSelection.name);
   }
 }
