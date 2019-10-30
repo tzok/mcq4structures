@@ -2,17 +2,19 @@ package pl.poznan.put.clustering.partitional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public class ClusterAssignment {
+public final class ClusterAssignment {
   private final int[] assignments;
-  private final Map<Integer, List<Integer>> assignedToPrototype;
+  private final Map<Integer, ? extends List<Integer>> assignedToPrototype;
 
   private ClusterAssignment(
-      final int[] assignments, final Map<Integer, List<Integer>> assignedToPrototype) {
+      final int[] assignments, final Map<Integer, ? extends List<Integer>> assignedToPrototype) {
     super();
     this.assignments = assignments.clone();
     this.assignedToPrototype = assignedToPrototype;
@@ -21,14 +23,10 @@ public class ClusterAssignment {
   public static ClusterAssignment fromPrototypes(
       final ClusterPrototypes prototypes, final double[][] matrix) {
     final int[] assignments = new int[matrix.length];
-    final Map<Integer, List<Integer>> assignedToPrototype = new HashMap<>();
+    final Map<Integer, List<Integer>> assignedToPrototype;
     final List<Heap> binaryHeaps = Heap.fromMatrix(matrix);
 
-    for (int i = 0; i < matrix.length; i++) {
-      if (prototypes.isPrototype(i)) {
-        assignedToPrototype.put(i, new ArrayList<>());
-      }
-    }
+      assignedToPrototype = IntStream.range(0, matrix.length).filter(prototypes::isPrototype).boxed().collect(Collectors.toMap(Function.identity(), i -> new ArrayList<>(), (a, b) -> b));
 
     for (int i = 0; i < matrix.length; i++) {
       for (final int closest : binaryHeaps.get(i)) {
@@ -43,15 +41,15 @@ public class ClusterAssignment {
     return new ClusterAssignment(assignments, assignedToPrototype);
   }
 
-  public final int getPrototype(final int index) {
+  public int getPrototype(final int index) {
     return assignments[index];
   }
 
-  public final Set<Integer> getPrototypesIndices() {
+  public Set<Integer> getPrototypesIndices() {
     return Collections.unmodifiableSet(assignedToPrototype.keySet());
   }
 
-  public final List<Integer> getAssignedTo(final int prototypeIndex) {
+  public List<Integer> getAssignedTo(final int prototypeIndex) {
     return Collections.unmodifiableList(assignedToPrototype.get(prototypeIndex));
   }
 }

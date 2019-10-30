@@ -39,7 +39,7 @@ public final class KScanner {
 
       try {
         result = ecs.take().get();
-      } catch (InterruptedException | ExecutionException e) {
+      } catch (final InterruptedException | ExecutionException e) {
         KScanner.LOGGER.warn("Failed to cluster the data", e);
         continue;
       }
@@ -80,7 +80,7 @@ public final class KScanner {
     }
 
     @Override
-    public ScoredClusteringResult call() throws Exception {
+    public ScoredClusteringResult call() {
       return clusterer.findPrototypes(distanceMatrix, scoringFunction, k);
     }
   }

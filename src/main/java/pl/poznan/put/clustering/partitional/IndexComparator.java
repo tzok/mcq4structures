@@ -1,5 +1,6 @@
 package pl.poznan.put.clustering.partitional;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -7,16 +8,16 @@ import java.util.Comparator;
  *
  * @author tzok
  */
-public class IndexComparator implements Comparator<Integer> {
+class IndexComparator implements Comparator<Integer>, Serializable {
   private final double[] row;
 
-  public IndexComparator(double[] row) {
+  IndexComparator(final double[] row) {
     super();
     this.row = row.clone();
   }
 
   @Override
-  public int compare(Integer o1, Integer o2) {
-    return Double.compare(row[o1], row[o2]);
+  public final int compare(final Integer t, final Integer t1) {
+    return Double.compare(row[t], row[t1]);
   }
 }

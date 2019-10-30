@@ -2,25 +2,25 @@ package pl.poznan.put.clustering.hierarchical;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-public class HierarchicalClusterMerge {
+class HierarchicalClusterMerge {
   private final Pair<Integer, Integer> indices;
   private final double distance;
 
-  public HierarchicalClusterMerge(Pair<Integer, Integer> indices, double distance) {
+  HierarchicalClusterMerge(final Pair<Integer, Integer> indices, final double distance) {
     super();
     this.indices = indices;
     this.distance = distance;
   }
 
-  public int getLeft() {
+  public final int getLeft() {
     return indices.getLeft();
   }
 
-  public int getRight() {
+  public final int getRight() {
     return indices.getRight();
   }
 
-  public double getDistance() {
+  public final double getDistance() {
     return distance;
   }
 }

@@ -17,7 +17,7 @@ public class KMedoids implements PrototypeBasedClusterer {
     retries = KMedoids.DEFAULT_RETRIES;
   }
 
-  public KMedoids(final int retries) {
+  private KMedoids(final int retries) {
     super();
     this.retries = retries;
   }

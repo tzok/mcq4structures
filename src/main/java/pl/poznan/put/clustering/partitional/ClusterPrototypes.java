@@ -1,5 +1,6 @@
 package pl.poznan.put.clustering.partitional;
 
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -7,12 +8,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public class ClusterPrototypes {
-  private static final Random RANDOM = new Random();
+public final class ClusterPrototypes {
+  private static final Random RANDOM = new SecureRandom();
   private final Set<Integer> prototypes;
 
-  public ClusterPrototypes(final Set<Integer> prototypes) {
+  private ClusterPrototypes(final Set<Integer> prototypes) {
     super();
     this.prototypes = Collections.unmodifiableSet(prototypes);
   }
@@ -48,44 +51,36 @@ public class ClusterPrototypes {
         }
       }
 
-      final Collection<Integer> setCandidates = new HashSet<>();
-      for (int j = 0; j < matrix.length; j++) {
-        setCandidates.add(j);
-      }
+      final Collection<Integer> setCandidates =
+          IntStream.range(0, matrix.length).boxed().collect(Collectors.toSet());
       setCandidates.removeAll(setMedoids);
 
       final double randomToken = ClusterPrototypes.RANDOM.nextDouble() * total;
 
-      for (final Integer candidate : setCandidates) {
-        if (randomToken < mapElementNearest.get(candidate)) {
-          setMedoids.add(candidate);
-          break;
-        }
-      }
+      setCandidates.stream()
+          .filter(candidate -> randomToken < mapElementNearest.get(candidate))
+          .findFirst()
+          .ifPresent(setMedoids::add);
     }
 
     return new ClusterPrototypes(setMedoids);
   }
 
   public static ClusterPrototypes initializeLinearly(final int k) {
-    final Set<Integer> set = new HashSet<>();
-
-    for (int i = 0; i < k; i++) {
-      set.add(i);
-    }
+    final Set<Integer> set = IntStream.range(0, k).boxed().collect(Collectors.toSet());
 
     return new ClusterPrototypes(set);
   }
 
-  public final Set<Integer> getPrototypesIndices() {
+  public Set<Integer> getPrototypesIndices() {
     return Collections.unmodifiableSet(prototypes);
   }
 
-  public final boolean isPrototype(final int index) {
+  public boolean isPrototype(final int index) {
     return prototypes.contains(index);
   }
 
-  public final ClusterPrototypes swap(final int existing, final int other) {
+  public ClusterPrototypes swap(final int existing, final int other) {
     final Set<Integer> set = new HashSet<>(prototypes);
     set.remove(existing);
     set.add(other);

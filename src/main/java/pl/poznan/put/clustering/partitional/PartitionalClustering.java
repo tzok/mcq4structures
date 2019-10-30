@@ -59,11 +59,11 @@ public class PartitionalClustering implements Visualizable, Exportable {
     return clustering.getScoringFunction();
   }
 
-  public ClusterAssignment getAssignment() {
+  public final ClusterAssignment getAssignment() {
     return assignment;
   }
 
-  public DistanceMatrix getDistanceMatrix() {
+  public final DistanceMatrix getDistanceMatrix() {
     return distanceMatrix;
   }
 
@@ -87,7 +87,7 @@ public class PartitionalClustering implements Visualizable, Exportable {
   }
 
   @Override
-  public void export(OutputStream stream) throws IOException {
+  public final void export(final OutputStream stream) throws IOException {
     final double[][] scaledXYMatrix = MDSDrawer.scaleTo2D(distanceMatrix);
     final List<String> names = distanceMatrix.getNames();
     final CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.UTF_8);
@@ -107,7 +107,7 @@ public class PartitionalClustering implements Visualizable, Exportable {
   }
 
   @Override
-  public File suggestName() {
+  public final File suggestName() {
     return new File("clustering.csv");
   }
 }
