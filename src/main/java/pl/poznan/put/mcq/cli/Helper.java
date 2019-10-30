@@ -28,9 +28,8 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-@SuppressWarnings({"UseOfSystemOutOrSystemErr", "CallToSystemExit"})
 @Slf4j
-public final class Helper {
+final class Helper {
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq-cli-messages");
   private static final Options HELP_OPTIONS = PatternOptionBuilder.parsePattern("h");
 
@@ -86,13 +85,7 @@ public final class Helper {
       return "";
     }
 
-    final StringBuilder builder = new StringBuilder(values[0].toString());
-
-    for (int i = 1; i < values.length; i++) {
-      builder.append(',').append(values[i]);
-    }
-
-    return builder.toString();
+      return IntStream.range(1, values.length).mapToObj(i -> "," + values[i]).collect(Collectors.joining("", values[0].toString(), ""));
   }
 
   /**
@@ -101,7 +94,7 @@ public final class Helper {
    * @param file An object representing path to file.
    * @return An object with parsed data about 3D coordinates.
    */
-  public static PdbModel loadStructure(final File file) {
+  private static PdbModel loadStructure(final File file) {
     try {
       final List<? extends PdbModel> models = StructureManager.loadStructure(file);
 
@@ -212,13 +205,8 @@ public final class Helper {
 
   public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
     if (commandLine.hasOption(Helper.OPTION_ANGLES.getOpt())) {
-      final List<MasterTorsionAngleType> angles = new ArrayList<>();
 
-      for (final String angleName : commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt())) {
-        angles.add(RNATorsionAngleType.valueOf(angleName));
-      }
-
-      return angles;
+        return Arrays.stream(commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt())).map(RNATorsionAngleType::valueOf).collect(Collectors.toList());
     }
 
     // do not use Arrays.asList because it creates unmodifiable list and this one is modified

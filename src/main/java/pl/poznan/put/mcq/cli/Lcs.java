@@ -1,6 +1,5 @@
 package pl.poznan.put.mcq.cli;
 
-import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -12,9 +11,8 @@ import pl.poznan.put.comparison.LCS;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.LCSGlobalResult;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.PdbParsingException;
 
-@SuppressWarnings({"UseOfSystemOutOrSystemErr", "MethodWithTooExceptionsDeclared"})
+@SuppressWarnings({"UseOfSystemOutOrSystemErr"})
 public final class Lcs {
   private static final Options OPTIONS =
       new Options()
@@ -32,7 +30,7 @@ public final class Lcs {
    * @throws IncomparableStructuresException If the comparison procedure fails.
    */
   public static void main(final String[] args)
-      throws ParseException, IncomparableStructuresException {
+      throws ParseException {
     if (Helper.isHelpRequested(args)) {
       Helper.printHelp("mcq-lcs", Lcs.OPTIONS);
       return;
@@ -43,7 +41,7 @@ public final class Lcs {
     final StructureSelection s1 = Helper.selectTarget(commandLine);
     final StructureSelection s2 = Helper.selectModel(commandLine);
     final double threshold =
-        Double.valueOf(commandLine.getOptionValue(Helper.OPTION_MCQ_THRESHOLD.getOpt()));
+        Double.parseDouble(commandLine.getOptionValue(Helper.OPTION_MCQ_THRESHOLD.getOpt()));
 
     final LCS lcs = new LCS(new Angle(threshold, ValueType.DEGREES));
     final LCSGlobalResult result = (LCSGlobalResult) lcs.compareGlobally(s1, s2);

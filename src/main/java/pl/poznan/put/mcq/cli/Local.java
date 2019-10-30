@@ -15,7 +15,6 @@ import pl.poznan.put.atom.Bond;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.comparison.MCQ;
-import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.comparison.local.SelectedAngle;
@@ -63,8 +62,7 @@ public final class Local {
     super();
   }
 
-  public static void main(final String[] args)
-      throws ParseException, IncomparableStructuresException {
+  public static void main(final String[] args) throws ParseException {
     if (Helper.isHelpRequested(args)) {
       Helper.printHelp("mcq-local", Local.OPTIONS);
       return;
@@ -112,10 +110,10 @@ public final class Local {
     angleTypes.add(RNATorsionAngleType.getAverageOverMainAngles());
     final LocalComparator mcq = new MCQ(angleTypes);
 
-    final List<List<Angle>> partialDifferences = new ArrayList<>();
-    for (int i = 0; i < models.size(); i++) {
-      partialDifferences.add(new ArrayList<>());
-    }
+    final List<List<Angle>> partialDifferences =
+        IntStream.range(0, models.size())
+            .<List<Angle>>mapToObj(i -> new ArrayList<>())
+            .collect(Collectors.toList());
 
     for (int i = 0; i < size; i++) {
       final PdbCompactFragment targetFragment = target.getCompactFragments().get(i);
@@ -153,14 +151,16 @@ public final class Local {
       }
     }
 
-    final Set<Pair<Double, StructureSelection>> ranking = new TreeSet<>();
+    final Set<Pair<Double, StructureSelection>> ranking;
     final List<Angle> mcqs =
         partialDifferences.stream()
             .map(AngleSample::new)
             .map(AngleSample::getMeanDirection)
             .collect(Collectors.toList());
-    IntStream.range(0, models.size())
-        .forEach(i -> ranking.add(Pair.of(mcqs.get(i).getDegrees(), models.get(i))));
+    ranking =
+        IntStream.range(0, models.size())
+            .mapToObj(i -> Pair.of(mcqs.get(i).getDegrees(), models.get(i)))
+            .collect(Collectors.toCollection(TreeSet::new));
 
     for (final Pair<Double, StructureSelection> pair : ranking) {
       System.out.printf(Locale.US, "%s %.2f%n", pair.getValue().getName(), pair.getKey());
@@ -173,7 +173,7 @@ public final class Local {
   }
 
   private static void printFragmentDetails(
-      final StructureSelection target, final List<StructureSelection> models) {
+      final StructureSelection target, final Iterable<? extends StructureSelection> models) {
     final StringBuilder builder = new StringBuilder();
     builder.append("Fragments in reference structure: (").append(target.getName()).append(")\n");
     target
@@ -223,7 +223,7 @@ public final class Local {
       }
 
       if (!MoleculeType.RNA.areConnected(previous, current)) {
-        String reason = "";
+        final String reason;
         if (!previous.hasAtom(AtomName.O3p)) {
           reason = "first residue lacks O3' atom";
         } else if (!current.hasAtom(AtomName.P)) {
@@ -311,7 +311,8 @@ public final class Local {
     }
   }
 
-  private static void printBondLengthViolations(final List<StructureSelection> selections) {
+  private static void printBondLengthViolations(
+      final Iterable<? extends StructureSelection> selections) {
     final StringBuilder builder = new StringBuilder();
 
     for (final StructureSelection selection : selections) {
@@ -327,6 +328,6 @@ public final class Local {
       }
     }
 
-    System.err.println(builder.toString());
+    System.err.println(builder);
   }
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
     "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
 <svg x="0.0" contentScriptType="text/ecmascript" width="840.3473114252556"
-     xmlns:xlink="http://www.w3.org/1999/xlink" zoomAndPan="magnify"
+     zoomAndPan="magnify"
      contentStyleType="text/css"
      viewBox="0 0 840.3473114252556 771.3788146972656"
      height="771.3788146972656" preserveAspectRatio="xMidYMid meet"
@@ -1282,8 +1282,7 @@
     </text>
     <svg contentScriptType="text/ecmascript" zoomAndPan="magnify"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:svg="http://www.w3.org/2000/svg" contentStyleType="text/css"
+         contentStyleType="text/css"
          id="svg4938" sodipodi:docname="mcq-legend.svg" version="1.1"
          width="17.85704mm"
          xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
