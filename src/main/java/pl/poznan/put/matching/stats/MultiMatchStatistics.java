@@ -3,9 +3,9 @@ package pl.poznan.put.matching.stats;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import javax.swing.table.TableModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import pl.poznan.put.matching.AngleDeltaIterator;
 import pl.poznan.put.matching.AngleDeltaIteratorFactory;
 import pl.poznan.put.matching.FragmentMatch;
@@ -44,6 +44,7 @@ public final class MultiMatchStatistics {
     }
   }
 
+  @EqualsAndHashCode
   @Data
   public static final class PercentileEntry implements Comparable<PercentileEntry> {
     private final double threshold;
@@ -52,23 +53,6 @@ public final class MultiMatchStatistics {
     @Override
     public int compareTo(final PercentileEntry t) {
       return Double.compare(threshold, t.threshold);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-      if (this == o) {
-        return true;
-      }
-      if ((o == null) || (getClass() != o.getClass())) {
-        return false;
-      }
-      final PercentileEntry other = (PercentileEntry) o;
-      return Double.compare(other.threshold, threshold) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(threshold);
     }
 
     @Override

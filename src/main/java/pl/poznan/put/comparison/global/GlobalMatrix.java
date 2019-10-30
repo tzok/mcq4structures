@@ -1,14 +1,5 @@
 package pl.poznan.put.comparison.global;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import javax.swing.table.TableModel;
 import lombok.Getter;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -18,6 +9,17 @@ import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 import pl.poznan.put.utility.TabularExporter;
+
+import javax.swing.table.TableModel;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 @Getter
 public class GlobalMatrix implements Clusterable, Exportable, Tabular {
@@ -39,6 +41,18 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
 
     distanceMatrix = prepareDistanceMatrix();
     distanceMatrixWithoutIncomparables = prepareDistanceMatrixWithoutIncomparables();
+  }
+
+  private static int[] selectAllButOne(final int excluded, final int count) {
+    final int[] selected = new int[count - 1];
+    int j = 0;
+    for (int i = 0; i < count; i++) {
+      if (i != excluded) {
+        selected[j] = i;
+        j++;
+      }
+    }
+    return selected;
   }
 
   private DistanceMatrix prepareDistanceMatrix() {
@@ -96,17 +110,6 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
     return new DistanceMatrix(selectedNamesSubList, selectedSubMatrix);
   }
 
-  private static int[] selectAllButOne(final int excluded, final int count) {
-    final int[] selected = new int[count - 1];
-    for (int i = 0, j = 0; i < count; i++) {
-      if (i != excluded) {
-        selected[j] = i;
-        j++;
-      }
-    }
-    return selected;
-  }
-
   @Override
   public final DistanceMatrix getDataForClustering() {
     return distanceMatrixWithoutIncomparables;
@@ -119,7 +122,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
 
   @Override
   public final File suggestName() {
-    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.US);
     String filename = sdf.format(new Date());
     filename += "-Global-";
     filename += comparator.getName();

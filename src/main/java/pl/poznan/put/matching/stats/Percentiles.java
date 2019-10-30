@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Percentiles {
+class Percentiles {
   private final Map<Double, Double> percentiles = new HashMap<>();
 
-  public Percentiles(double[] percents, double[] percentiles) {
+  Percentiles(final double[] percents, final double[] percentiles) {
     super();
 
     assert percents.length == percentiles.length;
@@ -16,11 +16,11 @@ public class Percentiles {
     }
   }
 
-  public Set<Double> getKeys() {
+  public final Set<Double> getKeys() {
     return percentiles.keySet();
   }
 
-  public Double getPercentile(Double key) {
+  public final Double getPercentile(final Double key) {
     if (!percentiles.containsKey(key)) {
       return Double.NaN;
     }

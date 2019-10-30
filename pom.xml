@@ -22,11 +22,6 @@
     </dependency>
 
     <dependency>
-      <groupId>java3d</groupId>
-      <artifactId>vecmath</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
     </dependency>

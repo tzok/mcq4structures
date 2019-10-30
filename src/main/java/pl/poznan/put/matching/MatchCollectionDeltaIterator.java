@@ -1,36 +1,34 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.IteratorUtils;
 import pl.poznan.put.circular.Angle;
 
 public class MatchCollectionDeltaIterator implements AngleDeltaIterator {
   private final Iterator<ResidueComparison> iterator;
 
-  public MatchCollectionDeltaIterator(MatchCollection matchCollection) {
+  public MatchCollectionDeltaIterator(final MatchCollection matchCollection) {
     super();
 
-    Collection<Iterator<? extends ResidueComparison>> iterators = new ArrayList<>();
-    for (FragmentMatch fragmentMatch : matchCollection.getFragmentMatches()) {
-      iterators.add(fragmentMatch.getResidueComparisons().iterator());
-    }
-    iterator = IteratorUtils.chainedIterator(iterators);
+    final Collection<Iterator<? extends ResidueComparison>> iterators = matchCollection.getFragmentMatches().stream().map(fragmentMatch -> fragmentMatch.getResidueComparisons().iterator()).collect(Collectors.toList());
+      iterator = IteratorUtils.chainedIterator(iterators);
   }
 
   @Override
-  public boolean hasNext() {
+  public final boolean hasNext() {
     return iterator.hasNext();
   }
 
   @Override
-  public Angle next() {
+  public final Angle next() {
     return iterator.next().getMeanDirection();
   }
 
   @Override
-  public void remove() {
+  public final void remove() {
     iterator.remove();
   }
 }

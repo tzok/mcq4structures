@@ -1,6 +1,7 @@
 package pl.poznan.put;
 
 import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import pl.poznan.put.comparison.MCQ;
@@ -20,6 +21,8 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.utility.ResourcesHelper;
+
+import static org.hamcrest.CoreMatchers.*;
 
 public class ComparisonTest {
   private static final double[] LOCAL_MCQ_1EHZ_1EVV_DEGREES = {
@@ -107,12 +110,12 @@ public class ComparisonTest {
   public final void testMCQGlobal() throws Exception {
     final String pdb1EHZ = ResourcesHelper.loadResource("1EHZ.pdb");
     List<PdbModel> models = parser.parse(pdb1EHZ);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model1 = models.get(0);
 
     final String pdb1EVV = ResourcesHelper.loadResource("1EVV.pdb");
     models = parser.parse(pdb1EVV);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model2 = models.get(0);
 
     final StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -123,13 +126,13 @@ public class ComparisonTest {
         (MCQGlobalResult) mcq.compareGlobally(selection1, selection2);
     final SelectionMatch selectionMatch = comparisonResult.getSelectionMatch();
     final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
-    Assert.assertEquals(1, fragmentMatches.size());
+    Assert.assertThat(fragmentMatches.size(), is(1));
     final FragmentMatch fragmentMatch = fragmentMatches.get(0);
 
-    Assert.assertEquals(3, fragmentMatch.getBothInvalidCount());
-    Assert.assertEquals(0, fragmentMatch.getTargetInvalidCount());
-    Assert.assertEquals(0, fragmentMatch.getModelInvalidCount());
-    Assert.assertEquals(529, fragmentMatch.getValidCount());
+    Assert.assertThat(fragmentMatch.getBothInvalidCount(), is(3));
+    Assert.assertThat(fragmentMatch.getTargetInvalidCount(), is(0));
+    Assert.assertThat(fragmentMatch.getModelInvalidCount(), is(0));
+    Assert.assertThat(fragmentMatch.getValidCount(), is(529));
     Assert.assertEquals(9.49, comparisonResult.getMeanDirection().getDegrees(), 0.1);
     Assert.assertEquals(0.1601697957, comparisonResult.getMeanDirection().getRadians(), 0.01);
   }
@@ -138,12 +141,12 @@ public class ComparisonTest {
   public final void testMCQLocal() throws Exception {
     final String pdb1EHZ = ResourcesHelper.loadResource("1EHZ.pdb");
     List<PdbModel> models = parser.parse(pdb1EHZ);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model1 = models.get(0);
 
     final String pdb1EVV = ResourcesHelper.loadResource("1EVV.pdb");
     models = parser.parse(pdb1EVV);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model2 = models.get(0);
 
     final StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -154,15 +157,15 @@ public class ComparisonTest {
         (MCQLocalResult) mcq.comparePair(selection1, selection2);
     final SelectionMatch selectionMatch = comparisonResult.getSelectionMatch();
     final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
-    Assert.assertEquals(1, fragmentMatches.size());
+    Assert.assertThat(fragmentMatches.size(), is(1));
     final FragmentMatch fragmentMatch = fragmentMatches.get(0);
 
     int i = 0;
     for (final ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
       Assert.assertEquals(
-          ComparisonTest.LOCAL_MCQ_1EHZ_1EVV_DEGREES[i],
-          residueComparison.getMeanDirection().getDegrees(),
-          0.1);
+              ComparisonTest.LOCAL_MCQ_1EHZ_1EVV_DEGREES[i],
+              residueComparison.getMeanDirection().getDegrees(),
+              0.1);
       i += 1;
     }
   }
@@ -171,12 +174,12 @@ public class ComparisonTest {
   public final void testRMSD() throws Exception {
     final String pdb1EHZ = ResourcesHelper.loadResource("1EHZ.pdb");
     List<PdbModel> models = parser.parse(pdb1EHZ);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model1 = models.get(0);
 
     final String pdb1EVV = ResourcesHelper.loadResource("1EVV.pdb");
     models = parser.parse(pdb1EVV);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model2 = models.get(0);
 
     final StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -186,7 +189,7 @@ public class ComparisonTest {
     final RMSDGlobalResult comparisonResult =
         (RMSDGlobalResult) rmsd.compareGlobally(selection1, selection2);
 
-    Assert.assertEquals(76, comparisonResult.getAtomCount());
+    Assert.assertThat(comparisonResult.getAtomCount(), is(76));
     Assert.assertEquals(0.5934545967, comparisonResult.getRMSD(), 0.1);
   }
 
@@ -194,12 +197,12 @@ public class ComparisonTest {
   public final void testNoMatches() throws Exception {
     final String pdb1EHZ = ResourcesHelper.loadResource("1EHZ.pdb");
     List<PdbModel> models = parser.parse(pdb1EHZ);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model1 = models.get(0);
 
     final String pdb1EVV = ResourcesHelper.loadResource("1EVV.pdb");
     models = parser.parse(pdb1EVV);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model2 = models.get(0);
 
     final StructureSelection selection1 = SelectionFactory.create("1EHZ", model1);
@@ -213,12 +216,12 @@ public class ComparisonTest {
   public final void testRMSD_1ZO1_1ZO3() throws Exception {
     final String pdb1ZO1 = ResourcesHelper.loadResource("1ZO1.pdb");
     List<PdbModel> models = parser.parse(pdb1ZO1);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model1 = models.get(0);
 
     final String pdb1ZO3 = ResourcesHelper.loadResource("1ZO3.pdb");
     models = parser.parse(pdb1ZO3);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model2 = models.get(0);
 
     final StructureSelection s1 = SelectionFactory.create("1ZO1", model1);
@@ -232,12 +235,12 @@ public class ComparisonTest {
   public final void testMCQ_1TN1_1TN2() throws Exception {
     final String pdb1TN1 = ResourcesHelper.loadResource("1TN1.pdb");
     List<PdbModel> models = parser.parse(pdb1TN1);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model1 = models.get(0);
 
     final String pdb1TN2 = ResourcesHelper.loadResource("1TN2.pdb");
     models = parser.parse(pdb1TN2);
-    Assert.assertEquals(1, models.size());
+    Assert.assertThat(models.size(), is(1));
     final PdbModel model2 = models.get(0);
 
     final StructureSelection s1 = SelectionFactory.create("1TN1", model1);

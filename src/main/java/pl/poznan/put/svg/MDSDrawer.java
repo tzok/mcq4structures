@@ -27,10 +27,12 @@ import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public final class MDSDrawer {
+  @FunctionalInterface
   public interface ColorProvider {
     Color getColor(int index);
   }
 
+  @FunctionalInterface
   public interface NameProvider {
     String getName(int index);
   }
@@ -94,10 +96,10 @@ public final class MDSDrawer {
         graphics.setColor(entry.getKey());
         graphics.draw(
             new Ellipse2D.Double(
-                MDSDrawer.DESIRED_WIDTH + MDSDrawer.CIRCLE_DIAMETER,
-                legendHeight,
-                MDSDrawer.CIRCLE_DIAMETER,
-                MDSDrawer.CIRCLE_DIAMETER));
+                    MDSDrawer.DESIRED_WIDTH + MDSDrawer.CIRCLE_DIAMETER,
+                    legendHeight,
+                    MDSDrawer.CIRCLE_DIAMETER,
+                    MDSDrawer.CIRCLE_DIAMETER));
         graphics.drawString(
             nameAbbreviated,
             (float) (MDSDrawer.DESIRED_WIDTH + (MDSDrawer.CIRCLE_DIAMETER * 2.5)),

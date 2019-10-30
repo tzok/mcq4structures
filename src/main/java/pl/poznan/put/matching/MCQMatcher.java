@@ -1,9 +1,5 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.collections4.map.DefaultedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +14,12 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.torsion.range.RangeDifference;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
 public class MCQMatcher implements StructureMatcher {
   private static final Logger LOGGER = LoggerFactory.getLogger(MCQMatcher.class);
 
@@ -26,69 +28,6 @@ public class MCQMatcher implements StructureMatcher {
   public MCQMatcher(final List<MasterTorsionAngleType> angleTypes) {
     super();
     this.angleTypes = new ArrayList<>(angleTypes);
-  }
-
-  @Override
-  public final SelectionMatch matchSelections(
-      final StructureSelection s1, final StructureSelection s2) {
-    if ((s1.getResidues().isEmpty()) || (s2.getResidues().isEmpty())) {
-      return new SelectionMatch(s1, s2, Collections.emptyList());
-    }
-
-    final FragmentMatch[][] matrix = fillMatchingMatrix(s1, s2);
-    filterMatchingMatrix(matrix);
-    final List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
-    return new SelectionMatch(s1, s2, fragmentMatches);
-  }
-
-  private FragmentMatch[][] fillMatchingMatrix(
-      final StructureSelection target, final StructureSelection model) {
-    final List<PdbCompactFragment> targetFragments = target.getCompactFragments();
-    final List<PdbCompactFragment> modelFragments = model.getCompactFragments();
-    final FragmentMatch[][] matrix = new FragmentMatch[targetFragments.size()][];
-
-    for (int i = 0; i < targetFragments.size(); i++) {
-      matrix[i] = new FragmentMatch[modelFragments.size()];
-    }
-
-    for (int i = 0; i < targetFragments.size(); i++) {
-      final PdbCompactFragment fi = targetFragments.get(i);
-      for (int j = 0; j < modelFragments.size(); j++) {
-        final PdbCompactFragment fj = modelFragments.get(j);
-        matrix[i][j] =
-            (fi.getMoleculeType() == fj.getMoleculeType())
-                ? matchFragments(fi, fj)
-                : FragmentMatch.invalidInstance(fi, fj, angleTypes);
-      }
-    }
-    return matrix;
-  }
-
-  private void filterMatchingMatrix(final FragmentMatch[][] matrix) {
-    final Map<PdbCompactFragment, Integer> fragmentMaxCount = new DefaultedMap<>(Integer.MIN_VALUE);
-
-    for (final FragmentMatch[] matches : matrix) {
-      for (final FragmentMatch match : matches) {
-        final PdbCompactFragment target = match.getTargetFragment();
-        final PdbCompactFragment model = match.getModelFragment();
-        final int count = match.getResidueCount();
-        fragmentMaxCount.put(target, Math.max(count, fragmentMaxCount.get(target)));
-        fragmentMaxCount.put(model, Math.max(count, fragmentMaxCount.get(model)));
-      }
-    }
-
-    for (int i = 0; i < matrix.length; i++) {
-      for (int j = 0; j < matrix[i].length; j++) {
-        final PdbCompactFragment target = matrix[i][j].getTargetFragment();
-        final PdbCompactFragment model = matrix[i][j].getModelFragment();
-        final int count = matrix[i][j].getResidueCount();
-        final int maxCount = Math.max(fragmentMaxCount.get(target), fragmentMaxCount.get(model));
-
-        if (count < (maxCount * 0.9)) {
-          matrix[i][j] = FragmentMatch.invalidInstance(target, model, angleTypes);
-        }
-      }
-    }
   }
 
   private static List<FragmentMatch> assignFragments(final FragmentMatch[][] matrix) {
@@ -118,43 +57,6 @@ public class MCQMatcher implements StructureMatcher {
     }
 
     return result;
-  }
-
-  private ResidueComparison compareResidues(
-      final PdbCompactFragment targetFragment,
-      final PdbResidue targetResidue,
-      final PdbCompactFragment modelFragment,
-      final PdbResidue modelResidue) {
-    final List<TorsionAngleDelta> angleDeltas = new ArrayList<>();
-
-    for (final MasterTorsionAngleType masterType : angleTypes) {
-      final TorsionAngleDelta delta =
-          (masterType instanceof AverageTorsionAngleType)
-              ? MCQMatcher.calculateAverageOverDifferences(
-                  targetFragment,
-                  targetResidue,
-                  modelFragment,
-                  modelResidue,
-                  (AverageTorsionAngleType) masterType)
-              : MCQMatcher.findAndSubtractTorsionAngles(
-                  targetFragment, targetResidue, modelFragment, modelResidue, masterType);
-
-      angleDeltas.add(delta);
-
-      if (MCQMatcher.LOGGER.isTraceEnabled()) {
-        MCQMatcher.LOGGER.trace("{} vs {} = {}", targetResidue, modelResidue, delta);
-      }
-    }
-
-    final boolean anyValid =
-        angleDeltas
-            .parallelStream()
-            .map(TorsionAngleDelta::getState)
-            .anyMatch(state -> state == TorsionAngleDelta.State.BOTH_VALID);
-
-    return anyValid
-        ? new ResidueComparison(targetResidue, modelResidue, angleDeltas)
-        : ResidueComparison.invalidInstance(targetResidue, modelResidue);
   }
 
   private static TorsionAngleDelta calculateAverageOverDifferences(
@@ -211,6 +113,105 @@ public class MCQMatcher implements StructureMatcher {
   }
 
   @Override
+  public final SelectionMatch matchSelections(
+      final StructureSelection s1, final StructureSelection s2) {
+    if ((s1.getResidues().isEmpty()) || (s2.getResidues().isEmpty())) {
+      return new SelectionMatch(s1, s2, Collections.emptyList());
+    }
+
+    final FragmentMatch[][] matrix = fillMatchingMatrix(s1, s2);
+    filterMatchingMatrix(matrix);
+    final List<FragmentMatch> fragmentMatches = MCQMatcher.assignFragments(matrix);
+    return new SelectionMatch(s1, s2, fragmentMatches);
+  }
+
+  private FragmentMatch[][] fillMatchingMatrix(
+      final StructureSelection target, final StructureSelection model) {
+    final List<PdbCompactFragment> targetFragments = target.getCompactFragments();
+    final List<PdbCompactFragment> modelFragments = model.getCompactFragments();
+    final FragmentMatch[][] matrix =
+        IntStream.range(0, targetFragments.size())
+            .mapToObj(i -> new FragmentMatch[modelFragments.size()])
+            .toArray(FragmentMatch[][]::new);
+
+    for (int i = 0; i < targetFragments.size(); i++) {
+      final PdbCompactFragment fi = targetFragments.get(i);
+      for (int j = 0; j < modelFragments.size(); j++) {
+        final PdbCompactFragment fj = modelFragments.get(j);
+        matrix[i][j] =
+            (fi.getMoleculeType() == fj.getMoleculeType())
+                ? matchFragments(fi, fj)
+                : FragmentMatch.invalidInstance(fi, fj, angleTypes);
+      }
+    }
+    return matrix;
+  }
+
+  private void filterMatchingMatrix(final FragmentMatch[][] matrix) {
+    final Map<PdbCompactFragment, Integer> fragmentMaxCount = new DefaultedMap<>(Integer.MIN_VALUE);
+
+    for (final FragmentMatch[] matches : matrix) {
+      for (final FragmentMatch match : matches) {
+        final PdbCompactFragment target = match.getTargetFragment();
+        final PdbCompactFragment model = match.getModelFragment();
+        final int count = match.getResidueCount();
+        fragmentMaxCount.put(target, Math.max(count, fragmentMaxCount.get(target)));
+        fragmentMaxCount.put(model, Math.max(count, fragmentMaxCount.get(model)));
+      }
+    }
+
+    for (int i = 0; i < matrix.length; i++) {
+      for (int j = 0; j < matrix[i].length; j++) {
+        final PdbCompactFragment target = matrix[i][j].getTargetFragment();
+        final PdbCompactFragment model = matrix[i][j].getModelFragment();
+        final int count = matrix[i][j].getResidueCount();
+        final int maxCount = Math.max(fragmentMaxCount.get(target), fragmentMaxCount.get(model));
+
+        if (count < (maxCount * 0.9)) {
+          matrix[i][j] = FragmentMatch.invalidInstance(target, model, angleTypes);
+        }
+      }
+    }
+  }
+
+  private ResidueComparison compareResidues(
+      final PdbCompactFragment targetFragment,
+      final PdbResidue targetResidue,
+      final PdbCompactFragment modelFragment,
+      final PdbResidue modelResidue) {
+    final List<TorsionAngleDelta> angleDeltas = new ArrayList<>();
+
+    for (final MasterTorsionAngleType masterType : angleTypes) {
+      final TorsionAngleDelta delta =
+          (masterType instanceof AverageTorsionAngleType)
+              ? MCQMatcher.calculateAverageOverDifferences(
+                  targetFragment,
+                  targetResidue,
+                  modelFragment,
+                  modelResidue,
+                  (AverageTorsionAngleType) masterType)
+              : MCQMatcher.findAndSubtractTorsionAngles(
+                  targetFragment, targetResidue, modelFragment, modelResidue, masterType);
+
+      angleDeltas.add(delta);
+
+      if (MCQMatcher.LOGGER.isTraceEnabled()) {
+        MCQMatcher.LOGGER.trace("{} vs {} = {}", targetResidue, modelResidue, delta);
+      }
+    }
+
+    final boolean anyValid =
+        angleDeltas
+            .parallelStream()
+            .map(TorsionAngleDelta::getState)
+            .anyMatch(state -> state == TorsionAngleDelta.State.BOTH_VALID);
+
+    return anyValid
+        ? new ResidueComparison(targetResidue, modelResidue, angleDeltas)
+        : ResidueComparison.invalidInstance(targetResidue, modelResidue);
+  }
+
+  @Override
   public final FragmentMatch matchFragments(
       final PdbCompactFragment f1, final PdbCompactFragment f2) {
     final List<PdbResidue> targetResidues = f1.getResidues();
@@ -247,10 +248,6 @@ public class MCQMatcher implements StructureMatcher {
         bestResult = fragmentResult;
         bestShift = i;
       }
-    }
-
-    if (bestResult == null) {
-      return FragmentMatch.invalidInstance(f1, f2, angleTypes);
     }
 
     return new FragmentMatch(f1, f2, isTargetSmaller, bestShift, bestResult);

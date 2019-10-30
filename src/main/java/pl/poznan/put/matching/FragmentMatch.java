@@ -3,7 +3,6 @@ package pl.poznan.put.matching;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,7 +77,7 @@ public class FragmentMatch implements Exportable, Tabular {
             residueComparisons, angleTypes, 0, 0, bothInvalidCount, 0));
   }
 
-  public final DotBracket getTargetDotBracket() throws InvalidStructureException {
+  public final DotBracket getTargetDotBracket() {
     final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(targetFragment);
     return FragmentMatch.CONVERTER.convert(bpSeq);
   }
@@ -135,12 +134,12 @@ public class FragmentMatch implements Exportable, Tabular {
     return target.getName() + " & " + model.getName();
   }
 
-  public final MoleculeType moleculeType() {
+  protected final MoleculeType moleculeType() {
     assert targetFragment.getMoleculeType() == modelFragment.getMoleculeType();
     return targetFragment.getMoleculeType();
   }
 
-  public final DotBracket matchedSecondaryStructure() throws InvalidStructureException {
+  public final DotBracket matchedSecondaryStructure() {
     final PdbCompactFragment target =
         isTargetSmaller
             ? targetFragment
@@ -184,7 +183,8 @@ public class FragmentMatch implements Exportable, Tabular {
     final int size = angleTypes.size();
 
     final String[] columnNames = new String[(size * 2) + 2];
-    columnNames[0] = columnNames[1] = isDisplay ? "" : null;
+    columnNames[0] = isDisplay ? "" : null;
+    columnNames[1] = columnNames[0];
 
     for (int i = 0; i < size; i++) {
       final MasterTorsionAngleType angle = angleTypes.get(i);
@@ -219,7 +219,7 @@ public class FragmentMatch implements Exportable, Tabular {
     try {
       final DotBracket dotBracket = getTargetDotBracket();
       return dotBracket.getStructure().toCharArray();
-    } catch (InvalidStructureException e) {
+    } catch (final InvalidStructureException e) {
       FragmentMatch.log.warn("Failed to extract 2D structure", e);
     }
     return StringUtils.repeat('.', targetFragment.getResidues().size()).toCharArray();

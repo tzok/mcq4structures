@@ -3,25 +3,26 @@ package pl.poznan.put.matching;
 import java.util.Iterator;
 import pl.poznan.put.circular.Angle;
 
-public class MeanDeltaIterator implements AngleDeltaIterator {
+class MeanDeltaIterator implements AngleDeltaIterator {
   private final Iterator<ResidueComparison> iterator;
 
-  public MeanDeltaIterator(FragmentMatch fragmentMatch) {
-    iterator = fragmentMatch.getResidueComparisons().iterator();
+  MeanDeltaIterator(final FragmentMatch fragmentMatch) {
+      super();
+      iterator = fragmentMatch.getResidueComparisons().iterator();
   }
 
   @Override
-  public boolean hasNext() {
+  public final boolean hasNext() {
     return iterator.hasNext();
   }
 
   @Override
-  public Angle next() {
+  public final Angle next() {
     return iterator.next().getMeanDirection();
   }
 
   @Override
-  public void remove() {
+  public final void remove() {
     iterator.remove();
   }
 }

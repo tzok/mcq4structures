@@ -1,6 +1,10 @@
 package pl.poznan.put.comparison.global;
 
-import java.util.ArrayList;
+import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.poznan.put.matching.StructureSelection;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -8,17 +12,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.poznan.put.matching.StructureSelection;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ParallelGlobalComparator extends Thread {
   private static final Logger LOGGER = LoggerFactory.getLogger(ParallelGlobalComparator.class);
   private final GlobalComparator comparator;
   private final List<StructureSelection> structures;
   private final ProgressListener progressListener;
-  private ThreadPoolExecutor threadPool;
-  private ExecutorCompletionService<CompareCallable.SingleResult> executor;
+  private ThreadPoolExecutor threadPool = null;
+  private ExecutorCompletionService<CompareCallable.SingleResult> executor = null;
 
   public ParallelGlobalComparator(
       final GlobalComparator comparator,
@@ -51,7 +54,8 @@ public class ParallelGlobalComparator extends Thread {
 
     for (int i = 0; i < size; i++) {
       for (int j = i + 1; j < size; j++) {
-        final Callable<CompareCallable.SingleResult> task = new CompareCallable(structures, i, j);
+        final Callable<CompareCallable.SingleResult> task =
+            new CompareCallable(comparator, structures, i, j);
         executor.submit(task);
       }
     }
@@ -60,13 +64,13 @@ public class ParallelGlobalComparator extends Thread {
   private void waitForCompletion() {
     threadPool.shutdown();
     final long size = structures.size();
-    final long all = (size * (size - 1)) / 2;
+    final long all = (size * (size - 1L)) / 2L;
     long completed;
 
     while ((completed = threadPool.getCompletedTaskCount()) < all) {
       progressListener.setProgress((int) completed);
       try {
-        Thread.sleep(500);
+        Thread.sleep(500L);
       } catch (final InterruptedException e) {
         interrupt();
       }
@@ -75,25 +79,22 @@ public class ParallelGlobalComparator extends Thread {
   }
 
   private List<String> collectNames() {
-    final List<String> names = new ArrayList<>();
-    for (final StructureSelection selection : structures) {
-      names.add(selection.getName());
-    }
-    return names;
+    return structures.stream().map(StructureSelection::getName).collect(Collectors.toList());
   }
 
   private GlobalResult[][] fillResultsMatrix() {
     final int size = structures.size();
-    final GlobalResult[][] results = new GlobalResult[size][];
-    for (int i = 0; i < size; i++) {
-      results[i] = new GlobalResult[size];
-    }
+    final GlobalResult[][] results =
+        IntStream.range(0, size)
+            .mapToObj(i -> new GlobalResult[size])
+            .toArray(GlobalResult[][]::new);
 
     final int all = (size * (size - 1)) / 2;
     for (int i = 0; i < all; i++) {
       try {
         final CompareCallable.SingleResult result = executor.take().get();
-        results[result.i][result.j] = results[result.j][result.i] = result.value;
+        results[result.getI()][result.getJ()] = result.getValue();
+        results[result.getJ()][result.getI()] = result.getValue();
       } catch (final InterruptedException | ExecutionException e) {
         ParallelGlobalComparator.LOGGER.error("Failed to compare a pair of structures", e);
       }
@@ -120,15 +121,20 @@ public class ParallelGlobalComparator extends Thread {
     }
   }
 
-  public class CompareCallable implements Callable<CompareCallable.SingleResult> {
+  public static class CompareCallable implements Callable<CompareCallable.SingleResult> {
+    private final GlobalComparator comparator;
     private final int row;
     private final int column;
     private final StructureSelection s1;
     private final StructureSelection s2;
 
     private CompareCallable(
-        final List<StructureSelection> structures, final int row, final int column) {
+        final GlobalComparator comparator,
+        final List<StructureSelection> structures,
+        final int row,
+        final int column) {
       super();
+      this.comparator = comparator;
       s1 = structures.get(row);
       s2 = structures.get(column);
       this.row = row;
@@ -136,22 +142,16 @@ public class ParallelGlobalComparator extends Thread {
     }
 
     @Override
-    public final SingleResult call() throws Exception {
+    public final SingleResult call() {
       final GlobalResult comp = comparator.compareGlobally(s1, s2);
       return new SingleResult(row, column, comp);
     }
 
-    public class SingleResult {
+    @Data
+    static class SingleResult {
       private final int i;
       private final int j;
       private final GlobalResult value;
-
-      private SingleResult(final int i, final int j, final GlobalResult value) {
-        super();
-        this.i = i;
-        this.j = j;
-        this.value = value;
-      }
     }
   }
 }

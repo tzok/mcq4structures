@@ -1,11 +1,7 @@
 package pl.poznan.put.comparison.exception;
 
-public class IncomparableStructuresException extends Exception {
-  public IncomparableStructuresException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public IncomparableStructuresException(String message) {
+public class IncomparableStructuresException extends RuntimeException {
+  public IncomparableStructuresException(final String message) {
     super(message);
   }
 }

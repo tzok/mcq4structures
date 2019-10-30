@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.circular.Angle;
@@ -28,7 +30,6 @@ import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
@@ -80,7 +81,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
   }
 
   public static void main(final String[] args)
-      throws IOException, PdbParsingException, InterruptedException {
+      throws IOException, InterruptedException {
     if (args.length < 2) {
       System.err.println("You must specify at least 2 structures");
       return;
@@ -125,8 +126,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
   @Override
   public final GlobalResult compareGlobally(
-      final StructureSelection s1, final StructureSelection s2)
-      throws IncomparableStructuresException {
+      final StructureSelection s1, final StructureSelection s2) {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(s1, s2);
 
@@ -171,8 +171,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
 
   @Override
   public final ModelsComparisonResult compareModels(
-      final PdbCompactFragment target, final List<PdbCompactFragment> models)
-      throws IncomparableStructuresException {
+      final PdbCompactFragment target, final List<? extends PdbCompactFragment> models) {
     /*
      * Sanity check
      */
@@ -188,11 +187,8 @@ public class MCQ implements GlobalComparator, LocalComparator {
     final List<PdbCompactFragment> modelsWithoutTarget = new ArrayList<>(models);
     modelsWithoutTarget.remove(target);
 
-    final List<FragmentMatch> matches = new ArrayList<>();
-    for (final PdbCompactFragment fragment : modelsWithoutTarget) {
-      matches.add(matcher.matchFragments(target, fragment));
-    }
+    final List<FragmentMatch> matches = modelsWithoutTarget.stream().map(fragment -> matcher.matchFragments(target, fragment)).collect(Collectors.toList());
 
-    return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
+      return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
   }
 }

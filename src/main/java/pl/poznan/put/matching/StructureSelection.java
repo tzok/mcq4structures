@@ -1,8 +1,7 @@
 package pl.poznan.put.matching;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.EqualsAndHashCode;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
@@ -28,20 +27,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
-public class StructureSelection
-    implements Exportable, Tabular, ResidueCollection, Comparable<StructureSelection> {
+@EqualsAndHashCode
+public class StructureSelection implements Exportable, Tabular, ResidueCollection {
   private static final int MINIMUM_RESIDUES_IN_FRAGMENT = 3;
-  private List<PdbCompactFragment> compactFragments;
+
+  @EqualsAndHashCode.Include private final List<PdbResidue> residues;
+
   private String name;
-  private List<PdbResidue> residues;
+  private List<PdbCompactFragment> compactFragments;
 
   public StructureSelection(
-      final String name, final Collection<PdbCompactFragment> compactFragments) {
+      final String name, final Collection<? extends PdbCompactFragment> compactFragments) {
     super();
     this.name = name;
     this.compactFragments = new ArrayList<>(compactFragments);
@@ -49,7 +48,7 @@ public class StructureSelection
   }
 
   public static StructureSelection divideIntoCompactFragments(
-      final String name, final Iterable<PdbResidue> residues) {
+      final String name, final Iterable<? extends PdbResidue> residues) {
     final List<PdbResidue> candidates = new ArrayList<>();
 
     for (final PdbResidue residue : residues) {
@@ -86,7 +85,7 @@ public class StructureSelection
   }
 
   private static String generateFragmentName(
-      final String name, final List<PdbResidue> fragmentResidues) {
+      final String name, final List<? extends PdbResidue> fragmentResidues) {
     assert !fragmentResidues.isEmpty();
 
     if (fragmentResidues.size() == 1) {
@@ -103,15 +102,10 @@ public class StructureSelection
   }
 
   private static List<PdbResidue> collectResidues(
-      final Iterable<PdbCompactFragment> compactFragments) {
+      final Iterable<? extends PdbCompactFragment> compactFragments) {
     final List<PdbResidue> residues = new ArrayList<>();
     compactFragments.forEach(compactFragment -> residues.addAll(compactFragment.getResidues()));
     return residues;
-  }
-
-  public final void setCompactFragments(final List<PdbCompactFragment> compactFragments) {
-    this.compactFragments = new ArrayList<>(compactFragments);
-    residues = StructureSelection.collectResidues(compactFragments);
   }
 
   public final Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
@@ -170,23 +164,6 @@ public class StructureSelection
   }
 
   @Override
-  public final boolean equals(final Object o) {
-    if (this == o) {
-      return true;
-    }
-    if ((o == null) || (getClass() != o.getClass())) {
-      return false;
-    }
-    final StructureSelection other = (StructureSelection) o;
-    return Objects.equals(name, other.name) && Objects.equals(residues, other.residues);
-  }
-
-  @Override
-  public final int hashCode() {
-    return Objects.hash(name, residues);
-  }
-
-  @Override
   public final String toString() {
     final PdbResidue first = residues.get(0);
     final PdbResidue last = residues.get(residues.size() - 1);
@@ -222,12 +199,8 @@ public class StructureSelection
       columns.add(isDisplayable ? angleType.getLongDisplayName() : angleType.getExportName());
     }
 
-    int rowCount = 0;
-
-    for (final PdbCompactFragment fragment : compactFragments) {
-      final List<PdbResidue> fragmentResidues = fragment.getResidues();
-      rowCount += fragmentResidues.size();
-    }
+    final int rowCount =
+        compactFragments.stream().map(PdbCompactFragment::getResidues).mapToInt(List::size).sum();
 
     final String[][] data = new String[rowCount][];
     int i = 0;
@@ -252,10 +225,5 @@ public class StructureSelection
     }
 
     return new DefaultTableModel(data, columns.toArray(new String[0]));
-  }
-
-  @Override
-  public int compareTo(@NotNull StructureSelection structureSelection) {
-    return name.compareTo(structureSelection.name);
   }
 }

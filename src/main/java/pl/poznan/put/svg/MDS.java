@@ -1,5 +1,6 @@
 package pl.poznan.put.svg;
 
+import org.apache.commons.math3.util.Precision;
 import org.biojava.nbio.structure.jama.EigenvalueDecomposition;
 import org.biojava.nbio.structure.jama.Matrix;
 
@@ -8,9 +9,10 @@ import org.biojava.nbio.structure.jama.Matrix;
  *
  * @author tzok
  */
-public final class MDS {
+final class MDS {
   private MDS() {
     // empty constructor
+    super();
   }
 
   /**
@@ -53,7 +55,7 @@ public final class MDS {
       meanRow[i] /= distance.length;
       meanColumn[i] /= distance.length;
     }
-    meanMatrix /= distance.length * distance.length;
+    meanMatrix = meanMatrix / distance.length * distance.length;
 
     /*
      * calculate B: b_ij = -1/2 * (d_ij - meanRow[i] - meanColumn[j] +
@@ -75,7 +77,7 @@ public final class MDS {
     /*
      * find maxima in L
      */
-    double[][] l = evd.getD().getArrayCopy();
+    final double[][] l = evd.getD().getArrayCopy();
     final int[] maxima = new int[dimensions];
     for (int i = 0; i < dimensions; ++i) {
       int max = 0;
@@ -95,9 +97,9 @@ public final class MDS {
     /*
      * get sqrt() from those maxima in L
      */
-    l = evd.getD().getArrayCopy();
+    final double[][] l2 = evd.getD().getArrayCopy();
     for (int i = 0; i < dimensions; ++i) {
-      l[maxima[i]][maxima[i]] = Math.sqrt(l[maxima[i]][maxima[i]]);
+      l2[maxima[i]][maxima[i]] = Math.sqrt(l2[maxima[i]][maxima[i]]);
     }
 
     /*
@@ -108,7 +110,7 @@ public final class MDS {
     for (int i = 0; i < distance.length; ++i) {
       x[i] = new double[dimensions];
       for (int j = 0; j < dimensions; ++j) {
-        x[i][j] = k[i][maxima[j]] * l[maxima[j]][maxima[j]];
+        x[i][j] = k[i][maxima[j]] * l2[maxima[j]][maxima[j]];
       }
     }
     return x;
@@ -124,7 +126,7 @@ public final class MDS {
         throw new IllegalArgumentException(msg);
       }
       for (int j = 0; j < distance[i].length; ++j) {
-        if (distance[i][j] != distance[j][i]) {
+        if (!Precision.equals(distance[i][j], distance[j][i])) {
           throw new IllegalArgumentException(msg);
         }
       }

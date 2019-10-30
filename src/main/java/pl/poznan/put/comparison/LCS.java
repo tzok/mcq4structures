@@ -44,8 +44,7 @@ public class LCS implements GlobalComparator {
 
   @Override
   public final GlobalResult compareGlobally(
-      final StructureSelection s1, final StructureSelection s2)
-      throws IncomparableStructuresException {
+      final StructureSelection s1, final StructureSelection s2) {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(s1, s2);
     final List<Angle> deltas = getValidDeltas(matches);
@@ -95,17 +94,15 @@ public class LCS implements GlobalComparator {
         maxRefinementResult.getTarget());
   }
 
-  public final RefinementResult refinement(
-      final StructureSelection target, final StructureSelection model)
-      throws IncomparableStructuresException {
+  private RefinementResult refinement(
+          final StructureSelection target, final StructureSelection model) {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(target, model);
     final List<Angle> deltas = getValidDeltas(matches);
     return new RefinementResult(matches, new AngleSample(deltas), model, target);
   }
 
-  private List<Angle> getValidDeltas(final MatchCollection matches)
-      throws IncomparableStructuresException {
+  private List<Angle> getValidDeltas(final MatchCollection matches) {
     if (matches.getFragmentMatches().isEmpty()) {
       throw new IncomparableStructuresException("No matching fragments found");
     }

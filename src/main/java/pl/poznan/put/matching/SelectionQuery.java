@@ -82,7 +82,7 @@ public final class SelectionQuery {
     this.identifierCountPairs = new ArrayList<>(identifierCountPairs);
   }
 
-  public List<PdbCompactFragment> apply(final PdbModel model) throws InvalidSelectionException {
+  public List<PdbCompactFragment> apply(final PdbModel model) {
     final List<PdbCompactFragment> fragments = new ArrayList<>();
 
     for (final Pair<PdbResidueIdentifier, Integer> pair : identifierCountPairs) {

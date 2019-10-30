@@ -11,7 +11,7 @@ import pl.poznan.put.matching.SelectionMatch;
 public abstract class LocalResult implements Exportable, Tabular {
   protected SelectionMatch selectionMatch;
 
-  protected LocalResult(final SelectionMatch selectionMatch) {
+  LocalResult(final SelectionMatch selectionMatch) {
     super();
     this.selectionMatch = selectionMatch;
   }

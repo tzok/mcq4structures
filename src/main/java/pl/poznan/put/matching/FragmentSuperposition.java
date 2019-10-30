@@ -1,31 +1,32 @@
 package pl.poznan.put.matching;
 
+import java.util.ArrayList;
 import java.util.List;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class FragmentSuperposition {
-  private final List<PdbCompactFragment> targetFragments;
-  private final List<PdbCompactFragment> modelFragments;
+  private final List<? extends PdbCompactFragment> targetFragments;
+  private final List<? extends PdbCompactFragment> modelFragments;
 
   public FragmentSuperposition(
-      List<PdbCompactFragment> targetFragments, List<PdbCompactFragment> modelFragments) {
+          final List<? extends PdbCompactFragment> targetFragments, final List<? extends PdbCompactFragment> modelFragments) {
     super();
-    this.targetFragments = targetFragments;
-    this.modelFragments = modelFragments;
+    this.targetFragments = new ArrayList<>(targetFragments);
+    this.modelFragments = new ArrayList<>(modelFragments);
   }
 
-  public String toPDB() {
-    StringBuilder builder = new StringBuilder();
+  public final String toPDB() {
+    final StringBuilder builder = new StringBuilder();
     builder.append(
         "MODEL        1                                              " + "                    \n");
-    for (PdbCompactFragment fragment : targetFragments) {
+    for (final PdbCompactFragment fragment : targetFragments) {
       builder.append(fragment.toPdb());
     }
     builder.append(
         "ENDMDL                                                      " + "                    \n");
     builder.append(
         "MODEL        2                                              " + "                    \n");
-    for (PdbCompactFragment fragment : modelFragments) {
+    for (final PdbCompactFragment fragment : modelFragments) {
       builder.append(fragment.toPdb());
     }
     builder.append(

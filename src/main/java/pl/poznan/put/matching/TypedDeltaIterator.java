@@ -8,24 +8,24 @@ public class TypedDeltaIterator implements AngleDeltaIterator {
   private final Iterator<ResidueComparison> iterator;
   private final MasterTorsionAngleType masterType;
 
-  public TypedDeltaIterator(FragmentMatch fragmentMatch, MasterTorsionAngleType masterType) {
+  public TypedDeltaIterator(final FragmentMatch fragmentMatch, final MasterTorsionAngleType masterType) {
     super();
-    this.iterator = fragmentMatch.getResidueComparisons().iterator();
+    iterator = fragmentMatch.getResidueComparisons().iterator();
     this.masterType = masterType;
   }
 
   @Override
-  public boolean hasNext() {
+  public final boolean hasNext() {
     return iterator.hasNext();
   }
 
   @Override
-  public Angle next() {
+  public final Angle next() {
     return iterator.next().getAngleDelta(masterType).getDelta();
   }
 
   @Override
-  public void remove() {
+  public final void remove() {
     iterator.remove();
   }
 }

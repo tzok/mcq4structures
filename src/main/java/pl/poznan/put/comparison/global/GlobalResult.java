@@ -7,25 +7,25 @@ public abstract class GlobalResult implements DisplayableExportable {
   private final String measureName;
   private final SelectionMatch selectionMatch;
 
-  protected GlobalResult(String measureName, SelectionMatch matches) {
+  GlobalResult(final String measureName, final SelectionMatch matches) {
     super();
     this.measureName = measureName;
-    this.selectionMatch = matches;
+    selectionMatch = matches;
   }
 
-  public String getMeasureName() {
+  public final String getMeasureName() {
     return measureName;
   }
 
-  public String getTargetName() {
+  public final String getTargetName() {
     return selectionMatch.getTarget().getName();
   }
 
-  public String getModelName() {
+  public final String getModelName() {
     return selectionMatch.getModel().getName();
   }
 
-  public SelectionMatch getSelectionMatch() {
+  public final SelectionMatch getSelectionMatch() {
     return selectionMatch;
   }
 

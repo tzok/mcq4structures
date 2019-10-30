@@ -31,7 +31,7 @@ public class MCQLocalResult extends LocalResult {
   private List<MasterTorsionAngleType> angleTypes;
 
   public MCQLocalResult(
-      final SelectionMatch selectionMatch, final List<MasterTorsionAngleType> angleTypes) {
+      final SelectionMatch selectionMatch, final List<? extends MasterTorsionAngleType> angleTypes) {
     super(selectionMatch);
     this.angleTypes = new ArrayList<>(angleTypes);
   }

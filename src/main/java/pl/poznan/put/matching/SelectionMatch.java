@@ -1,18 +1,17 @@
 package pl.poznan.put.matching;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import pl.poznan.put.interfaces.Exportable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.biojava.nbio.structure.StructureException;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 
 @Data
 @NoArgsConstructor
@@ -25,7 +24,7 @@ public class SelectionMatch implements Exportable, MatchCollection {
   public SelectionMatch(
       final StructureSelection target,
       final StructureSelection model,
-      final List<FragmentMatch> fragmentMatches) {
+      final List<? extends FragmentMatch> fragmentMatches) {
     super();
     this.target = target;
     this.model = model;
@@ -33,7 +32,7 @@ public class SelectionMatch implements Exportable, MatchCollection {
     makeResidueLabelsList();
   }
 
-  public final void setFragmentMatches(final List<FragmentMatch> fragmentMatches) {
+  public final void setFragmentMatches(final List<? extends FragmentMatch> fragmentMatches) {
     this.fragmentMatches = new ArrayList<>(fragmentMatches);
     makeResidueLabelsList();
   }
@@ -48,15 +47,10 @@ public class SelectionMatch implements Exportable, MatchCollection {
 
   @Override
   public final void export(final OutputStream stream) throws IOException {
-    try {
-      IOUtils.write(toPDB(false), stream, "UTF-8");
-    } catch (final StructureException | CifPdbIncompatibilityException e) {
-      throw new IOException("Failed to export the match to a PDB file", e);
-    }
+    IOUtils.write(toPDB(false), stream, "UTF-8");
   }
 
-  public final String toPDB(final boolean onlyMatched)
-      throws StructureException, CifPdbIncompatibilityException {
+  public final String toPDB(final boolean onlyMatched) {
     if (fragmentMatches.isEmpty()) {
       return "";
     }

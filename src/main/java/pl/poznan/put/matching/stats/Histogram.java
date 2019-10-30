@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Histogram {
+class Histogram {
   private final Map<Double, Double> percentages = new HashMap<>();
 
-  public Histogram(double[] limits, double[] percentages) {
+  Histogram(final double[] limits, final double[] percentages) {
     super();
 
     assert limits.length == percentages.length;
@@ -16,11 +16,11 @@ public class Histogram {
     }
   }
 
-  public Set<Double> getKeys() {
+  public final Set<Double> getKeys() {
     return percentages.keySet();
   }
 
-  public Double getPercentage(Double key) {
+  public final Double getPercentage(final Double key) {
     if (!percentages.containsKey(key)) {
       return Double.NaN;
     }

@@ -58,7 +58,7 @@ public final class SecondaryStructureVisualizer {
     }
   }
 
-  public static SVGDocument visualize(final DotBracketInterface dotBracket, final Double[] mapped) {
+  private static SVGDocument visualize(final DotBracketInterface dotBracket, final Double[] mapped) {
     File tempFile = null;
 
     try {

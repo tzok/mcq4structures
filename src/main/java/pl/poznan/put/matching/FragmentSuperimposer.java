@@ -3,7 +3,7 @@ package pl.poznan.put.matching;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.vecmath.Matrix4d;
@@ -59,14 +59,14 @@ public class FragmentSuperimposer {
     final List<Point3d> atomsM = new ArrayList<>();
     filterAtoms(atomsT, atomsM);
 
-    totalAtomsTarget = atomsT.toArray(new Point3d[atomsT.size()]);
-    totalAtomsModel = atomsM.toArray(new Point3d[atomsM.size()]);
+    totalAtomsTarget = atomsT.toArray(new Point3d[0]);
+    totalAtomsModel = atomsM.toArray(new Point3d[0]);
 
     totalSuperposition = SuperPositions.superposeAndTransform(totalAtomsTarget, totalAtomsModel);
   }
 
   private void filterAtoms(
-      final Collection<Point3d> atomsTargetAll, final Collection<Point3d> atomsModelAll) {
+          final Collection<? super Point3d> atomsTargetAll, final Collection<? super Point3d> atomsModelAll) {
     final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
 
     for (int i = 0, size = fragmentMatches.size(); i < size; i++) {
@@ -103,9 +103,9 @@ public class FragmentSuperimposer {
       }
 
       final Point3d[] matchedAtomsTarget =
-          atomsTargetMatch.toArray(new Point3d[atomsTargetMatch.size()]);
+          atomsTargetMatch.toArray(new Point3d[0]);
       final Point3d[] matchedAtomsModel =
-          atomsModelMatch.toArray(new Point3d[atomsModelMatch.size()]);
+          atomsModelMatch.toArray(new Point3d[0]);
       matchedSuperpositions[i] =
           SuperPositions.superposeAndTransform(matchedAtomsTarget, matchedAtomsModel);
     }
@@ -126,7 +126,7 @@ public class FragmentSuperimposer {
   private List<AtomName> handleAtomFilterForProtein() {
     switch (atomFilter) {
       case ALL:
-        final Set<AtomName> atomNames = new HashSet<>();
+        final Set<AtomName> atomNames = EnumSet.noneOf(AtomName.class);
         for (final AminoAcidType aminoAcidType : AminoAcidType.values()) {
           for (final ResidueComponent component : aminoAcidType.getAllMoleculeComponents()) {
             atomNames.addAll(component.getAtoms());
@@ -143,7 +143,7 @@ public class FragmentSuperimposer {
   }
 
   private List<AtomName> handleAtomFilterForRNA() {
-    final Set<AtomName> atomNames = new HashSet<>();
+    final Set<AtomName> atomNames = EnumSet.noneOf(AtomName.class);
 
     switch (atomFilter) {
       case ALL:

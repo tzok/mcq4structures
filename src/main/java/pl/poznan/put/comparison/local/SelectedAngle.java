@@ -13,7 +13,11 @@ import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.formats.*;
+import pl.poznan.put.structure.secondary.formats.BpSeq;
+import pl.poznan.put.structure.secondary.formats.Converter;
+import pl.poznan.put.structure.secondary.formats.DotBracket;
+import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
+import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
@@ -107,17 +111,17 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
 
   @Override
   public final File suggestName() {
-    final StringBuilder builder =
-        new StringBuilder(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()));
-    builder.append("-Local-Distance-Multi");
+    final String builder =
+        models.stream()
+            .map(model -> "-" + model)
+            .collect(
+                Collectors.joining(
+                    "",
+                    DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date())
+                        + "-Local-Distance-Multi",
+                    ".csv"));
 
-    for (final PdbCompactFragment model : models) {
-      builder.append('-');
-      builder.append(model);
-    }
-
-    builder.append(".csv");
-    return new File(builder.toString());
+    return new File(builder);
   }
 
   @Override
@@ -148,12 +152,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
         final FragmentMatch fragmentMatch = fragmentMatches.get(j);
         final ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
         final TorsionAngleDelta delta = residueComparison.getAngleDelta(angleType);
-
-        if (delta == null) {
-          data[i][j + 1] = null;
-        } else {
-          data[i][j + 1] = isDisplay ? delta.toDisplayString() : delta.toExportString();
-        }
+        data[i][j + 1] = isDisplay ? delta.toDisplayString() : delta.toExportString();
       }
     }
 

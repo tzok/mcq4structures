@@ -44,8 +44,8 @@ public final class AngleDeltaMapper implements ComparisonMapper {
    */
   @Override
   public Double[] map(
-      final List<ResidueComparison> residueComparisons,
-      final List<MasterTorsionAngleType> angleTypes) {
+      final List<? extends ResidueComparison> residueComparisons,
+      final List<? extends MasterTorsionAngleType> angleTypes) {
     final Double[] result = new Double[residueComparisons.size()];
 
     for (int i = 0; i < residueComparisons.size(); i++) {

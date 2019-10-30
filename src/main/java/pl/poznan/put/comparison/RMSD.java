@@ -49,8 +49,7 @@ public class RMSD implements GlobalComparator {
 
   @Override
   public final GlobalResult compareGlobally(
-      final StructureSelection s1, final StructureSelection s2)
-      throws IncomparableStructuresException {
+      final StructureSelection s1, final StructureSelection s2) {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(s1, s2);
 
