@@ -1,28 +1,5 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionListener;
 import pl.poznan.put.gui.component.FilteredListModel;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
@@ -32,12 +9,16 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-public final class DialogSelectChainsMultiple extends JDialog {
-  private static final long serialVersionUID = -5562038332587512308L;
+import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-  private static final int CANCEL = 0;
-  public static final int OK = 1;
-
+final class DialogSelectChainsMultiple extends JDialog {
   private final FilteredListModel modelAll = new FilteredListModel();
   private final FilteredListModel modelSelected = new FilteredListModel();
   private final JList<PdbCompactFragment> listAll = new JList<>(modelAll);
@@ -50,11 +31,11 @@ public final class DialogSelectChainsMultiple extends JDialog {
   private final JButton buttonSelectAll = new JButton("Select all ->");
   private final JButton buttonDeselect = new JButton("<- Deselect");
 
-  private int chosenOption;
-  private boolean isFragmentsSizeConstrained;
+  private OkCancelOption chosenOption = OkCancelOption.CANCEL;
+  private boolean isFragmentsSizeConstrained = false;
   private List<PdbCompactFragment> selectedChains = new ArrayList<>();
 
-  public DialogSelectChainsMultiple(final Frame owner) {
+  DialogSelectChainsMultiple(final Frame owner) {
     super(owner, true);
     setTitle("MCQ4Structures: multiple chain selection");
     setButtonOkState();
@@ -84,44 +65,44 @@ public final class DialogSelectChainsMultiple extends JDialog {
 
     final JPanel panelButtons = new JPanel();
     panelButtons.setLayout(new GridBagLayout());
-    GridBagConstraints constraints = new GridBagConstraints();
-    constraints.gridx = 0;
-    constraints.gridy = 0;
-    constraints.gridwidth = 1;
-    constraints.gridheight = 1;
-    constraints.fill = GridBagConstraints.HORIZONTAL;
-    panelButtons.add(new JLabel("Limit to:"), constraints);
-    constraints.gridy++;
-    panelButtons.add(checkRNA, constraints);
-    constraints.gridy++;
-    panelButtons.add(checkProtein, constraints);
-    constraints.gridy++;
-    panelButtons.add(buttonSelect, constraints);
-    constraints.gridy++;
-    panelButtons.add(buttonSelectAll, constraints);
-    constraints.gridy++;
-    panelButtons.add(buttonDeselect, constraints);
-    constraints.gridy++;
+    final GridBagConstraints constraintsButtons = new GridBagConstraints();
+    constraintsButtons.gridx = 0;
+    constraintsButtons.gridy = 0;
+    constraintsButtons.gridwidth = 1;
+    constraintsButtons.gridheight = 1;
+    constraintsButtons.fill = GridBagConstraints.HORIZONTAL;
+    panelButtons.add(new JLabel("Limit to:"), constraintsButtons);
+    constraintsButtons.gridy++;
+    panelButtons.add(checkRNA, constraintsButtons);
+    constraintsButtons.gridy++;
+    panelButtons.add(checkProtein, constraintsButtons);
+    constraintsButtons.gridy++;
+    panelButtons.add(buttonSelect, constraintsButtons);
+    constraintsButtons.gridy++;
+    panelButtons.add(buttonSelectAll, constraintsButtons);
+    constraintsButtons.gridy++;
+    panelButtons.add(buttonDeselect, constraintsButtons);
+    constraintsButtons.gridy++;
     final JButton buttonDeselectAll = new JButton("<- Deselect all");
-    panelButtons.add(buttonDeselectAll, constraints);
+    panelButtons.add(buttonDeselectAll, constraintsButtons);
 
     final JPanel panelMain = new JPanel();
     panelMain.setLayout(new GridBagLayout());
-    constraints = new GridBagConstraints();
-    constraints.gridx = 0;
-    constraints.gridy = 0;
-    constraints.weightx = 0.5;
-    constraints.weighty = 0.5;
-    constraints.fill = GridBagConstraints.BOTH;
-    panelMain.add(new JScrollPane(listAll), constraints);
-    constraints.gridx++;
-    constraints.weightx = 0;
-    constraints.fill = GridBagConstraints.VERTICAL;
-    panelMain.add(panelButtons, constraints);
-    constraints.gridx++;
-    constraints.weightx = 0.5;
-    constraints.fill = GridBagConstraints.BOTH;
-    panelMain.add(new JScrollPane(listSelected), constraints);
+    final GridBagConstraints constraintsMain = new GridBagConstraints();
+    constraintsMain.gridx = 0;
+    constraintsMain.gridy = 0;
+    constraintsMain.weightx = 0.5;
+    constraintsMain.weighty = 0.5;
+    constraintsMain.fill = GridBagConstraints.BOTH;
+    panelMain.add(new JScrollPane(listAll), constraintsMain);
+    constraintsMain.gridx++;
+    constraintsMain.weightx = 0;
+    constraintsMain.fill = GridBagConstraints.VERTICAL;
+    panelMain.add(panelButtons, constraintsMain);
+    constraintsMain.gridx++;
+    constraintsMain.weightx = 0.5;
+    constraintsMain.fill = GridBagConstraints.BOTH;
+    panelMain.add(new JScrollPane(listSelected), constraintsMain);
 
     final JPanel panelOkCancel = new JPanel();
     panelOkCancel.add(buttonOk);
@@ -205,13 +186,13 @@ public final class DialogSelectChainsMultiple extends JDialog {
     buttonOk.addActionListener(
         e -> {
           selectedChains = modelSelected.getSelectedElements();
-          chosenOption = DialogSelectChainsMultiple.OK;
+          chosenOption = OkCancelOption.OK;
           dispose();
         });
 
     buttonCancel.addActionListener(
         arg0 -> {
-          chosenOption = DialogSelectChainsMultiple.CANCEL;
+          chosenOption = OkCancelOption.CANCEL;
           dispose();
         });
 
@@ -239,7 +220,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
     return Collections.unmodifiableList(selectedChains);
   }
 
-  public int showDialog(final boolean fragmentsSameSize) {
+  public OkCancelOption showDialog(final boolean fragmentsSameSize) {
     final Collection<PdbCompactFragment> fragments = new ArrayList<>();
 
     for (final PdbModel structure : StructureManager.getAllStructures()) {
@@ -259,12 +240,12 @@ public final class DialogSelectChainsMultiple extends JDialog {
      * Refresh data -> if some structure was removed from StructureManager,
      * removePair its chains as well
      */
-    Collection<PdbCompactFragment> list = new ArrayList<>(listL);
-    list.removeAll(fragments);
-    modelAll.removeElements(list);
-    list = new ArrayList<>(listR);
-    list.removeAll(fragments);
-    modelSelected.removeElements(list);
+    final Collection<PdbCompactFragment> listLCopy = new ArrayList<>(listL);
+    listLCopy.removeAll(fragments);
+    modelAll.removeElements(listLCopy);
+    final Collection<PdbCompactFragment> listRCopy = new ArrayList<>(listR);
+    listRCopy.removeAll(fragments);
+    modelSelected.removeElements(listRCopy);
 
     /*
      * Add all chains from structure that are new in the StructureManager
@@ -275,7 +256,7 @@ public final class DialogSelectChainsMultiple extends JDialog {
 
     listAll.updateUI();
     listSelected.updateUI();
-    chosenOption = DialogSelectChainsMultiple.CANCEL;
+    chosenOption = OkCancelOption.CANCEL;
     isFragmentsSizeConstrained = fragmentsSameSize;
 
     deselectAll();

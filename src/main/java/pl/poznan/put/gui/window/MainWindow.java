@@ -1,42 +1,11 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.lang3.tuple.Pair;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.enums.ValueType;
 import pl.poznan.put.comparison.LCS;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
-import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.StayOpenCheckBoxMenuItem;
@@ -54,7 +23,21 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.types.DistanceMatrix;
 
-public class MainWindow extends JFrame {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public final class MainWindow extends JFrame {
   private static final String CARD_TORSION = "CARD_TORSION";
   private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
   private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
@@ -88,12 +71,9 @@ public class MainWindow extends JFrame {
   private final JMenuItem itemVisualise3D = new JMenuItem("Visualise results in 3D");
   private final JMenuItem itemCluster = new JMenuItem("Cluster results");
   private final ActionListener radioActionListener =
-      new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent arg0) {
-          itemVisualise3D.setEnabled(false);
-          itemCluster.setEnabled(false);
-        }
+      arg0 -> {
+        itemVisualise3D.setEnabled(false);
+        itemCluster.setEnabled(false);
       };
   private final JMenu menuAlignment = new JMenu("Alignment");
   private final JRadioButtonMenuItem radioAlignSeqGlobal =
@@ -123,33 +103,30 @@ public class MainWindow extends JFrame {
   private final DialogSelectAngles dialogAngles;
   private ProcessingResult currentResult = ProcessingResult.emptyInstance();
   private final ActionListener selectActionListener =
-      new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-          assert e != null;
-          final JMenuItem source = (JMenuItem) e.getSource();
+      e -> {
+        assert e != null;
+        final JMenuItem source = (JMenuItem) e.getSource();
 
-          if (source.equals(itemSelectStructureTorsionAngles)) {
-            selectSingleStructure();
-          } else if (source.equals(itemSelectStructuresCompare)) {
-            if (radioLocal.isSelected()) {
-              selectChains(source);
-            } else if (radioLocalMulti.isSelected()) {
-              selectChainsMultiple(source);
-            } else {
-              selectStructures();
-            }
+        if (source.equals(itemSelectStructureTorsionAngles)) {
+          selectSingleStructure();
+        } else if (source.equals(itemSelectStructuresCompare)) {
+          if (radioLocal.isSelected()) {
+            selectChains(source);
+          } else if (radioLocalMulti.isSelected()) {
+            selectChainsMultiple(source);
           } else {
-            if (radioAlignStruc.isSelected()) {
-              selectChains(source);
-            } else {
-              selectChainsMultiple(source);
-            }
+            selectStructures();
+          }
+        } else {
+          if (radioAlignStruc.isSelected()) {
+            selectChains(source);
+          } else {
+            selectChainsMultiple(source);
           }
         }
       };
 
-  public MainWindow(final List<File> pdbs) {
+  private MainWindow(final Iterable<File> pdbs) {
     super();
 
     dialogManager = new DialogManager(this);
@@ -187,10 +164,38 @@ public class MainWindow extends JFrame {
     dialogManager.addWindowListener(
         new WindowAdapter() {
           @Override
-          public void windowClosing(final WindowEvent e) {
-            super.windowClosing(e);
+          public void windowClosing(final WindowEvent windowEvent) {
+            super.windowClosing(windowEvent);
             checkBoxManager.setSelected(false);
           }
+        });
+  }
+
+  public static void main(final String[] args) {
+    final List<File> pdbs =
+        Arrays.stream(args).map(File::new).filter(File::canRead).collect(Collectors.toList());
+
+    SwingUtilities.invokeLater(
+        () -> {
+          /*
+           * Set L&F
+           */
+          for (final UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+              try {
+                UIManager.setLookAndFeel(info.getClassName());
+              } catch (final ClassNotFoundException
+                  | InstantiationException
+                  | IllegalAccessException
+                  | UnsupportedLookAndFeelException e) {
+                // do nothing
+              }
+              break;
+            }
+          }
+
+          final MainWindow window = new MainWindow(pdbs);
+          window.setVisible(true);
         });
   }
 
@@ -272,87 +277,51 @@ public class MainWindow extends JFrame {
 
     radioAlignSeqGlobal.addActionListener(radioActionListener);
 
-    itemOpen.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            dialogManager.selectAndLoadStructures();
-          }
-        });
+    itemOpen.addActionListener(e -> dialogManager.selectAndLoadStructures());
 
-    itemSave.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            saveResults();
-          }
-        });
+    itemSave.addActionListener(e -> saveResults());
 
-    checkBoxManager.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            dialogManager.setVisible(checkBoxManager.isSelected());
-          }
-        });
+    checkBoxManager.addActionListener(e -> dialogManager.setVisible(checkBoxManager.isSelected()));
 
     itemExit.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            dispatchEvent(new WindowEvent(MainWindow.this, WindowEvent.WINDOW_CLOSING));
-          }
-        });
+        e -> dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
 
     itemVisualise3D.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            if (currentResult.canVisualize()) {
-              currentResult.visualize3D();
-            }
+        e -> {
+          if (currentResult.canVisualize()) {
+            currentResult.visualize3D();
           }
         });
 
     itemCluster.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent arg0) {
-            if (currentResult.canCluster()) {
-              final DistanceMatrix distanceMatrix = currentResult.getDataForClustering();
-              final double[][] array = distanceMatrix.getMatrix();
+        arg0 -> {
+          if (currentResult.canCluster()) {
+            final DistanceMatrix distanceMatrix = currentResult.getDataForClustering();
+            final double[][] array = distanceMatrix.getMatrix();
 
-              if (array.length <= 1) {
-                final String message =
-                    "Cannot cluster this distance matrix, because"
-                        + " it contains zero valid comparisons";
-                JOptionPane.showMessageDialog(
-                    null, message, "Warning", JOptionPane.WARNING_MESSAGE);
-                return;
-              }
-
-              final DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
-              dialogClustering.setVisible(true);
+            if (array.length <= 1) {
+              final String message =
+                  "Cannot cluster this distance matrix, because"
+                      + " it contains zero valid comparisons";
+              JOptionPane.showMessageDialog(null, message, "Warning", JOptionPane.WARNING_MESSAGE);
+              return;
             }
+
+            final DialogCluster dialogClustering = new DialogCluster(distanceMatrix);
+            dialogClustering.setVisible(true);
           }
         });
 
     itemGuide.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            final DialogGuide dialog = new DialogGuide(MainWindow.this);
-            dialog.setVisible(true);
-          }
+        e -> {
+          final DialogGuide dialog = new DialogGuide(this);
+          dialog.setVisible(true);
         });
 
     itemAbout.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(final ActionEvent e) {
-            final DialogAbout dialog = new DialogAbout(MainWindow.this);
-            dialog.setVisible(true);
-          }
+        e -> {
+          final DialogAbout dialog = new DialogAbout(this);
+          dialog.setVisible(true);
         });
   }
 
@@ -363,7 +332,7 @@ public class MainWindow extends JFrame {
       fileChooser.setSelectedFile(suggestedName);
 
       if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-        try (OutputStream stream = new FileOutputStream(fileChooser.getSelectedFile())) {
+        try (final OutputStream stream = new FileOutputStream(fileChooser.getSelectedFile())) {
           currentResult.export(stream);
           JOptionPane.showMessageDialog(
               this,
@@ -381,48 +350,11 @@ public class MainWindow extends JFrame {
     }
   }
 
-  public static void main(final String[] args) {
-    final List<File> pdbs = new ArrayList<>();
-
-    for (final String argument : args) {
-      final File file = new File(argument);
-      if (file.canRead()) {
-        pdbs.add(file);
-      }
-    }
-
-    SwingUtilities.invokeLater(
-        new Runnable() {
-          @Override
-          public void run() {
-            /*
-             * Set L&F
-             */
-            for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-              if ("Nimbus".equals(info.getName())) {
-                try {
-                  UIManager.setLookAndFeel(info.getClassName());
-                } catch (ClassNotFoundException
-                    | InstantiationException
-                    | IllegalAccessException
-                    | UnsupportedLookAndFeelException e) {
-                  // do nothing
-                }
-                break;
-              }
-            }
-
-            final MainWindow window = new MainWindow(pdbs);
-            window.setVisible(true);
-          }
-        });
-  }
-
   private void selectSingleStructure() {
     itemSave.setEnabled(false);
 
     final List<String> names = StructureManager.getAllNames();
-    final String[] selectionValues = names.toArray(new String[names.size()]);
+    final String[] selectionValues = names.toArray(new String[0]);
     final String name =
         (String)
             JOptionPane.showInputDialog(
@@ -453,7 +385,7 @@ public class MainWindow extends JFrame {
   }
 
   private void selectStructures() {
-    if (dialogStructures.showDialog() != DialogSelectStructures.OK) {
+    if (dialogStructures.showDialog() != OkCancelOption.OK) {
       return;
     }
 
@@ -499,14 +431,14 @@ public class MainWindow extends JFrame {
   }
 
   private void selectChains(final JMenuItem source) {
-    if (dialogChains.showDialog() != DialogSelectChains.OK) {
+    if (dialogChains.showDialog() != OkCancelOption.OK) {
       return;
     }
 
     final Pair<PdbModel, PdbModel> structures = dialogChains.getStructures();
     final Pair<List<PdbChain>, List<PdbChain>> chains = dialogChains.getChains();
 
-    if (chains.getLeft().size() == 0 || chains.getRight().size() == 0) {
+    if (chains.getLeft().isEmpty() || chains.getRight().isEmpty()) {
       final String message =
           "No chains specified for structure: "
               + StructureManager.getName(structures.getLeft())
@@ -536,14 +468,10 @@ public class MainWindow extends JFrame {
   }
 
   private void compareLocalPair() {
-    try {
-      if (dialogAngles.showDialog() == DialogSelectAngles.OK) {
-        currentResult = panelResultsLocalMatrix.compareAndDisplayTable(dialogAngles.getAngles());
-        layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
-        updateMenuEnabledStates();
-      }
-    } catch (final IncomparableStructuresException e) {
-      JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    if (dialogAngles.showDialog() == OkCancelOption.OK) {
+      currentResult = panelResultsLocalMatrix.compareAndDisplayTable(dialogAngles.getAngles());
+      layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MATRIX);
+      updateMenuEnabledStates();
     }
   }
 
@@ -555,7 +483,7 @@ public class MainWindow extends JFrame {
 
   private void selectChainsMultiple(final JMenuItem source) {
     if (dialogChainsMultiple.showDialog(source.equals(itemSelectStructuresCompare))
-        != DialogSelectChainsMultiple.OK) {
+        != OkCancelOption.OK) {
       return;
     }
 

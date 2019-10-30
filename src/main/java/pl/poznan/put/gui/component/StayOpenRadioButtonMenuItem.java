@@ -29,11 +29,11 @@ public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
   /**
    * Overridden to reopen the menu.
    *
-   * @param pressTime the time to "hold down" the button, in milliseconds
+   * @param i the time to "hold down" the button, in milliseconds
    */
   @Override
-  public final void doClick(final int pressTime) {
-    super.doClick(pressTime);
+  public final void doClick(final int i) {
+    super.doClick(i);
     MenuSelectionManager.defaultManager().setSelectedPath(path);
   }
 }

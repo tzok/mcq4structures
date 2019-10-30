@@ -1,11 +1,5 @@
 package pl.poznan.put.visualisation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import javax.swing.JOptionPane;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +8,7 @@ import org.jzy3d.analysis.IAnalysis;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.constant.Unicode;
+import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
@@ -23,10 +18,44 @@ import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
+import javax.swing.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 public class VisualizableMCQLocalResult extends MCQLocalResult implements Visualizable {
+  public static NavigableMap<Double, String> prepareTicksZ() {
+    final NavigableMap<Double, String> valueTickZ = new TreeMap<>();
+    valueTickZ.put(0.0, "0");
+
+    for (double radians = Math.PI / 12.0;
+        radians <= (Math.PI + 1.0e-3);
+        radians += Math.PI / 12.0) {
+      valueTickZ.put(radians, Math.round(Math.toDegrees(radians)) + Unicode.DEGREE);
+    }
+
+    return valueTickZ;
+  }
+
+  private static List<String> prepareTicksFromDotBracket(final FragmentMatch fragmentMatch) {
+    try {
+      final DotBracket dotBracket = fragmentMatch.matchedSecondaryStructure();
+      return dotBracket
+          .getStructure()
+          .chars()
+          .mapToObj(i -> String.valueOf((char) i))
+          .collect(Collectors.toList());
+    } catch (final InvalidStructureException e) {
+      VisualizableMCQLocalResult.log.warn("Failed to extract canonical secondary structure", e);
+    }
+    return Collections.emptyList();
+  }
+
   @Override
   public final SVGDocument visualize() {
     throw new IllegalArgumentException(
@@ -51,22 +80,11 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
         String labelY = null;
 
         if (target.getMoleculeType() == MoleculeType.RNA) {
-          try {
-            final DotBracket dotBracket = fragmentMatch.matchedSecondaryStructure();
-            ticksY =
-                dotBracket
-                    .getStructure()
-                    .chars()
-                    .mapToObj(i -> String.valueOf((char) i))
-                    .collect(Collectors.toList());
-            labelY = "Secondary structure";
-          } catch (final InvalidStructureException e) {
-            VisualizableMCQLocalResult.log.warn(
-                "Failed to extract canonical secondary structure", e);
-          }
+          ticksY = VisualizableMCQLocalResult.prepareTicksFromDotBracket(fragmentMatch);
+          labelY = "Secondary structure";
         }
 
-        if (ticksY == null) {
+        if (ticksY == null || ticksY.isEmpty()) {
           ticksY = fragmentMatch.matchedResidueNames();
           labelY = "ResID";
         }
@@ -120,23 +138,6 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
   }
 
   private List<String> prepareTicksX() {
-    final List<String> ticksX = new ArrayList<>();
-    for (final MasterTorsionAngleType angleType : getAngleTypes()) {
-      ticksX.add(angleType.getExportName());
-    }
-    return ticksX;
-  }
-
-  public static NavigableMap<Double, String> prepareTicksZ() {
-    final NavigableMap<Double, String> valueTickZ = new TreeMap<>();
-    valueTickZ.put(0.0, "0");
-
-    for (double radians = Math.PI / 12.0;
-        radians <= (Math.PI + 1.0e-3);
-        radians += Math.PI / 12.0) {
-      valueTickZ.put(radians, Math.round(Math.toDegrees(radians)) + Unicode.DEGREE);
-    }
-
-    return valueTickZ;
+      return getAngleTypes().stream().map(DisplayableExportable::getExportName).collect(Collectors.toList());
   }
 }

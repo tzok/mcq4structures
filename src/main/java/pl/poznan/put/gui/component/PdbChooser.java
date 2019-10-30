@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class PdbChooser extends JFileChooser {
+public final class PdbChooser extends JFileChooser {
   private static final PdbChooser INSTANCE = new PdbChooser();
 
   private PdbChooser() {
@@ -16,10 +16,8 @@ public class PdbChooser extends JFileChooser {
     setFileFilter(
         new FileNameExtensionFilter(
             "Supported formats (PDB, mmCIF)",
-            new String[] {
-              "pdb", "pdb1", "ent",
-              "brk", "cif", "gz"
-            }));
+                "pdb", "pdb1", "ent",
+                "brk", "cif", "gz"));
     addChoosableFileFilter(
         new FileNameExtensionFilter("PDB file format", "pdb", "pdb1", "ent", "brk", "gz"));
     addChoosableFileFilter(new FileNameExtensionFilter("mmCIF file format", "cif", "gz"));
@@ -30,8 +28,8 @@ public class PdbChooser extends JFileChooser {
     return PdbChooser.INSTANCE;
   }
 
-  public List<File> selectFiles(Component parent) {
-    int state = showOpenDialog(parent);
+  public List<File> selectFiles(final Component parent) {
+    final int state = showOpenDialog(parent);
     if (state == JFileChooser.APPROVE_OPTION) {
       return Arrays.asList(getSelectedFiles());
     }

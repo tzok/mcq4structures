@@ -2,8 +2,10 @@ package pl.poznan.put.gui.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -46,8 +48,8 @@ public class SequenceAlignmentPanel extends JPanel {
     add(new JScrollPane(textAreaAlignment), BorderLayout.CENTER);
   }
 
-  public void setFragments(final List<PdbCompactFragment> fragments, final boolean isGlobal) {
-    this.fragments = fragments;
+  public final void setFragments(final List<? extends PdbCompactFragment> fragments, final boolean isGlobal) {
+    this.fragments = new ArrayList<>(fragments);
     this.isGlobal = isGlobal;
 
     textAreaAlignment.setText("");
@@ -63,7 +65,7 @@ public class SequenceAlignmentPanel extends JPanel {
     int i = 0;
 
     for (final PdbCompactFragment c : fragments) {
-      builder.append("<span style=\"color: " + (i % 2 == 0 ? "blue" : "green") + "\">");
+      builder.append("<span style=\"color: ").append(i % 2 == 0 ? "blue" : "green").append("\">");
       builder.append(c.getName());
       builder.append("</span>, ");
       i++;
@@ -81,11 +83,11 @@ public class SequenceAlignmentPanel extends JPanel {
     labelHeader.setText(builder.toString());
   }
 
-  public ProcessingResult alignAndDisplaySequences() {
+  public final ProcessingResult alignAndDisplaySequences() {
     try {
       final SequenceAligner aligner = new SequenceAligner(fragments, isGlobal);
       final SequenceAlignment alignment = aligner.align();
-      textAreaAlignment.setText(alignment.toString());
+      textAreaAlignment.setText(Objects.requireNonNull(alignment).toString());
       updateHeader(true);
       return new ProcessingResult(alignment);
     } catch (final CompoundNotFoundException e) {

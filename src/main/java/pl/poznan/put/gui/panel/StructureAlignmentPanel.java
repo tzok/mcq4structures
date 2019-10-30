@@ -1,19 +1,6 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import org.apache.commons.lang3.tuple.Pair;
-import org.biojava.nbio.structure.StructureException;
 import org.biojava.nbio.structure.align.gui.jmol.JmolPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +10,19 @@ import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.CifPdbIncompatibilityException;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public final class StructureAlignmentPanel extends JPanel {
   private static final long serialVersionUID = 4973837093762666112L;
@@ -51,8 +44,8 @@ public final class StructureAlignmentPanel extends JPanel {
   private final JmolPanel panelJmolLeft = new JmolPanel();
   private final JmolPanel panelJmolRight = new JmolPanel();
 
-  private Pair<PdbModel, PdbModel> structures;
-  private Pair<List<PdbChain>, List<PdbChain>> chains;
+  private Pair<? extends PdbModel, ? extends PdbModel> structures;
+  private Pair<? extends List<PdbChain>, ? extends List<PdbChain>> chains;
 
   public StructureAlignmentPanel() {
     super(new BorderLayout());
@@ -84,8 +77,8 @@ public final class StructureAlignmentPanel extends JPanel {
   }
 
   public void setStructuresAndChains(
-      final Pair<PdbModel, PdbModel> structures,
-      final Pair<List<PdbChain>, List<PdbChain>> chains) {
+      final Pair<? extends PdbModel, ? extends PdbModel> structures,
+      final Pair<? extends List<PdbChain>, ? extends List<PdbChain>> chains) {
     this.structures = structures;
     this.chains = chains;
 
@@ -159,15 +152,8 @@ public final class StructureAlignmentPanel extends JPanel {
       panelJmolRight.executeCmd(StructureAlignmentPanel.JMOL_SCRIPT);
       updateHeader(true);
       return new ProcessingResult(selectionMatch);
-    } catch (final StructureException | CifPdbIncompatibilityException e) {
-      final String message =
-          String.format("Failed to align structures: %s and %s", nameLeft, nameRight);
-      StructureAlignmentPanel.LOGGER.error(message, e);
-      JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     } finally {
       labelStatus.setText("Computation finished");
     }
-
-    return ProcessingResult.emptyInstance();
   }
 }

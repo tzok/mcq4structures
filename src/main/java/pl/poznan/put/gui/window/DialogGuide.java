@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -16,26 +17,27 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("ALL")
 public class DialogGuide extends JDialog {
   private static final Logger LOGGER = LoggerFactory.getLogger(DialogGuide.class);
 
-  public DialogGuide(Frame owner) {
+  public DialogGuide(final Frame owner) {
     super(owner, true);
 
-    JEditorPane editorPane = new JEditorPane();
+    final JEditorPane editorPane = new JEditorPane();
     editorPane.setContentType("text/html");
     editorPane.setEditable(false);
 
-    URL resource = getClass().getResource("/guide.html");
-    try (InputStream stream = resource.openStream()) {
-      editorPane.setText(IOUtils.toString(stream, "UTF-8"));
+    final URL resource = getClass().getResource("/guide.html");
+    try (final InputStream stream = resource.openStream()) {
+      editorPane.setText(IOUtils.toString(stream, StandardCharsets.UTF_8));
       editorPane.setCaretPosition(0);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       DialogGuide.LOGGER.error("Failed to load quick guide text", e);
     }
 
-    JButton buttonClose = new JButton("Close");
-    JPanel panelButton = new JPanel();
+    final JButton buttonClose = new JButton("Close");
+    final JPanel panelButton = new JPanel();
     panelButton.add(buttonClose);
 
     setLayout(new BorderLayout());
@@ -48,7 +50,7 @@ public class DialogGuide extends JDialog {
     buttonClose.addActionListener(
         new ActionListener() {
           @Override
-          public void actionPerformed(ActionEvent arg0) {
+          public void actionPerformed(final ActionEvent arg0) {
             dispose();
           }
         });

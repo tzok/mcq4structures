@@ -89,7 +89,7 @@ public final class DialogManager extends JDialog {
             final List<PdbModel> models = StructureManager.loadStructure(pdbId);
             final File path = StructureManager.getFile(models.get(0));
             model.addElement(path);
-          } catch (IOException | PdbParsingException e) {
+          } catch (final IOException | PdbParsingException e) {
             final String message =
                 String.format("Failed to download and/or parse PDB file: %s", pdbId);
             DialogManager.LOGGER.error(message, e);
@@ -104,13 +104,13 @@ public final class DialogManager extends JDialog {
     loadStructures(files);
   }
 
-  public void loadStructures(final Iterable<File> files) {
+  public void loadStructures(final Iterable<? extends File> files) {
     for (final File file : files) {
       try {
         if (!StructureManager.loadStructure(file).isEmpty()) {
           model.addElement(file);
         }
-      } catch (IOException | PdbParsingException e) {
+      } catch (final IOException | PdbParsingException e) {
         final String message = String.format("Failed to load and/or parse PDB file: %s", file);
         DialogManager.LOGGER.error(message, e);
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);

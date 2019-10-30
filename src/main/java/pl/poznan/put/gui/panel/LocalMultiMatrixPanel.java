@@ -75,7 +75,7 @@ public final class LocalMultiMatrixPanel extends JPanel {
     add(tabbedPane, BorderLayout.CENTER);
   }
 
-  public void setFragments(final List<PdbCompactFragment> fragments) {
+  public void setFragments(final List<? extends PdbCompactFragment> fragments) {
     this.fragments = new ArrayList<>(fragments);
     final TableModel emptyDataModel = new DefaultTableModel();
     tableMatrix.setModel(emptyDataModel);
@@ -154,11 +154,8 @@ public final class LocalMultiMatrixPanel extends JPanel {
 
   private PdbCompactFragment selectReferenceStructure() {
     final PdbCompactFragmentWrapper[] fragmentArray =
-        new PdbCompactFragmentWrapper[fragments.size()];
-    for (int i = 0; i < fragments.size(); i++) {
-      fragmentArray[i] = new PdbCompactFragmentWrapper(fragments.get(i));
-    }
-    final Object o =
+            fragments.stream().map(PdbCompactFragmentWrapper::new).toArray(PdbCompactFragmentWrapper[]::new);
+      final Object o =
         JOptionPane.showInputDialog(
             this,
             Messages.getString("select.your.reference.structure"),

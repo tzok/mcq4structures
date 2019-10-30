@@ -39,7 +39,7 @@ public final class GlobalMatrixPanel extends JPanel {
   private final JTable tableMatrix = new JTable();
   private final JProgressBar progressBar = new JProgressBar(0, 1);
   private final SVGComponent visualization = new SVGComponent(SVGHelper.emptyDocument(), "matrix");
-  private List<PdbModel> structures = Collections.emptyList();
+  private List<? extends PdbModel> structures = Collections.emptyList();
 
   public GlobalMatrixPanel() {
     super(new BorderLayout());
@@ -65,8 +65,8 @@ public final class GlobalMatrixPanel extends JPanel {
     add(panelProgressBar, BorderLayout.PAGE_END);
   }
 
-  public void setStructures(final List<PdbModel> structures) {
-    this.structures = structures;
+  public void setStructures(final List<? extends PdbModel> structures) {
+    this.structures = new ArrayList<>(structures);
     tableMatrix.setModel(new DefaultTableModel());
     visualization.setSVGDocument(SVGHelper.emptyDocument());
     updateHeader(false, "");
@@ -165,6 +165,7 @@ public final class GlobalMatrixPanel extends JPanel {
     }
   }
 
+  @FunctionalInterface
   public interface Callback {
     void complete(ProcessingResult processingResult);
   }

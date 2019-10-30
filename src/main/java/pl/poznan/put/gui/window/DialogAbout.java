@@ -1,70 +1,54 @@
 package pl.poznan.put.gui.window;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
 public class DialogAbout extends JDialog {
-  static final Logger LOGGER = LoggerFactory.getLogger(DialogAbout.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DialogAbout.class);
   private static final long serialVersionUID = 1L;
 
-  public DialogAbout(Frame owner) {
+  public DialogAbout(final Frame owner) {
     super(owner, true);
 
-    JEditorPane editorPane = new JEditorPane();
+    final JEditorPane editorPane = new JEditorPane();
     editorPane.setContentType("text/html");
     editorPane.setEditable(false);
 
     URL resource = getClass().getResource("/about.html");
-    try (InputStream stream = resource.openStream()) {
-      editorPane.setText(IOUtils.toString(stream, "UTF-8"));
+    try (final InputStream stream = resource.openStream()) {
+      editorPane.setText(IOUtils.toString(stream, StandardCharsets.UTF_8));
       editorPane.setCaretPosition(0);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       DialogAbout.LOGGER.error("Failed to load 'About' text", e);
     }
 
-    JScrollPane scrollPane = new JScrollPane(editorPane);
+    final JScrollPane scrollPane = new JScrollPane(editorPane);
     scrollPane.setBorder(BorderFactory.createEmptyBorder());
-    BufferedImage image = null;
     JLabel labelImage = new JLabel();
 
     try {
       resource = getClass().getResource("/rabit.png");
-      image = ImageIO.read(resource);
-      labelImage = new JLabel(new ImageIcon(image));
-    } catch (IOException e) {
+      labelImage = new JLabel(new ImageIcon(ImageIO.read(resource)));
+    } catch (final IOException e) {
       DialogAbout.LOGGER.error("Failed to load RABIT logo image", e);
     }
 
-    JButton buttonClose = new JButton("Close");
-    JPanel panelClose = new JPanel();
+    final JButton buttonClose = new JButton("Close");
+    final JPanel panelClose = new JPanel();
     panelClose.add(buttonClose);
 
-    JPanel panelImage = new JPanel(new BorderLayout());
+    final JPanel panelImage = new JPanel(new BorderLayout());
     panelImage.add(labelImage, BorderLayout.CENTER);
 
     setLayout(new BorderLayout());
@@ -77,38 +61,29 @@ public class DialogAbout extends JDialog {
     setPreferredSize(new Dimension(660, 510));
     pack();
 
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    int x = screenSize.width - 660;
-    int y = screenSize.height - 510;
+    final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    final int x = screenSize.width - 660;
+    final int y = screenSize.height - 510;
     setLocation(x / 2, y / 2);
 
     panelImage.setBackground(Color.white);
 
     editorPane.addHyperlinkListener(
-        new HyperlinkListener() {
-          @Override
-          public void hyperlinkUpdate(HyperlinkEvent e) {
-            if (e == null) {
-              return;
-            }
+        e -> {
+          if (e == null) {
+            return;
+          }
 
-            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
-                && Desktop.isDesktopSupported()) {
-              try {
-                Desktop.getDesktop().browse(e.getURL().toURI());
-              } catch (IOException | URISyntaxException e1) {
-                DialogAbout.LOGGER.error("Failed to browse URL: " + e.getURL(), e1);
-              }
+          if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+              && Desktop.isDesktopSupported()) {
+            try {
+              Desktop.getDesktop().browse(e.getURL().toURI());
+            } catch (final IOException | URISyntaxException e1) {
+              DialogAbout.LOGGER.error("Failed to browse URL: {}", e.getURL(), e1);
             }
           }
         });
 
-    buttonClose.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent arg0) {
-            dispose();
-          }
-        });
+    buttonClose.addActionListener(arg0 -> dispose());
   }
 }

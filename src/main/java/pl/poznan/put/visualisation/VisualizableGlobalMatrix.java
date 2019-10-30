@@ -1,9 +1,5 @@
 package pl.poznan.put.visualisation;
 
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-import javax.swing.JOptionPane;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +13,11 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.svg.MDSDrawer;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
+
+import javax.swing.*;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -93,7 +94,7 @@ public class VisualizableGlobalMatrix extends GlobalMatrix implements Visualizab
       }
 
       for (double angstrom = 1.0; angstrom <= (Math.ceil(max) + 1.0e-3); angstrom += 1.0) {
-        valueTickZ.put(angstrom, Math.round(angstrom) + Unicode.ANGSTROM);
+        valueTickZ.put(angstrom, String.format("%d %s", Math.round(angstrom), Unicode.ANGSTROM));
       }
     }
 

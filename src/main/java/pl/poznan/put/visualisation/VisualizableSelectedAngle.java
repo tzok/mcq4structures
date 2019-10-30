@@ -6,9 +6,9 @@ import java.awt.FontMetrics;
 import java.awt.Shape;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -127,7 +127,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
         final String s = Character.toString(symbol.getStructure());
         final float stringWidth = metrics.stringWidth(s);
         svg.drawString(
-            s, (leftShift + (i * unitWidth) + (unitWidth / 2)) - (stringWidth / 2), topShift);
+            s, (leftShift + (i * unitWidth) + (unitWidth / 2.0F)) - (stringWidth / 2.0F), topShift);
       }
     }
   }
@@ -257,18 +257,10 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
   }
 
   private List<String> prepareTicksX() {
-    final List<String> ticksX = new ArrayList<>();
-    for (final PdbCompactFragment model : getModels()) {
-      ticksX.add(model.getName());
-    }
-    return ticksX;
+      return getModels().stream().map(PdbCompactFragment::getName).collect(Collectors.toList());
   }
 
   private List<String> prepareTicksY() {
-    final List<String> ticksY = new ArrayList<>();
-    for (final PdbResidue residue : getTarget().getResidues()) {
-      ticksY.add(residue.toString());
-    }
-    return ticksY;
+      return getTarget().getResidues().stream().map(PdbResidue::toString).collect(Collectors.toList());
   }
 }

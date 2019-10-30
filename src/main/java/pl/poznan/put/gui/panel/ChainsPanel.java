@@ -1,26 +1,15 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChainsPanel extends JPanel {
   private final DefaultComboBoxModel<PdbModel> structureComboBoxModel =
@@ -32,101 +21,85 @@ public class ChainsPanel extends JPanel {
   public ChainsPanel(final ActionListener actionListener) {
     super(new BorderLayout());
 
-    rnaPanel.setLayout(new BoxLayout(rnaPanel, BoxLayout.Y_AXIS));
-    proteinPanel.setLayout(new BoxLayout(proteinPanel, BoxLayout.Y_AXIS));
+    rnaPanel.setLayout(new BoxLayout(rnaPanel, BoxLayout.PAGE_AXIS));
+    proteinPanel.setLayout(new BoxLayout(proteinPanel, BoxLayout.PAGE_AXIS));
 
-    JPanel panel = new JPanel(new BorderLayout());
+    final JPanel panel = new JPanel(new BorderLayout());
     panel.setBorder(BorderFactory.createTitledBorder("Select structure"));
     panel.add(structureComboBox, BorderLayout.CENTER);
-    add(panel, BorderLayout.NORTH);
+    add(panel, BorderLayout.PAGE_START);
 
-    panel = new JPanel(new GridLayout(1, 2));
-    panel.setBorder(BorderFactory.createTitledBorder("Select chain(s)"));
-    panel.add(rnaPanel);
-    panel.add(proteinPanel);
-    add(new JScrollPane(panel), BorderLayout.CENTER);
+    final JPanel chainPanel = new JPanel(new GridLayout(1, 2));
+    chainPanel.setBorder(BorderFactory.createTitledBorder("Select chain(s)"));
+    chainPanel.add(rnaPanel);
+    chainPanel.add(proteinPanel);
+    add(new JScrollPane(chainPanel), BorderLayout.CENTER);
 
     final ListCellRenderer<? super PdbModel> renderer = structureComboBox.getRenderer();
     structureComboBox.setRenderer(
-        new ListCellRenderer<PdbModel>() {
-          @Override
-          public Component getListCellRendererComponent(
-              JList<? extends PdbModel> list,
-              PdbModel value,
-              int index,
-              boolean isSelected,
-              boolean cellHasFocus) {
-            JLabel label =
-                (JLabel)
-                    renderer.getListCellRendererComponent(
-                        list, value, index, isSelected, cellHasFocus);
-            if (value != null) {
-              label.setText(StructureManager.getName(value));
-            }
-            return label;
-          }
-        });
+            (list, value, index, isSelected, cellHasFocus) -> {
+              final JLabel label =
+                  (JLabel)
+                      renderer.getListCellRendererComponent(
+                          list, value, index, isSelected, cellHasFocus);
+              if (value != null) {
+                label.setText(StructureManager.getName(value));
+              }
+              return label;
+            });
 
     structureComboBox.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            PdbModel structure = (PdbModel) structureComboBox.getSelectedItem();
-            if (structure == null) {
-              return;
-            }
-
-            rnaPanel.removeAll();
-            rnaPanel.add(new JLabel("RNAs:"));
-            proteinPanel.removeAll();
-            proteinPanel.add(new JLabel("Proteins:"));
-
-            for (PdbChain chain : structure.getChains()) {
-              JCheckBox checkBox = new JCheckBox(String.valueOf(chain.getIdentifier()));
-              checkBox.addActionListener(actionListener);
-
-              if (chain.getMoleculeType() == MoleculeType.RNA) {
-                rnaPanel.add(checkBox);
-              } else if (chain.getMoleculeType() == MoleculeType.PROTEIN) {
-                proteinPanel.add(checkBox);
+            e -> {
+              final PdbModel structure = (PdbModel) structureComboBox.getSelectedItem();
+              if (structure == null) {
+                return;
               }
-            }
 
-            rnaPanel.updateUI();
-            proteinPanel.updateUI();
-            actionListener.actionPerformed(e);
-          }
-        });
+              rnaPanel.removeAll();
+              rnaPanel.add(new JLabel("RNAs:"));
+              proteinPanel.removeAll();
+              proteinPanel.add(new JLabel("Proteins:"));
+
+              for (final PdbChain chain : structure.getChains()) {
+                final JCheckBox checkBox = new JCheckBox(String.valueOf(chain.getIdentifier()));
+                checkBox.addActionListener(actionListener);
+
+                if (chain.getMoleculeType() == MoleculeType.RNA) {
+                  rnaPanel.add(checkBox);
+                } else if (chain.getMoleculeType() == MoleculeType.PROTEIN) {
+                  proteinPanel.add(checkBox);
+                }
+              }
+
+              rnaPanel.updateUI();
+              proteinPanel.updateUI();
+              actionListener.actionPerformed(e);
+            });
   }
 
-  public JPanel getRnaPanel() {
+  public final JPanel getRnaPanel() {
     return rnaPanel;
   }
 
-  public JPanel getProteinPanel() {
+  public final JPanel getProteinPanel() {
     return proteinPanel;
   }
 
-  public PdbModel getSelectedStructure() {
+  public final PdbModel getSelectedStructure() {
     return (PdbModel) structureComboBox.getSelectedItem();
   }
 
-  public List<PdbChain> getSelectedChains() {
-    List<PdbChain> list = new ArrayList<>();
-    PdbModel structure = (PdbModel) structureComboBox.getSelectedItem();
+  public final List<PdbChain> getSelectedChains() {
+    final List<PdbChain> list = new ArrayList<>();
+    final PdbModel structure = (PdbModel) structureComboBox.getSelectedItem();
 
     if (structure != null) {
-      for (JPanel panel : new JPanel[] {rnaPanel, proteinPanel}) {
-        for (Component component : panel.getComponents()) {
-          if (component instanceof JCheckBox && ((JCheckBox) component).isSelected()) {
-            String chainId = ((JCheckBox) component).getText();
+      for (final JPanel panel : new JPanel[] {rnaPanel, proteinPanel}) {
+        for (final Component component : panel.getComponents()) {
+          if (component instanceof JCheckBox && ((AbstractButton) component).isSelected()) {
+            final String chainId = ((AbstractButton) component).getText();
 
-            for (PdbChain chain : structure.getChains()) {
-              if (chain.getIdentifier().equals(chainId)) {
-                list.add(chain);
-                break;
-              }
-            }
+              structure.getChains().stream().filter(chain -> chain.getIdentifier().equals(chainId)).findFirst().ifPresent(list::add);
           }
         }
       }
@@ -134,10 +107,10 @@ public class ChainsPanel extends JPanel {
     return list;
   }
 
-  public void reloadStructures(List<PdbModel> structures) {
+  public final void reloadStructures(final Iterable<? extends PdbModel> structures) {
     structureComboBoxModel.removeAllElements();
 
-    for (PdbModel structure : structures) {
+    for (final PdbModel structure : structures) {
       structureComboBoxModel.addElement(structure);
     }
   }

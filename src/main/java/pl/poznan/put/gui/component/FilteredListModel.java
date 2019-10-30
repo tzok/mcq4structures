@@ -40,7 +40,7 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
     return list;
   }
 
-  public final void addElements(final Iterable<PdbCompactFragment> list) {
+  public final void addElements(final Iterable<? extends PdbCompactFragment> list) {
     for (final PdbCompactFragment element : list) {
       addElement(element);
     }
@@ -56,7 +56,7 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
     }
   }
 
-  public final void removeElements(final Iterable<PdbCompactFragment> list) {
+  public final void removeElements(final Iterable<? extends PdbCompactFragment> list) {
     for (final PdbCompactFragment element : list) {
       removeElement(element);
     }
@@ -80,9 +80,7 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
     if (isSizeConstrained) {
       final List<PdbCompactFragment> list =
           (moleculeType == MoleculeType.RNA) ? listRNAs : listProteins;
-      if ((!list.isEmpty()) && (list.get(0).getResidues().size() != element.getResidues().size())) {
-        return false;
-      }
+        return (list.isEmpty()) || (list.get(0).getResidues().size() == element.getResidues().size());
     }
 
     return true;
