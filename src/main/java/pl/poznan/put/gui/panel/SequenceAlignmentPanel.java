@@ -1,18 +1,5 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import org.biojava.nbio.core.exceptions.CompoundNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +7,14 @@ import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.sequence.alignment.SequenceAligner;
 import pl.poznan.put.sequence.alignment.SequenceAlignment;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class SequenceAlignmentPanel extends JPanel {
   private static final Logger LOGGER = LoggerFactory.getLogger(SequenceAlignmentPanel.class);
@@ -48,7 +43,8 @@ public class SequenceAlignmentPanel extends JPanel {
     add(new JScrollPane(textAreaAlignment), BorderLayout.CENTER);
   }
 
-  public final void setFragments(final List<? extends PdbCompactFragment> fragments, final boolean isGlobal) {
+  public final void setFragments(
+      final List<? extends PdbCompactFragment> fragments, final boolean isGlobal) {
     this.fragments = new ArrayList<>(fragments);
     this.isGlobal = isGlobal;
 

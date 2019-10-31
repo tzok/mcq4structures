@@ -6,7 +6,6 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,11 +13,10 @@ import java.util.List;
 final class DialogSelectAngles extends JDialog {
   private final List<MasterTorsionAngleType> selectedAngles = new ArrayList<>();
   private final JButton buttonOk = new JButton("OK");
-  private final ActionListener checkBoxListener = e -> setButtonOkState();
-  private final TorsionAngleTypesPanel panelAnglesRNA =
-      new TorsionAngleTypesPanel(MoleculeType.RNA, checkBoxListener);
   private final TorsionAngleTypesPanel panelAnglesProtein =
-      new TorsionAngleTypesPanel(MoleculeType.PROTEIN, checkBoxListener);
+      new TorsionAngleTypesPanel(MoleculeType.PROTEIN, e -> setButtonOkState());
+  private final TorsionAngleTypesPanel panelAnglesRNA =
+      new TorsionAngleTypesPanel(MoleculeType.RNA, e -> setButtonOkState());
   private OkCancelOption chosenOption = OkCancelOption.CANCEL;
 
   DialogSelectAngles(final Frame owner) {
@@ -76,5 +74,4 @@ final class DialogSelectAngles extends JDialog {
     setVisible(true);
     return chosenOption;
   }
-
 }

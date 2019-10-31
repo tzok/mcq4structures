@@ -1,15 +1,5 @@
 package pl.poznan.put.visualisation;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Shape;
-import java.awt.font.LineMetrics;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.stream.Collectors;
-import javax.swing.JOptionPane;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +32,14 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.svg.SVGHelper;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.stream.Collectors;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
@@ -52,6 +50,25 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
         selectedAngle.getTarget(),
         selectedAngle.getModels(),
         selectedAngle.getFragmentMatches());
+  }
+
+  private static void drawDotBracket(
+      final SVGGraphics2D svg,
+      final DotBracket dotBracket,
+      final float unitWidth,
+      final float leftShift,
+      final float topShift) {
+    if (dotBracket != null) {
+      final FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+
+      for (int i = 0; i < dotBracket.getLength(); i++) {
+        final DotBracketSymbol symbol = dotBracket.getSymbol(i);
+        final String s = Character.toString(symbol.getStructure());
+        final float stringWidth = metrics.stringWidth(s);
+        svg.drawString(
+            s, (leftShift + (i * unitWidth) + (unitWidth / 2.0F)) - (stringWidth / 2.0F), topShift);
+      }
+    }
   }
 
   @Override
@@ -111,25 +128,6 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
       }
     }
     return dotBracket;
-  }
-
-  private static void drawDotBracket(
-      final SVGGraphics2D svg,
-      final DotBracket dotBracket,
-      final float unitWidth,
-      final float leftShift,
-      final float topShift) {
-    if (dotBracket != null) {
-      final FontMetrics metrics = SVGHelper.getFontMetrics(svg);
-
-      for (int i = 0; i < dotBracket.getLength(); i++) {
-        final DotBracketSymbol symbol = dotBracket.getSymbol(i);
-        final String s = Character.toString(symbol.getStructure());
-        final float stringWidth = metrics.stringWidth(s);
-        svg.drawString(
-            s, (leftShift + (i * unitWidth) + (unitWidth / 2.0F)) - (stringWidth / 2.0F), topShift);
-      }
-    }
   }
 
   private void drawColorBars(
@@ -257,10 +255,12 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
   }
 
   private List<String> prepareTicksX() {
-      return getModels().stream().map(PdbCompactFragment::getName).collect(Collectors.toList());
+    return getModels().stream().map(PdbCompactFragment::getName).collect(Collectors.toList());
   }
 
   private List<String> prepareTicksY() {
-      return getTarget().getResidues().stream().map(PdbResidue::toString).collect(Collectors.toList());
+    return getTarget().getResidues().stream()
+        .map(PdbResidue::toString)
+        .collect(Collectors.toList());
   }
 }

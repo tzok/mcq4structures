@@ -37,44 +37,44 @@ public class ChainsPanel extends JPanel {
 
     final ListCellRenderer<? super PdbModel> renderer = structureComboBox.getRenderer();
     structureComboBox.setRenderer(
-            (list, value, index, isSelected, cellHasFocus) -> {
-              final JLabel label =
-                  (JLabel)
-                      renderer.getListCellRendererComponent(
-                          list, value, index, isSelected, cellHasFocus);
-              if (value != null) {
-                label.setText(StructureManager.getName(value));
-              }
-              return label;
-            });
+        (list, value, index, isSelected, cellHasFocus) -> {
+          final JLabel label =
+              (JLabel)
+                  renderer.getListCellRendererComponent(
+                      list, value, index, isSelected, cellHasFocus);
+          if (value != null) {
+            label.setText(StructureManager.getName(value));
+          }
+          return label;
+        });
 
     structureComboBox.addActionListener(
-            e -> {
-              final PdbModel structure = (PdbModel) structureComboBox.getSelectedItem();
-              if (structure == null) {
-                return;
-              }
+        e -> {
+          final PdbModel structure = (PdbModel) structureComboBox.getSelectedItem();
+          if (structure == null) {
+            return;
+          }
 
-              rnaPanel.removeAll();
-              rnaPanel.add(new JLabel("RNAs:"));
-              proteinPanel.removeAll();
-              proteinPanel.add(new JLabel("Proteins:"));
+          rnaPanel.removeAll();
+          rnaPanel.add(new JLabel("RNAs:"));
+          proteinPanel.removeAll();
+          proteinPanel.add(new JLabel("Proteins:"));
 
-              for (final PdbChain chain : structure.getChains()) {
-                final JCheckBox checkBox = new JCheckBox(String.valueOf(chain.getIdentifier()));
-                checkBox.addActionListener(actionListener);
+          for (final PdbChain chain : structure.getChains()) {
+            final JCheckBox checkBox = new JCheckBox(String.valueOf(chain.getIdentifier()));
+            checkBox.addActionListener(actionListener);
 
-                if (chain.getMoleculeType() == MoleculeType.RNA) {
-                  rnaPanel.add(checkBox);
-                } else if (chain.getMoleculeType() == MoleculeType.PROTEIN) {
-                  proteinPanel.add(checkBox);
-                }
-              }
+            if (chain.getMoleculeType() == MoleculeType.RNA) {
+              rnaPanel.add(checkBox);
+            } else if (chain.getMoleculeType() == MoleculeType.PROTEIN) {
+              proteinPanel.add(checkBox);
+            }
+          }
 
-              rnaPanel.updateUI();
-              proteinPanel.updateUI();
-              actionListener.actionPerformed(e);
-            });
+          rnaPanel.updateUI();
+          proteinPanel.updateUI();
+          actionListener.actionPerformed(e);
+        });
   }
 
   public final JPanel getRnaPanel() {
@@ -99,7 +99,10 @@ public class ChainsPanel extends JPanel {
           if (component instanceof JCheckBox && ((AbstractButton) component).isSelected()) {
             final String chainId = ((AbstractButton) component).getText();
 
-              structure.getChains().stream().filter(chain -> chain.getIdentifier().equals(chainId)).findFirst().ifPresent(list::add);
+            structure.getChains().stream()
+                .filter(chain -> chain.getIdentifier().equals(chainId))
+                .findFirst()
+                .ifPresent(list::add);
           }
         }
       }

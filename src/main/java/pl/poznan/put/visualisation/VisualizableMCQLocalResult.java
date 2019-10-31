@@ -138,6 +138,8 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
   }
 
   private List<String> prepareTicksX() {
-      return getAngleTypes().stream().map(DisplayableExportable::getExportName).collect(Collectors.toList());
+    return getAngleTypes().stream()
+        .map(DisplayableExportable::getExportName)
+        .collect(Collectors.toList());
   }
 }

@@ -6,11 +6,11 @@ import java.util.ResourceBundle;
 public final class Messages {
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq4structures-messages");
 
-  public static String getString(final String s) {
-    return Messages.BUNDLE.getString(s);
-  }
-
   private Messages() {
     super();
+  }
+
+  public static String getString(final String s) {
+    return Messages.BUNDLE.getString(s);
   }
 }

@@ -8,7 +8,6 @@ import pl.poznan.put.structure.tertiary.StructureManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,9 +16,8 @@ import java.util.stream.Stream;
 final class DialogSelectChains extends JDialog {
   private static final Dimension INITIAL_MAIN_PANEL_SIZE = new Dimension(640, 480);
   private final JButton buttonOk = new JButton("OK");
-  private final ActionListener actionListener = arg0 -> updateButtonOkState();
-  private final ChainsPanel panelsChainsLeft = new ChainsPanel(actionListener);
-  private final ChainsPanel panelsChainsRight = new ChainsPanel(actionListener);
+  private final ChainsPanel panelsChainsRight = new ChainsPanel(arg0 -> updateButtonOkState());
+  private final ChainsPanel panelsChainsLeft = new ChainsPanel(arg0 -> updateButtonOkState());
   private List<PdbChain> chainsLeft = new ArrayList<>();
   private List<PdbChain> chainsRight = new ArrayList<>();
   private PdbModel structureLeft = null;

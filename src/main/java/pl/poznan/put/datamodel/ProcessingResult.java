@@ -1,13 +1,14 @@
 package pl.poznan.put.datamodel;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class ProcessingResult implements Clusterable, Visualizable, Exportable {
   private final Object object;

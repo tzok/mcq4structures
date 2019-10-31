@@ -42,26 +42,26 @@ public class SVGComponent extends JSVGCanvas {
     popup.add(saveAsPng);
 
     addMouseListener(
-            new MouseAdapter() {
-              @Override
-              public void mousePressed(final MouseEvent mouseEvent) {
-                maybeShowPopup(mouseEvent);
-              }
+        new MouseAdapter() {
+          @Override
+          public void mousePressed(final MouseEvent mouseEvent) {
+            maybeShowPopup(mouseEvent);
+          }
 
-              @Override
-              public void mouseReleased(final MouseEvent mouseEvent) {
-                maybeShowPopup(mouseEvent);
-              }
+          @Override
+          public void mouseReleased(final MouseEvent mouseEvent) {
+            maybeShowPopup(mouseEvent);
+          }
 
-              private void maybeShowPopup(final MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                  final Component component = e.getComponent();
-                  final int x = e.getX();
-                  final int y = e.getY();
-                  popup.show(component, x, y);
-                }
-              }
-            });
+          private void maybeShowPopup(final MouseEvent e) {
+            if (e.isPopupTrigger()) {
+              final Component component = e.getComponent();
+              final int x = e.getX();
+              final int y = e.getY();
+              popup.show(component, x, y);
+            }
+          }
+        });
 
     saveAsSvg.addActionListener(event -> selectFileAndExport(Format.SVG));
     saveAsPng.addActionListener(event -> selectFileAndExport(Format.PNG));

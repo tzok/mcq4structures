@@ -1,21 +1,5 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
@@ -30,6 +14,15 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.VisualizableGlobalMatrix;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 public final class GlobalMatrixPanel extends JPanel {

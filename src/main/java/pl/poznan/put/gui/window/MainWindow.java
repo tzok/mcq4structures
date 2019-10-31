@@ -153,7 +153,7 @@ public final class MainWindow extends JFrame {
     setLayout(new BorderLayout());
     add(panelCards, BorderLayout.CENTER);
 
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle(MainWindow.TITLE);
 
     final Toolkit toolkit = Toolkit.getDefaultToolkit();

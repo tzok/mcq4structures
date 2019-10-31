@@ -1,8 +1,6 @@
 package pl.poznan.put.gui.component;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.MenuElement;
-import javax.swing.MenuSelectionManager;
+import javax.swing.*;
 
 /**
  * An extension of JCheckBoxMenuItem that doesn't close the menu when selected.

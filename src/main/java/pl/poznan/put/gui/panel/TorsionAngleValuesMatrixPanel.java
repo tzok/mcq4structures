@@ -1,14 +1,5 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.util.List;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.circular.Angle;
@@ -22,6 +13,11 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.List;
 
 @Slf4j
 public final class TorsionAngleValuesMatrixPanel extends JPanel {

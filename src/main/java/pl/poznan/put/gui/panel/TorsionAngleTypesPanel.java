@@ -1,6 +1,14 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
+import pl.poznan.put.interfaces.DisplayableExportable;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
+import pl.poznan.put.rna.torsion.RNATorsionAngleType;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,14 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import javax.swing.*;
-
-import pl.poznan.put.interfaces.DisplayableExportable;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
-import pl.poznan.put.torsion.AverageTorsionAngleType;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 public class TorsionAngleTypesPanel extends JPanel {
   private final Map<JCheckBox, MasterTorsionAngleType> mapCheckBoxToMasterType =
@@ -27,7 +27,8 @@ public class TorsionAngleTypesPanel extends JPanel {
 
   private final ActionListener checkBoxListener;
 
-  public TorsionAngleTypesPanel(final MoleculeType moleculeType, final ActionListener checkBoxListener) {
+  public TorsionAngleTypesPanel(
+      final MoleculeType moleculeType, final ActionListener checkBoxListener) {
     super(new BorderLayout());
     this.checkBoxListener = checkBoxListener;
 
@@ -43,12 +44,12 @@ public class TorsionAngleTypesPanel extends JPanel {
     add(buttonsPanel, BorderLayout.SOUTH);
 
     final ActionListener selectClearActionListener =
-            e -> {
-              final boolean select = e.getSource().equals(buttonSelectAll);
-              for (final JCheckBox checkBox : mapCheckBoxToMasterType.keySet()) {
-                checkBox.setSelected(select);
-              }
-            };
+        e -> {
+          final boolean select = e.getSource().equals(buttonSelectAll);
+          for (final JCheckBox checkBox : mapCheckBoxToMasterType.keySet()) {
+            checkBox.setSelected(select);
+          }
+        };
     buttonSelectAll.addActionListener(selectClearActionListener);
     buttonClear.addActionListener(selectClearActionListener);
   }
@@ -80,9 +81,12 @@ public class TorsionAngleTypesPanel extends JPanel {
   }
 
   private void handleMasterType(final MasterTorsionAngleType masterType, final boolean selected) {
-    final Collection<String> angleNames = masterType.getAngleTypes().stream().map(DisplayableExportable::getLongDisplayName).collect(Collectors.toCollection(TreeSet::new));
+    final Collection<String> angleNames =
+        masterType.getAngleTypes().stream()
+            .map(DisplayableExportable::getLongDisplayName)
+            .collect(Collectors.toCollection(TreeSet::new));
 
-      final StringBuilder builder = new StringBuilder("<html>");
+    final StringBuilder builder = new StringBuilder("<html>");
     for (final String angleName : angleNames) {
       builder.append(angleName);
       builder.append("<br/>");
@@ -100,13 +104,14 @@ public class TorsionAngleTypesPanel extends JPanel {
   }
 
   public final boolean isAnySelected() {
-      return mapCheckBoxToMasterType.keySet().stream().anyMatch(AbstractButton::isSelected);
+    return mapCheckBoxToMasterType.keySet().stream().anyMatch(AbstractButton::isSelected);
   }
 
   public final List<MasterTorsionAngleType> getSelected() {
     final List<MasterTorsionAngleType> selected = new ArrayList<>();
 
-    for (final Map.Entry<JCheckBox, MasterTorsionAngleType> entry : mapCheckBoxToMasterType.entrySet()) {
+    for (final Map.Entry<JCheckBox, MasterTorsionAngleType> entry :
+        mapCheckBoxToMasterType.entrySet()) {
       final JCheckBox checkBox = entry.getKey();
       if (checkBox.isSelected()) {
         selected.add(entry.getValue());

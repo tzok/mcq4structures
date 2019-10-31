@@ -1,21 +1,5 @@
 package pl.poznan.put.gui.panel;
 
-import java.awt.BorderLayout;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
@@ -37,6 +21,17 @@ import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.VisualizableSelectedAngle;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import java.awt.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public final class LocalMultiMatrixPanel extends JPanel {
   private static final long serialVersionUID = 1743569049211593671L;
@@ -154,8 +149,10 @@ public final class LocalMultiMatrixPanel extends JPanel {
 
   private PdbCompactFragment selectReferenceStructure() {
     final PdbCompactFragmentWrapper[] fragmentArray =
-            fragments.stream().map(PdbCompactFragmentWrapper::new).toArray(PdbCompactFragmentWrapper[]::new);
-      final Object o =
+        fragments.stream()
+            .map(PdbCompactFragmentWrapper::new)
+            .toArray(PdbCompactFragmentWrapper[]::new);
+    final Object o =
         JOptionPane.showInputDialog(
             this,
             Messages.getString("select.your.reference.structure"),
