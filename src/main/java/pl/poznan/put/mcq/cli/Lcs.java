@@ -12,7 +12,7 @@ import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.LCSGlobalResult;
 import pl.poznan.put.matching.StructureSelection;
 
-@SuppressWarnings({"UseOfSystemOutOrSystemErr"})
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class Lcs {
   private static final Options OPTIONS =
       new Options()
@@ -20,6 +20,10 @@ public final class Lcs {
           .addOption(Helper.OPTION_SELECTION_TARGET)
           .addOption(Helper.OPTION_SELECTION_MODEL)
           .addOption(Helper.OPTION_MCQ_THRESHOLD);
+
+  private Lcs() {
+    super();
+  }
 
   /**
    * The application entrypoint which allows to compute LCS-TA from the command line.
@@ -29,8 +33,7 @@ public final class Lcs {
    * @throws ParseException If the arguments given in command line could not be parsed.
    * @throws IncomparableStructuresException If the comparison procedure fails.
    */
-  public static void main(final String[] args)
-      throws ParseException {
+  public static void main(final String[] args) throws ParseException {
     if (Helper.isHelpRequested(args)) {
       Helper.printHelp("mcq-lcs", Lcs.OPTIONS);
       return;
@@ -47,9 +50,5 @@ public final class Lcs {
     final LCSGlobalResult result = (LCSGlobalResult) lcs.compareGlobally(s1, s2);
 
     System.out.println(result.cliOutput(s2, s1));
-  }
-
-  private Lcs() {
-    super();
   }
 }

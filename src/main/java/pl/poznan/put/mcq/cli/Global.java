@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"UseOfSystemOutOrSystemErr"})
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class Global {
   private static final Options OPTIONS =
       new Options()

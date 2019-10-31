@@ -1,7 +1,5 @@
 package pl.poznan.put.mcq.cli;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -16,9 +14,16 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.utility.NumberFormatUtils;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class Print {
   private static final Options OPTIONS = new Options().addOption(Helper.OPTION_SELECTION_TARGET);
+
+  private Print() {
+    super();
+  }
 
   public static void main(final String[] args) throws ParseException {
     if (Helper.isHelpRequested(args)) {
@@ -63,9 +68,5 @@ public final class Print {
         System.out.println();
       }
     }
-  }
-
-  private Print() {
-    super();
   }
 }

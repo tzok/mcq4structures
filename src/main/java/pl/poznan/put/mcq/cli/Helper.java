@@ -1,12 +1,5 @@
 package pl.poznan.put.mcq.cli;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,11 +21,19 @@ import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 @Slf4j
 final class Helper {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq-cli-messages");
-  private static final Options HELP_OPTIONS = PatternOptionBuilder.parsePattern("h");
-
   public static final Option OPTION_TARGET =
       Option.builder("t")
           .longOpt("target")
@@ -79,13 +80,21 @@ final class Helper {
           .numberOfArgs(1)
           .desc("Model names to be saved in output files (separated by comma without space)")
           .build();
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq-cli-messages");
+  private static final Options HELP_OPTIONS = PatternOptionBuilder.parsePattern("h");
+
+  private Helper() {
+    super();
+  }
 
   private static String arrayToString(final Object[] values) {
     if (values.length == 0) {
       return "";
     }
 
-      return IntStream.range(1, values.length).mapToObj(i -> "," + values[i]).collect(Collectors.joining("", values[0].toString(), ""));
+    return IntStream.range(1, values.length)
+        .mapToObj(i -> "," + values[i])
+        .collect(Collectors.joining("", values[0].toString(), ""));
   }
 
   /**
@@ -206,7 +215,9 @@ final class Helper {
   public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
     if (commandLine.hasOption(Helper.OPTION_ANGLES.getOpt())) {
 
-        return Arrays.stream(commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt())).map(RNATorsionAngleType::valueOf).collect(Collectors.toList());
+      return Arrays.stream(commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt()))
+          .map(RNATorsionAngleType::valueOf)
+          .collect(Collectors.toList());
     }
 
     // do not use Arrays.asList because it creates unmodifiable list and this one is modified
@@ -232,9 +243,5 @@ final class Helper {
 
   private static String formatMessage(final String s, final Object... objects) {
     return MessageFormat.format(Helper.getMessage(s), objects);
-  }
-
-  private Helper() {
-    super();
   }
 }
