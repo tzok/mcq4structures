@@ -26,7 +26,11 @@ public final class ClusterAssignment {
     final Map<Integer, List<Integer>> assignedToPrototype;
     final List<Heap> binaryHeaps = Heap.fromMatrix(matrix);
 
-      assignedToPrototype = IntStream.range(0, matrix.length).filter(prototypes::isPrototype).boxed().collect(Collectors.toMap(Function.identity(), i -> new ArrayList<>(), (a, b) -> b));
+    assignedToPrototype =
+        IntStream.range(0, matrix.length)
+            .filter(prototypes::isPrototype)
+            .boxed()
+            .collect(Collectors.toMap(Function.identity(), i -> new ArrayList<>(), (a, b) -> b));
 
     for (int i = 0; i < matrix.length; i++) {
       for (final int closest : binaryHeaps.get(i)) {

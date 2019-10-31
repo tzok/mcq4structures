@@ -12,9 +12,42 @@ public final class PAMSIL implements ScoringFunction {
     return PAMSIL.SUM_INSTANCE;
   }
 
+  private static double averageDistanceToCluster(
+      final ClusterAssignment assignment, final double[] distanceVector, final int prototype) {
+    final double ai =
+        assignment.getAssignedTo(prototype).stream()
+            .mapToInt(j -> j)
+            .mapToDouble(j -> distanceVector[j])
+            .sum();
+    return ai / assignment.getAssignedTo(prototype).size();
+  }
+
+  private static double averageDistanceToNextClosestCluster(
+      final ClusterPrototypes prototypes,
+      final ClusterAssignment assignment,
+      final double[] distanceVector,
+      final int myPrototype) {
+    double minDi = Double.POSITIVE_INFINITY;
+
+    for (final int otherPrototype : prototypes.getPrototypesIndices()) {
+      if (otherPrototype == myPrototype) {
+        continue;
+      }
+
+      final double di = PAMSIL.averageDistanceToCluster(assignment, distanceVector, otherPrototype);
+
+      if (di < minDi) {
+        minDi = di;
+      }
+    }
+
+    return minDi;
+  }
+
   @Override
   public double score(final ClusterPrototypes prototypes, final double[][] distanceMatrix) {
-    final ClusterAssignment assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix);
+    final ClusterAssignment assignment =
+        ClusterAssignment.fromPrototypes(prototypes, distanceMatrix);
     double result = 0.0;
 
     for (int i = 0; i < distanceMatrix.length; i++) {
@@ -33,34 +66,6 @@ public final class PAMSIL implements ScoringFunction {
     }
 
     return result;
-  }
-
-  private static double averageDistanceToCluster(
-          final ClusterAssignment assignment, final double[] distanceVector, final int prototype) {
-    final double ai = assignment.getAssignedTo(prototype).stream().mapToInt(j -> j).mapToDouble(j -> distanceVector[j]).sum();
-      return ai / assignment.getAssignedTo(prototype).size();
-  }
-
-  private static double averageDistanceToNextClosestCluster(
-          final ClusterPrototypes prototypes,
-          final ClusterAssignment assignment,
-          final double[] distanceVector,
-          final int myPrototype) {
-    double minDi = Double.POSITIVE_INFINITY;
-
-    for (final int otherPrototype : prototypes.getPrototypesIndices()) {
-      if (otherPrototype == myPrototype) {
-        continue;
-      }
-
-      final double di = PAMSIL.averageDistanceToCluster(assignment, distanceVector, otherPrototype);
-
-      if (di < minDi) {
-        minDi = di;
-      }
-    }
-
-    return minDi;
   }
 
   @Override

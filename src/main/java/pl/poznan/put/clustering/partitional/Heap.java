@@ -21,7 +21,7 @@ final class Heap implements Iterable<Integer> {
 
   public static List<Heap> fromMatrix(final double[][] matrix) {
 
-      return Arrays.stream(matrix).map(Heap::new).collect(Collectors.toList());
+    return Arrays.stream(matrix).map(Heap::new).collect(Collectors.toList());
   }
 
   @Override

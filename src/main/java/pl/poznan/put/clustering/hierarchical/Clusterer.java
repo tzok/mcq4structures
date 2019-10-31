@@ -20,7 +20,9 @@ public final class Clusterer {
   }
 
   public static List<Cluster> initialClusterAssignment(final List<String> names) {
-      return IntStream.range(0, names.size()).mapToObj(i -> new Cluster(i, names.get(i))).collect(Collectors.toList());
+    return IntStream.range(0, names.size())
+        .mapToObj(i -> new Cluster(i, names.get(i)))
+        .collect(Collectors.toList());
   }
 
   public HierarchicalClustering cluster() {
