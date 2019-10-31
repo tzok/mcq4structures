@@ -1,13 +1,5 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import org.biojava.nbio.structure.geometry.CalcPoint;
 import org.biojava.nbio.structure.geometry.SuperPositions;
 import pl.poznan.put.atom.AtomName;
@@ -23,23 +15,24 @@ import pl.poznan.put.rna.Phosphate;
 import pl.poznan.put.rna.Ribose;
 import pl.poznan.put.rna.base.NucleobaseType;
 
-public class FragmentSuperimposer {
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
-  public enum AtomFilter {
-    ALL,
-    BACKBONE,
-    MAIN
-  }
+public class FragmentSuperimposer {
 
   private final SelectionMatch selectionMatch;
   private final AtomFilter atomFilter;
   private final boolean onlyHeavy;
-
   private final Matrix4d totalSuperposition;
   private final Point3d[] totalAtomsTarget;
   private final Point3d[] totalAtomsModel;
   private final Matrix4d[] matchedSuperpositions;
-
   public FragmentSuperimposer(
       final SelectionMatch selectionMatch, final AtomFilter atomFilter, final boolean onlyHeavy) {
     super();
@@ -66,7 +59,8 @@ public class FragmentSuperimposer {
   }
 
   private void filterAtoms(
-          final Collection<? super Point3d> atomsTargetAll, final Collection<? super Point3d> atomsModelAll) {
+      final Collection<? super Point3d> atomsTargetAll,
+      final Collection<? super Point3d> atomsModelAll) {
     final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
 
     for (int i = 0, size = fragmentMatches.size(); i < size; i++) {
@@ -102,10 +96,8 @@ public class FragmentSuperimposer {
         }
       }
 
-      final Point3d[] matchedAtomsTarget =
-          atomsTargetMatch.toArray(new Point3d[0]);
-      final Point3d[] matchedAtomsModel =
-          atomsModelMatch.toArray(new Point3d[0]);
+      final Point3d[] matchedAtomsTarget = atomsTargetMatch.toArray(new Point3d[0]);
+      final Point3d[] matchedAtomsModel = atomsModelMatch.toArray(new Point3d[0]);
       matchedSuperpositions[i] =
           SuperPositions.superposeAndTransform(matchedAtomsTarget, matchedAtomsModel);
     }
@@ -257,5 +249,11 @@ public class FragmentSuperimposer {
     }
 
     return new FragmentSuperposition(newFragmentsL, newFragmentsR);
+  }
+
+  public enum AtomFilter {
+    ALL,
+    BACKBONE,
+    MAIN
   }
 }

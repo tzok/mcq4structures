@@ -1,15 +1,16 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbResidue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class which allow to parse a selection query of the following form CHAIN:NUMBER-ICODE:COUNT e.g.
@@ -40,6 +41,14 @@ public final class SelectionQuery {
 
   private final String originalQuery;
   private final List<Pair<PdbResidueIdentifier, Integer>> identifierCountPairs;
+
+  private SelectionQuery(
+      final String originalQuery,
+      final List<Pair<PdbResidueIdentifier, Integer>> identifierCountPairs) {
+    super();
+    this.originalQuery = originalQuery;
+    this.identifierCountPairs = new ArrayList<>(identifierCountPairs);
+  }
 
   public static SelectionQuery parse(final String query) {
     final List<Pair<PdbResidueIdentifier, Integer>> pairs = new ArrayList<>();
@@ -72,14 +81,6 @@ public final class SelectionQuery {
     }
 
     return new SelectionQuery(query, pairs);
-  }
-
-  private SelectionQuery(
-      final String originalQuery,
-      final List<Pair<PdbResidueIdentifier, Integer>> identifierCountPairs) {
-    super();
-    this.originalQuery = originalQuery;
-    this.identifierCountPairs = new ArrayList<>(identifierCountPairs);
   }
 
   public List<PdbCompactFragment> apply(final PdbModel model) {

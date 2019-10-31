@@ -62,31 +62,31 @@ class HungarianAlgorithm {
    *     be the same length.
    */
   HungarianAlgorithm(final double[][] costMatrix) {
-      super();
-      dim = Math.max(costMatrix.length, costMatrix[0].length);
-      rows = costMatrix.length;
-      cols = costMatrix[0].length;
-      this.costMatrix = new double[dim][dim];
-      for (int w = 0; w < dim; w++) {
-          if (w < costMatrix.length) {
-              if (costMatrix[w].length != cols) {
-                  throw new IllegalArgumentException("Irregular cost matrix");
-              }
-              this.costMatrix[w] = Arrays.copyOf(costMatrix[w], dim);
-          } else {
-              this.costMatrix[w] = new double[dim];
-          }
+    super();
+    dim = Math.max(costMatrix.length, costMatrix[0].length);
+    rows = costMatrix.length;
+    cols = costMatrix[0].length;
+    this.costMatrix = new double[dim][dim];
+    for (int w = 0; w < dim; w++) {
+      if (w < costMatrix.length) {
+        if (costMatrix[w].length != cols) {
+          throw new IllegalArgumentException("Irregular cost matrix");
+        }
+        this.costMatrix[w] = Arrays.copyOf(costMatrix[w], dim);
+      } else {
+        this.costMatrix[w] = new double[dim];
       }
-      labelByWorker = new double[dim];
-      labelByJob = new double[dim];
-      minSlackWorkerByJob = new int[dim];
-      minSlackValueByJob = new double[dim];
-      committedWorkers = new boolean[dim];
-      parentWorkerByCommittedJob = new int[dim];
-      matchJobByWorker = new int[dim];
-      Arrays.fill(matchJobByWorker, -1);
-      matchWorkerByJob = new int[dim];
-      Arrays.fill(matchWorkerByJob, -1);
+    }
+    labelByWorker = new double[dim];
+    labelByJob = new double[dim];
+    minSlackWorkerByJob = new int[dim];
+    minSlackValueByJob = new double[dim];
+    committedWorkers = new boolean[dim];
+    parentWorkerByCommittedJob = new int[dim];
+    matchJobByWorker = new int[dim];
+    Arrays.fill(matchJobByWorker, -1);
+    matchWorkerByJob = new int[dim];
+    Arrays.fill(matchWorkerByJob, -1);
   }
 
   /**
@@ -137,8 +137,9 @@ class HungarianAlgorithm {
         costMatrix[w][j] -= min;
       }
     }
-    final double[] min = IntStream.range(0, dim).mapToDouble(j -> Double.POSITIVE_INFINITY).toArray();
-      for (int w = 0; w < dim; w++) {
+    final double[] min =
+        IntStream.range(0, dim).mapToDouble(j -> Double.POSITIVE_INFINITY).toArray();
+    for (int w = 0; w < dim; w++) {
       for (int j = 0; j < dim; j++) {
         if (costMatrix[w][j] < min[j]) {
           min[j] = costMatrix[w][j];

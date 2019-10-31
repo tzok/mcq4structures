@@ -1,14 +1,15 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.range.RangeDifference;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @EqualsAndHashCode
 public final class FragmentComparison implements Comparable<FragmentComparison> {
@@ -22,14 +23,14 @@ public final class FragmentComparison implements Comparable<FragmentComparison> 
   private final RangeDifference meanRangeDiffrence;
 
   private FragmentComparison(
-          final List<ResidueComparison> residueComparisons,
-          final List<MasterTorsionAngleType> angleTypes,
-          final int targetInvalidCount,
-          final int modelInvalidCount,
-          final int bothInvalidCount,
-          final int validCount,
-          final Angle meanDelta,
-          final RangeDifference meanRangeDiffrence) {
+      final List<ResidueComparison> residueComparisons,
+      final List<MasterTorsionAngleType> angleTypes,
+      final int targetInvalidCount,
+      final int modelInvalidCount,
+      final int bothInvalidCount,
+      final int validCount,
+      final Angle meanDelta,
+      final RangeDifference meanRangeDiffrence) {
     super();
     this.residueComparisons = new ArrayList<>(residueComparisons);
     this.angleTypes = new ArrayList<>(angleTypes);

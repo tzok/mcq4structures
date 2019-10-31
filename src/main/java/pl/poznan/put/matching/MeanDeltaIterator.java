@@ -1,14 +1,15 @@
 package pl.poznan.put.matching;
 
-import java.util.Iterator;
 import pl.poznan.put.circular.Angle;
+
+import java.util.Iterator;
 
 class MeanDeltaIterator implements AngleDeltaIterator {
   private final Iterator<ResidueComparison> iterator;
 
   MeanDeltaIterator(final FragmentMatch fragmentMatch) {
-      super();
-      iterator = fragmentMatch.getResidueComparisons().iterator();
+    super();
+    iterator = fragmentMatch.getResidueComparisons().iterator();
   }
 
   @Override

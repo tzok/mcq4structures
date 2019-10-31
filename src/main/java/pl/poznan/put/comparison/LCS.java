@@ -1,8 +1,5 @@
 package pl.poznan.put.comparison;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import pl.poznan.put.circular.Angle;
@@ -23,6 +20,10 @@ import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Implementation of LCS global similarity measure based on torsion angle representation.
@@ -95,7 +96,7 @@ public class LCS implements GlobalComparator {
   }
 
   private RefinementResult refinement(
-          final StructureSelection target, final StructureSelection model) {
+      final StructureSelection target, final StructureSelection model) {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(target, model);
     final List<Angle> deltas = getValidDeltas(matches);

@@ -1,7 +1,5 @@
 package pl.poznan.put;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import pl.poznan.put.matching.SelectionFactory;
@@ -15,7 +13,10 @@ import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.utility.ResourcesHelper;
 
-import static org.hamcrest.CoreMatchers.*;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class SelectionTest {
   private final PdbParser parser = new PdbParser();
@@ -30,8 +31,9 @@ public class SelectionTest {
     final List<PdbChain> chains = model.getChains();
     Assert.assertThat(chains.size(), is(7));
 
-    final PdbChain chainB = chains.stream().filter(chain -> "B".equals(chain.getIdentifier())).findFirst().orElse(null);
-      Assert.assertThat(chainB, notNullValue());
+    final PdbChain chainB =
+        chains.stream().filter(chain -> "B".equals(chain.getIdentifier())).findFirst().orElse(null);
+    Assert.assertThat(chainB, notNullValue());
 
     final StructureSelection selection =
         StructureSelection.divideIntoCompactFragments("B", chainB.getResidues());
@@ -41,9 +43,12 @@ public class SelectionTest {
 
     final List<PdbResidue> residues = compactFragment.getResidues();
     final int size = residues.size();
-    Assert.assertThat(residues.get(size - 3).getResidueIdentifier(), is(new PdbResidueIdentifier("B", 74, " ")));
-    Assert.assertThat(residues.get(size - 2).getResidueIdentifier(), is(new PdbResidueIdentifier("B", 77, "A")));
-    Assert.assertThat(residues.get(size - 1).getResidueIdentifier(), is(new PdbResidueIdentifier("B", 76, " ")));
+    Assert.assertThat(
+        residues.get(size - 3).getResidueIdentifier(), is(new PdbResidueIdentifier("B", 74, " ")));
+    Assert.assertThat(
+        residues.get(size - 2).getResidueIdentifier(), is(new PdbResidueIdentifier("B", 77, "A")));
+    Assert.assertThat(
+        residues.get(size - 1).getResidueIdentifier(), is(new PdbResidueIdentifier("B", 76, " ")));
   }
 
   @Test

@@ -1,22 +1,27 @@
 package pl.poznan.put.matching;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public final class SelectionFactory {
+  private SelectionFactory() {
+    super();
+  }
+
   public static StructureSelection create(final String name, final PdbModel structure) {
     return SelectionFactory.create(name, structure.getChains());
   }
 
-  public static StructureSelection create(final String name, final Iterable<? extends PdbChain> chains) {
+  public static StructureSelection create(
+      final String name, final Iterable<? extends PdbChain> chains) {
     final List<PdbResidue> residues = SelectionFactory.getAllResidues(chains);
     return StructureSelection.divideIntoCompactFragments(name, residues);
   }
@@ -48,10 +53,8 @@ public final class SelectionFactory {
   private static Collection<PdbResidue> getAllResidues(final PdbChain chain) {
     final List<PdbResidue> chainResidues = chain.getResidues();
 
-      return chainResidues.stream().filter(residue -> residue.getMoleculeType() != MoleculeType.UNKNOWN).collect(Collectors.toCollection(() -> new ArrayList<>(chainResidues.size())));
-  }
-
-  private SelectionFactory() {
-    super();
+    return chainResidues.stream()
+        .filter(residue -> residue.getMoleculeType() != MoleculeType.UNKNOWN)
+        .collect(Collectors.toCollection(() -> new ArrayList<>(chainResidues.size())));
   }
 }

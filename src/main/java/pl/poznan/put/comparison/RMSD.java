@@ -1,8 +1,5 @@
 package pl.poznan.put.comparison;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
@@ -15,6 +12,10 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Implementation of RMSD global similarity measure.
@@ -33,18 +34,18 @@ public class RMSD implements GlobalComparator {
     angleTypes = RMSD.mainAngleTypes();
   }
 
-  private static List<MasterTorsionAngleType> mainAngleTypes() {
-    final List<MasterTorsionAngleType> mainAngleTypes = new ArrayList<>();
-    mainAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-    mainAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
-    return mainAngleTypes;
-  }
-
   public RMSD(final FragmentSuperimposer.AtomFilter filter, final boolean onlyHeavy) {
     super();
     this.filter = filter;
     this.onlyHeavy = onlyHeavy;
     angleTypes = RMSD.mainAngleTypes();
+  }
+
+  private static List<MasterTorsionAngleType> mainAngleTypes() {
+    final List<MasterTorsionAngleType> mainAngleTypes = new ArrayList<>();
+    mainAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
+    mainAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
+    return mainAngleTypes;
   }
 
   @Override

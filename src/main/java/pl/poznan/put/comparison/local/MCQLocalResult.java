@@ -1,12 +1,5 @@
 package pl.poznan.put.comparison.local;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -22,6 +15,14 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 import pl.poznan.put.utility.TabularExporter;
 
+import javax.swing.table.TableModel;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -31,7 +32,8 @@ public class MCQLocalResult extends LocalResult {
   private List<MasterTorsionAngleType> angleTypes;
 
   public MCQLocalResult(
-      final SelectionMatch selectionMatch, final List<? extends MasterTorsionAngleType> angleTypes) {
+      final SelectionMatch selectionMatch,
+      final List<? extends MasterTorsionAngleType> angleTypes) {
     super(selectionMatch);
     this.angleTypes = new ArrayList<>(angleTypes);
   }

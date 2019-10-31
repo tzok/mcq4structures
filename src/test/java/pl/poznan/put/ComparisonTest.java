@@ -1,7 +1,5 @@
 package pl.poznan.put;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import pl.poznan.put.comparison.MCQ;
@@ -22,7 +20,9 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.utility.ResourcesHelper;
 
-import static org.hamcrest.CoreMatchers.*;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
 
 public class ComparisonTest {
   private static final double[] LOCAL_MCQ_1EHZ_1EVV_DEGREES = {
@@ -163,9 +163,9 @@ public class ComparisonTest {
     int i = 0;
     for (final ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
       Assert.assertEquals(
-              ComparisonTest.LOCAL_MCQ_1EHZ_1EVV_DEGREES[i],
-              residueComparison.getMeanDirection().getDegrees(),
-              0.1);
+          ComparisonTest.LOCAL_MCQ_1EHZ_1EVV_DEGREES[i],
+          residueComparison.getMeanDirection().getDegrees(),
+          0.1);
       i += 1;
     }
   }

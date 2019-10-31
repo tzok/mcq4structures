@@ -1,18 +1,5 @@
 package pl.poznan.put.svg;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.font.LineMetrics;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -26,23 +13,25 @@ import org.w3c.dom.svg.SVGSVGElement;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
+import java.awt.*;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public final class MDSDrawer {
-  @FunctionalInterface
-  public interface ColorProvider {
-    Color getColor(int index);
-  }
-
-  @FunctionalInterface
-  public interface NameProvider {
-    String getName(int index);
-  }
-
   private static final int DESIRED_WIDTH = 320;
   private static final int CIRCLE_DIAMETER = 10;
   private static final int MAX_CLUSTER_NAME = 64;
   private static final ColorProvider COLOR_PROVIDER = index -> Color.BLACK;
   private static final NameProvider NAME_PROVIDER = index -> "";
-
   private MDSDrawer() {
     super();
   }
@@ -96,10 +85,10 @@ public final class MDSDrawer {
         graphics.setColor(entry.getKey());
         graphics.draw(
             new Ellipse2D.Double(
-                    MDSDrawer.DESIRED_WIDTH + MDSDrawer.CIRCLE_DIAMETER,
-                    legendHeight,
-                    MDSDrawer.CIRCLE_DIAMETER,
-                    MDSDrawer.CIRCLE_DIAMETER));
+                MDSDrawer.DESIRED_WIDTH + MDSDrawer.CIRCLE_DIAMETER,
+                legendHeight,
+                MDSDrawer.CIRCLE_DIAMETER,
+                MDSDrawer.CIRCLE_DIAMETER));
         graphics.drawString(
             nameAbbreviated,
             (float) (MDSDrawer.DESIRED_WIDTH + (MDSDrawer.CIRCLE_DIAMETER * 2.5)),
@@ -157,8 +146,7 @@ public final class MDSDrawer {
   private static ConvexHull2D calculateConvexHull(
       final double[][] scaledXYMatrix, final Collection<Integer> indices) {
     final List<Vector2D> points =
-        indices
-            .stream()
+        indices.stream()
             .map(
                 index ->
                     new Vector2D(
@@ -194,5 +182,15 @@ public final class MDSDrawer {
     }
 
     return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+  }
+
+  @FunctionalInterface
+  public interface ColorProvider {
+    Color getColor(int index);
+  }
+
+  @FunctionalInterface
+  public interface NameProvider {
+    String getName(int index);
   }
 }

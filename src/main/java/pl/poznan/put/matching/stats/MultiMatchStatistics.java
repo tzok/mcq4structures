@@ -1,9 +1,5 @@
 package pl.poznan.put.matching.stats;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import pl.poznan.put.matching.AngleDeltaIterator;
@@ -14,68 +10,13 @@ import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 import pl.poznan.put.utility.NumberFormatUtils;
 
+import javax.swing.table.TableModel;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @Data
 public final class MultiMatchStatistics {
-  @Data
-  public static final class HistogramEntry implements Comparable<HistogramEntry> {
-    private final double ratio;
-
-    @Override
-    public int compareTo(final HistogramEntry t) {
-      return Double.compare(ratio, t.ratio);
-    }
-
-    @Override
-    public String toString() {
-      return NumberFormatUtils.threeDecimalDigits().format(100.0 * ratio) + '%';
-    }
-  }
-
-  private static final class HistogramTableModel extends NonEditableDefaultTableModel {
-    private static final long serialVersionUID = 5272719525300314601L;
-
-    private HistogramTableModel(final Object[][] data, final String[] columnNames) {
-      super(data, columnNames);
-    }
-
-    @Override
-    public Class<?> getColumnClass(final int i) {
-      return (i == 0) ? String.class : HistogramEntry.class;
-    }
-  }
-
-  @EqualsAndHashCode
-  @Data
-  public static final class PercentileEntry implements Comparable<PercentileEntry> {
-    private final double threshold;
-    private final boolean isDisplayable;
-
-    @Override
-    public int compareTo(final PercentileEntry t) {
-      return Double.compare(threshold, t.threshold);
-    }
-
-    @Override
-    public String toString() {
-      return isDisplayable
-          ? AngleFormat.degreesRoundedToHundredth(threshold)
-          : AngleFormat.degrees(threshold);
-    }
-  }
-
-  private static final class PercentileTableModel extends NonEditableDefaultTableModel {
-    private static final long serialVersionUID = 5272719525300314601L;
-
-    private PercentileTableModel(final Object[][] data, final String[] columnNames) {
-      super(data, columnNames);
-    }
-
-    @Override
-    public Class<?> getColumnClass(final int i) {
-      return (i == 0) ? String.class : PercentileEntry.class;
-    }
-  }
-
   private final List<SingleMatchStatistics> statistics;
   private final double[] angleLimits;
   private final double[] percentsLimits;
@@ -149,5 +90,65 @@ public final class MultiMatchStatistics {
     }
 
     return new PercentileTableModel(data, columnNames);
+  }
+
+  @Data
+  public static final class HistogramEntry implements Comparable<HistogramEntry> {
+    private final double ratio;
+
+    @Override
+    public int compareTo(final HistogramEntry t) {
+      return Double.compare(ratio, t.ratio);
+    }
+
+    @Override
+    public String toString() {
+      return NumberFormatUtils.threeDecimalDigits().format(100.0 * ratio) + '%';
+    }
+  }
+
+  private static final class HistogramTableModel extends NonEditableDefaultTableModel {
+    private static final long serialVersionUID = 5272719525300314601L;
+
+    private HistogramTableModel(final Object[][] data, final String[] columnNames) {
+      super(data, columnNames);
+    }
+
+    @Override
+    public Class<?> getColumnClass(final int i) {
+      return (i == 0) ? String.class : HistogramEntry.class;
+    }
+  }
+
+  @EqualsAndHashCode
+  @Data
+  public static final class PercentileEntry implements Comparable<PercentileEntry> {
+    private final double threshold;
+    private final boolean isDisplayable;
+
+    @Override
+    public int compareTo(final PercentileEntry t) {
+      return Double.compare(threshold, t.threshold);
+    }
+
+    @Override
+    public String toString() {
+      return isDisplayable
+          ? AngleFormat.degreesRoundedToHundredth(threshold)
+          : AngleFormat.degrees(threshold);
+    }
+  }
+
+  private static final class PercentileTableModel extends NonEditableDefaultTableModel {
+    private static final long serialVersionUID = 5272719525300314601L;
+
+    private PercentileTableModel(final Object[][] data, final String[] columnNames) {
+      super(data, columnNames);
+    }
+
+    @Override
+    public Class<?> getColumnClass(final int i) {
+      return (i == 0) ? String.class : PercentileEntry.class;
+    }
   }
 }

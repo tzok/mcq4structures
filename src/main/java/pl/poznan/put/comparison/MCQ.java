@@ -1,14 +1,5 @@
 package pl.poznan.put.comparison;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.circular.Angle;
@@ -39,6 +30,15 @@ import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.TabularExporter;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle representation.
@@ -80,8 +80,7 @@ public class MCQ implements GlobalComparator, LocalComparator {
     this.angleTypes = new ArrayList<>(angleTypes);
   }
 
-  public static void main(final String[] args)
-      throws IOException, InterruptedException {
+  public static void main(final String[] args) throws IOException, InterruptedException {
     if (args.length < 2) {
       System.err.println("You must specify at least 2 structures");
       return;
@@ -187,8 +186,11 @@ public class MCQ implements GlobalComparator, LocalComparator {
     final List<PdbCompactFragment> modelsWithoutTarget = new ArrayList<>(models);
     modelsWithoutTarget.remove(target);
 
-    final List<FragmentMatch> matches = modelsWithoutTarget.stream().map(fragment -> matcher.matchFragments(target, fragment)).collect(Collectors.toList());
+    final List<FragmentMatch> matches =
+        modelsWithoutTarget.stream()
+            .map(fragment -> matcher.matchFragments(target, fragment))
+            .collect(Collectors.toList());
 
-      return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
+    return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
   }
 }
