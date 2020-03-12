@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>mcq-parent</artifactId>
     <groupId>pl.poznan.put</groupId>
+    <artifactId>mcq-parent</artifactId>
     <version>1.7-SNAPSHOT</version>
   </parent>
 
@@ -121,18 +121,13 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.amashchenko.maven.plugin</groupId>
-        <artifactId>gitflow-maven-plugin</artifactId>
-      </plugin>
-
-      <plugin>
         <groupId>com.github.ekryd.sortpom</groupId>
         <artifactId>sortpom-maven-plugin</artifactId>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
       </plugin>
 
       <plugin>
