@@ -1,0 +1,11 @@
+#! /bin/bash
+name=mcq-cli-$(git describe)
+tmpdir=$(mktemp -d)
+mkdir ${tmpdir}/${name}
+mkdir ${tmpdir}/${name}/target
+
+cp colorbar.py colorbars.R distmat.R mcq-global mcq-local mcq-lcs mcq-print ${tmpdir}/${name}
+cp target/mcq-cli-*-with-dependencies.jar ${tmpdir}/${name}/target
+tar cfz /tmp/${name}.tar.gz -C ${tmpdir} ${name}
+[[ -n ${tmpdir} ]] && find ${tmpdir} -delete
+echo /tmp/${name}.tar.gz
