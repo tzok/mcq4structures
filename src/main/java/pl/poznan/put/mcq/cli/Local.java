@@ -31,7 +31,6 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.svg.SecondaryStructureVisualizer;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.utility.ExecHelper;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
 
@@ -56,13 +55,14 @@ public final class Local {
           .addOption(Helper.OPTION_SELECTION_TARGET)
           .addOption(Helper.OPTION_SELECTION_MODEL)
           .addOption(Helper.OPTION_ANGLES)
-          .addOption(Helper.OPTION_NAMES);
+          .addOption(Helper.OPTION_NAMES)
+          .addOption(Helper.OPTION_DIRECTORY);
 
   private Local() {
     super();
   }
 
-  public static void main(final String[] args) throws ParseException {
+  public static void main(final String[] args) throws ParseException, IOException {
     if (Helper.isHelpRequested(args)) {
       Helper.printHelp("mcq-local", Local.OPTIONS);
       return;
@@ -115,6 +115,9 @@ public final class Local {
             .<List<Angle>>mapToObj(i -> new ArrayList<>())
             .collect(Collectors.toList());
 
+    final File outputDirectory = Helper.getOutputDirectory(commandLine);
+    FileUtils.forceMkdir(outputDirectory);
+
     for (int i = 0; i < size; i++) {
       final PdbCompactFragment targetFragment = target.getCompactFragments().get(i);
 
@@ -136,8 +139,8 @@ public final class Local {
 
       final ModelsComparisonResult comparisonResult =
           mcq.compareModels(targetFragment, modelFragments);
-      final File directory = Local.exportResults(comparisonResult);
-      System.out.println("Partial results are available in: " + directory);
+      Local.exportResults(outputDirectory, comparisonResult);
+      System.out.println("Partial results are available in: " + outputDirectory);
 
       for (int j = 0; j < comparisonResult.getFragmentMatches().size(); j++) {
         final FragmentMatch match = comparisonResult.getFragmentMatches().get(j);
@@ -248,15 +251,14 @@ public final class Local {
     }
   }
 
-  private static File exportResults(final ModelsComparisonResult comparisonResult) {
+  private static void exportResults(
+      final File outputDirectory, final ModelsComparisonResult comparisonResult) {
     try {
-      final File directory = ExecHelper.createRandomDirectory();
-      Local.exportTable(directory, comparisonResult);
+      Local.exportTable(outputDirectory, comparisonResult);
       comparisonResult
           .getFragmentMatches()
           .parallelStream()
-          .forEach(fragmentMatch -> Local.exportModelResults(directory, fragmentMatch));
-      return directory;
+          .forEach(fragmentMatch -> Local.exportModelResults(outputDirectory, fragmentMatch));
     } catch (final IOException e) {
       throw new IllegalArgumentException("Failed to export results", e);
     }

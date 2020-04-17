@@ -22,7 +22,6 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.types.DistanceMatrix;
-import pl.poznan.put.utility.ExecHelper;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
 
@@ -40,13 +39,14 @@ public final class Global {
       new Options()
           .addOption(Helper.OPTION_SELECTION_MODEL)
           .addOption(Helper.OPTION_ANGLES)
-          .addOption(Helper.OPTION_NAMES);
+          .addOption(Helper.OPTION_NAMES)
+          .addOption(Helper.OPTION_DIRECTORY);
 
   private Global() {
     super();
   }
 
-  public static void main(final String[] args) throws ParseException {
+  public static void main(final String[] args) throws ParseException, IOException {
     if (Helper.isHelpRequested(args)) {
       Helper.printHelp("mcq-global", Global.OPTIONS);
       return;
@@ -58,24 +58,44 @@ public final class Global {
     final List<MasterTorsionAngleType> angles = Helper.parseAngles(commandLine);
     final MCQ mcq = new MCQ(angles);
 
+    final File outputDirectory = Helper.getOutputDirectory(commandLine);
+    FileUtils.forceMkdir(outputDirectory);
+
     final long size = models.size();
     final long initialMax = (size * (size - 1L)) / 2L;
     final ProgressBar progressBar = new ProgressBar("Comparing...", initialMax);
-    final Listener listener = new Listener(progressBar);
+    final Listener listener = new Listener(progressBar, outputDirectory);
     final ParallelGlobalComparator comparator = new ParallelGlobalComparator(mcq, models, listener);
     comparator.start();
   }
 
   private static final class Listener implements ParallelGlobalComparator.ProgressListener {
     private final ProgressBar progressBar;
+    private final File outputDirectory;
 
-    private Listener(final ProgressBar progressBar) {
+    private Listener(final ProgressBar progressBar, final File outputDirectory) {
       super();
       this.progressBar = progressBar;
+      this.outputDirectory = outputDirectory;
     }
 
-    private static void exportClustering(
-        final File directory, final PartitionalClustering clustering, final int k)
+    private void exportResults(final Exportable matrix) throws IOException {
+      final File matrixFile = new File(outputDirectory, "matrix.csv");
+      try (final OutputStream stream = new FileOutputStream(matrixFile)) {
+        matrix.export(stream);
+      }
+    }
+
+    private void exportDrawing(final Visualizable clustering, final int k) throws IOException {
+      final File drawingFile = new File(outputDirectory, String.format("clustering-%02d.svg", k));
+      try (final OutputStream stream = new FileOutputStream(drawingFile)) {
+        final SVGDocument document = clustering.visualize();
+        final byte[] bytes = SVGHelper.export(document, Format.SVG);
+        stream.write(bytes);
+      }
+    }
+
+    private void exportClustering(final PartitionalClustering clustering, final int k)
         throws IOException {
       final ClusterAssignment assignment = clustering.getAssignment();
       final DistanceMatrix distanceMatrix = clustering.getDistanceMatrix();
@@ -92,30 +112,14 @@ public final class Global {
                           .collect(Collectors.joining("", names.get(prototype) + ": ", "\n")))
               .collect(Collectors.joining());
 
-      final File clusteringFile = new File(directory, String.format("clustering-%02d.txt", k));
+      final File clusteringFile =
+          new File(outputDirectory, String.format("clustering-%02d.txt", k));
       FileUtils.write(clusteringFile, description, StandardCharsets.UTF_8);
 
       try (final OutputStream stream =
-          new FileOutputStream(new File(directory, String.format("clustering-%02d.csv", k)))) {
+          new FileOutputStream(
+              new File(outputDirectory, String.format("clustering-%02d.csv", k)))) {
         clustering.export(stream);
-      }
-    }
-
-    private static void exportDrawing(
-        final File directory, final Visualizable clustering, final int k) throws IOException {
-      final File drawingFile = new File(directory, String.format("clustering-%02d.svg", k));
-      try (final OutputStream stream = new FileOutputStream(drawingFile)) {
-        final SVGDocument document = clustering.visualize();
-        final byte[] bytes = SVGHelper.export(document, Format.SVG);
-        stream.write(bytes);
-      }
-    }
-
-    private static void exportResults(final File directory, final Exportable matrix)
-        throws IOException {
-      final File matrixFile = new File(directory, "matrix.csv");
-      try (final OutputStream stream = new FileOutputStream(matrixFile)) {
-        matrix.export(stream);
       }
     }
 
@@ -129,8 +133,7 @@ public final class Global {
       try {
         progressBar.close();
 
-        final File directory = ExecHelper.createRandomDirectory();
-        Listener.exportResults(directory, matrix);
+        exportResults(matrix);
 
         final double[][] rawMatrix = matrix.getDistanceMatrix().getMatrix();
 
@@ -142,12 +145,12 @@ public final class Global {
                 clusterer.findPrototypes(rawMatrix, PAM.getInstance(), k);
             final PartitionalClustering partitionalClustering =
                 new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
-            Listener.exportDrawing(directory, partitionalClustering, k);
-            Listener.exportClustering(directory, partitionalClustering, k);
+            exportDrawing(partitionalClustering, k);
+            exportClustering(partitionalClustering, k);
           }
         }
 
-        System.out.println("Results available in: " + directory);
+        System.out.println("Results available in: " + outputDirectory);
       } catch (final IOException e) {
         System.err.println("Failed to store results");
         e.printStackTrace(System.err);

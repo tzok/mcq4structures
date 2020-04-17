@@ -80,6 +80,14 @@ final class Helper {
           .numberOfArgs(1)
           .desc("Model names to be saved in output files (separated by comma without space)")
           .build();
+  public static final Option OPTION_DIRECTORY =
+      Option.builder("d")
+          .longOpt("directory")
+          .numberOfArgs(1)
+          .desc("Output directory")
+          .required()
+          .type(File.class)
+          .build();
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq-cli-messages");
   private static final Options HELP_OPTIONS = PatternOptionBuilder.parsePattern("h");
 
@@ -235,6 +243,10 @@ final class Helper {
     final String footer = Helper.getMessage("selection.query.syntax");
     final HelpFormatter helpFormatter = new HelpFormatter();
     helpFormatter.printHelp(78, commandName, "", options, footer, true);
+  }
+
+  public static File getOutputDirectory(final CommandLine commandLine) throws ParseException {
+    return (File) commandLine.getParsedOptionValue(Helper.OPTION_DIRECTORY.getOpt());
   }
 
   private static String getMessage(final String s) {
