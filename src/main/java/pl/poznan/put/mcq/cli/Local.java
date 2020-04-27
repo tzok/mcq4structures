@@ -30,6 +30,7 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.svg.SecondaryStructureVisualizer;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
@@ -107,7 +108,7 @@ public final class Local {
 
     // prepare MCQ instance
     final List<MasterTorsionAngleType> angleTypes = Helper.parseAngles(commandLine);
-    angleTypes.add(RNATorsionAngleType.getAverageOverMainAngles());
+    angleTypes.add(new AverageTorsionAngleType(MoleculeType.RNA, angleTypes));
     final LocalComparator mcq = new MCQ(angleTypes);
 
     final List<List<Angle>> partialDifferences =
