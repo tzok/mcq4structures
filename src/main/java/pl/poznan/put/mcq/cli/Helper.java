@@ -222,8 +222,8 @@ final class Helper {
 
   public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
     if (commandLine.hasOption(Helper.OPTION_ANGLES.getOpt())) {
-
       return Arrays.stream(commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt()))
+          .flatMap(s -> Arrays.stream(s.split("\\s*,\\s*")))
           .map(RNATorsionAngleType::valueOf)
           .collect(Collectors.toList());
     }
