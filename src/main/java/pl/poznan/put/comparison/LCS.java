@@ -3,6 +3,7 @@ package pl.poznan.put.comparison;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.enums.ValueType;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
@@ -53,18 +54,35 @@ public class LCS implements GlobalComparator {
     final AngleSample angleSample = new AngleSample(deltas);
 
     // if global mcq is < threshold, then 100% residues are in result
-    if (angleSample.getMeanDirection().compareTo(threshold) < 0) {
+    final Angle globalMcq = angleSample.getMeanDirection();
+    if (globalMcq.compareTo(threshold) < 0) {
       return new LCSGlobalResult(getName(), matches, new AngleSample(deltas), s2, s1);
     }
 
-    RefinementResult bestRefinement = null;
+    Angle currentThreshold = threshold;
+    Optional<RefinementResult> refinement = findLongestContinuousSegment(s1, s2, currentThreshold);
+    while (!refinement.isPresent()) {
+      currentThreshold = new Angle(currentThreshold.getDegrees() + 1.0, ValueType.DEGREES);
+      refinement = findLongestContinuousSegment(s1, s2, currentThreshold);
+    }
 
+    return new LCSGlobalResult(
+        getName(),
+        refinement.get().getSelectionMatch(),
+        refinement.get().getAngleSample(),
+        refinement.get().getModel(),
+        refinement.get().getTarget());
+  }
+
+  private Optional<RefinementResult> findLongestContinuousSegment(
+      final StructureSelection s1, final StructureSelection s2, final Angle currentThreshold) {
+    RefinementResult bestRefinement = null;
     int longest = 0;
     int l = 0;
     int p = s1.getResidues().size() - 1;
 
-    while (l <= p) {
-      final int s = (l + p) / 2;
+    while (l <= p && p > 0) {
+      final int s = Math.max((l + p) / 2, 1);
       boolean found = false;
 
       for (int j = 0; (j + s) <= s1.getResidues().size(); j++) {
@@ -78,17 +96,11 @@ public class LCS implements GlobalComparator {
           final Angle mcq = localRefinement.getAngleSample().getMeanDirection();
           final int size = localRefinement.getSelectionMatch().getResidueLabels().size();
 
-          // better mcq and longer alignment
-          if ((mcq.compareTo(threshold) < 0) && (size >= longest)) {
+          // if mcq < threshold and size >= longest
+          if ((mcq.compareTo(currentThreshold) <= 0) && (size > longest)) {
             longest = size;
             bestRefinement = localRefinement;
             found = true;
-          }
-
-          final Angle diff = threshold.subtract(mcq);
-          if (bestRefinement == null
-              || diff.compareTo(threshold.subtract(bestRefinement.getMeanDirection())) < 0) {
-            bestRefinement = localRefinement;
           }
         }
       }
@@ -100,23 +112,17 @@ public class LCS implements GlobalComparator {
       }
     }
 
-    return new LCSGlobalResult(
-        getName(),
-        bestRefinement.getSelectionMatch(),
-        bestRefinement.getAngleSample(),
-        bestRefinement.getModel(),
-        bestRefinement.getTarget());
+    return Optional.ofNullable(bestRefinement);
   }
 
   private Optional<RefinementResult> refinement(
       final StructureSelection target, final StructureSelection model) {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(target, model);
-    if (matches.getFragmentMatches().isEmpty()) {
-      return Optional.empty();
-    }
-    final List<Angle> deltas = getValidDeltas(matches);
-    return Optional.of(new RefinementResult(matches, new AngleSample(deltas), model, target));
+    return matches.getFragmentMatches().isEmpty()
+        ? Optional.empty()
+        : Optional.of(
+            new RefinementResult(matches, new AngleSample(getValidDeltas(matches)), model, target));
   }
 
   private List<Angle> getValidDeltas(final MatchCollection matches) {
@@ -152,14 +158,10 @@ public class LCS implements GlobalComparator {
 
   @Getter
   @RequiredArgsConstructor
-  private static final class RefinementResult {
+  private static class RefinementResult {
     private final SelectionMatch selectionMatch;
     private final AngleSample angleSample;
     private final StructureSelection model;
     private final StructureSelection target;
-
-    public Angle getMeanDirection() {
-      return angleSample.getMeanDirection();
-    }
   }
 }
