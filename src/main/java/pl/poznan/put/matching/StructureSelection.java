@@ -25,9 +25,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode
@@ -48,15 +50,14 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
   }
 
   public static StructureSelection divideIntoCompactFragments(
-      final String name, final Iterable<? extends PdbResidue> residues) {
-    final List<PdbResidue> candidates = new ArrayList<>();
-
-    for (final PdbResidue residue : residues) {
-      if (!residue.isMissing()) {
-        candidates.add(residue);
-      }
+      final String name, final List<? extends PdbResidue> residues) {
+    if (residues.size() == 1) {
+      return new StructureSelection(
+          name, Collections.singletonList(new PdbCompactFragment(name, residues)));
     }
 
+    final List<PdbResidue> candidates =
+        residues.stream().filter(residue -> !residue.isMissing()).collect(Collectors.toList());
     final List<PdbCompactFragment> compactFragments = new ArrayList<>();
     List<PdbResidue> currentFragmentResidues = new ArrayList<>();
     int index = 0;
