@@ -24,6 +24,7 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of LCS global similarity measure based on torsion angle representation.
@@ -51,11 +52,13 @@ public class LCS implements GlobalComparator {
     final List<Angle> deltas = getValidDeltas(matches);
     final AngleSample angleSample = new AngleSample(deltas);
 
+    // if global mcq is < threshold, then 100% residues are in result
     if (angleSample.getMeanDirection().compareTo(threshold) < 0) {
       return new LCSGlobalResult(getName(), matches, new AngleSample(deltas), s2, s1);
     }
 
-    RefinementResult maxRefinementResult = new RefinementResult(matches, angleSample, s1, s2);
+    RefinementResult bestRefinement = null;
+
     int longest = 0;
     int l = 0;
     int p = s1.getResidues().size() - 1;
@@ -68,15 +71,25 @@ public class LCS implements GlobalComparator {
         final List<PdbResidue> fragmentResidues = s1.getResidues().subList(j, j + s);
         final StructureSelection target1 =
             StructureSelection.divideIntoCompactFragments(s1.getName(), fragmentResidues);
-        final RefinementResult localRefinementResult = refinement(s2, target1);
-        final Angle mcq = localRefinementResult.getAngleSample().getMeanDirection();
-        final int size = localRefinementResult.getSelectionMatch().getResidueLabels().size();
+        final Optional<RefinementResult> optionalRefinement = refinement(s2, target1);
 
-        // better mcq and longer alignment
-        if ((mcq.compareTo(threshold) < 0) && (size >= longest)) {
-          longest = size;
-          maxRefinementResult = localRefinementResult;
-          found = true;
+        if (optionalRefinement.isPresent()) {
+          final RefinementResult localRefinement = optionalRefinement.get();
+          final Angle mcq = localRefinement.getAngleSample().getMeanDirection();
+          final int size = localRefinement.getSelectionMatch().getResidueLabels().size();
+
+          // better mcq and longer alignment
+          if ((mcq.compareTo(threshold) < 0) && (size >= longest)) {
+            longest = size;
+            bestRefinement = localRefinement;
+            found = true;
+          }
+
+          final Angle diff = threshold.subtract(mcq);
+          if (bestRefinement == null
+              || diff.compareTo(threshold.subtract(bestRefinement.getMeanDirection())) < 0) {
+            bestRefinement = localRefinement;
+          }
         }
       }
 
@@ -89,18 +102,21 @@ public class LCS implements GlobalComparator {
 
     return new LCSGlobalResult(
         getName(),
-        maxRefinementResult.getSelectionMatch(),
-        maxRefinementResult.getAngleSample(),
-        maxRefinementResult.getModel(),
-        maxRefinementResult.getTarget());
+        bestRefinement.getSelectionMatch(),
+        bestRefinement.getAngleSample(),
+        bestRefinement.getModel(),
+        bestRefinement.getTarget());
   }
 
-  private RefinementResult refinement(
+  private Optional<RefinementResult> refinement(
       final StructureSelection target, final StructureSelection model) {
     final StructureMatcher matcher = new MCQMatcher(angleTypes);
     final SelectionMatch matches = matcher.matchSelections(target, model);
+    if (matches.getFragmentMatches().isEmpty()) {
+      return Optional.empty();
+    }
     final List<Angle> deltas = getValidDeltas(matches);
-    return new RefinementResult(matches, new AngleSample(deltas), model, target);
+    return Optional.of(new RefinementResult(matches, new AngleSample(deltas), model, target));
   }
 
   private List<Angle> getValidDeltas(final MatchCollection matches) {
@@ -141,5 +157,9 @@ public class LCS implements GlobalComparator {
     private final AngleSample angleSample;
     private final StructureSelection model;
     private final StructureSelection target;
+
+    public Angle getMeanDirection() {
+      return angleSample.getMeanDirection();
+    }
   }
 }
