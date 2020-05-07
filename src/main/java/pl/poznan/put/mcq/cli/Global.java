@@ -18,7 +18,6 @@ import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.types.DistanceMatrix;
@@ -31,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -86,8 +86,13 @@ public final class Global {
       }
     }
 
-    private void exportDrawing(final Visualizable clustering, final int k) throws IOException {
-      final File drawingFile = new File(outputDirectory, String.format("clustering-%02d.svg", k));
+    private void exportDrawing(final PartitionalClustering clustering) throws IOException {
+      final int k = clustering.getClusterCount();
+      final double silhouette = clustering.getSilhouette();
+      final File drawingFile =
+          new File(
+              outputDirectory,
+              String.format(Locale.US, "clustering-%02d-%06d.svg", k, (int) (silhouette * 1000.0)));
       try (final OutputStream stream = new FileOutputStream(drawingFile)) {
         final SVGDocument document = clustering.visualize();
         final byte[] bytes = SVGHelper.export(document, Format.SVG);
@@ -95,8 +100,7 @@ public final class Global {
       }
     }
 
-    private void exportClustering(final PartitionalClustering clustering, final int k)
-        throws IOException {
+    private void exportClustering(final PartitionalClustering clustering) throws IOException {
       final ClusterAssignment assignment = clustering.getAssignment();
       final DistanceMatrix distanceMatrix = clustering.getDistanceMatrix();
       final List<String> names = distanceMatrix.getNames();
@@ -112,13 +116,19 @@ public final class Global {
                           .collect(Collectors.joining("", names.get(prototype) + ": ", "\n")))
               .collect(Collectors.joining());
 
+      final int k = clustering.getClusterCount();
+      final double silhouette = clustering.getSilhouette();
       final File clusteringFile =
-          new File(outputDirectory, String.format("clustering-%02d.txt", k));
+          new File(
+              outputDirectory,
+              String.format(Locale.US, "clustering-%02d-%06d.txt", k, (int) (silhouette * 1000.0)));
       FileUtils.write(clusteringFile, description, StandardCharsets.UTF_8);
 
       try (final OutputStream stream =
           new FileOutputStream(
-              new File(outputDirectory, String.format("clustering-%02d.csv", k)))) {
+              new File(
+                  outputDirectory,
+                  String.format("clustering-%02d-%06d.csv", k, (int) (silhouette * 1000.0))))) {
         clustering.export(stream);
       }
     }
@@ -145,8 +155,8 @@ public final class Global {
                 clusterer.findPrototypes(rawMatrix, PAM.getInstance(), k);
             final PartitionalClustering partitionalClustering =
                 new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
-            exportDrawing(partitionalClustering, k);
-            exportClustering(partitionalClustering, k);
+            exportDrawing(partitionalClustering);
+            exportClustering(partitionalClustering);
           }
         }
 
