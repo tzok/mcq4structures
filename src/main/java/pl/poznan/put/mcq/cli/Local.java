@@ -79,6 +79,7 @@ public final class Local {
 
     final StructureSelection target = Helper.selectTarget(commandLine);
     final List<StructureSelection> models = Helper.selectModels(commandLine);
+    models.remove(target);
 
     Local.printBondLengthViolations(models);
 
