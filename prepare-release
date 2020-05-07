@@ -4,7 +4,7 @@ tmpdir=$(mktemp -d)
 mkdir ${tmpdir}/${name}
 mkdir ${tmpdir}/${name}/target
 
-cp colorbar.py colorbars.R distmat.R mcq-global mcq-local mcq-lcs mcq-print ${tmpdir}/${name}
+cp clustering.py colorbar.py colorbars.R distmat.R mcq-global mcq-local mcq-lcs mcq-print ${tmpdir}/${name}
 cp target/mcq-cli-*-with-dependencies.jar ${tmpdir}/${name}/target
 
 jar=$(readlink -f target/mcq-cli-*-with-dependencies.jar)
