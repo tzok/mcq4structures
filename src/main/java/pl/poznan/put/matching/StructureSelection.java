@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class StructureSelection implements Exportable, Tabular, ResidueCollection {
   private static final int MINIMUM_RESIDUES_IN_FRAGMENT = 3;
 
