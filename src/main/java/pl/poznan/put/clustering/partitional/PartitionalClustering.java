@@ -68,6 +68,14 @@ public class PartitionalClustering implements Visualizable, Exportable {
     return distanceMatrix;
   }
 
+  public final int getClusterCount() {
+    return clustering.getPrototypes().getPrototypesIndices().size();
+  }
+
+  public final double getSilhouette() {
+    return clustering.getSilhouette();
+  }
+
   @Override
   public final SVGDocument visualize() {
     return MDSDrawer.scale2DAndVisualizePoints(
