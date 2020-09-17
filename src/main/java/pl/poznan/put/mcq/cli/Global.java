@@ -79,6 +79,40 @@ public final class Global {
       this.outputDirectory = outputDirectory;
     }
 
+    @Override
+    public void setProgress(final int progress) {
+      progressBar.stepTo(progress);
+    }
+
+    @Override
+    public void complete(final GlobalMatrix matrix) {
+      try {
+        progressBar.close();
+
+        exportResults(matrix);
+
+        final double[][] rawMatrix = matrix.getDistanceMatrix().matrix();
+
+        if (rawMatrix.length > 2) {
+          final PrototypeBasedClusterer clusterer = new KMedoids();
+
+          for (int k = 2; k <= Math.min(12, rawMatrix.length); k++) {
+            final ScoredClusteringResult clustering =
+                clusterer.findPrototypes(rawMatrix, PAM.getInstance(), k);
+            final PartitionalClustering partitionalClustering =
+                new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
+            exportDrawing(partitionalClustering);
+            exportClustering(partitionalClustering);
+          }
+        }
+
+        System.out.println("Results available in: " + outputDirectory);
+      } catch (final IOException e) {
+        System.err.println("Failed to store results");
+        e.printStackTrace(System.err);
+      }
+    }
+
     private void exportResults(final Exportable matrix) throws IOException {
       final File matrixFile = new File(outputDirectory, "matrix.csv");
       try (final OutputStream stream = new FileOutputStream(matrixFile)) {
@@ -103,7 +137,7 @@ public final class Global {
     private void exportClustering(final PartitionalClustering clustering) throws IOException {
       final ClusterAssignment assignment = clustering.getAssignment();
       final DistanceMatrix distanceMatrix = clustering.getDistanceMatrix();
-      final List<String> names = distanceMatrix.getNames();
+      final List<String> names = distanceMatrix.names();
 
       final String description =
           assignment.getPrototypesIndices().stream()
@@ -130,40 +164,6 @@ public final class Global {
                   outputDirectory,
                   String.format("clustering-%02d-%06d.csv", k, (int) (silhouette * 1000.0))))) {
         clustering.export(stream);
-      }
-    }
-
-    @Override
-    public void setProgress(final int progress) {
-      progressBar.stepTo(progress);
-    }
-
-    @Override
-    public void complete(final GlobalMatrix matrix) {
-      try {
-        progressBar.close();
-
-        exportResults(matrix);
-
-        final double[][] rawMatrix = matrix.getDistanceMatrix().getMatrix();
-
-        if (rawMatrix.length > 2) {
-          final PrototypeBasedClusterer clusterer = new KMedoids();
-
-          for (int k = 2; k <= Math.min(12, rawMatrix.length); k++) {
-            final ScoredClusteringResult clustering =
-                clusterer.findPrototypes(rawMatrix, PAM.getInstance(), k);
-            final PartitionalClustering partitionalClustering =
-                new PartitionalClustering(matrix.getDistanceMatrix(), clustering);
-            exportDrawing(partitionalClustering);
-            exportClustering(partitionalClustering);
-          }
-        }
-
-        System.out.println("Results available in: " + outputDirectory);
-      } catch (final IOException e) {
-        System.err.println("Failed to store results");
-        e.printStackTrace(System.err);
       }
     }
   }

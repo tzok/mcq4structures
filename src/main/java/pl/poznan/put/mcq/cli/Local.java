@@ -12,8 +12,10 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.atom.AtomName;
 import pl.poznan.put.atom.AtomType;
 import pl.poznan.put.atom.Bond;
+import pl.poznan.put.atom.BondLength;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
@@ -28,9 +30,9 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.svg.SecondaryStructureVisualizer;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
+import pl.poznan.put.torsion.ImmutableAverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
@@ -57,7 +59,8 @@ public final class Local {
           .addOption(Helper.OPTION_SELECTION_MODEL)
           .addOption(Helper.OPTION_ANGLES)
           .addOption(Helper.OPTION_NAMES)
-          .addOption(Helper.OPTION_DIRECTORY);
+          .addOption(Helper.OPTION_DIRECTORY)
+          .addOption(Helper.OPTION_RELAXED);
 
   private Local() {
     super();
@@ -84,32 +87,75 @@ public final class Local {
     Local.printBondLengthViolations(models);
 
     // check for gaps
-    final int size = target.getCompactFragments().size();
+    final int fragmentCount = target.getCompactFragments().size();
     final List<StructureSelection> invalidModels =
         models.stream()
-            .filter(selection -> selection.getCompactFragments().size() != size)
+            .filter(selection -> selection.getCompactFragments().size() != fragmentCount)
             .collect(Collectors.toList());
+
     if (!invalidModels.isEmpty()) {
       Local.printFragmentDetails(target, invalidModels);
-      System.exit(1);
+
+      if (!commandLine.hasOption(Helper.OPTION_RELAXED.getOpt())) {
+        System.err.println("Some models are invalid, cannot continue");
+        System.exit(1);
+      } else {
+        System.err.println("Removing invalid models from further processing");
+        models.removeAll(invalidModels);
+
+        if (models.isEmpty()) {
+          System.err.println("All models are invalid, cannot continue");
+          System.exit(1);
+        }
+      }
     }
 
     // check for size
-    final int expectedSize = target.getResidues().size();
-    models
-        .parallelStream()
-        .filter(selection -> selection.getResidues().size() != expectedSize)
-        .peek(
-            selection ->
-                System.err.printf(
-                    "The following structure has different size (%d) than the target (%d)%n",
-                    selection.getResidues().size(), expectedSize))
-        .findAny()
-        .ifPresent(selection -> System.exit(1));
+    final List<StructureSelection> invalidCompactFragments =
+        models.stream()
+            .filter(
+                model ->
+                    IntStream.range(0, fragmentCount)
+                        .anyMatch(
+                            i ->
+                                target.getCompactFragments().get(i).residues().size()
+                                    != model.getCompactFragments().get(i).residues().size()))
+            .collect(Collectors.toList());
+
+    if (!invalidCompactFragments.isEmpty()) {
+      invalidCompactFragments.forEach(
+          model ->
+              IntStream.range(0, fragmentCount)
+                  .filter(
+                      i ->
+                          target.getCompactFragments().get(i).residues().size()
+                              != model.getCompactFragments().get(i).residues().size())
+                  .forEach(
+                      i ->
+                          System.err.printf(
+                              "Invalid size (%d) of fragment `%s`. Expected size (%d) taken from fragment `%s`%n",
+                              model.getCompactFragments().get(i).residues().size(),
+                              model.getCompactFragments().get(i).name(),
+                              target.getCompactFragments().get(i).residues().size(),
+                              target.getCompactFragments().get(i).name())));
+
+      if (!commandLine.hasOption(Helper.OPTION_RELAXED.getOpt())) {
+        System.err.println("Some models are invalid, cannot continue");
+        System.exit(1);
+      } else {
+        System.err.println("Removing invalid models from further processing");
+        models.removeAll(invalidCompactFragments);
+
+        if (models.isEmpty()) {
+          System.err.println("All models are invalid, cannot continue");
+          System.exit(1);
+        }
+      }
+    }
 
     // prepare MCQ instance
     final List<MasterTorsionAngleType> angleTypes = Helper.parseAngles(commandLine);
-    angleTypes.add(new AverageTorsionAngleType(MoleculeType.RNA, angleTypes));
+    angleTypes.add(ImmutableAverageTorsionAngleType.of(MoleculeType.RNA, angleTypes));
     final LocalComparator mcq = new MCQ(angleTypes);
 
     final List<List<Angle>> partialDifferences =
@@ -120,7 +166,7 @@ public final class Local {
     final File outputDirectory = Helper.getOutputDirectory(commandLine);
     FileUtils.forceMkdir(outputDirectory);
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < fragmentCount; i++) {
       final PdbCompactFragment targetFragment = target.getCompactFragments().get(i);
 
       final List<PdbCompactFragment> modelFragments = new ArrayList<>();
@@ -129,15 +175,16 @@ public final class Local {
       }
 
       // rename
-      if (size == 1) {
-        targetFragment.setName(target.getName());
-        IntStream.range(0, models.size())
-            .forEach(j -> modelFragments.get(j).setName(models.get(j).getName()));
-      } else {
-        Local.renameFragment(targetFragment, target);
-        IntStream.range(0, models.size())
-            .forEach(j -> Local.renameFragment(modelFragments.get(j), models.get(j)));
-      }
+      // FIXME
+      //      if (size == 1) {
+      //        targetFragment.setName(target.getName());
+      //        IntStream.range(0, models.size())
+      //            .forEach(j -> modelFragments.get(j).setName(models.get(j).getName()));
+      //      } else {
+      //        Local.renameFragment(targetFragment, target);
+      //        IntStream.range(0, models.size())
+      //            .forEach(j -> Local.renameFragment(modelFragments.get(j), models.get(j)));
+      //      }
 
       final ModelsComparisonResult comparisonResult =
           mcq.compareModels(targetFragment, modelFragments);
@@ -159,12 +206,12 @@ public final class Local {
     final Set<Pair<Double, StructureSelection>> ranking;
     final List<Angle> mcqs =
         partialDifferences.stream()
-            .map(AngleSample::new)
-            .map(AngleSample::getMeanDirection)
+            .map(ImmutableAngleSample::of)
+            .map(AngleSample::meanDirection)
             .collect(Collectors.toList());
     ranking =
         IntStream.range(0, models.size())
-            .mapToObj(i -> Pair.of(mcqs.get(i).getDegrees(), models.get(i)))
+            .mapToObj(i -> Pair.of(mcqs.get(i).degrees(), models.get(i)))
             .collect(Collectors.toCollection(TreeSet::new));
 
     for (final Pair<Double, StructureSelection> pair : ranking) {
@@ -174,7 +221,7 @@ public final class Local {
 
   private static void renameFragment(
       final PdbCompactFragment fragment, final StructureSelection selection) {
-    selection.setName(String.format("%s %s", selection.getName(), fragment.getName()));
+    selection.setName(String.format("%s %s", selection.getName(), fragment.name()));
   }
 
   private static void printFragmentDetails(
@@ -212,18 +259,18 @@ public final class Local {
       final PdbResidue current = residues.get(i);
 
       // skip check if any of the residues has icode
-      if (StringUtils.isNotBlank(previous.getInsertionCode())
-          || StringUtils.isNotBlank(current.getInsertionCode())) {
+      if (StringUtils.isNotBlank(previous.insertionCode())
+          || StringUtils.isNotBlank(current.insertionCode())) {
         continue;
       }
 
       // skip check if residues are in different chains
-      if (!previous.getChainIdentifier().equals(current.getChainIdentifier())) {
+      if (!previous.chainIdentifier().equals(current.chainIdentifier())) {
         continue;
       }
 
       // skip check if residues are not consecutive
-      if ((previous.getResidueNumber() + 1) != current.getResidueNumber()) {
+      if ((previous.residueNumber() + 1) != current.residueNumber()) {
         continue;
       }
 
@@ -234,14 +281,14 @@ public final class Local {
         } else if (!current.hasAtom(AtomName.P)) {
           reason = "second residue lacks P atom";
         } else {
-          final Bond.Length length = Bond.length(AtomType.O, AtomType.P);
+          final BondLength length = Bond.length(AtomType.O, AtomType.P);
           reason =
               String.format(
                   Locale.US,
                   "O3'-P distance is %.2f but should be [%.2f; %.2f]",
                   previous.findAtom(AtomName.O3p).distanceTo(current.findAtom(AtomName.P)),
-                  length.getMin(),
-                  length.getMax());
+                  length.min(),
+                  length.max());
         }
 
         if (!foundGaps) {
@@ -257,9 +304,7 @@ public final class Local {
       final File outputDirectory, final ModelsComparisonResult comparisonResult) {
     try {
       Local.exportTable(outputDirectory, comparisonResult);
-      comparisonResult
-          .getFragmentMatches()
-          .parallelStream()
+      comparisonResult.getFragmentMatches().parallelStream()
           .forEach(fragmentMatch -> Local.exportModelResults(outputDirectory, fragmentMatch));
     } catch (final IOException e) {
       throw new IllegalArgumentException("Failed to export results", e);
@@ -271,7 +316,7 @@ public final class Local {
     final File file = new File(directory, "table.csv");
     try (final OutputStream stream = new FileOutputStream(file)) {
       final SelectedAngle selectedAngle =
-          comparisonResult.selectAngle(RNATorsionAngleType.getAverageOverMainAngles());
+          comparisonResult.selectAngle(AverageTorsionAngleType.forNucleicAcid());
       selectedAngle.export(stream);
     }
   }
@@ -279,7 +324,7 @@ public final class Local {
   private static void exportModelResults(
       final File parentDirectory, final FragmentMatch fragmentMatch) {
     try {
-      final String name = fragmentMatch.getModelFragment().getName();
+      final String name = fragmentMatch.getModelFragment().name();
       final File directory = new File(parentDirectory, name);
       FileUtils.forceMkdir(directory);
 
@@ -332,6 +377,6 @@ public final class Local {
       }
     }
 
-    System.err.println(builder);
+    System.err.print(builder);
   }
 }

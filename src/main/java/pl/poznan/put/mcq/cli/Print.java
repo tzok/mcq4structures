@@ -9,12 +9,10 @@ import pl.poznan.put.circular.Angle;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.utility.NumberFormatUtils;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -36,31 +34,30 @@ public final class Print {
     final StructureSelection target = Helper.selectModel(commandLine);
 
     final String angleDescription =
-        Arrays.stream(RNATorsionAngleType.mainAngles())
-            .map(angleType -> String.format("%s\t", angleType.getExportName()))
+        AverageTorsionAngleType.forNucleicAcid().consideredAngles().stream()
+            .map(angleType -> String.format("%s\t", angleType.exportName()))
             .collect(Collectors.joining());
     System.out.println("Chain\tResNum\tiCode\tName\t" + angleDescription);
 
     for (final PdbCompactFragment fragment : target.getCompactFragments()) {
-      for (final PdbResidue residue : fragment.getResidues()) {
-        final String insertionCode = residue.getInsertionCode();
+      for (final PdbResidue residue : fragment.residues()) {
+        final String insertionCode = residue.insertionCode();
 
-        System.out.print(residue.getChainIdentifier());
+        System.out.print(residue.chainIdentifier());
         System.out.print('\t');
-        System.out.print(residue.getResidueNumber());
+        System.out.print(residue.residueNumber());
         System.out.print('\t');
         System.out.print(" ".equals(insertionCode) ? "-" : insertionCode);
         System.out.print('\t');
-        System.out.print(residue.getOriginalResidueName());
+        System.out.print(residue.modifiedResidueName());
         System.out.print('\t');
 
-        for (final MasterTorsionAngleType angleType : RNATorsionAngleType.mainAngles()) {
-          final TorsionAngleValue torsionAngleValue =
-              fragment.getTorsionAngleValue(residue, angleType);
-          final Angle value = torsionAngleValue.getValue();
+        for (final MasterTorsionAngleType angleType :
+            AverageTorsionAngleType.forNucleicAcid().consideredAngles()) {
+          final Angle value = fragment.torsionAngles(residue.identifier()).value(angleType);
           System.out.print(
               value.isValid()
-                  ? NumberFormatUtils.threeDecimalDigits().format(value.getDegrees())
+                  ? NumberFormatUtils.threeDecimalDigits().format(value.degrees())
                   : "-");
           System.out.print('\t');
         }
