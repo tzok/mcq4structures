@@ -15,18 +15,19 @@ import pl.poznan.put.matching.SelectionQuery;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.ImmutablePdbCompactFragment;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.ResidueCollection;
 import pl.poznan.put.rna.NucleotideTorsionAngle;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
+import pl.poznan.put.torsion.ImmutableAverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 final class Helper {
@@ -151,16 +153,17 @@ final class Helper {
   }
 
   public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
-    if (commandLine.hasOption(Helper.OPTION_ANGLES.getOpt())) {
-      return Arrays.stream(commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt()))
-          .flatMap(s -> Arrays.stream(s.split("\\s*,\\s*")))
-          .map(NucleotideTorsionAngle::valueOf)
-          .collect(Collectors.toList());
-    }
-
-    // do not use Arrays.asList because it creates unmodifiable list and this one is modified
-    // further
-    return new ArrayList<>(AverageTorsionAngleType.forNucleicAcid().consideredAngles());
+    final List<MasterTorsionAngleType> angleTypes =
+        commandLine.hasOption(Helper.OPTION_ANGLES.getOpt())
+            ? Arrays.stream(commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt()))
+                .flatMap(s -> Arrays.stream(s.split("\\s*,\\s*")))
+                .map(NucleotideTorsionAngle::valueOf)
+                .collect(Collectors.toList())
+            : AverageTorsionAngleType.forNucleicAcid().consideredAngles();
+    return Stream.concat(
+            angleTypes.stream(),
+            Stream.of(ImmutableAverageTorsionAngleType.of(MoleculeType.RNA, angleTypes)))
+        .collect(Collectors.toList());
   }
 
   public static boolean isHelpRequested(final String[] args) throws ParseException {

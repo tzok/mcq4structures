@@ -19,6 +19,7 @@ import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.Format;
@@ -56,7 +57,7 @@ public final class Global {
     final CommandLine commandLine = parser.parse(Global.OPTIONS, args);
     final List<StructureSelection> models = Helper.selectModels(commandLine);
     final List<MasterTorsionAngleType> angles = Helper.parseAngles(commandLine);
-    final MCQ mcq = new MCQ(angles);
+    final MCQ mcq = new MCQ(MoleculeType.RNA, angles);
 
     final File outputDirectory = Helper.getOutputDirectory(commandLine);
     FileUtils.forceMkdir(outputDirectory);
