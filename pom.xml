@@ -63,22 +63,18 @@
 
     <dependency>
       <groupId>pl.poznan.put</groupId>
-      <artifactId>circular</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>pl.poznan.put</groupId>
-      <artifactId>TzokCommons</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>pl.poznan.put</groupId>
       <artifactId>varna-tz</artifactId>
     </dependency>
 
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis-ext</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.immutables</groupId>
+      <artifactId>value</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -96,18 +92,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
       <scope>test</scope>
     </dependency>
 

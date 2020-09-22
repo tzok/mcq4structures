@@ -26,45 +26,6 @@ public class LCSGlobalResult extends GlobalResult {
     longDisplayName = prepareLongDisplayName(model, target);
   }
 
-  private String prepareLongDisplayName(
-      final StructureSelection model, final StructureSelection target) {
-    final SelectionMatch selectionMatch = getSelectionMatch();
-
-    final int validCount = selectionMatch.getResidueLabels().size();
-    final int length = target.getResidues().size();
-    final double coverage = ((double) validCount / length) * 100.0;
-    final PdbResidue residue =
-        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getTarget();
-    final PdbResidue e =
-        selectionMatch
-            .getFragmentMatches()
-            .get(0)
-            .getResidueComparisons()
-            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
-            .getTarget();
-    final PdbResidue s1 =
-        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getModel();
-    final PdbResidue e1 =
-        selectionMatch
-            .getFragmentMatches()
-            .get(0)
-            .getResidueComparisons()
-            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
-            .getModel();
-
-    return String.format(
-        "<html>%s<br>%d<br>%s%%<br>%s<br>%s<br>%s<br>%s<br>%s<br>%s<br></html>",
-        getShortDisplayName(),
-        validCount,
-        String.format("%.4g%n", coverage),
-        target.getName(),
-        residue,
-        e,
-        model.getName(),
-        s1,
-        e1);
-  }
-
   public final String cliOutput(final StructureSelection model, final StructureSelection target) {
     final SelectionMatch selectionMatch = getSelectionMatch();
     final AngleDeltaIterator angleDeltaIterator = new MatchCollectionDeltaIterator(selectionMatch);
@@ -75,26 +36,26 @@ public class LCSGlobalResult extends GlobalResult {
     final int length = target.getResidues().size();
     final double coverage = ((double) validCount / length) * 100.0;
     final PdbResidue residue =
-        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getTarget();
+        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).target();
     final PdbResidue e =
         selectionMatch
             .getFragmentMatches()
             .get(0)
             .getResidueComparisons()
             .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
-            .getTarget();
+            .target();
     final PdbResidue s1 =
-        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).getModel();
+        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).model();
     final PdbResidue e1 =
         selectionMatch
             .getFragmentMatches()
             .get(0)
             .getResidueComparisons()
             .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
-            .getModel();
+            .model();
     return String.format(
         "MCQ value: %s\nNumber of residues: %d\nCoverage: %s%% \nTarget name: %s\nFirst target residue: %s\nLast target residue: %s\nModel name: %s\nFirst model residue: %s\nLast model residue: %s",
-        getShortDisplayName(),
+        shortDisplayName(),
         validCount,
         NumberFormatUtils.threeDecimalDigits().format(coverage),
         target.getName(),
@@ -106,11 +67,11 @@ public class LCSGlobalResult extends GlobalResult {
   }
 
   public final Angle getMeanDirection() {
-    return angleSample.getMeanDirection();
+    return angleSample.meanDirection();
   }
 
   public final Angle getMedianDirection() {
-    return angleSample.getMedianDirection();
+    return angleSample.medianDirection();
   }
 
   @Override
@@ -119,22 +80,61 @@ public class LCSGlobalResult extends GlobalResult {
   }
 
   @Override
-  public final String getLongDisplayName() {
+  public final String shortDisplayName() {
+    return AngleFormat.degreesRoundedToOne(angleSample.meanDirection().radians());
+  }
+
+  @Override
+  public final String longDisplayName() {
     return longDisplayName;
   }
 
   @Override
-  public final String getShortDisplayName() {
-    return AngleFormat.degreesRoundedToOne(angleSample.getMeanDirection().getRadians());
-  }
-
-  @Override
-  public final String getExportName() {
-    return AngleFormat.degrees(angleSample.getMeanDirection().getRadians());
+  public final String exportName() {
+    return AngleFormat.degrees(angleSample.meanDirection().radians());
   }
 
   @Override
   public final double asDouble() {
-    return angleSample.getMeanDirection().getRadians();
+    return angleSample.meanDirection().radians();
+  }
+
+  private String prepareLongDisplayName(
+      final StructureSelection model, final StructureSelection target) {
+    final SelectionMatch selectionMatch = getSelectionMatch();
+
+    final int validCount = selectionMatch.getResidueLabels().size();
+    final int length = target.getResidues().size();
+    final double coverage = ((double) validCount / length) * 100.0;
+    final PdbResidue residue =
+        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).target();
+    final PdbResidue e =
+        selectionMatch
+            .getFragmentMatches()
+            .get(0)
+            .getResidueComparisons()
+            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
+            .target();
+    final PdbResidue s1 =
+        selectionMatch.getFragmentMatches().get(0).getResidueComparisons().get(0).model();
+    final PdbResidue e1 =
+        selectionMatch
+            .getFragmentMatches()
+            .get(0)
+            .getResidueComparisons()
+            .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
+            .model();
+
+    return String.format(
+        "<html>%s<br>%d<br>%s%%<br>%s<br>%s<br>%s<br>%s<br>%s<br>%s<br></html>",
+        shortDisplayName(),
+        validCount,
+        String.format("%.4g%n", coverage),
+        target.getName(),
+        residue,
+        e,
+        model.getName(),
+        s1,
+        e1);
   }
 }

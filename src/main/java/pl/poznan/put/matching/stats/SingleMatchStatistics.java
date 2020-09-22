@@ -48,7 +48,7 @@ public final class SingleMatchStatistics {
       final Angle angle = angleDeltaIterator.next();
 
       if (angle.isValid()) {
-        final double delta = angle.getRadians();
+        final double delta = angle.radians();
         validDeltas.add(delta);
 
         for (int j = 0; j < angleLimits.length; j++) {

@@ -8,6 +8,5 @@ import java.util.List;
 public interface LocalComparator {
   LocalResult comparePair(StructureSelection target, StructureSelection model);
 
-  ModelsComparisonResult compareModels(
-      PdbCompactFragment target, List<? extends PdbCompactFragment> models);
+  ModelsComparisonResult compareModels(PdbCompactFragment target, List<PdbCompactFragment> models);
 }

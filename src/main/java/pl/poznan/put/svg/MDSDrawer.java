@@ -13,7 +13,8 @@ import org.w3c.dom.svg.SVGSVGElement;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
@@ -32,6 +33,7 @@ public final class MDSDrawer {
   private static final int MAX_CLUSTER_NAME = 64;
   private static final ColorProvider COLOR_PROVIDER = index -> Color.BLACK;
   private static final NameProvider NAME_PROVIDER = index -> "";
+
   private MDSDrawer() {
     super();
   }
@@ -130,7 +132,7 @@ public final class MDSDrawer {
   }
 
   public static double[][] scaleTo2D(final DistanceMatrix distanceMatrix) {
-    final double[][] originalDistanceMatrix = distanceMatrix.getMatrix();
+    final double[][] originalDistanceMatrix = distanceMatrix.matrix();
     final double[][] scaledXYMatrix = MDS.multidimensionalScaling(originalDistanceMatrix, 2);
     final Rectangle2D bounds = MDSDrawer.calculateBounds(scaledXYMatrix);
 

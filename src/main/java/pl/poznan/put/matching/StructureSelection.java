@@ -3,17 +3,17 @@ package pl.poznan.put.matching;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.ImmutableAngle;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
-import pl.poznan.put.pdb.PdbResidueIdentifier;
+import pl.poznan.put.pdb.analysis.ImmutablePdbCompactFragment;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.pdb.analysis.ResidueCollection;
-import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
+import pl.poznan.put.pdb.analysis.ResidueTorsionAngles;
+import pl.poznan.put.pdb.analysis.SingleTypedResidueCollection;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
 
@@ -23,11 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,6 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
   private static final int MINIMUM_RESIDUES_IN_FRAGMENT = 3;
 
   @EqualsAndHashCode.Include private final List<PdbResidue> residues;
-
   private String name;
   private List<PdbCompactFragment> compactFragments;
 
@@ -46,40 +45,52 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     super();
     this.name = name;
     this.compactFragments = new ArrayList<>(compactFragments);
-    residues = StructureSelection.collectResidues(compactFragments);
+    residues =
+        compactFragments.stream()
+            .map(PdbCompactFragment::residues)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
   }
 
   public static StructureSelection divideIntoCompactFragments(
-      final String name, final List<? extends PdbResidue> residues) {
+      final String name, final List<PdbResidue> residues) {
     if (residues.size() == 1) {
       return new StructureSelection(
-          name, Collections.singletonList(new PdbCompactFragment(name, residues)));
+          name, Collections.singletonList(ImmutablePdbCompactFragment.of(residues).withName(name)));
     }
 
-    final List<PdbResidue> candidates =
-        residues.stream().filter(residue -> !residue.isMissing()).collect(Collectors.toList());
+    final List<PdbResidue> candidates = new ArrayList<>(residues);
+    final List<PdbResidue> fragment = new ArrayList<>();
     final List<PdbCompactFragment> compactFragments = new ArrayList<>();
-    List<PdbResidue> currentFragmentResidues = new ArrayList<>();
-    int index = 0;
 
     while (!candidates.isEmpty()) {
-      final PdbResidue current = candidates.get(index);
-      currentFragmentResidues.add(current);
-      candidates.remove(index);
-      index = current.findConnectedResidueIndex(candidates);
-
-      if (index == -1) {
-        if (currentFragmentResidues.size() >= StructureSelection.MINIMUM_RESIDUES_IN_FRAGMENT) {
-          final String fragmentName =
-              StructureSelection.generateFragmentName(name, currentFragmentResidues);
-          final PdbCompactFragment compactFragment =
-              new PdbCompactFragment(fragmentName, currentFragmentResidues);
-          compactFragments.add(compactFragment);
-        }
-
-        currentFragmentResidues = new ArrayList<>();
-        index = 0;
+      if (fragment.isEmpty()) {
+        fragment.add(candidates.get(0));
+        candidates.remove(0);
+        continue;
       }
+
+      final PdbResidue last = fragment.get(fragment.size() - 1);
+      final Optional<PdbResidue> connected =
+          candidates.stream().filter(last::isConnectedTo).findFirst();
+
+      if (connected.isPresent()) {
+        fragment.add(connected.get());
+        candidates.remove(connected.get());
+      } else {
+        if (fragment.size() >= StructureSelection.MINIMUM_RESIDUES_IN_FRAGMENT) {
+          compactFragments.add(
+              ImmutablePdbCompactFragment.of(fragment)
+                  .withName(StructureSelection.generateFragmentName(name, fragment)));
+        }
+        fragment.clear();
+      }
+    }
+
+    if (fragment.size() >= StructureSelection.MINIMUM_RESIDUES_IN_FRAGMENT) {
+      compactFragments.add(
+          ImmutablePdbCompactFragment.of(fragment)
+              .withName(StructureSelection.generateFragmentName(name, fragment)));
     }
 
     return new StructureSelection(name, compactFragments);
@@ -91,77 +102,47 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
 
     if (fragmentResidues.size() == 1) {
       final PdbResidue residue = fragmentResidues.get(0);
-      return String.format(
-          "%s %s.%d", name, residue.getChainIdentifier(), residue.getResidueNumber());
+      return String.format("%s %s.%d", name, residue.chainIdentifier(), residue.residueNumber());
     }
 
     final PdbResidue first = fragmentResidues.get(0);
     final PdbResidue last = fragmentResidues.get(fragmentResidues.size() - 1);
     return String.format(
-        "%s %s.%d-%d",
-        name, first.getChainIdentifier(), first.getResidueNumber(), last.getResidueNumber());
+        "%s %s.%d-%d", name, first.chainIdentifier(), first.residueNumber(), last.residueNumber());
   }
 
-  private static List<PdbResidue> collectResidues(
-      final Iterable<? extends PdbCompactFragment> compactFragments) {
-    final List<PdbResidue> residues = new ArrayList<>();
-    compactFragments.forEach(compactFragment -> residues.addAll(compactFragment.getResidues()));
-    return residues;
+  @Override
+  public List<PdbResidue> residues() {
+    return Collections.unmodifiableList(residues);
   }
 
   public final Set<MasterTorsionAngleType> getCommonTorsionAngleTypes() {
-    final Set<MasterTorsionAngleType> commonTypes = new LinkedHashSet<>();
-
-    for (final PdbCompactFragment compactFragment : compactFragments) {
-      final MoleculeType moleculeType = compactFragment.getMoleculeType();
-      final Collection<? extends MasterTorsionAngleType> angleTypes;
-
-      switch (moleculeType) {
-        case PROTEIN:
-          angleTypes = Arrays.asList(ProteinTorsionAngleType.values());
-          break;
-        case RNA:
-          angleTypes = Arrays.asList(RNATorsionAngleType.values());
-          break;
-        case UNKNOWN:
-        default:
-          throw new IllegalArgumentException("Unknown molecule type: " + moleculeType);
-      }
-
-      commonTypes.addAll(angleTypes);
-    }
-
-    return commonTypes;
+    return compactFragments.stream()
+        .map(SingleTypedResidueCollection::moleculeType)
+        .map(MoleculeType::mainAngleTypes)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 
   public final List<Angle> getValidTorsionAngleValues(final MasterTorsionAngleType masterType) {
     final List<Angle> angles = new ArrayList<>();
 
     for (final PdbCompactFragment fragment : compactFragments) {
-      fragment.getResidues().stream()
-          .map(residue -> fragment.getTorsionAngleValue(residue, masterType))
-          .map(TorsionAngleValue::getValue)
+      fragment.residues().stream()
+          .map(PdbResidue::identifier)
+          .map(fragment::torsionAngles)
+          .map(
+              residueTorsionAngles ->
+                  masterType.angleTypes().stream()
+                      .map(residueTorsionAngles::value)
+                      .filter(Angle::isValid)
+                      .findFirst()
+                      .orElse(ImmutableAngle.of(Double.NaN)))
           .filter(Angle::isValid)
           .forEach(angles::add);
     }
 
     return angles;
-  }
-
-  @Override
-  public final PdbResidue findResidue(
-      final String chainIdentifier, final int residueNumber, final String insertionCode) {
-    return findResidue(new PdbResidueIdentifier(chainIdentifier, residueNumber, insertionCode));
-  }
-
-  @Override
-  public final PdbResidue findResidue(final PdbResidueIdentifier query) {
-    for (final PdbResidue residue : residues) {
-      if (query.equals(residue.getResidueIdentifier())) {
-        return residue;
-      }
-    }
-    throw new IllegalArgumentException("Failed to find residue: " + query);
   }
 
   @Override
@@ -197,23 +178,30 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     columns.add("Residue");
 
     for (final MasterTorsionAngleType angleType : allAngleTypes) {
-      columns.add(isDisplayable ? angleType.getLongDisplayName() : angleType.getExportName());
+      columns.add(isDisplayable ? angleType.longDisplayName() : angleType.exportName());
     }
 
     final int rowCount =
-        compactFragments.stream().map(PdbCompactFragment::getResidues).mapToInt(List::size).sum();
+        compactFragments.stream().map(PdbCompactFragment::residues).mapToInt(List::size).sum();
 
     final String[][] data = new String[rowCount][];
     int i = 0;
 
     for (final PdbCompactFragment fragment : compactFragments) {
-      for (final PdbResidue residue : fragment.getResidues()) {
+      for (final PdbResidue residue : fragment.residues()) {
+        final ResidueTorsionAngles torsionAngles = fragment.torsionAngles(residue.identifier());
+
         final List<String> row = new ArrayList<>();
         row.add(residue.toString());
 
-        for (final MasterTorsionAngleType angleType : allAngleTypes) {
-          final TorsionAngleValue angleValue = fragment.getTorsionAngleValue(residue, angleType);
-          final double radians = angleValue.getValue().getRadians();
+        for (final MasterTorsionAngleType masterType : allAngleTypes) {
+          final double radians =
+              masterType.angleTypes().stream()
+                  .map(torsionAngles::value)
+                  .filter(Angle::isValid)
+                  .map(Angle::radians)
+                  .findFirst()
+                  .orElse(Double.NaN);
           row.add(
               isDisplayable
                   ? AngleFormat.degreesRoundedToHundredth(radians)

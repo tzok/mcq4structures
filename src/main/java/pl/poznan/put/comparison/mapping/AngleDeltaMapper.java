@@ -2,11 +2,13 @@ package pl.poznan.put.comparison.mapping;
 
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /** Map {@link TorsionAngleDelta} onto 0-1 scale. */
@@ -50,10 +52,10 @@ public final class AngleDeltaMapper implements ComparisonMapper {
 
     for (int i = 0; i < residueComparisons.size(); i++) {
       final ResidueComparison residueComparison = residueComparisons.get(i);
-      final List<Angle> deltas = new ArrayList<>(angleTypes.size());
+      final Collection<Angle> deltas = new ArrayList<>(angleTypes.size());
 
       for (final MasterTorsionAngleType angleType : angleTypes) {
-        final TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(angleType);
+        final TorsionAngleDelta angleDelta = residueComparison.angleDelta(angleType);
         final TorsionAngleDelta.State state = angleDelta.getState();
 
         if (state == TorsionAngleDelta.State.BOTH_VALID) {
@@ -67,9 +69,9 @@ public final class AngleDeltaMapper implements ComparisonMapper {
         continue;
       }
 
-      final AngleSample sample = new AngleSample(deltas);
-      final Angle meanDirection = sample.getMeanDirection();
-      final double degrees = meanDirection.getDegrees360();
+      final AngleSample sample = ImmutableAngleSample.of(deltas);
+      final Angle meanDirection = sample.meanDirection();
+      final double degrees = meanDirection.degrees360();
       result[i] = AngleDeltaMapper.map(degrees);
     }
 

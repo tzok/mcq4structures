@@ -17,6 +17,7 @@ import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
+import pl.poznan.put.torsion.ImmutableAverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
@@ -26,6 +27,8 @@ import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +59,8 @@ public class FragmentMatch implements Exportable, Tabular {
       final PdbCompactFragment targetFragment,
       final PdbCompactFragment modelFragment,
       final List<MasterTorsionAngleType> angleTypes) {
-    final List<PdbResidue> targetResidues = targetFragment.getResidues();
-    final List<PdbResidue> modelResidues = modelFragment.getResidues();
+    final List<PdbResidue> targetResidues = targetFragment.residues();
+    final List<PdbResidue> modelResidues = modelFragment.residues();
     final int targetSize = targetResidues.size();
     final int modelSize = modelResidues.size();
     final boolean isTargetSmaller = targetSize < modelSize;
@@ -76,6 +79,35 @@ public class FragmentMatch implements Exportable, Tabular {
         0,
         FragmentComparison.invalidInstance(
             residueComparisons, angleTypes, 0, 0, bothInvalidCount, 0));
+  }
+
+  public final FragmentMatch filteredByAngleTypes(final List<MasterTorsionAngleType> angleTypes) {
+    final List<ResidueComparison> residueComparisons =
+        getResidueComparisons().stream()
+            .map(residueComparison -> residueComparison.filteredByAngleTypes(angleTypes))
+            .collect(Collectors.toList());
+
+    return new FragmentMatch(
+        targetFragment,
+        modelFragment,
+        isTargetSmaller,
+        shift,
+        FragmentComparison.fromResidueComparisons(residueComparisons, angleTypes));
+  }
+
+  public final FragmentMatch averagedOverAngleValues(
+      final Collection<MasterTorsionAngleType> angleTypes) {
+    return new FragmentMatch(
+        targetFragment,
+        modelFragment,
+        isTargetSmaller,
+        shift,
+        FragmentComparison.fromResidueComparisons(
+            getResidueComparisons().stream()
+                .map(residueComparison -> residueComparison.averagedOverAngleValues(angleTypes))
+                .collect(Collectors.toList()),
+            Collections.singletonList(
+                ImmutableAverageTorsionAngleType.of(moleculeType(), angleTypes))));
   }
 
   public final DotBracket getTargetDotBracket() {
@@ -126,25 +158,20 @@ public class FragmentMatch implements Exportable, Tabular {
 
     if (isTargetSmaller) {
       target = targetFragment;
-      model = modelFragment.shift(shift, targetFragment.getResidues().size());
+      model = modelFragment.shifted(shift, targetFragment.residues().size());
     } else {
-      target = targetFragment.shift(shift, modelFragment.getResidues().size());
+      target = targetFragment.shifted(shift, modelFragment.residues().size());
       model = modelFragment;
     }
 
-    return target.getName() + " & " + model.getName();
-  }
-
-  protected final MoleculeType moleculeType() {
-    assert targetFragment.getMoleculeType() == modelFragment.getMoleculeType();
-    return targetFragment.getMoleculeType();
+    return target.name() + " & " + model.name();
   }
 
   public final DotBracket matchedSecondaryStructure() {
     final PdbCompactFragment target =
         isTargetSmaller
             ? targetFragment
-            : targetFragment.shift(shift, modelFragment.getResidues().size());
+            : targetFragment.shifted(shift, modelFragment.residues().size());
     final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
     return FragmentMatch.CONVERTER.convert(bpSeq);
   }
@@ -153,8 +180,13 @@ public class FragmentMatch implements Exportable, Tabular {
     final PdbCompactFragment target =
         isTargetSmaller
             ? targetFragment
-            : targetFragment.shift(shift, modelFragment.getResidues().size());
-    return target.getResidues().stream().map(PdbResidue::toString).collect(Collectors.toList());
+            : targetFragment.shifted(shift, modelFragment.residues().size());
+    return target.residues().stream().map(PdbResidue::toString).collect(Collectors.toList());
+  }
+
+  @Override
+  public final void export(final OutputStream stream) throws IOException {
+    TabularExporter.export(asExportableTableModel(), stream);
   }
 
   @Override
@@ -163,9 +195,9 @@ public class FragmentMatch implements Exportable, Tabular {
         DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()) + "-fragment.csv");
   }
 
-  @Override
-  public final void export(final OutputStream stream) throws IOException {
-    TabularExporter.export(asExportableTableModel(), stream);
+  public final void export(final OutputStream stream, final List<MasterTorsionAngleType> angleTypes)
+      throws IOException {
+    TabularExporter.export(asTableModel(false, angleTypes), stream);
   }
 
   @Override
@@ -178,9 +210,18 @@ public class FragmentMatch implements Exportable, Tabular {
     return asTableModel(true);
   }
 
-  @SuppressWarnings("AssignmentToNull")
+  protected final MoleculeType moleculeType() {
+    assert targetFragment.moleculeType() == modelFragment.moleculeType();
+    return targetFragment.moleculeType();
+  }
+
   private TableModel asTableModel(final boolean isDisplay) {
-    final List<MasterTorsionAngleType> angleTypes = fragmentComparison.getAngleTypes();
+    return asTableModel(isDisplay, fragmentComparison.getAngleTypes());
+  }
+
+  @SuppressWarnings("AssignmentToNull")
+  private NonEditableDefaultTableModel asTableModel(
+      final boolean isDisplay, final List<MasterTorsionAngleType> angleTypes) {
     final int size = angleTypes.size();
 
     final String[] columnNames = new String[(size * 2) + 2];
@@ -189,7 +230,7 @@ public class FragmentMatch implements Exportable, Tabular {
 
     for (int i = 0; i < size; i++) {
       final MasterTorsionAngleType angle = angleTypes.get(i);
-      final String angleName = isDisplay ? angle.getLongDisplayName() : angle.getExportName();
+      final String angleName = isDisplay ? angle.longDisplayName() : angle.exportName();
       columnNames[i + 2] = angleName;
       columnNames[size + i + 2] = angleName;
     }
@@ -201,13 +242,12 @@ public class FragmentMatch implements Exportable, Tabular {
     for (int i = 0; i < residueComparisons.size(); i++) {
       final ResidueComparison residueComparison = residueComparisons.get(i);
       data[i] = new String[(size * 2) + 2];
-      data[i][0] =
-          String.format("%s / %s", residueComparison.getTarget(), residueComparison.getModel());
+      data[i][0] = String.format("%s / %s", residueComparison.target(), residueComparison.model());
       data[i][1] = String.valueOf(dotBracket[i]);
 
       for (int j = 0; j < size; j++) {
         final MasterTorsionAngleType angle = angleTypes.get(j);
-        final TorsionAngleDelta delta = residueComparison.getAngleDelta(angle);
+        final TorsionAngleDelta delta = residueComparison.angleDelta(angle);
         data[i][j + 2] = delta.toString(isDisplay);
         data[i][size + j + 2] = delta.getRangeDifference().toString();
       }
@@ -219,10 +259,10 @@ public class FragmentMatch implements Exportable, Tabular {
   private char[] dotBracketChars() {
     try {
       final DotBracket dotBracket = getTargetDotBracket();
-      return dotBracket.getStructure().toCharArray();
+      return dotBracket.structure().toCharArray();
     } catch (final InvalidStructureException e) {
       FragmentMatch.log.warn("Failed to extract 2D structure", e);
     }
-    return StringUtils.repeat('.', targetFragment.getResidues().size()).toCharArray();
+    return StringUtils.repeat('.', targetFragment.residues().size()).toCharArray();
   }
 }

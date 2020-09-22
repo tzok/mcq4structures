@@ -7,6 +7,7 @@ import pl.poznan.put.interfaces.Clusterable;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.types.DistanceMatrix;
+import pl.poznan.put.types.ImmutableDistanceMatrix;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 import pl.poznan.put.utility.TabularExporter;
 
@@ -55,6 +56,36 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
     return selected;
   }
 
+  @Override
+  public final DistanceMatrix distanceMatrix() {
+    return distanceMatrixWithoutIncomparables;
+  }
+
+  @Override
+  public final void export(final OutputStream stream) throws IOException {
+    TabularExporter.export(asExportableTableModel(), stream);
+  }
+
+  @Override
+  public final File suggestName() {
+    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.US);
+    String filename = sdf.format(new Date());
+    filename += "-Global-";
+    filename += comparator.getName();
+    filename += ".csv";
+    return new File(filename);
+  }
+
+  @Override
+  public final TableModel asExportableTableModel() {
+    return asTableModel(false);
+  }
+
+  @Override
+  public final TableModel asDisplayableTableModel() {
+    return asTableModel(true);
+  }
+
   private DistanceMatrix prepareDistanceMatrix() {
     final double[][] matrix = new double[resultsMatrix.length][];
 
@@ -72,12 +103,12 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
       }
     }
 
-    return new DistanceMatrix(names, matrix);
+    return ImmutableDistanceMatrix.of(names, matrix);
   }
 
   private DistanceMatrix prepareDistanceMatrixWithoutIncomparables() {
     final List<String> selectedNamesSubList = new ArrayList<>(names);
-    double[][] selectedSubMatrix = distanceMatrix.getMatrix().clone();
+    double[][] selectedSubMatrix = distanceMatrix.matrix().clone();
     int maxErrorCount;
 
     do {
@@ -107,37 +138,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
       }
     } while (maxErrorCount > 0);
 
-    return new DistanceMatrix(selectedNamesSubList, selectedSubMatrix);
-  }
-
-  @Override
-  public final DistanceMatrix getDataForClustering() {
-    return distanceMatrixWithoutIncomparables;
-  }
-
-  @Override
-  public final void export(final OutputStream stream) throws IOException {
-    TabularExporter.export(asExportableTableModel(), stream);
-  }
-
-  @Override
-  public final File suggestName() {
-    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.US);
-    String filename = sdf.format(new Date());
-    filename += "-Global-";
-    filename += comparator.getName();
-    filename += ".csv";
-    return new File(filename);
-  }
-
-  @Override
-  public final TableModel asExportableTableModel() {
-    return asTableModel(false);
-  }
-
-  @Override
-  public final TableModel asDisplayableTableModel() {
-    return asTableModel(true);
+    return ImmutableDistanceMatrix.of(selectedNamesSubList, selectedSubMatrix);
   }
 
   private TableModel asTableModel(final boolean isDisplay) {
@@ -165,7 +166,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
         if (result == null) {
           values[i][j + 1] = "Failed";
         } else {
-          values[i][j + 1] = isDisplay ? result.getLongDisplayName() : result.getExportName();
+          values[i][j + 1] = isDisplay ? result.longDisplayName() : result.exportName();
         }
       }
     }

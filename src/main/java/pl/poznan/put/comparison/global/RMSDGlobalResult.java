@@ -18,13 +18,6 @@ public class RMSDGlobalResult extends GlobalResult {
     longDisplayName = prepareLongDisplayName();
   }
 
-  private String prepareLongDisplayName() {
-    final SelectionMatch selectionMatch = getSelectionMatch();
-    final int validCount = selectionMatch.getResidueLabels().size();
-
-    return String.format("<html>%s<br>%d<br></html>", getShortDisplayName(), validCount);
-  }
-
   public final int getAtomCount() {
     return superimposer.getAtomCount();
   }
@@ -34,22 +27,29 @@ public class RMSDGlobalResult extends GlobalResult {
   }
 
   @Override
-  public final String getLongDisplayName() {
-    return longDisplayName;
-  }
-
-  @Override
-  public final String getShortDisplayName() {
+  public final String shortDisplayName() {
     return NumberFormatUtils.threeDecimalDigits().format(superimposer.getRMSD()) + Unicode.ANGSTROM;
   }
 
   @Override
-  public final String getExportName() {
+  public final String longDisplayName() {
+    return longDisplayName;
+  }
+
+  @Override
+  public final String exportName() {
     return Double.toString(superimposer.getRMSD());
   }
 
   @Override
   public final double asDouble() {
     return superimposer.getRMSD();
+  }
+
+  private String prepareLongDisplayName() {
+    final SelectionMatch selectionMatch = getSelectionMatch();
+    final int validCount = selectionMatch.getResidueLabels().size();
+
+    return String.format("<html>%s<br>%d<br></html>", shortDisplayName(), validCount);
   }
 }

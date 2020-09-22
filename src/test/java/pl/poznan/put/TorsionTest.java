@@ -2,39 +2,40 @@ package pl.poznan.put;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pl.poznan.put.circular.Angle;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
+import pl.poznan.put.rna.NucleotideTorsionAngle;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.torsion.TorsionAngleValue;
 import pl.poznan.put.utility.ResourcesHelper;
 
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TorsionTest {
   // @formatter:off
   private static final MasterTorsionAngleType[] ANGLE_TYPES_FRABASE_ORDER = {
-    RNATorsionAngleType.ALPHA,
-    RNATorsionAngleType.BETA,
-    RNATorsionAngleType.GAMMA,
-    RNATorsionAngleType.DELTA,
-    RNATorsionAngleType.EPSILON,
-    RNATorsionAngleType.ZETA,
-    RNATorsionAngleType.CHI,
-    RNATorsionAngleType.PSEUDOPHASE_PUCKER,
-    RNATorsionAngleType.NU0,
-    RNATorsionAngleType.NU1,
-    RNATorsionAngleType.NU2,
-    RNATorsionAngleType.NU3,
-    RNATorsionAngleType.NU4,
-    RNATorsionAngleType.ETA,
-    RNATorsionAngleType.THETA
+    NucleotideTorsionAngle.ALPHA,
+    NucleotideTorsionAngle.BETA,
+    NucleotideTorsionAngle.GAMMA,
+    NucleotideTorsionAngle.DELTA,
+    NucleotideTorsionAngle.EPSILON,
+    NucleotideTorsionAngle.ZETA,
+    NucleotideTorsionAngle.CHI,
+    NucleotideTorsionAngle.PSEUDOPHASE_PUCKER,
+    NucleotideTorsionAngle.NU0,
+    NucleotideTorsionAngle.NU1,
+    NucleotideTorsionAngle.NU2,
+    NucleotideTorsionAngle.NU3,
+    NucleotideTorsionAngle.NU4,
+    NucleotideTorsionAngle.ETA,
+    NucleotideTorsionAngle.THETA
   };
 
   private static final double[][] TABLE_1EHZ = {
@@ -377,25 +378,28 @@ public class TorsionTest {
   public final void test1EHZ() throws Exception {
     final String pdb1EHZ = ResourcesHelper.loadResource("1EHZ.pdb");
     final List<PdbModel> models = parser.parse(pdb1EHZ);
-    Assert.assertThat(models.size(), is(1));
+    assertThat(models.size(), is(1));
     final PdbModel model = models.get(0);
     final StructureSelection selection = SelectionFactory.create("1EHZ", model);
     final List<PdbCompactFragment> compactFragments = selection.getCompactFragments();
-    Assert.assertThat(compactFragments.size(), is(1));
+    assertThat(compactFragments.size(), is(1));
     final PdbCompactFragment compactFragment = compactFragments.get(0);
-    final List<PdbResidue> residues = compactFragment.getResidues();
-    Assert.assertThat(residues.size(), is(TorsionTest.TABLE_1EHZ.length));
+    final List<PdbResidue> residues = compactFragment.residues();
+    assertThat(residues.size(), is(TorsionTest.TABLE_1EHZ.length));
 
     for (int i = 0; i < TorsionTest.TABLE_1EHZ.length; i++) {
       final PdbResidue residue = residues.get(i);
 
       for (int j = 0; j < TorsionTest.ANGLE_TYPES_FRABASE_ORDER.length; j++) {
         final MasterTorsionAngleType masterType = TorsionTest.ANGLE_TYPES_FRABASE_ORDER[j];
-        final TorsionAngleValue torsionAngleValue =
-            compactFragment.getTorsionAngleValue(residue, masterType);
+        final Angle angle = compactFragment.torsionAngles(residue.identifier()).value(masterType);
         final double expected = TorsionTest.TABLE_1EHZ[i][j];
-        final double actual = torsionAngleValue.getValue().getDegrees();
-        Assert.assertEquals(String.format("Error for (%d,%d)", i, j), expected, actual, 0.1);
+        final double actual = angle.degrees();
+        Assert.assertEquals(
+            String.format("Error for row %d angle %s", i, TorsionTest.ANGLE_TYPES_FRABASE_ORDER[j]),
+            expected,
+            actual,
+            0.1);
       }
     }
   }

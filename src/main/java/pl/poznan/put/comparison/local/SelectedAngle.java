@@ -21,7 +21,6 @@ import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
 import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 
 import javax.swing.table.TableModel;
@@ -55,17 +54,15 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
 
     // first row
     csvWriter.write(null);
-    csvWriter.write("MCQ");
-    for (final PdbResidue residue : target.getResidues()) {
-      csvWriter.write(Integer.toString(residue.getResidueNumber()));
+    for (final PdbResidue residue : target.residues()) {
+      csvWriter.write(Integer.toString(residue.residueNumber()));
     }
     csvWriter.endRecord();
 
     // second row
     csvWriter.write(null);
-    csvWriter.write(null);
-    for (final PdbResidue residue : target.getResidues()) {
-      csvWriter.write(Character.toString(residue.getOneLetterName()));
+    for (final PdbResidue residue : target.residues()) {
+      csvWriter.write(Character.toString(residue.oneLetterName()));
     }
     csvWriter.endRecord();
 
@@ -76,8 +73,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
 
       // third row
       csvWriter.write(null);
-      csvWriter.write(null);
-      for (final char c : dotBracket.getStructure().toCharArray()) {
+      for (final char c : dotBracket.structure().toCharArray()) {
         csvWriter.write(Character.toString(c));
       }
       csvWriter.endRecord();
@@ -88,18 +84,17 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
     final List<Pair<PdbCompactFragment, FragmentMatch>> sortedResults =
         IntStream.range(0, models.size())
             .mapToObj(i -> Pair.of(models.get(i), fragmentMatches.get(i)))
-            .sorted(Comparator.comparingDouble(t -> t.getValue().getMeanDelta().getRadians()))
+            .sorted(Comparator.comparingDouble(t -> t.getValue().getMeanDelta().radians()))
             .collect(Collectors.toList());
 
     for (final Pair<PdbCompactFragment, FragmentMatch> pair : sortedResults) {
       final PdbCompactFragment model = pair.getKey();
       final FragmentMatch match = pair.getValue();
-      csvWriter.write(model.getName());
-      csvWriter.write(AngleFormat.degreesRoundedToHundredth(match.getMeanDelta().getRadians()));
+      csvWriter.write(model.name());
 
-      for (int j = 0; j < target.getResidues().size(); j++) {
+      for (int j = 0; j < target.residues().size(); j++) {
         final ResidueComparison comparison = match.getResidueComparisons().get(j);
-        final TorsionAngleDelta delta = comparison.getAngleDelta(angleType);
+        final TorsionAngleDelta delta = comparison.angleDelta(angleType);
         csvWriter.write(delta.toExportString());
       }
 
@@ -134,38 +129,13 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
     return asTableModel(true);
   }
 
-  private TableModel asTableModel(final boolean isDisplay) {
-    final String[] columnNames = new String[models.size() + 1];
-    //noinspection AssignmentToNull
-    columnNames[0] = isDisplay ? "" : null;
-    for (int i = 0; i < models.size(); i++) {
-      columnNames[i + 1] = models.get(i).getName();
-    }
-
-    final String[][] data = new String[target.getResidues().size()][];
-
-    for (int i = 0; i < target.getResidues().size(); i++) {
-      data[i] = new String[models.size() + 1];
-      data[i][0] = target.getResidues().get(i).toString();
-
-      for (int j = 0; j < models.size(); j++) {
-        final FragmentMatch fragmentMatch = fragmentMatches.get(j);
-        final ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
-        final TorsionAngleDelta delta = residueComparison.getAngleDelta(angleType);
-        data[i][j + 1] = isDisplay ? delta.toDisplayString() : delta.toExportString();
-      }
-    }
-
-    return new NonEditableDefaultTableModel(data, columnNames);
-  }
-
   public final Pair<Double, Double> getMinMax() {
     double min = Double.POSITIVE_INFINITY;
     double max = Double.NEGATIVE_INFINITY;
 
     for (final FragmentMatch match : fragmentMatches) {
       for (final ResidueComparison result : match.getResidueComparisons()) {
-        final double delta = result.getAngleDelta(angleType).getDelta().getRadians();
+        final double delta = result.angleDelta(angleType).getDelta().radians();
 
         if (delta < min) {
           min = delta;
@@ -178,5 +148,30 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
     }
 
     return Pair.of(min, max);
+  }
+
+  private TableModel asTableModel(final boolean isDisplay) {
+    final String[] columnNames = new String[models.size() + 1];
+    //noinspection AssignmentToNull
+    columnNames[0] = isDisplay ? "" : null;
+    for (int i = 0; i < models.size(); i++) {
+      columnNames[i + 1] = models.get(i).name();
+    }
+
+    final String[][] data = new String[target.residues().size()][];
+
+    for (int i = 0; i < target.residues().size(); i++) {
+      data[i] = new String[models.size() + 1];
+      data[i][0] = target.residues().get(i).toString();
+
+      for (int j = 0; j < models.size(); j++) {
+        final FragmentMatch fragmentMatch = fragmentMatches.get(j);
+        final ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
+        final TorsionAngleDelta delta = residueComparison.angleDelta(angleType);
+        data[i][j + 1] = isDisplay ? delta.toDisplayString() : delta.toExportString();
+      }
+    }
+
+    return new NonEditableDefaultTableModel(data, columnNames);
   }
 }

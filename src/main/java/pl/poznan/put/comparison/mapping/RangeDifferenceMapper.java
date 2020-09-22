@@ -30,7 +30,7 @@ public final class RangeDifferenceMapper implements ComparisonMapper {
       int value = RangeDifference.EQUAL.getValue();
 
       for (final MasterTorsionAngleType angleType : angleTypes) {
-        final TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(angleType);
+        final TorsionAngleDelta angleDelta = residueComparison.angleDelta(angleType);
         final RangeDifference rangeDifference = angleDelta.getRangeDifference();
         value = Math.max(value, rangeDifference.getValue());
       }

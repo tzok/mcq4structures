@@ -1,42 +1,29 @@
 package pl.poznan.put.comparison;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.immutables.value.Value;
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
-import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.GlobalResult;
 import pl.poznan.put.comparison.global.MCQGlobalResult;
-import pl.poznan.put.comparison.global.ParallelGlobalComparator;
+import pl.poznan.put.comparison.local.ImmutableMCQLocalResult;
+import pl.poznan.put.comparison.local.ImmutableModelsComparisonResult;
 import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.LocalResult;
-import pl.poznan.put.comparison.local.MCQLocalResult;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.matching.FragmentMatch;
-import pl.poznan.put.matching.MCQMatcher;
+import pl.poznan.put.matching.ImmutableMCQMatcher;
 import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
-import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.utility.TabularExporter;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,108 +33,14 @@ import java.util.stream.Collectors;
  * @author Tomasz Zok (tzok[at]cs.put.poznan.pl)
  */
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
-public class MCQ implements GlobalComparator, LocalComparator {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MCQ.class);
+@Value.Immutable
+public abstract class MCQ implements GlobalComparator, LocalComparator {
+  @Value.Parameter(order = 1)
+  public abstract MoleculeType moleculeType();
 
-  private final List<MasterTorsionAngleType> angleTypes;
-
-  public MCQ() {
-    super();
-    angleTypes = new ArrayList<>();
-    angleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-    angleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
-  }
-
-  public MCQ(final MoleculeType moleculeType) {
-    super();
-
-    switch (moleculeType) {
-      case PROTEIN:
-        angleTypes = Arrays.asList(ProteinTorsionAngleType.mainAngles());
-        break;
-      case RNA:
-        angleTypes = Arrays.asList(RNATorsionAngleType.mainAngles());
-        break;
-      case UNKNOWN:
-      default:
-        angleTypes = Collections.emptyList();
-        break;
-    }
-  }
-
-  public MCQ(final Collection<? extends MasterTorsionAngleType> angleTypes) {
-    super();
-    this.angleTypes = new ArrayList<>(angleTypes);
-  }
-
-  public static void main(final String[] args) throws IOException, InterruptedException {
-    if (args.length < 2) {
-      System.err.println("You must specify at least 2 structures");
-      return;
-    }
-
-    final List<StructureSelection> selections = new ArrayList<>();
-
-    for (final String arg : args) {
-      final File file = new File(arg);
-
-      if (!file.canRead()) {
-        System.err.println("Failed to open file: " + file);
-        return;
-      }
-
-      final PdbModel structure = StructureManager.loadStructure(file).get(0);
-      selections.add(SelectionFactory.create(file.getName(), structure));
-    }
-
-    final ParallelGlobalComparator.ProgressListener progressListener =
-        new ParallelGlobalComparator.ProgressListener() {
-          @Override
-          public void setProgress(final int progress) {
-            // do nothing
-          }
-
-          @Override
-          public void complete(final GlobalMatrix matrix) {
-            try {
-              TabularExporter.export(matrix.asExportableTableModel(), System.out);
-            } catch (final IOException e) {
-              MCQ.LOGGER.error("Failed to output distance matrix", e);
-            }
-          }
-        };
-    final ParallelGlobalComparator comparator =
-        new ParallelGlobalComparator(new MCQ(), selections, progressListener);
-
-    comparator.start();
-    comparator.join();
-  }
-
-  @Override
-  public final GlobalResult compareGlobally(
-      final StructureSelection s1, final StructureSelection s2) {
-    final StructureMatcher matcher = new MCQMatcher(angleTypes);
-    final SelectionMatch matches = matcher.matchSelections(s1, s2);
-
-    if (matches.getFragmentMatches().isEmpty()) {
-      throw new IncomparableStructuresException("No matching fragments found");
-    }
-
-    final List<Angle> deltas = new ArrayList<>();
-
-    for (final FragmentMatch fragmentMatch : matches.getFragmentMatches()) {
-      for (final ResidueComparison residueComparison : fragmentMatch.getResidueComparisons()) {
-        for (final MasterTorsionAngleType angleType : angleTypes) {
-          final TorsionAngleDelta angleDelta = residueComparison.getAngleDelta(angleType);
-
-          if (angleDelta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
-            deltas.add(angleDelta.getDelta());
-          }
-        }
-      }
-    }
-
-    return new MCQGlobalResult(getName(), matches, new AngleSample(deltas));
+  @Value.Default
+  public List<MasterTorsionAngleType> angleTypes() {
+    return moleculeType().mainAngleTypes();
   }
 
   @Override
@@ -161,36 +54,57 @@ public class MCQ implements GlobalComparator, LocalComparator {
   }
 
   @Override
+  public final GlobalResult compareGlobally(
+      final StructureSelection s1, final StructureSelection s2) {
+    final StructureMatcher matcher = ImmutableMCQMatcher.of(moleculeType());
+    final SelectionMatch matches = matcher.matchSelections(s1, s2);
+
+    final List<Angle> deltas =
+        matches.getFragmentMatches().stream()
+            .map(FragmentMatch::getResidueComparisons)
+            .flatMap(Collection::stream)
+            .map(ResidueComparison::angleDeltas)
+            .flatMap(Collection::stream)
+            .filter(delta -> delta.getState() == TorsionAngleDelta.State.BOTH_VALID)
+            .filter(delta -> angleTypes().contains(delta.getMasterTorsionAngleType()))
+            .map(TorsionAngleDelta::getDelta)
+            .collect(Collectors.toList());
+
+    if (deltas.isEmpty()) {
+      throw new IncomparableStructuresException("No matching fragments found");
+    }
+
+    return new MCQGlobalResult("MCQ", matches, ImmutableAngleSample.of(deltas));
+  }
+
+  @Override
   public final LocalResult comparePair(
       final StructureSelection target, final StructureSelection model) {
-    final StructureMatcher matcher = new MCQMatcher(angleTypes);
+    final StructureMatcher matcher = ImmutableMCQMatcher.of(moleculeType());
     final SelectionMatch matches = matcher.matchSelections(target, model);
-    return new MCQLocalResult(matches, angleTypes);
+    return ImmutableMCQLocalResult.of(matches, angleTypes());
   }
 
   @Override
   public final ModelsComparisonResult compareModels(
-      final PdbCompactFragment target, final List<? extends PdbCompactFragment> models) {
-    /*
-     * Sanity check
-     */
+      final PdbCompactFragment target, final List<PdbCompactFragment> models) {
+    // sanity check
     for (final PdbCompactFragment fragment : models) {
-      if ((fragment.getMoleculeType() != target.getMoleculeType())
-          || (fragment.getResidues().size() != target.getResidues().size())) {
+      if ((fragment.moleculeType() != target.moleculeType())
+          || (fragment.residues().size() != target.residues().size())) {
         throw new IncomparableStructuresException(
             "All models must be of the same type and size as the reference structure");
       }
     }
 
-    final StructureMatcher matcher = new MCQMatcher(angleTypes);
-    final List<PdbCompactFragment> modelsWithoutTarget = new ArrayList<>(models);
-    modelsWithoutTarget.remove(target);
-
+    final StructureMatcher matcher = ImmutableMCQMatcher.of(moleculeType());
+    final List<PdbCompactFragment> modelsWithoutTarget =
+        models.stream().filter(fragment -> !fragment.equals(target)).collect(Collectors.toList());
     final List<FragmentMatch> matches =
         modelsWithoutTarget.stream()
             .map(fragment -> matcher.matchFragments(target, fragment))
             .collect(Collectors.toList());
 
-    return new ModelsComparisonResult(target, modelsWithoutTarget, matches);
+    return ImmutableModelsComparisonResult.of(target, modelsWithoutTarget, matches, angleTypes());
   }
 }

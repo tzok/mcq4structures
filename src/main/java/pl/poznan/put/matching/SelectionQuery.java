@@ -1,7 +1,9 @@
 package pl.poznan.put.matching;
 
 import org.apache.commons.lang3.tuple.Pair;
+import pl.poznan.put.pdb.ImmutablePdbResidueIdentifier;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
+import pl.poznan.put.pdb.analysis.ImmutablePdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
@@ -71,7 +73,7 @@ public final class SelectionQuery {
         final String insertionCode = matcher.group(2).isEmpty() ? " " : matcher.group(2);
 
         final PdbResidueIdentifier identifier =
-            new PdbResidueIdentifier(chainIdentifier, residueNumber, insertionCode);
+            ImmutablePdbResidueIdentifier.of(chainIdentifier, residueNumber, insertionCode);
         final int count = Integer.parseInt(split[2]);
 
         pairs.add(Pair.of(identifier, count));
@@ -91,15 +93,15 @@ public final class SelectionQuery {
       final int count = pair.getValue();
       final List<PdbResidue> selectedResidues = new ArrayList<>(count);
 
-      for (final PdbChain chain : model.getChains()) {
-        final String queryChainIdentifier = identifier.getChainIdentifier();
-        final String chainIdentifier = chain.getIdentifier();
+      for (final PdbChain chain : model.chains()) {
+        final String queryChainIdentifier = identifier.chainIdentifier();
+        final String chainIdentifier = chain.identifier();
 
         if (queryChainIdentifier.equals(chainIdentifier)) {
           boolean found = false;
 
-          for (final PdbResidue residue : chain.getResidues()) {
-            if (identifier.equals(residue.getResidueIdentifier())) {
+          for (final PdbResidue residue : chain.residues()) {
+            if (identifier.equals(residue.identifier())) {
               found = true;
             }
             if (found) {
@@ -121,7 +123,7 @@ public final class SelectionQuery {
                 identifier, count, selectedResidues.size()));
       }
 
-      fragments.add(new PdbCompactFragment(originalQuery, selectedResidues));
+      fragments.add(ImmutablePdbCompactFragment.of(selectedResidues).withName(originalQuery));
     }
 
     return fragments;

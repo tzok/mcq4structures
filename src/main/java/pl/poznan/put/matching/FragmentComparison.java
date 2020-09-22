@@ -2,12 +2,15 @@ package pl.poznan.put.matching;
 
 import lombok.EqualsAndHashCode;
 import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.ImmutableAngle;
 import pl.poznan.put.circular.samples.AngleSample;
+import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.range.RangeDifference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,14 +59,14 @@ public final class FragmentComparison implements Comparable<FragmentComparison> 
     this.modelInvalidCount = modelInvalidCount;
     this.bothInvalidCount = bothInvalidCount;
     this.validCount = validCount;
-    meanDelta = Angle.invalidInstance();
+    meanDelta = ImmutableAngle.of(Double.NaN);
     meanRangeDiffrence = RangeDifference.INVALID;
   }
 
   public static FragmentComparison fromResidueComparisons(
       final List<ResidueComparison> residueComparisons,
       final List<MasterTorsionAngleType> angleTypes) {
-    final List<Angle> deltas = new ArrayList<>();
+    final Collection<Angle> deltas = new ArrayList<>();
     int targetInvalid = 0;
     int modelInvalid = 0;
     int bothInvalid = 0;
@@ -71,7 +74,7 @@ public final class FragmentComparison implements Comparable<FragmentComparison> 
 
     for (final ResidueComparison result : residueComparisons) {
       for (final MasterTorsionAngleType angle : angleTypes) {
-        final TorsionAngleDelta delta = result.getAngleDelta(angle);
+        final TorsionAngleDelta delta = result.angleDelta(angle);
 
         switch (delta.getState()) {
           case BOTH_INVALID:
@@ -98,7 +101,7 @@ public final class FragmentComparison implements Comparable<FragmentComparison> 
           residueComparisons, angleTypes, targetInvalid, modelInvalid, bothInvalid, 0);
     }
 
-    final AngleSample sample = new AngleSample(deltas);
+    final AngleSample sample = ImmutableAngleSample.of(deltas);
     return new FragmentComparison(
         residueComparisons,
         angleTypes,
@@ -106,7 +109,7 @@ public final class FragmentComparison implements Comparable<FragmentComparison> 
         modelInvalid,
         bothInvalid,
         deltas.size(),
-        sample.getMeanDirection(),
+        sample.meanDirection(),
         RangeDifference.fromValue((int) Math.round(rangeValue / deltas.size())));
   }
 

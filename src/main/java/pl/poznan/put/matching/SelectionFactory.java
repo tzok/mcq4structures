@@ -17,7 +17,7 @@ public final class SelectionFactory {
   }
 
   public static StructureSelection create(final String name, final PdbModel structure) {
-    return SelectionFactory.create(name, structure.getChains());
+    return SelectionFactory.create(name, structure.chains());
   }
 
   public static StructureSelection create(
@@ -51,10 +51,11 @@ public final class SelectionFactory {
   }
 
   private static Collection<PdbResidue> getAllResidues(final PdbChain chain) {
-    final List<PdbResidue> chainResidues = chain.getResidues();
+    final List<PdbResidue> chainResidues = chain.residues();
 
     return chainResidues.stream()
-        .filter(residue -> residue.getMoleculeType() != MoleculeType.UNKNOWN)
+        .filter(
+            residue -> residue.residueInformationProvider().moleculeType() != MoleculeType.UNKNOWN)
         .collect(Collectors.toCollection(() -> new ArrayList<>(chainResidues.size())));
   }
 }

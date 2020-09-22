@@ -27,7 +27,7 @@ public final class MultiMatchStatistics {
     final List<SingleMatchStatistics> statistics = new ArrayList<>(fragmentMatches.size());
 
     for (final FragmentMatch fragmentMatch : fragmentMatches) {
-      final String name = fragmentMatch.getModelFragment().getName();
+      final String name = fragmentMatch.getModelFragment().name();
       final AngleDeltaIterator deltaIterator = iteratorFactory.createInstance(fragmentMatch);
       statistics.add(SingleMatchStatistics.calculate(name, deltaIterator));
     }

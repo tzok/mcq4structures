@@ -2,6 +2,7 @@ package pl.poznan.put.matching;
 
 import org.apache.commons.collections4.IteratorUtils;
 import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.samples.ImmutableAngleSample;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ public class MatchCollectionDeltaIterator implements AngleDeltaIterator {
 
   @Override
   public final Angle next() {
-    return iterator.next().getMeanDirection();
+    return ImmutableAngleSample.of(iterator.next().validDeltas()).meanDirection();
   }
 
   @Override
