@@ -3,7 +3,7 @@ package pl.poznan.put.gui.panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.ImmutableMCQ;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
@@ -15,18 +15,22 @@ import pl.poznan.put.matching.TypedDeltaIteratorFactory;
 import pl.poznan.put.matching.stats.MultiMatchStatistics;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.SVGHelper;
 import pl.poznan.put.visualisation.VisualizableSelectedAngle;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,34 +84,6 @@ public final class LocalMultiMatrixPanel extends JPanel {
     updateHeader(false);
   }
 
-  private void updateHeader(final boolean readyResults) {
-    final StringBuilder builder = new StringBuilder("<html>"); // NON-NLS
-    builder.append(Messages.getString("structures.selected.for.local.distance.measure"));
-    int i = 0;
-
-    for (final PdbCompactFragment fragment : fragments) {
-      builder.append(
-          String.format(
-              "<span style=\"color: %s\">", // NON-NLS
-              ((i % 2) == 0)
-                  ? "blue" // NON-NLS
-                  : "green")); // NON-NLS
-      builder.append(fragment.getName());
-      builder.append("</span>, "); // NON-NLS
-      i++;
-    }
-
-    builder.delete(builder.length() - 2, builder.length());
-
-    if (readyResults) {
-      builder.append("<br>"); // NON-NLS
-      builder.append(Messages.getString("local.distance.vector.s"));
-    }
-
-    builder.append("</html>"); // NON-NLS
-    labelInfoMatrix.setText(builder.toString());
-  }
-
   public ProcessingResult compareAndDisplayTable() {
     try {
       final PdbCompactFragment reference = selectReferenceStructure();
@@ -120,7 +96,7 @@ public final class LocalMultiMatrixPanel extends JPanel {
         return ProcessingResult.emptyInstance();
       }
 
-      final LocalComparator mcq = new MCQ(Collections.singletonList(selectedAngleType));
+      final LocalComparator mcq = ImmutableMCQ.of(MoleculeType.RNA);
       final ModelsComparisonResult result = mcq.compareModels(reference, fragments);
       final VisualizableSelectedAngle selectedAngle =
           new VisualizableSelectedAngle(result.selectAngle(selectedAngleType));
@@ -147,6 +123,34 @@ public final class LocalMultiMatrixPanel extends JPanel {
     return ProcessingResult.emptyInstance();
   }
 
+  private void updateHeader(final boolean readyResults) {
+    final StringBuilder builder = new StringBuilder("<html>"); // NON-NLS
+    builder.append(Messages.getString("structures.selected.for.local.distance.measure"));
+    int i = 0;
+
+    for (final PdbCompactFragment fragment : fragments) {
+      builder.append(
+          String.format(
+              "<span style=\"color: %s\">", // NON-NLS
+              ((i % 2) == 0)
+                  ? "blue" // NON-NLS
+                  : "green")); // NON-NLS
+      builder.append(fragment.name());
+      builder.append("</span>, "); // NON-NLS
+      i++;
+    }
+
+    builder.delete(builder.length() - 2, builder.length());
+
+    if (readyResults) {
+      builder.append("<br>"); // NON-NLS
+      builder.append(Messages.getString("local.distance.vector.s"));
+    }
+
+    builder.append("</html>"); // NON-NLS
+    labelInfoMatrix.setText(builder.toString());
+  }
+
   private PdbCompactFragment selectReferenceStructure() {
     final PdbCompactFragmentWrapper[] fragmentArray =
         fragments.stream()
@@ -167,18 +171,24 @@ public final class LocalMultiMatrixPanel extends JPanel {
 
   private MasterTorsionAngleType selectReferenceTorsionAngleType(
       final PdbCompactFragment reference) {
-    final MoleculeType moleculeType = reference.getMoleculeType();
+    final MoleculeType moleculeType = reference.moleculeType();
     final MasterTorsionAngleType[] mainAngles;
     final AverageTorsionAngleType averageTorsionAngleType;
 
     switch (moleculeType) {
       case PROTEIN:
-        mainAngles = ProteinTorsionAngleType.mainAngles();
-        averageTorsionAngleType = ProteinTorsionAngleType.getAverageOverMainAngles();
+        mainAngles =
+            AverageTorsionAngleType.forProtein()
+                .consideredAngles()
+                .toArray(new MasterTorsionAngleType[0]);
+        averageTorsionAngleType = AverageTorsionAngleType.forProtein();
         break;
       case RNA:
-        mainAngles = RNATorsionAngleType.mainAngles();
-        averageTorsionAngleType = RNATorsionAngleType.getAverageOverMainAngles();
+        mainAngles =
+            AverageTorsionAngleType.forNucleicAcid()
+                .consideredAngles()
+                .toArray(new MasterTorsionAngleType[0]);
+        averageTorsionAngleType = AverageTorsionAngleType.forNucleicAcid();
         break;
       case UNKNOWN:
       default:
@@ -208,13 +218,13 @@ public final class LocalMultiMatrixPanel extends JPanel {
       this.fragment = fragment;
     }
 
-    private PdbCompactFragment getFragment() {
-      return fragment;
-    }
-
     @Override
     public String toString() {
-      return fragment.getName();
+      return fragment.name();
+    }
+
+    private PdbCompactFragment getFragment() {
+      return fragment;
     }
   }
 }

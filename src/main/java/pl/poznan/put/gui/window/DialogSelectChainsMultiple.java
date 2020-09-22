@@ -9,9 +9,24 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,8 +68,8 @@ final class DialogSelectChainsMultiple extends JDialog {
                       list, value, index, isSelected, cellHasFocus);
 
           if (value != null) {
-            final boolean isRNA = value.getMoleculeType() == MoleculeType.RNA;
-            label.setText(value.getName());
+            final boolean isRNA = value.moleculeType() == MoleculeType.RNA;
+            label.setText(value.name());
             label.setBackground(isRNA ? Color.CYAN : Color.YELLOW);
           }
 
@@ -212,10 +227,6 @@ final class DialogSelectChainsMultiple extends JDialog {
     checkProtein.addActionListener(checkBoxListener);
   }
 
-  private void setButtonOkState() {
-    buttonOk.setEnabled(modelSelected.getSize() >= 2);
-  }
-
   public List<PdbCompactFragment> getChains() {
     return Collections.unmodifiableList(selectedChains);
   }
@@ -224,9 +235,9 @@ final class DialogSelectChainsMultiple extends JDialog {
     final Collection<PdbCompactFragment> fragments = new ArrayList<>();
 
     for (final PdbModel structure : StructureManager.getAllStructures()) {
-      for (final PdbChain chain : structure.getChains()) {
+      for (final PdbChain chain : structure.chains()) {
         final String name =
-            String.format("%s.%s", StructureManager.getName(structure), chain.getIdentifier());
+            String.format("%s.%s", StructureManager.getName(structure), chain.identifier());
         final StructureSelection selection =
             SelectionFactory.create(name, Collections.singleton(chain));
         fragments.addAll(selection.getCompactFragments());
@@ -262,6 +273,10 @@ final class DialogSelectChainsMultiple extends JDialog {
     deselectAll();
     setVisible(true);
     return chosenOption;
+  }
+
+  private void setButtonOkState() {
+    buttonOk.setEnabled(modelSelected.getSize() >= 2);
   }
 
   private void deselectAll() {

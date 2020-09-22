@@ -32,7 +32,8 @@ import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
@@ -145,62 +146,6 @@ public class VisualizableFragmentMatch extends FragmentMatch implements Visualiz
         width, height, dataset, renderer, domainAxis, rangeAxis);
   }
 
-  private void prepareDataset(final DefaultXYDataset dataset, final XYItemRenderer renderer) {
-    final FragmentComparison fragmentComparison = getFragmentComparison();
-    int i = 0;
-    for (final MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
-      final double[][] data = new double[2][];
-      data[0] = new double[fragmentComparison.getResidueCount()];
-      data[1] = new double[fragmentComparison.getResidueCount()];
-
-      int j = 0;
-      for (final ResidueComparison residue : fragmentComparison.getResidueComparisons()) {
-        final TorsionAngleDelta delta = residue.getAngleDelta(angle);
-        data[0][j] = j;
-
-        data[1][j] =
-            (delta.getState() == TorsionAngleDelta.State.BOTH_VALID)
-                ? delta.getDelta().getRadians()
-                : Double.NaN;
-
-        j++;
-      }
-
-      final String displayName = angle.getLongDisplayName();
-      dataset.addSeries(displayName, data);
-      renderer.setSeriesPaint(i, Colors.getDistinctColors()[i]);
-      i++;
-    }
-  }
-
-  private ValueAxis prepareDomainAxis() {
-    ValueAxis domainAxis = null;
-
-    if (moleculeType() == MoleculeType.RNA) {
-      try {
-        final DotBracket dotBracket = matchedSecondaryStructure();
-        final List<String> ticks =
-            dotBracket
-                .getStructure()
-                .chars()
-                .mapToObj(i -> String.valueOf((char) i))
-                .collect(Collectors.toList());
-        domainAxis = new TorsionAxis(ticks, 0, 12);
-        domainAxis.setLabel("Secondary structure");
-      } catch (final InvalidStructureException e) {
-        VisualizableFragmentMatch.log.warn("Failed to extract canonical secondary structure", e);
-      }
-    }
-
-    if (domainAxis == null) {
-      final List<String> ticks = matchedResidueNames();
-      domainAxis = new TorsionAxis(ticks, -Math.PI / 4.0, 6);
-      domainAxis.setLabel("ResID");
-    }
-
-    return domainAxis;
-  }
-
   public final SVGDocument visualizePercentiles(final int width, final int height) {
     final DefaultXYDataset dataset = new DefaultXYDataset();
     final XYItemRenderer renderer = new DefaultXYItemRenderer();
@@ -220,9 +165,65 @@ public class VisualizableFragmentMatch extends FragmentMatch implements Visualiz
         width, height, dataset, renderer, domainAxis, rangeAxis);
   }
 
+  private void prepareDataset(final DefaultXYDataset dataset, final XYItemRenderer renderer) {
+    final FragmentComparison fragmentComparison = getFragmentComparison();
+    int i = 0;
+    for (final MasterTorsionAngleType angle : fragmentComparison.getAngleTypes()) {
+      final double[][] data = new double[2][];
+      data[0] = new double[fragmentComparison.getResidueCount()];
+      data[1] = new double[fragmentComparison.getResidueCount()];
+
+      int j = 0;
+      for (final ResidueComparison residue : fragmentComparison.getResidueComparisons()) {
+        final TorsionAngleDelta delta = residue.angleDelta(angle);
+        data[0][j] = j;
+
+        data[1][j] =
+            (delta.getState() == TorsionAngleDelta.State.BOTH_VALID)
+                ? delta.getDelta().radians()
+                : Double.NaN;
+
+        j++;
+      }
+
+      final String displayName = angle.longDisplayName();
+      dataset.addSeries(displayName, data);
+      renderer.setSeriesPaint(i, Colors.getDistinctColors()[i]);
+      i++;
+    }
+  }
+
+  private ValueAxis prepareDomainAxis() {
+    ValueAxis domainAxis = null;
+
+    if (moleculeType() == MoleculeType.RNA) {
+      try {
+        final DotBracket dotBracket = matchedSecondaryStructure();
+        final List<String> ticks =
+            dotBracket
+                .structure()
+                .chars()
+                .mapToObj(i -> String.valueOf((char) i))
+                .collect(Collectors.toList());
+        domainAxis = new TorsionAxis(ticks, 0, 12);
+        domainAxis.setLabel("Secondary structure");
+      } catch (final InvalidStructureException e) {
+        VisualizableFragmentMatch.log.warn("Failed to extract canonical secondary structure", e);
+      }
+    }
+
+    if (domainAxis == null) {
+      final List<String> ticks = matchedResidueNames();
+      domainAxis = new TorsionAxis(ticks, -Math.PI / 4.0, 6);
+      domainAxis.setLabel("ResID");
+    }
+
+    return domainAxis;
+  }
+
   private void preparePercentilesDataset(
       final DefaultXYDataset dataset, final XYItemRenderer renderer) {
-    final String name = getModelFragment().getName();
+    final String name = getModelFragment().name();
     final double[] percents = VisualizableFragmentMatch.PERCENTS_FROM_1_TO_100;
     final List<MasterTorsionAngleType> angleTypes = getFragmentComparison().getAngleTypes();
 
@@ -241,7 +242,7 @@ public class VisualizableFragmentMatch extends FragmentMatch implements Visualiz
         data[1][i] = statistics.getAngleThresholdForGivenPercentile(percents[i]);
       }
 
-      final String displayName = masterType.getLongDisplayName();
+      final String displayName = masterType.longDisplayName();
       dataset.addSeries(displayName, data);
       renderer.setSeriesPaint(j, Colors.getDistinctColors()[j]);
     }

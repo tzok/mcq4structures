@@ -35,11 +35,11 @@ public class ProcessingResult implements Clusterable, Visualizable, Exportable {
   }
 
   @Override
-  public final DistanceMatrix getDataForClustering() {
+  public final DistanceMatrix distanceMatrix() {
     if (!(object instanceof Clusterable)) {
       throw new IllegalArgumentException("Processing result not clusterable");
     }
-    return ((Clusterable) object).getDataForClustering();
+    return ((Clusterable) object).distanceMatrix();
   }
 
   @Override

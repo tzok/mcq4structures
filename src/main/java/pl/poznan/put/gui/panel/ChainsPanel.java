@@ -5,8 +5,19 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,13 +71,13 @@ public class ChainsPanel extends JPanel {
           proteinPanel.removeAll();
           proteinPanel.add(new JLabel("Proteins:"));
 
-          for (final PdbChain chain : structure.getChains()) {
-            final JCheckBox checkBox = new JCheckBox(String.valueOf(chain.getIdentifier()));
+          for (final PdbChain chain : structure.chains()) {
+            final JCheckBox checkBox = new JCheckBox(String.valueOf(chain.identifier()));
             checkBox.addActionListener(actionListener);
 
-            if (chain.getMoleculeType() == MoleculeType.RNA) {
+            if (chain.moleculeType() == MoleculeType.RNA) {
               rnaPanel.add(checkBox);
-            } else if (chain.getMoleculeType() == MoleculeType.PROTEIN) {
+            } else if (chain.moleculeType() == MoleculeType.PROTEIN) {
               proteinPanel.add(checkBox);
             }
           }
@@ -99,8 +110,8 @@ public class ChainsPanel extends JPanel {
           if (component instanceof JCheckBox && ((AbstractButton) component).isSelected()) {
             final String chainId = ((AbstractButton) component).getText();
 
-            structure.getChains().stream()
-                .filter(chain -> chain.getIdentifier().equals(chainId))
+            structure.chains().stream()
+                .filter(chain -> chain.identifier().equals(chainId))
                 .findFirst()
                 .ifPresent(list::add);
           }

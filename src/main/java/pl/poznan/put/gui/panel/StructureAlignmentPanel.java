@@ -2,32 +2,30 @@ package pl.poznan.put.gui.panel;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.biojava.nbio.structure.align.gui.jmol.JmolPanel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pl.poznan.put.datamodel.ProcessingResult;
-import pl.poznan.put.matching.MCQMatcher;
+import pl.poznan.put.matching.ImmutableMCQMatcher;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.structure.tertiary.StructureManager;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.util.List;
 
 public final class StructureAlignmentPanel extends JPanel {
   private static final long serialVersionUID = 4973837093762666112L;
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(StructureAlignmentPanel.class);
 
   // @formatter:off
   private static final String JMOL_SCRIPT =
@@ -88,44 +86,8 @@ public final class StructureAlignmentPanel extends JPanel {
     updateHeader(false);
   }
 
-  private void updateHeader(final boolean readyResults) {
-    final PdbModel left = structures.getLeft();
-    final PdbModel right = structures.getRight();
-
-    final StringBuilder builder = new StringBuilder();
-    builder.append(
-        "<html>Structures selected for 3D structure alignment: <span style=\"color: blue\">");
-    builder.append(StructureManager.getName(left));
-    builder.append('.');
-
-    for (final PdbChain chain : chains.getLeft()) {
-      builder.append(chain.getIdentifier());
-    }
-
-    builder.append("</span>, <span style=\"color: green\">");
-    builder.append(StructureManager.getName(right));
-    builder.append('.');
-
-    for (final PdbChain chain : chains.getRight()) {
-      builder.append(chain.getIdentifier());
-    }
-
-    builder.append("</span>");
-
-    if (readyResults) {
-      builder.append("<br>3D structure alignment results:");
-    }
-
-    builder.append("</html>");
-    labelHeader.setText(builder.toString());
-  }
-
   public ProcessingResult alignAndDisplayStructures() {
     labelStatus.setText("Computing...");
-
-    final List<MasterTorsionAngleType> torsionAngleTypes = new ArrayList<>();
-    torsionAngleTypes.addAll(Arrays.asList(RNATorsionAngleType.mainAngles()));
-    torsionAngleTypes.addAll(Arrays.asList(ProteinTorsionAngleType.mainAngles()));
 
     final String nameLeft = StructureManager.getName(structures.getLeft());
     final String nameRight = StructureManager.getName(structures.getRight());
@@ -133,7 +95,7 @@ public final class StructureAlignmentPanel extends JPanel {
     final StructureSelection left = SelectionFactory.create(nameLeft, chains.getLeft());
     final StructureSelection right = SelectionFactory.create(nameRight, chains.getRight());
 
-    final StructureMatcher matcher = new MCQMatcher(torsionAngleTypes);
+    final StructureMatcher matcher = ImmutableMCQMatcher.of(MoleculeType.RNA);
     final SelectionMatch selectionMatch = matcher.matchSelections(left, right);
 
     if (selectionMatch.getFragmentMatches().isEmpty()) {
@@ -155,5 +117,37 @@ public final class StructureAlignmentPanel extends JPanel {
     } finally {
       labelStatus.setText("Computation finished");
     }
+  }
+
+  private void updateHeader(final boolean readyResults) {
+    final PdbModel left = structures.getLeft();
+    final PdbModel right = structures.getRight();
+
+    final StringBuilder builder = new StringBuilder();
+    builder.append(
+        "<html>Structures selected for 3D structure alignment: <span style=\"color: blue\">");
+    builder.append(StructureManager.getName(left));
+    builder.append('.');
+
+    for (final PdbChain chain : chains.getLeft()) {
+      builder.append(chain.identifier());
+    }
+
+    builder.append("</span>, <span style=\"color: green\">");
+    builder.append(StructureManager.getName(right));
+    builder.append('.');
+
+    for (final PdbChain chain : chains.getRight()) {
+      builder.append(chain.identifier());
+    }
+
+    builder.append("</span>");
+
+    if (readyResults) {
+      builder.append("<br>3D structure alignment results:");
+    }
+
+    builder.append("</html>");
+    labelHeader.setText(builder.toString());
   }
 }

@@ -3,7 +3,7 @@ package pl.poznan.put.gui.component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
-import javax.swing.*;
+import javax.swing.AbstractListModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +48,7 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
   }
 
   public final void addElement(final PdbCompactFragment element) {
-    final MoleculeType moleculeType = element.getMoleculeType();
+    final MoleculeType moleculeType = element.moleculeType();
 
     if (moleculeType == MoleculeType.RNA) {
       listRNAs.add(element);
@@ -73,15 +73,15 @@ public class FilteredListModel extends AbstractListModel<PdbCompactFragment> {
 
   public final boolean canAddElement(
       final PdbCompactFragment element, final boolean isSizeConstrained) {
-    final MoleculeType moleculeType = element.getMoleculeType();
-    if ((getSize() > 0) && (getElementAt(0).getMoleculeType() != moleculeType)) {
+    final MoleculeType moleculeType = element.moleculeType();
+    if ((getSize() > 0) && (getElementAt(0).moleculeType() != moleculeType)) {
       return false;
     }
 
     if (isSizeConstrained) {
       final List<PdbCompactFragment> list =
           (moleculeType == MoleculeType.RNA) ? listRNAs : listProteins;
-      return (list.isEmpty()) || (list.get(0).getResidues().size() == element.getResidues().size());
+      return (list.isEmpty()) || (list.get(0).residues().size() == element.residues().size());
     }
 
     return true;

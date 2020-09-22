@@ -83,11 +83,6 @@
 
     <dependency>
       <groupId>pl.poznan.put</groupId>
-      <artifactId>circular</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>pl.poznan.put</groupId>
       <artifactId>mcq-clustering</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -96,11 +91,6 @@
       <groupId>pl.poznan.put</groupId>
       <artifactId>mcq-core</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>pl.poznan.put</groupId>
-      <artifactId>TzokCommons</artifactId>
     </dependency>
 
     <dependency>

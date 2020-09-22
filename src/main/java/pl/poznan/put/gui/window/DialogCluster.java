@@ -14,8 +14,19 @@ import pl.poznan.put.clustering.partitional.ScoringFunction;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.types.DistanceMatrix;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.util.List;
 
@@ -120,11 +131,11 @@ public class DialogCluster extends JDialog {
   }
 
   private Visualizable getVisualizable() {
-    final List<String> names = distanceMatrix.getNames();
+    final List<String> names = distanceMatrix.names();
 
     if (hierarchical.isSelected()) {
       final Linkage linkage = (Linkage) linkageComboBox.getSelectedItem();
-      final Clusterer clusterer = new Clusterer(names, distanceMatrix.getMatrix(), linkage);
+      final Clusterer clusterer = new Clusterer(names, distanceMatrix.matrix(), linkage);
       return clusterer.cluster();
     }
 
@@ -134,10 +145,10 @@ public class DialogCluster extends JDialog {
     final ScoredClusteringResult result;
 
     if (findBestK.isSelected()) {
-      result = KScanner.parallelScan(clusterer, distanceMatrix.getMatrix(), sf);
+      result = KScanner.parallelScan(clusterer, distanceMatrix.matrix(), sf);
     } else {
       final int k = (int) kspinner.getValue();
-      result = clusterer.findPrototypes(distanceMatrix.getMatrix(), sf, k);
+      result = clusterer.findPrototypes(distanceMatrix.matrix(), sf, k);
     }
 
     return new PartitionalClustering(distanceMatrix, result);

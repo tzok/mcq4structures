@@ -5,7 +5,6 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.exception.InvalidCircularOperationException;
 import pl.poznan.put.circular.exception.InvalidCircularValueException;
-import pl.poznan.put.circular.graphics.AngularHistogram;
 import pl.poznan.put.datamodel.ProcessingResult;
 import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.matching.SelectionFactory;
@@ -13,10 +12,16 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.visualisation.AngularHistogram;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.List;
 
 @Slf4j
@@ -62,11 +67,11 @@ public final class TorsionAngleValuesMatrixPanel extends JPanel {
       }
 
       try {
-        final String title = masterType.getLongDisplayName();
+        final String title = masterType.longDisplayName();
         final AngularHistogram histogram = new AngularHistogram(angles);
         histogram.draw();
         final SVGDocument svgDocument = histogram.finalizeDrawing();
-        final SVGComponent component = new SVGComponent(svgDocument, masterType.getExportName());
+        final SVGComponent component = new SVGComponent(svgDocument, masterType.exportName());
         tabbedPane.add(title, component);
       } catch (final InvalidCircularValueException | InvalidCircularOperationException e) {
         TorsionAngleValuesMatrixPanel.log.warn(

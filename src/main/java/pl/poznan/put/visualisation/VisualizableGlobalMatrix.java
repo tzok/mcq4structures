@@ -14,7 +14,7 @@ import pl.poznan.put.svg.MDSDrawer;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -30,7 +30,7 @@ public class VisualizableGlobalMatrix extends GlobalMatrix implements Visualizab
   @Override
   public final SVGDocument visualize() {
     final DistanceMatrix distanceMatrix = getDistanceMatrixWithoutIncomparables();
-    final double[][] array = distanceMatrix.getMatrix();
+    final double[][] array = distanceMatrix.matrix();
 
     if (array.length <= 1) {
       VisualizableGlobalMatrix.log.warn(
@@ -45,7 +45,7 @@ public class VisualizableGlobalMatrix extends GlobalMatrix implements Visualizab
   public final void visualize3D() {
     try {
       final String name = getComparator().getName();
-      final double[][] matrix = getDistanceMatrix().getMatrix();
+      final double[][] matrix = getDistanceMatrix().matrix();
       final List<String> ticksX = getNames();
       final List<String> ticksY = getNames();
       final NavigableMap<Double, String> valueTickZ = prepareTicksZ();
@@ -86,7 +86,7 @@ public class VisualizableGlobalMatrix extends GlobalMatrix implements Visualizab
         valueTickZ.put(radians, Math.round(Math.toDegrees(radians)) + Unicode.DEGREE);
       }
     } else {
-      final double[][] matrix = getDistanceMatrix().getMatrix();
+      final double[][] matrix = getDistanceMatrix().matrix();
       double max = Double.NEGATIVE_INFINITY;
 
       for (final double[] element : matrix) {

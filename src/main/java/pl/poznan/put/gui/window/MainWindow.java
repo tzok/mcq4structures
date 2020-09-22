@@ -1,10 +1,11 @@
 package pl.poznan.put.gui.window;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.util.FastMath;
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.enums.ValueType;
+import pl.poznan.put.circular.ImmutableAngle;
+import pl.poznan.put.comparison.ImmutableMCQ;
 import pl.poznan.put.comparison.LCS;
-import pl.poznan.put.comparison.MCQ;
 import pl.poznan.put.comparison.RMSD;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.datamodel.ProcessingResult;
@@ -13,7 +14,6 @@ import pl.poznan.put.gui.component.StayOpenRadioButtonMenuItem;
 import pl.poznan.put.gui.panel.GlobalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMatrixPanel;
 import pl.poznan.put.gui.panel.LocalMultiMatrixPanel;
-import pl.poznan.put.gui.panel.SequenceAlignmentPanel;
 import pl.poznan.put.gui.panel.StructureAlignmentPanel;
 import pl.poznan.put.gui.panel.TorsionAngleValuesMatrixPanel;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -23,8 +23,25 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 import pl.poznan.put.types.DistanceMatrix;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -39,7 +56,6 @@ import java.util.stream.Collectors;
 
 public final class MainWindow extends JFrame {
   private static final String CARD_TORSION = "CARD_TORSION";
-  private static final String CARD_ALIGN_SEQ = "CARD_ALIGN_SEQ";
   private static final String CARD_ALIGN_STRUC = "CARD_ALIGN_STRUC";
   private static final String CARD_GLOBAL_MATRIX = "CARD_GLOBAL_MATRIX";
   private static final String CARD_LOCAL_MATRIX = "CARD_LOCAL_MATRIX";
@@ -93,7 +109,6 @@ public final class MainWindow extends JFrame {
   private final GlobalMatrixPanel panelResultsGlobalMatrix = new GlobalMatrixPanel();
   private final LocalMatrixPanel panelResultsLocalMatrix = new LocalMatrixPanel();
   private final LocalMultiMatrixPanel panelResultsLocalMultiMatrix = new LocalMultiMatrixPanel();
-  private final SequenceAlignmentPanel panelResultsAlignSeq = new SequenceAlignmentPanel();
   private final StructureAlignmentPanel panelResultsAlignStruc = new StructureAlignmentPanel();
   private final JFileChooser fileChooser = new JFileChooser();
   private final DialogManager dialogManager;
@@ -147,7 +162,6 @@ public final class MainWindow extends JFrame {
     panelCards.add(panelResultsGlobalMatrix, MainWindow.CARD_GLOBAL_MATRIX);
     panelCards.add(panelResultsLocalMatrix, MainWindow.CARD_LOCAL_MATRIX);
     panelCards.add(panelResultsLocalMultiMatrix, MainWindow.CARD_LOCAL_MULTI_MATRIX);
-    panelCards.add(panelResultsAlignSeq, MainWindow.CARD_ALIGN_SEQ);
     panelCards.add(panelResultsAlignStruc, MainWindow.CARD_ALIGN_STRUC);
 
     setLayout(new BorderLayout());
@@ -296,8 +310,8 @@ public final class MainWindow extends JFrame {
     itemCluster.addActionListener(
         arg0 -> {
           if (currentResult.canCluster()) {
-            final DistanceMatrix distanceMatrix = currentResult.getDataForClustering();
-            final double[][] array = distanceMatrix.getMatrix();
+            final DistanceMatrix distanceMatrix = currentResult.distanceMatrix();
+            final double[][] array = distanceMatrix.matrix();
 
             if (array.length <= 1) {
               final String message =
@@ -412,13 +426,14 @@ public final class MainWindow extends JFrame {
     final GlobalComparator comparator;
     if (radioGlobalLcs.isSelected()) {
       final Angle threshold =
-          new Angle(
-              Double.parseDouble(JOptionPane.showInputDialog("MCQ threshold:")), ValueType.DEGREES);
-      comparator = new LCS(threshold);
+          ImmutableAngle.of(
+              FastMath.toRadians(
+                  Double.parseDouble(JOptionPane.showInputDialog("MCQ threshold:"))));
+      comparator = new LCS(MoleculeType.RNA, threshold);
     } else if (radioGlobalMcq.isSelected()) {
-      comparator = new MCQ();
+      comparator = ImmutableMCQ.of(MoleculeType.RNA);
     } else {
-      comparator = new RMSD();
+      comparator = new RMSD(MoleculeType.RNA);
     }
 
     panelResultsGlobalMatrix.compareAndDisplayMatrix(
@@ -497,10 +512,10 @@ public final class MainWindow extends JFrame {
     }
 
     final List<PdbCompactFragment> fragments = dialogChainsMultiple.getChains();
-    final MoleculeType type = fragments.get(0).getMoleculeType();
+    final MoleculeType type = fragments.get(0).moleculeType();
 
     for (final PdbCompactFragment c : fragments) {
-      if (type != c.getMoleculeType()) {
+      if (type != c.moleculeType()) {
         JOptionPane.showMessageDialog(
             this,
             "Cannot align/compare " + "structures: different " + "types",
@@ -518,26 +533,12 @@ public final class MainWindow extends JFrame {
       panelResultsLocalMultiMatrix.setFragments(fragments);
       layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
       compareLocalMulti();
-    } else if (source.equals(itemSelectStructuresAlign)) {
-      itemSave.setEnabled(false);
-      itemVisualise3D.setEnabled(false);
-      itemCluster.setEnabled(false);
-
-      panelResultsAlignSeq.setFragments(fragments, radioAlignSeqGlobal.isSelected());
-      layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
-      alignSequences();
     }
   }
 
   private void compareLocalMulti() {
     currentResult = panelResultsLocalMultiMatrix.compareAndDisplayTable();
     layoutCards.show(panelCards, MainWindow.CARD_LOCAL_MULTI_MATRIX);
-    updateMenuEnabledStates();
-  }
-
-  private void alignSequences() {
-    currentResult = panelResultsAlignSeq.alignAndDisplaySequences();
-    layoutCards.show(panelCards, MainWindow.CARD_ALIGN_SEQ);
     updateMenuEnabledStates();
   }
 }

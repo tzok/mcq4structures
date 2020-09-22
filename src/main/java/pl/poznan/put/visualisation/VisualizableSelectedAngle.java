@@ -32,8 +32,11 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Shape;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
@@ -61,9 +64,9 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
     if (dotBracket != null) {
       final FontMetrics metrics = SVGHelper.getFontMetrics(svg);
 
-      for (int i = 0; i < dotBracket.getLength(); i++) {
-        final DotBracketSymbol symbol = dotBracket.getSymbol(i);
-        final String s = Character.toString(symbol.getStructure());
+      for (int i = 0; i < dotBracket.length(); i++) {
+        final DotBracketSymbol symbol = dotBracket.symbols().get(i);
+        final String s = Character.toString(symbol.structure());
         final float stringWidth = metrics.stringWidth(s);
         svg.drawString(
             s, (leftShift + (i * unitWidth) + (unitWidth / 2.0F)) - (stringWidth / 2.0F), topShift);
@@ -95,6 +98,44 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
     return document;
   }
 
+  @Override
+  public final void visualize3D() {
+    final PdbCompactFragment target = getTarget();
+    final List<PdbCompactFragment> models = getModels();
+    final MasterTorsionAngleType angleType = getAngleType();
+
+    if (models.size() < 1) {
+      JOptionPane.showMessageDialog(
+          null,
+          "At least one model is required for 3D visualization",
+          "Error",
+          JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
+    try {
+      final String name = String.format("%s %s", target.name(), angleType.exportName());
+      final double[][] matrix = prepareMatrix();
+      final List<String> ticksX = prepareTicksX();
+      final List<String> ticksY = prepareTicksY();
+      final NavigableMap<Double, String> valueTickZ = VisualizableMCQLocalResult.prepareTicksZ();
+      final String labelX = "Model";
+      final String labelY = "Residue";
+      final String labelZ = "Distance";
+      final boolean showAllTicksX = true;
+      final boolean showAllTicksY = false;
+
+      final IAnalysis surface3d =
+          new Surface3D(
+              name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, true, false);
+      AnalysisLauncher.open(surface3d);
+    } catch (final Exception e) {
+      final String message = "Failed to visualize in 3D";
+      VisualizableSelectedAngle.log.error(message, e);
+      JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+  }
+
   private float drawModelsNames(
       final SVGGraphics2D svg, final float unitHeight, final float descent) {
     final List<PdbCompactFragment> models = getModels();
@@ -102,7 +143,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
     float maxWidth = Integer.MIN_VALUE;
 
     for (int i = 0; i < models.size(); i++) {
-      final String modelName = models.get(i).getName();
+      final String modelName = models.get(i).name();
       svg.drawString(modelName, 0.0f, ((i + 2) * unitHeight) - descent);
       final float width = metrics.stringWidth(modelName);
 
@@ -118,7 +159,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
     final PdbCompactFragment target = getTarget();
     DotBracket dotBracket = null;
 
-    if (target.getMoleculeType() == MoleculeType.RNA) {
+    if (target.moleculeType() == MoleculeType.RNA) {
       try {
         final Converter converter = new LevelByLevelConverter(new MinGain(), 1);
         final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
@@ -176,10 +217,10 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
       final float y,
       final float height,
       final float width) {
-    final TorsionAngleDelta angleDelta = comparison.getAngleDelta(getAngleType());
+    final TorsionAngleDelta angleDelta = comparison.angleDelta(getAngleType());
 
     if (angleDelta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
-      final double normalized = AngleDeltaMapper.map(angleDelta.getDelta().getDegrees360());
+      final double normalized = AngleDeltaMapper.map(angleDelta.getDelta().degrees360());
       final Color[] colors = ColorBrewer.YlOrRd.getColorPalette(4);
       final Color color = colors[(int) FastMath.floor(normalized * 4.0)];
       svg.setColor(color);
@@ -193,51 +234,13 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
     svg.draw(shape);
   }
 
-  @Override
-  public final void visualize3D() {
-    final PdbCompactFragment target = getTarget();
-    final List<PdbCompactFragment> models = getModels();
-    final MasterTorsionAngleType angleType = getAngleType();
-
-    if (models.size() < 1) {
-      JOptionPane.showMessageDialog(
-          null,
-          "At least one model is required for 3D visualization",
-          "Error",
-          JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-
-    try {
-      final String name = String.format("%s %s", target.getName(), angleType.getExportName());
-      final double[][] matrix = prepareMatrix();
-      final List<String> ticksX = prepareTicksX();
-      final List<String> ticksY = prepareTicksY();
-      final NavigableMap<Double, String> valueTickZ = VisualizableMCQLocalResult.prepareTicksZ();
-      final String labelX = "Model";
-      final String labelY = "Residue";
-      final String labelZ = "Distance";
-      final boolean showAllTicksX = true;
-      final boolean showAllTicksY = false;
-
-      final IAnalysis surface3d =
-          new Surface3D(
-              name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, true, false);
-      AnalysisLauncher.open(surface3d);
-    } catch (final Exception e) {
-      final String message = "Failed to visualize in 3D";
-      VisualizableSelectedAngle.log.error(message, e);
-      JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-  }
-
   private double[][] prepareMatrix() {
     final PdbCompactFragment target = getTarget();
     final List<PdbCompactFragment> models = getModels();
     final List<FragmentMatch> fragmentMatches = getFragmentMatches();
     final MasterTorsionAngleType angleType = getAngleType();
 
-    final int size = target.getResidues().size();
+    final int size = target.residues().size();
     final double[][] matrix = new double[models.size()][];
 
     for (int i = 0; i < models.size(); i++) {
@@ -247,7 +250,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
 
       for (int j = 0; j < size; j++) {
         final ResidueComparison residueComparison = residueComparisons.get(j);
-        matrix[i][j] = residueComparison.getAngleDelta(angleType).getDelta().getRadians();
+        matrix[i][j] = residueComparison.angleDelta(angleType).getDelta().radians();
       }
     }
 
@@ -255,12 +258,10 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
   }
 
   private List<String> prepareTicksX() {
-    return getModels().stream().map(PdbCompactFragment::getName).collect(Collectors.toList());
+    return getModels().stream().map(PdbCompactFragment::name).collect(Collectors.toList());
   }
 
   private List<String> prepareTicksY() {
-    return getTarget().getResidues().stream()
-        .map(PdbResidue::toString)
-        .collect(Collectors.toList());
+    return getTarget().residues().stream().map(PdbResidue::toString).collect(Collectors.toList());
   }
 }

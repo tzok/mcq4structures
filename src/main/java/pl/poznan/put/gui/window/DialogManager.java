@@ -7,8 +7,20 @@ import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.tertiary.StructureManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -75,7 +87,7 @@ public final class DialogManager extends JDialog {
           final String pdbId = fieldPdbId.getText();
 
           try {
-            final List<PdbModel> models = StructureManager.loadStructure(pdbId);
+            final List<? extends PdbModel> models = StructureManager.loadStructure(pdbId);
             final File path = StructureManager.getFile(models.get(0));
             model.addElement(path);
           } catch (final IOException | PdbParsingException e) {

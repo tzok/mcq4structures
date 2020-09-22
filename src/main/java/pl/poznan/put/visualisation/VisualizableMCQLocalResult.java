@@ -1,12 +1,11 @@
 package pl.poznan.put.visualisation;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.analysis.IAnalysis;
 import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.comparison.local.MCQLocalResult;
+import pl.poznan.put.comparison.local.LocalResult;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.interfaces.Visualizable;
@@ -18,7 +17,7 @@ import pl.poznan.put.structure.secondary.formats.DotBracket;
 import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.util.Collections;
 import java.util.List;
 import java.util.NavigableMap;
@@ -26,9 +25,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class VisualizableMCQLocalResult extends MCQLocalResult implements Visualizable {
+public abstract class VisualizableMCQLocalResult implements LocalResult, Visualizable {
   public static NavigableMap<Double, String> prepareTicksZ() {
     final NavigableMap<Double, String> valueTickZ = new TreeMap<>();
     valueTickZ.put(0.0, "0");
@@ -46,7 +44,7 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
     try {
       final DotBracket dotBracket = fragmentMatch.matchedSecondaryStructure();
       return dotBracket
-          .getStructure()
+          .structure()
           .chars()
           .mapToObj(i -> String.valueOf((char) i))
           .collect(Collectors.toList());
@@ -64,7 +62,7 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
 
   @Override
   public final void visualize3D() {
-    if (getAngleTypes().size() <= 1) {
+    if (angleTypes().size() <= 1) {
       JOptionPane.showMessageDialog(
           null,
           "At least two torsion angle types are required for 3D visualization",
@@ -74,12 +72,12 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
     }
 
     try {
-      for (final FragmentMatch fragmentMatch : selectionMatch.getFragmentMatches()) {
+      for (final FragmentMatch fragmentMatch : selectionMatch().getFragmentMatches()) {
         final PdbCompactFragment target = fragmentMatch.getTargetFragment();
         List<String> ticksY = null;
         String labelY = null;
 
-        if (target.getMoleculeType() == MoleculeType.RNA) {
+        if (target.moleculeType() == MoleculeType.RNA) {
           ticksY = VisualizableMCQLocalResult.prepareTicksFromDotBracket(fragmentMatch);
           labelY = "Secondary structure";
         }
@@ -120,7 +118,7 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
   }
 
   private double[][] prepareMatrix(final FragmentMatch fragmentMatch) {
-    final List<MasterTorsionAngleType> angleTypes = getAngleTypes();
+    final List<MasterTorsionAngleType> angleTypes = angleTypes();
     final List<ResidueComparison> residueComparisons = fragmentMatch.getResidueComparisons();
     final double[][] matrix = new double[angleTypes.size()][];
 
@@ -130,7 +128,7 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
 
       for (int j = 0; j < residueComparisons.size(); j++) {
         final ResidueComparison residueComparison = residueComparisons.get(j);
-        matrix[i][j] = residueComparison.getAngleDelta(angleType).getDelta().getRadians();
+        matrix[i][j] = residueComparison.angleDelta(angleType).getDelta().radians();
       }
     }
 
@@ -138,8 +136,8 @@ public class VisualizableMCQLocalResult extends MCQLocalResult implements Visual
   }
 
   private List<String> prepareTicksX() {
-    return getAngleTypes().stream()
-        .map(DisplayableExportable::getExportName)
+    return angleTypes().stream()
+        .map(DisplayableExportable::exportName)
         .collect(Collectors.toList());
   }
 }

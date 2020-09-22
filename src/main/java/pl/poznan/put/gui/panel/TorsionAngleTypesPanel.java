@@ -2,13 +2,17 @@ package pl.poznan.put.gui.panel;
 
 import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.protein.torsion.ProteinTorsionAngleType;
-import pl.poznan.put.rna.torsion.RNATorsionAngleType;
 import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +58,24 @@ public class TorsionAngleTypesPanel extends JPanel {
     buttonClear.addActionListener(selectClearActionListener);
   }
 
+  public final boolean isAnySelected() {
+    return mapCheckBoxToMasterType.keySet().stream().anyMatch(AbstractButton::isSelected);
+  }
+
+  public final List<MasterTorsionAngleType> getSelected() {
+    final List<MasterTorsionAngleType> selected = new ArrayList<>();
+
+    for (final Map.Entry<JCheckBox, MasterTorsionAngleType> entry :
+        mapCheckBoxToMasterType.entrySet()) {
+      final JCheckBox checkBox = entry.getKey();
+      if (checkBox.isSelected()) {
+        selected.add(entry.getValue());
+      }
+    }
+
+    return selected;
+  }
+
   private void handleMoleculeType(final MoleculeType moleculeType) {
     final MasterTorsionAngleType[] masterAngleTypes;
     final AverageTorsionAngleType averageAngleType;
@@ -61,13 +83,19 @@ public class TorsionAngleTypesPanel extends JPanel {
     switch (moleculeType) {
       case PROTEIN:
         setBorder(BorderFactory.createTitledBorder("Protein"));
-        masterAngleTypes = ProteinTorsionAngleType.values();
-        averageAngleType = ProteinTorsionAngleType.getAverageOverMainAngles();
+        masterAngleTypes =
+            AverageTorsionAngleType.forProtein()
+                .consideredAngles()
+                .toArray(new MasterTorsionAngleType[0]);
+        averageAngleType = AverageTorsionAngleType.forProtein();
         break;
       case RNA:
         setBorder(BorderFactory.createTitledBorder("RNA"));
-        masterAngleTypes = RNATorsionAngleType.values();
-        averageAngleType = RNATorsionAngleType.getAverageOverMainAngles();
+        masterAngleTypes =
+            AverageTorsionAngleType.forNucleicAcid()
+                .consideredAngles()
+                .toArray(new MasterTorsionAngleType[0]);
+        averageAngleType = AverageTorsionAngleType.forNucleicAcid();
         break;
       case UNKNOWN:
       default:
@@ -82,8 +110,8 @@ public class TorsionAngleTypesPanel extends JPanel {
 
   private void handleMasterType(final MasterTorsionAngleType masterType, final boolean selected) {
     final Collection<String> angleNames =
-        masterType.getAngleTypes().stream()
-            .map(DisplayableExportable::getLongDisplayName)
+        masterType.angleTypes().stream()
+            .map(DisplayableExportable::longDisplayName)
             .collect(Collectors.toCollection(TreeSet::new));
 
     final StringBuilder builder = new StringBuilder("<html>");
@@ -101,23 +129,5 @@ public class TorsionAngleTypesPanel extends JPanel {
     anglesPanel.add(checkBox);
     anglesPanel.add(new JLabel("<html>&nbsp;</html>"));
     mapCheckBoxToMasterType.put(checkBox, masterType);
-  }
-
-  public final boolean isAnySelected() {
-    return mapCheckBoxToMasterType.keySet().stream().anyMatch(AbstractButton::isSelected);
-  }
-
-  public final List<MasterTorsionAngleType> getSelected() {
-    final List<MasterTorsionAngleType> selected = new ArrayList<>();
-
-    for (final Map.Entry<JCheckBox, MasterTorsionAngleType> entry :
-        mapCheckBoxToMasterType.entrySet()) {
-      final JCheckBox checkBox = entry.getKey();
-      if (checkBox.isSelected()) {
-        selected.add(entry.getValue());
-      }
-    }
-
-    return selected;
   }
 }
