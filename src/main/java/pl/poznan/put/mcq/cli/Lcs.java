@@ -11,6 +11,7 @@ import pl.poznan.put.comparison.LCS;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.LCSGlobalResult;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class Lcs {
@@ -46,7 +47,7 @@ public final class Lcs {
     final double threshold =
         Double.parseDouble(commandLine.getOptionValue(Helper.OPTION_MCQ_THRESHOLD.getOpt()));
 
-    final LCS lcs = new LCS(ImmutableAngle.of(FastMath.toRadians(threshold)));
+    final LCS lcs = new LCS(MoleculeType.RNA, ImmutableAngle.of(FastMath.toRadians(threshold)));
     final LCSGlobalResult result = (LCSGlobalResult) lcs.compareGlobally(s1, s2);
 
     System.out.println(result.cliOutput(s2, s1));

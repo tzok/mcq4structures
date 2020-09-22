@@ -7,6 +7,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.Validate;
+import org.immutables.value.Value;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.clustering.partitional.ClusterAssignment;
 import pl.poznan.put.clustering.partitional.KMedoids;
@@ -14,12 +16,13 @@ import pl.poznan.put.clustering.partitional.PAM;
 import pl.poznan.put.clustering.partitional.PartitionalClustering;
 import pl.poznan.put.clustering.partitional.PrototypeBasedClusterer;
 import pl.poznan.put.clustering.partitional.ScoredClusteringResult;
-import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.ImmutableMCQ;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.comparison.global.ParallelGlobalComparator;
 import pl.poznan.put.interfaces.Exportable;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.Format;
@@ -30,12 +33,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
-public final class Global {
+@Value.Immutable
+public abstract class Global {
   private static final Options OPTIONS =
       new Options()
           .addOption(Helper.OPTION_SELECTION_MODEL)
@@ -43,11 +48,7 @@ public final class Global {
           .addOption(Helper.OPTION_NAMES)
           .addOption(Helper.OPTION_DIRECTORY);
 
-  private Global() {
-    super();
-  }
-
-  public static void main(final String[] args) throws ParseException, IOException {
+  public static void main(final String[] args) throws ParseException {
     if (Helper.isHelpRequested(args)) {
       Helper.printHelp("mcq-global", Global.OPTIONS);
       return;
@@ -55,18 +56,43 @@ public final class Global {
 
     final CommandLineParser parser = new DefaultParser();
     final CommandLine commandLine = parser.parse(Global.OPTIONS, args);
+
     final List<StructureSelection> models = Helper.selectModels(commandLine);
-    final List<MasterTorsionAngleType> angles = Helper.parseAngles(commandLine);
-    final MCQ mcq = new MCQ(MoleculeType.RNA, angles);
-
+    final List<MasterTorsionAngleType> angleTypes = Helper.parseAngles(commandLine);
     final File outputDirectory = Helper.getOutputDirectory(commandLine);
-    FileUtils.forceMkdir(outputDirectory);
+    final Global global = ImmutableGlobal.of(models, angleTypes, outputDirectory.toPath());
+    global.compare();
+  }
 
-    final long size = models.size();
+  @Value.Parameter(order = 1)
+  public abstract List<StructureSelection> models();
+
+  @Value.Parameter(order = 2)
+  public abstract List<MasterTorsionAngleType> angleTypes();
+
+  @Value.Parameter(order = 3)
+  public abstract Path outputDirectory();
+
+  @Value.Check
+  protected void validate() {
+    // models list not empty
+    Validate.notEmpty(models());
+
+    // output directory existing
+    Validate.isTrue(
+        outputDirectory().toFile().exists() || outputDirectory().toFile().mkdirs(),
+        "Failed to create output directory");
+    Validate.isTrue(outputDirectory().toFile().isDirectory(), "The output path is not a directory");
+  }
+
+  private void compare() {
+    final long size = models().size();
     final long initialMax = (size * (size - 1L)) / 2L;
     final ProgressBar progressBar = new ProgressBar("Comparing...", initialMax);
-    final Listener listener = new Listener(progressBar, outputDirectory);
-    final ParallelGlobalComparator comparator = new ParallelGlobalComparator(mcq, models, listener);
+    final Listener listener = new Listener(progressBar, outputDirectory().toFile());
+    final ParallelGlobalComparator comparator =
+        new ParallelGlobalComparator(
+            ImmutableMCQ.of(MoleculeType.RNA).withAngleTypes(angleTypes()), models(), listener);
     comparator.start();
   }
 

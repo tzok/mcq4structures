@@ -7,9 +7,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.matching.StructureSelection;
+import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.NumberFormatUtils;
 
@@ -34,7 +34,7 @@ public final class Print {
     final StructureSelection target = Helper.selectModel(commandLine);
 
     final String angleDescription =
-        AverageTorsionAngleType.forNucleicAcid().consideredAngles().stream()
+        MoleculeType.RNA.mainAngleTypes().stream()
             .map(angleType -> String.format("%s\t", angleType.exportName()))
             .collect(Collectors.joining());
     System.out.println("Chain\tResNum\tiCode\tName\t" + angleDescription);
@@ -52,8 +52,7 @@ public final class Print {
         System.out.print(residue.modifiedResidueName());
         System.out.print('\t');
 
-        for (final MasterTorsionAngleType angleType :
-            AverageTorsionAngleType.forNucleicAcid().consideredAngles()) {
+        for (final MasterTorsionAngleType angleType : MoleculeType.RNA.mainAngleTypes()) {
           final Angle value = fragment.torsionAngles(residue.identifier()).value(angleType);
           System.out.print(
               value.isValid()

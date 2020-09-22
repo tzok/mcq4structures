@@ -18,7 +18,7 @@ import pl.poznan.put.atom.BondLength;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.circular.samples.ImmutableAngleSample;
-import pl.poznan.put.comparison.MCQ;
+import pl.poznan.put.comparison.ImmutableMCQ;
 import pl.poznan.put.comparison.local.LocalComparator;
 import pl.poznan.put.comparison.local.ModelsComparisonResult;
 import pl.poznan.put.comparison.local.SelectedAngle;
@@ -26,15 +26,14 @@ import pl.poznan.put.comparison.mapping.AngleDeltaMapper;
 import pl.poznan.put.comparison.mapping.ComparisonMapper;
 import pl.poznan.put.comparison.mapping.RangeDifferenceMapper;
 import pl.poznan.put.matching.FragmentMatch;
+import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.ImmutablePdbCompactFragment;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.svg.SecondaryStructureVisualizer;
-import pl.poznan.put.torsion.AverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
 
@@ -177,7 +176,7 @@ public abstract class Local {
 
   @Value.Lazy
   protected LocalComparator mcq() {
-    return new MCQ(MoleculeType.RNA, angleTypes());
+    return ImmutableMCQ.of(MoleculeType.RNA).withAngleTypes(angleTypes());
   }
 
   @Value.Check
@@ -200,9 +199,6 @@ public abstract class Local {
         "Failed to create output directory");
     Validate.isTrue(outputDirectory().toFile().isDirectory(), "The output path is not a directory");
 
-    // main angle must be of average type
-    Validate.isInstanceOf(AverageTorsionAngleType.class, mainAngleType());
-
     // check validity of comparison
     checkBondLengthViolations();
     checkFragmentCountViolations();
@@ -219,10 +215,6 @@ public abstract class Local {
     }
   }
 
-  private MasterTorsionAngleType mainAngleType() {
-    return angleTypes().get(angleTypes().size() - 1);
-  }
-
   private void compare() {
     // compare each compact fragment
     final List<ModelsComparisonResult> comparisonResults =
@@ -237,12 +229,12 @@ public abstract class Local {
             .mapToObj(
                 i ->
                     comparisonResults.stream()
-                        .map(ModelsComparisonResult::getFragmentMatches)
+                        .map(ModelsComparisonResult::fragmentMatches)
                         .map(fragmentMatches -> fragmentMatches.get(i))
                         .map(FragmentMatch::getResidueComparisons)
                         .flatMap(Collection::stream)
-                        .map(residueComparison -> residueComparison.angleDelta(mainAngleType()))
-                        .map(TorsionAngleDelta::getDelta)
+                        .map(ResidueComparison::validDeltas)
+                        .flatMap(Collection::stream)
                         .filter(Angle::isValid)
                         .collect(Collectors.toList()))
             .map(ImmutableAngleSample::of)
@@ -295,7 +287,7 @@ public abstract class Local {
   private void exportResults(final ModelsComparisonResult comparisonResult) {
     try {
       exportTable(comparisonResult);
-      comparisonResult.getFragmentMatches().forEach(this::exportModelResults);
+      comparisonResult.fragmentMatches().forEach(this::exportModelResults);
     } catch (final IOException e) {
       throw new IllegalArgumentException("Failed to export results", e);
     }
@@ -304,7 +296,7 @@ public abstract class Local {
   private void exportTable(final ModelsComparisonResult comparisonResult) throws IOException {
     final File file = new File(outputDirectory().toFile(), "table.csv");
     try (final OutputStream stream = new FileOutputStream(file)) {
-      final SelectedAngle selectedAngle = comparisonResult.selectAngle(mainAngleType());
+      final SelectedAngle selectedAngle = comparisonResult.selectAverageOfAngles();
       selectedAngle.export(stream);
     }
   }
