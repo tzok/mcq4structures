@@ -48,11 +48,6 @@
     </dependency>
 
     <dependency>
-      <groupId>pl.poznan.put</groupId>
-      <artifactId>TzokCommons</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
     </dependency>

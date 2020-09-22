@@ -8,7 +8,7 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.svg.MDSDrawer;
 import pl.poznan.put.types.DistanceMatrix;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,28 +32,8 @@ public class PartitionalClustering implements Visualizable, Exportable {
     this.clustering = clustering;
 
     final ClusterPrototypes prototypes = clustering.getPrototypes();
-    assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix.getMatrix());
+    assignment = ClusterAssignment.fromPrototypes(prototypes, distanceMatrix.matrix());
     analyzeClusterAssignment();
-  }
-
-  private void analyzeClusterAssignment() {
-    final List<String> names = distanceMatrix.getNames();
-    final Set<Integer> prototypes = assignment.getPrototypesIndices();
-    final Color[] colorPalette = ColorBrewer.Set1.getColorPalette(prototypes.size());
-    int index = 0;
-
-    for (final int prototype : prototypes) {
-      final StringBuilder builder = new StringBuilder("{ ");
-      for (final int i : assignment.getAssignedTo(prototype)) {
-        builder.append(names.get(i)).append(", ");
-      }
-      builder.delete(builder.length() - 2, builder.length());
-      builder.append(" }");
-
-      clusterColor.put(prototype, colorPalette[index]);
-      clusterText.put(prototype, builder.toString());
-      index++;
-    }
   }
 
   public final ScoringFunction getScoringFunction() {
@@ -98,7 +78,7 @@ public class PartitionalClustering implements Visualizable, Exportable {
   @Override
   public final void export(final OutputStream stream) throws IOException {
     final double[][] scaledXYMatrix = MDSDrawer.scaleTo2D(distanceMatrix);
-    final List<String> names = distanceMatrix.getNames();
+    final List<String> names = distanceMatrix.names();
     final CsvWriter writer = new CsvWriter(stream, ',', StandardCharsets.UTF_8);
     writer.writeRecord(new String[] {"Name", "X", "Y", "Label"});
 
@@ -118,5 +98,25 @@ public class PartitionalClustering implements Visualizable, Exportable {
   @Override
   public final File suggestName() {
     return new File("clustering.csv");
+  }
+
+  private void analyzeClusterAssignment() {
+    final List<String> names = distanceMatrix.names();
+    final Set<Integer> prototypes = assignment.getPrototypesIndices();
+    final Color[] colorPalette = ColorBrewer.Set1.getColorPalette(prototypes.size());
+    int index = 0;
+
+    for (final int prototype : prototypes) {
+      final StringBuilder builder = new StringBuilder("{ ");
+      for (final int i : assignment.getAssignedTo(prototype)) {
+        builder.append(names.get(i)).append(", ");
+      }
+      builder.delete(builder.length() - 2, builder.length());
+      builder.append(" }");
+
+      clusterColor.put(prototype, colorPalette[index]);
+      clusterText.put(prototype, builder.toString());
+      index++;
+    }
   }
 }
