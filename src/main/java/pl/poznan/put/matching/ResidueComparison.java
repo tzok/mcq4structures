@@ -2,11 +2,11 @@ package pl.poznan.put.matching;
 
 import org.immutables.value.Value;
 import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.ImmutableAngle;
 import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.ImmutableAverageTorsionAngleType;
+import pl.poznan.put.torsion.ImmutableTorsionAngleDelta;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.TorsionAngleType;
@@ -37,7 +37,7 @@ public abstract class ResidueComparison {
     return ImmutableResidueComparison.copyOf(this)
         .withAngleDeltas(
             angleDeltas().stream()
-                .filter(angleDelta -> angleTypes.contains(angleDelta.getMasterTorsionAngleType()))
+                .filter(angleDelta -> angleTypes.contains(angleDelta.angleType()))
                 .collect(Collectors.toList()));
   }
 
@@ -46,8 +46,8 @@ public abstract class ResidueComparison {
     final ImmutableAngleSample angleSample =
         ImmutableAngleSample.of(
             angleDeltas().stream()
-                .filter(delta -> angleTypes.contains(delta.getMasterTorsionAngleType()))
-                .map(TorsionAngleDelta::getDelta)
+                .filter(delta -> angleTypes.contains(delta.angleType()))
+                .map(TorsionAngleDelta::delta)
                 .filter(Angle::isValid)
                 .collect(Collectors.toList()));
     final MoleculeType moleculeType =
@@ -59,25 +59,23 @@ public abstract class ResidueComparison {
             .orElse(MoleculeType.UNKNOWN);
     return ImmutableResidueComparison.copyOf(this)
         .withAngleDeltas(
-            new TorsionAngleDelta(
+            ImmutableTorsionAngleDelta.of(
                 ImmutableAverageTorsionAngleType.of(moleculeType, angleTypes),
                 TorsionAngleDelta.State.BOTH_VALID,
-                ImmutableAngle.of(Double.NaN),
-                ImmutableAngle.of(Double.NaN),
                 angleSample.meanDirection(),
                 RangeDifference.fromValue((int) (angleSample.meanDirection().degrees360() / 60))));
   }
 
   public final List<Angle> validDeltas() {
     return angleDeltas().stream()
-        .filter(delta -> delta.getState() == TorsionAngleDelta.State.BOTH_VALID)
-        .map(TorsionAngleDelta::getDelta)
+        .filter(delta -> delta.state() == TorsionAngleDelta.State.BOTH_VALID)
+        .map(TorsionAngleDelta::delta)
         .collect(Collectors.toList());
   }
 
   public final TorsionAngleDelta angleDelta(final MasterTorsionAngleType masterType) {
     return angleDeltas().stream()
-        .filter(delta -> delta.getMasterTorsionAngleType().equals(masterType))
+        .filter(delta -> delta.angleType().equals(masterType))
         .findFirst()
         .orElse(TorsionAngleDelta.bothInvalidInstance(masterType));
   }

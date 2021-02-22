@@ -56,10 +56,10 @@ public final class AngleDeltaMapper implements ComparisonMapper {
 
       for (final MasterTorsionAngleType angleType : angleTypes) {
         final TorsionAngleDelta angleDelta = residueComparison.angleDelta(angleType);
-        final TorsionAngleDelta.State state = angleDelta.getState();
+        final TorsionAngleDelta.State state = angleDelta.state();
 
         if (state == TorsionAngleDelta.State.BOTH_VALID) {
-          final Angle delta = angleDelta.getDelta();
+          final Angle delta = angleDelta.delta();
           deltas.add(delta);
         }
       }

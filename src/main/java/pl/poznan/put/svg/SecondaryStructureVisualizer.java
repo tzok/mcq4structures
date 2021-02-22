@@ -19,8 +19,7 @@ import org.w3c.dom.svg.SVGSVGElement;
 import pl.poznan.put.comparison.mapping.ComparisonMapper;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
+import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.ResourcesHelper;
 import pl.poznan.put.utility.svg.SVGHelper;
@@ -32,7 +31,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public final class SecondaryStructureVisualizer {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryStructureVisualizer.class);
@@ -43,18 +44,12 @@ public final class SecondaryStructureVisualizer {
 
   public static SVGDocument visualize(
       final FragmentMatch fragmentMatch, final ComparisonMapper mapper) {
-    try {
-      final List<ResidueComparison> residueComparisons = fragmentMatch.getResidueComparisons();
-      final List<MasterTorsionAngleType> angleTypes = fragmentMatch.getAngleTypes();
-      final Double[] mapped = mapper.map(residueComparisons, angleTypes);
+    final List<ResidueComparison> residueComparisons = fragmentMatch.getResidueComparisons();
+    final List<MasterTorsionAngleType> angleTypes = fragmentMatch.getAngleTypes();
+    final Double[] mapped = mapper.map(residueComparisons, angleTypes);
 
-      final DotBracket dotBracket = fragmentMatch.getTargetDotBracket();
-      return SecondaryStructureVisualizer.visualize(dotBracket, mapped);
-    } catch (final InvalidStructureException e) {
-      SecondaryStructureVisualizer.LOGGER.error(
-          "Failed to extract canonical secondary structure", e);
-      return SVGHelper.emptyDocument();
-    }
+    final DotBracket dotBracket = fragmentMatch.getTargetDotBracket();
+    return SecondaryStructureVisualizer.visualize(dotBracket, mapped);
   }
 
   private static SVGDocument visualize(final DotBracket dotBracket, final Double[] mapped) {
@@ -101,7 +96,7 @@ public final class SecondaryStructureVisualizer {
 
       final URI uri = ResourcesHelper.loadResourceUri("mcq-legend.svg");
       final SVGDocument legend = SVGHelper.fromUri(uri);
-      return SVGHelper.merge(svgDocument, legend);
+      return SVGHelper.merge(Stream.of(svgDocument, legend).collect(Collectors.toList()));
     } catch (final ExceptionUnmatchedClosingParentheses
         | ExceptionFileFormatOrSyntax
         | ExceptionWritingForbidden

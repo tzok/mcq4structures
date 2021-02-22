@@ -1,4 +1,4 @@
-package pl.poznan.put.structure.tertiary;
+package pl.poznan.put.structure;
 
 import org.immutables.value.Value;
 import pl.poznan.put.pdb.analysis.PdbModel;

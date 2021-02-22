@@ -1,55 +1,50 @@
 package pl.poznan.put.comparison.global;
 
+import org.immutables.value.Value;
 import pl.poznan.put.constant.Unicode;
 import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.utility.NumberFormatUtils;
 
-public class RMSDGlobalResult extends GlobalResult {
-  private final FragmentSuperimposer superimposer;
-  private final String longDisplayName;
+@Value.Immutable
+public abstract class RMSDGlobalResult implements GlobalResult {
+  @Value.Parameter(order = 2)
+  public abstract FragmentSuperimposer superimposer();
 
-  public RMSDGlobalResult(
-      final String measureName,
-      final SelectionMatch matches,
-      final FragmentSuperimposer superimposer) {
-    super(measureName, matches);
-    this.superimposer = superimposer;
-    longDisplayName = prepareLongDisplayName();
+  @Override
+  public final String measureName() {
+    return "RMSD";
   }
 
-  public final int getAtomCount() {
-    return superimposer.getAtomCount();
+  @Override
+  @Value.Parameter(order = 1)
+  public abstract SelectionMatch selectionMatch();
+
+  @Override
+  public final double toDouble() {
+    return superimposer().getRMSD();
   }
 
-  public final double getRMSD() {
-    return superimposer.getRMSD();
+  public final int atomCount() {
+    return superimposer().getAtomCount();
   }
 
   @Override
   public final String shortDisplayName() {
-    return NumberFormatUtils.threeDecimalDigits().format(superimposer.getRMSD()) + Unicode.ANGSTROM;
+    return NumberFormatUtils.threeDecimalDigits().format(superimposer().getRMSD())
+        + Unicode.ANGSTROM;
   }
 
   @Override
-  public final String longDisplayName() {
-    return longDisplayName;
+  @Value.Lazy
+  public String longDisplayName() {
+    final SelectionMatch selectionMatch = selectionMatch();
+    final int validCount = selectionMatch.getResidueLabels().size();
+    return String.format("<html>%s<br>%d<br></html>", shortDisplayName(), validCount);
   }
 
   @Override
   public final String exportName() {
-    return Double.toString(superimposer.getRMSD());
-  }
-
-  @Override
-  public final double asDouble() {
-    return superimposer.getRMSD();
-  }
-
-  private String prepareLongDisplayName() {
-    final SelectionMatch selectionMatch = getSelectionMatch();
-    final int validCount = selectionMatch.getResidueLabels().size();
-
-    return String.format("<html>%s<br>%d<br></html>", shortDisplayName(), validCount);
+    return Double.toString(superimposer().getRMSD());
   }
 }

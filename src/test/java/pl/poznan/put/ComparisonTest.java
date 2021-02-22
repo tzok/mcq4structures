@@ -125,7 +125,7 @@ public class ComparisonTest {
     final MCQ mcq = ImmutableMCQ.of(MoleculeType.RNA);
     final MCQGlobalResult comparisonResult =
         (MCQGlobalResult) mcq.compareGlobally(selection1, selection2);
-    final SelectionMatch selectionMatch = comparisonResult.getSelectionMatch();
+    final SelectionMatch selectionMatch = comparisonResult.selectionMatch();
     final List<FragmentMatch> fragmentMatches = selectionMatch.getFragmentMatches();
     assertThat(fragmentMatches.size(), is(1));
     final FragmentMatch fragmentMatch = fragmentMatches.get(0);
@@ -134,8 +134,8 @@ public class ComparisonTest {
     assertThat(fragmentMatch.getTargetInvalidCount(), is(0));
     assertThat(fragmentMatch.getModelInvalidCount(), is(0));
     assertThat(fragmentMatch.getValidCount(), is(1207));
-    Assert.assertEquals(9.49, comparisonResult.getMeanDirection().degrees(), 0.1);
-    Assert.assertEquals(0.1601697957, comparisonResult.getMeanDirection().radians(), 0.01);
+    Assert.assertEquals(9.49, comparisonResult.meanDirection().degrees(), 0.1);
+    Assert.assertEquals(0.1601697957, comparisonResult.meanDirection().radians(), 0.01);
   }
 
   @Test
@@ -191,8 +191,8 @@ public class ComparisonTest {
     final RMSDGlobalResult comparisonResult =
         (RMSDGlobalResult) rmsd.compareGlobally(selection1, selection2);
 
-    assertThat(comparisonResult.getAtomCount(), is(76));
-    Assert.assertEquals(0.5934545967, comparisonResult.getRMSD(), 0.1);
+    assertThat(comparisonResult.atomCount(), is(76));
+    Assert.assertEquals(0.5934545967, comparisonResult.toDouble(), 0.1);
   }
 
   @Test(expected = IncomparableStructuresException.class)
@@ -250,6 +250,6 @@ public class ComparisonTest {
 
     final MCQ mcq = ImmutableMCQ.of(MoleculeType.RNA);
     final MCQGlobalResult comparisonResult = (MCQGlobalResult) mcq.compareGlobally(s1, s2);
-    Assert.assertEquals(0, comparisonResult.getMeanDirection().radians(), 0.1);
+    Assert.assertEquals(0, comparisonResult.meanDirection().radians(), 0.1);
   }
 }

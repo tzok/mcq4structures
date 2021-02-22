@@ -186,7 +186,7 @@ public abstract class MCQMatcher implements StructureMatcher {
 
     final boolean anyValid =
         angleDeltas.stream()
-            .map(TorsionAngleDelta::getState)
+            .map(TorsionAngleDelta::state)
             .anyMatch(state -> state == TorsionAngleDelta.State.BOTH_VALID);
 
     return anyValid

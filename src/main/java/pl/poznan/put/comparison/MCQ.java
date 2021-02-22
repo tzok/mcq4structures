@@ -6,7 +6,7 @@ import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
-import pl.poznan.put.comparison.global.MCQGlobalResult;
+import pl.poznan.put.comparison.global.ImmutableMCQGlobalResult;
 import pl.poznan.put.comparison.local.ImmutableMCQLocalResult;
 import pl.poznan.put.comparison.local.ImmutableModelsComparisonResult;
 import pl.poznan.put.comparison.local.LocalComparator;
@@ -65,16 +65,16 @@ public abstract class MCQ implements GlobalComparator, LocalComparator {
             .flatMap(Collection::stream)
             .map(ResidueComparison::angleDeltas)
             .flatMap(Collection::stream)
-            .filter(delta -> delta.getState() == TorsionAngleDelta.State.BOTH_VALID)
-            .filter(delta -> angleTypes().contains(delta.getMasterTorsionAngleType()))
-            .map(TorsionAngleDelta::getDelta)
+            .filter(delta -> delta.state() == TorsionAngleDelta.State.BOTH_VALID)
+            .filter(delta -> angleTypes().contains(delta.angleType()))
+            .map(TorsionAngleDelta::delta)
             .collect(Collectors.toList());
 
     if (deltas.isEmpty()) {
       throw new IncomparableStructuresException("No matching fragments found");
     }
 
-    return new MCQGlobalResult("MCQ", matches, ImmutableAngleSample.of(deltas));
+    return ImmutableMCQGlobalResult.of(matches, ImmutableAngleSample.of(deltas));
   }
 
   @Override

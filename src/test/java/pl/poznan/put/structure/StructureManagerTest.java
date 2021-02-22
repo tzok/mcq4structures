@@ -1,4 +1,4 @@
-package pl.poznan.put.structure.tertiary;
+package pl.poznan.put.structure;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;

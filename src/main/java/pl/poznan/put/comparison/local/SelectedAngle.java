@@ -12,13 +12,11 @@ import pl.poznan.put.matching.MatchCollection;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.formats.BpSeq;
-import pl.poznan.put.structure.secondary.formats.Converter;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
-import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
+import pl.poznan.put.structure.CanonicalStructureExtractor;
+import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
+import pl.poznan.put.structure.formats.DotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultConverter;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
@@ -66,20 +64,16 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
     }
     csvWriter.endRecord();
 
-    try {
-      final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
-      final Converter converter = new LevelByLevelConverter(new MinGain(), 1);
-      final DotBracket dotBracket = converter.convert(bpSeq);
+    final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
+    final Converter converter = ImmutableDefaultConverter.of();
+    final DotBracket dotBracket = converter.convert(bpSeq);
 
-      // third row
-      csvWriter.write(null);
-      for (final char c : dotBracket.structure().toCharArray()) {
-        csvWriter.write(Character.toString(c));
-      }
-      csvWriter.endRecord();
-    } catch (final InvalidStructureException e) {
-      SelectedAngle.log.warn("Failed to extract secondary structure", e);
+    // third row
+    csvWriter.write(null);
+    for (final char c : dotBracket.structure().toCharArray()) {
+      csvWriter.write(Character.toString(c));
     }
+    csvWriter.endRecord();
 
     final List<Pair<PdbCompactFragment, FragmentMatch>> sortedResults =
         IntStream.range(0, models.size())
@@ -95,7 +89,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
       for (int j = 0; j < target.residues().size(); j++) {
         final ResidueComparison comparison = match.getResidueComparisons().get(j);
         final TorsionAngleDelta delta = comparison.angleDelta(angleType);
-        csvWriter.write(delta.toExportString());
+        csvWriter.write(delta.exportName());
       }
 
       csvWriter.endRecord();
@@ -135,7 +129,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
 
     for (final FragmentMatch match : fragmentMatches) {
       for (final ResidueComparison result : match.getResidueComparisons()) {
-        final double delta = result.angleDelta(angleType).getDelta().radians();
+        final double delta = result.angleDelta(angleType).delta().radians();
 
         if (delta < min) {
           min = delta;
@@ -168,7 +162,7 @@ public class SelectedAngle implements Exportable, Tabular, MatchCollection {
         final FragmentMatch fragmentMatch = fragmentMatches.get(j);
         final ResidueComparison residueComparison = fragmentMatch.getResidueComparisons().get(i);
         final TorsionAngleDelta delta = residueComparison.angleDelta(angleType);
-        data[i][j + 1] = isDisplay ? delta.toDisplayString() : delta.toExportString();
+        data[i][j + 1] = isDisplay ? delta.shortDisplayName() : delta.exportName();
       }
     }
 

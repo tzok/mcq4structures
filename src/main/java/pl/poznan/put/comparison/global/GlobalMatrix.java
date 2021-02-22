@@ -98,7 +98,7 @@ public class GlobalMatrix implements Clusterable, Exportable, Tabular {
         if (i == j) {
           matrix[i][j] = 0;
         } else if (resultsMatrix[i][j] != null) {
-          matrix[i][j] = resultsMatrix[i][j].asDouble();
+          matrix[i][j] = resultsMatrix[i][j].toDouble();
         }
       }
     }

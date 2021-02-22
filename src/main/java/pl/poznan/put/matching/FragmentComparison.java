@@ -76,13 +76,13 @@ public final class FragmentComparison implements Comparable<FragmentComparison> 
       for (final MasterTorsionAngleType angle : angleTypes) {
         final TorsionAngleDelta delta = result.angleDelta(angle);
 
-        switch (delta.getState()) {
+        switch (delta.state()) {
           case BOTH_INVALID:
             bothInvalid++;
             break;
           case BOTH_VALID:
-            deltas.add(delta.getDelta());
-            rangeValue += delta.getRangeDifference().getValue();
+            deltas.add(delta.delta());
+            rangeValue += delta.rangeDifference().getValue();
             break;
           case TARGET_INVALID:
             targetInvalid++;

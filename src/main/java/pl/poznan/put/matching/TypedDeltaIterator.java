@@ -23,7 +23,7 @@ public class TypedDeltaIterator implements AngleDeltaIterator {
 
   @Override
   public final Angle next() {
-    return iterator.next().angleDelta(masterType).getDelta();
+    return iterator.next().angleDelta(masterType).delta();
   }
 
   @Override

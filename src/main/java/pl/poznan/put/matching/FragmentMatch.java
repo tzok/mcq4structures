@@ -2,7 +2,6 @@ package pl.poznan.put.matching;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.interfaces.Exportable;
@@ -10,13 +9,11 @@ import pl.poznan.put.interfaces.Tabular;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.formats.BpSeq;
-import pl.poznan.put.structure.secondary.formats.Converter;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
-import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
+import pl.poznan.put.structure.CanonicalStructureExtractor;
+import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
+import pl.poznan.put.structure.formats.DotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultConverter;
 import pl.poznan.put.torsion.ImmutableAverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
@@ -38,7 +35,7 @@ import java.util.stream.IntStream;
 @Data
 @Slf4j
 public class FragmentMatch implements Exportable, Tabular {
-  private static final Converter CONVERTER = new LevelByLevelConverter(new MinGain(), 1);
+  private static final Converter CONVERTER = ImmutableDefaultConverter.of();
 
   private final PdbCompactFragment targetFragment;
   private final PdbCompactFragment modelFragment;
@@ -249,7 +246,7 @@ public class FragmentMatch implements Exportable, Tabular {
         final MasterTorsionAngleType angle = angleTypes.get(j);
         final TorsionAngleDelta delta = residueComparison.angleDelta(angle);
         data[i][j + 2] = delta.toString(isDisplay);
-        data[i][size + j + 2] = delta.getRangeDifference().toString();
+        data[i][size + j + 2] = delta.rangeDifference().toString();
       }
     }
 
@@ -257,12 +254,7 @@ public class FragmentMatch implements Exportable, Tabular {
   }
 
   private char[] dotBracketChars() {
-    try {
-      final DotBracket dotBracket = getTargetDotBracket();
-      return dotBracket.structure().toCharArray();
-    } catch (final InvalidStructureException e) {
-      FragmentMatch.log.warn("Failed to extract 2D structure", e);
-    }
-    return StringUtils.repeat('.', targetFragment.residues().size()).toCharArray();
+    final DotBracket dotBracket = getTargetDotBracket();
+    return dotBracket.structure().toCharArray();
   }
 }

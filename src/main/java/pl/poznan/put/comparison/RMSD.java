@@ -3,18 +3,13 @@ package pl.poznan.put.comparison;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
-import pl.poznan.put.comparison.global.RMSDGlobalResult;
+import pl.poznan.put.comparison.global.ImmutableRMSDGlobalResult;
 import pl.poznan.put.matching.FragmentSuperimposer;
 import pl.poznan.put.matching.ImmutableMCQMatcher;
 import pl.poznan.put.matching.SelectionMatch;
 import pl.poznan.put.matching.StructureMatcher;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.torsion.AverageTorsionAngleType;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implementation of RMSD global similarity measure.
@@ -64,6 +59,6 @@ public class RMSD implements GlobalComparator {
     }
 
     final FragmentSuperimposer superimposer = new FragmentSuperimposer(matches, filter, onlyHeavy);
-    return new RMSDGlobalResult(getName(), matches, superimposer);
+    return ImmutableRMSDGlobalResult.of(matches, superimposer);
   }
 }

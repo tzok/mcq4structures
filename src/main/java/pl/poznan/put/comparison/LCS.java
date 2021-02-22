@@ -10,7 +10,7 @@ import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.GlobalComparator;
 import pl.poznan.put.comparison.global.GlobalResult;
-import pl.poznan.put.comparison.global.LCSGlobalResult;
+import pl.poznan.put.comparison.global.ImmutableLCSGlobalResult;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ImmutableMCQMatcher;
 import pl.poznan.put.matching.MatchCollection;
@@ -64,7 +64,7 @@ public class LCS implements GlobalComparator {
     // if global mcq is < threshold, then 100% residues are in result
     final Angle globalMcq = angleSample.meanDirection();
     if (globalMcq.compareTo(threshold) < 0) {
-      return new LCSGlobalResult(getName(), matches, ImmutableAngleSample.of(deltas), s2, s1);
+      return ImmutableLCSGlobalResult.of(matches, ImmutableAngleSample.of(deltas), s2, s1);
     }
 
     Angle currentThreshold = threshold;
@@ -74,8 +74,7 @@ public class LCS implements GlobalComparator {
       refinement = findLongestContinuousSegment(s1, s2, currentThreshold);
     }
 
-    return new LCSGlobalResult(
-        getName(),
+    return ImmutableLCSGlobalResult.of(
         refinement.get().getSelectionMatch(),
         refinement.get().getAngleSample(),
         refinement.get().getModel(),
@@ -146,8 +145,8 @@ public class LCS implements GlobalComparator {
         for (final MasterTorsionAngleType angleType : moleculeType.allAngleTypes()) {
           final TorsionAngleDelta angleDelta = residueComparison.angleDelta(angleType);
 
-          if (angleDelta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
-            deltas.add(angleDelta.getDelta());
+          if (angleDelta.state() == TorsionAngleDelta.State.BOTH_VALID) {
+            deltas.add(angleDelta.delta());
           }
         }
       }

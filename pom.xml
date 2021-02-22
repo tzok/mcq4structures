@@ -28,6 +28,11 @@
 
     <dependency>
       <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
 
@@ -49,11 +54,6 @@
     <dependency>
       <groupId>org.biojava</groupId>
       <artifactId>jcolorbrewer</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jumpmind.symmetric</groupId>
-      <artifactId>symmetric-csv</artifactId>
     </dependency>
 
     <dependency>
@@ -92,6 +92,12 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
 
