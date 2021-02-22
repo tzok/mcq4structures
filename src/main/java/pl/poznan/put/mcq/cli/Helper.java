@@ -20,7 +20,7 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.ResidueCollection;
 import pl.poznan.put.rna.NucleotideTorsionAngle;
-import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 import java.io.File;
@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 final class Helper {
-  public static final Option OPTION_TARGET =
+  static final Option OPTION_TARGET =
       Option.builder("t")
           .longOpt("target")
           .numberOfArgs(1)
@@ -44,28 +45,28 @@ final class Helper {
           .required()
           .type(File.class)
           .build();
-  public static final Option OPTION_MCQ_THRESHOLD =
+  static final Option OPTION_MCQ_THRESHOLD =
       Option.builder("v")
           .longOpt("mcq-threshold-value")
           .numberOfArgs(1)
           .desc("Value of MCQ threshold in degrees")
           .required()
           .build();
-  public static final Option OPTION_SELECTION_TARGET =
+  static final Option OPTION_SELECTION_TARGET =
       Option.builder("T")
           .longOpt("selection-target")
           .numberOfArgs(1)
           .desc("Selection query for native 3D RNA target")
           .type(String.class)
           .build();
-  public static final Option OPTION_SELECTION_MODEL =
+  static final Option OPTION_SELECTION_MODEL =
       Option.builder("M")
           .longOpt("selection-model")
           .numberOfArgs(1)
           .desc("Selection query for 3D RNA model")
           .type(String.class)
           .build();
-  public static final Option OPTION_ANGLES =
+  static final Option OPTION_ANGLES =
       Option.builder("a")
           .longOpt("angles")
           .numberOfArgs(1)
@@ -77,13 +78,13 @@ final class Helper {
                       MoleculeType.RNA.mainAngleTypes().toArray(new MasterTorsionAngleType[0]))))
           .type(String.class)
           .build();
-  public static final Option OPTION_NAMES =
+  static final Option OPTION_NAMES =
       Option.builder("n")
           .longOpt("names")
           .numberOfArgs(1)
           .desc("Model names to be saved in output files (separated by comma without space)")
           .build();
-  public static final Option OPTION_DIRECTORY =
+  static final Option OPTION_DIRECTORY =
       Option.builder("d")
           .longOpt("directory")
           .numberOfArgs(1)
@@ -91,11 +92,20 @@ final class Helper {
           .required()
           .type(File.class)
           .build();
-  public static final Option OPTION_RELAXED =
+  static final Option OPTION_RELAXED =
       Option.builder("r")
           .longOpt("relaxed")
           .desc(
               "Turn on relaxed mode (process 3D models even in presence of bond lengths' violations and treat each chain as a compact fragment even with gaps)")
+          .build();
+  static final Option OPTION_MULTI_MODEL =
+      Option.builder("m")
+          .longOpt("multi-model")
+          .numberOfArgs(1)
+          .desc(
+              String.format(
+                  "In case of multi-model file, process: %s. Default is: %s",
+                  Helper.arrayToString(MultiModelMode.values()), MultiModelMode.FIRST))
           .build();
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("mcq-cli-messages");
   private static final Options HELP_OPTIONS = PatternOptionBuilder.parsePattern("h");
@@ -104,8 +114,7 @@ final class Helper {
     super();
   }
 
-  public static StructureSelection selectModel(final CommandLine commandLine)
-      throws ParseException {
+  static StructureSelection selectModel(final CommandLine commandLine) throws ParseException {
     final File modelFile = new File(commandLine.getArgs()[0]);
     final PdbModel model = Helper.loadStructure(modelFile);
     final String selectionQuery =
@@ -115,7 +124,7 @@ final class Helper {
         model, name, selectionQuery, commandLine.hasOption(Helper.OPTION_RELAXED.getOpt()));
   }
 
-  public static List<StructureSelection> selectModels(final CommandLine commandLine)
+  static List<StructureSelection> selectModels(final CommandLine commandLine)
       throws ParseException {
     final String[] paths = commandLine.getArgs();
     final String selectionQuery =
@@ -138,8 +147,7 @@ final class Helper {
         .collect(Collectors.toList());
   }
 
-  public static StructureSelection selectTarget(final CommandLine commandLine)
-      throws ParseException {
+  static StructureSelection selectTarget(final CommandLine commandLine) throws ParseException {
     final File targetFile = (File) commandLine.getParsedOptionValue(Helper.OPTION_TARGET.getOpt());
     final PdbModel target = Helper.loadStructure(targetFile);
     final String selectionQuery =
@@ -149,13 +157,39 @@ final class Helper {
         target, name, selectionQuery, commandLine.hasOption(Helper.OPTION_RELAXED.getOpt()));
   }
 
+  public static List<StructureSelection> loadMultiModelFile(final CommandLine commandLine)
+      throws ParseException {
+    final File modelFile = new File(commandLine.getArgs()[0]);
+    final MultiModelMode multiModelMode =
+        MultiModelMode.valueOf(
+            commandLine.getOptionValue(
+                Helper.OPTION_MULTI_MODEL.getOpt(), MultiModelMode.FIRST.name()));
+    final String query =
+        (String) commandLine.getParsedOptionValue(Helper.OPTION_SELECTION_TARGET.getOpt());
+    final boolean relaxedMode = commandLine.hasOption(Helper.OPTION_RELAXED.getOpt());
+
+    return Helper.loadStructures(modelFile, multiModelMode).stream()
+        .map(
+            model ->
+                Helper.select(
+                    model,
+                    String.format(
+                        Locale.US,
+                        "%s (model: %d)",
+                        Helper.modelName(modelFile, model),
+                        model.modelNumber()),
+                    query,
+                    relaxedMode))
+        .collect(Collectors.toList());
+  }
+
   /**
    * Parses angles' names to create a list of their singleton instances.
    *
    * @param commandLine The command-line.
    * @return The list of torsion angle types.
    */
-  public static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
+  static List<MasterTorsionAngleType> parseAngles(final CommandLine commandLine) {
     return commandLine.hasOption(Helper.OPTION_ANGLES.getOpt())
         ? Arrays.stream(commandLine.getOptionValues(Helper.OPTION_ANGLES.getOpt()))
             .flatMap(s -> Arrays.stream(s.split("\\s*,\\s*")))
@@ -164,19 +198,19 @@ final class Helper {
         : MoleculeType.RNA.mainAngleTypes();
   }
 
-  public static boolean isHelpRequested(final String[] args) throws ParseException {
+  static boolean isHelpRequested(final String[] args) throws ParseException {
     final CommandLineParser parser = new DefaultParser();
     final CommandLine helpCommandLine = parser.parse(Helper.HELP_OPTIONS, args, true);
     return helpCommandLine.hasOption('h') || (args.length == 0);
   }
 
-  public static void printHelp(final String commandName, final Options options) {
+  static void printHelp(final String commandName, final Options options) {
     final String footer = Helper.getMessage("selection.query.syntax");
     final HelpFormatter helpFormatter = new HelpFormatter();
     helpFormatter.printHelp(78, commandName, "", options, footer, true);
   }
 
-  public static File getOutputDirectory(final CommandLine commandLine) throws ParseException {
+  static File getOutputDirectory(final CommandLine commandLine) throws ParseException {
     return (File) commandLine.getParsedOptionValue(Helper.OPTION_DIRECTORY.getOpt());
   }
 
@@ -210,6 +244,24 @@ final class Helper {
 
       return models.get(0);
     } catch (final IOException | PdbParsingException e) {
+      throw new IllegalArgumentException(
+          Helper.formatMessage("failed.to.load.structure.from.file.0", file), e);
+    }
+  }
+
+  private static List<? extends PdbModel> loadStructures(
+      final File file, final MultiModelMode multiModelMode) {
+    try {
+      final List<? extends PdbModel> models = StructureManager.loadStructure(file);
+
+      switch (multiModelMode) {
+        case FIRST:
+          return models.subList(0, 1);
+        case ALL:
+        default:
+          return models;
+      }
+    } catch (final IOException e) {
       throw new IllegalArgumentException(
           Helper.formatMessage("failed.to.load.structure.from.file.0", file), e);
     }
