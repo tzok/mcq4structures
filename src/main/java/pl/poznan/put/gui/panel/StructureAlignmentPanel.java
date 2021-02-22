@@ -11,7 +11,7 @@ import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;

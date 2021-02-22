@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import pl.poznan.put.gui.component.PdbChooser;
 import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;

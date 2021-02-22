@@ -20,14 +20,12 @@ import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.structure.secondary.CanonicalStructureExtractor;
-import pl.poznan.put.structure.secondary.DotBracketSymbol;
-import pl.poznan.put.structure.secondary.formats.BpSeq;
-import pl.poznan.put.structure.secondary.formats.Converter;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
-import pl.poznan.put.structure.secondary.formats.LevelByLevelConverter;
-import pl.poznan.put.structure.secondary.pseudoknots.elimination.MinGain;
+import pl.poznan.put.structure.CanonicalStructureExtractor;
+import pl.poznan.put.structure.DotBracketSymbol;
+import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
+import pl.poznan.put.structure.formats.DotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultConverter;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.svg.SVGHelper;
@@ -62,7 +60,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
       final float leftShift,
       final float topShift) {
     if (dotBracket != null) {
-      final FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+      final FontMetrics metrics = svg.getFontMetrics();
 
       for (int i = 0; i < dotBracket.length(); i++) {
         final DotBracketSymbol symbol = dotBracket.symbols().get(i);
@@ -139,7 +137,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
   private float drawModelsNames(
       final SVGGraphics2D svg, final float unitHeight, final float descent) {
     final List<PdbCompactFragment> models = getModels();
-    final FontMetrics metrics = SVGHelper.getFontMetrics(svg);
+    final FontMetrics metrics = svg.getFontMetrics();
     float maxWidth = Integer.MIN_VALUE;
 
     for (int i = 0; i < models.size(); i++) {
@@ -160,13 +158,9 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
     DotBracket dotBracket = null;
 
     if (target.moleculeType() == MoleculeType.RNA) {
-      try {
-        final Converter converter = new LevelByLevelConverter(new MinGain(), 1);
-        final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
-        dotBracket = converter.convert(bpSeq);
-      } catch (final InvalidStructureException e) {
-        VisualizableSelectedAngle.log.warn("Failed to extract canonical secondary structure", e);
-      }
+      final Converter converter = ImmutableDefaultConverter.of();
+      final BpSeq bpSeq = CanonicalStructureExtractor.bpSeq(target);
+      dotBracket = converter.convert(bpSeq);
     }
     return dotBracket;
   }
@@ -219,8 +213,8 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
       final float width) {
     final TorsionAngleDelta angleDelta = comparison.angleDelta(getAngleType());
 
-    if (angleDelta.getState() == TorsionAngleDelta.State.BOTH_VALID) {
-      final double normalized = AngleDeltaMapper.map(angleDelta.getDelta().degrees360());
+    if (angleDelta.state() == TorsionAngleDelta.State.BOTH_VALID) {
+      final double normalized = AngleDeltaMapper.map(angleDelta.delta().degrees360());
       final Color[] colors = ColorBrewer.YlOrRd.getColorPalette(4);
       final Color color = colors[(int) FastMath.floor(normalized * 4.0)];
       svg.setColor(color);
@@ -250,7 +244,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
 
       for (int j = 0; j < size; j++) {
         final ResidueComparison residueComparison = residueComparisons.get(j);
-        matrix[i][j] = residueComparison.angleDelta(angleType).getDelta().radians();
+        matrix[i][j] = residueComparison.angleDelta(angleType).delta().radians();
       }
     }
 

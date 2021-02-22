@@ -241,7 +241,7 @@ public class RawDataPlot extends AbstractDrawable {
   }
 
   private void drawTicksText(final double tickSpread) {
-    final FontMetrics fontMetrics = SVGHelper.getFontMetrics(svgGraphics);
+    final FontMetrics fontMetrics = svgGraphics.getFontMetrics();
     final double virtualRadius = radius + observationSize;
 
     for (double d = 0; d < MathUtils.TWO_PI; d += tickSpread) {

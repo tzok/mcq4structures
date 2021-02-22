@@ -1,7 +1,7 @@
 package pl.poznan.put.gui.window;
 
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;

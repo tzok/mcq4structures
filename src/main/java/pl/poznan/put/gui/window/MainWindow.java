@@ -20,7 +20,7 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.types.DistanceMatrix;
 
 import javax.swing.ButtonGroup;

@@ -4,7 +4,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import pl.poznan.put.gui.panel.ChainsPanel;
 import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 
 import javax.swing.*;
 import java.awt.*;

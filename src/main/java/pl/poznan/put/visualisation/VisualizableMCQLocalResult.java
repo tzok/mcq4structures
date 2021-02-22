@@ -13,12 +13,9 @@ import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.structure.secondary.formats.DotBracket;
-import pl.poznan.put.structure.secondary.formats.InvalidStructureException;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 import javax.swing.JOptionPane;
-import java.util.Collections;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -41,17 +38,12 @@ public abstract class VisualizableMCQLocalResult implements LocalResult, Visuali
   }
 
   private static List<String> prepareTicksFromDotBracket(final FragmentMatch fragmentMatch) {
-    try {
-      final DotBracket dotBracket = fragmentMatch.matchedSecondaryStructure();
-      return dotBracket
-          .structure()
-          .chars()
-          .mapToObj(i -> String.valueOf((char) i))
-          .collect(Collectors.toList());
-    } catch (final InvalidStructureException e) {
-      VisualizableMCQLocalResult.log.warn("Failed to extract canonical secondary structure", e);
-    }
-    return Collections.emptyList();
+    return fragmentMatch
+        .matchedSecondaryStructure()
+        .structure()
+        .chars()
+        .mapToObj(i -> String.valueOf((char) i))
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -128,7 +120,7 @@ public abstract class VisualizableMCQLocalResult implements LocalResult, Visuali
 
       for (int j = 0; j < residueComparisons.size(); j++) {
         final ResidueComparison residueComparison = residueComparisons.get(j);
-        matrix[i][j] = residueComparison.angleDelta(angleType).getDelta().radians();
+        matrix[i][j] = residueComparison.angleDelta(angleType).delta().radians();
       }
     }
 

@@ -10,7 +10,7 @@ import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.tertiary.StructureManager;
+import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.visualisation.AngularHistogram;
 
