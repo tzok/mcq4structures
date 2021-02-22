@@ -9,7 +9,7 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import java.awt.*;
+import java.awt.FontMetrics;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -112,6 +112,12 @@ public class HierarchicalClustering implements Visualizable {
     return document;
   }
 
+  @Override
+  public final void visualize3D() {
+    throw new NotImplementedException(
+        "3D visualization is not supported for hierarchical clustering");
+  }
+
   private Cluster getFinalCluster() {
     final List<Cluster> clusters = Clusterer.initialClusterAssignment(names);
 
@@ -140,7 +146,7 @@ public class HierarchicalClustering implements Visualizable {
   }
 
   private int getMaxNameDrawnWidth(final SVGGraphics2D graphics, final Iterable<Integer> items) {
-    final FontMetrics metrics = SVGHelper.getFontMetrics(graphics);
+    final FontMetrics metrics = graphics.getFontMetrics();
     int maxWidth = Integer.MIN_VALUE;
 
     for (final Integer item : items) {
@@ -165,11 +171,5 @@ public class HierarchicalClustering implements Visualizable {
       }
     }
     return maxDistance;
-  }
-
-  @Override
-  public final void visualize3D() {
-    throw new NotImplementedException(
-        "3D visualization is not supported for hierarchical clustering");
   }
 }
