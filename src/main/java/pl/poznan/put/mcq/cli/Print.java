@@ -27,7 +27,6 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -65,7 +64,7 @@ public final class Print {
     for (final StructureSelection model : models) {
       final File csvFile = new File(outputDirectory, Print.csvFileName(model));
 
-      try (final FileWriter writer = new FileWriter(csvFile, StandardCharsets.UTF_8);
+      try (final FileWriter writer = new FileWriter(csvFile);
           final CSVPrinter csvPrinter =
               new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(Print.CSV_HEADER))) {
         final DotBracketFromPdb dotBracket = Print.toDotBracket(model);
