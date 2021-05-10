@@ -6,6 +6,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff
+.idea
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
@@ -106,7 +107,7 @@ modules.xml
 hs_err_pid*
 
 ### Maven ###
-target/
+target
 pom.xml.bak
 pom.xml.tag
 pom.xml.releaseBackup
@@ -120,3 +121,5 @@ buildNumber.properties
 
 
 # End of https://www.gitignore.io/api/java,maven,intellij
+
+CHECK-SUBPROJECTS.sh

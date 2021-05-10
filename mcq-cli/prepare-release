@@ -1,0 +1,20 @@
+#! /bin/bash
+name=mcq-cli-$(git describe)
+tmpdir=$(mktemp -d)
+mkdir ${tmpdir}/${name}
+mkdir ${tmpdir}/${name}/target
+
+cp clustering.py colorbar.py colorbars.R distmat.R mcq-global mcq-local mcq-lcs mcq-print ${tmpdir}/${name}
+cp target/mcq-cli-*-with-dependencies.jar ${tmpdir}/${name}/target
+
+jar=$(readlink -f target/mcq-cli-*-with-dependencies.jar)
+pushd /tmp
+unzip ${jar} logback.xml
+sed -i 's/<root level=".*">/<root level="warn">/g' logback.xml
+zip ${jar} logback.xml
+rm logback.xml
+popd
+
+tar cfz /tmp/${name}.tar.gz -C ${tmpdir} ${name}
+[[ -n ${tmpdir} ]] && find ${tmpdir} -delete
+echo /tmp/${name}.tar.gz
