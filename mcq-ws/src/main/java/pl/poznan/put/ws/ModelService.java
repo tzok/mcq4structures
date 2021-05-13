@@ -8,8 +8,12 @@ import pl.poznan.put.ws.model.Version;
 @Service
 public class ModelService {
 
-    @Autowired
     private Version version;
+
+    @Autowired
+    public ModelService(Version version) {
+        this.version = version;
+    }
 
     public Version getVersion(){
         return version;

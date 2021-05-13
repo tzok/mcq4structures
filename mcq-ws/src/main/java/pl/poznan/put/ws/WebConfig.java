@@ -12,8 +12,8 @@ public class WebConfig {
     public PropertySourcesPlaceholderConfigurer configurePlaceholder(){
         PropertySourcesPlaceholderConfigurer placeholderConfigurer = new PropertySourcesPlaceholderConfigurer();
         placeholderConfigurer.setLocations(new ClassPathResource("git.properties"));
-    placeholderConfigurer.setIgnoreResourceNotFound(true);
-    placeholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
-    return placeholderConfigurer;
+        placeholderConfigurer.setIgnoreResourceNotFound(true);
+        placeholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
+        return placeholderConfigurer;
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 })
 @Component
 public class Version {
+
     @Value("${git.commit.id.describe-short}")
     @JsonProperty("version")
     private String version;

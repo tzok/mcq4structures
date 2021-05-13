@@ -10,11 +10,15 @@ import pl.poznan.put.ws.model.Version;
 @RequestMapping("/api")
 public class Controller {
 
-    @Autowired
     private ModelService modelService;
 
+    @Autowired
+    public Controller(ModelService modelService) {
+        this.modelService = modelService;
+    }
+
     @GetMapping("/version")
-    Version getVersion(){
+    private Version getVersion(){
         return modelService.getVersion();
     }
 }
