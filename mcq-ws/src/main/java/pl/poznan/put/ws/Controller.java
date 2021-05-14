@@ -1,9 +1,9 @@
 package pl.poznan.put.ws;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import pl.poznan.put.ws.model.Torsion;
 import pl.poznan.put.ws.model.Version;
 
 @RestController
@@ -19,6 +19,24 @@ public class Controller {
 
     @GetMapping("/version")
     private Version getVersion(){
-        return modelService.getVersion();
+        return modelService.findVersion();
+    }
+
+    @PostMapping("/torsion")
+    private ResponseEntity<?> postTorsion(@RequestBody Torsion torsion) {
+        modelService.addTorsion(torsion);
+        return ResponseEntity
+                .ok()
+                .build();
+    }
+
+    @GetMapping("/torsion/{pdbId}")
+    private Torsion getTorsion(@PathVariable String pdbId) {
+        return modelService.findTorsion(pdbId, 1);
+    }
+
+    @GetMapping("/torsion/{pdbId}/{assemblyId}")
+    private Torsion getTorsion(@PathVariable String pdbId, @PathVariable Integer assemblyId) {
+        return modelService.findTorsion(pdbId, assemblyId);
     }
 }
