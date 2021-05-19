@@ -1,9 +1,17 @@
 package pl.poznan.put.ws;
 
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
+import pl.poznan.put.schema.StructureInputDTO;
+import pl.poznan.put.ws.jpa.StructureInput;
+
+import java.util.Optional;
+import java.util.UUID;
+
 
 @Configuration
 public class WebConfig {
@@ -15,5 +23,19 @@ public class WebConfig {
         placeholderConfigurer.setIgnoreResourceNotFound(true);
         placeholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
         return placeholderConfigurer;
+    }
+
+    @Bean
+    public ModelMapper configureModelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+
+        Converter<Optional<String>, UUID> toUUID = ctx -> UUID.fromString(ctx.getSource().get());
+
+        modelMapper.typeMap(StructureInputDTO.class, StructureInput.class)
+                .addMappings(mapper -> {
+                    mapper.using(toUUID).map(src -> src.getId(), StructureInput::setId);
+                });
+
+        return modelMapper;
     }
 }

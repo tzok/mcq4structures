@@ -5,6 +5,7 @@ properties:
   id:
     $id: '#/properties/id'
     default: ''
+    nullable: false
     type: string
   pdbId:
     $id: '#/properties/pdbId'
@@ -20,3 +21,5 @@ properties:
     $id: '#/properties/structureContent'
     default: ''
     type: string
+requried:
+  - id
