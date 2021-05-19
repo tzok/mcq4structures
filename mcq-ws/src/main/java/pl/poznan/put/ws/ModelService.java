@@ -25,9 +25,6 @@ public class ModelService {
     }
 
     public Torsion findTorsion(String pdbId, Integer assemblyId) {
-        if (modelValidator.validateGetTorsionPdbId(pdbId)) {
-            return null;
-        }
         return null;
     }
 
