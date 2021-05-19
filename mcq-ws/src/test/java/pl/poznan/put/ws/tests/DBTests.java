@@ -28,4 +28,10 @@ public class DBTests {
             assertThat(structureInput.getPdbId()).isEqualTo(toSaveStructure.getPdbId());
         }
     }
+
+    @Test
+    void customMethodsTest() {
+        StructureInput toSaveStructure = new StructureInput(UUID.randomUUID(), Instant.now(), "abcd", 1, "test");
+        structureInputCrudRepo.save(toSaveStructure);
+    }
 }

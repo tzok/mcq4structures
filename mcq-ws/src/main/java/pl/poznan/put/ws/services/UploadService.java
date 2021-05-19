@@ -22,7 +22,7 @@ public class UploadService {
     }
 
     public StructureInputDTO handlePostUpload(StructureInputDTO structureInputDTO){
-        // Validation will be made with javax validation annotations by @Validated on controller and @Valid by endpoints
+        // Input validation will be made with javax validation annotations by @Validated on controller and @Valid by endpoints
         StructureInput structureInput = modelMapper.map(structureInputDTO, StructureInput.class);
         return null;
     }
