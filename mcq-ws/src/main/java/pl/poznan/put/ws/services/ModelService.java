@@ -2,6 +2,7 @@ package pl.poznan.put.ws.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.poznan.put.ws.exceptions.NoGitPropertiesException;
 import pl.poznan.put.ws.model.ModelValidator;
 import pl.poznan.put.ws.model.Torsion;
 import pl.poznan.put.ws.model.Version;
@@ -20,7 +21,11 @@ public class ModelService {
   }
 
   public Version findVersion() {
-    return version;
+    if (version.getVersion().equals("${git.commit.id.describe-short}")) {
+      throw new NoGitPropertiesException();
+    } else {
+      return version;
+    }
   }
 
   public Torsion findTorsion(String pdbId, Integer assemblyId) {

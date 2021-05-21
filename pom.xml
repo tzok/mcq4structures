@@ -426,6 +426,7 @@
         </executions>
         <configuration>
           <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <failOnNoGitDirectory>false</failOnNoGitDirectory>
         </configuration>
       </plugin>
     </plugins>
