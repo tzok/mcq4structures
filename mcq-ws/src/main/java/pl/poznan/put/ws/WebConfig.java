@@ -7,10 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import pl.poznan.put.schema.StructureInputDTO;
-import pl.poznan.put.ws.jpa.StructureInput;
+import pl.poznan.put.ws.entities.StructureInput;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 @Configuration

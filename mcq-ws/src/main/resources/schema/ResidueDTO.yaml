@@ -1,0 +1,76 @@
+$schema: http://json-schema.org/draft-07/schema
+additionalProperties: false
+default: {}
+properties:
+  isMissing:
+    $id: '#/properties/isMissing'
+    type: boolean
+  standardResidueName:
+    $id: '#/properties/standardResidueName'
+    type: string
+  modifiedResidueName:
+    $id: '#/properties/modifiedResidueName'
+    type: string
+  oneLetterName:
+    $id: '#/properties/oneLetterName'
+    type: string
+  chain:
+    $id: '#/properties/chain'
+    type: string
+  residueNumber:
+    $id: '#/properties/residueNumber'
+    type: integer
+  insertionCode:
+    $id: '#/properties/insertionCode'
+    type: string
+  alpha:
+    $id: '#/properties/alpha'
+    type: number
+  beta:
+    $id: '#/properties/beta'
+    type: number
+  gamma:
+    $id: '#/properties/gamma'
+    type: number
+  delta:
+    $id: '#/properties/delta'
+    type: number
+  epsilon:
+    $id: '#/properties/epsilon'
+    type: number
+  zeta:
+    $id: '#/properties/zeta'
+    type: number
+  nu0:
+    $id: '#/properties/nu0'
+    type: number
+  nu1:
+    $id: '#/properties/nu1'
+    type: number
+  nu2:
+    $id: '#/properties/nu2'
+    type: number
+  nu3:
+    $id: '#/properties/nu3'
+    type: number
+  nu4:
+    $id: '#/properties/nu4'
+    type: number
+  eta:
+    $id: '#/properties/eta'
+    type: number
+  theta:
+    $id: '#/properties/theta'
+    type: number
+  etaPrim:
+    $id: '#/properties/etaPrim'
+    type: number
+  tehtaPrim:
+    $id: '#/properties/tehtaPrim'
+    type: number
+  chi:
+    $id: '#/properties/chi'
+    type: number
+  pseudophasePucker:
+    $id: '#/properties/pseudophasePucker'
+    type: number

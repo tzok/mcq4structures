@@ -2,6 +2,7 @@ package pl.poznan.put.ws.jpa;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import pl.poznan.put.ws.entities.StructureInput;
 
 import java.util.Optional;
 import java.util.UUID;

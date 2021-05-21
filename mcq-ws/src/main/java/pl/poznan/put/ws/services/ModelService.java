@@ -2,8 +2,7 @@ package pl.poznan.put.ws.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import pl.poznan.put.ws.ModelValidator;
+import pl.poznan.put.ws.model.ModelValidator;
 import pl.poznan.put.ws.model.Torsion;
 import pl.poznan.put.ws.model.Version;
 

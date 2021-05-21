@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.schema.StructureInputDTO;
 import pl.poznan.put.ws.exceptions.ObjectNotFoundException;
-import pl.poznan.put.ws.jpa.StructureInput;
+import pl.poznan.put.ws.entities.StructureInput;
 import pl.poznan.put.ws.jpa.StructureInputCrudRepo;
 
 import java.util.Optional;

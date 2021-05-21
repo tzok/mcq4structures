@@ -1,4 +1,4 @@
-package pl.poznan.put.ws;
+package pl.poznan.put.ws.model;
 
 import org.springframework.stereotype.Service;
 import pl.poznan.put.ws.exceptions.PathVariableException;

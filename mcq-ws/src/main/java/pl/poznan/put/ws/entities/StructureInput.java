@@ -1,4 +1,4 @@
-package pl.poznan.put.ws.jpa;
+package pl.poznan.put.ws.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,12 +8,9 @@ import pl.poznan.put.schema.StructureInputDTO;
 
 import javax.annotation.Generated;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.Pattern;
 import java.time.Instant;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Entity

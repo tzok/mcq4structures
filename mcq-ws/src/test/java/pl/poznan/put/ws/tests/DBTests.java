@@ -3,7 +3,7 @@ package pl.poznan.put.ws.tests;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import pl.poznan.put.ws.jpa.StructureInput;
+import pl.poznan.put.ws.entities.StructureInput;
 import pl.poznan.put.ws.jpa.StructureInputCrudRepo;
 
 import java.time.Instant;
