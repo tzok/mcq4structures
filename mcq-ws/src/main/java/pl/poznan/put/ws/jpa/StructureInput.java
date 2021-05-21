@@ -1,10 +1,10 @@
 package pl.poznan.put.ws.jpa;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.data.annotation.CreatedDate;
+import pl.poznan.put.schema.StructureInputDTO;
 
 import javax.annotation.Generated;
 import javax.persistence.Entity;
@@ -22,7 +22,8 @@ import java.util.UUID;
 @Generated("jsonschema2pojo")
 public class StructureInput {
 
-  public StructureInput(UUID id, Instant createdAt, String pdbId, int assemblyId, String structureContent) {
+  public StructureInput(
+      UUID id, Instant createdAt, String pdbId, int assemblyId, String structureContent) {
     this.id = id;
     this.createdAt = createdAt;
     this.pdbId = pdbId;
@@ -30,12 +31,9 @@ public class StructureInput {
     this.structureContent = structureContent;
   }
 
- public StructureInput(){
-
- }
+  public StructureInput() {}
 
   @Id
-  @GeneratedValue
   @JsonProperty("id")
   private UUID id;
 
@@ -74,8 +72,8 @@ public class StructureInput {
   }
 
   @JsonProperty("pdbId")
-  public Optional<String> getPdbId() {
-    return Optional.ofNullable(pdbId);
+  public String getPdbId() {
+    return pdbId;
   }
 
   @JsonProperty("pdbId")
@@ -94,8 +92,8 @@ public class StructureInput {
   }
 
   @JsonProperty("structureContent")
-  public Optional<String> getStructureContent() {
-    return Optional.ofNullable(structureContent);
+  public String getStructureContent() {
+    return structureContent;
   }
 
   @JsonProperty("structureContent")
@@ -105,25 +103,60 @@ public class StructureInput {
 
   @Override
   public String toString() {
-    return "StructureInput{" +
-            "id=" + id +
-            ", createdAt=" + createdAt +
-            ", pdbId='" + pdbId + '\'' +
-            ", assemblyId=" + assemblyId +
-            ", structureContent='" + structureContent + '\'' +
-            '}';
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    StructureInput that = (StructureInput) o;
-    return assemblyId == that.assemblyId && Objects.equals(id, that.id) && Objects.equals(createdAt, that.createdAt) && Objects.equals(pdbId, that.pdbId) && Objects.equals(structureContent, that.structureContent);
+    StringBuilder sb = new StringBuilder();
+    sb.append(StructureInputDTO.class.getName())
+        .append('@')
+        .append(Integer.toHexString(System.identityHashCode(this)))
+        .append('[');
+    sb.append("id");
+    sb.append('=');
+    sb.append(((this.id == null) ? "<null>" : this.id));
+    sb.append(',');
+    sb.append("pdbId");
+    sb.append('=');
+    sb.append(((this.pdbId == null) ? "<null>" : this.pdbId));
+    sb.append(',');
+    sb.append("assemblyId");
+    sb.append('=');
+    sb.append(this.assemblyId);
+    sb.append(',');
+    sb.append("structureContent");
+    sb.append('=');
+    sb.append(((this.structureContent == null) ? "<null>" : this.structureContent));
+    sb.append(',');
+    if (sb.charAt((sb.length() - 1)) == ',') {
+      sb.setCharAt((sb.length() - 1), ']');
+    } else {
+      sb.append(']');
+    }
+    return sb.toString();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, pdbId, assemblyId, structureContent);
+    int result = 1;
+    result = ((result * 31) + ((this.pdbId == null) ? 0 : this.pdbId.hashCode()));
+    result = ((result * 31) + ((this.id == null) ? 0 : this.id.hashCode()));
+    result =
+        ((result * 31) + ((this.structureContent == null) ? 0 : this.structureContent.hashCode()));
+    result = ((result * 31) + this.assemblyId);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other == this) {
+      return true;
+    }
+    if ((other instanceof StructureInput) == false) {
+      return false;
+    }
+    StructureInput rhs = ((StructureInput) other);
+    return (((((this.pdbId == rhs.pdbId) || ((this.pdbId != null) && this.pdbId.equals(rhs.pdbId)))
+                && ((this.id == rhs.id) || ((this.id != null) && this.id.equals(rhs.id))))
+            && ((this.structureContent == rhs.structureContent)
+                || ((this.structureContent != null)
+                    && this.structureContent.equals(rhs.structureContent))))
+        && (this.assemblyId == rhs.assemblyId));
   }
 }

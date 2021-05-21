@@ -9,33 +9,45 @@ import org.springframework.core.io.ClassPathResource;
 import pl.poznan.put.schema.StructureInputDTO;
 import pl.poznan.put.ws.jpa.StructureInput;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-
 
 @Configuration
 public class WebConfig {
 
-    @Bean
-    public PropertySourcesPlaceholderConfigurer configurePlaceholder(){
-        PropertySourcesPlaceholderConfigurer placeholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        placeholderConfigurer.setLocations(new ClassPathResource("git.properties"));
-        placeholderConfigurer.setIgnoreResourceNotFound(true);
-        placeholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
-        return placeholderConfigurer;
-    }
+  @Bean
+  public PropertySourcesPlaceholderConfigurer configurePlaceholder() {
+    PropertySourcesPlaceholderConfigurer placeholderConfigurer =
+        new PropertySourcesPlaceholderConfigurer();
+    placeholderConfigurer.setLocations(new ClassPathResource("git.properties"));
+    placeholderConfigurer.setIgnoreResourceNotFound(true);
+    placeholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
+    return placeholderConfigurer;
+  }
 
-    @Bean
-    public ModelMapper configureModelMapper() {
-        ModelMapper modelMapper = new ModelMapper();
+  @Bean
+  public ModelMapper configureModelMapper() {
+    ModelMapper modelMapper = new ModelMapper();
 
-        Converter<Optional<String>, UUID> toUUID = ctx -> UUID.fromString(ctx.getSource().get());
+    Converter<String, UUID> toUUID = ctx -> UUID.fromString(ctx.getSource());
+    Converter<UUID, String> toString = ctx -> ctx.getSource().toString();
 
-        modelMapper.typeMap(StructureInputDTO.class, StructureInput.class)
-                .addMappings(mapper -> {
-                    mapper.using(toUUID).map(src -> src.getId(), StructureInput::setId);
-                });
+    modelMapper
+        .typeMap(StructureInputDTO.class, StructureInput.class)
+        .addMappings(
+            mapper -> {
+              mapper.using(toUUID).map(src -> src.getId(), StructureInput::setId);
+              mapper.map(src -> Instant.now(), StructureInput::setCreatedAt);
+            });
 
-        return modelMapper;
-    }
+    modelMapper
+        .typeMap(StructureInput.class, StructureInputDTO.class)
+        .addMappings(
+            mapper -> {
+              mapper.using(toString).map(src -> src.getId(), StructureInputDTO::setId);
+            });
+
+    return modelMapper;
+  }
 }

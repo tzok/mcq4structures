@@ -401,7 +401,6 @@
           <targetPackage>pl.poznan.put.schema</targetPackage>
           <sourceType>yamlschema</sourceType>
           <includeJsr303Annotations>true</includeJsr303Annotations>
-          <useOptionalForGetters>true</useOptionalForGetters>
           <usePrimitives>true</usePrimitives>
           <includeConstructors>true</includeConstructors>
         </configuration>

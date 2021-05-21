@@ -5,15 +5,16 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import pl.poznan.put.ws.exceptions.PathVariableException;
+import pl.poznan.put.ws.exceptions.ObjectNotFoundException;
+
 
 @ControllerAdvice
-public class PathVariableExceptionAdvice {
+public class ObjectNotFoundAdvice {
 
   @ResponseBody
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  @ExceptionHandler(PathVariableException.class)
-  private String pathInputExceptionHandler(PathVariableException pathVariableException) {
-    return pathVariableException.getMessage();
-  }
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(ObjectNotFoundException.class)
+  String objectNotFoundHandler(ObjectNotFoundException ex) {
+        return ex.getMessage();
+    }
 }

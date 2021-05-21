@@ -7,29 +7,26 @@ import pl.poznan.put.ws.ModelValidator;
 import pl.poznan.put.ws.model.Torsion;
 import pl.poznan.put.ws.model.Version;
 
-
 @Service
 public class ModelService {
 
-    private Version version;
+  private Version version;
 
-    private ModelValidator modelValidator;
+  private ModelValidator modelValidator;
 
-    @Autowired
-    public ModelService(Version version, ModelValidator modelValidator) {
-        this.version = version;
-        this.modelValidator = modelValidator;
-    }
+  @Autowired
+  public ModelService(Version version, ModelValidator modelValidator) {
+    this.version = version;
+    this.modelValidator = modelValidator;
+  }
 
-    public Version findVersion(){
-        return version;
-    }
+  public Version findVersion() {
+    return version;
+  }
 
-    public Torsion findTorsion(String pdbId, Integer assemblyId) {
-        return null;
-    }
+  public Torsion findTorsion(String pdbId, Integer assemblyId) {
+    return null;
+  }
 
-    public void addTorsion(Torsion newTorsion) {
-
-    }
+  public void addTorsion(Torsion newTorsion) {}
 }

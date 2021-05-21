@@ -11,13 +11,13 @@ import java.util.UUID;
 @SpringBootTest
 public class UploadServiceTests {
 
-    @Autowired
-    private UploadService uploadService;
+  @Autowired private UploadService uploadService;
 
-    @Test
-    void generalTest() {
-        String exampleUUIDString = "8c549628-7fb2-4d56-8150-0377d3995915";
-        StructureInputDTO exampleStructureInputDTO = new StructureInputDTO(exampleUUIDString, "12d2", 1, "asdsf3efd12sd");
-        uploadService.handlePostUpload(exampleStructureInputDTO);
-    }
+  @Test
+  void generalTest() {
+    String exampleUUIDString = "8c549628-7fb2-4d56-8150-0377d3995915";
+    StructureInputDTO exampleStructureInputDTO =
+        new StructureInputDTO(exampleUUIDString, "12d2", 1, "asdsf3efd12sd");
+    uploadService.handlePostUpload(exampleStructureInputDTO);
+  }
 }

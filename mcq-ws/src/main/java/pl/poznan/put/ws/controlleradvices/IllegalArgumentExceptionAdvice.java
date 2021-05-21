@@ -5,15 +5,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import pl.poznan.put.ws.exceptions.PathVariableException;
 
 @ControllerAdvice
-public class PathVariableExceptionAdvice {
-
+public class IllegalArgumentExceptionAdvice {
   @ResponseBody
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  @ExceptionHandler(PathVariableException.class)
-  private String pathInputExceptionHandler(PathVariableException pathVariableException) {
-    return pathVariableException.getMessage();
+  @ExceptionHandler(IllegalArgumentException.class)
+  String illegalArgumentExceptionHandler(IllegalArgumentException illegalArgumentException) {
+    return illegalArgumentException.getMessage();
   }
 }

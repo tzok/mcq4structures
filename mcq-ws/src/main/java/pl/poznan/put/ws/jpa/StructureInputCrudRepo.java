@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @Repository
 public interface StructureInputCrudRepo extends CrudRepository<StructureInput, UUID> {
-    Optional<StructureInput> findByPdbId(String pdbId);
+  Optional<StructureInput> findByPdbId(String pdbId);
 
-    Optional<StructureInput> findByAssemblyId(String assemblyId);
+  Optional<StructureInput> findByAssemblyId(int assemblyId);
 
-    Optional<StructureInput> findByStructureContent(String structureContent);
+  Optional<StructureInput> findByStructureContent(String structureContent);
 }
