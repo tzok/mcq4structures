@@ -26,9 +26,9 @@ public class StructureOutput {
   @JsonProperty("createdAt")
   private Instant createdAt;
 
-  @ManyToOne(targetEntity = StructureInput.class)
+  @OneToOne(targetEntity = StructureInput.class)
   @JsonProperty("inputId")
-  private StructureInput inputId;
+  private UUID inputId;
 
   @JsonProperty("pdbId")
   private String pdbId;
@@ -44,16 +44,11 @@ public class StructureOutput {
   /** No args constructor for use in serialization */
   public StructureOutput() {}
 
-  /**
-   * @param pdbId
-   * @param models
-   * @param assemblyId
-   * @param id
-   */
   public StructureOutput(
-      UUID id, Instant createdAt, String pdbId, int assemblyId, List<Model> models) {
+      UUID id, Instant createdAt, UUID inputId, String pdbId, int assemblyId, List<Model> models) {
     this.id = id;
     this.createdAt = createdAt;
+    this.inputId = inputId;
     this.pdbId = pdbId;
     this.assemblyId = assemblyId;
     this.models = models;
@@ -77,6 +72,16 @@ public class StructureOutput {
   @JsonProperty("createdAt")
   public void setCreatedAt(Instant createdAt) {
     this.createdAt = createdAt;
+  }
+
+  @JsonProperty("inputId")
+  public UUID getInputId() {
+    return inputId;
+  }
+
+  @JsonProperty("inputId")
+  public void setInputId(UUID inputId) {
+    this.inputId = inputId;
   }
 
   @JsonProperty("pdbId")
