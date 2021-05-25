@@ -5,10 +5,10 @@ properties:
   name:
     $id: '#/properties/name'
     type: string
-  residues:
-    $id: '#/properties/residues'
+  residueAngles:
+    $id: '#/properties/residueAngles'
     type: array
     items:
-      $id: '#/properties/residues/items'
-      existingJavaType: 'pl.poznan.put.ws.entities.Residue'
+      $id: '#/properties/residueAngles/items'
+      existingJavaType: 'pl.poznan.put.schema.ResidueAngelsDTO'
       type: object

@@ -1,0 +1,25 @@
+$schema: http://json-schema.org/draft-07/schema
+additionalProperties: false
+default: {}
+properties:
+  first:
+    $id: '#/properties/first'
+    existingJavaType: 'pl.poznan.put.schema.ResidueDTO'
+    type: object
+  second:
+    $id: '#/properties/second'
+    existingJavaType: 'pl.poznan.put.schema.ResidueDTO'
+    type: object
+  differences:
+    $id: '#/properties/differences'
+    existingJavaType: 'pl.poznan.put.schema.ResidueDTO'
+    type: object
+  mcd:
+    $id: '#/properties/mcd'
+    type: number
+  mcq:
+    $id: '#/properties/mcq'
+    type: number
+  medcq:
+    $id: '#/properties/medcq'
+    type: number
