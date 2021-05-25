@@ -6,10 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.poznan.put.schema.StructureInputDTO;
 import pl.poznan.put.schema.StructureOutputDTO;
-import pl.poznan.put.ws.model.Torsion;
-import pl.poznan.put.ws.model.Version;
+import pl.poznan.put.ws.componentes.Version;
 import pl.poznan.put.ws.services.AnalyzeService;
-import pl.poznan.put.ws.services.ModelService;
+import pl.poznan.put.ws.services.VersionService;
 import pl.poznan.put.ws.services.UploadService;
 
 import javax.validation.Valid;
@@ -18,38 +17,22 @@ import javax.validation.Valid;
 @RequestMapping("/api")
 public class Controller {
 
-  private ModelService modelService;
+  private VersionService versionService;
 
   private UploadService uploadService;
 
   private AnalyzeService analyzeService;
 
   @Autowired
-  public Controller(ModelService modelService, UploadService uploadService, AnalyzeService analyzeService) {
-    this.modelService = modelService;
+  public Controller(VersionService versionService, UploadService uploadService, AnalyzeService analyzeService) {
+    this.versionService = versionService;
     this.uploadService = uploadService;
     this.analyzeService = analyzeService;
   }
 
   @GetMapping("/version")
   private Version getVersion() {
-    return modelService.findVersion();
-  }
-
-  @PostMapping("/torsion")
-  private ResponseEntity<?> postTorsion(@RequestBody @Valid Torsion torsion) {
-    modelService.addTorsion(torsion);
-    return ResponseEntity.ok().build();
-  }
-
-  @GetMapping("/torsion/{pdbId}")
-  private Torsion getTorsion(@PathVariable @Length(min = 4, max = 4) String pdbId) {
-    return modelService.findTorsion(pdbId, 1);
-  }
-
-  @GetMapping("/torsion/{pdbId}/{assemblyId}")
-  private Torsion getTorsion(@PathVariable @Length(min = 4, max = 4) String pdbId, @PathVariable Integer assemblyId) {
-    return modelService.findTorsion(pdbId, assemblyId);
+    return versionService.findVersion();
   }
 
   @PostMapping("/upload")

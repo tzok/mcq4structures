@@ -22,8 +22,7 @@ public class DBTests {
         new StructureInput(UUID.randomUUID(), Instant.now(), "abcd", 1, "test");
     structureInputCrudRepo.save(toSaveStructure);
     Iterable<StructureInput> structureInputs = structureInputCrudRepo.findAll();
-    for (Iterator<StructureInput> it = structureInputs.iterator(); it.hasNext(); ) {
-      StructureInput structureInput = it.next();
+    for (StructureInput structureInput : structureInputs) {
       assertThat(structureInput.getPdbId()).isEqualTo(toSaveStructure.getPdbId());
     }
   }

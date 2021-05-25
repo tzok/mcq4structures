@@ -3,21 +3,16 @@ package pl.poznan.put.ws.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.ws.exceptions.NoGitPropertiesException;
-import pl.poznan.put.ws.model.ModelValidator;
-import pl.poznan.put.ws.model.Torsion;
-import pl.poznan.put.ws.model.Version;
+import pl.poznan.put.ws.componentes.Version;
 
 @Service
-public class ModelService {
+public class VersionService {
 
   private Version version;
 
-  private ModelValidator modelValidator;
-
   @Autowired
-  public ModelService(Version version, ModelValidator modelValidator) {
+  public VersionService(Version version) {
     this.version = version;
-    this.modelValidator = modelValidator;
   }
 
   public Version findVersion() {
@@ -27,10 +22,4 @@ public class ModelService {
       return version;
     }
   }
-
-  public Torsion findTorsion(String pdbId, Integer assemblyId) {
-    return null;
-  }
-
-  public void addTorsion(Torsion newTorsion) {}
 }

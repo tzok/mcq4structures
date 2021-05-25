@@ -1,4 +1,4 @@
-package pl.poznan.put.ws.model;
+package pl.poznan.put.ws.componentes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
