@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
-import pl.poznan.put.schema.StructureInputDTO;
-import pl.poznan.put.schema.StructureOutputDTO;
-import pl.poznan.put.ws.entities.StructureInput;
+import pl.poznan.put.schema.StructureContentDTO;
+import pl.poznan.put.schema.UploadDTO;
+import pl.poznan.put.ws.entities.StructureContent;
 import pl.poznan.put.ws.entities.StructureOutput;
 
 import java.time.Instant;
@@ -35,33 +35,20 @@ public class WebConfig {
     Converter<UUID, String> toString = ctx -> ctx.getSource().toString();
 
     modelMapper
-        .typeMap(StructureInputDTO.class, StructureInput.class)
+        .typeMap(StructureContent.class, UploadDTO.class)
         .addMappings(
             mapper -> {
-              mapper.using(toUUID).map(src -> src.getId(), StructureInput::setId);
-              mapper.map(src -> Instant.now(), StructureInput::setCreatedAt);
+              mapper.using(toString).map(src -> src.getId(), UploadDTO::setId);
             });
 
     modelMapper
-        .typeMap(StructureInput.class, StructureInputDTO.class)
+        .typeMap(StructureContentDTO.class, StructureContent.class)
         .addMappings(
             mapper -> {
-              mapper.using(toString).map(src -> src.getId(), StructureInputDTO::setId);
+              mapper.map(src -> UUID.randomUUID(), StructureContent::setId);
+              mapper.map(src -> Instant.now(), StructureContent::setCreatedAt);
             });
 
-    modelMapper
-        .typeMap(StructureOutputDTO.class, StructureOutput.class)
-        .addMappings(
-            mapper -> {
-              mapper.using(toUUID).map(src -> src.getId(), StructureOutput::setId);
-            });
-
-    modelMapper
-        .typeMap(StructureOutput.class, StructureOutputDTO.class)
-        .addMappings(
-            mapper -> {
-              mapper.using(toString).map(src -> src.getId(), StructureOutputDTO::setId);
-            });
     return modelMapper;
   }
 }

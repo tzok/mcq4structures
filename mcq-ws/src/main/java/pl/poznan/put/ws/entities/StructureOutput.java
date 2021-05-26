@@ -26,7 +26,7 @@ public class StructureOutput {
   @JsonProperty("createdAt")
   private Instant createdAt;
 
-  @OneToOne(targetEntity = StructureInput.class)
+  @OneToOne(targetEntity = StructureContent.class)
   @JsonProperty("inputId")
   private UUID inputId;
 

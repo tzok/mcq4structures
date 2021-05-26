@@ -3,65 +3,48 @@ package pl.poznan.put.ws.services;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.poznan.put.schema.StructureInputDTO;
-import pl.poznan.put.ws.exceptions.ObjectNotFoundException;
-import pl.poznan.put.ws.entities.StructureInput;
-import pl.poznan.put.ws.jpa.StructureInputCrudRepo;
+import pl.poznan.put.schema.StructureContentDTO;
+import pl.poznan.put.schema.UploadDTO;
+import pl.poznan.put.ws.entities.StructureContent;
+import pl.poznan.put.ws.jpa.StructureContentCrudRepo;
+import pl.poznan.put.ws.services.subservices.ComputationService;
 
 import java.util.Optional;
 
 @Service
 public class UploadService {
 
-  private StructureInputCrudRepo structureInputCrudRepo;
+  private final ComputationService computationService;
 
-  private ModelMapper modelMapper;
+  private final StructureContentCrudRepo structureContentCrudRepo;
+
+  private final ModelMapper modelMapper;
 
   @Autowired
-  public UploadService(StructureInputCrudRepo structureInputCrudRepo, ModelMapper modelMapper) {
-    this.structureInputCrudRepo = structureInputCrudRepo;
+  public UploadService(
+      ComputationService computationService,
+      StructureContentCrudRepo structureContentCrudRepo,
+      ModelMapper modelMapper) {
+    this.computationService = computationService;
+    this.structureContentCrudRepo = structureContentCrudRepo;
     this.modelMapper = modelMapper;
   }
 
-  public StructureInputDTO handlePostUpload(StructureInputDTO structureInputDTO) {
-    StructureInput structureInput = mapToStructureInput(structureInputDTO);
-
-    if (structureInputCrudRepo.existsById(structureInput.getId())) {
-      return mapToStructureInputDTO(
-          structureInputCrudRepo
-              .findById(structureInput.getId())
-              .orElseThrow(
-                  () ->
-                      new ObjectNotFoundException(
-                          structureInput.getId().toString(), StructureInput.class)));
+  public UploadDTO handlePostUpload(StructureContentDTO structureContentDTO) {
+    Optional<StructureContent> queryResult =
+        structureContentCrudRepo.findByData(structureContentDTO.getData());
+    if (queryResult.isPresent()) {
+      return modelMapper.map(queryResult.get(), UploadDTO.class);
     } else {
-      Optional<StructureInput> queryOptional = null;
-
-      queryOptional = structureInputCrudRepo.findByPdbId(structureInput.getPdbId());
-      if (queryOptional.isPresent()) {
-        return mapToStructureInputDTO(queryOptional.get());
-      }
-
-      queryOptional = structureInputCrudRepo.findByAssemblyId(structureInput.getAssemblyId());
-      if (queryOptional.isPresent()) {
-        return mapToStructureInputDTO(queryOptional.get());
-      }
-
-      queryOptional =
-          structureInputCrudRepo.findByStructureContent(structureInput.getStructureContent());
-      if (queryOptional.isPresent()) {
-        return mapToStructureInputDTO(queryOptional.get());
-      }
-
-      return mapToStructureInputDTO(structureInputCrudRepo.save(structureInput));
+      return modelMapper.map(
+          structureContentCrudRepo.save(
+              modelMapper.map(structureContentDTO, StructureContent.class)),
+          UploadDTO.class);
     }
   }
 
-  private StructureInputDTO mapToStructureInputDTO(StructureInput structureInput) {
-    return modelMapper.map(structureInput, StructureInputDTO.class);
-  }
-
-  private StructureInput mapToStructureInput(StructureInputDTO structureInputDTO) {
-    return modelMapper.map(structureInputDTO, StructureInput.class);
+  public UploadDTO handlePostUpload(String pdbId, int assemblyId) {
+    StructureContentDTO loadedStructure = computationService.loadStructure(pdbId, assemblyId);
+    return handlePostUpload(loadedStructure);
   }
 }
