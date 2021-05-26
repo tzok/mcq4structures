@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.poznan.put.schema.StructureContentDTO;
+import pl.poznan.put.schema.TrigonometricRepresentationDTO;
 import pl.poznan.put.schema.UploadDTO;
 import pl.poznan.put.ws.componentes.Version;
 import pl.poznan.put.ws.services.AnalyzeService;
@@ -43,4 +44,10 @@ public class Controller {
   private UploadDTO postUpload(@RequestParam String pdbId, @RequestParam int assemblyId) {
     return servicesSupervisor.getUploadService().handlePostUpload(pdbId, assemblyId);
   }
+
+  @PostMapping("/analyze/{id}")
+  private TrigonometricRepresentationDTO getAnalyze(@PathVariable @Length(min = 4, max = 4) String id) {
+    return analyzeService.handleGetAnalyze(id);
+  }
+
 }

@@ -13,5 +13,5 @@ properties:
     type: array
     items:
       $id: '#/properties/chains/items'
-      javaExistingTypes: 'pl.poznan.put.schema.ChainDTO'
+      existingJavaType: 'pl.poznan.put.schema.ChainDTO'
       type: object

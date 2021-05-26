@@ -9,7 +9,6 @@ import org.springframework.core.io.ClassPathResource;
 import pl.poznan.put.schema.StructureContentDTO;
 import pl.poznan.put.schema.UploadDTO;
 import pl.poznan.put.ws.entities.StructureContent;
-import pl.poznan.put.ws.entities.StructureOutput;
 
 import java.time.Instant;
 import java.util.UUID;
