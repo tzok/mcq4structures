@@ -1,11 +1,9 @@
 package pl.poznan.put.ws;
 
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.poznan.put.schema.*;
-import pl.poznan.put.ws.componentes.Version;
+import pl.poznan.put.ws.components.Version;
 import java.util.List;
 
 import javax.validation.Valid;
