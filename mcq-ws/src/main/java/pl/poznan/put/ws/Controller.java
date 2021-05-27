@@ -2,15 +2,12 @@ package pl.poznan.put.ws;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.poznan.put.schema.StructureContentDTO;
 import pl.poznan.put.schema.TrigonometricRepresentationDTO;
 import pl.poznan.put.schema.UploadDTO;
 import pl.poznan.put.ws.componentes.Version;
-import pl.poznan.put.ws.services.AnalyzeService;
-import pl.poznan.put.ws.services.VersionService;
-import pl.poznan.put.ws.services.UploadService;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -36,7 +33,7 @@ public class Controller {
   }
 
   @PostMapping("/upload/{pdbId}")
-  private UploadDTO postUpload(@RequestParam String pdbId){
+  private UploadDTO postUpload(@RequestParam String pdbId) {
     return servicesSupervisor.getUploadService().handlePostUpload(pdbId, 1);
   }
 
@@ -46,8 +43,7 @@ public class Controller {
   }
 
   @PostMapping("/analyze/{id}")
-  private TrigonometricRepresentationDTO getAnalyze(@PathVariable @Length(min = 4, max = 4) String id) {
-    return analyzeService.handleGetAnalyze(id);
+  private List<TrigonometricRepresentationDTO> getAnalyze(@PathVariable String id) {
+    return servicesSupervisor.getAnalyzeService().handleGetAnalyze(id);
   }
-
 }

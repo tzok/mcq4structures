@@ -6,10 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import pl.poznan.put.schema.ChainDTO;
 
 import javax.annotation.Generated;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,7 +26,8 @@ public class TrigonometricRepresentation {
   @JsonProperty("createdAt")
   private Instant createdAt;
 
-  @OneToMany(targetEntity = StructureContent.class)
+  @ManyToOne(targetEntity = StructureContent.class)
+  @JoinColumn(name = "StructureContent_id")
   @JsonProperty("inputId")
   private UUID inputId;
 
@@ -42,6 +40,7 @@ public class TrigonometricRepresentation {
   @JsonProperty("modelNumber")
   private double modelNumber;
 
+  @OneToMany(targetEntity = Chain.class, mappedBy = "name")
   @JsonProperty("chains")
   @Valid
   private List<Chain> chains = new ArrayList<Chain>();
