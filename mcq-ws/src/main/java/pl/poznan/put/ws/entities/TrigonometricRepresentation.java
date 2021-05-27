@@ -14,38 +14,26 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "modelNumber", "chains"})
-@Generated("jsonschema2pojo")
 public class TrigonometricRepresentation {
 
-  @JsonProperty("id")
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
-  @JsonProperty("createdAt")
   private Instant createdAt;
 
   @ManyToOne(targetEntity = StructureContent.class)
   @JoinColumn(name = "StructureContent_id")
-  @JsonProperty("inputId")
   private UUID inputId;
 
-  @JsonProperty("pdbId")
   private String pdbId;
 
-  @JsonProperty("assemblyId")
   private int assemblyId;
 
-  @JsonProperty("modelNumber")
   private double modelNumber;
 
   @OneToMany(targetEntity = Chain.class, mappedBy = "name")
-  @JsonProperty("chains")
   @Valid
   private List<Chain> chains = new ArrayList<Chain>();
 
-  /** No args constructor for use in serialization */
   public TrigonometricRepresentation() {}
 
   public TrigonometricRepresentation(
@@ -65,72 +53,58 @@ public class TrigonometricRepresentation {
     this.chains = chains;
   }
 
-  @JsonProperty("id")
   public UUID getId() {
     return id;
   }
 
-  @JsonProperty("id")
   public void setId(UUID id) {
     this.id = id;
   }
 
-  @JsonProperty("createdAt")
   public Instant getCreatedAt() {
     return createdAt;
   }
 
-  @JsonProperty("createdAt")
   public void setCreatedAt(Instant createdAt) {
     this.createdAt = createdAt;
   }
 
-  @JsonProperty("inputId")
   public UUID getInputId() {
     return inputId;
   }
 
-  @JsonProperty("inputId")
   public void setInputId(UUID inputId) {
     this.inputId = inputId;
   }
 
-  @JsonProperty("pdbId")
   public String getPdbId() {
     return pdbId;
   }
 
-  @JsonProperty("pdbId")
   public void setPdbId(String pdbId) {
     this.pdbId = pdbId;
   }
 
-  @JsonProperty("assemblyId")
   public int getAssemblyId() {
     return assemblyId;
   }
 
-  @JsonProperty("assemblyId")
   public void setAssemblyId(int assemblyId) {
     this.assemblyId = assemblyId;
   }
 
-  @JsonProperty("modelNumber")
   public double getModelNumber() {
     return modelNumber;
   }
 
-  @JsonProperty("modelNumber")
   public void setModelNumber(double modelNumber) {
     this.modelNumber = modelNumber;
   }
 
-  @JsonProperty("chains")
   public List<Chain> getChains() {
     return chains;
   }
 
-  @JsonProperty("chains")
   public void setChains(List<Chain> chains) {
     this.chains = chains;
   }

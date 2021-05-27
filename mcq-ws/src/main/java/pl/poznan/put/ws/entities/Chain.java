@@ -13,50 +13,37 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"name", "residues"})
+
 @Entity
-@Generated("jsonschema2pojo")
 public class Chain {
 
-  @JsonProperty("name")
   @Id
   private String name;
 
-  @JsonProperty("residues")
   @Valid
   @OneToMany(targetEntity = Residue.class, mappedBy = "residueNumber")
   private List<Residue> residues = new ArrayList<Residue>();
 
-  /** No args constructor for use in serialization */
   public Chain() {}
 
-  /**
-   * @param residues
-   * @param name
-   */
   public Chain(String name, List<Residue> residues) {
     super();
     this.name = name;
     this.residues = residues;
   }
 
-  @JsonProperty("name")
   public String getName() {
     return name;
   }
 
-  @JsonProperty("name")
   public void setName(String name) {
     this.name = name;
   }
 
-  @JsonProperty("residues")
   public List<Residue> getResidues() {
     return residues;
   }
 
-  @JsonProperty("residues")
   public void setResidues(List<Residue> residues) {
     this.residues = residues;
   }

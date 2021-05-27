@@ -14,9 +14,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "createdAt", "pdbId", "assemblyId", "data"})
-@Generated("jsonschema2pojo")
 public class StructureContent {
 
   public StructureContent(
@@ -29,42 +26,33 @@ public class StructureContent {
   public StructureContent() {}
 
   @Id
-  @JsonProperty("id")
   private UUID id;
 
   @CreatedDate
-  @JsonProperty("createdAt")
   private Instant createdAt;
 
-  @JsonProperty("data")
   private String data = "";
 
-  @JsonProperty("id")
   public UUID getId() {
     return id;
   }
 
-  @JsonProperty("id")
   public void setId(UUID id) {
     this.id = id;
   }
 
-  @JsonProperty("createdAt")
   public Instant getCreatedAt() {
     return createdAt;
   }
 
-  @JsonProperty("createdAt")
   public void setCreatedAt(Instant createdAt) {
     this.createdAt = createdAt;
   }
 
-  @JsonProperty("data")
   public String getData() {
     return data;
   }
 
-  @JsonProperty("data")
   public void setData(String data) {
     this.data = data;
   }

@@ -8,139 +8,61 @@ import javax.annotation.Generated;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-  "isMissing",
-  "standardResidueName",
-  "modifiedResidueName",
-  "oneLetterName",
-  "chain",
-  "residueNumber",
-  "insertionCode",
-  "alpha",
-  "beta",
-  "gamma",
-  "delta",
-  "epsilon",
-  "zeta",
-  "nu0",
-  "nu1",
-  "nu2",
-  "nu3",
-  "nu4",
-  "eta",
-  "theta",
-  "etaPrim",
-  "tehtaPrim",
-  "chi",
-  "pseudophasePucker"
-})
 @Entity
-@Generated("jsonschema2pojo")
 public class Residue {
 
-  @JsonProperty("isMissing")
   private boolean isMissing;
 
-  @JsonProperty("standardResidueName")
   private String standardResidueName;
 
-  @JsonProperty("modifiedResidueName")
   private String modifiedResidueName;
 
-  @JsonProperty("oneLetterName")
   private String oneLetterName;
 
-  @JsonProperty("chain")
   private String chain;
 
-  @JsonProperty("residueNumber")
   @Id
   private int residueNumber;
 
-  @JsonProperty("insertionCode")
   private String insertionCode;
 
-  @JsonProperty("alpha")
   private double alpha;
 
-  @JsonProperty("beta")
   private double beta;
 
-  @JsonProperty("gamma")
   private double gamma;
 
-  @JsonProperty("delta")
   private double delta;
 
-  @JsonProperty("epsilon")
   private double epsilon;
 
-  @JsonProperty("zeta")
   private double zeta;
 
-  @JsonProperty("nu0")
   private double nu0;
 
-  @JsonProperty("nu1")
   private double nu1;
 
-  @JsonProperty("nu2")
   private double nu2;
 
-  @JsonProperty("nu3")
   private double nu3;
 
-  @JsonProperty("nu4")
   private double nu4;
 
-  @JsonProperty("eta")
   private double eta;
 
-  @JsonProperty("theta")
   private double theta;
 
-  @JsonProperty("etaPrim")
   private double etaPrim;
 
-  @JsonProperty("tehtaPrim")
   private double tehtaPrim;
 
-  @JsonProperty("chi")
   private double chi;
 
-  @JsonProperty("pseudophasePucker")
   private double pseudophasePucker;
 
-  /** No args constructor for use in serialization */
   public Residue() {}
 
-  /**
-   * @param zeta
-   * @param chain
-   * @param chi
-   * @param delta
-   * @param nu0
-   * @param nu2
-   * @param nu1
-   * @param insertionCode
-   * @param nu4
-   * @param nu3
-   * @param theta
-   * @param standardResidueName
-   * @param epsilon
-   * @param isMissing
-   * @param eta
-   * @param residueNumber
-   * @param alpha
-   * @param modifiedResidueName
-   * @param tehtaPrim
-   * @param oneLetterName
-   * @param pseudophasePucker
-   * @param etaPrim
-   * @param beta
-   * @param gamma
-   */
+
   public Residue(
       boolean isMissing,
       String standardResidueName,
@@ -193,242 +115,194 @@ public class Residue {
     this.pseudophasePucker = pseudophasePucker;
   }
 
-  @JsonProperty("isMissing")
   public boolean isIsMissing() {
     return isMissing;
   }
 
-  @JsonProperty("isMissing")
   public void setIsMissing(boolean isMissing) {
     this.isMissing = isMissing;
   }
 
-  @JsonProperty("standardResidueName")
   public String getStandardResidueName() {
     return standardResidueName;
   }
 
-  @JsonProperty("standardResidueName")
   public void setStandardResidueName(String standardResidueName) {
     this.standardResidueName = standardResidueName;
   }
 
-  @JsonProperty("modifiedResidueName")
   public String getModifiedResidueName() {
     return modifiedResidueName;
   }
 
-  @JsonProperty("modifiedResidueName")
   public void setModifiedResidueName(String modifiedResidueName) {
     this.modifiedResidueName = modifiedResidueName;
   }
 
-  @JsonProperty("oneLetterName")
   public String getOneLetterName() {
     return oneLetterName;
   }
 
-  @JsonProperty("oneLetterName")
   public void setOneLetterName(String oneLetterName) {
     this.oneLetterName = oneLetterName;
   }
 
-  @JsonProperty("chain")
   public String getChain() {
     return chain;
   }
 
-  @JsonProperty("chain")
   public void setChain(String chain) {
     this.chain = chain;
   }
 
-  @JsonProperty("residueNumber")
   public int getResidueNumber() {
     return residueNumber;
   }
 
-  @JsonProperty("residueNumber")
   public void setResidueNumber(int residueNumber) {
     this.residueNumber = residueNumber;
   }
 
-  @JsonProperty("insertionCode")
   public String getInsertionCode() {
     return insertionCode;
   }
 
-  @JsonProperty("insertionCode")
   public void setInsertionCode(String insertionCode) {
     this.insertionCode = insertionCode;
   }
 
-  @JsonProperty("alpha")
   public double getAlpha() {
     return alpha;
   }
 
-  @JsonProperty("alpha")
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
 
-  @JsonProperty("beta")
   public double getBeta() {
     return beta;
   }
 
-  @JsonProperty("beta")
   public void setBeta(double beta) {
     this.beta = beta;
   }
 
-  @JsonProperty("gamma")
   public double getGamma() {
     return gamma;
   }
 
-  @JsonProperty("gamma")
   public void setGamma(double gamma) {
     this.gamma = gamma;
   }
 
-  @JsonProperty("delta")
   public double getDelta() {
     return delta;
   }
 
-  @JsonProperty("delta")
   public void setDelta(double delta) {
     this.delta = delta;
   }
 
-  @JsonProperty("epsilon")
   public double getEpsilon() {
     return epsilon;
   }
 
-  @JsonProperty("epsilon")
   public void setEpsilon(double epsilon) {
     this.epsilon = epsilon;
   }
 
-  @JsonProperty("zeta")
   public double getZeta() {
     return zeta;
   }
 
-  @JsonProperty("zeta")
   public void setZeta(double zeta) {
     this.zeta = zeta;
   }
 
-  @JsonProperty("nu0")
   public double getNu0() {
     return nu0;
   }
 
-  @JsonProperty("nu0")
   public void setNu0(double nu0) {
     this.nu0 = nu0;
   }
 
-  @JsonProperty("nu1")
   public double getNu1() {
     return nu1;
   }
 
-  @JsonProperty("nu1")
   public void setNu1(double nu1) {
     this.nu1 = nu1;
   }
 
-  @JsonProperty("nu2")
   public double getNu2() {
     return nu2;
   }
 
-  @JsonProperty("nu2")
   public void setNu2(double nu2) {
     this.nu2 = nu2;
   }
 
-  @JsonProperty("nu3")
   public double getNu3() {
     return nu3;
   }
 
-  @JsonProperty("nu3")
   public void setNu3(double nu3) {
     this.nu3 = nu3;
   }
 
-  @JsonProperty("nu4")
   public double getNu4() {
     return nu4;
   }
 
-  @JsonProperty("nu4")
   public void setNu4(double nu4) {
     this.nu4 = nu4;
   }
 
-  @JsonProperty("eta")
   public double getEta() {
     return eta;
   }
 
-  @JsonProperty("eta")
   public void setEta(double eta) {
     this.eta = eta;
   }
 
-  @JsonProperty("theta")
   public double getTheta() {
     return theta;
   }
 
-  @JsonProperty("theta")
   public void setTheta(double theta) {
     this.theta = theta;
   }
 
-  @JsonProperty("etaPrim")
   public double getEtaPrim() {
     return etaPrim;
   }
 
-  @JsonProperty("etaPrim")
   public void setEtaPrim(double etaPrim) {
     this.etaPrim = etaPrim;
   }
 
-  @JsonProperty("tehtaPrim")
   public double getTehtaPrim() {
     return tehtaPrim;
   }
 
-  @JsonProperty("tehtaPrim")
   public void setTehtaPrim(double tehtaPrim) {
     this.tehtaPrim = tehtaPrim;
   }
 
-  @JsonProperty("chi")
   public double getChi() {
     return chi;
   }
 
-  @JsonProperty("chi")
   public void setChi(double chi) {
     this.chi = chi;
   }
 
-  @JsonProperty("pseudophasePucker")
   public double getPseudophasePucker() {
     return pseudophasePucker;
   }
 
-  @JsonProperty("pseudophasePucker")
   public void setPseudophasePucker(double pseudophasePucker) {
     this.pseudophasePucker = pseudophasePucker;
   }
