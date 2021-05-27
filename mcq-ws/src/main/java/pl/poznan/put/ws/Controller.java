@@ -2,10 +2,9 @@ package pl.poznan.put.ws;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.poznan.put.schema.StructureContentDTO;
-import pl.poznan.put.schema.TrigonometricRepresentationDTO;
-import pl.poznan.put.schema.UploadDTO;
+import pl.poznan.put.schema.*;
 import pl.poznan.put.ws.componentes.Version;
 import java.util.List;
 
@@ -43,7 +42,17 @@ public class Controller {
   }
 
   @PostMapping("/analyze/{id}")
-  private List<TrigonometricRepresentationDTO> getAnalyze(@PathVariable String id) {
+  private List<TrigonometricRepresentationDTO> postAnalyze(@PathVariable String id) {
     return servicesSupervisor.getAnalyzeService().handleGetAnalyze(id);
+  }
+
+  @PostMapping("/compare/target")
+  private List<ModelComparisonDTO> postCompareTarget(@RequestBody TargetModelsDTO targetModelsDTO) {
+    return servicesSupervisor.getCompareService().handleCompare(targetModelsDTO);
+  }
+
+  @PostMapping("/compare/models")
+  private List<ModelComparisonDTO> postCompareModels(@RequestBody ModelsDTO modelsDTO) {
+    return servicesSupervisor.getCompareService().handleCompare(modelsDTO);
   }
 }
