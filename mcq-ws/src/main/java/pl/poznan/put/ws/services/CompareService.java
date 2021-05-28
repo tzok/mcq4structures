@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,16 +40,19 @@ public class CompareService {
   }
 
   public List<ModelComparisonDTO> handleCompare(List<String> chains, String modelTarget) {
-    List<UUID> ids = new ArrayList<UUID>();
-    for (String chain : chains) {
-      ids.add(UUID.fromString(chain));
-    }
-
     List<TrigonometricRepresentation> trigonometricRepresentations =
         new ArrayList<TrigonometricRepresentation>();
-    for (TrigonometricRepresentation currentTR : trigonometricRepresentationCrudRepo.findAllById(ids)) {
-      trigonometricRepresentations.add(currentTR);
-    }
+
+    trigonometricRepresentations =
+        StreamSupport.stream(
+                trigonometricRepresentationCrudRepo
+                    .findAllById(
+                        chains.stream()
+                            .map(chain -> UUID.fromString(chain))
+                            .collect(Collectors.toList()))
+                    .spliterator(),
+                false)
+            .collect(Collectors.toList());
 
     if (modelTarget != null) {
       return computationService.compare(trigonometricRepresentations, modelTarget);
