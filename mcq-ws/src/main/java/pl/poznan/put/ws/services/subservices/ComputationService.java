@@ -20,4 +20,8 @@ public class ComputationService {
   public List<ModelComparisonDTO> compare(List<TrigonometricRepresentation> trigonometricRepresentations) {
     return null;
   }
+
+  public List<ModelComparisonDTO> compare(List<TrigonometricRepresentation> trigonometricRepresentations, String modelTarget) {
+    return null;
+  }
 }

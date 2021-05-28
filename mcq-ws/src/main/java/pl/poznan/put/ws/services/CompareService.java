@@ -30,14 +30,14 @@ public class CompareService {
   }
 
   public List<ModelComparisonDTO> handleCompare(TargetModelsDTO targetModelsDTO) {
-    return handleCompare(targetModelsDTO.getModels());
+    return handleCompare(targetModelsDTO.getModels(), targetModelsDTO.getTarget());
   }
 
   public List<ModelComparisonDTO> handleCompare(ModelsDTO modelsDTO) {
-    return handleCompare(modelsDTO.getModels());
+    return handleCompare(modelsDTO.getModels(), null);
   }
 
-  public List<ModelComparisonDTO> handleCompare(List<String> chains) {
+  public List<ModelComparisonDTO> handleCompare(List<String> chains, String modelTarget) {
     List<UUID> ids = new ArrayList<UUID>();
     for (String chain : chains) {
       ids.add(UUID.fromString(chain));
@@ -49,6 +49,10 @@ public class CompareService {
       trigonometricRepresentations.add(currentTR);
     }
 
-    return computationService.compare(trigonometricRepresentations);
+    if (modelTarget != null) {
+      return computationService.compare(trigonometricRepresentations, modelTarget);
+    } else {
+      return computationService.compare(trigonometricRepresentations);
+    }
   }
 }
