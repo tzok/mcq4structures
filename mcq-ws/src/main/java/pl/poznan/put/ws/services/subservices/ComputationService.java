@@ -17,11 +17,11 @@ public class ComputationService {
     return null;
   }
 
-  public List<ModelComparisonDTO> compare(List<TrigonometricRepresentation> trigonometricRepresentations) {
+  public List<ModelComparisonDTO> compare(List<TrigonometricRepresentation> target) {
     return null;
   }
 
-  public List<ModelComparisonDTO> compare(List<TrigonometricRepresentation> trigonometricRepresentations, String modelTarget) {
+  public List<ModelComparisonDTO> compare(List<TrigonometricRepresentation> model, TrigonometricRepresentation target) {
     return null;
   }
 }

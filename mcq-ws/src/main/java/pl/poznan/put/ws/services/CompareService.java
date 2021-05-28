@@ -13,6 +13,7 @@ import pl.poznan.put.schema.ModelComparisonDTO;
 import pl.poznan.put.schema.ModelsDTO;
 import pl.poznan.put.schema.TargetModelsDTO;
 import pl.poznan.put.ws.entities.TrigonometricRepresentation;
+import pl.poznan.put.ws.exceptions.ObjectNotFoundException;
 import pl.poznan.put.ws.jpa.TrigonometricRepresentationCrudRepo;
 import pl.poznan.put.ws.services.subservices.ComputationService;
 
@@ -54,8 +55,14 @@ public class CompareService {
                 false)
             .collect(Collectors.toList());
 
+
     if (modelTarget != null) {
-      return computationService.compare(trigonometricRepresentations, modelTarget);
+      List<TrigonometricRepresentation> targets = trigonometricRepresentationCrudRepo.findAllByInputId(UUID.fromString(modelTarget));
+      if (targets.size() == 1){
+        return computationService.compare(trigonometricRepresentations, targets.get(0));
+      } else {
+        throw new ObjectNotFoundException(modelTarget, TrigonometricRepresentation.class);
+      }
     } else {
       return computationService.compare(trigonometricRepresentations);
     }
