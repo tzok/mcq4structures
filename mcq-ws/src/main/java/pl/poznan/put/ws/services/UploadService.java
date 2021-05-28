@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import pl.poznan.put.schema.StructureContentDTO;
 import pl.poznan.put.schema.UploadDTO;
 import pl.poznan.put.ws.entities.StructureContent;
+import pl.poznan.put.ws.exceptions.PathVariableException;
 import pl.poznan.put.ws.jpa.StructureContentCrudRepo;
 import pl.poznan.put.ws.services.subservices.ComputationService;
 
@@ -44,7 +45,18 @@ public class UploadService {
   }
 
   public UploadDTO handlePostUpload(String pdbId, int assemblyId) {
+    validateParameters(pdbId, assemblyId);
     StructureContentDTO loadedStructure = computationService.loadStructure(pdbId, assemblyId);
     return handlePostUpload(loadedStructure);
+  }
+
+  private void validateParameters(String pdbId, int assemblyId) {
+    if (pdbId.length() != 4) {
+      throw new PathVariableException("pdbId", pdbId, "This parameter has to contain 4 characters!");
+    }
+
+    if (assemblyId < 1) {
+      throw new PathVariableException("assemblyId", String.valueOf(assemblyId), "This number has to be positive!");
+    }
   }
 }
