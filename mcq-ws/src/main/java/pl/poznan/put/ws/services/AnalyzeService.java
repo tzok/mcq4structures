@@ -9,6 +9,7 @@ import pl.poznan.put.ws.entities.StructureContent;
 import pl.poznan.put.ws.entities.TrigonometricRepresentation;
 import pl.poznan.put.ws.exceptions.ObjectNotFoundException;
 import pl.poznan.put.ws.jpa.StructureContentCrudRepo;
+
 import pl.poznan.put.ws.jpa.TrigonometricRepresentationCrudRepo;
 import pl.poznan.put.ws.services.subservices.ComputationService;
 
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AnalyzeService {
@@ -42,35 +44,29 @@ public class AnalyzeService {
 
   public List<TrigonometricRepresentationDTO> handleGetAnalyze(String id) {
     UUID givenId = UUID.fromString(id);
-    List<TrigonometricRepresentation> trigonometricRepresentationIterable =
+    List<TrigonometricRepresentation> foundTrigonometricRepresentations =
         trigonometricRepresentationCrudRepo.findAllByInputId(givenId);
 
-    if (trigonometricRepresentationIterable.size() > 0) {
-      List<TrigonometricRepresentationDTO> trigonometricRepresentationDTOS =
-          new ArrayList<TrigonometricRepresentationDTO>();
-      for (TrigonometricRepresentation trigonometricRepresentation :
-          trigonometricRepresentationIterable) {
-        trigonometricRepresentationDTOS.add(
-            modelMapper.map(trigonometricRepresentation, TrigonometricRepresentationDTO.class));
-      }
-      return trigonometricRepresentationDTOS;
+    if (foundTrigonometricRepresentations.size() > 0) {
+      return trigonometricRepresentationCrudRepo.findAllByInputId(givenId).stream()
+          .map(foundTR -> modelMapper.map(foundTR, TrigonometricRepresentationDTO.class))
+          .collect(Collectors.toList());
     } else {
       Optional<StructureContent> structureContentOptional =
           structureContentCrudRepo.findById(givenId);
       if (structureContentOptional.isPresent()) {
-        List<StructureContentDTO> structureContentDTOS =
-            computationService.computeTorsionAngles(
-                modelMapper.map(structureContentOptional.get(), StructureContentDTO.class));
-        List<TrigonometricRepresentationDTO> trigonometricRepresentationDTOS =
-            new ArrayList<TrigonometricRepresentationDTO>();
-        for (StructureContentDTO structureContentDTO : structureContentDTOS) {
-          trigonometricRepresentationDTOS.add(
-              modelMapper.map(
-                  trigonometricRepresentationCrudRepo.save(
-                      modelMapper.map(structureContentDTO, TrigonometricRepresentation.class)),
-                  TrigonometricRepresentationDTO.class));
-        }
-        return trigonometricRepresentationDTOS;
+        return computationService
+            .computeTorsionAngles(
+                modelMapper.map(structureContentOptional.get(), StructureContentDTO.class))
+            .stream()
+            .map(
+                structureContentDTO ->
+                    modelMapper.map(
+                        trigonometricRepresentationCrudRepo.save(
+                            modelMapper.map(
+                                structureContentDTO, TrigonometricRepresentation.class)),
+                        TrigonometricRepresentationDTO.class))
+            .collect(Collectors.toList());
       } else {
         throw new ObjectNotFoundException(id, StructureContent.class);
       }
