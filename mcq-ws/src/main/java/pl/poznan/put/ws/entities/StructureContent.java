@@ -6,12 +6,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.annotation.Generated;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.List;
 
 @Entity
 public class StructureContent {
@@ -44,6 +44,10 @@ public class StructureContent {
   public Instant getCreatedAt() {
     return createdAt;
   }
+
+  @OneToMany(mappedBy = "inputId", fetch = FetchType.LAZY)
+  private List<TrigonometricRepresentation> trigonometricRepresentations;
+
 
   public void setCreatedAt(Instant createdAt) {
     this.createdAt = createdAt;

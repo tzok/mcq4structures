@@ -11,6 +11,6 @@ import java.util.UUID;
 
 public interface TrigonometricRepresentationCrudRepo
     extends CrudRepository<TrigonometricRepresentation, UUID> {
-  @Query("SELECT t FROM TrigonometricRepresentation t WHERE t.inputId = ?1")
+  @Query("SELECT t FROM TrigonometricRepresentation t WHERE t.inputId.id = ?1")
   List<TrigonometricRepresentation> findAllByInputId(@Param("inputId") UUID inputId);
 }

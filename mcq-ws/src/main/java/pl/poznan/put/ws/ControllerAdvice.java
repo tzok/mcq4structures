@@ -20,6 +20,7 @@ public class ControllerAdvice {
     return illegalArgumentException.getMessage();
   }
 
+
   @ResponseBody
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ExceptionHandler(NoGitPropertiesException.class)

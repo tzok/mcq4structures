@@ -20,9 +20,9 @@ public class TrigonometricRepresentation {
 
   private Instant createdAt;
 
-  @ManyToOne(targetEntity = StructureContent.class)
-  @JoinColumn(name = "StructureContent_id")
-  private UUID inputId;
+  @ManyToOne
+  @JoinColumn(name = "input_id")
+  private StructureContent inputId;
 
   private String pdbId;
 
@@ -39,7 +39,7 @@ public class TrigonometricRepresentation {
   public TrigonometricRepresentation(
       UUID id,
       Instant createdAt,
-      UUID inputId,
+      StructureContent inputId,
       String pdbId,
       int assemblyId,
       double modelNumber,
@@ -69,11 +69,11 @@ public class TrigonometricRepresentation {
     this.createdAt = createdAt;
   }
 
-  public UUID getInputId() {
+  public StructureContent getInputId() {
     return inputId;
   }
 
-  public void setInputId(UUID inputId) {
+  public void setInputId(StructureContent inputId) {
     this.inputId = inputId;
   }
 
