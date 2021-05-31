@@ -8,7 +8,7 @@ import pl.poznan.put.ws.components.Version;
 @Service
 public class VersionService {
 
-  private Version version;
+  private final Version version;
 
   @Autowired
   public VersionService(Version version) {

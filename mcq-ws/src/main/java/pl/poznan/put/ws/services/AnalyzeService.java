@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 @Service
 public class AnalyzeService {
 
-  private TrigonometricRepresentationCrudRepo trigonometricRepresentationCrudRepo;
+  private final TrigonometricRepresentationCrudRepo trigonometricRepresentationCrudRepo;
 
-  private StructureContentCrudRepo structureContentCrudRepo;
+  private final StructureContentCrudRepo structureContentCrudRepo;
 
-  private ModelMapper modelMapper;
+  private final ModelMapper modelMapper;
 
-  private ComputationService computationService;
+  private final ComputationService computationService;
 
   @Autowired
   public AnalyzeService(
