@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
@@ -50,46 +51,22 @@ public class Chain {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(Chain.class.getName())
-        .append('@')
-        .append(Integer.toHexString(System.identityHashCode(this)))
-        .append('[');
-    sb.append("name");
-    sb.append('=');
-    sb.append(((this.name == null) ? "<null>" : this.name));
-    sb.append(',');
-    sb.append("residues");
-    sb.append('=');
-    sb.append(((this.residues == null) ? "<null>" : this.residues));
-    sb.append(',');
-    if (sb.charAt((sb.length() - 1)) == ',') {
-      sb.setCharAt((sb.length() - 1), ']');
-    } else {
-      sb.append(']');
-    }
-    return sb.toString();
+    return "Chain{" +
+            "name='" + name + '\'' +
+            ", residues=" + residues +
+            '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Chain chain = (Chain) o;
+    return Objects.equals(name, chain.name) && Objects.equals(residues, chain.residues);
   }
 
   @Override
   public int hashCode() {
-    int result = 1;
-    result = ((result * 31) + ((this.name == null) ? 0 : this.name.hashCode()));
-    result = ((result * 31) + ((this.residues == null) ? 0 : this.residues.hashCode()));
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == this) {
-      return true;
-    }
-    if ((other instanceof Chain) == false) {
-      return false;
-    }
-    Chain rhs = ((Chain) other);
-    return (((this.name == rhs.name) || ((this.name != null) && this.name.equals(rhs.name)))
-        && ((this.residues == rhs.residues)
-            || ((this.residues != null) && this.residues.equals(rhs.residues))));
+    return Objects.hash(name, residues);
   }
 }

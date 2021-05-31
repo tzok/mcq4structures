@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import javax.annotation.Generated;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity
 public class Residue {
@@ -21,8 +22,7 @@ public class Residue {
 
   private String chain;
 
-  @Id
-  private int residueNumber;
+  @Id private int residueNumber;
 
   private String insertionCode;
 
@@ -61,7 +61,6 @@ public class Residue {
   private double pseudophasePucker;
 
   public Residue() {}
-
 
   public Residue(
       boolean isMissing,
@@ -309,311 +308,120 @@ public class Residue {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(Residue.class.getName())
-        .append('@')
-        .append(Integer.toHexString(System.identityHashCode(this)))
-        .append('[');
-    sb.append("isMissing");
-    sb.append('=');
-    sb.append(this.isMissing);
-    sb.append(',');
-    sb.append("standardResidueName");
-    sb.append('=');
-    sb.append(((this.standardResidueName == null) ? "<null>" : this.standardResidueName));
-    sb.append(',');
-    sb.append("modifiedResidueName");
-    sb.append('=');
-    sb.append(((this.modifiedResidueName == null) ? "<null>" : this.modifiedResidueName));
-    sb.append(',');
-    sb.append("oneLetterName");
-    sb.append('=');
-    sb.append(((this.oneLetterName == null) ? "<null>" : this.oneLetterName));
-    sb.append(',');
-    sb.append("chain");
-    sb.append('=');
-    sb.append(((this.chain == null) ? "<null>" : this.chain));
-    sb.append(',');
-    sb.append("residueNumber");
-    sb.append('=');
-    sb.append(this.residueNumber);
-    sb.append(',');
-    sb.append("insertionCode");
-    sb.append('=');
-    sb.append(((this.insertionCode == null) ? "<null>" : this.insertionCode));
-    sb.append(',');
-    sb.append("alpha");
-    sb.append('=');
-    sb.append(this.alpha);
-    sb.append(',');
-    sb.append("beta");
-    sb.append('=');
-    sb.append(this.beta);
-    sb.append(',');
-    sb.append("gamma");
-    sb.append('=');
-    sb.append(this.gamma);
-    sb.append(',');
-    sb.append("delta");
-    sb.append('=');
-    sb.append(this.delta);
-    sb.append(',');
-    sb.append("epsilon");
-    sb.append('=');
-    sb.append(this.epsilon);
-    sb.append(',');
-    sb.append("zeta");
-    sb.append('=');
-    sb.append(this.zeta);
-    sb.append(',');
-    sb.append("nu0");
-    sb.append('=');
-    sb.append(this.nu0);
-    sb.append(',');
-    sb.append("nu1");
-    sb.append('=');
-    sb.append(this.nu1);
-    sb.append(',');
-    sb.append("nu2");
-    sb.append('=');
-    sb.append(this.nu2);
-    sb.append(',');
-    sb.append("nu3");
-    sb.append('=');
-    sb.append(this.nu3);
-    sb.append(',');
-    sb.append("nu4");
-    sb.append('=');
-    sb.append(this.nu4);
-    sb.append(',');
-    sb.append("eta");
-    sb.append('=');
-    sb.append(this.eta);
-    sb.append(',');
-    sb.append("theta");
-    sb.append('=');
-    sb.append(this.theta);
-    sb.append(',');
-    sb.append("etaPrim");
-    sb.append('=');
-    sb.append(this.etaPrim);
-    sb.append(',');
-    sb.append("tehtaPrim");
-    sb.append('=');
-    sb.append(this.tehtaPrim);
-    sb.append(',');
-    sb.append("chi");
-    sb.append('=');
-    sb.append(this.chi);
-    sb.append(',');
-    sb.append("pseudophasePucker");
-    sb.append('=');
-    sb.append(this.pseudophasePucker);
-    sb.append(',');
-    if (sb.charAt((sb.length() - 1)) == ',') {
-      sb.setCharAt((sb.length() - 1), ']');
-    } else {
-      sb.append(']');
-    }
-    return sb.toString();
+    return "Residue{"
+        + "isMissing="
+        + isMissing
+        + ", standardResidueName='"
+        + standardResidueName
+        + '\''
+        + ", modifiedResidueName='"
+        + modifiedResidueName
+        + '\''
+        + ", oneLetterName='"
+        + oneLetterName
+        + '\''
+        + ", chain='"
+        + chain
+        + '\''
+        + ", residueNumber="
+        + residueNumber
+        + ", insertionCode='"
+        + insertionCode
+        + '\''
+        + ", alpha="
+        + alpha
+        + ", beta="
+        + beta
+        + ", gamma="
+        + gamma
+        + ", delta="
+        + delta
+        + ", epsilon="
+        + epsilon
+        + ", zeta="
+        + zeta
+        + ", nu0="
+        + nu0
+        + ", nu1="
+        + nu1
+        + ", nu2="
+        + nu2
+        + ", nu3="
+        + nu3
+        + ", nu4="
+        + nu4
+        + ", eta="
+        + eta
+        + ", theta="
+        + theta
+        + ", etaPrim="
+        + etaPrim
+        + ", tehtaPrim="
+        + tehtaPrim
+        + ", chi="
+        + chi
+        + ", pseudophasePucker="
+        + pseudophasePucker
+        + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Residue residue = (Residue) o;
+    return isMissing == residue.isMissing
+        && residueNumber == residue.residueNumber
+        && Double.compare(residue.alpha, alpha) == 0
+        && Double.compare(residue.beta, beta) == 0
+        && Double.compare(residue.gamma, gamma) == 0
+        && Double.compare(residue.delta, delta) == 0
+        && Double.compare(residue.epsilon, epsilon) == 0
+        && Double.compare(residue.zeta, zeta) == 0
+        && Double.compare(residue.nu0, nu0) == 0
+        && Double.compare(residue.nu1, nu1) == 0
+        && Double.compare(residue.nu2, nu2) == 0
+        && Double.compare(residue.nu3, nu3) == 0
+        && Double.compare(residue.nu4, nu4) == 0
+        && Double.compare(residue.eta, eta) == 0
+        && Double.compare(residue.theta, theta) == 0
+        && Double.compare(residue.etaPrim, etaPrim) == 0
+        && Double.compare(residue.tehtaPrim, tehtaPrim) == 0
+        && Double.compare(residue.chi, chi) == 0
+        && Double.compare(residue.pseudophasePucker, pseudophasePucker) == 0
+        && Objects.equals(standardResidueName, residue.standardResidueName)
+        && Objects.equals(modifiedResidueName, residue.modifiedResidueName)
+        && Objects.equals(oneLetterName, residue.oneLetterName)
+        && Objects.equals(chain, residue.chain)
+        && Objects.equals(insertionCode, residue.insertionCode);
   }
 
   @Override
   public int hashCode() {
-    int result = 1;
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.delta)
-                    ^ (Double.doubleToLongBits(this.delta) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.nu0) ^ (Double.doubleToLongBits(this.nu0) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.nu2) ^ (Double.doubleToLongBits(this.nu2) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.nu1) ^ (Double.doubleToLongBits(this.nu1) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.nu4) ^ (Double.doubleToLongBits(this.nu4) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.nu3) ^ (Double.doubleToLongBits(this.nu3) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.theta)
-                    ^ (Double.doubleToLongBits(this.theta) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.epsilon)
-                    ^ (Double.doubleToLongBits(this.epsilon) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.eta) ^ (Double.doubleToLongBits(this.eta) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.alpha)
-                    ^ (Double.doubleToLongBits(this.alpha) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.tehtaPrim)
-                    ^ (Double.doubleToLongBits(this.tehtaPrim) >>> 32))));
-    result = ((result * 31) + ((this.oneLetterName == null) ? 0 : this.oneLetterName.hashCode()));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.pseudophasePucker)
-                    ^ (Double.doubleToLongBits(this.pseudophasePucker) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.etaPrim)
-                    ^ (Double.doubleToLongBits(this.etaPrim) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.beta)
-                    ^ (Double.doubleToLongBits(this.beta) >>> 32))));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.zeta)
-                    ^ (Double.doubleToLongBits(this.zeta) >>> 32))));
-    result = ((result * 31) + ((this.chain == null) ? 0 : this.chain.hashCode()));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.chi) ^ (Double.doubleToLongBits(this.chi) >>> 32))));
-    result = ((result * 31) + ((this.insertionCode == null) ? 0 : this.insertionCode.hashCode()));
-    result =
-        ((result * 31)
-            + ((this.standardResidueName == null) ? 0 : this.standardResidueName.hashCode()));
-    result = ((result * 31) + (this.isMissing ? 1 : 0));
-    result = ((result * 31) + this.residueNumber);
-    result =
-        ((result * 31)
-            + ((this.modifiedResidueName == null) ? 0 : this.modifiedResidueName.hashCode()));
-    result =
-        ((result * 31)
-            + ((int)
-                (Double.doubleToLongBits(this.gamma)
-                    ^ (Double.doubleToLongBits(this.gamma) >>> 32))));
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == this) {
-      return true;
-    }
-    if ((other instanceof Residue) == false) {
-      return false;
-    }
-    Residue rhs = ((Residue) other);
-    return ((((((((((((((((((((((((Double.doubleToLongBits(this.delta)
-                                                                                                    == Double
-                                                                                                        .doubleToLongBits(
-                                                                                                            rhs.delta))
-                                                                                                && (Double
-                                                                                                        .doubleToLongBits(
-                                                                                                            this
-                                                                                                                .nu0)
-                                                                                                    == Double
-                                                                                                        .doubleToLongBits(
-                                                                                                            rhs.nu0)))
-                                                                                            && (Double
-                                                                                                    .doubleToLongBits(
-                                                                                                        this
-                                                                                                            .nu2)
-                                                                                                == Double
-                                                                                                    .doubleToLongBits(
-                                                                                                        rhs.nu2)))
-                                                                                        && (Double
-                                                                                                .doubleToLongBits(
-                                                                                                    this
-                                                                                                        .nu1)
-                                                                                            == Double
-                                                                                                .doubleToLongBits(
-                                                                                                    rhs.nu1)))
-                                                                                    && (Double
-                                                                                            .doubleToLongBits(
-                                                                                                this
-                                                                                                    .nu4)
-                                                                                        == Double
-                                                                                            .doubleToLongBits(
-                                                                                                rhs.nu4)))
-                                                                                && (Double
-                                                                                        .doubleToLongBits(
-                                                                                            this
-                                                                                                .nu3)
-                                                                                    == Double
-                                                                                        .doubleToLongBits(
-                                                                                            rhs.nu3)))
-                                                                            && (Double
-                                                                                    .doubleToLongBits(
-                                                                                        this.theta)
-                                                                                == Double
-                                                                                    .doubleToLongBits(
-                                                                                        rhs.theta)))
-                                                                        && (Double.doubleToLongBits(
-                                                                                this.epsilon)
-                                                                            == Double
-                                                                                .doubleToLongBits(
-                                                                                    rhs.epsilon)))
-                                                                    && (Double.doubleToLongBits(
-                                                                            this.eta)
-                                                                        == Double.doubleToLongBits(
-                                                                            rhs.eta)))
-                                                                && (Double.doubleToLongBits(
-                                                                        this.alpha)
-                                                                    == Double.doubleToLongBits(
-                                                                        rhs.alpha)))
-                                                            && (Double.doubleToLongBits(
-                                                                    this.tehtaPrim)
-                                                                == Double.doubleToLongBits(
-                                                                    rhs.tehtaPrim)))
-                                                        && ((this.oneLetterName
-                                                                == rhs.oneLetterName)
-                                                            || ((this.oneLetterName != null)
-                                                                && this.oneLetterName.equals(
-                                                                    rhs.oneLetterName))))
-                                                    && (Double.doubleToLongBits(
-                                                            this.pseudophasePucker)
-                                                        == Double.doubleToLongBits(
-                                                            rhs.pseudophasePucker)))
-                                                && (Double.doubleToLongBits(this.etaPrim)
-                                                    == Double.doubleToLongBits(rhs.etaPrim)))
-                                            && (Double.doubleToLongBits(this.beta)
-                                                == Double.doubleToLongBits(rhs.beta)))
-                                        && (Double.doubleToLongBits(this.zeta)
-                                            == Double.doubleToLongBits(rhs.zeta)))
-                                    && ((this.chain == rhs.chain)
-                                        || ((this.chain != null) && this.chain.equals(rhs.chain))))
-                                && (Double.doubleToLongBits(this.chi)
-                                    == Double.doubleToLongBits(rhs.chi)))
-                            && ((this.insertionCode == rhs.insertionCode)
-                                || ((this.insertionCode != null)
-                                    && this.insertionCode.equals(rhs.insertionCode))))
-                        && ((this.standardResidueName == rhs.standardResidueName)
-                            || ((this.standardResidueName != null)
-                                && this.standardResidueName.equals(rhs.standardResidueName))))
-                    && (this.isMissing == rhs.isMissing))
-                && (this.residueNumber == rhs.residueNumber))
-            && ((this.modifiedResidueName == rhs.modifiedResidueName)
-                || ((this.modifiedResidueName != null)
-                    && this.modifiedResidueName.equals(rhs.modifiedResidueName))))
-        && (Double.doubleToLongBits(this.gamma) == Double.doubleToLongBits(rhs.gamma)));
+    return Objects.hash(
+        isMissing,
+        standardResidueName,
+        modifiedResidueName,
+        oneLetterName,
+        chain,
+        residueNumber,
+        insertionCode,
+        alpha,
+        beta,
+        gamma,
+        delta,
+        epsilon,
+        zeta,
+        nu0,
+        nu1,
+        nu2,
+        nu3,
+        nu4,
+        eta,
+        theta,
+        etaPrim,
+        tehtaPrim,
+        chi,
+        pseudophasePucker);
   }
 }

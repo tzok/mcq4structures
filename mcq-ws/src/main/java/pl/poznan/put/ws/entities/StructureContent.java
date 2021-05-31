@@ -16,8 +16,7 @@ import java.util.List;
 @Entity
 public class StructureContent {
 
-  public StructureContent(
-      UUID id, Instant createdAt, String data) {
+  public StructureContent(UUID id, Instant createdAt, String data) {
     this.id = id;
     this.createdAt = createdAt;
     this.data = data;
@@ -25,11 +24,9 @@ public class StructureContent {
 
   public StructureContent() {}
 
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
-  @CreatedDate
-  private Instant createdAt;
+  @CreatedDate private Instant createdAt;
 
   private String data = "";
 
@@ -48,7 +45,6 @@ public class StructureContent {
   @OneToMany(mappedBy = "inputId", fetch = FetchType.LAZY)
   private List<TrigonometricRepresentation> trigonometricRepresentations;
 
-
   public void setCreatedAt(Instant createdAt) {
     this.createdAt = createdAt;
   }
@@ -61,13 +57,28 @@ public class StructureContent {
     this.data = data;
   }
 
+  public List<TrigonometricRepresentation> getTrigonometricRepresentations() {
+    return trigonometricRepresentations;
+  }
+
+  public void setTrigonometricRepresentations(
+      List<TrigonometricRepresentation> trigonometricRepresentations) {
+    this.trigonometricRepresentations = trigonometricRepresentations;
+  }
+
   @Override
   public String toString() {
-    return "StructureContent{" +
-            "id=" + id +
-            ", createdAt=" + createdAt +
-            ", data='" + data + '\'' +
-            '}';
+    return "StructureContent{"
+        + "id="
+        + id
+        + ", createdAt="
+        + createdAt
+        + ", data='"
+        + data
+        + '\''
+        + ", trigonometricRepresentations="
+        + trigonometricRepresentations
+        + '}';
   }
 
   @Override
@@ -75,11 +86,14 @@ public class StructureContent {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     StructureContent that = (StructureContent) o;
-    return Objects.equals(id, that.id) && Objects.equals(createdAt, that.createdAt) &&  Objects.equals(data, that.data);
+    return Objects.equals(id, that.id)
+        && Objects.equals(createdAt, that.createdAt)
+        && Objects.equals(data, that.data)
+        && Objects.equals(trigonometricRepresentations, that.trigonometricRepresentations);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, data);
+    return Objects.hash(id, createdAt, data, trigonometricRepresentations);
   }
 }
