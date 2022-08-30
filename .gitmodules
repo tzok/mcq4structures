@@ -1,4 +1,0 @@
-[submodule "varna-tz"]
-	path = varna-tz
-	url = https://github.com/tzok/varna-tz.git
-	branch = develop

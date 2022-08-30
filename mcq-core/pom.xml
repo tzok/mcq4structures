@@ -48,11 +48,6 @@
 
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava-structure</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.biojava</groupId>
       <artifactId>jcolorbrewer</artifactId>
     </dependency>
 
@@ -64,11 +59,6 @@
     <dependency>
       <groupId>pl.poznan.put</groupId>
       <artifactId>varna-tz</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis-ext</artifactId>
     </dependency>
 
     <dependency>
