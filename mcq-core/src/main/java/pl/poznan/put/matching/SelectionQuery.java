@@ -92,14 +92,13 @@ public final class SelectionQuery {
       final PdbResidueIdentifier identifier = pair.getKey();
       final int count = pair.getValue();
       final List<PdbResidue> selectedResidues = new ArrayList<>(count);
+      boolean found = false;
 
       for (final PdbChain chain : model.chains()) {
         final String queryChainIdentifier = identifier.chainIdentifier();
         final String chainIdentifier = chain.identifier();
 
         if (queryChainIdentifier.equals(chainIdentifier)) {
-          boolean found = false;
-
           for (final PdbResidue residue : chain.residues()) {
             if (identifier.equals(residue.identifier())) {
               found = true;
@@ -111,8 +110,6 @@ public final class SelectionQuery {
               break;
             }
           }
-
-          break;
         }
       }
 
