@@ -10,5 +10,5 @@ COPY colorbar.py \
      mcq-local \
      mcq-print \
      /usr/local/bin/
-COPY target/mcq-cli-1.7-SNAPSHOT-jar-with-dependencies.jar \
-     /usr/local/bin/target/
+COPY target/mcq-cli-*-jar-with-dependencies.jar \
+     /usr/local/bin/target/mcq-cli-latest-jar-with-dependencies.jar
