@@ -52,28 +52,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>biojava-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>biojava-structure</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>biojava-structure-gui</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>jfreechart</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jzy3d</groupId>
-      <artifactId>jzy3d-api</artifactId>
     </dependency>
 
     <dependency>
@@ -94,18 +74,8 @@
     </dependency>
 
     <dependency>
-      <groupId>pl.poznan.put</groupId>
+      <groupId>com.github.tzok</groupId>
       <artifactId>varna-tz</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis-ext</artifactId>
     </dependency>
 
     <dependency>

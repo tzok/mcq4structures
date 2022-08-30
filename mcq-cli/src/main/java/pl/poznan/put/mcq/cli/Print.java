@@ -64,9 +64,10 @@ public final class Print {
     for (final StructureSelection model : models) {
       final File csvFile = new File(outputDirectory, Print.csvFileName(model));
 
+      final CSVFormat format = CSVFormat.Builder.create().setHeader(Print.CSV_HEADER).build();
       try (final FileWriter writer = new FileWriter(csvFile);
-          final CSVPrinter csvPrinter =
-              new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(Print.CSV_HEADER))) {
+           final CSVPrinter csvPrinter =
+              new CSVPrinter(writer, format)) {
         final DotBracketFromPdb dotBracket = Print.toDotBracket(model);
 
         for (final PdbCompactFragment fragment : model.getCompactFragments()) {
@@ -78,7 +79,7 @@ public final class Print {
             csvPrinter.print(residue.residueNumber());
             csvPrinter.print(residue.insertionCode());
             csvPrinter.print(residue.modifiedResidueName());
-            csvPrinter.print(dotBracket.symbol(residue.namedResidueIdentifer()).structure());
+            csvPrinter.print(dotBracket.symbol(residue.identifier()).structure());
             for (final MasterTorsionAngleType angleType : MoleculeType.RNA.allAngleTypes()) {
               csvPrinter.print(residueTorsionAngles.value(angleType).degrees());
             }
@@ -90,7 +91,7 @@ public final class Print {
   }
 
   private static String csvFileName(final StructureSelection selection) {
-    final Slugify slugify = new Slugify();
+    final Slugify slugify = Slugify.builder().build();
     return slugify.slugify(selection.getName()).toLowerCase(Locale.ROOT) + ".csv";
   }
 

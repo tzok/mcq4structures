@@ -8,11 +8,11 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>varna-tz</module>
     <module>mcq-cli</module>
     <module>mcq-clustering</module>
     <module>mcq-core</module>
     <module>mcq-gui</module>
+    <module>mcq-ws</module>
   </modules>
 
   <properties>
@@ -24,25 +24,31 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.2.3</version>
+        <version>1.4.0</version>
       </dependency>
 
       <dependency>
         <groupId>com.github.slugify</groupId>
         <artifactId>slugify</artifactId>
-        <version>2.5</version>
+        <version>3.0.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.tzok</groupId>
+        <artifactId>varna-tz</artifactId>
+        <version>1.2.1</version>
       </dependency>
 
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
-        <version>1.4</version>
+        <version>1.5.0</version>
       </dependency>
 
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.8.0</version>
+        <version>2.11.0</version>
       </dependency>
 
       <dependency>
@@ -60,7 +66,7 @@
       <dependency>
         <groupId>me.tongfei</groupId>
         <artifactId>progressbar</artifactId>
-        <version>0.9.1</version>
+        <version>0.9.3</version>
       </dependency>
 
       <dependency>
@@ -72,7 +78,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
-        <version>1.8</version>
+        <version>1.9.0</version>
       </dependency>
 
       <dependency>
@@ -113,46 +119,6 @@
 
       <dependency>
         <groupId>org.biojava</groupId>
-        <artifactId>biojava-core</artifactId>
-        <version>5.4.0</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.biojava</groupId>
-        <artifactId>biojava-structure</artifactId>
-        <version>5.4.0</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
-          </exclusion>
-          <exclusion>
-            <artifactId>jackson-databind</artifactId>
-            <groupId>com.fasterxml.jackson.core</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.biojava</groupId>
-        <artifactId>biojava-structure-gui</artifactId>
-        <version>5.4.0</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.biojava</groupId>
         <artifactId>jcolorbrewer</artifactId>
         <version>5.2</version>
       </dependency>
@@ -160,7 +126,7 @@
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
-        <version>2.8.8</version>
+        <version>2.9.1</version>
       </dependency>
 
       <dependency>
@@ -170,57 +136,69 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jzy3d</groupId>
-        <artifactId>jzy3d-api</artifactId>
-        <version>0.9.1</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.18.20</version>
+        <version>1.18.24</version>
       </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version>
+        <version>2.0.0</version>
       </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>1.7.30</version>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>5.3.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.4.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+        <version>2.4.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <version>2.3.10.RELEASE</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-validation</artifactId>
+        <version>2.4.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <version>2.3.10.RELEASE</version>
       </dependency>
 
       <dependency>
         <groupId>pl.poznan.put</groupId>
         <artifactId>BioCommons</artifactId>
-        <version>3.0.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>pl.poznan.put</groupId>
-        <artifactId>varna-tz</artifactId>
-        <version>1.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
-        <version>1.3.04</version>
-      </dependency>
-
-      <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis-ext</artifactId>
-        <version>1.3.04</version>
+        <version>3.0.9</version>
       </dependency>
 
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>3.9.0</version>
+        <version>4.7.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -228,9 +206,8 @@
 
   <repositories>
     <repository>
-      <id>jzy3d-releases</id>
-      <name>Jzy3d Releases</name>
-      <url>http://www.jzy3d.org/maven/releases</url>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
     </repository>
   </repositories>
 
@@ -284,8 +261,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.1</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <source>11</source>
+            <target>11</target>
           </configuration>
         </plugin>
 
@@ -293,10 +270,6 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
           <version>2.7</version>
-          <configuration>
-            <allowSnapshots>true</allowSnapshots>
-            <rulesUri>file://${project.basedir}/maven-version-rules.xml</rulesUri>
-          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -310,6 +283,44 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <configuration>
+          <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
+          <targetPackage>pl.poznan.put.schema</targetPackage>
+          <sourceType>yamlschema</sourceType>
+          <includeJsr303Annotations>true</includeJsr303Annotations>
+          <usePrimitives>true</usePrimitives>
+          <includeConstructors>true</includeConstructors>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.3.10.RELEASE</version>
+      </plugin>
+
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>4.9.10</version>
+        <executions>
+          <execution>
+            <id>get-the-git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <failOnNoGitDirectory>false</failOnNoGitDirectory>
+        </configuration>
       </plugin>
     </plugins>
   </build>
