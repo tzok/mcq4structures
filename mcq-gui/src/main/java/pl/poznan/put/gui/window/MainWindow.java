@@ -84,11 +84,9 @@ public final class MainWindow extends JFrame {
       new StayOpenRadioButtonMenuItem("Local distances (multiple)", false);
   private final JMenuItem itemSelectStructuresCompare =
       new JMenuItem("Select structures to compare");
-  private final JMenuItem itemVisualise3D = new JMenuItem("Visualise results in 3D");
   private final JMenuItem itemCluster = new JMenuItem("Cluster results");
   private final ActionListener radioActionListener =
       arg0 -> {
-        itemVisualise3D.setEnabled(false);
         itemCluster.setEnabled(false);
       };
   private final JMenu menuAlignment = new JMenu("Alignment");
@@ -239,7 +237,6 @@ public final class MainWindow extends JFrame {
     menuDistanceMeasure.addSeparator();
     menuDistanceMeasure.add(itemSelectStructuresCompare);
     menuDistanceMeasure.addSeparator();
-    menuDistanceMeasure.add(itemVisualise3D);
     menuDistanceMeasure.add(itemCluster);
     menuBar.add(menuDistanceMeasure);
 
@@ -262,7 +259,6 @@ public final class MainWindow extends JFrame {
 
   private void initializeMenu() {
     itemSave.setEnabled(false);
-    itemVisualise3D.setEnabled(false);
     itemCluster.setEnabled(false);
 
     final ButtonGroup group = new ButtonGroup();
@@ -299,13 +295,6 @@ public final class MainWindow extends JFrame {
 
     itemExit.addActionListener(
         e -> dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
-
-    itemVisualise3D.addActionListener(
-        e -> {
-          if (currentResult.canVisualize()) {
-            currentResult.visualize3D();
-          }
-        });
 
     itemCluster.addActionListener(
         arg0 -> {
@@ -391,7 +380,6 @@ public final class MainWindow extends JFrame {
   private void updateMenuEnabledStates() {
     itemSave.setEnabled(currentResult.canExport());
     itemCluster.setEnabled(currentResult.canCluster());
-    itemVisualise3D.setEnabled(currentResult.canVisualize());
 
     if (currentResult.canExport()) {
       itemSave.setText("Save results");
@@ -414,7 +402,6 @@ public final class MainWindow extends JFrame {
     }
 
     itemSave.setEnabled(false);
-    itemVisualise3D.setEnabled(false);
     itemCluster.setEnabled(false);
 
     panelResultsGlobalMatrix.setStructures(structures);
@@ -465,7 +452,6 @@ public final class MainWindow extends JFrame {
 
     if (source.equals(itemSelectStructuresCompare)) {
       itemSave.setEnabled(false);
-      itemVisualise3D.setEnabled(false);
       itemCluster.setEnabled(false);
 
       panelResultsLocalMatrix.setStructuresAndChains(structures, chains);
@@ -473,7 +459,6 @@ public final class MainWindow extends JFrame {
       compareLocalPair();
     } else if (source.equals(itemSelectStructuresAlign)) {
       itemSave.setEnabled(false);
-      itemVisualise3D.setEnabled(false);
       itemCluster.setEnabled(false);
 
       panelResultsAlignStruc.setStructuresAndChains(structures, chains);
@@ -527,7 +512,6 @@ public final class MainWindow extends JFrame {
 
     if (source.equals(itemSelectStructuresCompare)) {
       itemSave.setEnabled(false);
-      itemVisualise3D.setEnabled(false);
       itemCluster.setEnabled(false);
 
       panelResultsLocalMultiMatrix.setFragments(fragments);

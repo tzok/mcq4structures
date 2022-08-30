@@ -4,8 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.stat.StatUtils;
-import org.jzy3d.analysis.AnalysisLauncher;
-import org.jzy3d.analysis.IAnalysis;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.global.GlobalMatrix;
 import pl.poznan.put.constant.Unicode;
@@ -42,37 +40,8 @@ public class VisualizableGlobalMatrix extends GlobalMatrix implements Visualizab
   }
 
   @Override
-  public final void visualize3D() {
-    try {
-      final String name = getComparator().getName();
-      final double[][] matrix = getDistanceMatrix().matrix();
-      final List<String> ticksX = getNames();
-      final List<String> ticksY = getNames();
-      final NavigableMap<Double, String> valueTickZ = prepareTicksZ();
-      final String labelX = "";
-      final String labelY = "";
-      final String labelZ = "Distance";
-      final boolean showAllTicksX = true;
-      final boolean showAllTicksY = true;
+  public void visualize3D() {
 
-      final IAnalysis surface3d =
-          new Surface3D(
-              name,
-              matrix,
-              ticksX,
-              ticksY,
-              valueTickZ,
-              labelX,
-              labelY,
-              labelZ,
-              showAllTicksX,
-              showAllTicksY);
-      AnalysisLauncher.open(surface3d);
-    } catch (final Exception e) {
-      final String message = "Failed to visualize in 3D";
-      VisualizableGlobalMatrix.log.error(message, e);
-      JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
   }
 
   private NavigableMap<Double, String> prepareTicksZ() {

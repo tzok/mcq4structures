@@ -7,8 +7,6 @@ import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.math3.util.FastMath;
 import org.jcolorbrewer.ColorBrewer;
-import org.jzy3d.analysis.AnalysisLauncher;
-import org.jzy3d.analysis.IAnalysis;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
@@ -97,41 +95,8 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
   }
 
   @Override
-  public final void visualize3D() {
-    final PdbCompactFragment target = getTarget();
-    final List<PdbCompactFragment> models = getModels();
-    final MasterTorsionAngleType angleType = getAngleType();
+  public void visualize3D() {
 
-    if (models.size() < 1) {
-      JOptionPane.showMessageDialog(
-          null,
-          "At least one model is required for 3D visualization",
-          "Error",
-          JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-
-    try {
-      final String name = String.format("%s %s", target.name(), angleType.exportName());
-      final double[][] matrix = prepareMatrix();
-      final List<String> ticksX = prepareTicksX();
-      final List<String> ticksY = prepareTicksY();
-      final NavigableMap<Double, String> valueTickZ = VisualizableMCQLocalResult.prepareTicksZ();
-      final String labelX = "Model";
-      final String labelY = "Residue";
-      final String labelZ = "Distance";
-      final boolean showAllTicksX = true;
-      final boolean showAllTicksY = false;
-
-      final IAnalysis surface3d =
-          new Surface3D(
-              name, matrix, ticksX, ticksY, valueTickZ, labelX, labelY, labelZ, true, false);
-      AnalysisLauncher.open(surface3d);
-    } catch (final Exception e) {
-      final String message = "Failed to visualize in 3D";
-      VisualizableSelectedAngle.log.error(message, e);
-      JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
   }
 
   private float drawModelsNames(

@@ -2,8 +2,6 @@ package pl.poznan.put.visualisation;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.jzy3d.analysis.AnalysisLauncher;
-import org.jzy3d.analysis.IAnalysis;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.comparison.local.LocalResult;
 import pl.poznan.put.constant.Unicode;
@@ -50,63 +48,6 @@ public abstract class VisualizableMCQLocalResult implements LocalResult, Visuali
   public final SVGDocument visualize() {
     throw new IllegalArgumentException(
         "Invalid usage, please use visualize() on FragmentMatch " + "instances");
-  }
-
-  @Override
-  public final void visualize3D() {
-    if (angleTypes().size() <= 1) {
-      JOptionPane.showMessageDialog(
-          null,
-          "At least two torsion angle types are required for 3D visualization",
-          "Error",
-          JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-
-    try {
-      for (final FragmentMatch fragmentMatch : selectionMatch().getFragmentMatches()) {
-        final PdbCompactFragment target = fragmentMatch.getTargetFragment();
-        List<String> ticksY = null;
-        String labelY = null;
-
-        if (target.moleculeType() == MoleculeType.RNA) {
-          ticksY = VisualizableMCQLocalResult.prepareTicksFromDotBracket(fragmentMatch);
-          labelY = "Secondary structure";
-        }
-
-        if (ticksY == null || ticksY.isEmpty()) {
-          ticksY = fragmentMatch.matchedResidueNames();
-          labelY = "ResID";
-        }
-
-        final String name = fragmentMatch.toString();
-        final double[][] matrix = prepareMatrix(fragmentMatch);
-        final List<String> ticksX = prepareTicksX();
-        final NavigableMap<Double, String> valueTickZ = VisualizableMCQLocalResult.prepareTicksZ();
-        final String labelX = "Angle type";
-        final String labelZ = "Distance";
-        final boolean showAllTicksX = true;
-        final boolean showAllTicksY = false;
-
-        final IAnalysis surface3d =
-            new Surface3D(
-                name,
-                matrix,
-                ticksX,
-                ticksY,
-                valueTickZ,
-                labelX,
-                labelY,
-                labelZ,
-                showAllTicksX,
-                showAllTicksY);
-        AnalysisLauncher.open(surface3d);
-      }
-    } catch (final Exception e) {
-      final String message = "Failed to visualize in 3D";
-      VisualizableMCQLocalResult.log.error(message, e);
-      JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
   }
 
   private double[][] prepareMatrix(final FragmentMatch fragmentMatch) {
