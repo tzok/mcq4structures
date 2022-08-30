@@ -74,7 +74,7 @@
     </dependency>
 
     <dependency>
-      <groupId>pl.poznan.put</groupId>
+      <groupId>com.github.tzok</groupId>
       <artifactId>varna-tz</artifactId>
     </dependency>
 

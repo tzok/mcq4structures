@@ -196,12 +196,6 @@
       </dependency>
 
       <dependency>
-        <groupId>pl.poznan.put</groupId>
-        <artifactId>varna-tz</artifactId>
-        <version>1.1</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>4.7.0</version>
