@@ -5,12 +5,17 @@
   <parent>
     <groupId>pl.poznan.put</groupId>
     <artifactId>mcq-parent</artifactId>
-    <version>1.7.0</version>
+    <version>1.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>mcq-core</artifactId>
 
   <dependencies>
+
+    <dependency>
+      <groupId>com.github.tzok</groupId>
+      <artifactId>varna-tz</artifactId>
+    </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
@@ -54,11 +59,6 @@
     <dependency>
       <groupId>pl.poznan.put</groupId>
       <artifactId>BioCommons</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.tzok</groupId>
-      <artifactId>varna-tz</artifactId>
     </dependency>
 
     <dependency>
