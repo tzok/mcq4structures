@@ -5,12 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.cli.CommandLine;
@@ -295,10 +290,11 @@ public abstract class Local {
             .collect(Collectors.toList());
 
     // generate ranking
-    final Set<Pair<Double, StructureSelection>> ranking =
+    final List<Pair<Double, StructureSelection>> ranking =
         IntStream.range(0, models().size())
             .mapToObj(i -> Pair.of(mcqs.get(i).degrees(), models().get(i)))
-            .collect(Collectors.toCollection(TreeSet::new));
+            .sorted(Comparator.comparingDouble(Pair::getLeft))
+            .collect(Collectors.toList());
 
     for (final Pair<Double, StructureSelection> pair : ranking) {
       System.out.printf(Locale.US, "%s %.2f%n", pair.getValue().getName(), pair.getKey());
