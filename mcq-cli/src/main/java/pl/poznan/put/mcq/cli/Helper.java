@@ -272,7 +272,7 @@ final class Helper {
    * @param structure A PDB structure.
    * @param name Name of the structure to be displayed in final results.
    * @param query An asterisk, empty string or selection query.
-   * @param relaxedMode If relaxed mode is FULL, then each chain is treated as a single compact
+   * @param relaxedMode If relaxed mode is MEDIUM or FULL, then each chain is treated as a single compact
    *     fragment (gaps are not taken into account).
    * @return A {@link StructureSelection} made on the given structure.
    */
@@ -281,7 +281,7 @@ final class Helper {
       final String name,
       final String query,
       final Local.RelaxedMode relaxedMode) {
-    if (relaxedMode == Local.RelaxedMode.FULL) {
+    if (relaxedMode == Local.RelaxedMode.MEDIUM || relaxedMode == Local.RelaxedMode.FULL) {
       return new StructureSelection(
           name,
           structure.chains().stream()
