@@ -218,14 +218,6 @@
           <groupId>com.github.ekryd.sortpom</groupId>
           <artifactId>sortpom-maven-plugin</artifactId>
           <version>3.2.0</version>
-          <executions>
-            <execution>
-              <phase>verify</phase>
-              <goals>
-                <goal>sort</goal>
-              </goals>
-            </execution>
-          </executions>
           <configuration>
             <lineSeparator>\n</lineSeparator>
             <encoding>UTF-8</encoding>
@@ -234,26 +226,34 @@
             <sortDependencies>scope,groupId,artifactId</sortDependencies>
             <sortPlugins>groupId,artifactId</sortPlugins>
           </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>sort</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>3.4.2</version>
-          <executions>
-            <execution>
-              <id>make-assembly</id>
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-            </execution>
-          </executions>
           <configuration>
             <descriptorRefs>
               <descriptorRef>jar-with-dependencies</descriptorRef>
             </descriptorRefs>
           </configuration>
+          <executions>
+            <execution>
+              <id>make-assembly</id>
+              <goals>
+                <goal>single</goal>
+              </goals>
+              <phase>package</phase>
+            </execution>
+          </executions>
         </plugin>
 
         <plugin>
@@ -309,6 +309,10 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <version>4.9.10</version>
+        <configuration>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <failOnNoGitDirectory>false</failOnNoGitDirectory>
+        </configuration>
         <executions>
           <execution>
             <id>get-the-git-infos</id>
@@ -317,10 +321,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <generateGitPropertiesFile>true</generateGitPropertiesFile>
-          <failOnNoGitDirectory>false</failOnNoGitDirectory>
-        </configuration>
       </plugin>
     </plugins>
   </build>

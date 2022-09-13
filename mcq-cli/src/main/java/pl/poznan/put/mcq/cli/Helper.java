@@ -1,5 +1,16 @@
 package pl.poznan.put.mcq.cli;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -22,18 +33,6 @@ import pl.poznan.put.pdb.analysis.ResidueCollection;
 import pl.poznan.put.rna.NucleotideTorsionAngle;
 import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Slf4j
 final class Helper {
@@ -72,7 +71,8 @@ final class Helper {
           .numberOfArgs(1)
           .desc(
               String.format(
-                  "Torsion angle types (separated by comma without space), select from: %s. Default is: %s",
+                  "Torsion angle types (separated by comma without space), select from: %s. Default"
+                      + " is: %s",
                   Helper.arrayToString(NucleotideTorsionAngle.values()),
                   Helper.arrayToString(
                       MoleculeType.RNA.mainAngleTypes().toArray(new MasterTorsionAngleType[0]))))
@@ -94,9 +94,12 @@ final class Helper {
           .build();
   static final Option OPTION_RELAXED =
       Option.builder("r")
-          .longOpt("relaxed")
+          .longOpt("relaxed-mode")
+          .numberOfArgs(1)
           .desc(
-              "Turn on relaxed mode (process 3D models even in presence of bond lengths' violations and treat each chain as a compact fragment even with gaps)")
+              "Relaxed mode. 0 = (default) does not compare if any violation is found. 1 = only"
+                  + " compare models without violations. 2 = compare everything regardless of any"
+                  + " violations")
           .build();
   static final Option OPTION_MULTI_MODEL =
       Option.builder("m")
@@ -120,8 +123,7 @@ final class Helper {
     final String selectionQuery =
         (String) commandLine.getParsedOptionValue(Helper.OPTION_SELECTION_MODEL.getOpt());
     final String name = Helper.modelName(modelFile, model);
-    return Helper.select(
-        model, name, selectionQuery, commandLine.hasOption(Helper.OPTION_RELAXED.getOpt()));
+    return Helper.select(model, name, selectionQuery, Helper.parseRelaxedMode(commandLine));
   }
 
   static List<StructureSelection> selectModels(final CommandLine commandLine)
@@ -139,10 +141,7 @@ final class Helper {
               final String name =
                   pathToName.getOrDefault(path, Helper.modelName(new File(path), model));
               return Helper.select(
-                  model,
-                  name,
-                  selectionQuery,
-                  commandLine.hasOption(Helper.OPTION_RELAXED.getOpt()));
+                  model, name, selectionQuery, Helper.parseRelaxedMode(commandLine));
             })
         .collect(Collectors.toList());
   }
@@ -153,8 +152,7 @@ final class Helper {
     final String selectionQuery =
         (String) commandLine.getParsedOptionValue(Helper.OPTION_SELECTION_TARGET.getOpt());
     final String name = Helper.modelName(targetFile, target);
-    return Helper.select(
-        target, name, selectionQuery, commandLine.hasOption(Helper.OPTION_RELAXED.getOpt()));
+    return Helper.select(target, name, selectionQuery, Helper.parseRelaxedMode(commandLine));
   }
 
   public static List<StructureSelection> loadMultiModelFile(final CommandLine commandLine)
@@ -166,7 +164,6 @@ final class Helper {
                 Helper.OPTION_MULTI_MODEL.getOpt(), MultiModelMode.FIRST.name()));
     final String query =
         (String) commandLine.getParsedOptionValue(Helper.OPTION_SELECTION_TARGET.getOpt());
-    final boolean relaxedMode = commandLine.hasOption(Helper.OPTION_RELAXED.getOpt());
 
     return Helper.loadStructures(modelFile, multiModelMode).stream()
         .map(
@@ -179,7 +176,7 @@ final class Helper {
                         Helper.modelName(modelFile, model),
                         model.modelNumber()),
                     query,
-                    relaxedMode))
+                    Helper.parseRelaxedMode(commandLine)))
         .collect(Collectors.toList());
   }
 
@@ -275,13 +272,16 @@ final class Helper {
    * @param structure A PDB structure.
    * @param name Name of the structure to be displayed in final results.
    * @param query An asterisk, empty string or selection query.
-   * @param relaxedMode If true, then each chain is treated as a single compact fragment (gaps are
-   *     not taken into account).
+   * @param relaxedMode If relaxed mode is FULL, then each chain is treated as a single compact
+   *     fragment (gaps are not taken into account).
    * @return A {@link StructureSelection} made on the given structure.
    */
   private static StructureSelection select(
-      final PdbModel structure, final String name, final String query, final boolean relaxedMode) {
-    if (relaxedMode) {
+      final PdbModel structure,
+      final String name,
+      final String query,
+      final Local.RelaxedMode relaxedMode) {
+    if (relaxedMode == Local.RelaxedMode.FULL) {
       return new StructureSelection(
           name,
           structure.chains().stream()
@@ -345,5 +345,19 @@ final class Helper {
 
   private static String formatMessage(final String s, final Object... objects) {
     return MessageFormat.format(Helper.getMessage(s), objects);
+  }
+
+  public static Local.RelaxedMode parseRelaxedMode(final CommandLine commandLine) {
+    if (commandLine.hasOption(Helper.OPTION_RELAXED.getOpt())) {
+      final String optionValue = commandLine.getOptionValue(Helper.OPTION_RELAXED.getOpt());
+      if ("0".equals(optionValue)) {
+        return Local.RelaxedMode.NONE;
+      } else if ("1".equals(optionValue)) {
+        return Local.RelaxedMode.MEDIUM;
+      } else if ("2".equals(optionValue)) {
+        return Local.RelaxedMode.FULL;
+      }
+    }
+    return Local.RelaxedMode.NONE;
   }
 }

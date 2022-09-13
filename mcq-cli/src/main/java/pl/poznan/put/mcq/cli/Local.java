@@ -1,5 +1,18 @@
 package pl.poznan.put.mcq.cli;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -37,22 +50,15 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.svg.Format;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 @SuppressWarnings({"CallToSystemExit", "UseOfSystemOutOrSystemErr"})
 @Value.Immutable
 public abstract class Local {
+  public enum RelaxedMode {
+    NONE,
+    MEDIUM,
+    FULL
+  }
+
   private static final Options OPTIONS =
       new Options()
           .addOption(Helper.OPTION_TARGET)
@@ -76,9 +82,10 @@ public abstract class Local {
     final List<StructureSelection> models = Helper.selectModels(commandLine);
     final List<MasterTorsionAngleType> angleTypes = Helper.parseAngles(commandLine);
     final File outputDirectory = Helper.getOutputDirectory(commandLine);
-    final boolean isRelaxed = commandLine.hasOption(Helper.OPTION_RELAXED.getOpt());
+    final RelaxedMode relaxedMode = Helper.parseRelaxedMode(commandLine);
+
     final Local local =
-        ImmutableLocal.of(target, models, angleTypes, outputDirectory.toPath(), isRelaxed);
+        ImmutableLocal.of(target, models, angleTypes, outputDirectory.toPath(), relaxedMode);
     local.compare();
   }
 
@@ -172,7 +179,7 @@ public abstract class Local {
   public abstract Path outputDirectory();
 
   @Value.Parameter(order = 5)
-  public abstract boolean isRelaxed();
+  public abstract RelaxedMode relaxedMode();
 
   @Value.Lazy
   protected LocalComparator mcq() {
@@ -200,9 +207,55 @@ public abstract class Local {
     Validate.isTrue(outputDirectory().toFile().isDirectory(), "The output path is not a directory");
 
     // check validity of comparison
-    checkBondLengthViolations();
-    checkFragmentCountViolations();
-    checkResidueCountViolations();
+    final List<StructureSelection> invalidBondLengths = checkBondLengthViolations();
+    if (!invalidBondLengths.isEmpty()) {
+      if (relaxedMode() == RelaxedMode.NONE) {
+        System.err.println("Found bond lengths violations, cannot continue");
+      } else if (relaxedMode() == RelaxedMode.MEDIUM) {
+        System.err.println("Found bond lengths violations, proceed to remove invalid models");
+        return ImmutableLocal.copyOf(this)
+            .withModels(
+                models().stream()
+                    .filter(model -> !invalidBondLengths.contains(model))
+                    .collect(Collectors.toList()));
+      } else {
+        System.err.println(
+            "Found bond lengths violations, but will continue full comparison anyway");
+      }
+    }
+
+    final List<StructureSelection> invalidFragmentCount = checkFragmentCountViolations();
+    if (!invalidFragmentCount.isEmpty()) {
+      if (relaxedMode() == RelaxedMode.NONE) {
+        System.err.println("Found invalid fragment count, cannot continue");
+      } else if (relaxedMode() == RelaxedMode.MEDIUM) {
+        System.err.println("Found invalid fragment count, proceed to remove invalid models");
+        return ImmutableLocal.copyOf(this)
+            .withModels(
+                models().stream()
+                    .filter(model -> !invalidFragmentCount.contains(model))
+                    .collect(Collectors.toList()));
+      } else {
+        System.err.println(
+            "Found invalid fragment count, but will continue full comparison anyway");
+      }
+    }
+
+    final List<StructureSelection> invalidResidueCount = checkResidueCountViolations();
+    if (!invalidResidueCount.isEmpty()) {
+      if (relaxedMode() == RelaxedMode.NONE) {
+        System.err.println("Found invalid residue count, cannot continue");
+      } else if (relaxedMode() == RelaxedMode.MEDIUM) {
+        System.err.println("Found invalid residue count, proceed to remove invalid models");
+        return ImmutableLocal.copyOf(this)
+            .withModels(
+                models().stream()
+                    .filter(model -> !invalidResidueCount.contains(model))
+                    .collect(Collectors.toList()));
+      } else {
+        System.err.println("Found invalid residue count, but will continue full comparison anyway");
+      }
+    }
 
     return this;
   }
@@ -318,7 +371,7 @@ public abstract class Local {
     }
   }
 
-  private void checkResidueCountViolations() {
+  private List<StructureSelection> checkResidueCountViolations() {
     // check for size
     final List<StructureSelection> invalidCompactFragments =
         models().stream()
@@ -342,32 +395,18 @@ public abstract class Local {
                   .forEach(
                       i ->
                           System.err.printf(
-                              "Invalid size (%d) of fragment `%s`. Expected size (%d) taken from fragment `%s`%n",
+                              "Invalid size (%d) of fragment `%s`. Expected size (%d) taken from"
+                                  + " fragment `%s`%n",
                               model.getCompactFragments().get(i).residues().size(),
                               model.getCompactFragments().get(i).name(),
                               target().getCompactFragments().get(i).residues().size(),
                               target().getCompactFragments().get(i).name())));
-
-      handleInvalidModels(invalidCompactFragments);
     }
+
+    return invalidCompactFragments;
   }
 
-  private void handleInvalidModels(final Collection<StructureSelection> invalidModels) {
-    if (isRelaxed()) {
-      System.err.println("Removing invalid models from further processing");
-      models().removeAll(invalidModels);
-
-      if (models().isEmpty()) {
-        System.err.println("All models are invalid, cannot continue");
-        System.exit(1);
-      }
-    } else {
-      System.err.println("Some models are invalid, cannot continue");
-      System.exit(1);
-    }
-  }
-
-  private void checkFragmentCountViolations() {
+  private List<StructureSelection> checkFragmentCountViolations() {
     // check for gaps
     final int fragmentCount = target().getCompactFragments().size();
     final List<StructureSelection> invalidModels =
@@ -377,18 +416,21 @@ public abstract class Local {
 
     if (!invalidModels.isEmpty()) {
       printFragmentDetails(invalidModels);
-
-      handleInvalidModels(invalidModels);
     }
+
+    return invalidModels;
   }
 
-  private void checkBondLengthViolations() {
+  private List<StructureSelection> checkBondLengthViolations() {
     final StringBuilder builder = new StringBuilder();
+    final List<StructureSelection> invalidModels = new ArrayList<>();
 
     for (final StructureSelection model : models()) {
       final List<String> violations = model.findBondLengthViolations();
 
       if (!violations.isEmpty()) {
+        invalidModels.add(model);
+
         builder.append("Found bond length violations in ").append(model.getName()).append(":\n");
         violations.forEach(violation -> builder.append("- ").append(violation).append('\n'));
         builder.append('\n');
@@ -396,5 +438,6 @@ public abstract class Local {
     }
 
     System.err.print(builder);
+    return invalidModels;
   }
 }
