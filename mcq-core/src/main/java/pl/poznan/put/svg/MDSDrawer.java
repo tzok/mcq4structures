@@ -1,18 +1,5 @@
 package pl.poznan.put.svg;
 
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.util.SVGConstants;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.geometry.euclidean.twod.Segment;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
-import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHullGenerator2D;
-import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
-import org.w3c.dom.svg.SVGDocument;
-import org.w3c.dom.svg.SVGSVGElement;
-import pl.poznan.put.types.DistanceMatrix;
-import pl.poznan.put.utility.svg.SVGHelper;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.font.LineMetrics;
@@ -26,6 +13,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.util.SVGConstants;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.geometry.euclidean.twod.Segment;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHullGenerator2D;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
+import org.w3c.dom.svg.SVGDocument;
+import org.w3c.dom.svg.SVGSVGElement;
+import pl.poznan.put.types.DistanceMatrix;
+import pl.poznan.put.utility.svg.SVGHelper;
 
 public final class MDSDrawer {
   private static final int DESIRED_WIDTH = 320;

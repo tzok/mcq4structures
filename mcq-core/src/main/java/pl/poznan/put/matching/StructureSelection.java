@@ -1,5 +1,18 @@
 package pl.poznan.put.matching;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import pl.poznan.put.circular.Angle;
@@ -16,20 +29,6 @@ import pl.poznan.put.pdb.analysis.SingleTypedResidueCollection;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.TabularExporter;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

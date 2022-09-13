@@ -1,5 +1,9 @@
 package pl.poznan.put.matching;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.ImmutableAngle;
@@ -8,11 +12,6 @@ import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.range.RangeDifference;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @EqualsAndHashCode
 public final class FragmentComparison implements Comparable<FragmentComparison> {

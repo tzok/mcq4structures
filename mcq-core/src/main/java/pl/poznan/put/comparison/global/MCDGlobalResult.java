@@ -1,9 +1,8 @@
 package pl.poznan.put.comparison.global;
 
+import java.util.Locale;
 import org.immutables.value.Value;
 import pl.poznan.put.matching.SelectionMatch;
-
-import java.util.Locale;
 
 @Value.Immutable
 public abstract class MCDGlobalResult implements GlobalResult {

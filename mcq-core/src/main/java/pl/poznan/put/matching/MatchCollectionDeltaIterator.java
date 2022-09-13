@@ -1,12 +1,11 @@
 package pl.poznan.put.matching;
 
-import org.apache.commons.collections4.IteratorUtils;
-import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.samples.ImmutableAngleSample;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.IteratorUtils;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.samples.ImmutableAngleSample;
 
 public class MatchCollectionDeltaIterator implements AngleDeltaIterator {
   private final Iterator<ResidueComparison> iterator;

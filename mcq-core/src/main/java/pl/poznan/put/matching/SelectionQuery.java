@@ -1,5 +1,9 @@
 package pl.poznan.put.matching;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import pl.poznan.put.pdb.ImmutablePdbResidueIdentifier;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
@@ -8,11 +12,6 @@ import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbResidue;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Class which allow to parse a selection query of the following form CHAIN:NUMBER-ICODE:COUNT e.g.
@@ -116,7 +115,8 @@ public final class SelectionQuery {
       if (selectedResidues.size() != count) {
         throw new InvalidSelectionException(
             String.format(
-                "Failed to create selection starting at %s with %d residues. Was able to select only %d residues",
+                "Failed to create selection starting at %s with %d residues. Was able to select"
+                    + " only %d residues",
                 identifier, count, selectedResidues.size()));
       }
 

@@ -1,16 +1,15 @@
 package pl.poznan.put.gui.window;
 
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.StructureManager;
-
-import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.structure.StructureManager;
 
 final class DialogSelectStructures extends JDialog {
   private static final Dimension INITIAL_STRUCTURE_LIST_SIZE = new Dimension(320, 420);

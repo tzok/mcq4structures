@@ -1,12 +1,11 @@
 package pl.poznan.put.svg;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -1,12 +1,11 @@
 package pl.poznan.put.matching.stats;
 
-import org.apache.commons.math3.stat.StatUtils;
-import pl.poznan.put.circular.Angle;
-import pl.poznan.put.matching.AngleDeltaIterator;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
+import org.apache.commons.math3.stat.StatUtils;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.matching.AngleDeltaIterator;
 
 public final class SingleMatchStatistics {
   static final double[] DEFAULT_PERCENTS_LIMITS = {95.0, 75.0, 50.0, 25.0};

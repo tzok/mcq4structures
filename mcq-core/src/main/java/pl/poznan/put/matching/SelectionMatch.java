@@ -1,17 +1,16 @@
 package pl.poznan.put.matching;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import pl.poznan.put.interfaces.Exportable;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import pl.poznan.put.interfaces.Exportable;
 
 @Data
 @NoArgsConstructor

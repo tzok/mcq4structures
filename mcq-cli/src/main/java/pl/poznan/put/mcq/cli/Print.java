@@ -1,6 +1,12 @@
 package pl.poznan.put.mcq.cli;
 
 import com.github.slugify.Slugify;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -23,13 +29,6 @@ import pl.poznan.put.structure.formats.DotBracketFromPdb;
 import pl.poznan.put.structure.formats.ImmutableDefaultConverter;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Stream;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class Print {
@@ -66,8 +65,7 @@ public final class Print {
 
       final CSVFormat format = CSVFormat.Builder.create().setHeader(Print.CSV_HEADER).build();
       try (final FileWriter writer = new FileWriter(csvFile);
-           final CSVPrinter csvPrinter =
-              new CSVPrinter(writer, format)) {
+          final CSVPrinter csvPrinter = new CSVPrinter(writer, format)) {
         final DotBracketFromPdb dotBracket = Print.toDotBracket(model);
 
         for (final PdbCompactFragment fragment : model.getCompactFragments()) {

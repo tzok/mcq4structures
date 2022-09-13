@@ -1,5 +1,9 @@
 package pl.poznan.put.ws.services;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,15 +13,8 @@ import pl.poznan.put.ws.entities.StructureContent;
 import pl.poznan.put.ws.entities.TrigonometricRepresentation;
 import pl.poznan.put.ws.exceptions.ObjectNotFoundException;
 import pl.poznan.put.ws.jpa.StructureContentCrudRepo;
-
 import pl.poznan.put.ws.jpa.TrigonometricRepresentationCrudRepo;
 import pl.poznan.put.ws.services.subservices.ComputationService;
-
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AnalyzeService {

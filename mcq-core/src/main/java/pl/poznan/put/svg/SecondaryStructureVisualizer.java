@@ -9,6 +9,16 @@ import fr.orsay.lri.varna.models.rna.ModelBaseStyle;
 import fr.orsay.lri.varna.models.rna.ModeleBase;
 import fr.orsay.lri.varna.models.rna.ModeleColorMap;
 import fr.orsay.lri.varna.models.rna.RNA;
+import java.awt.Color;
+import java.awt.geom.Rectangle2D;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
 import org.jcolorbrewer.ColorBrewer;
@@ -23,17 +33,6 @@ import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.ResourcesHelper;
 import pl.poznan.put.utility.svg.SVGHelper;
-
-import java.awt.Color;
-import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public final class SecondaryStructureVisualizer {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryStructureVisualizer.class);

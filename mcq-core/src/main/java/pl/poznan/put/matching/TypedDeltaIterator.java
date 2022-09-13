@@ -1,9 +1,8 @@
 package pl.poznan.put.matching;
 
+import java.util.Iterator;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import java.util.Iterator;
 
 public class TypedDeltaIterator implements AngleDeltaIterator {
   private final Iterator<ResidueComparison> iterator;

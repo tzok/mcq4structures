@@ -1,10 +1,5 @@
 package pl.poznan.put.comparison.global;
 
-import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.poznan.put.matching.StructureSelection;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -14,6 +9,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.poznan.put.matching.StructureSelection;
 
 public class ParallelGlobalComparator extends Thread {
   private static final Logger LOGGER = LoggerFactory.getLogger(ParallelGlobalComparator.class);

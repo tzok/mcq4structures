@@ -1,10 +1,9 @@
 package pl.poznan.put.clustering.hierarchical;
 
-import lombok.EqualsAndHashCode;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class Cluster {

@@ -272,8 +272,8 @@ final class Helper {
    * @param structure A PDB structure.
    * @param name Name of the structure to be displayed in final results.
    * @param query An asterisk, empty string or selection query.
-   * @param relaxedMode If relaxed mode is MEDIUM or FULL, then each chain is treated as a single compact
-   *     fragment (gaps are not taken into account).
+   * @param relaxedMode If relaxed mode is MEDIUM or FULL, then each chain is treated as a single
+   *     compact fragment (gaps are not taken into account).
    * @return A {@link StructureSelection} made on the given structure.
    */
   private static StructureSelection select(

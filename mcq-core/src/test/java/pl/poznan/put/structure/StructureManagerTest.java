@@ -1,5 +1,14 @@
 package pl.poznan.put.structure;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -8,16 +17,6 @@ import org.junit.Test;
 import pl.poznan.put.pdb.analysis.DefaultPdbModel;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.utility.ResourcesHelper;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class StructureManagerTest {
   private File file1EHZ;
@@ -39,7 +38,8 @@ public class StructureManagerTest {
     model1EVV = models1EVV.get(0);
     file1EVV = StructureManager.getFile(model1EVV);
 
-    final List<? extends PdbModel> models100D = StructureManager.loadStructure(ResourcesHelper.loadResourceFile("100D.cif"));
+    final List<? extends PdbModel> models100D =
+        StructureManager.loadStructure(ResourcesHelper.loadResourceFile("100D.cif"));
     assertThat(models100D.size(), is(1));
     model100D = models100D.get(0);
     file100D = StructureManager.getFile(model100D);
@@ -120,14 +120,16 @@ public class StructureManagerTest {
   public final void getAllStructures() {
     final List<PdbModel> structures = StructureManager.getAllStructures();
     assertThat(
-        CollectionUtils.isEqualCollection(Arrays.asList(model1EHZ, model1EVV, model100D), structures),
+        CollectionUtils.isEqualCollection(
+            Arrays.asList(model1EHZ, model1EVV, model100D), structures),
         is(true));
   }
 
   @Test
   public final void getAllNames() {
     final List<String> names = StructureManager.getAllNames();
-    assertThat(CollectionUtils.isEqualCollection(Arrays.asList("1EHZ", "1EVV", "100D"), names), is(true));
+    assertThat(
+        CollectionUtils.isEqualCollection(Arrays.asList("1EHZ", "1EVV", "100D"), names), is(true));
   }
 
   @Test

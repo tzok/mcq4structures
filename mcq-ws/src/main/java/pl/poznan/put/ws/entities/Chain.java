@@ -1,25 +1,17 @@
 package pl.poznan.put.ws.entities;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import javax.annotation.Generated;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.validation.Valid;
 
 @Entity
 public class Chain {
 
-  @Id
-  private String name;
+  @Id private String name;
 
   @Valid
   @OneToMany(targetEntity = Residue.class, mappedBy = "residueNumber")
@@ -51,10 +43,7 @@ public class Chain {
 
   @Override
   public String toString() {
-    return "Chain{" +
-            "name='" + name + '\'' +
-            ", residues=" + residues +
-            '}';
+    return "Chain{" + "name='" + name + '\'' + ", residues=" + residues + '}';
   }
 
   @Override

@@ -11,7 +11,9 @@ public class StayOpenRadioButtonMenuItem extends JRadioButtonMenuItem {
   private static final long serialVersionUID = 1L;
   private MenuElement[] path;
 
-  /** @see JRadioButtonMenuItem#JRadioButtonMenuItem(String, boolean) */
+  /**
+   * @see JRadioButtonMenuItem#JRadioButtonMenuItem(String, boolean)
+   */
   public StayOpenRadioButtonMenuItem(final String text, final boolean selected) {
     super(text, selected);
 

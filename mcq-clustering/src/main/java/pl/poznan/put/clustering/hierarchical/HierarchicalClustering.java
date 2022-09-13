@@ -1,14 +1,5 @@
 package pl.poznan.put.clustering.hierarchical;
 
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.util.SVGConstants;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
-import org.w3c.dom.Element;
-import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.utility.svg.SVGHelper;
-
 import java.awt.FontMetrics;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
@@ -17,6 +8,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.util.SVGConstants;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.w3c.dom.Element;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.utility.svg.SVGHelper;
 
 public class HierarchicalClustering implements Visualizable {
   private final List<String> names;

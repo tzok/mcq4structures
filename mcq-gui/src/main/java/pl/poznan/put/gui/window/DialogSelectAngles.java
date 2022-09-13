@@ -1,14 +1,13 @@
 package pl.poznan.put.gui.window;
 
-import pl.poznan.put.gui.panel.TorsionAngleTypesPanel;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.*;
+import pl.poznan.put.gui.panel.TorsionAngleTypesPanel;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 final class DialogSelectAngles extends JDialog {
   private final List<MasterTorsionAngleType> selectedAngles = new ArrayList<>();

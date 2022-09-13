@@ -1,9 +1,8 @@
 package pl.poznan.put.matching;
 
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-
 import java.util.ArrayList;
 import java.util.List;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 
 public class FragmentSuperposition {
   private final List<? extends PdbCompactFragment> targetFragments;

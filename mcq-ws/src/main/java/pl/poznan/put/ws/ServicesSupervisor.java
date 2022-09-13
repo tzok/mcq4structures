@@ -19,7 +19,10 @@ public class ServicesSupervisor {
 
   @Autowired
   public ServicesSupervisor(
-          VersionService versionService, UploadService uploadService, AnalyzeService analyzeService, CompareService compareService) {
+      VersionService versionService,
+      UploadService uploadService,
+      AnalyzeService analyzeService,
+      CompareService compareService) {
     this.versionService = versionService;
     this.uploadService = uploadService;
     this.analyzeService = analyzeService;

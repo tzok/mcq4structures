@@ -1,5 +1,9 @@
 package pl.poznan.put.visualisation;
 
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.svg.SVGDocument;
@@ -9,15 +13,7 @@ import pl.poznan.put.interfaces.DisplayableExportable;
 import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import javax.swing.JOptionPane;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @Data
 @Slf4j

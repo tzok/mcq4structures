@@ -1,5 +1,9 @@
 package pl.poznan.put;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.poznan.put.circular.Angle;
@@ -12,11 +16,6 @@ import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.rna.NucleotideTorsionAngle;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.utility.ResourcesHelper;
-
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TorsionTest {
   // @formatter:off

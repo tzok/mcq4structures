@@ -1,17 +1,11 @@
 package pl.poznan.put.ws.entities;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.springframework.data.annotation.CreatedDate;
-
-import javax.annotation.Generated;
-import javax.persistence.*;
-import javax.validation.constraints.Pattern;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.List;
+import javax.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 public class StructureContent {

@@ -1,11 +1,10 @@
 package pl.poznan.put.gui.window;
 
+import java.awt.*;
+import javax.swing.*;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.gui.component.SVGComponent;
 import pl.poznan.put.utility.svg.Format;
-
-import javax.swing.*;
-import java.awt.*;
 
 class SVGDialog extends JDialog {
   private final SVGComponent svgComponent;
