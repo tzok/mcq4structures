@@ -3,11 +3,14 @@ package pl.poznan.put.mcq.cli;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,10 +28,13 @@ import pl.poznan.put.matching.SelectionFactory;
 import pl.poznan.put.matching.SelectionQuery;
 import pl.poznan.put.matching.StructureSelection;
 import pl.poznan.put.pdb.PdbParsingException;
+import pl.poznan.put.pdb.analysis.ImmutableDefaultResidueCollection;
 import pl.poznan.put.pdb.analysis.ImmutablePdbCompactFragment;
 import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbChain;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.pdb.analysis.ResidueCollection;
 import pl.poznan.put.rna.NucleotideTorsionAngle;
 import pl.poznan.put.structure.StructureManager;
@@ -282,11 +288,23 @@ final class Helper {
       final String query,
       final Local.RelaxedMode relaxedMode) {
     if (relaxedMode == Local.RelaxedMode.MEDIUM || relaxedMode == Local.RelaxedMode.FULL) {
-      return new StructureSelection(
-          name,
+      final LinkedHashSet<String> uniqueChains =
           structure.chains().stream()
-              .map(chain -> Helper.residueCollectionToCompactFragment(chain, name))
-              .collect(Collectors.toList()));
+              .map(PdbChain::identifier)
+              .collect(Collectors.toCollection(LinkedHashSet::new));
+      final List<PdbCompactFragment> compactFragments = new ArrayList<>();
+
+      for (final String uniqueChain : uniqueChains) {
+        final List<PdbResidue> chainResidues =
+            structure.residues().stream()
+                .filter(pdbResidue -> Objects.equals(uniqueChain, pdbResidue.chainIdentifier()))
+                .collect(Collectors.toList());
+        compactFragments.add(
+            Helper.residueCollectionToCompactFragment(
+                ImmutableDefaultResidueCollection.of(chainResidues), name));
+      }
+
+      return new StructureSelection(name, compactFragments);
     }
 
     if ("*".equals(query)) {
