@@ -4,7 +4,7 @@
   <parent>
     <groupId>pl.poznan.put</groupId>
     <artifactId>mcq-parent</artifactId>
-    <version>1.8-SNAPSHOT</version>
+    <version>1.8.0</version>
   </parent>
 
   <artifactId>mcq-ws</artifactId>
