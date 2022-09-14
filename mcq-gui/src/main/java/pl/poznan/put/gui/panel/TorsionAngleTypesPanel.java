@@ -1,17 +1,5 @@
 package pl.poznan.put.gui.panel;
 
-import pl.poznan.put.interfaces.DisplayableExportable;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.torsion.AverageTorsionAngleType;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -21,6 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import pl.poznan.put.interfaces.DisplayableExportable;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.torsion.AverageTorsionAngleType;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
 
 public class TorsionAngleTypesPanel extends JPanel {
   private final Map<JCheckBox, MasterTorsionAngleType> mapCheckBoxToMasterType =

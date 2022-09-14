@@ -1,5 +1,15 @@
 package pl.poznan.put.comparison.global;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import javax.swing.table.TableModel;
 import lombok.Getter;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -10,17 +20,6 @@ import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.types.ImmutableDistanceMatrix;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 import pl.poznan.put.utility.TabularExporter;
-
-import javax.swing.table.TableModel;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 @Getter
 public class GlobalMatrix implements Clusterable, Exportable, Tabular {

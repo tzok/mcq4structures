@@ -1,5 +1,13 @@
 package pl.poznan.put.visualisation;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Shape;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -27,17 +35,6 @@ import pl.poznan.put.structure.formats.ImmutableDefaultConverter;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.utility.svg.SVGHelper;
-
-import javax.swing.JOptionPane;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Shape;
-import java.awt.font.LineMetrics;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -95,9 +92,7 @@ public class VisualizableSelectedAngle extends SelectedAngle implements Visualiz
   }
 
   @Override
-  public void visualize3D() {
-
-  }
+  public void visualize3D() {}
 
   private float drawModelsNames(
       final SVGGraphics2D svg, final float unitHeight, final float descent) {

@@ -1,5 +1,11 @@
 package pl.poznan.put.matching;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.commons.collections4.map.DefaultedMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.immutables.value.Value;
@@ -10,13 +16,6 @@ import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Value.Immutable
 public abstract class MCQMatcher implements StructureMatcher {

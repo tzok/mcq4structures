@@ -1,5 +1,6 @@
 package pl.poznan.put.ws.services;
 
+import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,8 +10,6 @@ import pl.poznan.put.ws.entities.StructureContent;
 import pl.poznan.put.ws.exceptions.PathVariableException;
 import pl.poznan.put.ws.jpa.StructureContentCrudRepo;
 import pl.poznan.put.ws.services.subservices.ComputationService;
-
-import java.util.Optional;
 
 @Service
 public class UploadService {
@@ -52,11 +51,13 @@ public class UploadService {
 
   private void validateParameters(String pdbId, int assemblyId) {
     if (pdbId.length() != 4) {
-      throw new PathVariableException("pdbId", pdbId, "This parameter has to contain 4 characters!");
+      throw new PathVariableException(
+          "pdbId", pdbId, "This parameter has to contain 4 characters!");
     }
 
     if (assemblyId < 1) {
-      throw new PathVariableException("assemblyId", String.valueOf(assemblyId), "This number has to be positive!");
+      throw new PathVariableException(
+          "assemblyId", String.valueOf(assemblyId), "This number has to be positive!");
     }
   }
 }

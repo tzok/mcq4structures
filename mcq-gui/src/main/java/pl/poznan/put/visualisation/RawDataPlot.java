@@ -1,14 +1,5 @@
 package pl.poznan.put.visualisation;
 
-import org.apache.batik.ext.awt.geom.Polygon2D;
-import org.apache.commons.math3.util.FastMath;
-import org.apache.commons.math3.util.MathUtils;
-import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.enums.AngleTransformation;
-import pl.poznan.put.circular.exception.InvalidCircularOperationException;
-import pl.poznan.put.constant.Unicode;
-import pl.poznan.put.utility.svg.SVGHelper;
-
 import java.awt.FontMetrics;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -19,6 +10,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.batik.ext.awt.geom.Polygon2D;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.enums.AngleTransformation;
+import pl.poznan.put.circular.exception.InvalidCircularOperationException;
+import pl.poznan.put.constant.Unicode;
 
 public class RawDataPlot extends AbstractDrawable {
   private final Collection<? extends Angle> data;

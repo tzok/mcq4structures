@@ -1,11 +1,10 @@
 package pl.poznan.put.clustering.hierarchical;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class Clusterer {
   private final List<String> names;

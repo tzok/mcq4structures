@@ -1,13 +1,5 @@
 package pl.poznan.put.clustering.partitional;
 
-import org.jcolorbrewer.ColorBrewer;
-import org.jumpmind.symmetric.csv.CsvWriter;
-import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.interfaces.Visualizable;
-import pl.poznan.put.svg.MDSDrawer;
-import pl.poznan.put.types.DistanceMatrix;
-
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jcolorbrewer.ColorBrewer;
+import org.jumpmind.symmetric.csv.CsvWriter;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Visualizable;
+import pl.poznan.put.svg.MDSDrawer;
+import pl.poznan.put.types.DistanceMatrix;
 
 public class PartitionalClustering implements Visualizable, Exportable {
   private final Map<Integer, Color> clusterColor = new HashMap<>();

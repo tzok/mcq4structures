@@ -1,5 +1,8 @@
 package pl.poznan.put.comparison;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.immutables.value.Value;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.ImmutableAngleSample;
@@ -22,10 +25,6 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of MCQ global similarity measure based on torsion angle representation.

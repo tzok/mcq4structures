@@ -1,5 +1,14 @@
 package pl.poznan.put.gui.panel;
 
+import java.awt.BorderLayout;
+import java.util.List;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.circular.Angle;
@@ -13,16 +22,6 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.visualisation.AngularHistogram;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.util.List;
 
 @Slf4j
 public final class TorsionAngleValuesMatrixPanel extends JPanel {
@@ -91,7 +90,8 @@ public final class TorsionAngleValuesMatrixPanel extends JPanel {
   private void updateHeader(final PdbModel structure) {
     labelInfoMatrix.setText(
         String.format(
-            "<html>Structure selected for torsion angles calculation: <span style=\"color: blue\">%s</span></html>",
+            "<html>Structure selected for torsion angles calculation: <span style=\"color:"
+                + " blue\">%s</span></html>",
             StructureManager.getName(structure)));
   }
 }

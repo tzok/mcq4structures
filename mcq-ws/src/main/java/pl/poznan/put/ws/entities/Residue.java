@@ -1,13 +1,8 @@
 package pl.poznan.put.ws.entities;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import javax.annotation.Generated;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Objects;
 
 @Entity
 public class Residue {

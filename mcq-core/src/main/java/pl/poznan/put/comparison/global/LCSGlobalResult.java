@@ -60,7 +60,15 @@ public abstract class LCSGlobalResult implements GlobalResult {
             .get(selectionMatch.getFragmentMatches().get(0).getResidueComparisons().size() - 1)
             .model();
     return String.format(
-        "MCQ value: %s\nNumber of residues: %d\nCoverage: %s%% \nTarget name: %s\nFirst target residue: %s\nLast target residue: %s\nModel name: %s\nFirst model residue: %s\nLast model residue: %s",
+        "MCQ value: %s\n"
+            + "Number of residues: %d\n"
+            + "Coverage: %s%% \n"
+            + "Target name: %s\n"
+            + "First target residue: %s\n"
+            + "Last target residue: %s\n"
+            + "Model name: %s\n"
+            + "First model residue: %s\n"
+            + "Last model residue: %s",
         shortDisplayName(),
         validCount,
         NumberFormatUtils.threeDecimalDigits().format(coverage),

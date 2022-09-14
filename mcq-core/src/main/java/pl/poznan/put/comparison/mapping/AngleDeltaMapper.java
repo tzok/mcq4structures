@@ -1,15 +1,14 @@
 package pl.poznan.put.comparison.mapping;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import pl.poznan.put.circular.Angle;
 import pl.poznan.put.circular.samples.AngleSample;
 import pl.poznan.put.circular.samples.ImmutableAngleSample;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /** Map {@link TorsionAngleDelta} onto 0-1 scale. */
 public final class AngleDeltaMapper implements ComparisonMapper {

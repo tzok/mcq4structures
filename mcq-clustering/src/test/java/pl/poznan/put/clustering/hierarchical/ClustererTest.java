@@ -1,13 +1,12 @@
 package pl.poznan.put.clustering.hierarchical;
 
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Test;
 
 public class ClustererTest {
   private static final double EPSILON = 1.0e-3;

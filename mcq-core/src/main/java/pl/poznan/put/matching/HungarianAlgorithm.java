@@ -186,7 +186,9 @@ class HungarianAlgorithm {
     }
   }
 
-  /** @return the first unmatched worker or {@link #dim} if none. */
+  /**
+   * @return the first unmatched worker or {@link #dim} if none.
+   */
   private int fetchUnmatchedWorker() {
     int w;
     for (w = 0; w < dim; w++) {

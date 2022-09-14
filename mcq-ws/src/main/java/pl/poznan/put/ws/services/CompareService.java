@@ -1,12 +1,10 @@
 package pl.poznan.put.ws.services;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.schema.ModelComparisonDTO;
@@ -55,10 +53,10 @@ public class CompareService {
                 false)
             .collect(Collectors.toList());
 
-
     if (modelTarget != null) {
-      List<TrigonometricRepresentation> targets = trigonometricRepresentationCrudRepo.findAllByInputId(UUID.fromString(modelTarget));
-      if (targets.size() == 1){
+      List<TrigonometricRepresentation> targets =
+          trigonometricRepresentationCrudRepo.findAllByInputId(UUID.fromString(modelTarget));
+      if (targets.size() == 1) {
         return computationService.compare(trigonometricRepresentations, targets.get(0));
       } else {
         throw new ObjectNotFoundException(modelTarget, TrigonometricRepresentation.class);

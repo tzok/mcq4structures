@@ -1,18 +1,12 @@
 package pl.poznan.put.ws.entities;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import pl.poznan.put.schema.ChainDTO;
-
-import javax.annotation.Generated;
-import javax.persistence.*;
-import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import javax.persistence.*;
+import javax.validation.Valid;
 
 @Entity
 public class TrigonometricRepresentation {

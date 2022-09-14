@@ -1,5 +1,13 @@
 package pl.poznan.put.matching;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import org.biojava.nbio.structure.geometry.CalcPoint;
 import org.biojava.nbio.structure.geometry.SuperPositions;
 import pl.poznan.put.atom.AtomName;
@@ -16,15 +24,6 @@ import pl.poznan.put.protein.ImmutableBackbone;
 import pl.poznan.put.rna.ImmutablePhosphate;
 import pl.poznan.put.rna.ImmutableRibose;
 import pl.poznan.put.rna.Nucleotide;
-
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 
 public class FragmentSuperimposer {
 

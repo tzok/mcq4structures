@@ -1,5 +1,7 @@
 package pl.poznan.put.visualisation;
 
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +13,6 @@ import pl.poznan.put.interfaces.Visualizable;
 import pl.poznan.put.svg.MDSDrawer;
 import pl.poznan.put.types.DistanceMatrix;
 import pl.poznan.put.utility.svg.SVGHelper;
-
-import javax.swing.JOptionPane;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,9 +37,7 @@ public class VisualizableGlobalMatrix extends GlobalMatrix implements Visualizab
   }
 
   @Override
-  public void visualize3D() {
-
-  }
+  public void visualize3D() {}
 
   private NavigableMap<Double, String> prepareTicksZ() {
     final NavigableMap<Double, String> valueTickZ = new TreeMap<>();

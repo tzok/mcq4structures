@@ -1,17 +1,16 @@
 package pl.poznan.put.gui.window;
 
-import org.apache.commons.lang3.tuple.Pair;
-import pl.poznan.put.gui.panel.ChainsPanel;
-import pl.poznan.put.pdb.analysis.PdbChain;
-import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.structure.StructureManager;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+import javax.swing.*;
+import org.apache.commons.lang3.tuple.Pair;
+import pl.poznan.put.gui.panel.ChainsPanel;
+import pl.poznan.put.pdb.analysis.PdbChain;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.structure.StructureManager;
 
 final class DialogSelectChains extends JDialog {
   private static final Dimension INITIAL_MAIN_PANEL_SIZE = new Dimension(640, 480);

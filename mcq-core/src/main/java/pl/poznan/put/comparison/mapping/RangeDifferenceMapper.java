@@ -1,11 +1,10 @@
 package pl.poznan.put.comparison.mapping;
 
+import java.util.List;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
 import pl.poznan.put.torsion.TorsionAngleDelta;
 import pl.poznan.put.torsion.range.RangeDifference;
-
-import java.util.List;
 
 /** Map {@link RangeDifference} onto 0-1 scale. */
 public final class RangeDifferenceMapper implements ComparisonMapper {

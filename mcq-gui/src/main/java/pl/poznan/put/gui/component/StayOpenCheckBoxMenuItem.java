@@ -11,7 +11,9 @@ public class StayOpenCheckBoxMenuItem extends JCheckBoxMenuItem {
   private static final long serialVersionUID = 1L;
   private MenuElement[] path;
 
-  /** @see JCheckBoxMenuItem#JCheckBoxMenuItem(String, boolean) */
+  /**
+   * @see JCheckBoxMenuItem#JCheckBoxMenuItem(String, boolean)
+   */
   public StayOpenCheckBoxMenuItem(final String text, final boolean selected) {
     super(text, selected);
 

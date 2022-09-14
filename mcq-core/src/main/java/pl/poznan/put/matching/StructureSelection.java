@@ -1,24 +1,5 @@
 package pl.poznan.put.matching;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.ImmutableAngle;
-import pl.poznan.put.interfaces.Exportable;
-import pl.poznan.put.interfaces.Tabular;
-import pl.poznan.put.pdb.analysis.ImmutablePdbCompactFragment;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.pdb.analysis.ResidueCollection;
-import pl.poznan.put.pdb.analysis.ResidueTorsionAngles;
-import pl.poznan.put.pdb.analysis.SingleTypedResidueCollection;
-import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.utility.AngleFormat;
-import pl.poznan.put.utility.TabularExporter;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,7 +10,32 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
+import pl.poznan.put.circular.Angle;
+import pl.poznan.put.circular.ImmutableAngle;
+import pl.poznan.put.interfaces.Exportable;
+import pl.poznan.put.interfaces.Tabular;
+import pl.poznan.put.pdb.analysis.ImmutablePdbCompactFragment;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbCompactFragment;
+import pl.poznan.put.pdb.analysis.PdbResidue;
+import pl.poznan.put.pdb.analysis.ResidueCollection;
+import pl.poznan.put.pdb.analysis.ResidueInformationProvider;
+import pl.poznan.put.pdb.analysis.ResidueTorsionAngles;
+import pl.poznan.put.pdb.analysis.SingleTypedResidueCollection;
+import pl.poznan.put.rna.NucleotideTorsionAngle;
+import pl.poznan.put.torsion.AtomBasedTorsionAngleType;
+import pl.poznan.put.torsion.AtomPair;
+import pl.poznan.put.torsion.MasterTorsionAngleType;
+import pl.poznan.put.utility.AngleFormat;
+import pl.poznan.put.utility.TabularExporter;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -214,5 +220,40 @@ public class StructureSelection implements Exportable, Tabular, ResidueCollectio
     }
 
     return new DefaultTableModel(data, columns.toArray(new String[0]));
+  }
+
+  @Override
+  public List<String> findBondLengthViolations() {
+    final Set<AtomBasedTorsionAngleType> angleTypes =
+        residues().stream()
+            .map(PdbResidue::residueInformationProvider)
+            .map(ResidueInformationProvider::torsionAngleTypes)
+            .flatMap(Collection::stream)
+            .filter(torsionAngleType -> torsionAngleType instanceof AtomBasedTorsionAngleType)
+            .map(torsionAngleType -> (AtomBasedTorsionAngleType) torsionAngleType)
+            .filter(torsionAngleType -> !torsionAngleType.isPseudoTorsion())
+            .filter(
+                torsionAngleType ->
+                    !NucleotideTorsionAngle.CHI.angleTypes().contains(torsionAngleType))
+            .collect(Collectors.toSet());
+
+    final Set<AtomPair> atomPairs = new TreeSet<>();
+
+    for (final PdbCompactFragment fragment : compactFragments) {
+      atomPairs.addAll(
+          IntStream.range(0, fragment.residues().size())
+              .boxed()
+              .flatMap(
+                  i ->
+                      angleTypes.stream()
+                          .map(angleType -> angleType.findAtomPairs(fragment.residues(), i))
+                          .flatMap(Collection::stream))
+              .collect(Collectors.toCollection(TreeSet::new)));
+    }
+
+    return atomPairs.stream()
+        .map(AtomPair::generateValidationMessage)
+        .filter(StringUtils::isNotBlank)
+        .collect(Collectors.toList());
   }
 }

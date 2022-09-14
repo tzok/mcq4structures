@@ -1,5 +1,9 @@
 package pl.poznan.put.matching.stats;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import javax.swing.table.TableModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import pl.poznan.put.matching.AngleDeltaIterator;
@@ -9,11 +13,6 @@ import pl.poznan.put.matching.MatchCollection;
 import pl.poznan.put.utility.AngleFormat;
 import pl.poznan.put.utility.NonEditableDefaultTableModel;
 import pl.poznan.put.utility.NumberFormatUtils;
-
-import javax.swing.table.TableModel;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @Data
 public final class MultiMatchStatistics {

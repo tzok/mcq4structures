@@ -1,10 +1,9 @@
 package pl.poznan.put.structure;
 
-import org.immutables.value.Value;
-import pl.poznan.put.pdb.analysis.PdbModel;
-
 import java.io.File;
 import java.util.Comparator;
+import org.immutables.value.Value;
+import pl.poznan.put.pdb.analysis.PdbModel;
 
 @Value.Immutable
 public abstract class StructureInfo implements Comparable<StructureInfo> {

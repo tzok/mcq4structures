@@ -1,18 +1,17 @@
 package pl.poznan.put.gui.window;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DialogAbout extends JDialog {
   private static final Logger LOGGER = LoggerFactory.getLogger(DialogAbout.class);

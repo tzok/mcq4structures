@@ -1,5 +1,9 @@
 package pl.poznan.put;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.poznan.put.comparison.ImmutableMCQ;
@@ -19,11 +23,6 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.utility.ResourcesHelper;
-
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ComparisonTest {
   private static final double[] LOCAL_MCQ_1EHZ_1EVV_DEGREES = {

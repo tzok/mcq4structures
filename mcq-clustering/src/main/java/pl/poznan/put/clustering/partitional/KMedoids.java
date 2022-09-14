@@ -1,11 +1,10 @@
 package pl.poznan.put.clustering.partitional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.HashSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KMedoids implements PrototypeBasedClusterer {
   private static final Logger LOGGER = LoggerFactory.getLogger(KMedoids.class);

@@ -1,12 +1,11 @@
 package pl.poznan.put.ws;
 
+import java.util.List;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.poznan.put.schema.*;
 import pl.poznan.put.ws.components.Version;
-import java.util.List;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api")

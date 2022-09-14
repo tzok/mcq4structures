@@ -1,14 +1,5 @@
 package pl.poznan.put.gui.component;
 
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.svg.SVGDocument;
-import pl.poznan.put.utility.svg.Format;
-import pl.poznan.put.utility.svg.SVGHelper;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,6 +7,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import javax.swing.*;
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.svg.SVGDocument;
+import pl.poznan.put.utility.svg.Format;
+import pl.poznan.put.utility.svg.SVGHelper;
 
 public class SVGComponent extends JSVGCanvas {
   private static final Logger LOGGER = LoggerFactory.getLogger(SVGComponent.class);

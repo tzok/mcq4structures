@@ -1,5 +1,6 @@
 package pl.poznan.put.comparison;
 
+import java.util.List;
 import org.apache.commons.math3.util.FastMath;
 import org.immutables.value.Value;
 import pl.poznan.put.circular.Angle;
@@ -15,8 +16,6 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.pdb.analysis.ResidueTorsionAngles;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-
-import java.util.List;
 
 @Value.Immutable
 public abstract class MCD implements GlobalComparator {

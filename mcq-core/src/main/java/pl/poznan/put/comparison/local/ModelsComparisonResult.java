@@ -1,25 +1,13 @@
 package pl.poznan.put.comparison.local;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.immutables.value.Value;
-import pl.poznan.put.circular.Angle;
-import pl.poznan.put.circular.ImmutableAngle;
-import pl.poznan.put.circular.samples.ImmutableAngleSample;
-import pl.poznan.put.matching.FragmentComparison;
 import pl.poznan.put.matching.FragmentMatch;
-import pl.poznan.put.matching.ImmutableResidueComparison;
-import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbCompactFragment;
 import pl.poznan.put.torsion.ImmutableAverageTorsionAngleType;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.torsion.TorsionAngleDelta;
-import pl.poznan.put.torsion.TorsionAngleType;
-import pl.poznan.put.torsion.range.RangeDifference;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Value.Immutable
 public abstract class ModelsComparisonResult {
