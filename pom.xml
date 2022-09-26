@@ -192,7 +192,7 @@
       <dependency>
         <groupId>pl.poznan.put</groupId>
         <artifactId>BioCommons</artifactId>
-        <version>3.0.9</version>
+        <version>3.1.0</version>
       </dependency>
 
       <dependency>
