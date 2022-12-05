@@ -1,8 +1,9 @@
 package pl.poznan.put.ws.entities;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 @Entity
 public class Residue {
@@ -17,7 +18,8 @@ public class Residue {
 
   private String chain;
 
-  @Id private int residueNumber;
+  @Id
+  private int residueNumber;
 
   private String insertionCode;
 
