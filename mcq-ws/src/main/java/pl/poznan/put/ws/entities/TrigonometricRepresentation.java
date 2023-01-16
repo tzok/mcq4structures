@@ -5,7 +5,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +15,7 @@ import javax.validation.Valid;
 @Entity
 public class TrigonometricRepresentation {
 
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   private Instant createdAt;
 
