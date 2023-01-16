@@ -3,7 +3,6 @@ package pl.poznan.put.ws.entities;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,8 +11,7 @@ import javax.validation.Valid;
 @Entity
 public class Chain {
 
-  @Id
-  private String name;
+  @Id private String name;
 
   @Valid
   @OneToMany(targetEntity = Residue.class, mappedBy = "residueNumber")
