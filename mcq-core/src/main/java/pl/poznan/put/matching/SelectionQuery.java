@@ -2,6 +2,7 @@ package pl.poznan.put.matching;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
@@ -69,7 +70,8 @@ public final class SelectionQuery {
       try {
         final String chainIdentifier = split[0];
         final int residueNumber = Integer.parseInt(matcher.group(1));
-        final String insertionCode = matcher.group(2).isEmpty() ? " " : matcher.group(2);
+        final Optional<String> insertionCode =
+            matcher.group(2).isEmpty() ? Optional.empty() : Optional.of(matcher.group(2));
 
         final PdbResidueIdentifier identifier =
             ImmutablePdbResidueIdentifier.of(chainIdentifier, residueNumber, insertionCode);
