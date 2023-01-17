@@ -1,29 +1,17 @@
 package pl.poznan.put.mcq.cli;
 
-import com.github.slugify.Slugify;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Stream;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.io.FileUtils;
 import pl.poznan.put.interfaces.DisplayableExportable;
-import pl.poznan.put.matching.StructureSelection;
-import pl.poznan.put.pdb.analysis.DefaultPdbModel;
-import pl.poznan.put.pdb.analysis.MoleculeType;
-import pl.poznan.put.pdb.analysis.PdbCompactFragment;
-import pl.poznan.put.pdb.analysis.PdbResidue;
-import pl.poznan.put.pdb.analysis.ResidueCollection;
-import pl.poznan.put.pdb.analysis.ResidueTorsionAngles;
+import pl.poznan.put.pdb.analysis.*;
 import pl.poznan.put.structure.CanonicalStructureExtractor;
+import pl.poznan.put.structure.StructureManager;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.DotBracketFromPdb;
 import pl.poznan.put.structure.formats.ImmutableDefaultConverter;
@@ -34,12 +22,25 @@ import pl.poznan.put.torsion.MasterTorsionAngleType;
 public final class Print {
   private static final Options OPTIONS =
       new Options()
-          .addOption(Helper.OPTION_SELECTION_TARGET)
-          .addOption(Helper.OPTION_MULTI_MODEL)
-          .addOption(Helper.OPTION_DIRECTORY);
+          .addOption(
+              Option.builder()
+                  .option("i")
+                  .longOpt("input")
+                  .hasArg()
+                  .desc("path to input PDB or PDBx/mmCIF file")
+                  .required()
+                  .build())
+          .addOption(
+              Option.builder()
+                  .option("o")
+                  .longOpt("output")
+                  .hasArg()
+                  .desc("path to output CSV file")
+                  .required()
+                  .build());
   private static final String[] CSV_HEADER =
       Stream.concat(
-              Stream.of("Chain", "ResNum", "iCode", "Name", "Structure"),
+              Stream.of("chain", "number", "icode", "name", "structure"),
               MoleculeType.RNA.allAngleTypes().stream().map(DisplayableExportable::exportName))
           .toArray(String[]::new);
 
@@ -55,42 +56,40 @@ public final class Print {
 
     final CommandLineParser parser = new DefaultParser();
     final CommandLine commandLine = parser.parse(Print.OPTIONS, args);
-    final List<StructureSelection> models = Helper.loadMultiModelFile(commandLine);
-    final File outputDirectory = Helper.getOutputDirectory(commandLine);
+    final File pdbFile = new File(commandLine.getOptionValue("input"));
+    final File csvFile = new File(commandLine.getOptionValue("output"));
+    List<? extends PdbModel> models = StructureManager.loadStructure(pdbFile);
 
-    FileUtils.forceMkdir(outputDirectory);
+    if (models.isEmpty()) {
+      System.err.println("Failed to load any model from file: " + pdbFile);
+    }
 
-    for (final StructureSelection model : models) {
-      final File csvFile = new File(outputDirectory, Print.csvFileName(model));
+    final PdbModel model = models.get(0);
+    final CSVFormat format = CSVFormat.Builder.create().setHeader(Print.CSV_HEADER).build();
 
-      final CSVFormat format = CSVFormat.Builder.create().setHeader(Print.CSV_HEADER).build();
-      try (final FileWriter writer = new FileWriter(csvFile);
-          final CSVPrinter csvPrinter = new CSVPrinter(writer, format)) {
-        final DotBracketFromPdb dotBracket = Print.toDotBracket(model);
+    try (final FileWriter writer = new FileWriter(csvFile);
+        final CSVPrinter csvPrinter = new CSVPrinter(writer, format)) {
+      final DotBracketFromPdb dotBracket = Print.toDotBracket(model);
 
-        for (final PdbCompactFragment fragment : model.getCompactFragments()) {
-          for (final PdbResidue residue : fragment.residues()) {
-            final ResidueTorsionAngles residueTorsionAngles =
-                fragment.torsionAngles(residue.identifier());
+      for (final PdbChain chain : model.chains()) {
+        ImmutablePdbCompactFragment fragment = ImmutablePdbCompactFragment.of(chain.residues());
 
-            csvPrinter.print(residue.chainIdentifier());
-            csvPrinter.print(residue.residueNumber());
-            csvPrinter.print(residue.insertionCode());
-            csvPrinter.print(residue.modifiedResidueName());
-            csvPrinter.print(dotBracket.symbol(residue.identifier()).structure());
-            for (final MasterTorsionAngleType angleType : MoleculeType.RNA.allAngleTypes()) {
-              csvPrinter.print(residueTorsionAngles.value(angleType).degrees());
-            }
-            csvPrinter.println();
+        for (final PdbResidue residue : fragment.residues()) {
+          final ResidueTorsionAngles residueTorsionAngles =
+              fragment.torsionAngles(residue.identifier());
+
+          csvPrinter.print(residue.chainIdentifier());
+          csvPrinter.print(residue.residueNumber());
+          csvPrinter.print(residue.insertionCode());
+          csvPrinter.print(residue.modifiedResidueName());
+          csvPrinter.print(dotBracket.symbol(residue.identifier()).structure());
+          for (final MasterTorsionAngleType angleType : MoleculeType.RNA.allAngleTypes()) {
+            csvPrinter.print(residueTorsionAngles.value(angleType).degrees());
           }
+          csvPrinter.println();
         }
       }
     }
-  }
-
-  private static String csvFileName(final StructureSelection selection) {
-    final Slugify slugify = Slugify.builder().build();
-    return slugify.slugify(selection.getName()).toLowerCase(Locale.ROOT) + ".csv";
   }
 
   private static DotBracketFromPdb toDotBracket(final ResidueCollection model) {
