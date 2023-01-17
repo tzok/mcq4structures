@@ -1,13 +1,12 @@
 package pl.poznan.put.ws.entities;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import org.springframework.data.annotation.CreatedDate;
 
 @Entity
@@ -21,8 +20,7 @@ public class StructureContent {
 
   public StructureContent() {}
 
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @CreatedDate private Instant createdAt;
 

@@ -1,18 +1,14 @@
 package pl.poznan.put.mcq.cli;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -106,8 +102,8 @@ public abstract class Local {
       final PdbResidue current = residues.get(i);
 
       // skip check if any of the residues has icode
-      if (StringUtils.isNotBlank(previous.insertionCode())
-          || StringUtils.isNotBlank(current.insertionCode())) {
+      if (StringUtils.isNotBlank(previous.insertionCode().orElse(""))
+          || StringUtils.isNotBlank(current.insertionCode().orElse(""))) {
         continue;
       }
 
@@ -156,7 +152,7 @@ public abstract class Local {
     final SVGDocument svg = SecondaryStructureVisualizer.visualize(fragmentMatch, deltaMapper);
     final File file = new File(directory, filename);
 
-    try (final OutputStream stream = new FileOutputStream(file)) {
+    try (final OutputStream stream = Files.newOutputStream(file.toPath())) {
       stream.write(SVGHelper.export(svg, Format.SVG));
     }
   }
@@ -258,7 +254,7 @@ public abstract class Local {
   private void exportDifferences(final FragmentMatch fragmentMatch, final File directory)
       throws IOException {
     final File file = new File(directory, "differences.csv");
-    try (final OutputStream stream = new FileOutputStream(file)) {
+    try (final OutputStream stream = Files.newOutputStream(file.toPath())) {
       fragmentMatch.export(stream, angleTypes());
     }
   }
@@ -344,7 +340,7 @@ public abstract class Local {
 
   private void exportTable(final ModelsComparisonResult comparisonResult) throws IOException {
     final File file = new File(outputDirectory().toFile(), "table.csv");
-    try (final OutputStream stream = new FileOutputStream(file)) {
+    try (final OutputStream stream = Files.newOutputStream(file.toPath())) {
       final SelectedAngle selectedAngle = comparisonResult.selectAverageOfAngles();
       selectedAngle.export(stream);
     }
