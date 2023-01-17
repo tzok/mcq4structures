@@ -29,7 +29,6 @@ import pl.poznan.put.pdb.analysis.PdbParser;
 public final class StructureManager {
   private static final String ENCODING_UTF_8 = "UTF-8";
   private static final Collection<StructureInfo> STRUCTURES = new ArrayList<>();
-  private static final PdbParser PDB_PARSER = new PdbParser(false);
 
   private StructureManager() {
     super();
@@ -101,7 +100,7 @@ public final class StructureManager {
       if (!StructureManager.isCif(fileContent)) {
         throw new IOException("File is not a mmCIF structure: " + file);
       }
-      final List<? extends PdbModel> pdbModels = CifParser.parse(fileContent);
+      final List<? extends PdbModel> pdbModels = new CifParser().parse(fileContent);
       StructureManager.storeStructureInfo(file, pdbModels);
       return pdbModels;
     }
@@ -109,7 +108,7 @@ public final class StructureManager {
     if (!StructureManager.isPdb(fileContent)) {
       throw new IOException("File is not a PDB structure: " + file);
     }
-    final List<PdbModel> pdbModels = StructureManager.PDB_PARSER.parse(fileContent);
+    final List<PdbModel> pdbModels = new PdbParser(false).parse(fileContent);
     StructureManager.storeStructureInfo(file, pdbModels);
     return pdbModels;
   }
@@ -132,16 +131,14 @@ public final class StructureManager {
     final File pdbFile = File.createTempFile("bio-commons", ".pdb");
     FileUtils.writeStringToFile(pdbFile, pdbContent, StructureManager.ENCODING_UTF_8);
 
-    final List<PdbModel> models = StructureManager.PDB_PARSER.parse(pdbContent);
+    final List<PdbModel> models = new PdbParser(false).parse(pdbContent);
     StructureManager.storeStructureInfo(pdbFile, models);
     return models;
   }
 
   public static void remove(final File path) {
     final Collection<StructureInfo> toRemove =
-        StructureManager.STRUCTURES.stream()
-            .filter(si -> Objects.equals(si.path(), path))
-            .collect(Collectors.toList());
+        StructureManager.STRUCTURES.stream().filter(si -> Objects.equals(si.path(), path)).toList();
 
     for (final StructureInfo si : toRemove) {
       StructureManager.STRUCTURES.remove(si);
