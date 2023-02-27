@@ -80,7 +80,7 @@ public final class Print {
 
           csvPrinter.print(residue.chainIdentifier());
           csvPrinter.print(residue.residueNumber());
-          csvPrinter.print(residue.insertionCode());
+          csvPrinter.print(residue.insertionCode().orElse(""));
           csvPrinter.print(residue.modifiedResidueName());
           csvPrinter.print(dotBracket.symbol(residue.identifier()).structure());
           for (final MasterTorsionAngleType angleType : MoleculeType.RNA.allAngleTypes()) {
