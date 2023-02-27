@@ -53,12 +53,12 @@
 
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>jcolorbrewer</artifactId>
+      <artifactId>biojava-structure</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.biojava</groupId>
-      <artifactId>biojava-structure</artifactId>
+      <artifactId>jcolorbrewer</artifactId>
     </dependency>
 
     <dependency>
