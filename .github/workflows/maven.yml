@@ -28,6 +28,8 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     permissions:
       pull-requests: write
+      contents: write
+      checks: write
     steps:
       - name: Dependabot metadata
         id: metadata
