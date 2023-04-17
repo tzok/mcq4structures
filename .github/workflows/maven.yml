@@ -24,6 +24,7 @@ jobs:
       run: mvn -B package --file pom.xml
 
   auto-merge-dependabot-non-major-updates:
+    needs: build
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
     permissions:
