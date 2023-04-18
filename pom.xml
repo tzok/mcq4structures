@@ -36,7 +36,7 @@
       <dependency>
         <groupId>com.github.tzok</groupId>
         <artifactId>varna-tz</artifactId>
-        <version>1.2.1</version>
+        <version>3.93-1.0</version>
       </dependency>
 
       <dependency>
