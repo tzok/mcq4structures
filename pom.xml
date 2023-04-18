@@ -4,7 +4,7 @@
 
   <groupId>pl.poznan.put</groupId>
   <artifactId>mcq-parent</artifactId>
-  <version>1.8.0</version>
+  <version>1.8.1</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -24,7 +24,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.6</version>
       </dependency>
 
       <dependency>
@@ -40,6 +40,12 @@
       </dependency>
 
       <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>2.1.214</version>
+      </dependency>
+
+      <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
         <version>1.5.0</version>
@@ -52,9 +58,21 @@
       </dependency>
 
       <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>3.1.0</version>
+      </dependency>
+
+      <dependency>
         <groupId>java3d</groupId>
         <artifactId>vecmath</artifactId>
         <version>1.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.3.2</version>
       </dependency>
 
       <dependency>
@@ -66,7 +84,7 @@
       <dependency>
         <groupId>me.tongfei</groupId>
         <artifactId>progressbar</artifactId>
-        <version>0.9.4</version>
+        <version>0.9.5</version>
       </dependency>
 
       <dependency>
@@ -78,7 +96,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
-        <version>1.9.0</version>
+        <version>1.10.0</version>
       </dependency>
 
       <dependency>
@@ -96,25 +114,31 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-anim</artifactId>
-        <version>1.14</version>
+        <version>1.16</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-svggen</artifactId>
-        <version>1.14</version>
+        <version>1.16</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-swing</artifactId>
-        <version>1.14</version>
+        <version>1.16</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-util</artifactId>
-        <version>1.14</version>
+        <version>1.16</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.biojava</groupId>
+        <artifactId>biojava-structure</artifactId>
+        <version>7.0.0</version>
       </dependency>
 
       <dependency>
@@ -126,31 +150,37 @@
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
-        <version>2.9.2</version>
+        <version>2.9.3</version>
       </dependency>
 
       <dependency>
         <groupId>org.jfree</groupId>
         <artifactId>jfreechart</artifactId>
-        <version>1.5.3</version>
+        <version>1.5.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.modelmapper.extensions</groupId>
+        <artifactId>modelmapper-spring</artifactId>
+        <version>3.1.1</version>
       </dependency>
 
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.18.24</version>
+        <version>1.18.26</version>
       </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.6</version>
       </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.6</version>
       </dependency>
 
       <dependency>
@@ -162,43 +192,43 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>2.7.3</version>
+        <version>3.0.5</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-data-jpa</artifactId>
-        <version>2.7.3</version>
+        <version>3.0.5</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
-        <version>2.7.3</version>
+        <version>3.0.5</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-validation</artifactId>
-        <version>2.7.3</version>
+        <version>2.7.10</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
-        <version>2.7.3</version>
+        <version>3.0.5</version>
       </dependency>
 
       <dependency>
         <groupId>pl.poznan.put</groupId>
         <artifactId>BioCommons</artifactId>
-        <version>3.0.9</version>
+        <version>3.1.8</version>
       </dependency>
 
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>4.8.0</version>
+        <version>5.3.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -217,14 +247,16 @@
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>2.25.0</version>
+          <version>2.35.0</version>
           <configuration>
             <java>
+              <cleanthat></cleanthat>
               <importOrder></importOrder>
               <removeUnusedImports></removeUnusedImports>
               <googleJavaFormat>
                 <reflowLongStrings>true</reflowLongStrings>
               </googleJavaFormat>
+              <formatAnnotations></formatAnnotations>
             </java>
           </configuration>
           <executions>
@@ -282,17 +314,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.10.1</version>
+          <version>3.11.0</version>
           <configuration>
-            <source>11</source>
-            <target>11</target>
+            <source>17</source>
+            <target>17</target>
           </configuration>
         </plugin>
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
-          <version>2.12.0</version>
+          <version>2.15.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -316,7 +348,7 @@
       <plugin>
         <groupId>org.jsonschema2pojo</groupId>
         <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-        <version>1.1.1</version>
+        <version>1.2.1</version>
         <configuration>
           <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
           <targetPackage>pl.poznan.put.schema</targetPackage>
@@ -330,7 +362,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>2.7.3</version>
+        <version>3.0.5</version>
       </plugin>
 
       <plugin>

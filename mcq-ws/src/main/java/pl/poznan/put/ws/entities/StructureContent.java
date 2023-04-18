@@ -1,10 +1,12 @@
 package pl.poznan.put.ws.entities;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import javax.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 
 @Entity
@@ -36,7 +38,7 @@ public class StructureContent {
     return createdAt;
   }
 
-  @OneToMany(mappedBy = "inputId", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "inputId")
   private List<TrigonometricRepresentation> trigonometricRepresentations;
 
   public void setCreatedAt(Instant createdAt) {
