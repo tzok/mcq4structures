@@ -1,0 +1,24 @@
+name: Auto Rebase
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  auto_rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+
+      - name: Rebase PRs created by Dependabot
+        uses: cirrus-actions/rebase@1.8
+        with:
+          # You can use the `github-token` input if you want to specify a custom token
+          # github-token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          pr_author: 'dependabot[bot]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
