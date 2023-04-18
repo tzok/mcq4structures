@@ -2,7 +2,7 @@ name: Auto Rebase
 
 on:
   push:
-    branches: ["develop"]
+    branches: ["master"]
 
 jobs:
   auto-rebase-dependabot-branches:
@@ -14,9 +14,9 @@ jobs:
           fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
 
       - run: |
-          for ref in $(gh pr list --author 'app/dependabot' --json 'baseRefName,headRefName' | jq -r '.[] | select(.baseRefName == "develop") | .headRefName'); do
+          for ref in $(gh pr list --author 'app/dependabot' --json 'baseRefName,headRefName' | jq -r '.[] | select(.baseRefName == "master") | .headRefName'); do
             git checkout "${ref}"
-            git rebase develop
+            git rebase master
             git push origin --force
           done
         env:
