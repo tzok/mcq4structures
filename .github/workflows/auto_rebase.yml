@@ -2,11 +2,10 @@ name: Auto Rebase
 
 on:
   push:
-    branches:
-      - develop
+    branches: ["develop"]
 
 jobs:
-  auto_rebase:
+  auto-rebase-dependabot-branches:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,10 +14,10 @@ jobs:
           fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
 
       - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
           for ref in $(gh pr list --author 'app/dependabot' --json 'baseRefName,headRefName' | jq -r '.[] | select(.baseRefName == "develop") | .headRefName'); do
             git checkout "${ref}"
             git rebase develop
             git push origin --force
           done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
