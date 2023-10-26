@@ -12,7 +12,6 @@
     <module>mcq-clustering</module>
     <module>mcq-core</module>
     <module>mcq-gui</module>
-    <module>mcq-ws</module>
   </modules>
 
   <properties>
@@ -346,41 +345,9 @@
       </plugin>
 
       <plugin>
-        <groupId>org.jsonschema2pojo</groupId>
-        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-        <version>1.2.1</version>
-        <configuration>
-          <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
-          <targetPackage>pl.poznan.put.schema</targetPackage>
-          <sourceType>yamlschema</sourceType>
-          <includeJsr303Annotations>true</includeJsr303Annotations>
-          <usePrimitives>true</usePrimitives>
-          <includeConstructors>true</includeConstructors>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>3.1.5</version>
-      </plugin>
-
-      <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
-        <version>4.9.10</version>
-        <configuration>
-          <generateGitPropertiesFile>true</generateGitPropertiesFile>
-          <failOnNoGitDirectory>false</failOnNoGitDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>get-the-git-infos</id>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
