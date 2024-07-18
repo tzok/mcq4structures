@@ -7,7 +7,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.math3.util.FastMath;
 import pl.poznan.put.circular.ImmutableAngle;
-import pl.poznan.put.comparison.LCS;
 import pl.poznan.put.comparison.LCSv2;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.LCSGlobalResult;

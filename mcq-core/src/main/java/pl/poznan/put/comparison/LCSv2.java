@@ -106,27 +106,29 @@ public class LCSv2 implements GlobalComparator {
     return createResult(r1, r2, bestDeltas, bestBegin, bestLength);
   }
 
-  private GlobalResult createResult(List<PdbResidue> target, List<PdbResidue> model, AngleSample deltas, int begin, int length) {
+  private GlobalResult createResult(
+      List<PdbResidue> target, List<PdbResidue> model, AngleSample deltas, int begin, int length) {
     final var targetFragment =
-            ImmutablePdbCompactFragment.of(target.subList(begin, begin + length));
-    final var modelFragment =
-            ImmutablePdbCompactFragment.of(model.subList(begin, begin + length));
+        ImmutablePdbCompactFragment.of(target.subList(begin, begin + length));
+    final var modelFragment = ImmutablePdbCompactFragment.of(model.subList(begin, begin + length));
     final var selectionModel = new StructureSelection("", Collections.singletonList(modelFragment));
     final var selectionTarget =
-            new StructureSelection("", Collections.singletonList(targetFragment));
+        new StructureSelection("", Collections.singletonList(targetFragment));
     final List<ResidueComparison> residueComparisons =
-            IntStream.range(begin, begin + length)
-                    .mapToObj(
-                            i -> ImmutableResidueComparison.of(target.get(i), model.get(i), Collections.emptyList()))
-                    .collect(Collectors.toList());
+        IntStream.range(begin, begin + length)
+            .mapToObj(
+                i ->
+                    ImmutableResidueComparison.of(
+                        target.get(i), model.get(i), Collections.emptyList()))
+            .collect(Collectors.toList());
     final var fragmentComparison =
-            FragmentComparison.fromResidueComparisons(
-                    residueComparisons, moleculeType.mainAngleTypes());
+        FragmentComparison.fromResidueComparisons(
+            residueComparisons, moleculeType.mainAngleTypes());
     final var fragmentMatch =
-            new FragmentMatch(targetFragment, modelFragment, false, 0, fragmentComparison);
+        new FragmentMatch(targetFragment, modelFragment, false, 0, fragmentComparison);
     final var selectionMatch =
-            new SelectionMatch(
-                    selectionTarget, selectionModel, Collections.singletonList(fragmentMatch));
+        new SelectionMatch(
+            selectionTarget, selectionModel, Collections.singletonList(fragmentMatch));
     return ImmutableLCSGlobalResult.of(selectionMatch, deltas, selectionModel, selectionTarget);
   }
 
