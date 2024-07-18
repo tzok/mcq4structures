@@ -8,6 +8,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.math3.util.FastMath;
 import pl.poznan.put.circular.ImmutableAngle;
 import pl.poznan.put.comparison.LCS;
+import pl.poznan.put.comparison.LCSv2;
 import pl.poznan.put.comparison.exception.IncomparableStructuresException;
 import pl.poznan.put.comparison.global.LCSGlobalResult;
 import pl.poznan.put.matching.StructureSelection;
@@ -47,7 +48,7 @@ public final class Lcs {
     final double threshold =
         Double.parseDouble(commandLine.getOptionValue(Helper.OPTION_MCQ_THRESHOLD.getOpt()));
 
-    final LCS lcs = new LCS(MoleculeType.RNA, ImmutableAngle.of(FastMath.toRadians(threshold)));
+    final LCSv2 lcs = new LCSv2(MoleculeType.RNA, ImmutableAngle.of(FastMath.toRadians(threshold)));
     final LCSGlobalResult result = (LCSGlobalResult) lcs.compareGlobally(s1, s2);
 
     System.out.println(result.cliOutput(s2, s1));
