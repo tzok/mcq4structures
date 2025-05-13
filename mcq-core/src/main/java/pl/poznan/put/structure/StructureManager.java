@@ -108,7 +108,7 @@ public final class StructureManager {
     if (!StructureManager.isPdb(fileContent)) {
       throw new IOException("File is not a PDB structure: " + file);
     }
-    final List<PdbModel> pdbModels = new PdbParser(false).parse(fileContent);
+    final List<PdbModel> pdbModels = new PdbParser().parse(fileContent);
     StructureManager.storeStructureInfo(file, pdbModels);
     return pdbModels;
   }
@@ -131,7 +131,7 @@ public final class StructureManager {
     final File pdbFile = File.createTempFile("bio-commons", ".pdb");
     FileUtils.writeStringToFile(pdbFile, pdbContent, StructureManager.ENCODING_UTF_8);
 
-    final List<PdbModel> models = new PdbParser(false).parse(pdbContent);
+    final List<PdbModel> models = new PdbParser().parse(pdbContent);
     StructureManager.storeStructureInfo(pdbFile, models);
     return models;
   }
