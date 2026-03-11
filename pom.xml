@@ -237,6 +237,12 @@
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
+      <releases>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
     </repository>
   </repositories>
 
