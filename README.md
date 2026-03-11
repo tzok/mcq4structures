@@ -1,6 +1,6 @@
-![](https://zenodo.org/badge/DOI/10.5281/zenodo.18955603.svg)
-
 # Mean of Circular Quantities (MCQ)
+
+[![](https://zenodo.org/badge/DOI/10.5281/zenodo.18955602.svg)](https://doi.org/10.5281/zenodo.18955602)
 
 Mean of Circular Quantities (MCQ) is a dissimilarity measure useful in comparison of 3D protein and/or RNA structures. It calculates an average difference between corresponding torsion angle values (rotations around bonds). More information can be found in:
 
