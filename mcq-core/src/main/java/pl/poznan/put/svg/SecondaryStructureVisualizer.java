@@ -10,28 +10,20 @@ import fr.orsay.lri.varna.models.rna.ModeleBase;
 import fr.orsay.lri.varna.models.rna.ModeleColorMap;
 import fr.orsay.lri.varna.models.rna.RNA;
 import java.awt.Color;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
 import org.jcolorbrewer.ColorBrewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.svg.SVGDocument;
-import org.w3c.dom.svg.SVGSVGElement;
 import pl.poznan.put.comparison.mapping.ComparisonMapper;
 import pl.poznan.put.matching.FragmentMatch;
 import pl.poznan.put.matching.ResidueComparison;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.torsion.MasterTorsionAngleType;
-import pl.poznan.put.utility.ResourcesHelper;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 public final class SecondaryStructureVisualizer {
@@ -75,7 +67,9 @@ public final class SecondaryStructureVisualizer {
       rna.drawRNANAView(config);
       rna.saveRNASVG(tempFile.getAbsolutePath(), config);
 
-      final SVGDocument svgDocument = SVGHelper.fromFile(tempFile);
+      return SVGHelper.fromFile(tempFile);
+
+      /*
       final SVGSVGElement root = svgDocument.getRootElement();
 
       final Rectangle2D boundingBox = SVGHelper.calculateBoundingBox(svgDocument);
@@ -96,12 +90,12 @@ public final class SecondaryStructureVisualizer {
       final URI uri = ResourcesHelper.loadResourceUri("mcq-legend.svg");
       final SVGDocument legend = SVGHelper.fromUri(uri);
       return SVGHelper.merge(Stream.of(svgDocument, legend).collect(Collectors.toList()));
+      */
     } catch (final ExceptionUnmatchedClosingParentheses
         | ExceptionFileFormatOrSyntax
         | ExceptionWritingForbidden
         | ExceptionNAViewAlgorithm
-        | IOException
-        | URISyntaxException e) {
+        | IOException e) {
       SecondaryStructureVisualizer.LOGGER.error(
           "Failed to visualize secondary structure:\n{}", dotBracket, e);
     } finally {
