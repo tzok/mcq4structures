@@ -6,6 +6,10 @@ Mean of Circular Quantities (MCQ) is a dissimilarity measure useful in compariso
 
 > Zok, T., Popenda, M., & Szachniuk, M. (2014). MCQ4Structures to compute similarity of molecule structures. Central European Journal of Operations Research, 22(3), 457–473. https://doi.org/10.1007/s10100-013-0296-5
 
+This repository is the foundation for RNAtango web server. More information can be found in:
+
+> Mackowiak, M., Adamczyk, B., Szachniuk, M., & Zok, T. (2024). RNAtango: Analysing and comparing RNA 3D structures via torsional angles. PLOS Computational Biology, 20(10), e1012500. https://doi.org/10.1371/journal.pcbi.1012500
+
 ## Installation
 
 ```sh
