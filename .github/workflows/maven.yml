@@ -4,6 +4,8 @@
 name: Java CI with Maven
 
 on:
+  push:
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -31,7 +33,6 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
-      checks: write
     steps:
       - name: Dependabot metadata
         id: metadata
