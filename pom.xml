@@ -22,10 +22,10 @@
     <jcolorbrewer.version>5.2</jcolorbrewer.version>
     <log4j.version>2.23.1</log4j.version>
     <logback.version>1.5.32</logback.version>
-    <mmtf.version>1.0.11</mmtf.version>
-    <msgpack.version>0.8.24</msgpack.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <mmtf.version>1.0.11</mmtf.version>
+    <msgpack.version>0.8.24</msgpack.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.17</slf4j.version>
     <xmlgraphics.version>2.11</xmlgraphics.version>
