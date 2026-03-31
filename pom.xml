@@ -16,7 +16,8 @@
     <biojava.version>7.2.4</biojava.version>
     <bytebuddy.version>1.17.7</bytebuddy.version>
     <forester.version>1.039</forester.version>
-    <jackson.version>2.20.0</jackson.version>
+    <jackson2.version>2.20</jackson2.version>
+    <jackson3.version>3.1.1</jackson3.version>
     <jaxb.version>4.0.3</jaxb.version>
     <jcolorbrewer.version>5.2</jcolorbrewer.version>
     <log4j.version>2.23.1</log4j.version>
@@ -42,17 +43,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
+        <version>${jackson2.version}</version>
       </dependency>
       <dependency>
         <groupId>com.github.slugify</groupId>
@@ -163,11 +154,6 @@
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-agent</artifactId>
         <version>${bytebuddy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>openchart</groupId>
-        <artifactId>openchart</artifactId>
-        <version>1.4.2</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -528,6 +514,16 @@
         <groupId>pl.poznan.put</groupId>
         <artifactId>mcq-core</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>tools.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>tools.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson3.version}</version>
       </dependency>
       <dependency>
         <groupId>xml-apis</groupId>
