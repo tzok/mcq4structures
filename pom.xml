@@ -28,6 +28,7 @@
     <msgpack.version>0.9.11</msgpack.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.17</slf4j.version>
+    <spring.boot.version>4.0.5</spring.boot.version>
     <xmlgraphics.version>2.11</xmlgraphics.version>
   </properties>
   <dependencyManagement>
@@ -473,34 +474,29 @@
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>6.2.12</version>
-      </dependency>
-      <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>4.0.3</version>
+        <version>${spring.boot.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-data-jpa</artifactId>
-        <version>4.0.5</version>
+        <version>${spring.boot.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
-        <version>4.0.4</version>
+        <version>${spring.boot.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-validation</artifactId>
-        <version>4.0.5</version>
+        <version>${spring.boot.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
-        <version>4.0.5</version>
+        <version>${spring.boot.version}</version>
       </dependency>
       <dependency>
         <groupId>pl.poznan.put</groupId>
@@ -668,7 +664,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>4.0.3</version>
+        <version>${spring.boot.version}</version>
       </plugin>
     </plugins>
   </build>
