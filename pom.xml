@@ -1,229 +1,542 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>pl.poznan.put</groupId>
   <artifactId>mcq-parent</artifactId>
   <version>1.8.6</version>
   <packaging>pom</packaging>
-
   <modules>
     <module>mcq-cli</module>
     <module>mcq-clustering</module>
     <module>mcq-core</module>
     <module>mcq-gui</module>
   </modules>
-
   <properties>
+    <batik.version>1.19</batik.version>
+    <biojava.version>7.2.4</biojava.version>
+    <bytebuddy.version>1.17.7</bytebuddy.version>
+    <forester.version>1.039</forester.version>
+    <jackson2.version>2.20</jackson2.version>
+    <jackson3.version>3.1.1</jackson3.version>
+    <jaxb.version>4.0.3</jaxb.version>
+    <jcolorbrewer.version>5.2</jcolorbrewer.version>
+    <log4j.version>2.23.1</log4j.version>
+    <logback.version>1.5.32</logback.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <mmtf.version>1.0.11</mmtf.version>
+    <msgpack.version>0.8.24</msgpack.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <slf4j.version>2.0.17</slf4j.version>
+    <xmlgraphics.version>2.11</xmlgraphics.version>
   </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.32</version>
+        <version>${logback.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson2.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.github.slugify</groupId>
         <artifactId>slugify</artifactId>
         <version>3.0.7</version>
       </dependency>
-
       <dependency>
         <groupId>com.github.tzok</groupId>
         <artifactId>varna-tz</artifactId>
         <version>1.2.1</version>
       </dependency>
-
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>3.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.13.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>2.41.0</version>
+      </dependency>
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>2.4.240</version>
       </dependency>
-
+      <dependency>
+        <groupId>com.sun.istack</groupId>
+        <artifactId>istack-commons-runtime</artifactId>
+        <version>4.1.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.thoughtworks.qdox</groupId>
+        <artifactId>qdox</artifactId>
+        <version>1.12</version>
+      </dependency>
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
         <version>1.11.0</version>
       </dependency>
-
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.19.0</version>
+      </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>2.21.0</version>
       </dependency>
-
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.4</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.3.0</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.activation</groupId>
+        <artifactId>jakarta.activation-api</artifactId>
+        <version>2.1.0</version>
+      </dependency>
       <dependency>
         <groupId>jakarta.persistence</groupId>
         <artifactId>jakarta.persistence-api</artifactId>
         <version>3.2.0</version>
       </dependency>
-
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>4.0.0</version>
+      </dependency>
       <dependency>
         <groupId>java3d</groupId>
         <artifactId>vecmath</artifactId>
         <version>1.3.1</version>
       </dependency>
-
       <dependency>
         <groupId>javax.annotation</groupId>
         <artifactId>javax.annotation-api</artifactId>
         <version>1.3.2</version>
       </dependency>
-
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.13.2</version>
       </dependency>
-
       <dependency>
         <groupId>me.tongfei</groupId>
         <artifactId>progressbar</artifactId>
         <version>0.10.2</version>
       </dependency>
-
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${bytebuddy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>${bytebuddy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.19.0</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-collections4</artifactId>
         <version>4.5.0</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
         <version>1.14.1</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-exec</artifactId>
+        <version>1.5.0</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.20.0</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.3.0</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-math3</artifactId>
         <version>3.6.1</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j2-impl</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>fontbox</artifactId>
+        <version>3.0.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox-io</artifactId>
+        <version>3.0.3</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-anim</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-awt-util</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-bridge</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-codec</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-constants</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-css</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-dom</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-ext</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-extension</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-gui-util</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-gvt</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-i18n</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-parser</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-script</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-svg-dom</artifactId>
         <version>1.19</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-svggen</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-swing</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-transcoder</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-util</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-xml</artifactId>
+        <version>${batik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>fop-core</artifactId>
+        <version>${xmlgraphics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>fop-events</artifactId>
+        <version>${xmlgraphics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>fop-util</artifactId>
+        <version>${xmlgraphics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>xmlgraphics-commons</artifactId>
+        <version>${xmlgraphics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.biojava</groupId>
+        <artifactId>biojava-alignment</artifactId>
+        <version>${biojava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.biojava</groupId>
+        <artifactId>biojava-core</artifactId>
+        <version>${biojava.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.biojava</groupId>
         <artifactId>biojava-structure</artifactId>
-        <version>7.2.4</version>
+        <version>${biojava.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.biojava</groupId>
         <artifactId>jcolorbrewer</artifactId>
-        <version>5.2</version>
+        <version>${jcolorbrewer.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.biojava.thirdparty</groupId>
+        <artifactId>forester</artifactId>
+        <version>${forester.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.angus</groupId>
+        <artifactId>angus-activation</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>${jaxb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${jaxb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>txw2</artifactId>
+        <version>${jaxb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-core</artifactId>
+        <version>1.3</version>
+      </dependency>
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
         <version>2.12.1</version>
       </dependency>
-
       <dependency>
         <groupId>org.jfree</groupId>
         <artifactId>jfreechart</artifactId>
         <version>1.5.6</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.jgrapht</groupId>
+        <artifactId>jgrapht-core</artifactId>
+        <version>1.4.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jheaps</groupId>
+        <artifactId>jheaps</artifactId>
+        <version>0.11</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jline</groupId>
+        <artifactId>jline-terminal</artifactId>
+        <version>3.29.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jumpmind.symmetric</groupId>
+        <artifactId>symmetric-csv</artifactId>
+        <version>3.5.19</version>
+      </dependency>
       <dependency>
         <groupId>org.modelmapper.extensions</groupId>
         <artifactId>modelmapper-spring</artifactId>
         <version>3.2.6</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.msgpack</groupId>
+        <artifactId>jackson-dataformat-msgpack</artifactId>
+        <version>${msgpack.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.msgpack</groupId>
+        <artifactId>msgpack-core</artifactId>
+        <version>${msgpack.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.objenesis</groupId>
+        <artifactId>objenesis</artifactId>
+        <version>3.3</version>
+      </dependency>
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
         <version>1.18.42</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.rcsb</groupId>
+        <artifactId>ciftools-java</artifactId>
+        <version>7.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.rcsb</groupId>
+        <artifactId>mmtf-api</artifactId>
+        <version>${mmtf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.rcsb</groupId>
+        <artifactId>mmtf-codec</artifactId>
+        <version>${mmtf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.rcsb</groupId>
+        <artifactId>mmtf-serialization</artifactId>
+        <version>${mmtf.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>2.0.17</version>
+        <version>${slf4j.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>2.0.17</version>
+        <version>${slf4j.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
         <version>6.2.12</version>
       </dependency>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>4.0.3</version>
       </dependency>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-data-jpa</artifactId>
         <version>4.0.5</version>
       </dependency>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
         <version>4.0.4</version>
       </dependency>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-validation</artifactId>
         <version>4.0.4</version>
       </dependency>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
         <version>4.0.5</version>
       </dependency>
-
       <dependency>
         <groupId>pl.poznan.put</groupId>
         <artifactId>BioCommons</artifactId>
         <version>3.2.1</version>
       </dependency>
-
+      <dependency>
+        <groupId>pl.poznan.put</groupId>
+        <artifactId>mcq-clustering</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>pl.poznan.put</groupId>
+        <artifactId>mcq-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>tools.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>tools.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>1.4.01</version>
+      </dependency>
+      <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis-ext</artifactId>
+        <version>1.3.04</version>
+      </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
@@ -232,20 +545,18 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <repositories>
     <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
       <releases>
         <checksumPolicy>fail</checksumPolicy>
       </releases>
       <snapshots>
         <checksumPolicy>fail</checksumPolicy>
       </snapshots>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
     </repository>
   </repositories>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -273,7 +584,6 @@
             </execution>
           </executions>
         </plugin>
-
         <plugin>
           <groupId>com.github.ekryd.sortpom</groupId>
           <artifactId>sortpom-maven-plugin</artifactId>
@@ -295,7 +605,6 @@
             </execution>
           </executions>
         </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
@@ -315,41 +624,47 @@
             </execution>
           </executions>
         </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.15.0</version>
           <configuration>
-            <source>17</source>
-            <target>17</target>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
           </configuration>
         </plugin>
-
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
           <version>2.21.0</version>
         </plugin>
+        <plugin>
+          <groupId>se.kth.castor</groupId>
+          <artifactId>depclean-maven-plugin</artifactId>
+          <version>2.1.0</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>depclean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
-
     <plugins>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
       </plugin>
-
       <plugin>
         <groupId>com.github.ekryd.sortpom</groupId>
         <artifactId>sortpom-maven-plugin</artifactId>
       </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
       </plugin>
-
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
