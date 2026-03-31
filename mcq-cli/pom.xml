@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -9,8 +9,278 @@
   <artifactId>mcq-cli</artifactId>
   <dependencies>
     <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.github.slugify</groupId>
+      <artifactId>slugify</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tzok</groupId>
+      <artifactId>varna-tz</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.thoughtworks.qdox</groupId>
+      <artifactId>qdox</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>java3d</groupId>
+      <artifactId>vecmath</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>me.tongfei</groupId>
+      <artifactId>progressbar</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>openchart</groupId>
+      <artifactId>openchart</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-exec</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>fontbox</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox-io</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>fop-core</artifactId>
+      <artifactId>batik-anim</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.xmlgraphics</groupId>
+          <artifactId>batik-shared-resources</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-awt-util</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-bridge</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-codec</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-constants</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-css</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-dom</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-ext</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-extension</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-gvt</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-i18n</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-parser</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-script</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-svg-dom</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-svggen</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-transcoder</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
@@ -22,146 +292,14 @@
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-script</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-exec</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis-ext</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox-io</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.jumpmind.symmetric</groupId>
-      <artifactId>symmetric-csv</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>fontbox</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>pl.poznan.put</groupId>
-      <artifactId>BioCommons</artifactId>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.xmlgraphics</groupId>
-          <artifactId>fop</artifactId>
-        </exclusion>
-      </exclusions>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-csv</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>biojava-core</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.msgpack</groupId>
-      <artifactId>jackson-dataformat-msgpack</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>biojava-structure</artifactId>
+      <artifactId>batik-xml</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-anim</artifactId>
+      <artifactId>fop-core</artifactId>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.xmlgraphics</groupId>
-          <artifactId>batik-shared-resources</artifactId>
-        </exclusion>
-      </exclusions>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.rcsb</groupId>
-      <artifactId>mmtf-codec</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <scope>runtime</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.jheaps</groupId>
-      <artifactId>jheaps</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>txw2</artifactId>
-      <scope>runtime</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
@@ -171,14 +309,8 @@
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>com.github.slugify</groupId>
-      <artifactId>slugify</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>fop-util</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
@@ -189,62 +321,32 @@
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-i18n</artifactId>
+      <groupId>org.biojava</groupId>
+      <artifactId>biojava-alignment</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j2-impl</artifactId>
-      <scope>runtime</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>pl.poznan.put</groupId>
-      <artifactId>mcq-core</artifactId>
+      <groupId>org.biojava</groupId>
+      <artifactId>biojava-core</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.jline</groupId>
-      <artifactId>jline-terminal</artifactId>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jline</groupId>
-          <artifactId>jline-native</artifactId>
-        </exclusion>
-      </exclusions>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-dom</artifactId>
+      <groupId>org.biojava</groupId>
+      <artifactId>biojava-structure</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.biojava</groupId>
+      <artifactId>jcolorbrewer</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>com.google.errorprone</groupId>
-      <artifactId>error_prone_annotations</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-ext</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>pl.poznan.put</groupId>
-      <artifactId>mcq-clustering</artifactId>
+      <groupId>org.biojava.thirdparty</groupId>
+      <artifactId>forester</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
@@ -255,86 +357,38 @@
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>me.tongfei</groupId>
-      <artifactId>progressbar</artifactId>
+      <groupId>org.jheaps</groupId>
+      <artifactId>jheaps</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <scope>provided</scope>
+      <groupId>org.jline</groupId>
+      <artifactId>jline-terminal</artifactId>
+      <scope>compile</scope>
       <optional>false</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jline</groupId>
+          <artifactId>jline-native</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.angus</groupId>
-      <artifactId>angus-activation</artifactId>
-      <scope>runtime</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
+      <groupId>org.jumpmind.symmetric</groupId>
+      <artifactId>symmetric-csv</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-collections4</artifactId>
+      <groupId>org.msgpack</groupId>
+      <artifactId>jackson-dataformat-msgpack</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-bridge</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.istack</groupId>
-      <artifactId>istack-commons-runtime</artifactId>
-      <scope>runtime</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-constants</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-parser</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-css</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
+      <groupId>org.msgpack</groupId>
+      <artifactId>msgpack-core</artifactId>
       <scope>compile</scope>
       <optional>false</optional>
     </dependency>
@@ -345,9 +399,105 @@
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-svggen</artifactId>
+      <groupId>org.rcsb</groupId>
+      <artifactId>mmtf-api</artifactId>
       <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.rcsb</groupId>
+      <artifactId>mmtf-codec</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.rcsb</groupId>
+      <artifactId>mmtf-serialization</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>pl.poznan.put</groupId>
+      <artifactId>BioCommons</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.xmlgraphics</groupId>
+          <artifactId>fop</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>pl.poznan.put</groupId>
+      <artifactId>mcq-clustering</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>pl.poznan.put</groupId>
+      <artifactId>mcq-core</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis-ext</artifactId>
+      <scope>compile</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.immutables</groupId>
+      <artifactId>value</artifactId>
+      <scope>provided</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.istack</groupId>
+      <artifactId>istack-commons-runtime</artifactId>
+      <scope>runtime</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <scope>runtime</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <scope>runtime</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
+      <scope>runtime</scope>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.angus</groupId>
+      <artifactId>angus-activation</artifactId>
+      <scope>runtime</scope>
       <optional>false</optional>
     </dependency>
     <dependency>
@@ -363,159 +513,9 @@
       <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>org.immutables</groupId>
-      <artifactId>value</artifactId>
-      <scope>provided</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.biojava.thirdparty</groupId>
-      <artifactId>forester</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>txw2</artifactId>
       <scope>runtime</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.msgpack</groupId>
-      <artifactId>msgpack-core</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-awt-util</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>openchart</groupId>
-      <artifactId>openchart</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.activation</groupId>
-      <artifactId>jakarta.activation-api</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>jcolorbrewer</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>java3d</groupId>
-      <artifactId>vecmath</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-extension</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.rcsb</groupId>
-      <artifactId>mmtf-api</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>commons-cli</groupId>
-      <artifactId>commons-cli</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.rcsb</groupId>
-      <artifactId>mmtf-serialization</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-gvt</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-codec</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.biojava</groupId>
-      <artifactId>biojava-alignment</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-xml</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.thoughtworks.qdox</groupId>
-      <artifactId>qdox</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-transcoder</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.github.tzok</groupId>
-      <artifactId>varna-tz</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-svg-dom</artifactId>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>fop-util</artifactId>
-      <scope>compile</scope>
       <optional>false</optional>
     </dependency>
   </dependencies>
