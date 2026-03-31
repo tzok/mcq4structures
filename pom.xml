@@ -13,13 +13,26 @@
   </modules>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <batik.version>1.19</batik.version>
+    <xmlgraphics.version>2.11</xmlgraphics.version>
+    <biojava.version>7.2.4</biojava.version>
+    <jcolorbrewer.version>5.2</jcolorbrewer.version>
+    <forester.version>1.039</forester.version>
+    <log4j.version>2.23.1</log4j.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <logback.version>1.5.32</logback.version>
+    <jaxb.version>4.0.3</jaxb.version>
+    <msgpack.version>0.8.24</msgpack.version>
+    <mmtf.version>1.0.11</mmtf.version>
+    <jackson.version>2.20.0</jackson.version>
+    <bytebuddy.version>1.17.7</bytebuddy.version>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.32</version>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>com.github.slugify</groupId>
@@ -94,32 +107,32 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-anim</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-svggen</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-swing</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-util</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.biojava</groupId>
         <artifactId>biojava-structure</artifactId>
-        <version>7.2.4</version>
+        <version>${biojava.version}</version>
       </dependency>
       <dependency>
         <groupId>org.biojava</groupId>
         <artifactId>jcolorbrewer</artifactId>
-        <version>5.2</version>
+        <version>${jcolorbrewer.version}</version>
       </dependency>
       <dependency>
         <groupId>org.immutables</groupId>
@@ -144,12 +157,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>2.0.17</version>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>2.0.17</version>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
@@ -204,7 +217,7 @@
       <dependency>
         <groupId>org.rcsb</groupId>
         <artifactId>mmtf-codec</artifactId>
-        <version>1.0.11</version>
+        <version>${mmtf.version}</version>
       </dependency>
       <dependency>
         <groupId>pl.poznan.put</groupId>
@@ -219,17 +232,17 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-gui-util</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop-core</artifactId>
-        <version>2.11</version>
+        <version>${xmlgraphics.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-script</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>xml-apis</groupId>
@@ -269,42 +282,42 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
-        <version>2.23.1</version>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>txw2</artifactId>
-        <version>4.0.3</version>
+        <version>${jaxb.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop-events</artifactId>
-        <version>2.11</version>
+        <version>${xmlgraphics.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>xmlgraphics-commons</artifactId>
-        <version>2.11</version>
+        <version>${xmlgraphics.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-i18n</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-slf4j2-impl</artifactId>
-        <version>2.23.1</version>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-dom</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-ext</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.angus</groupId>
@@ -319,7 +332,7 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-bridge</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>com.sun.istack</groupId>
@@ -329,12 +342,12 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-constants</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-parser</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -349,42 +362,42 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-css</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>2.20</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-core</artifactId>
-        <version>4.0.3</version>
+        <version>${jaxb.version}</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-runtime</artifactId>
-        <version>4.0.3</version>
+        <version>${jaxb.version}</version>
       </dependency>
       <dependency>
         <groupId>org.biojava.thirdparty</groupId>
         <artifactId>forester</artifactId>
-        <version>1.039</version>
+        <version>${forester.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <version>2.23.1</version>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.msgpack</groupId>
         <artifactId>msgpack-core</artifactId>
-        <version>0.8.24</version>
+        <version>${msgpack.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-awt-util</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.code.findbugs</groupId>
@@ -404,32 +417,32 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-extension</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.rcsb</groupId>
         <artifactId>mmtf-api</artifactId>
-        <version>1.0.11</version>
+        <version>${mmtf.version}</version>
       </dependency>
       <dependency>
         <groupId>org.rcsb</groupId>
         <artifactId>mmtf-serialization</artifactId>
-        <version>1.0.11</version>
+        <version>${mmtf.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-gvt</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-codec</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-xml</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>com.thoughtworks.qdox</groupId>
@@ -439,7 +452,7 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-transcoder</artifactId>
-        <version>1.19</version>
+        <version>${batik.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
@@ -449,12 +462,12 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop-util</artifactId>
-        <version>2.11</version>
+        <version>${xmlgraphics.version}</version>
       </dependency>
       <dependency>
         <groupId>org.biojava</groupId>
         <artifactId>biojava-core</artifactId>
-        <version>7.2.4</version>
+        <version>${biojava.version}</version>
       </dependency>
       <dependency>
         <groupId>org.jheaps</groupId>
@@ -469,7 +482,7 @@
       <dependency>
         <groupId>org.biojava</groupId>
         <artifactId>biojava-alignment</artifactId>
-        <version>7.2.4</version>
+        <version>${biojava.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -489,32 +502,32 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>2.20.0</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.20.0</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>org.msgpack</groupId>
         <artifactId>jackson-dataformat-msgpack</artifactId>
-        <version>0.8.24</version>
+        <version>${msgpack.version}</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
-        <version>1.5.32</version>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.17.7</version>
+        <version>${bytebuddy.version}</version>
       </dependency>
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-agent</artifactId>
-        <version>1.17.7</version>
+        <version>${bytebuddy.version}</version>
       </dependency>
       <dependency>
         <groupId>org.objenesis</groupId>
