@@ -411,7 +411,7 @@
       <dependency>
         <groupId>org.jline</groupId>
         <artifactId>jline-terminal</artifactId>
-        <version>3.29.0</version>
+        <version>4.0.14</version>
       </dependency>
       <dependency>
         <groupId>org.jumpmind.symmetric</groupId>
