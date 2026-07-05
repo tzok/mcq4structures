@@ -20,7 +20,7 @@
     <jackson3.version>3.2.0</jackson3.version>
     <jaxb.version>4.0.7</jaxb.version>
     <jcolorbrewer.version>5.2</jcolorbrewer.version>
-    <log4j.version>2.25.4</log4j.version>
+    <log4j.version>2.26.1</log4j.version>
     <logback.version>1.5.33</logback.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
