@@ -17,7 +17,7 @@
     <bytebuddy.version>1.18.8</bytebuddy.version>
     <forester.version>1.039</forester.version>
     <jackson2.version>2.20</jackson2.version>
-    <jackson3.version>3.2.0</jackson3.version>
+    <jackson3.version>3.2.1</jackson3.version>
     <jaxb.version>4.0.7</jaxb.version>
     <jcolorbrewer.version>5.2</jcolorbrewer.version>
     <log4j.version>2.26.1</log4j.version>
