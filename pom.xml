@@ -21,7 +21,7 @@
     <jaxb.version>4.0.7</jaxb.version>
     <jcolorbrewer.version>5.2</jcolorbrewer.version>
     <log4j.version>2.26.1</log4j.version>
-    <logback.version>1.5.37</logback.version>
+    <logback.version>1.5.38</logback.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <mmtf.version>1.0.11</mmtf.version>
