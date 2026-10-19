@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
 title: "mcq4structures: analysis and comparison of 3D structures in torsion angle space"
-version: 1.8.6
+version: 1.8.7
 date-released: "2026-03-11"
 license: MIT
 identifiers:
@@ -19,3 +19,23 @@ authors:
   - family-names: Szachniuk
     given-names: Marta
     orcid: "https://orcid.org/0000-0002-8724-7908"
+preferred-citation:
+  type: article
+  title: "MCQ4Structures to compute similarity of molecule structures"
+  authors:
+    - family-names: Zok
+      given-names: Tomasz
+      orcid: "https://orcid.org/0000-0003-4103-9238"
+    - family-names: Popenda
+      given-names: Mariusz
+      orcid: "https://orcid.org/0000-0001-9965-0430"
+    - family-names: Szachniuk
+      given-names: Marta
+      orcid: "https://orcid.org/0000-0002-8724-7908"
+  journal: "Central European Journal of Operations Research"
+  volume: 22
+  issue: 3
+  start: 457
+  end: 473
+  year: 2014
+  doi: "10.1007/s10100-013-0296-5"

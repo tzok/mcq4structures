@@ -38,3 +38,7 @@ This project consists of a few subprojets:
 - Use `pl.poznan.put.clustering.hierarchical.Clusterer` to construct dendrograms from a distance matrix (with `COMPLETE`, `SINGLE` or `AVERAGE` linkage option)
 - Use `pl.poznan.put.clustering.partitional.KMedoids` to perform partitional clustering based on distance matrix
 - Use `pl.poznan.put.clustering.partitional.KScanner#parallelScan` to find optimum number of clusters with respect to silhouette score
+
+## Funding
+
+This work was supported by the National Science Centre, Poland (Narodowe Centrum Nauki) under grant No. 2023/51/D/ST6/01207, "Exploring Multiple Loop Motifs in RNA Structures".
