@@ -12,7 +12,7 @@
     <module>mcq-gui</module>
   </modules>
   <properties>
-    <batik.version>1.19</batik.version>
+    <batik.version>1.20</batik.version>
     <biojava.version>7.3.0</biojava.version>
     <bytebuddy.version>1.18.15</bytebuddy.version>
     <forester.version>1.039</forester.version>
